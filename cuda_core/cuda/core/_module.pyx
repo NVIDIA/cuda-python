@@ -8,7 +8,6 @@ from libc.stddef cimport size_t
 
 import functools
 import threading
-import weakref
 from collections import namedtuple
 
 from cuda.core._device import Device
@@ -21,7 +20,7 @@ from cuda.core._resource_handles cimport (
     create_library_handle_from_file,
     create_library_handle_from_data,
     create_library_handle_ref,
-    get_kernel_from_library,
+    create_kernel_handle,
     create_kernel_handle_ref,
     get_last_error,
     as_cu,
@@ -139,15 +138,15 @@ cdef inline LibraryHandle _make_empty_library_handle():
 
 
 cdef class KernelAttributes:
-    """Provides access to kernel attributes. Uses weakref to avoid preventing Kernel GC."""
+    """Provides access to kernel attributes."""
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
-    @classmethod
-    def _init(cls, kernel):
-        cdef KernelAttributes self = KernelAttributes.__new__(cls)
-        self._kernel_weakref = weakref.ref(kernel)
+    @staticmethod
+    cdef KernelAttributes _init(KernelHandle h_kernel):
+        cdef KernelAttributes self = KernelAttributes.__new__(KernelAttributes)
+        self._h_kernel = h_kernel
         self._cache = {}
         _lazy_init()
         return self
@@ -158,12 +157,9 @@ cdef class KernelAttributes:
         cached = self._cache.get(cache_key, cache_key)
         if cached is not cache_key:
             return cached
-        cdef Kernel kernel = <Kernel>(self._kernel_weakref())
-        if kernel is None:
-            raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
         cdef int result
         with nogil:
-            HANDLE_RETURN(cydriver.cuKernelGetAttribute(&result, attribute, as_cu(kernel._h_kernel), device_id))
+            HANDLE_RETURN(cydriver.cuKernelGetAttribute(&result, attribute, as_cu(self._h_kernel), device_id))
         self._cache[cache_key] = result
         return result
 
@@ -496,10 +492,9 @@ cdef class Kernel:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
-    cdef Kernel _from_obj(KernelHandle h_kernel, ObjectCode mod):
+    cdef Kernel _from_obj(KernelHandle h_kernel):
         cdef Kernel ker = Kernel.__new__(Kernel)
         ker._h_kernel = h_kernel
-        ker._module = mod
         ker._attributes = None
         ker._occupancy = None
         return ker
@@ -508,7 +503,7 @@ cdef class Kernel:
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
         if self._attributes is None:
-            self._attributes = KernelAttributes._init(self)
+            self._attributes = KernelAttributes._init(self._h_kernel)
         return self._attributes
 
     cdef tuple _get_arguments_info(self, bint param_info=False):
@@ -607,7 +602,7 @@ cdef class Kernel:
         if not h_kernel:
             HANDLE_RETURN(get_last_error())
 
-        return Kernel._from_obj(h_kernel, mod)
+        return Kernel._from_obj(h_kernel)
 
 
 CodeTypeT = bytes | bytearray | str
@@ -811,10 +806,10 @@ cdef class ObjectCode:
         except KeyError:
             name = name.encode()
 
-        cdef KernelHandle h_kernel = get_kernel_from_library(self._h_library, <const char*>name)
+        cdef KernelHandle h_kernel = create_kernel_handle(self._h_library, <const char*>name)
         if not h_kernel:
             HANDLE_RETURN(get_last_error())
-        return Kernel._from_obj(h_kernel, self)
+        return Kernel._from_obj(h_kernel)
 
     @property
     def code(self) -> CodeTypeT:

@@ -109,6 +109,6 @@ cdef LibraryHandle create_library_handle_from_data(const void* data) nogil excep
 cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) nogil except+
 
 # Kernel handles
-cdef KernelHandle get_kernel_from_library(LibraryHandle h_library, const char* name) nogil except+
+cdef KernelHandle create_kernel_handle(LibraryHandle h_library, const char* name) nogil except+
 cdef KernelHandle create_kernel_handle_ref(
     cydriver.CUkernel kernel, LibraryHandle h_library) nogil except+

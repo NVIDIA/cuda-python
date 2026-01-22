@@ -14,13 +14,11 @@ cdef class KernelAttributes
 cdef class Kernel:
     cdef:
         KernelHandle _h_kernel
-        ObjectCode _module  # ObjectCode reference
         KernelAttributes _attributes  # lazy
         KernelOccupancy _occupancy  # lazy
-        object __weakref__  # Enable weak references
 
     @staticmethod
-    cdef Kernel _from_obj(KernelHandle h_kernel, ObjectCode mod)
+    cdef Kernel _from_obj(KernelHandle h_kernel)
 
     cdef tuple _get_arguments_info(self, bint param_info=*)
 
@@ -46,8 +44,11 @@ cdef class KernelOccupancy:
 
 cdef class KernelAttributes:
     cdef:
-        object _kernel_weakref
+        KernelHandle _h_kernel
         dict _cache
+
+    @staticmethod
+    cdef KernelAttributes _init(KernelHandle h_kernel)
 
     cdef int _get_cached_attribute(self, int device_id, cydriver.CUfunction_attribute attribute) except? -1
     cdef int _resolve_device_id(self, device_id) except? -1

@@ -254,7 +254,7 @@ LibraryHandle create_library_handle_ref(CUlibrary library);
 // The kernel structurally depends on the provided library handle.
 // Kernels have no explicit destroy - their lifetime is tied to the library.
 // Returns empty handle on error (caller must check).
-KernelHandle get_kernel_from_library(LibraryHandle h_library, const char* name);
+KernelHandle create_kernel_handle(LibraryHandle h_library, const char* name);
 
 // Create a non-owning kernel handle with library dependency.
 // Use for borrowed kernels. The library handle keeps the library alive.

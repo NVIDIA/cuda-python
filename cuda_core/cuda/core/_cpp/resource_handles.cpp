@@ -749,7 +749,7 @@ struct KernelBox {
 };
 }  // namespace
 
-KernelHandle get_kernel_from_library(LibraryHandle h_library, const char* name) {
+KernelHandle create_kernel_handle(LibraryHandle h_library, const char* name) {
     GILReleaseGuard gil;
     CUkernel kernel;
     if (CUDA_SUCCESS != (err = p_cuLibraryGetKernel(&kernel, *h_library, name))) {
