@@ -4,7 +4,7 @@
 
 # ruff: noqa: E402
 
-from .conftest import skip_if_nvml_unsupported
+from .conftest import skip_if_nvml_unsupported, unsupported_before
 
 pytestmark = skip_if_nvml_unsupported
 
@@ -12,7 +12,7 @@ import array
 import multiprocessing
 import os
 import re
-import sys
+import warnings
 
 import helpers
 import pytest
@@ -20,7 +20,7 @@ from cuda.core import system
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
-    from cuda.core.system import _device
+    from cuda.core.system import DeviceArch, _device
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -29,24 +29,54 @@ def check_gpu_available():
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 
+def test_devices_are_the_same_architecture():
+    # The tests in this directory that use `unsupported_before` will generally
+    # skip the entire test after the first device that isn't supported is found.
+    # This means that if subsequent devices are of a different architecture,
+    # they won't be tested properly.  This tests for the (hopefully rare) case
+    # where a system has devices of different architectures and produces a warning.
+
+    all_arches = set(device.arch for device in system.Device.get_all_devices())
+
+    if len(all_arches) > 1:
+        warnings.warn(  # noqa: B028
+            f"System has devices of multiple architectures ({', '.join(x.name for x in all_arches)}). "
+            f" Some tests may be skipped unexpectedly",
+            UserWarning,
+        )
+
+
 def test_device_count():
     assert system.Device.get_device_count() == system.get_num_devices()
 
 
+def test_to_cuda_device():
+    from cuda.core import Device as CudaDevice
+
+    for device in system.Device.get_all_devices():
+        cuda_device = device.to_cuda_device()
+
+        assert isinstance(cuda_device, CudaDevice)
+        assert cuda_device.uuid == device.uuid
+
+        # Technically, this test will only work with PCI devices, but are there
+        # non-PCI devices we need to support?
+
+        # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
+        # 4-byte domain
+        assert cuda_device.pci_bus_id == device.pci_info.bus_id[4:]
+
+
 def test_device_architecture():
     for device in system.Device.get_all_devices():
-        device_arch = device.architecture
-
-        assert isinstance(device_arch, system.DeviceArchitecture)
-        if sys.version_info < (3, 12):
-            assert device_arch.id in nvml.DeviceArch.__members__.values()
-        else:
-            assert device_arch.id in nvml.DeviceArch
+        device_arch = device.arch
+        assert isinstance(device_arch, system.DeviceArch)
 
 
 def test_device_bar1_memory():
     for device in system.Device.get_all_devices():
-        bar1_memory_info = device.bar1_memory_info
+        with unsupported_before(device, DeviceArch.KEPLER):
+            bar1_memory_info = device.bar1_memory_info
         free, total, used = (
             bar1_memory_info.free,
             bar1_memory_info.total,
@@ -66,54 +96,32 @@ def test_device_bar1_memory():
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_cpu_affinity():
-    skip_reasons = set()
     for device in system.Device.get_all_devices():
-        try:
+        with unsupported_before(device, DeviceArch.KEPLER):
             affinity = device.get_cpu_affinity(system.AffinityScope.NODE)
-        except system.NotSupportedError:
-            skip_reasons.add(f"CPU affinity not supported on '{device.name}'")
-        else:
-            assert isinstance(affinity, list)
-            os.sched_setaffinity(0, affinity)
-            assert os.sched_getaffinity(0) == set(affinity)
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
+        assert isinstance(affinity, list)
+        os.sched_setaffinity(0, affinity)
+        assert os.sched_getaffinity(0) == set(affinity)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_affinity():
-    skip_reasons = set()
     for device in system.Device.get_all_devices():
         for scope in (system.AffinityScope.NODE, system.AffinityScope.SOCKET):
-            try:
+            with unsupported_before(device, DeviceArch.KEPLER):
                 affinity = device.get_cpu_affinity(scope)
-            except system.NotSupportedError:
-                skip_reasons.add(f"CPU affinity not supported on '{device.name}'")
-            else:
-                assert isinstance(affinity, list)
+            assert isinstance(affinity, list)
 
-            try:
-                affinity = device.get_memory_affinity(scope)
-            except system.NotSupportedError:
-                skip_reasons.add(f"Memory affinity not supported on '{device.name}'")
-            else:
-                assert isinstance(affinity, list)
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
+            affinity = device.get_memory_affinity(scope)
+            assert isinstance(affinity, list)
 
 
 def test_numa_node_id():
-    skip_reasons = set()
     for device in system.Device.get_all_devices():
-        try:
+        with unsupported_before(device, None):
             numa_node_id = device.numa_node_id
-        except system.NotSupportedError:
-            skip_reasons.add(f"NUMA node ID not supported by device '{device.name}'")
-        else:
-            assert isinstance(numa_node_id, int)
-            assert numa_node_id >= -1
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
+        assert isinstance(numa_node_id, int)
+        assert numa_node_id >= -1
 
 
 def test_device_cuda_compute_capability():
@@ -210,18 +218,11 @@ def test_device_pci_info():
 
 
 def test_device_serial():
-    skip_reasons = set()
     for device in system.Device.get_all_devices():
-        try:
+        with unsupported_before(device, "HAS_INFOROM"):
             serial = device.serial
-        except system.NotSupportedError:
-            skip_reasons.add(f"Device serial not supported by device '{device.name}'")
-        else:
-            assert isinstance(serial, str)
-            assert len(serial) > 0
-
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
+        assert isinstance(serial, str)
+        assert len(serial) > 0
 
 
 def test_device_uuid():
@@ -309,14 +310,11 @@ def test_device_pci_bus_id():
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_attributes():
-    skip_reasons = []
-
     for device in system.Device.get_all_devices():
-        try:
+        # Docs say this should work on AMPERE or newer, but experimentally
+        # that's not the case.
+        with unsupported_before(device, None):
             attributes = device.attributes
-        except system.NotSupportedError:
-            skip_reasons.append(f"Device attributes not supported on '{device.name}'")
-            continue
         assert isinstance(attributes, system.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
@@ -332,21 +330,12 @@ def test_device_attributes():
         assert isinstance(attributes.memory_size_mb, int)
         assert attributes.memory_size_mb > 0
 
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
-
 
 def test_c2c_mode_enabled():
-    skip_reasons = set()
     for device in system.Device.get_all_devices():
-        try:
+        with unsupported_before(device, None):
             is_enabled = device.is_c2c_mode_enabled
-        except nvml.NotSupportedError:
-            skip_reasons.add(f"C2C mode info not supported on {device}")
-        else:
-            assert isinstance(is_enabled, bool)
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
+        assert isinstance(is_enabled, bool)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
@@ -365,8 +354,6 @@ def test_persistence_mode_enabled():
 
 
 def test_field_values():
-    skip_reasons = set()
-
     for device in system.Device.get_all_devices():
         # TODO: Are there any fields that return double's?  It would be good to
         # test those.
@@ -376,12 +363,8 @@ def test_field_values():
             system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
         ]
         field_values = device.get_field_values(field_ids)
-
-        try:
+        with unsupported_before(device, None):
             field_values.validate()
-        except system.NotSupportedError:
-            skip_reasons.add(f"Field values {field_ids} not supported on '{device.name}'")
-            continue
 
         with pytest.raises(TypeError):
             field_values["invalid_index"]
@@ -418,20 +401,15 @@ def test_field_values():
         assert len(field_values) == 1
         assert field_values[0].value <= old_value
 
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))
-
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_get_all_devices_with_cpu_affinity():
-    try:
-        for i in range(multiprocessing.cpu_count()):
-            for device in system.Device.get_all_devices_with_cpu_affinity(i):
+    for i in range(multiprocessing.cpu_count()):
+        for device in system.Device.get_all_devices_with_cpu_affinity(i):
+            with unsupported_before(device, DeviceArch.KEPLER):
                 affinity = device.get_cpu_affinity()
-                assert isinstance(affinity, list)
-                assert i in affinity
-    except system.NotSupportedError:
-        pytest.skip("Getting devices with CPU affinity not supported")
+            assert isinstance(affinity, list)
+            assert i in affinity
 
 
 def test_index():
@@ -450,11 +428,10 @@ def test_module_id():
 
 def test_addressing_mode():
     for device in system.Device.get_all_devices():
-        try:
+        # By docs, should be supported on TURING or newer, but experimentally,
+        # is also unsupported on other hardware.
+        with unsupported_before(device, None):
             addressing_mode = device.addressing_mode
-        except system.NotSupportedError:
-            pytest.skip(f"Device addressing mode not supported by device '{device.name}'")
-            continue
         assert isinstance(addressing_mode, system.AddressingMode)
 
 
@@ -469,7 +446,10 @@ def test_display_mode():
 
 def test_repair_status():
     for device in system.Device.get_all_devices():
-        repair_status = device.repair_status
+        # By docs, should be supported on AMPERE or newer, but experimentally,
+        # this seems to also work on some TURING systems.
+        with unsupported_before(device, None):
+            repair_status = device.repair_status
         assert isinstance(repair_status, system.RepairStatus)
 
         assert isinstance(repair_status.channel_repair_pending, bool)
@@ -526,7 +506,8 @@ def test_get_minor_number():
 
 def test_get_inforom_version():
     for device in system.Device.get_all_devices():
-        inforom = device.inforom
+        with unsupported_before(device, "HAS_INFOROM"):
+            inforom = device.inforom
 
         inforom_image_version = inforom.image_version
         assert isinstance(inforom_image_version, str)
@@ -550,55 +531,35 @@ def test_get_inforom_version():
             assert isinstance(duration_us, int)
             assert duration_us > 0
 
-        try:
+        with unsupported_before(device, "HAS_INFOROM"):
             board_part_number = inforom.board_part_number
-        except system.NotSupportedError:
-            pass
-        else:
-            assert isinstance(board_part_number, str)
-            assert len(board_part_number) > 0
+        assert isinstance(board_part_number, str)
+        assert len(board_part_number) > 0
 
         inforom.validate()
 
 
+def test_auto_boosted_clocks_enabled():
+    for device in system.Device.get_all_devices():
+        # This API is supported on KEPLER and newer, but it also seems
+        # unsupported elsewhere.
+        with unsupported_before(device, None):
+            current, default = device.get_auto_boosted_clocks_enabled()
+        assert isinstance(current, bool)
+        assert isinstance(default, bool)
+
+
 def test_clock():
     for device in system.Device.get_all_devices():
-        try:
-            current, default = device.get_auto_boosted_clocks_enabled()
-        except system.NotSupportedError:
-            pass
-        else:
-            assert isinstance(current, bool)
-            assert isinstance(default, bool)
-
         for clock_type in system.ClockType:
             clock = device.clock(clock_type)
             assert isinstance(clock, system.ClockInfo)
 
-            try:
-                current_mhz = clock.get_current_mhz()
-            except system.NotSupportedError:
-                continue
-            assert isinstance(current_mhz, int)
-            assert current_mhz >= 0
+            # These are ordered from oldest API to newest API so we test as much
+            # as we can on each hardware architecture.
 
-            current_mhz = clock.get_current_mhz(system.ClockId.CURRENT)
-            assert isinstance(current_mhz, int)
-            assert current_mhz >= 0
-
-            max_mhz = clock.get_max_mhz()
-            assert isinstance(max_mhz, int)
-            assert max_mhz >= 0
-
-            try:
-                max_customer_boost = clock.get_max_customer_boost_mhz()
-            except system.NotSupportedError:
-                pass
-            else:
-                assert isinstance(max_customer_boost, int)
-                assert max_customer_boost >= 0
-
-            pstate = device.performance_state
+            with unsupported_before(device, "FERMI"):
+                pstate = device.performance_state
 
             min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
             assert isinstance(min_, int)
@@ -606,14 +567,35 @@ def test_clock():
             assert isinstance(max_, int)
             assert max_ >= 0
 
-            try:
-                offsets = clock.get_offsets(pstate)
-            except system.InvalidArgumentError:
-                offsets = system.ClockOffsets(nvml.ClockOffset_v1())
-            assert isinstance(offsets, system.ClockOffsets)
-            assert isinstance(offsets.clock_offset_mhz, int)
-            assert isinstance(offsets.max_offset_mhz, int)
-            assert isinstance(offsets.min_offset_mhz, int)
+            with unsupported_before(device, "FERMI"):
+                max_mhz = clock.get_max_mhz()
+            assert isinstance(max_mhz, int)
+            assert max_mhz >= 0
+
+            with unsupported_before(device, DeviceArch.KEPLER):
+                current_mhz = clock.get_current_mhz()
+            assert isinstance(current_mhz, int)
+            assert current_mhz >= 0
+
+            # Docs say this should work on PASCAL or newer, but experimentally,
+            # is also unsupported on other hardware.
+            with unsupported_before(device, DeviceArch.MAXWELL):
+                try:
+                    offsets = clock.get_offsets(pstate)
+                except system.InvalidArgumentError:
+                    pass
+                else:
+                    assert isinstance(offsets, system.ClockOffsets)
+                    assert isinstance(offsets.clock_offset_mhz, int)
+                    assert isinstance(offsets.max_offset_mhz, int)
+                    assert isinstance(offsets.min_offset_mhz, int)
+
+            # By docs, should be supported on PASCAL or newer, but experimentally,
+            # is also unsupported on other hardware.
+            with unsupported_before(device, None):
+                max_customer_boost = clock.get_max_customer_boost_mhz()
+            assert isinstance(max_customer_boost, int)
+            assert max_customer_boost >= 0
 
 
 def test_clock_event_reasons():
@@ -627,6 +609,11 @@ def test_clock_event_reasons():
 
 def test_fan():
     for device in system.Device.get_all_devices():
+        # The fan APIs are only supported on discrete devices with fans,
+        # but when they are not available `device.num_fans` returns 0.
+        if device.num_fans == 0:
+            pytest.skip("Device has no fans to test")
+
         for fan_idx in range(device.num_fans):
             fan_info = device.fan(fan_idx)
             assert isinstance(fan_info, system.FanInfo)
@@ -662,10 +649,13 @@ def test_fan():
 
 def test_cooler():
     for device in system.Device.get_all_devices():
-        try:
+        # The cooler APIs are only supported on discrete devices with fans,
+        # but when they are not available `device.num_fans` returns 0.
+        if device.num_fans == 0:
+            pytest.skip("Device has no coolers to test")
+
+        with unsupported_before(device, DeviceArch.MAXWELL):
             cooler_info = device.cooler
-        except system.NotSupportedError:
-            pytest.skip("CoolerInfo not supported on this device")
 
         assert isinstance(cooler_info, system.CoolerInfo)
 
@@ -685,24 +675,21 @@ def test_temperature():
         assert isinstance(sensor, int)
         assert sensor >= 0
 
-        for threshold in list(system.TemperatureThresholds)[:-1]:
-            try:
+        # By docs, should be supported on KEPLER or newer, but experimentally,
+        # is also unsupported on other hardware.
+        with unsupported_before(device, None):
+            for threshold in list(system.TemperatureThresholds)[:-1]:
                 t = temperature.threshold(threshold)
-            except system.NotSupportedError:
-                continue
-            else:
                 assert isinstance(t, int)
                 assert t >= 0
 
-        try:
+        with unsupported_before(device, None):
             margin = temperature.margin
-        except system.NotSupportedError:
-            pass
-        else:
-            assert isinstance(margin, int)
-            assert margin >= 0
+        assert isinstance(margin, int)
+        assert margin >= 0
 
-        thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
+        with unsupported_before(device, None):
+            thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
         assert isinstance(thermals, system.ThermalSettings)
 
         for i, sensor in enumerate(thermals):

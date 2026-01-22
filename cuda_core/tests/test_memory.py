@@ -1240,3 +1240,28 @@ def test_graph_memory_resource_object(init_cuda):
     # These objects are interned.
     assert gmr1 is gmr2 is gmr3
     assert gmr1 == gmr2 == gmr3
+
+
+def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
+    MR, MROps = memory_resource_factory
+
+    device = Device()
+    device.set_current()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+        mr = MR()
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
+        mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
+    else:
+        assert MR is DeviceMemoryResource
+        mr = MR(device)
+
+    buffer = mr.allocate(0)
+    device.sync()
+    assert buffer.handle >= 0
+    assert buffer.size == 0
+    assert buffer.device_id == mr.device_id
