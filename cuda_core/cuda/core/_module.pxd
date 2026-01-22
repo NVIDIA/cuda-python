@@ -33,9 +33,6 @@ cdef class ObjectCode:
         dict _sym_map
         str _name
 
-    @staticmethod
-    cdef ObjectCode _init(object module, str code_type, str name=*, dict symbol_mapping=*)
-
     cdef int _lazy_load_module(self) except -1
 
 

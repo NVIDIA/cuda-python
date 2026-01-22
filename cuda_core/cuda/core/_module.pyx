@@ -594,7 +594,7 @@ cdef class Kernel:
 
         # If no module provided, create a placeholder and try to get the library
         if mod is None:
-            mod = ObjectCode._init(b"", "cubin", "", None)
+            mod = ObjectCode._init(b"", "cubin")
             if _is_cukernel_get_library_supported():
                 # Try to get the owning library via cuKernelGetLibrary
                 with nogil:
@@ -634,8 +634,8 @@ cdef class ObjectCode:
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
-    @staticmethod
-    cdef ObjectCode _init(object module, str code_type, str name = "", dict symbol_mapping = None):
+    @classmethod
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
         assert code_type in _supported_code_type, f"{code_type=} is not supported"
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
@@ -646,19 +646,14 @@ cdef class ObjectCode:
         self._code_type = code_type
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
-        self._name = name
+        self._name = name if name else ""
 
         return self
 
     @classmethod
-    def _init_py(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
-        """Python-accessible factory method for use by _program.py and _linker.py."""
-        return ObjectCode._init(module, code_type, name if name else "", symbol_mapping)
-
-    @classmethod
     def _reduce_helper(cls, module, code_type, name, symbol_mapping):
         # just for forwarding kwargs
-        return ObjectCode._init(module, code_type, name if name else "", symbol_mapping)
+        return cls._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
 
     def __reduce__(self):
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
@@ -679,7 +674,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "cubin", name, symbol_mapping)
+        return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -697,7 +692,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ptx", name, symbol_mapping)
+        return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -715,7 +710,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ltoir", name, symbol_mapping)
+        return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -733,7 +728,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "fatbin", name, symbol_mapping)
+        return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -751,7 +746,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "object", name, symbol_mapping)
+        return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -769,7 +764,7 @@ cdef class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "library", name, symbol_mapping)
+        return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 

@@ -511,3 +511,56 @@ def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
 
     # All should reference the same underlying CUDA kernel handle
     assert int(kernel1.handle) == int(kernel2.handle) == int(kernel3.handle) == handle
+
+
+def test_kernel_keeps_library_alive(init_cuda):
+    """Test that a Kernel keeps its underlying library alive after ObjectCode goes out of scope."""
+    import gc
+
+    import numpy as np
+
+    def get_kernel_only():
+        """Return a kernel, letting ObjectCode go out of scope."""
+        code = """
+        extern "C" __global__ void write_value(int* out) {
+            if (threadIdx.x == 0 && blockIdx.x == 0) {
+                *out = 42;
+            }
+        }
+        """
+        program = Program(code, "c++")
+        object_code = program.compile("cubin")
+        kernel = object_code.get_kernel("write_value")
+        # ObjectCode goes out of scope here
+        return kernel
+
+    kernel = get_kernel_only()
+
+    # Force GC to ensure ObjectCode destructor runs
+    gc.collect()
+
+    # Kernel should still be valid
+    assert kernel.handle is not None
+    assert kernel.num_arguments == 1
+
+    # Actually launch the kernel to prove library is still loaded
+    device = Device()
+    stream = device.create_stream()
+
+    # Allocate pinned host buffer and device buffer
+    pinned_mr = cuda.core.LegacyPinnedMemoryResource()
+    host_buf = pinned_mr.allocate(4)  # sizeof(int)
+    result = np.from_dlpack(host_buf).view(np.int32)
+    result[:] = 0
+
+    dev_buf = device.memory_resource.allocate(4)
+
+    # Launch kernel
+    config = cuda.core.LaunchConfig(grid=1, block=1)
+    cuda.core.launch(stream, config, kernel, dev_buf)
+
+    # Copy result back to host
+    dev_buf.copy_to(host_buf, stream=stream)
+    stream.sync()
+
+    assert result[0] == 42, f"Expected 42, got {result[0]}"
