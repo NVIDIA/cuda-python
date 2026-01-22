@@ -13,6 +13,7 @@ import sysconfig
 import tempfile
 from warnings import warn
 
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from Cython import Tempita
 from Cython.Build import cythonize
 from pyclibrary import CParser
@@ -22,8 +23,6 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.build_py import build_py
 from setuptools.command.editable_wheel import _TopLevelFinder, editable_wheel
 from setuptools.extension import Extension
-
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 
 # ----------------------------------------------------------------------
 # Fetch configuration options

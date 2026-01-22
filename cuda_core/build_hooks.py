@@ -32,7 +32,7 @@ def _get_cuda_paths() -> list[str]:
     Returns a list of paths for use in include_dirs and library_dirs.
     """
     from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
-    
+
     CUDA_PATH = get_cuda_home_or_path()
     if not CUDA_PATH:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
