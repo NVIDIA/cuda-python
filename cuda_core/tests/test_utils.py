@@ -345,7 +345,7 @@ def _get_ptr(array):
         for view_as in ["dlpack", "cai"]
     ],
 )
-def test_view_sliced_external(shape, slices, stride_order, view_as):
+def test_view_sliced_external(init_cuda, shape, slices, stride_order, view_as):
     if view_as == "dlpack":
         if np is None:
             pytest.skip("NumPy is not installed")
@@ -380,7 +380,7 @@ def test_view_sliced_external(shape, slices, stride_order, view_as):
     ("stride_order", "view_as"),
     [(stride_order, view_as) for stride_order in ["C", "F"] for view_as in ["dlpack", "cai"]],
 )
-def test_view_sliced_external_negative_offset(stride_order, view_as):
+def test_view_sliced_external_negative_offset(init_cuda, stride_order, view_as):
     shape = (5,)
     if view_as == "dlpack":
         if np is None:
@@ -422,7 +422,7 @@ def test_view_sliced_external_negative_offset(stride_order, view_as):
 )
 @pytest.mark.parametrize("shape", [(0,), (0, 0), (0, 0, 0)])
 @pytest.mark.parametrize("dtype", [np.int64, np.uint8, np.float64])
-def test_view_zero_size_array(api, shape, dtype):
+def test_view_zero_size_array(init_cuda, api, shape, dtype):
     cp = pytest.importorskip("cupy")
 
     x = cp.empty(shape, dtype=dtype)
@@ -446,7 +446,7 @@ def test_from_buffer_with_non_power_of_two_itemsize():
     assert view.dtype == dtype
 
 
-def test_struct_array():
+def test_struct_array(init_cuda):
     cp = pytest.importorskip("cupy")
 
     x = np.array([(1.0, 2), (2.0, 3)], dtype=[("array1", np.float64), ("array2", np.int64)])
