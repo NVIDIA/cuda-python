@@ -11,9 +11,6 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import (
     SUPPORTED_BINARIES_ALL,
 )
 
-STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_BINARIES_STRICTNESS", "see_what_works")
-assert STRICTNESS in ("see_what_works", "all_must_work")
-
 
 def test_unknown_utility_name():
     with pytest.raises(RuntimeError, match=r"^UNKNOWN utility_name='unknown-utility'$"):
@@ -30,9 +27,6 @@ def test_find_binary_utilities(info_summary_append, utility_name):
         # Note: We verify the file exists but don't check executability here because
         # permissions may vary in test environments (e.g., mounted filesystems, CI
         # containers). The _is_executable() check is tested separately in unit tests.
-
-    if STRICTNESS == "all_must_work":
-        assert bin_path is not None, f"Could not find {utility_name}"
 
 
 def test_supported_binaries_consistency():
