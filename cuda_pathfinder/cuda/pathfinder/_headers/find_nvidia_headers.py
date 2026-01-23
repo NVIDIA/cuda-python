@@ -123,7 +123,8 @@ def find_nvidia_header_directory(libname: str) -> str | None:
 
         3. **CUDA Toolkit environment variables**
 
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+           - Use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order, as defined by
+             :py:data:`cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED`).
     """
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:

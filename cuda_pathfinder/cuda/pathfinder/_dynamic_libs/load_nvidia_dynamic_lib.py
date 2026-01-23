@@ -54,7 +54,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         if abs_path is None:
             finder.raise_not_found_error()
         else:
-            found_via = "CUDA_HOME"
+            found_via = "CUDA_PATH"
 
     return load_with_abs_path(libname, abs_path, found_via)
 
@@ -121,7 +121,8 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order, as defined by
+             :py:data:`cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED`).
 
     Notes:
         The search is performed **per library**. There is currently no mechanism to

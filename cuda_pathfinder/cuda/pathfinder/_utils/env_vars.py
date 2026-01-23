@@ -1,8 +1,42 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+"""Centralized CUDA environment variable handling.
+
+This module defines the canonical search order for CUDA Toolkit environment variables
+used throughout cuda-python packages (cuda.pathfinder, cuda.core, cuda.bindings).
+
+Search Order Priority:
+    1. CUDA_PATH (higher priority)
+    2. CUDA_HOME (lower priority)
+
+If both are set and differ, CUDA_PATH takes precedence and a warning is issued.
+
+Important Note on Caching:
+    The result of get_cuda_home_or_path() is cached for the process lifetime. The first
+    call determines the CUDA Toolkit path, and all subsequent calls return the cached
+    value, even if environment variables change later. This ensures consistent behavior
+    throughout the application lifecycle.
+"""
+
+import functools
 import os
 import warnings
+
+#: Canonical search order for CUDA Toolkit environment variables.
+#:
+#: This tuple defines the priority order used by :py:func:`get_cuda_home_or_path`
+#: and throughout cuda-python packages when determining which CUDA Toolkit to use.
+#:
+#: The first variable in the tuple has the highest priority. If multiple variables are set
+#: and point to different locations, the first one is used and a warning is issued.
+#:
+#: .. note::
+#:    **Breaking Change in v1.4.0**: The order changed from ``("CUDA_HOME", "CUDA_PATH")``
+#:    to ``("CUDA_PATH", "CUDA_HOME")``, making ``CUDA_PATH`` the highest priority.
+#:
+#: :type: tuple[str, ...]
+CUDA_ENV_VARS_ORDERED = ("CUDA_PATH", "CUDA_HOME")
 
 
 def _paths_differ(a: str, b: str) -> bool:
@@ -32,20 +66,68 @@ def _paths_differ(a: str, b: str) -> bool:
     return True
 
 
+@functools.cache
 def get_cuda_home_or_path() -> str | None:
-    cuda_home = os.environ.get("CUDA_HOME")
-    cuda_path = os.environ.get("CUDA_PATH")
+    """Get CUDA Toolkit path from environment variables.
 
-    if cuda_home and cuda_path and _paths_differ(cuda_home, cuda_path):
-        warnings.warn(
-            "Both CUDA_HOME and CUDA_PATH are set but differ:\n"
-            f"  CUDA_HOME={cuda_home}\n"
-            f"  CUDA_PATH={cuda_path}\n"
-            "Using CUDA_HOME (higher priority).",
-            UserWarning,
-            stacklevel=2,
-        )
+    Returns the value of CUDA_PATH or CUDA_HOME following the canonical search order
+    defined in CUDA_ENV_VARS_ORDERED. If both are set and differ, CUDA_PATH takes
+    precedence and a warning is issued.
 
-    if cuda_home is not None:
-        return cuda_home
-    return cuda_path
+    The result is cached for the process lifetime. The first call determines the CUDA
+    Toolkit path, and subsequent calls return the cached value.
+
+    Returns:
+        Path to CUDA Toolkit, or None if neither variable is set. Empty strings are
+        preserved and returned as-is if explicitly set in the environment.
+
+    Warnings:
+        UserWarning: If multiple CUDA environment variables are set but point to
+            different locations (only on the first call).
+
+    See Also:
+        CUDA_ENV_VARS_ORDERED: The canonical search order for CUDA environment variables.
+    """
+    # Collect all set environment variables in priority order
+    # Note: We check 'is not None' to preserve empty strings (which are valid but unusual).
+    # Empty strings are falsy in Python but may indicate an intentional "unset" by the user.
+    set_vars = {}
+    for var in CUDA_ENV_VARS_ORDERED:
+        val = os.environ.get(var)
+        if val is not None:
+            set_vars[var] = val
+
+    if not set_vars:
+        return None
+
+    # If multiple variables are set, check if they differ and warn
+    if len(set_vars) > 1:
+        # Check if any non-empty values actually differ
+        non_empty_values = [(var, val) for var, val in set_vars.items() if val]
+
+        if len(non_empty_values) > 1:
+            # Check if any pair of non-empty values differs
+            values_differ = False
+            for i in range(len(non_empty_values) - 1):
+                if _paths_differ(non_empty_values[i][1], non_empty_values[i + 1][1]):
+                    values_differ = True
+                    break
+
+            if values_differ:
+                # Build a generic warning message that works for any number of variables
+                var_list = "\n".join(f"  {var}={val}" for var, val in set_vars.items())
+                highest_priority = CUDA_ENV_VARS_ORDERED[0]
+                warnings.warn(
+                    f"Multiple CUDA environment variables are set but differ:\n"
+                    f"{var_list}\n"
+                    f"Using {highest_priority} (highest priority as defined in CUDA_ENV_VARS_ORDERED).",
+                    UserWarning,
+                    stacklevel=2,
+                )
+
+    # Return the first (highest priority) set variable
+    for var in CUDA_ENV_VARS_ORDERED:
+        if var in set_vars:
+            return set_vars[var]
+
+    return None

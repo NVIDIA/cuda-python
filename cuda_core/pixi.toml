@@ -101,6 +101,7 @@ setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-profiler-api = "*"
+cuda-pathfinder = "*"
 # this doesn't work because Cython cannot find editable-installed build-time
 # dependencies https://github.com/cython/cython/issues/7326
 # cuda-bindings = { path = "../cuda_bindings" }

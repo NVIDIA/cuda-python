@@ -8,8 +8,9 @@ import sys
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 
-CUDA_PATH = os.environ.get("CUDA_PATH")
+CUDA_PATH = get_cuda_home_or_path()
 CUDA_INCLUDE_PATH = None
 CCCL_INCLUDE_PATHS = None
 if CUDA_PATH is not None:

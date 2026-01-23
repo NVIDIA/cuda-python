@@ -129,3 +129,29 @@ class TestGetCudaMajorVersion:
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
+
+    def test_multiple_cuda_paths(self):
+        """Multiple CUDA paths separated by os.pathsep are correctly handled."""
+        with tempfile.TemporaryDirectory() as tmpdir1, tempfile.TemporaryDirectory() as tmpdir2:
+            # Create mock CUDA installations in both directories
+            for tmpdir in [tmpdir1, tmpdir2]:
+                include_dir = Path(tmpdir) / "include"
+                include_dir.mkdir()
+                cuda_h = include_dir / "cuda.h"
+                cuda_h.write_text("#define CUDA_VERSION 12080\n")
+
+            build_hooks._get_cuda_paths.cache_clear()
+            build_hooks._determine_cuda_major_version.cache_clear()
+
+            # Set CUDA_PATH with multiple paths
+            multiple_paths = os.pathsep.join([tmpdir1, tmpdir2])
+            with mock.patch.dict(os.environ, {"CUDA_PATH": multiple_paths}, clear=True):
+                # Should return list of both paths
+                paths = build_hooks._get_cuda_paths()
+                assert len(paths) == 2
+                assert paths[0] == tmpdir1
+                assert paths[1] == tmpdir2
+
+                # Version detection should use first path
+                result = build_hooks._determine_cuda_major_version()
+                assert result == "12"

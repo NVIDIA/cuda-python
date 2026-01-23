@@ -1,0 +1,49 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.4.0 Release notes
+=======================================
+
+Released on TBD
+
+Highlights
+----------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+* **CUDA environment variable priority changed**: ``CUDA_PATH`` now takes precedence over ``CUDA_HOME`` when both are set. Previously, ``CUDA_HOME`` had higher priority. If both variables are set and point to different locations, a warning will be issued and ``CUDA_PATH`` will be used. This change aligns with industry standards and NVIDIA's recommended practices.
+
+  **Migration Guide**:
+
+  - If you rely on ``CUDA_HOME``, consider switching to ``CUDA_PATH``
+  - If you set both variables, ensure they point to the same CUDA Toolkit installation
+  - If they differ intentionally, be aware that ``CUDA_PATH`` will now be used
+  - The canonical search order is defined in :py:data:`cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED`
+
+New Features
+~~~~~~~~~~~~
+
+* Added centralized CUDA environment variable handling with :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_home_or_path()`. This function provides:
+
+  - Consistent behavior across all cuda-python packages (cuda.pathfinder, cuda.core, cuda.bindings)
+  - Intelligent path comparison that handles symlinks, case sensitivity, and trailing slashes
+  - Result caching for performance (first call determines the path for the process lifetime)
+  - Clear warnings when multiple environment variables are set but differ
+
+* Added :py:data:`cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED` constant that explicitly documents the canonical search order for CUDA environment variables.
+
+Documentation
+~~~~~~~~~~~~~
+
+* Updated documentation across all packages to reflect the new ``CUDA_PATH`` priority
+* Added detailed caching behavior documentation for :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_home_or_path()`
+* Clarified environment variable precedence in installation guides
+
+Bug Fixes
+~~~~~~~~~
+
+* Improved robustness of test collection by adding fallback when cuda.pathfinder is not yet installed
+* Enhanced path comparison logic to properly handle edge cases (nonexistent paths, symlinks, OS-specific behavior)

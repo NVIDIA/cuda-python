@@ -515,7 +515,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1031,7 +1031,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -1458,7 +1458,7 @@ packages:
     target_platform: linux-64
   depends:
   - python
-  - cuda-pathfinder >=1.1,<2
+  - cuda-pathfinder
   - libnvjitlink
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0
@@ -1468,25 +1468,6 @@ packages:
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
-  - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-- conda: .
-  name: cuda-bindings
-  version: 13.1.0
-  build: py314h625260f_0
-  subdir: win-64
-  variants:
-    python: 3.14.*
-    target_platform: win-64
-  depends:
-  - python
-  - cuda-pathfinder >=1.1,<2
-  - libnvjitlink
-  - cuda-nvrtc
-  - cuda-nvrtc >=13.1.115,<14.0a0
-  - cuda-nvvm
-  - vc >=14.1,<15
-  - vc14_runtime >=14.16.27033
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 - conda: .
@@ -1499,7 +1480,7 @@ packages:
     target_platform: linux-aarch64
   depends:
   - python
-  - cuda-pathfinder >=1.1,<2
+  - cuda-pathfinder
   - libnvjitlink
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0
@@ -1509,6 +1490,28 @@ packages:
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
+  - python_abi 3.14.* *_cp314
+  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+- conda: .
+  name: cuda-bindings
+  version: 13.1.0
+  build: py314hae7e39d_0
+  subdir: win-64
+  variants:
+    c_compiler: vs2022
+    cxx_compiler: vs2022
+    python: 3.14.*
+    target_platform: win-64
+  depends:
+  - python
+  - cuda-pathfinder
+  - libnvjitlink
+  - cuda-nvrtc
+  - cuda-nvrtc >=13.1.115,<14.0a0
+  - cuda-nvvm
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  - ucrt >=10.0.20348.0
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cccl_linux-64-13.1.78-ha770c72_0.conda

@@ -26,9 +26,16 @@ from setuptools.extension import Extension
 # ----------------------------------------------------------------------
 # Fetch configuration options
 
-CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
+try:
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
+    CUDA_HOME = get_cuda_home_or_path()
+except ImportError:
+    # Fallback for build environments where cuda-pathfinder may not be available
+    CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
+
 if not CUDA_HOME:
-    raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
+    raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
 
 CUDA_HOME = CUDA_HOME.split(os.pathsep)
 
