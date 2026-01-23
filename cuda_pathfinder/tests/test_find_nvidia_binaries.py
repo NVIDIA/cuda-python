@@ -27,8 +27,9 @@ def test_find_binary_utilities(info_summary_append, utility_name):
 
     if bin_path:
         assert os.path.isfile(bin_path), f"Path exists but is not a file: {bin_path}"
-        # Note: We don't check executability here because permissions may vary
-        # in test environments (e.g., mounted filesystems)
+        # Note: We verify the file exists but don't check executability here because
+        # permissions may vary in test environments (e.g., mounted filesystems, CI
+        # containers). The _is_executable() check is tested separately in unit tests.
 
     if STRICTNESS == "all_must_work":
         assert bin_path is not None, f"Could not find {utility_name}"
@@ -44,3 +45,29 @@ def test_caching_behavior():
     result1 = find_nvidia_binary_utility("nvdisasm")
     result2 = find_nvidia_binary_utility("nvdisasm")
     assert result1 is result2  # Should be the exact same object due to caching
+
+
+def test_site_packages_bindirs_consistency():
+    """Verify SITE_PACKAGES_BINDIRS keys are in SUPPORTED_BINARIES_ALL."""
+    from cuda.pathfinder._binaries.supported_nvidia_binaries import SITE_PACKAGES_BINDIRS
+
+    for utility_name in SITE_PACKAGES_BINDIRS:
+        assert utility_name in SUPPORTED_BINARIES_ALL, (
+            f"Utility '{utility_name}' in SITE_PACKAGES_BINDIRS but not in SUPPORTED_BINARIES_ALL"
+        )
+
+
+def test_caching_per_utility():
+    """Verify that different utilities have independent cache entries."""
+    nvdisasm1 = find_nvidia_binary_utility("nvdisasm")
+    nvcc1 = find_nvidia_binary_utility("nvcc")
+    nvdisasm2 = find_nvidia_binary_utility("nvdisasm")
+    nvcc2 = find_nvidia_binary_utility("nvcc")
+
+    # Same utility should return cached result
+    assert nvdisasm1 is nvdisasm2
+    assert nvcc1 is nvcc2
+
+    # Different utilities should have different results (unless both None)
+    if nvdisasm1 is not None and nvcc1 is not None:
+        assert nvdisasm1 != nvcc1

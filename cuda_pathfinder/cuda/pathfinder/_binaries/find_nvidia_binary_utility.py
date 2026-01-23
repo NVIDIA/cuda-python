@@ -20,7 +20,17 @@ def _normalize_utility_name(utility_name: str) -> str:
 
 
 def _find_under_site_packages(sub_dir: str, utility_name: str) -> str | None:
-    """Search for binary in site-packages subdirectories."""
+    """Search for binary in site-packages subdirectories.
+
+    Args:
+        sub_dir: Relative subdirectory path within site-packages
+            (e.g., "nvidia/cuda_nvcc/bin").
+        utility_name: Name of the utility to find (will be normalized
+            for the current platform).
+
+    Returns:
+        Absolute path to the binary if found, None otherwise.
+    """
     bin_path: str
     normalized_name = _normalize_utility_name(utility_name)
     for bin_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
@@ -31,7 +41,15 @@ def _find_under_site_packages(sub_dir: str, utility_name: str) -> str | None:
 
 
 def _find_based_on_cuda_toolkit_layout(utility_name: str, anchor_point: str) -> str | None:
-    """Search in CUDA Toolkit style bin directories."""
+    """Search in CUDA Toolkit style bin directories.
+
+    Args:
+        utility_name: Name of the utility to find.
+        anchor_point: Base directory to search from (e.g., CUDA_HOME).
+
+    Returns:
+        Absolute path to the binary if found, None otherwise.
+    """
     normalized_name = _normalize_utility_name(utility_name)
 
     # Windows: try bin/x64, bin/x86_64, bin; Linux: just bin
@@ -49,7 +67,16 @@ def _find_based_on_cuda_toolkit_layout(utility_name: str, anchor_point: str) -> 
 
 
 def _find_based_on_conda_layout(utility_name: str) -> str | None:
-    """Search in Conda environment bin directories."""
+    """Search in Conda environment bin directories.
+
+    Uses the CONDA_PREFIX environment variable to locate the Conda installation.
+
+    Args:
+        utility_name: Name of the utility to find.
+
+    Returns:
+        Absolute path to the binary if found, None otherwise.
+    """
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
@@ -66,7 +93,16 @@ def _find_based_on_conda_layout(utility_name: str) -> str | None:
 
 
 def _find_using_cuda_home(utility_name: str) -> str | None:
-    """Search using CUDA_HOME or CUDA_PATH environment variables."""
+    """Search using CUDA_HOME or CUDA_PATH environment variables.
+
+    Checks CUDA_HOME first, then falls back to CUDA_PATH.
+
+    Args:
+        utility_name: Name of the utility to find.
+
+    Returns:
+        Absolute path to the binary if found, None otherwise.
+    """
     cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
@@ -74,7 +110,16 @@ def _find_using_cuda_home(utility_name: str) -> str | None:
 
 
 def _find_binary_utility(utility_name: str) -> str | None:
-    """Core search logic for finding a binary utility."""
+    """Core search logic for finding a binary utility.
+
+    Implements the search order: site-packages -> Conda -> CUDA Toolkit.
+
+    Args:
+        utility_name: Name of the utility to find.
+
+    Returns:
+        Absolute path to the binary if found, None otherwise.
+    """
     # 1. Search in site-packages (NVIDIA wheels)
     candidate_dirs = supported_nvidia_binaries.SITE_PACKAGES_BINDIRS.get(utility_name, ())
     for cdir in candidate_dirs:
@@ -98,14 +143,18 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
 
     Args:
         utility_name (str): The name of the binary utility to find
-            (e.g., ``"nvdisasm"``, ``"cuobjdump"``).
+            (e.g., ``"nvdisasm"``, ``"cuobjdump"``). On Windows, the ``.exe``
+            extension will be automatically appended if not present. The function
+            also recognizes ``.bat`` and ``.cmd`` files on Windows.
 
     Returns:
         str or None: Absolute path to the discovered executable, or ``None``
-        if the utility cannot be found.
+        if the utility cannot be found. The returned path is normalized
+        (absolute and with resolved separators).
 
     Raises:
-        RuntimeError: If ``utility_name`` is not in the supported set.
+        RuntimeError: If ``utility_name`` is not in the supported set
+            (see ``SUPPORTED_BINARY_UTILITIES``).
 
     Search order:
         1. **NVIDIA Python wheels**
@@ -115,12 +164,23 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
 
         2. **Conda environments**
 
-           - Check Conda-style installation prefixes, which use platform-specific
-             bin directory layouts.
+           - Check Conda-style installation prefixes via ``CONDA_PREFIX``
+             environment variable, which use platform-specific bin directory
+             layouts (``Library/bin`` on Windows, ``bin`` on Linux).
 
         3. **CUDA Toolkit environment variables**
 
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order), searching
+             ``bin/x64``, ``bin/x86_64``, and ``bin`` subdirectories on Windows,
+             or just ``bin`` on Linux.
+
+    Note:
+        Results are cached using ``@functools.cache`` for performance. The cache
+        persists for the lifetime of the process.
+
+        On Windows, executables are identified by their file extensions
+        (``.exe``, ``.bat``, ``.cmd``). On Unix-like systems, executables
+        are identified by the ``X_OK`` (execute) permission bit.
 
     Example:
         >>> from cuda.pathfinder import find_nvidia_binary_utility
