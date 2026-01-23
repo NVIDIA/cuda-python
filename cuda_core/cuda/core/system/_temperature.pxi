@@ -1,6 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+
+
+TemperatureSensors = nvml.TemperatureSensors
+TemperatureThresholds = nvml.TemperatureThresholds
+ThermalController = nvml.ThermalController
+ThermalTarget = nvml.ThermalTarget
 
 
 # In cuda.bindings.nvml, this is an anonymous struct inside nvmlThermalSettings_t.
