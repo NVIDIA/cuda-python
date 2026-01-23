@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -14,6 +14,8 @@ from .cy_nvml cimport *
 ###############################################################################
 
 ctypedef nvmlDramEncryptionInfo_v1_t DramEncryptionInfo_v1
+ctypedef nvmlMarginTemperature_v1_t MarginTemperature_v1
+ctypedef nvmlFanSpeedInfo_v1_t FanSpeedInfo_v1
 ctypedef nvmlConfComputeSetKeyRotationThresholdInfo_v1_t ConfComputeSetKeyRotationThresholdInfo_v1
 ctypedef nvmlSystemDriverBranchInfo_v1_t SystemDriverBranchInfo_v1
 ctypedef nvmlTemperature_v1_t Temperature_v1
@@ -34,7 +36,6 @@ ctypedef nvmlViolationTime_t ViolationTime
 ctypedef nvmlUUIDValue_t UUIDValue
 ctypedef nvmlVgpuPlacementList_v1_t VgpuPlacementList_v1
 ctypedef nvmlNvLinkPowerThres_t NvLinkPowerThres
-ctypedef nvmlSystemEventData_v1_t SystemEventData_v1
 ctypedef nvmlGpuInstanceProfileInfo_t GpuInstanceProfileInfo
 ctypedef nvmlComputeInstanceProfileInfo_t ComputeInstanceProfileInfo
 ctypedef nvmlMask255_t Mask255
@@ -174,7 +175,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object)
 cpdef str device_get_inforom_image_version(intptr_t device)
 cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) except? 0
 cpdef device_validate_inforom(intptr_t device)
-cpdef unsigned long device_get_last_bbx_flush_time(intptr_t device, intptr_t timestamp) except? 0
+cpdef tuple device_get_last_bbx_flush_time(intptr_t device)
 cpdef int device_get_display_mode(intptr_t device) except? -1
 cpdef int device_get_display_active(intptr_t device) except? -1
 cpdef int device_get_persistence_mode(intptr_t device) except? -1
@@ -197,14 +198,12 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
 cpdef tuple device_get_auto_boosted_clocks_enabled(intptr_t device)
 cpdef unsigned int device_get_fan_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) except? 0
-cpdef object device_get_fan_speed_rpm(intptr_t device)
 cpdef unsigned int device_get_target_fan_speed(intptr_t device, unsigned int fan) except? 0
 cpdef tuple device_get_min_max_fan_speed(intptr_t device)
 cpdef unsigned int device_get_fan_control_policy_v2(intptr_t device, unsigned int fan) except *
 cpdef unsigned int device_get_num_fans(intptr_t device) except? 0
 cpdef object device_get_cooler_info(intptr_t device)
 cpdef unsigned int device_get_temperature_threshold(intptr_t device, int threshold_type) except? 0
-cpdef object device_get_margin_temperature(intptr_t device)
 cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex)
 cpdef int device_get_performance_state(intptr_t device) except? -1
 cpdef unsigned long long device_get_current_clocks_event_reasons(intptr_t device) except? 0
@@ -215,7 +214,6 @@ cpdef int device_get_mem_clk_vf_offset(intptr_t device) except? 0
 cpdef tuple device_get_min_max_clock_of_p_state(intptr_t device, int type, int pstate)
 cpdef tuple device_get_gpc_clk_min_max_vf_offset(intptr_t device)
 cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device)
-cpdef object device_get_clock_offsets(intptr_t device)
 cpdef device_set_clock_offsets(intptr_t device, intptr_t info)
 cpdef object device_get_performance_modes(intptr_t device)
 cpdef object device_get_current_clock_freqs(intptr_t device)
@@ -329,10 +327,6 @@ cpdef device_register_events(intptr_t device, unsigned long long event_types, in
 cpdef unsigned long long device_get_supported_event_types(intptr_t device) except? 0
 cpdef object event_set_wait_v2(intptr_t set, unsigned int timeoutms)
 cpdef event_set_free(intptr_t set)
-cpdef system_event_set_create(intptr_t request)
-cpdef system_event_set_free(intptr_t request)
-cpdef system_register_events(intptr_t request)
-cpdef system_event_set_wait(intptr_t request)
 cpdef device_modify_drain_state(intptr_t pci_info, int new_state)
 cpdef int device_query_drain_state(intptr_t pci_info) except? -1
 cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state)
