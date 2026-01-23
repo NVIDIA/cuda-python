@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.system.DeviceArchitecture
-===================================
+cuda.core.system.DeviceEvents
+=============================
 
 .. currentmodule:: cuda.core.system
 
-.. autoclass:: DeviceArchitecture
+.. autoclass:: DeviceEvents
 
    
    
@@ -14,16 +14,11 @@ cuda.core.system.DeviceArchitecture
 
    
    .. automethod:: __init__
+   .. automethod:: wait
 
    
    
 
    
-   
-   .. rubric:: Attributes
-
-   
-   .. autoattribute:: id
-   .. autoattribute:: name
    
    
