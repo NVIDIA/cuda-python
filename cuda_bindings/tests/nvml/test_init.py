@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import sys
+import warnings
 
 import pytest
 from cuda.bindings import _nvml as nvml
@@ -14,6 +15,23 @@ def assert_nvml_is_initialized():
 def assert_nvml_is_uninitialized():
     with pytest.raises(nvml.UninitializedError):
         nvml.device_get_count_v2()
+
+
+def test_devices_are_the_same_architecture(all_devices):
+    # The tests in this directory that use `unsupported_before` will generally
+    # skip the entire test after the first device that isn't supported is found.
+    # This means that if subsequent devices are of a different architecture,
+    # they won't be tested properly.  This tests for the (hopefully rare) case
+    # where a system has devices of different architectures and produces a warning.
+
+    all_arches = set(nvml.DeviceArch(nvml.device_get_architecture(device)) for device in all_devices)
+
+    if len(all_arches) > 1:
+        warnings.warn(  # noqa: B028
+            f"System has devices of multiple architectures ({', '.join(x.name for x in all_arches)}). "
+            f" Some tests may be skipped unexpectedly",
+            UserWarning,
+        )
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")

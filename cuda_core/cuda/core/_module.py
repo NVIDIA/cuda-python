@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import functools
 import threading
 import weakref
 from collections import namedtuple
-from typing import Union
 
 from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig, _to_native_launch_config
@@ -292,7 +293,7 @@ class KernelOccupancy:
         )
 
     def max_potential_block_size(
-        self, dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize], block_size_limit: int
+        self, dynamic_shared_memory_needed: int | driver.CUoccupancyB2DSize, block_size_limit: int
     ) -> MaxPotentialBlockSizeOccupancyResult:
         """MaxPotentialBlockSizeOccupancyResult: Suggested launch configuration for reasonable occupancy.
 
@@ -487,7 +488,7 @@ class Kernel:
         return self._occupancy
 
     @staticmethod
-    def from_handle(handle: int, mod: "ObjectCode" = None) -> "Kernel":
+    def from_handle(handle: int, mod: ObjectCode = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
 
         Uses a CUkernel pointer address to create a new :obj:`Kernel` object.
@@ -528,7 +529,7 @@ class Kernel:
         return Kernel._from_obj(kernel_obj, mod)
 
 
-CodeTypeT = Union[bytes, bytearray, str]
+CodeTypeT = bytes | bytearray | str
 
 
 class ObjectCode:
@@ -582,7 +583,7 @@ class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_cubin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -600,7 +601,7 @@ class ObjectCode:
         return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -618,7 +619,7 @@ class ObjectCode:
         return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -636,7 +637,7 @@ class ObjectCode:
         return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -654,7 +655,7 @@ class ObjectCode:
         return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -672,7 +673,7 @@ class ObjectCode:
         return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 cimport cpython
 from libc.stdint cimport uintptr_t
 
@@ -9,7 +11,6 @@ from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import TYPE_CHECKING
 
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
@@ -33,9 +34,6 @@ from cuda.core._utils.cuda_utils import (
     runtime,
 )
 from cuda.core._stream cimport default_stream
-
-if TYPE_CHECKING:
-    from cuda.core._memory import Buffer, MemoryResource
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
@@ -992,6 +990,29 @@ class Device:
         from cuda.core import system
         total = system.get_num_devices()
         return tuple(cls(device_id) for device_id in range(total))
+
+    def to_system_device(self) -> 'cuda.core.system.Device':
+        """
+        Get the corresponding :class:`cuda.core.system.Device` (which is used
+        for NVIDIA Machine Library (NVML) access) for this
+        :class:`cuda.core.Device` (which is used for CUDA access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.system.Device
+            The corresponding system-level device instance used for NVML access.
+        """
+        from cuda.core.system._system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
+
+        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+            raise RuntimeError(
+                "cuda.core.system.Device requires cuda_bindings 13.1.2+ or 12.9.6+"
+            )
+
+        from cuda.core.system import Device as SystemDevice
+        return SystemDevice(uuid=self.uuid)
 
     @property
     def device_id(self) -> int:
