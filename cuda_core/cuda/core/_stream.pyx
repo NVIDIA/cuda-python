@@ -18,11 +18,8 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Protocol, Union
+from typing import Protocol
 
-if TYPE_CHECKING:
-    import cuda.bindings
-    from cuda.core._device import Device
 from cuda.core._context cimport Context
 from cuda.core._event import Event, EventOptions
 from cuda.core._resource_handles cimport (
@@ -59,7 +56,7 @@ cdef class StreamOptions:
     """
 
     nonblocking : cython.bint = True
-    priority: Optional[int] = None
+    priority: int | None = None
 
 
 class IsStreamT(Protocol):
@@ -296,7 +293,7 @@ cdef class Stream:
             HANDLE_RETURN(cydriver.cuEventRecord(e, as_cu(self._h_stream)))
         return event
 
-    def wait(self, event_or_stream: Union[Event, Stream]):
+    def wait(self, event_or_stream: Event | Stream):
         """Wait for a CUDA event or a CUDA stream.
 
         Waiting for an event or a stream establishes a stream order.

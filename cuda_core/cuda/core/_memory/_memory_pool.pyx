@@ -28,15 +28,10 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-from typing import TYPE_CHECKING
 import platform  # no-cython-lint
 import weakref
 
 from cuda.core._utils.cuda_utils import driver
-
-if TYPE_CHECKING:
-    from cuda.core._memory.buffer import DevicePointerT
-    from .._device import Device
 
 
 cdef class _MemPoolOptions:
@@ -302,7 +297,7 @@ cdef class _MemPool(MemoryResource):
         return self._ipc_data is not None and self._ipc_data._is_mapped
 
     @property
-    def uuid(self) -> Optional[uuid.UUID]:
+    def uuid(self) -> uuid.UUID | None:
         """
         A universally unique identifier for this memory resource. Meaningful
         only for IPC-enabled memory resources.

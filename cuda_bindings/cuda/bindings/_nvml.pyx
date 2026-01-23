@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
-from cython cimport view
-cimport cpython
 
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
@@ -20,6 +18,7 @@ from libc.stdlib cimport calloc, free, malloc
 from cython cimport view
 cimport cpython.buffer
 cimport cpython.memoryview
+cimport cpython
 from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
@@ -35,6 +34,7 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
 
 
 ###############################################################################
@@ -15089,7 +15089,7 @@ cdef class DevicePowerMizerModes_v1:
 
     @property
     def supported_power_mizer_modes(self):
-        """int: OUT: Bitmask of supported powermizer modes."""
+        """int: OUT: Bitmask of supported powermizer modes. The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
         return self._ptr[0].supportedPowerMizerModes
 
     @supported_power_mizer_modes.setter
@@ -22875,7 +22875,7 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
 
 cpdef object device_get_memory_info_v2(intptr_t device):
-    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. The reserved amount is supported on version 2 only.
+    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. nvmlDeviceGetMemoryInfo_v2 accounts separately for reserved memory and includes it in the used memory amount.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -24423,7 +24423,7 @@ cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link)
         link (unsigned int): Specifies the NvLink link to be queried.
 
     Returns:
-        unsigned int: Requested NvLink version from nvmlNvlinkVersion_t.
+        unsigned int: Requested NvLink version from ``nvmlNvlinkVersion_t``.
 
     .. seealso:: `nvmlDeviceGetNvLinkVersion`
     """
@@ -26724,7 +26724,7 @@ cpdef device_set_rusd_settings_v1(intptr_t device, intptr_t settings):
 
     Args:
         device (intptr_t): The identifier of the target device.
-        settings (intptr_t): Reference to nvmlRusdSettings_t struct.
+        settings (intptr_t): Reference to ``nvmlRusdSettings_v1_t`` struct.
 
     .. seealso:: `nvmlDeviceSetRusdSettings_v1`
     """

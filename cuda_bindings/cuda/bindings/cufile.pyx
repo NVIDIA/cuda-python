@@ -2,14 +2,13 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 from enum import IntEnum as _IntEnum
-cimport cpython
 
 import cython
 
@@ -19,6 +18,7 @@ from libc.stdlib cimport calloc, free, malloc
 from cython cimport view
 cimport cpython.buffer
 cimport cpython.memoryview
+cimport cpython
 from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
@@ -34,6 +34,7 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
 
 ###############################################################################
 # POD
@@ -616,7 +617,7 @@ cdef _get_per_gpu_stats_dtype_offsets():
     cdef CUfilePerGpuStats_t pod = CUfilePerGpuStats_t()
     return _numpy.dtype({
         'names': ['uuid', 'read_bytes', 'read_bw_bytes_per_sec', 'read_utilization', 'read_duration_us', 'n_total_reads', 'n_p2p_reads', 'n_nvfs_reads', 'n_posix_reads', 'n_unaligned_reads', 'n_dr_reads', 'n_sparse_regions', 'n_inline_regions', 'n_reads_err', 'writes_bytes', 'write_bw_bytes_per_sec', 'write_utilization', 'write_duration_us', 'n_total_writes', 'n_p2p_writes', 'n_nvfs_writes', 'n_posix_writes', 'n_unaligned_writes', 'n_dr_writes', 'n_writes_err', 'n_mmap', 'n_mmap_ok', 'n_mmap_err', 'n_mmap_free', 'reg_bytes'],
-        'formats': [_numpy.int8, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'formats': [(_numpy.int8, 16), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
         'offsets': [
             (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.read_bytes)) - (<intptr_t>&pod),
@@ -2193,7 +2194,7 @@ cdef _get_stats_level2_dtype_offsets():
     cdef CUfileStatsLevel2_t pod = CUfileStatsLevel2_t()
     return _numpy.dtype({
         'names': ['basic', 'read_size_kb_hist', 'write_size_kb_hist'],
-        'formats': [stats_level1_dtype, _numpy.uint64, _numpy.uint64],
+        'formats': [stats_level1_dtype, (_numpy.uint64, 32), (_numpy.uint64, 32)],
         'offsets': [
             (<intptr_t>&(pod.basic)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.read_size_kb_hist)) - (<intptr_t>&pod),
@@ -2346,7 +2347,7 @@ cdef _get_stats_level3_dtype_offsets():
     cdef CUfileStatsLevel3_t pod = CUfileStatsLevel3_t()
     return _numpy.dtype({
         'names': ['detailed', 'num_gpus', 'per_gpu_stats'],
-        'formats': [stats_level2_dtype, _numpy.uint32, per_gpu_stats_dtype],
+        'formats': [stats_level2_dtype, _numpy.uint32, (per_gpu_stats_dtype, 16)],
         'offsets': [
             (<intptr_t>&(pod.detailed)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.num_gpus)) - (<intptr_t>&pod),
