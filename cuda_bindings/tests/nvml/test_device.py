@@ -105,6 +105,7 @@ def test_device_vgpu_get_heterogeneous_mode(all_devices):
         assert isinstance(mode, int)
 
 
+@pytest.mark.skipif(driverVersionLessThan(13010), reason="Introduced in 13.1")
 def test_read_prm_counters(all_devices):
     for device in all_devices:
         counters = nvml.PRMCounter_v1(5)
@@ -116,7 +117,8 @@ def test_read_prm_counters(all_devices):
 
 def test_read_write_prm(all_devices):
     for device in all_devices:
-        with unsupported_before(device, nvml.DeviceArch.BLACKWELL):
+        # Docs say supported in BLACKWELL or later
+        with unsupported_before(device, None):
             try:
                 result = nvml.device_read_write_prm_v1(device, b"012345678")
             except nvml.NoPermissionError:
