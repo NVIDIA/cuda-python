@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.1.X Release notes
+``cuda-bindings`` 13.1.2 Release notes
 ======================================
 
 Highlights
@@ -20,6 +20,7 @@ Bugfixes
 * Fixed an issue where the ``CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL`` attribute was
   retrieved as an unsigned int, rather than a signed int.
   (`PR #1336 <https://github.com/NVIDIA/cuda-python/pull/1336>`_)
+* Fixed ABI incompatibility bugs in cuFILE bindings introduced in v13.1.0.
 
 Known issues
 ------------
