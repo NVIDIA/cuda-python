@@ -58,8 +58,8 @@ linux:
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.1.1', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.1.1', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.1.1', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest' }
+    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.1.1', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest' }
   nightly: []
 
 windows:

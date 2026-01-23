@@ -226,6 +226,17 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests bindings
 
+      - name: Run cuda.bindings examples
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd cuda_bindings
+          ${SANITIZER_CMD} pytest -ra -s -vv examples/
+          popd
+
       - name: Run cuda.core tests
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
