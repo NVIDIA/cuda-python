@@ -11,7 +11,6 @@ from cuda.core._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-from typing import Optional
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -28,7 +27,7 @@ cdef class ManagedMemoryResourceOptions:
         or None to let the driver decide.
         (Default to None)
     """
-    preferred_location : Optional[int] = None
+    preferred_location: int | None = None
 
 
 cdef class ManagedMemoryResource(_MemPool):

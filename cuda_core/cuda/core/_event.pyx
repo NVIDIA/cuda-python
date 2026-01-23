@@ -26,14 +26,11 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 import multiprocessing
-from typing import TYPE_CHECKING, Optional
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
 )
-if TYPE_CHECKING:
-    import cuda.bindings
 
 
 @dataclass
@@ -56,9 +53,9 @@ cdef class EventOptions:
 
     """
 
-    enable_timing: Optional[bool] = False
-    busy_waited_sync: Optional[bool] = False
-    ipc_enabled: Optional[bool] = False
+    enable_timing: bool | None = False
+    busy_waited_sync: bool | None = False
+    ipc_enabled: bool | None = False
 
 
 cdef class Event:
