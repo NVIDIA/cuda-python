@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CUDA runtime &#8212; cuda.core</title>
+    <title>Environment Variables &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api_private';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'environment_variables';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,11 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/api_private.html" />
+    <link rel="canonical" href="docs/environment_variables.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contributing" href="contribute.html" />
+    <link rel="prev" title="cuda.core.utils.StridedMemoryView" href="generated/cuda.core.utils.StridedMemoryView.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -209,8 +211,8 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="environment_variables.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
     Environment Variables
   </a>
 </li>
@@ -405,8 +407,8 @@
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="environment_variables.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
     Environment Variables
   </a>
 </li>
@@ -470,7 +472,7 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
@@ -563,7 +565,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -619,7 +621,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CUDA runtime</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Environment Variables</span></li>
   </ul>
 </nav>
 </div>
@@ -636,63 +638,27 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-runtime">
-<h1>CUDA runtime<a class="headerlink" href="#cuda-runtime" title="Link to this heading">#</a></h1>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._buffer.DevicePointerT.html#cuda.core._memory._buffer.DevicePointerT" title="cuda.core._memory._buffer.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._buffer.DevicePointerT</span></code></a></p></td>
-<td><p>Represent a PEP 604 union type</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryAllocationTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['pinned', 'managed']</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryLocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryLocationTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['device', 'host', 'host_numa', 'host_numa_current']</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryGranularityT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryGranularityT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['minimum', 'recommended']</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryAccessTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['rw', 'r'] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryHandleTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryHandleTypeT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['posix_fd', 'generic', 'win32_kmt', 'fabric'] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes" title="cuda.core._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelOccupancy.html#cuda.core._module.KernelOccupancy" title="cuda.core._module.KernelOccupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelOccupancy</span></code></a>(*args, **kwargs)</p></td>
-<td><p>This class offers methods to query occupancy metrics that help determine optimal launch parameters such as block size, grid size, and shared memory usage.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo" title="cuda.core._module.ParamInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ParamInfo</span></code></a>(offset, size)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core._module.MaxPotentialBlockSizeOccupancyResult" title="cuda.core._module.MaxPotentialBlockSizeOccupancyResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.MaxPotentialBlockSizeOccupancyResult</span></code></a></p></td>
-<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">MaxPotential</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties" title="cuda.core._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
-<td><p>A class to query various attributes of a CUDA device.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCAllocationHandle</span></code></a>(*arg, **kwargs)</p></td>
-<td><p>Shareable handle to an IPC-enabled device memory pool.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCBufferDescriptor</span></code></a>(*arg, **kwargs)</p></td>
-<td><p>Serializable object describing a buffer that can be shared between processes.</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="environment-variables">
+<h1>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> runtime environment variables also affect <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>.
+See the <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/environment_variables.html">cuda-bindings environment variables documentation</a>.</p>
 </div>
+<section id="runtime-environment-variables">
+<h2>Runtime Environment Variables<a class="headerlink" href="#runtime-environment-variables" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM</span></code> : When set to 1, the default
+stream is the per-thread default stream. When set to 0, the default stream
+is the legacy default stream. This defaults to 0, for the legacy default
+stream. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html">Stream Synchronization Behavior</a>
+for an explanation of the legacy and per-thread default streams.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING</span></code> : When set to 1, suppresses
+warnings about CUDA major version mismatches between <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> and
+the installed driver. This warning occurs when <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was built
+for a newer CUDA major version than the installed driver supports.</p></li>
+</ul>
 </section>
-<section id="cuda-protocols">
-<h1>CUDA protocols<a class="headerlink" href="#cuda-protocols" title="Link to this heading">#</a></h1>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._stream.IsStreamT.html#cuda.core._stream.IsStreamT" title="cuda.core._stream.IsStreamT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream.IsStreamT</span></code></a></p></td>
-<td><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Protocol</span></code></a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
 </section>
 
 
@@ -705,6 +671,24 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/cuda.core.utils.StridedMemoryView.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cuda.core.utils.StridedMemoryView</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="contribute.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Contributing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -726,10 +710,8 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">CUDA runtime</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-protocols">CUDA protocols</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-environment-variables">Runtime Environment Variables</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>
