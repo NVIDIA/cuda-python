@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+
+# Common CUDA binary utilities available on both Linux and Windows
+SUPPORTED_BINARIES_COMMON = (
+    # Core compilation tools
+    "nvcc",
+    "nvdisasm",
+    "cuobjdump",
+    "nvprune",
+    "fatbinary",
+    "bin2c",
+    "nvlink",
+    # Runtime/debugging tools
+    "cuda-gdb",
+    "cuda-gdbserver",
+    "compute-sanitizer",
+    # Profiling tools
+    "nvprof",
+    "nsys",
+    "nsight-sys",
+    "ncu",
+    "nsight-compute",
+)
+
+SUPPORTED_BINARIES_LINUX_ONLY = ()
+
+SUPPORTED_BINARIES_WINDOWS_ONLY = ()
+
+SUPPORTED_BINARIES_LINUX = SUPPORTED_BINARIES_COMMON + SUPPORTED_BINARIES_LINUX_ONLY
+SUPPORTED_BINARIES_WINDOWS = SUPPORTED_BINARIES_COMMON + SUPPORTED_BINARIES_WINDOWS_ONLY
+SUPPORTED_BINARIES_ALL = SUPPORTED_BINARIES_COMMON + SUPPORTED_BINARIES_LINUX_ONLY + SUPPORTED_BINARIES_WINDOWS_ONLY
+SUPPORTED_BINARIES = SUPPORTED_BINARIES_WINDOWS if IS_WINDOWS else SUPPORTED_BINARIES_LINUX
+
+# Site-packages bin directories where binaries might be found
+# Based on NVIDIA wheel layouts
+SITE_PACKAGES_BINDIRS_LINUX = {
+    "nvcc": ("nvidia/cuda_nvcc/bin",),
+    "nvdisasm": ("nvidia/cuda_nvcc/bin",),
+    "cuobjdump": ("nvidia/cuda_nvcc/bin",),
+    "nvprune": ("nvidia/cuda_nvcc/bin",),
+    "fatbinary": ("nvidia/cuda_nvcc/bin",),
+    "bin2c": ("nvidia/cuda_nvcc/bin",),
+    "nvlink": ("nvidia/cuda_nvcc/bin",),
+    "cuda-gdb": ("nvidia/cuda_nvcc/bin",),
+    "cuda-gdbserver": ("nvidia/cuda_nvcc/bin",),
+    "compute-sanitizer": ("nvidia/cuda_nvcc/bin",),
+    "nvprof": ("nvidia/cuda_nvcc/bin",),
+    "nsys": ("nvidia/nsight_systems/bin",),
+    "nsight-sys": ("nvidia/nsight_systems/bin",),
+    "ncu": ("nvidia/nsight_compute/bin",),
+    "nsight-compute": ("nvidia/nsight_compute/bin",),
+}
+
+SITE_PACKAGES_BINDIRS_WINDOWS = {
+    "nvcc": ("nvidia/cuda_nvcc/bin",),
+    "nvdisasm": ("nvidia/cuda_nvcc/bin",),
+    "cuobjdump": ("nvidia/cuda_nvcc/bin",),
+    "nvprune": ("nvidia/cuda_nvcc/bin",),
+    "fatbinary": ("nvidia/cuda_nvcc/bin",),
+    "bin2c": ("nvidia/cuda_nvcc/bin",),
+    "nvlink": ("nvidia/cuda_nvcc/bin",),
+    "cuda-gdb": ("nvidia/cuda_nvcc/bin",),
+    "cuda-gdbserver": ("nvidia/cuda_nvcc/bin",),
+    "compute-sanitizer": ("nvidia/cuda_nvcc/bin",),
+    "nvprof": ("nvidia/cuda_nvcc/bin",),
+    "nsys": ("nvidia/nsight_systems/bin",),
+    "nsight-sys": ("nvidia/nsight_systems/bin",),
+    "ncu": ("nvidia/nsight_compute/bin",),
+    "nsight-compute": ("nvidia/nsight_compute/bin",),
+}
+
+SITE_PACKAGES_BINDIRS = SITE_PACKAGES_BINDIRS_WINDOWS if IS_WINDOWS else SITE_PACKAGES_BINDIRS_LINUX
