@@ -958,53 +958,12 @@ class Device:
     __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context")
 
     def __new__(cls, device_id: Device | int | None = None):
-        # Handle device_id argument.
         if isinstance(device_id, Device):
             return device_id
-        else:
-            device_id = getattr(device_id, 'device_id', device_id)
 
-        # Initialize CUDA.
-        global _is_cuInit
-        if _is_cuInit is False:
-            with _lock, nogil:
-                HANDLE_RETURN(cydriver.cuInit(0))
-                _is_cuInit = True
-
-        # important: creating a Device instance does not initialize the GPU!
-        cdef cydriver.CUdevice dev
-        cdef cydriver.CUcontext ctx
-        if device_id is None:
-            with nogil:
-                err = cydriver.cuCtxGetDevice(&dev)
-            if err == cydriver.CUresult.CUDA_SUCCESS:
-                device_id = int(dev)
-            elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                # No context is current - verify and default to device 0 (cudart behavior)
-                assert cydriver.cuCtxGetCurrent(&ctx) == cydriver.CUresult.CUDA_SUCCESS and ctx == NULL
-                device_id = 0
-            else:
-                HANDLE_RETURN(err)
-        elif device_id < 0:
-            raise ValueError(f"device_id must be >= 0, got {device_id}")
-
-        # ensure Device is singleton
-        cdef int total
-        try:
-            devices = _tls.devices
-        except AttributeError:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
-            devices = _tls.devices = []
-            for i in range(total):
-                device = super().__new__(cls)
-                device._device_id = i
-                device._memory_resource = None
-                device._has_inited = False
-                device._properties = None
-                device._uuid = None
-                device._context = None
-                devices.append(device)
+        Device_ensure_cuda_initialized()
+        device_id = Device_resolve_device_id(device_id)
+        devices = Device_ensure_tls_devices(cls)
 
         try:
             return devices[device_id]
@@ -1414,3 +1373,62 @@ class Device:
         """
         self._check_context_initialized()
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
+
+
+cdef inline int Device_ensure_cuda_initialized() except? -1:
+    """Initialize CUDA driver and check version compatibility (once per process)."""
+    global _is_cuInit
+    if _is_cuInit is False:
+        with _lock, nogil:
+            HANDLE_RETURN(cydriver.cuInit(0))
+            _is_cuInit = True
+        try:
+            from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
+        except ImportError:
+            pass
+        else:
+            warn_if_cuda_major_version_mismatch()
+    return 0
+
+
+cdef inline int Device_resolve_device_id(device_id) except? -1:
+    """Resolve device_id, defaulting to current device or 0."""
+    cdef cydriver.CUdevice dev
+    cdef cydriver.CUcontext ctx
+    cdef cydriver.CUresult err
+    if device_id is None:
+        with nogil:
+            err = cydriver.cuCtxGetDevice(&dev)
+        if err == cydriver.CUresult.CUDA_SUCCESS:
+            return int(dev)
+        elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            assert <void*>(ctx) == NULL
+            return 0  # cudart behavior
+        else:
+            HANDLE_RETURN(err)
+    elif device_id < 0:
+        raise ValueError(f"device_id must be >= 0, got {device_id}")
+    return device_id
+
+
+cdef inline list Device_ensure_tls_devices(cls):
+    """Ensure thread-local Device singletons exist, creating if needed."""
+    cdef int total
+    try:
+        return _tls.devices
+    except AttributeError:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
+        devices = _tls.devices = []
+        for dev_id in range(total):
+            device = super(Device, cls).__new__(cls)
+            device._device_id = dev_id
+            device._memory_resource = None
+            device._has_inited = False
+            device._properties = None
+            device._uuid = None
+            device._context = None
+            devices.append(device)
+        return devices
