@@ -50,14 +50,10 @@ def _find_under_site_packages(sub_dir: str, utility_name: str) -> str | None:
 def _find_based_on_cuda_toolkit_layout(utility_name: str, anchor_point: str) -> str | None:
     """Search in CUDA Toolkit style bin directories."""
     normalized_name = _normalize_utility_name(utility_name)
-    
-    if IS_WINDOWS:
-        # Windows: try bin/, bin/x64/, bin/x86_64/
-        rel_paths = ["bin/x64", "bin/x86_64", "bin"]
-    else:
-        # Linux: just bin/
-        rel_paths = ["bin"]
-    
+
+    # Windows: try bin/x64, bin/x86_64, bin; Linux: just bin
+    rel_paths = ["bin/x64", "bin/x86_64", "bin"] if IS_WINDOWS else ["bin"]
+
     for rel_path in rel_paths:
         for bin_dir in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
             if not os.path.isdir(bin_dir):
@@ -65,7 +61,7 @@ def _find_based_on_cuda_toolkit_layout(utility_name: str, anchor_point: str) -> 
             bin_path = os.path.join(bin_dir, normalized_name)
             if _is_executable(bin_path):
                 return bin_path
-    
+
     return None
 
 
@@ -74,21 +70,15 @@ def _find_based_on_conda_layout(utility_name: str) -> str | None:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
-    
-    if IS_WINDOWS:
-        anchor_points = [
-            os.path.join(conda_prefix, "Library"),
-            conda_prefix,
-        ]
-    else:
-        anchor_points = [conda_prefix]
-    
+
+    anchor_points = [os.path.join(conda_prefix, "Library"), conda_prefix] if IS_WINDOWS else [conda_prefix]
+
     for anchor_point in anchor_points:
         if not os.path.isdir(anchor_point):
             continue
         if result := _find_based_on_cuda_toolkit_layout(utility_name, anchor_point):
             return result
-    
+
     return None
 
 
@@ -107,15 +97,15 @@ def _find_binary_utility(utility_name: str) -> str | None:
     for cdir in candidate_dirs:
         if bin_path := _find_under_site_packages(cdir, utility_name):
             return _abs_norm(bin_path)
-    
+
     # 2. Search in Conda environment
     if bin_path := _find_based_on_conda_layout(utility_name):
         return _abs_norm(bin_path)
-    
+
     # 3. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH)
     if bin_path := _find_using_cuda_home(utility_name):
         return _abs_norm(bin_path)
-    
+
     return None
 
 
@@ -157,5 +147,5 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     """
     if utility_name not in supported_nvidia_binaries.SUPPORTED_BINARIES:
         raise RuntimeError(f"UNKNOWN {utility_name=}")
-    
+
     return _find_binary_utility(utility_name)

@@ -24,12 +24,12 @@ def test_unknown_utility_name():
 def test_find_binary_utilities(info_summary_append, utility_name):
     bin_path = find_nvidia_binary_utility(utility_name)
     info_summary_append(f"{bin_path=!r}")
-    
+
     if bin_path:
         assert os.path.isfile(bin_path), f"Path exists but is not a file: {bin_path}"
         # Note: We don't check executability here because permissions may vary
         # in test environments (e.g., mounted filesystems)
-    
+
     if STRICTNESS == "all_must_work":
         assert bin_path is not None, f"Could not find {utility_name}"
 
