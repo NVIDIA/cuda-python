@@ -19,6 +19,16 @@ cdef class _MemPool(MemoryResource):
         object                __weakref__
 
 
+cdef class _MemPoolAttributes:
+    cdef:
+        MemoryPoolHandle _h_pool
+
+    @staticmethod
+    cdef _MemPoolAttributes _init(MemoryPoolHandle h_pool)
+
+    cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except? -1
+
+
 cdef class _MemPoolOptions:
 
     cdef:
