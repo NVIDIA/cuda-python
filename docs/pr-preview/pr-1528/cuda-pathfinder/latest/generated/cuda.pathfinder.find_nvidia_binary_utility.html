@@ -485,17 +485,21 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>utility_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the binary utility to find
-(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;nvdisasm&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cuobjdump&quot;</span></code>).</p>
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;nvdisasm&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cuobjdump&quot;</span></code>). On Windows, the <code class="docutils literal notranslate"><span class="pre">.exe</span></code>
+extension will be automatically appended if not present. The function
+also recognizes <code class="docutils literal notranslate"><span class="pre">.bat</span></code> and <code class="docutils literal notranslate"><span class="pre">.cmd</span></code> files on Windows.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Absolute path to the discovered executable, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
-if the utility cannot be found.</p>
+if the utility cannot be found. The returned path is normalized
+(absolute and with resolved separators).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">utility_name</span></code> is not in the supported set.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">utility_name</span></code> is not in the supported set
+    (see <code class="docutils literal notranslate"><span class="pre">SUPPORTED_BINARY_UTILITIES</span></code>).</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -508,18 +512,29 @@ shipped in NVIDIA wheels (e.g., <code class="docutils literal notranslate"><span
 </li>
 <li><p><strong>Conda environments</strong></p>
 <ul class="simple">
-<li><p>Check Conda-style installation prefixes, which use platform-specific
-bin directory layouts.</p></li>
+<li><p>Check Conda-style installation prefixes via <code class="docutils literal notranslate"><span class="pre">CONDA_PREFIX</span></code>
+environment variable, which use platform-specific bin directory
+layouts (<code class="docutils literal notranslate"><span class="pre">Library/bin</span></code> on Windows, <code class="docutils literal notranslate"><span class="pre">bin</span></code> on Linux).</p></li>
 </ul>
 </li>
 <li><p><strong>CUDA Toolkit environment variables</strong></p>
 <ul class="simple">
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order), searching
+<code class="docutils literal notranslate"><span class="pre">bin/x64</span></code>, <code class="docutils literal notranslate"><span class="pre">bin/x86_64</span></code>, and <code class="docutils literal notranslate"><span class="pre">bin</span></code> subdirectories on Windows,
+or just <code class="docutils literal notranslate"><span class="pre">bin</span></code> on Linux.</p></li>
 </ul>
 </li>
 </ol>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Results are cached using <code class="docutils literal notranslate"><span class="pre">&#64;functools.cache</span></code> for performance. The cache
+persists for the lifetime of the process.</p>
+<p>On Windows, executables are identified by their file extensions
+(<code class="docutils literal notranslate"><span class="pre">.exe</span></code>, <code class="docutils literal notranslate"><span class="pre">.bat</span></code>, <code class="docutils literal notranslate"><span class="pre">.cmd</span></code>). On Unix-like systems, executables
+are identified by the <code class="docutils literal notranslate"><span class="pre">X_OK</span></code> (execute) permission bit.</p>
+</div>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.pathfinder</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_nvidia_binary_utility</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nvdisasm</span> <span class="o">=</span> <span class="n">find_nvidia_binary_utility</span><span class="p">(</span><span class="s2">&quot;nvdisasm&quot;</span><span class="p">)</span>
