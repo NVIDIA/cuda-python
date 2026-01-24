@@ -94,20 +94,21 @@ class TestBufferPeerAccessAfterImport:
         # Test 1: Buffer accessible from resident device (dev1) - should always work
         dev1 = Device(1)
         dev1.set_current()
+        dev1_stream = dev1.create_stream()
         PatternGen(dev1, NBYTES).verify_buffer(buffer, seed=False)
 
         # Test 2: Buffer NOT accessible from dev0 initially (peer access not preserved)
         dev0 = Device(0)
         dev0.set_current()
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
-            PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+            PatternGen(dev0, NBYTES, stream=dev1_stream).verify_buffer(buffer, seed=False)
 
         # Test 3: Set peer access and verify buffer becomes accessible
         dev1.set_current()
         mr.peer_accessible_by = [0]
         assert mr.peer_accessible_by == (0,)
         dev0.set_current()
-        PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+        PatternGen(dev0, NBYTES, stream=dev1_stream).verify_buffer(buffer, seed=False)
 
         # Test 4: Revoke peer access and verify buffer becomes inaccessible
         dev1.set_current()
@@ -115,7 +116,7 @@ class TestBufferPeerAccessAfterImport:
         assert mr.peer_accessible_by == ()
         dev0.set_current()
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
-            PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+            PatternGen(dev0, NBYTES, stream=dev1_stream).verify_buffer(buffer, seed=False)
 
         buffer.close()
         mr.close()
