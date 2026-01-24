@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 # Common CUDA binary utilities available on both Linux and Windows
 SUPPORTED_BINARIES_ALL = (

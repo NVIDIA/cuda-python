@@ -18,7 +18,7 @@ def _abs_norm(path: str | None) -> str | None:
     Returns:
         Normalized absolute path, or None if input is None.
     """
-    if path:
+    if path is not None:
         result: str = os.path.normpath(os.path.abspath(path))
         return result
     return None

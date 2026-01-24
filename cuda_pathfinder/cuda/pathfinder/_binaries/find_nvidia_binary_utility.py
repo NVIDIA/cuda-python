@@ -124,15 +124,21 @@ def _find_binary_utility(utility_name: str) -> str | None:
     candidate_dirs = supported_nvidia_binaries.SITE_PACKAGES_BINDIRS.get(utility_name, ())
     for cdir in candidate_dirs:
         if bin_path := _find_under_site_packages(cdir, utility_name):
-            return _abs_norm(bin_path)
+            assert bin_path is not None
+            path: str = _abs_norm(bin_path)
+            return path
 
     # 2. Search in Conda environment
     if bin_path := _find_based_on_conda_layout(utility_name):
-        return _abs_norm(bin_path)
+        assert bin_path is not None
+        path2: str = _abs_norm(bin_path)
+        return path2
 
     # 3. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH)
     if bin_path := _find_using_cuda_home(utility_name):
-        return _abs_norm(bin_path)
+        assert bin_path is not None
+        path3: str = _abs_norm(bin_path)
+        return path3
 
     return None
 
