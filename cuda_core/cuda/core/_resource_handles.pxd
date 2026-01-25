@@ -64,51 +64,51 @@ cdef cydriver.CUresult peek_last_error() noexcept nogil
 cdef void clear_last_error() noexcept nogil
 
 # Context handles
-cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) nogil except+
-cdef ContextHandle get_primary_context(int device_id) nogil except+
-cdef ContextHandle get_current_context() nogil except+
+cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
+cdef ContextHandle get_primary_context(int device_id) except+ nogil
+cdef ContextHandle get_current_context() except+ nogil
 
 # Stream handles
 cdef StreamHandle create_stream_handle(
-    ContextHandle h_ctx, unsigned int flags, int priority) nogil except+
-cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) nogil except+
-cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) nogil except+
-cdef StreamHandle get_legacy_stream() nogil except+
-cdef StreamHandle get_per_thread_stream() nogil except+
+    const ContextHandle& h_ctx, unsigned int flags, int priority) except+ nogil
+cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except+ nogil
+cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except+ nogil
+cdef StreamHandle get_legacy_stream() except+ nogil
+cdef StreamHandle get_per_thread_stream() except+ nogil
 
 # Event handles
-cdef EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) nogil except+
-cdef EventHandle create_event_handle_noctx(unsigned int flags) nogil except+
+cdef EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) except+ nogil
+cdef EventHandle create_event_handle_noctx(unsigned int flags) except+ nogil
 cdef EventHandle create_event_handle_ipc(
-    const cydriver.CUipcEventHandle& ipc_handle) nogil except+
+    const cydriver.CUipcEventHandle& ipc_handle) except+ nogil
 
 # Memory pool handles
 cdef MemoryPoolHandle create_mempool_handle(
-    const cydriver.CUmemPoolProps& props) nogil except+
-cdef MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) nogil except+
-cdef MemoryPoolHandle get_device_mempool(int device_id) nogil except+
+    const cydriver.CUmemPoolProps& props) except+ nogil
+cdef MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) except+ nogil
+cdef MemoryPoolHandle get_device_mempool(int device_id) except+ nogil
 cdef MemoryPoolHandle create_mempool_handle_ipc(
-    int fd, cydriver.CUmemAllocationHandleType handle_type) nogil except+
+    int fd, cydriver.CUmemAllocationHandleType handle_type) except+ nogil
 
 # Device pointer handles
 cdef DevicePtrHandle deviceptr_alloc_from_pool(
-    size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) nogil except+
-cdef DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) nogil except+
-cdef DevicePtrHandle deviceptr_alloc(size_t size) nogil except+
-cdef DevicePtrHandle deviceptr_alloc_host(size_t size) nogil except+
-cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) nogil except+
-cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) nogil except+
+    size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) except+ nogil
+cdef DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream) except+ nogil
+cdef DevicePtrHandle deviceptr_alloc(size_t size) except+ nogil
+cdef DevicePtrHandle deviceptr_alloc_host(size_t size) except+ nogil
+cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) except+ nogil
+cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) except+ nogil
 cdef DevicePtrHandle deviceptr_import_ipc(
-    MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) nogil except+
+    const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
-cdef void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept nogil
+cdef void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
 # Library handles
-cdef LibraryHandle create_library_handle_from_file(const char* path) nogil except+
-cdef LibraryHandle create_library_handle_from_data(const void* data) nogil except+
-cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) nogil except+
+cdef LibraryHandle create_library_handle_from_file(const char* path) except+ nogil
+cdef LibraryHandle create_library_handle_from_data(const void* data) except+ nogil
+cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) except+ nogil
 
 # Kernel handles
-cdef KernelHandle create_kernel_handle(LibraryHandle h_library, const char* name) nogil except+
+cdef KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) except+ nogil
 cdef KernelHandle create_kernel_handle_ref(
-    cydriver.CUkernel kernel, LibraryHandle h_library) nogil except+
+    cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
