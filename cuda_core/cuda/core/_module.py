@@ -534,7 +534,7 @@ class Kernel:
         return int(self._handle) == int(other._handle)
 
     def __hash__(self) -> int:
-        return hash((type(self), int(self._handle)))
+        return hash(int(self._handle))
 
 
 CodeTypeT = bytes | bytearray | str
@@ -774,4 +774,4 @@ class ObjectCode:
 
     def __hash__(self) -> int:
         # Trigger lazy load to get the handle
-        return hash((type(self), int(self.handle)))
+        return hash(int(self.handle))

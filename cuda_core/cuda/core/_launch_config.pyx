@@ -148,7 +148,7 @@ cdef class LaunchConfig:
         return self._identity() == (<LaunchConfig>other)._identity()
 
     def __hash__(self) -> int:
-        return hash((type(self),) + self._identity())
+        return hash(self._identity())
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         _lazy_init()

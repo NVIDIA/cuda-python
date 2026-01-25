@@ -169,7 +169,7 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((type(self), as_intptr(self._h_event)))
+        return hash(as_intptr(self._h_event))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.

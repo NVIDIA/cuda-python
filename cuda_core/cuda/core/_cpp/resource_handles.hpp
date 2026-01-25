@@ -93,7 +93,7 @@ ContextHandle get_current_context();
 // The stream structurally depends on the provided context handle.
 // When the last reference is released, cuStreamDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority);
+StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority);
 
 // Create a non-owning stream handle (references existing stream).
 // Use for borrowed streams (from foreign code) or built-in streams.
@@ -122,7 +122,7 @@ StreamHandle get_per_thread_stream();
 // The event structurally depends on the provided context handle.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags);
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags);
 
 // Create an owning event handle without context dependency.
 // Use for temporary events that are created and destroyed in the same scope.
@@ -173,13 +173,13 @@ using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 // Returns empty handle on error (caller must check).
 DevicePtrHandle deviceptr_alloc_from_pool(
     size_t size,
-    MemoryPoolHandle h_pool,
-    StreamHandle h_stream);
+    const MemoryPoolHandle& h_pool,
+    const StreamHandle& h_stream);
 
 // Allocate device memory asynchronously via cuMemAllocAsync.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream);
+DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream);
 
 // Allocate device memory synchronously via cuMemAlloc.
 // When the last reference is released, cuMemFree is called.
@@ -207,16 +207,16 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 // Note: Does not yet implement reference counting for nvbug 5570902.
 // On error, returns empty handle and sets thread-local error (use get_last_error()).
 DevicePtrHandle deviceptr_import_ipc(
-    MemoryPoolHandle h_pool,
+    const MemoryPoolHandle& h_pool,
     const void* export_data,
-    StreamHandle h_stream);
+    const StreamHandle& h_stream);
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept;
+void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Overloaded helper functions to extract raw resources from handles

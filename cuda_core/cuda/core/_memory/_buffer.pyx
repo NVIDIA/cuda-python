@@ -332,7 +332,7 @@ cdef class Buffer:
                 self._size == other_buf._size)
 
     def __hash__(self) -> int:
-        return hash((type(self), as_intptr(self._h_ptr), self._size))
+        return hash((as_intptr(self._h_ptr), self._size))
 
     @property
     def is_device_accessible(self) -> bool:
