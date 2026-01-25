@@ -955,7 +955,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context")
+    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context", "__weakref__")
 
     def __new__(cls, device_id: Device | int | None = None):
         if isinstance(device_id, Device):
