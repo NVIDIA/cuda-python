@@ -89,10 +89,10 @@ cdef class ManagedMemoryResource(_MemPool):
                 opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
 
             opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+
+            super().__init__(device_id, opts_base)
         ELSE:
             raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
-
-        super().__init__(device_id, opts_base)
 
     @property
     def is_device_accessible(self) -> bool:

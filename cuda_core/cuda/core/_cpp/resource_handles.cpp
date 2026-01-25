@@ -234,7 +234,7 @@ struct StreamBox {
 };
 }  // namespace
 
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
+StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
     GILReleaseGuard gil;
     CUstream stream;
     if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
@@ -301,7 +301,7 @@ struct EventBox {
 };
 }  // namespace
 
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -449,11 +449,11 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept {
-    get_box(h)->h_stream = std::move(h_stream);
+void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+    get_box(h)->h_stream = h_stream;
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -471,7 +471,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -612,7 +612,7 @@ struct ExportDataKeyHash {
 static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
-DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
