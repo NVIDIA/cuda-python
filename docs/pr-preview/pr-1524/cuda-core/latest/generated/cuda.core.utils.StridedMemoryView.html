@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d5813c0d"></script>
+    <script src="../_static/documentation_options.js?v=e94772f7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev76';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="../contribute.html" />
+    <link rel="next" title="Environment Variables" href="../environment_variables.html" />
     <link rel="prev" title="cuda.core.utils.args_viewable_as_strided_memory" href="cuda.core.utils.args_viewable_as_strided_memory.html" />
 
 
@@ -212,8 +212,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute.html">
-    Contributing
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -225,6 +225,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
     Code of Conduct
@@ -401,6 +408,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../contribute.html">
     Contributing
   </a>
@@ -551,6 +565,7 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -901,7 +916,7 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.dtype">
 <span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.dtype" title="Link to this definition">#</a></dt>
-<dd><p>Optional[numpy.dtype]</p>
+<dd><p>numpy.dtype | None</p>
 <p>Data type of the tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -936,7 +951,7 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.strides">
 <span class="sig-name descname"><span class="pre">strides</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.strides" title="Link to this definition">#</a></dt>
-<dd><p>Optional[tuple[int, …]]</p>
+<dd><p>tuple[int, …] | None</p>
 <p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -969,11 +984,11 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
       </div>
     </a>
     <a class="right-next"
-       href="../contribute.html"
+       href="../environment_variables.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contributing</p>
+        <p class="prev-next-title">Environment Variables</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -502,6 +502,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.2-notes.html">13.1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
@@ -671,6 +672,7 @@
 <h2>Runtime Environment Variables<a class="headerlink" href="#runtime-environment-variables" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM</span></code> : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html">Stream Synchronization Behavior</a> for an explanation of the legacy and per-thread default streams.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING</span></code> : When set to 1, suppresses warnings about CUDA major version mismatches between <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> and the installed driver.</p></li>
 </ul>
 </section>
 <section id="build-time-environment-variables">

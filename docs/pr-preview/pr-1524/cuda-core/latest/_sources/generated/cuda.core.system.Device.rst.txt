@@ -61,6 +61,7 @@ cuda.core.system.Device
    .. autoattribute:: name
    .. autoattribute:: num_fans
    .. autoattribute:: numa_node_id
+   .. autoattribute:: pci_bus_id
    .. autoattribute:: pci_info
    .. autoattribute:: performance_state
    .. autoattribute:: persistence_mode_enabled
