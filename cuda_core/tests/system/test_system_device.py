@@ -618,12 +618,14 @@ def test_fan():
             fan_info = device.fan(fan_idx)
             assert isinstance(fan_info, system.FanInfo)
 
+            speed = fan_info.speed
+            assert isinstance(speed, int)
+            assert 0 <= speed <= 200
             try:
-                speed = fan_info.speed
-                assert isinstance(speed, int)
-                assert 0 <= speed <= 200
-
                 fan_info.speed = 50
+            except nvml.NoPermissionError as e:
+                pytest.xfail(f"nvml.NoPermissionError: {e}")
+            try:
                 fan_info.speed = speed
 
                 speed_rpm = fan_info.speed_rpm
