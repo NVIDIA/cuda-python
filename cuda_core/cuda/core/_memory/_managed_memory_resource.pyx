@@ -11,7 +11,6 @@ from cuda.core._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-from typing import Optional
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -28,7 +27,7 @@ cdef class ManagedMemoryResourceOptions:
         or None to let the driver decide.
         (Default to None)
     """
-    preferred_location : Optional[int] = None
+    preferred_location: int | None = None
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -90,10 +89,10 @@ cdef class ManagedMemoryResource(_MemPool):
                 opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
 
             opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+
+            super().__init__(device_id, opts_base)
         ELSE:
             raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
-
-        super().__init__(device_id, opts_base)
 
     @property
     def is_device_accessible(self) -> bool:

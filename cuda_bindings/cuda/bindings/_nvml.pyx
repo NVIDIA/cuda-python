@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -13627,7 +13627,7 @@ cdef class DevicePowerMizerModes_v1:
 
     @property
     def supported_power_mizer_modes(self):
-        """int: OUT: Bitmask of supported powermizer modes."""
+        """int: OUT: Bitmask of supported powermizer modes. The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
         return self._ptr[0].supportedPowerMizerModes
 
     @supported_power_mizer_modes.setter
@@ -21160,7 +21160,7 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
 
 cpdef object device_get_memory_info_v2(intptr_t device):
-    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. The reserved amount is supported on version 2 only.
+    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. nvmlDeviceGetMemoryInfo_v2 accounts separately for reserved memory and includes it in the used memory amount.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -22580,7 +22580,7 @@ cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link)
         link (unsigned int): Specifies the NvLink link to be queried.
 
     Returns:
-        unsigned int: Requested NvLink version from nvmlNvlinkVersion_t.
+        unsigned int: Requested NvLink version from ``nvmlNvlinkVersion_t``.
 
     .. seealso:: `nvmlDeviceGetNvLinkVersion`
     """
@@ -24467,6 +24467,108 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
     """
     with nogil:
         __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>power_mizer_mode)
+    check_status(__status__)
+
+
+cpdef object device_get_pdi(intptr_t device):
+    """Retrieves the Per Device Identifier (PDI) associated with this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlPdi_v1_t: Reference to the caller-provided structure to return the GPU PDI.
+
+    .. seealso:: `nvmlDeviceGetPdi`
+    """
+    cdef Pdi_v1 pdi_py = Pdi_v1()
+    cdef nvmlPdi_t *pdi = <nvmlPdi_t *><intptr_t>(pdi_py._get_ptr())
+    pdi.version = sizeof(nvmlPdi_v1_t) | (1 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetPdi(<Device>device, pdi)
+    check_status(__status__)
+    return pdi_py
+
+
+cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer):
+    """Read or write a GPU PRM register. The input is assumed to be in TLV format in network byte order.
+
+    Args:
+        device (intptr_t): Identifer of target GPU device.
+        buffer (intptr_t): Structure holding the input data in TLV format as well as the PRM register contents in TLV format (in the case of a successful read operation). Note: the input data and any returned data shall be in network byte order.
+
+    .. seealso:: `nvmlDeviceReadWritePRM_v1`
+    """
+    with nogil:
+        __status__ = nvmlDeviceReadWritePRM_v1(<Device>device, <nvmlPRMTLV_v1_t*>buffer)
+    check_status(__status__)
+
+
+cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id):
+    """GPU instance profile query function that accepts profile ID, instead of profile name. It accepts a versioned ``nvmlGpuInstanceProfileInfo_v2_t`` or later output structure.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): One of the profile IDs.
+
+    Returns:
+        nvmlGpuInstanceProfileInfo_v2_t: Returns detailed profile information.
+
+    .. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoByIdV`
+    """
+    cdef GpuInstanceProfileInfo_v2 info_py = GpuInstanceProfileInfo_v2()
+    cdef nvmlGpuInstanceProfileInfo_v2_t *info = <nvmlGpuInstanceProfileInfo_v2_t *><intptr_t>(info_py._get_ptr())
+    info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetGpuInstanceProfileInfoByIdV(<Device>device, profile_id, info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef object device_get_unrepairable_memory_flag_v1(intptr_t device):
+    """Get the unrepairable memory flag for a given GPU.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlUnrepairableMemoryStatus_v1_t: Reference to ``nvmlUnrepairableMemoryStatus_v1_t``.
+
+    .. seealso:: `nvmlDeviceGetUnrepairableMemoryFlag_v1`
+    """
+    cdef UnrepairableMemoryStatus_v1 unrepairable_memory_status_py = UnrepairableMemoryStatus_v1()
+    cdef nvmlUnrepairableMemoryStatus_v1_t *unrepairable_memory_status = <nvmlUnrepairableMemoryStatus_v1_t *><intptr_t>(unrepairable_memory_status_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetUnrepairableMemoryFlag_v1(<Device>device, unrepairable_memory_status)
+    check_status(__status__)
+    return unrepairable_memory_status_py
+
+
+cpdef device_read_prm_counters_v1(intptr_t device, intptr_t counter_list):
+    """Read a list of GPU PRM Counters.
+
+    Args:
+        device (intptr_t): Identifer of target GPU device.
+        counter_list (intptr_t): Structure holding the input parameters as well as the retrieved counter values.
+
+    .. seealso:: `nvmlDeviceReadPRMCounters_v1`
+    """
+    with nogil:
+        __status__ = nvmlDeviceReadPRMCounters_v1(<Device>device, <nvmlPRMCounterList_v1_t*>counter_list)
+    check_status(__status__)
+
+
+cpdef device_set_rusd_settings_v1(intptr_t device, intptr_t settings):
+    """Set Read-only user shared data (RUSD) settings for GPU. Requires root/admin permissions.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        settings (intptr_t): Reference to ``nvmlRusdSettings_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceSetRusdSettings_v1`
+    """
+    with nogil:
+        __status__ = nvmlDeviceSetRusdSettings_v1(<Device>device, <nvmlRusdSettings_v1_t*>settings)
     check_status(__status__)
 
 

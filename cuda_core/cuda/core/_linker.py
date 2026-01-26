@@ -191,10 +191,10 @@ class LinkerOptions:
     prec_div: bool | None = None
     prec_sqrt: bool | None = None
     fma: bool | None = None
-    kernels_used: Union[str, tuple[str], list[str]] | None = None
-    variables_used: Union[str, tuple[str], list[str]] | None = None
+    kernels_used: str | tuple[str] | list[str] | None = None
+    variables_used: str | tuple[str] | list[str] | None = None
     optimize_unused_variables: bool | None = None
-    ptxas_options: Union[str, tuple[str], list[str]] | None = None
+    ptxas_options: str | tuple[str] | list[str] | None = None
     split_compile: int | None = None
     split_compile_extended: int | None = None
     no_cache: bool | None = None
@@ -203,7 +203,7 @@ class LinkerOptions:
         _lazy_init()
         self._name = self.name.encode()
 
-    def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> Union[list[bytes], list[str]]:
+    def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> list[bytes] | list[str]:
         options = []
 
         if self.arch is not None:

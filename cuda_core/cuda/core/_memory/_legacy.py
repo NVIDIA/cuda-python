@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from cuda.core._memory._buffer import DevicePointerT
+
 from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
@@ -13,9 +16,6 @@ from cuda.core._utils.cuda_utils import (
 from cuda.core._utils.cuda_utils import (
     driver,
 )
-
-if TYPE_CHECKING:
-    from cuda.core._memory.buffer import DevicePointerT
 
 __all__ = ["LegacyPinnedMemoryResource", "_SynchronousMemoryResource"]
 
