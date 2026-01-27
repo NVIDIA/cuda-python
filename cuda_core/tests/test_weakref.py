@@ -47,7 +47,7 @@ def object_code():
     from cuda.core import Program
 
     prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
-    return prog.compile("ptx")
+    return prog.compile("cubin")
 
 
 @pytest.fixture
