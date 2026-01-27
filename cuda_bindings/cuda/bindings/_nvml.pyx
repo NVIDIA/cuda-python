@@ -10833,6 +10833,8 @@ cdef class ConfComputeGpuCertificate:
     def cert_chain(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuCertificate instance is read-only")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field cert_chain, max is 4096, got {len(val)}")
         self._ptr[0].certChainSize = len(val)
         if len(val) == 0:
             return
@@ -10853,6 +10855,8 @@ cdef class ConfComputeGpuCertificate:
     def attestation_cert_chain(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuCertificate instance is read-only")
+        if len(val) > 5120:
+            raise ValueError(f"Too many elements for field attestation_cert_chain, max is 5120, got {len(val)}")
         self._ptr[0].attestationCertChainSize = len(val)
         if len(val) == 0:
             return
@@ -11015,6 +11019,8 @@ cdef class ConfComputeGpuAttestationReport:
     def attestation_report(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
+        if len(val) > 8192:
+            raise ValueError(f"Too many elements for field attestation_report, max is 8192, got {len(val)}")
         self._ptr[0].attestationReportSize = len(val)
         if len(val) == 0:
             return
@@ -11035,6 +11041,8 @@ cdef class ConfComputeGpuAttestationReport:
     def cec_attestation_report(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field cec_attestation_report, max is 4096, got {len(val)}")
         self._ptr[0].cecAttestationReportSize = len(val)
         if len(val) == 0:
             return
@@ -11363,6 +11371,8 @@ cdef class NvlinkSupportedBwModes_v1:
     def bw_modes(self, val):
         if self._readonly:
             raise ValueError("This NvlinkSupportedBwModes_v1 instance is read-only")
+        if len(val) > 23:
+            raise ValueError(f"Too many elements for field bw_modes, max is 23, got {len(val)}")
         self._ptr[0].totalBwModes = len(val)
         if len(val) == 0:
             return
