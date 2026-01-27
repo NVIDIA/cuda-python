@@ -5511,8 +5511,6 @@ cdef class PlatformInfo_v1:
     @property
     def ib_guid(self):
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)"""
-        if 16 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].ibGuid))
         return _numpy.asarray(arr)
@@ -5530,8 +5528,6 @@ cdef class PlatformInfo_v1:
     @property
     def rack_guid(self):
         """~_numpy.uint8: (array of length 16).GUID of the rack containing this GPU (for Blackwell rackGuid is 13 bytes so indices 13-15 are zero)"""
-        if 16 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].rackGuid))
         return _numpy.asarray(arr)
@@ -5731,8 +5727,6 @@ cdef class PlatformInfo_v2:
     @property
     def ib_guid(self):
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)"""
-        if 16 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].ibGuid))
         return _numpy.asarray(arr)
@@ -5750,8 +5744,6 @@ cdef class PlatformInfo_v2:
     @property
     def chassis_serial_number(self):
         """~_numpy.uint8: (array of length 16).Serial number of the chassis containing this GPU (for Blackwell it is 13 bytes so indices 13-15 are zero)"""
-        if 16 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].chassisSerialNumber))
         return _numpy.asarray(arr)
@@ -7334,8 +7326,6 @@ cdef class VgpuSchedulerCapabilities:
     @property
     def supported_schedulers(self):
         """~_numpy.uint32: (array of length 3)."""
-        if 3 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].supportedSchedulers))
         return _numpy.asarray(arr)
@@ -10843,13 +10833,12 @@ cdef class ConfComputeGpuCertificate:
     def cert_chain(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuCertificate instance is read-only")
+        self._ptr[0].certChainSize = len(val)
         if len(val) == 0:
-            self._ptr[0].certChainSize = 0
             return
         cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].certChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
-        self._ptr[0].certChainSize = len(val)
 
     @property
     def attestation_cert_chain(self):
@@ -10864,13 +10853,12 @@ cdef class ConfComputeGpuCertificate:
     def attestation_cert_chain(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuCertificate instance is read-only")
+        self._ptr[0].attestationCertChainSize = len(val)
         if len(val) == 0:
-            self._ptr[0].attestationCertChainSize = 0
             return
         cdef view.array arr = view.array(shape=(5120,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
-        self._ptr[0].attestationCertChainSize = len(val)
 
     @staticmethod
     def from_data(data):
@@ -11000,8 +10988,6 @@ cdef class ConfComputeGpuAttestationReport:
     @property
     def nonce(self):
         """~_numpy.uint8: (array of length 32)."""
-        if 32 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].nonce))
         return _numpy.asarray(arr)
@@ -11029,13 +11015,12 @@ cdef class ConfComputeGpuAttestationReport:
     def attestation_report(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
+        self._ptr[0].attestationReportSize = len(val)
         if len(val) == 0:
-            self._ptr[0].attestationReportSize = 0
             return
         cdef view.array arr = view.array(shape=(8192,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
-        self._ptr[0].attestationReportSize = len(val)
 
     @property
     def cec_attestation_report(self):
@@ -11050,13 +11035,12 @@ cdef class ConfComputeGpuAttestationReport:
     def cec_attestation_report(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
+        self._ptr[0].cecAttestationReportSize = len(val)
         if len(val) == 0:
-            self._ptr[0].cecAttestationReportSize = 0
             return
         cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
-        self._ptr[0].cecAttestationReportSize = len(val)
 
     @staticmethod
     def from_data(data):
@@ -11186,8 +11170,6 @@ cdef class GpuFabricInfo_v2:
     @property
     def cluster_uuid(self):
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
-        if 16 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].clusterUuid))
         return _numpy.asarray(arr)
@@ -11381,13 +11363,12 @@ cdef class NvlinkSupportedBwModes_v1:
     def bw_modes(self, val):
         if self._readonly:
             raise ValueError("This NvlinkSupportedBwModes_v1 instance is read-only")
+        self._ptr[0].totalBwModes = len(val)
         if len(val) == 0:
-            self._ptr[0].totalBwModes = 0
             return
         cdef view.array arr = view.array(shape=(23,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
-        self._ptr[0].totalBwModes = len(val)
 
     @staticmethod
     def from_data(data):
@@ -13985,8 +13966,6 @@ cdef class GpuFabricInfo_v3:
     @property
     def cluster_uuid(self):
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
-        if 16 == 0:
-            return _numpy.array([])
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].clusterUuid))
         return _numpy.asarray(arr)
