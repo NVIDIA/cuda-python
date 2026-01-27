@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import functools
 import glob
 import os
@@ -14,10 +16,10 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 @dataclass
 class FoundHeader:
-    abs_path: str
+    abs_path: str | None
     found_via: str
 
-    def _normalize_path(self) -> str | None:
+    def _normalize_path(self) -> FoundHeader:
         self.abs_path = _abs_norm(self.abs_path)
         return self
 
@@ -153,7 +155,7 @@ def find_nvidia_header_directory(libname: str, include_info: bool = False) -> Fo
         raise RuntimeError(f"UNKNOWN {libname=}")
 
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK.get(libname, [])
-    found_hdr: FoundHeader | None  # help mypy
+
     for cdir in candidate_dirs:
         if found_hdr := _find_under_site_packages(cdir, h_basename):
             found_hdr._normalize_path()
@@ -172,4 +174,3 @@ def find_nvidia_header_directory(libname: str, include_info: bool = False) -> Fo
             if _joined_isfile(hdr_dir, h_basename):
                 return _abs_norm(hdr_dir)
     return None
-
