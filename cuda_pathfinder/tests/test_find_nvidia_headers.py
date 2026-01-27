@@ -20,6 +20,7 @@ import re
 import pytest
 
 from cuda.pathfinder import find_nvidia_header_directory
+from cuda.pathfinder._headers.find_nvidia_headers import FoundHeader
 from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_HEADERS_CTK_ALL,
@@ -97,3 +98,103 @@ def test_find_ctk_headers(info_summary_append, libname):
         assert os.path.isfile(os.path.join(hdr_dir, h_filename))
     if STRICTNESS == "all_must_work":
         assert hdr_dir is not None
+
+
+def test_unknown_libname_with_info():
+    """Test that find_nvidia_header_directory_with_info raises for unknown libraries."""
+    with pytest.raises(RuntimeError, match=r"^UNKNOWN libname='unknown-libname'$"):
+        find_nvidia_header_directory("unknown-libname", include_info=True)
+
+
+@pytest.mark.parametrize("libname", SUPPORTED_HEADERS_NON_CTK.keys())
+def test_find_non_ctk_headers_with_info(info_summary_append, libname):
+    """Test find_nvidia_header_directory_with_info for non-CTK libraries.
+
+    This test validates:
+    1. The function returns FoundHeader or None (not just a string)
+    2. The abs_path matches what the original function returns
+    3. The found_via field correctly identifies the discovery method
+    """
+    found_header = find_nvidia_header_directory(libname, include_info=True)
+    hdr_dir_original = find_nvidia_header_directory(libname)
+
+    info_summary_append(f"{found_header=!r}")
+
+    # Test consistency between old and new API
+    if found_header:
+        assert isinstance(found_header, FoundHeader)
+        assert found_header.abs_path == hdr_dir_original
+        assert os.path.isdir(found_header.abs_path)
+        assert os.path.isfile(os.path.join(found_header.abs_path, SUPPORTED_HEADERS_NON_CTK[libname]))
+
+        # Validate found_via field
+        assert found_header.found_via in ("site-packages", "conda", "CUDA_HOME")
+        info_summary_append(f"found_via={found_header.found_via!r}")
+    else:
+        assert hdr_dir_original is None
+
+    # Test expected discovery methods based on environment
+    if have_distribution_for(libname):
+        assert found_header is not None
+        # When installed via pip wheel, should be found in site-packages
+        assert found_header.found_via == "site-packages"
+        hdr_dir_parts = found_header.abs_path.split(os.path.sep)
+        assert "site-packages" in hdr_dir_parts
+    elif STRICTNESS == "all_must_work":
+        assert found_header is not None
+        if conda_prefix := os.environ.get("CONDA_PREFIX"):
+            # When in conda environment, should be found via conda
+            assert found_header.found_via == "conda"
+            assert found_header.abs_path.startswith(conda_prefix)
+        else:
+            # Otherwise should be found via system install (CUDA_HOME)
+            assert found_header.found_via == "CUDA_HOME"
+            inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
+            if inst_dirs is not None:
+                for inst_dir in inst_dirs:
+                    globbed = glob.glob(inst_dir)
+                    if found_header.abs_path in globbed:
+                        break
+                else:
+                    raise RuntimeError(f"{found_header.abs_path=} does not match any {inst_dirs=}")
+
+
+@pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
+def test_find_ctk_headers_with_info(info_summary_append, libname):
+    """Test find_nvidia_header_directory_with_info for CTK libraries.
+
+    This test validates:
+    1. The function returns FoundHeader or None (not just a string)
+    2. The abs_path matches what the original function returns
+    3. The found_via field correctly identifies the discovery method (site-packages, conda, or CUDA_HOME)
+    """
+    found_header = find_nvidia_header_directory(libname, include_info=True)
+    hdr_dir_original = find_nvidia_header_directory(libname, include_info=False)
+
+    info_summary_append(f"{found_header=!r}")
+
+    # Test consistency between old and new API
+    if found_header:
+        assert isinstance(found_header, FoundHeader)
+        assert found_header.abs_path == hdr_dir_original
+        assert os.path.isdir(found_header.abs_path)
+        h_filename = SUPPORTED_HEADERS_CTK[libname]
+        assert os.path.isfile(os.path.join(found_header.abs_path, h_filename))
+
+        # Validate found_via field
+        assert found_header.found_via in ("site-packages", "conda", "CUDA_HOME")
+        info_summary_append(f"found_via={found_header.found_via!r}")
+    else:
+        assert hdr_dir_original is None
+
+    if STRICTNESS == "all_must_work":
+        assert found_header is not None
+        # In CI, CTK headers can come from:
+        # - site-packages wheels (when LOCAL_CTK=0 and extra wheels installed)
+        # - CUDA_HOME (when LOCAL_CTK=1 and mini CTK is set up)
+        # - conda (when CONDA_PREFIX is set)
+
+        if os.environ.get("CONDA_PREFIX"):
+            assert found_header.found_via == "conda"
+        elif os.environ.get("CUDA_HOME") or os.environ.get("CUDA_PATH"):
+            assert found_header.found_via == "CUDA_HOME"
