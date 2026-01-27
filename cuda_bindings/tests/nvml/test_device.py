@@ -2,25 +2,26 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
-import cuda.bindings.runtime as cudart
+from functools import cache
+
 import pytest
 from cuda.bindings import _nvml as nvml
 
 from .conftest import unsupported_before
 
 
-def isSuccess(err):
-    return err == cudart.cudaError_t.cudaSuccess
+@cache
+def get_cuda_version():
+    nvml.init_v2()
+    try:
+        version = nvml.system_get_cuda_driver_version()
+    finally:
+        nvml.shutdown()
+    return version
 
 
-def assertSuccess(err):
-    assert isSuccess(err)
-
-
-def driverVersionLessThan(target):
-    err, version = cudart.cudaDriverGetVersion()
-    assertSuccess(err)
-    return version < target
+def cuda_version_less_than(target):
+    return get_cuda_version() < target
 
 
 def test_device_capabilities(all_devices):
@@ -91,7 +92,7 @@ def test_device_get_performance_modes(all_devices):
         assert isinstance(modes, str)
 
 
-@pytest.mark.skipif(driverVersionLessThan(13010), reason="Introduced in 13.1")
+@pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
 def test_device_get_unrepairable_memory_flag(all_devices):
     for device in all_devices:
         status = nvml.device_get_unrepairable_memory_flag_v1(device)
@@ -105,7 +106,7 @@ def test_device_vgpu_get_heterogeneous_mode(all_devices):
         assert isinstance(mode, int)
 
 
-@pytest.mark.skipif(driverVersionLessThan(13010), reason="Introduced in 13.1")
+@pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
 def test_read_prm_counters(all_devices):
     for device in all_devices:
         counters = nvml.PRMCounter_v1(5)
