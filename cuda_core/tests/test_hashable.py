@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -54,7 +54,7 @@ def sample_launch_config():
 @pytest.fixture
 def sample_object_code(init_cuda):
     prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
-    return prog.compile("ptx")
+    return prog.compile("cubin")
 
 
 @pytest.fixture
@@ -129,7 +129,6 @@ def test_mixed_type_dict(init_cuda):
 
     assert len(hashes) == 4, (
         f"Hash collision detected! Expected 4 unique hashes, got {len(hashes)}. "
-        f"This indicates the type salt is not working correctly."
     )
 
     # Test 2: Verify all types can coexist in same dict without conflicts
