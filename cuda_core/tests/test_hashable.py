@@ -127,9 +127,7 @@ def test_mixed_type_dict(init_cuda):
     # Test 1: Verify all hashes are unique (no collisions between different types)
     hashes = {hash(device), hash(stream), hash(event), hash(context)}
 
-    assert len(hashes) == 4, (
-        f"Hash collision detected! Expected 4 unique hashes, got {len(hashes)}. "
-    )
+    assert len(hashes) == 4, f"Hash collision detected! Expected 4 unique hashes, got {len(hashes)}. "
 
     # Test 2: Verify all types can coexist in same dict without conflicts
     mixed_cache = {stream: "stream_data", event: "event_data", context: "context_data", device: "device_data"}
