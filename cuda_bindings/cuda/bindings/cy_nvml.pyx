@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
@@ -759,10 +759,6 @@ cdef nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTem
     return _nvml._nvmlDeviceSetTemperatureThreshold(device, thresholdType, temp)
 
 
-cdef nvmlReturn_t nvmlDeviceSetPowerManagementLimit(nvmlDevice_t device, unsigned int limit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlDeviceSetPowerManagementLimit(device, limit)
-
-
 cdef nvmlReturn_t nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlGpuOperationMode_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceSetGpuOperationMode(device, mode)
 
@@ -1315,32 +1311,8 @@ cdef nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_t migD
     return _nvml._nvmlDeviceGetDeviceHandleFromMigDeviceHandle(migDevice, device)
 
 
-cdef nvmlReturn_t nvmlGpmSampleGet(nvmlDevice_t device, nvmlGpmSample_t gpmSample) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlGpmSampleGet(device, gpmSample)
-
-
-cdef nvmlReturn_t nvmlGpmMigSampleGet(nvmlDevice_t device, unsigned int gpuInstanceId, nvmlGpmSample_t gpmSample) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlGpmMigSampleGet(device, gpuInstanceId, gpmSample)
-
-
-cdef nvmlReturn_t nvmlGpmQueryDeviceSupport(nvmlDevice_t device, nvmlGpmSupport_t* gpmSupport) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlGpmQueryDeviceSupport(device, gpmSupport)
-
-
-cdef nvmlReturn_t nvmlGpmQueryIfStreamingEnabled(nvmlDevice_t device, unsigned int* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlGpmQueryIfStreamingEnabled(device, state)
-
-
-cdef nvmlReturn_t nvmlGpmSetStreamingEnabled(nvmlDevice_t device, unsigned int state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlGpmSetStreamingEnabled(device, state)
-
-
 cdef nvmlReturn_t nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t* caps) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceGetCapabilities(device, caps)
-
-
-cdef nvmlReturn_t nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t* requestedProfiles) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(device, requestedProfiles)
 
 
 cdef nvmlReturn_t nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
