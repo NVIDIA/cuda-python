@@ -546,7 +546,7 @@ class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map", "_name")
+    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map", "_name", "__weakref__")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
     def __new__(self, *args, **kwargs):
