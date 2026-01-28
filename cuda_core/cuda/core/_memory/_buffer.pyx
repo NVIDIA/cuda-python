@@ -324,6 +324,16 @@ cdef class Buffer:
         # that expect a raw pointer value
         return as_intptr(self._h_ptr)
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Buffer):
+            return NotImplemented
+        cdef Buffer other_buf = <Buffer>other
+        return (as_intptr(self._h_ptr) == as_intptr(other_buf._h_ptr) and
+                self._size == other_buf._size)
+
+    def __hash__(self) -> int:
+        return hash((as_intptr(self._h_ptr), self._size))
+
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
