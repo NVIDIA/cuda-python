@@ -1,6 +1,0 @@
-﻿cuda.core.StreamOptions
-=======================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: StreamOptions
