@@ -4605,142 +4605,6 @@ cdef class ClockOffset_v1:
         return obj
 
 
-cdef _get_device_current_clock_freqs_v1_dtype_offsets():
-    cdef nvmlDeviceCurrentClockFreqs_v1_t pod = nvmlDeviceCurrentClockFreqs_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'str'],
-        'formats': [_numpy.uint32, (_numpy.int8, 2048)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDeviceCurrentClockFreqs_v1_t),
-    })
-
-device_current_clock_freqs_v1_dtype = _get_device_current_clock_freqs_v1_dtype_offsets()
-
-cdef class DeviceCurrentClockFreqs_v1:
-    """Empty-initialize an instance of `nvmlDeviceCurrentClockFreqs_v1_t`.
-
-
-    .. seealso:: `nvmlDeviceCurrentClockFreqs_v1_t`
-    """
-    cdef:
-        nvmlDeviceCurrentClockFreqs_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>calloc(1, sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DeviceCurrentClockFreqs_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDeviceCurrentClockFreqs_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.DeviceCurrentClockFreqs_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef DeviceCurrentClockFreqs_v1 other_
-        if not isinstance(other, DeviceCurrentClockFreqs_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceCurrentClockFreqs_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>malloc(sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DeviceCurrentClockFreqs_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: the API version number"""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This DeviceCurrentClockFreqs_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def str(self):
-        """~_numpy.int8: (array of length 2048).OUT: the current clock frequency string."""
-        return cpython.PyUnicode_FromString(self._ptr[0].str)
-
-    @str.setter
-    def str(self, val):
-        if self._readonly:
-            raise ValueError("This DeviceCurrentClockFreqs_v1 instance is read-only")
-        cdef bytes buf = val.encode()
-        if len(buf) >= 2048:
-            raise ValueError("String too long for field str, max length is 2047")
-        cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].str), <void *>ptr, 2048)
-
-    @staticmethod
-    def from_data(data):
-        """Create an DeviceCurrentClockFreqs_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `device_current_clock_freqs_v1_dtype` holding the data.
-        """
-        return __from_data(data, "device_current_clock_freqs_v1_dtype", device_current_clock_freqs_v1_dtype, DeviceCurrentClockFreqs_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an DeviceCurrentClockFreqs_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef DeviceCurrentClockFreqs_v1 obj = DeviceCurrentClockFreqs_v1.__new__(DeviceCurrentClockFreqs_v1)
-        if owner is None:
-            obj._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>malloc(sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DeviceCurrentClockFreqs_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
 cdef _get_process_utilization_sample_dtype_offsets():
     cdef nvmlProcessUtilizationSample_t pod = nvmlProcessUtilizationSample_t()
     return _numpy.dtype({
@@ -10825,7 +10689,7 @@ cdef class ConfComputeGpuCertificate:
         """~_numpy.uint8: (array of length 4096)."""
         if self._ptr[0].certChainSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].certChain))
         return _numpy.asarray(arr)
 
@@ -10838,7 +10702,7 @@ cdef class ConfComputeGpuCertificate:
         self._ptr[0].certChainSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef view.array arr = view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].certChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -10847,7 +10711,7 @@ cdef class ConfComputeGpuCertificate:
         """~_numpy.uint8: (array of length 5120)."""
         if self._ptr[0].attestationCertChainSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(5120,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationCertChain))
         return _numpy.asarray(arr)
 
@@ -10860,7 +10724,7 @@ cdef class ConfComputeGpuCertificate:
         self._ptr[0].attestationCertChainSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(5120,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -11011,7 +10875,7 @@ cdef class ConfComputeGpuAttestationReport:
         """~_numpy.uint8: (array of length 8192)."""
         if self._ptr[0].attestationReportSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(8192,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationReport))
         return _numpy.asarray(arr)
 
@@ -11024,7 +10888,7 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].attestationReportSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(8192,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -11033,7 +10897,7 @@ cdef class ConfComputeGpuAttestationReport:
         """~_numpy.uint8: (array of length 4096)."""
         if self._ptr[0].cecAttestationReportSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].cecAttestationReport))
         return _numpy.asarray(arr)
 
@@ -11046,7 +10910,7 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].cecAttestationReportSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -11363,7 +11227,7 @@ cdef class NvlinkSupportedBwModes_v1:
         """~_numpy.uint8: (array of length 23)."""
         if self._ptr[0].totalBwModes == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(23,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].bwModes))
         return _numpy.asarray(arr)
 
@@ -11376,7 +11240,7 @@ cdef class NvlinkSupportedBwModes_v1:
         self._ptr[0].totalBwModes = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(23,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -14863,8 +14727,11 @@ cdef class BridgeChipHierarchy:
         if self._readonly:
             raise ValueError("This BridgeChipHierarchy instance is read-only")
         cdef BridgeChipInfo val_ = val
-        if len(val) != self._ptr[0].bridgeCount:
-            raise ValueError(f"Expected length { self._ptr[0].bridgeCount } for field bridge_chip_info, got {len(val)}")
+        if len(val) > 128:
+            raise ValueError(f"Expected length < 128 for field bridge_chip_info, got {len(val)}")
+        self._ptr[0].bridgeCount = len(val)
+        if len(val) == 0:
+            return
         memcpy(<void *>&(self._ptr[0].bridgeChipInfo), <void *>(val_._get_ptr()), sizeof(nvmlBridgeChipInfo_t) * self._ptr[0].bridgeCount)
 
     @staticmethod
@@ -16008,8 +15875,11 @@ cdef class ClkMonStatus:
         if self._readonly:
             raise ValueError("This ClkMonStatus instance is read-only")
         cdef ClkMonFaultInfo val_ = val
-        if len(val) != self._ptr[0].clkMonListSize:
-            raise ValueError(f"Expected length { self._ptr[0].clkMonListSize } for field clk_mon_list, got {len(val)}")
+        if len(val) > 32:
+            raise ValueError(f"Expected length < 32 for field clk_mon_list, got {len(val)}")
+        self._ptr[0].clkMonListSize = len(val)
+        if len(val) == 0:
+            return
         memcpy(<void *>&(self._ptr[0].clkMonList), <void *>(val_._get_ptr()), sizeof(nvmlClkMonFaultInfo_t) * self._ptr[0].clkMonListSize)
 
     @property
@@ -19297,8 +19167,11 @@ cdef class GridLicensableFeatures:
         if self._readonly:
             raise ValueError("This GridLicensableFeatures instance is read-only")
         cdef GridLicensableFeature val_ = val
-        if len(val) != self._ptr[0].licensableFeaturesCount:
-            raise ValueError(f"Expected length { self._ptr[0].licensableFeaturesCount } for field grid_licensable_features, got {len(val)}")
+        if len(val) > 3:
+            raise ValueError(f"Expected length < 3 for field grid_licensable_features, got {len(val)}")
+        self._ptr[0].licensableFeaturesCount = len(val)
+        if len(val) == 0:
+            return
         memcpy(<void *>&(self._ptr[0].gridLicensableFeatures), <void *>(val_._get_ptr()), sizeof(nvmlGridLicensableFeature_t) * self._ptr[0].licensableFeaturesCount)
 
     @property
@@ -21005,26 +20878,6 @@ cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
     with nogil:
         __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>info)
     check_status(__status__)
-
-
-cpdef object device_get_current_clock_freqs(intptr_t device):
-    """Retrieves a string with the associated current GPU Clock and Memory Clock values.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlDeviceCurrentClockFreqs_v1_t: Reference in which to return the performance level string.
-
-    .. seealso:: `nvmlDeviceGetCurrentClockFreqs`
-    """
-    cdef DeviceCurrentClockFreqs_v1 current_clock_freqs_py = DeviceCurrentClockFreqs_v1()
-    cdef nvmlDeviceCurrentClockFreqs_t *current_clock_freqs = <nvmlDeviceCurrentClockFreqs_t *><intptr_t>(current_clock_freqs_py._get_ptr())
-    current_clock_freqs.version = sizeof(nvmlDeviceCurrentClockFreqs_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetCurrentClockFreqs(<Device>device, current_clock_freqs)
-    check_status(__status__)
-    return current_clock_freqs_py
 
 
 cpdef unsigned int device_get_power_management_limit(intptr_t device) except? 0:
@@ -24567,7 +24420,7 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int leve
     return deviceArray
 
 
-cpdef object device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
+cpdef int device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
     """Retrieves the current temperature readings (in degrees C) for the given device.
 
     Args:
@@ -24579,10 +24432,10 @@ cpdef object device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t 
     .. seealso:: `nvmlDeviceGetTemperatureV`
     """
     cdef nvmlTemperature_v1_t[1] temperature
-    temperature[0].version = sizeof(nvmlTemperature_v1_t) | (1 << 24)
-    temperature[0].sensorType = <nvmlTemperatureSensors_t>sensorType
 
     with nogil:
+        temperature[0].version = sizeof(nvmlTemperature_v1_t) | (1 << 24)
+        temperature[0].sensorType = <nvmlTemperatureSensors_t>sensorType
         __status__ = nvmlDeviceGetTemperatureV(<Device>device, temperature)
     check_status(__status__)
     return temperature.temperature
@@ -24638,9 +24491,10 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
     with nogil:
         __status__ = nvmlDeviceGetRunningProcessDetailList(<Device>device, ptr)
     check_status(__status__)
+    return plist
 
 
-cpdef object device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
+cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
     """Gets recent samples for the GPU.
 
     Args:
@@ -24665,7 +24519,7 @@ cpdef object device_get_samples(intptr_t device, int type, unsigned long long la
     return (sample_val_type[0], samples)
 
 
-cpdef object device_get_retired_pages_v2(intptr_t device, int cause):
+cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
     """Returns the list of retired pages by source, including pages that are pending retirement
 
     Args:
@@ -24809,7 +24663,7 @@ cpdef object device_get_field_values(intptr_t device, values):
     return values_
 
 
-cpdef object device_clear_field_values(intptr_t device, values):
+cpdef  device_clear_field_values(intptr_t device, values):
     """Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.
 
     Args:
@@ -24892,7 +24746,7 @@ cpdef object device_get_active_vgpus(intptr_t device):
     return vgpuInstances
 
 
-cpdef str vgpu_instance_get_vm_id(unsigned int vgpu_instance):
+cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
     """Retrieve the VM ID associated with a vGPU instance.
 
     Args:
@@ -25304,8 +25158,8 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
     if CUDA_VERSION >= 13000:
         gpu_fabric_info_v3_py = GpuFabricInfo_v3()
         gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v3_py._get_ptr())
-        gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v3_t) | (3 << 24)
         with nogil:
+            gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v3_t) | (3 << 24)
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v3_py
@@ -25313,8 +25167,8 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
     else:
         gpu_fabric_info_v2_py = GpuFabricInfo_v2()
         gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v2_py._get_ptr())
-        gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
         with nogil:
+            gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v2_py
@@ -25338,8 +25192,8 @@ cpdef object device_get_platform_info(intptr_t device):
     if CUDA_VERSION >= 13000:
         platform_info_v2_py = PlatformInfo_v2()
         platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v2_py._get_ptr())
-        platform_info.version = sizeof(nvmlPlatformInfo_v2_t) | (2 << 24)
         with nogil:
+            platform_info.version = sizeof(nvmlPlatformInfo_v2_t) | (2 << 24)
             __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
         check_status(__status__)
         return platform_info_v2_py
@@ -25347,8 +25201,8 @@ cpdef object device_get_platform_info(intptr_t device):
     else:
         platform_info_v1_py = PlatformInfo_v1()
         platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v1_py._get_ptr())
-        platform_info.version = sizeof(nvmlPlatformInfo_v1_t) | (1 << 24)
         with nogil:
+            platform_info.version = sizeof(nvmlPlatformInfo_v1_t) | (1 << 24)
             __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
         check_status(__status__)
         return platform_info_v1_py
@@ -25372,8 +25226,8 @@ cpdef object device_get_nvlink_info(intptr_t device):
     if CUDA_VERSION >= 13000:
         info_v2_py = NvLinkInfo_v2()
         info = <nvmlNvLinkInfo_t *><intptr_t>(info_v2_py._get_ptr())
-        info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
         with nogil:
+            info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v2_py
@@ -25381,8 +25235,8 @@ cpdef object device_get_nvlink_info(intptr_t device):
     else:
         info_v1_py = NvLinkInfo_v1()
         info = <nvmlNvLinkInfo_t *><intptr_t>(info_v1_py._get_ptr())
-        info.version = sizeof(nvmlNvLinkInfo_v1_t) | (1 << 24)
         with nogil:
+            info.version = sizeof(nvmlNvLinkInfo_v1_t) | (1 << 24)
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v1_py
@@ -25416,10 +25270,10 @@ cpdef system_register_events(unsigned long long event_types, intptr_t event_set)
         event_set (intptr_t): The system event set handle.
     """
     cdef nvmlSystemRegisterEventRequest_v1_t[1] request
-    request[0].set = <SystemEventSet>event_set
-    request[0].eventTypes = event_types
     with nogil:
         request[0].version = sizeof(nvmlSystemRegisterEventRequest_v1_t) | (1 << 24)
+        request[0].set = <SystemEventSet>event_set
+        request[0].eventTypes = event_types
         __status__ = nvmlSystemRegisterEvents(<nvmlSystemRegisterEventRequest_t*>request)
     check_status(__status__)
 
@@ -25437,12 +25291,12 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
     """
     cdef nvmlSystemEventSetWaitRequest_v1_t[1] request
     cdef SystemEventData_v1 event_data = SystemEventData_v1(buffer_size)
-    request[0].timeoutms = timeout_ms
-    request[0].set = <SystemEventSet>event_set
     request[0].data = <nvmlSystemEventData_v1_t *><intptr_t>(event_data._get_ptr())
-    request[0].dataSize = buffer_size
     with nogil:
         request[0].version = sizeof(nvmlSystemEventSetWaitRequest_v1_t) | (1 << 24)
+        request[0].timeoutms = timeout_ms
+        request[0].set = <SystemEventSet>event_set
+        request[0].dataSize = buffer_size
         __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
     check_status(__status__)
     event_data._data.resize((request[0].numEvent,))
@@ -25462,9 +25316,9 @@ cpdef unsigned int device_get_fan_speed_rpm(intptr_t device, unsigned int fan):
     .. seealso:: `nvmlDeviceGetFanSpeedRPM`
     """
     cdef nvmlFanSpeedInfo_v1_t[1] fan_speed
-    fan_speed[0].version = sizeof(nvmlFanSpeedInfo_v1_t) | (1 << 24)
-    fan_speed[0].fan = fan
     with nogil:
+        fan_speed[0].version = sizeof(nvmlFanSpeedInfo_v1_t) | (1 << 24)
+        fan_speed[0].fan = fan
         __status__ = nvmlDeviceGetFanSpeedRPM(<Device>device, fan_speed)
     check_status(__status__)
     return fan_speed[0].speed
@@ -25482,8 +25336,8 @@ cpdef int device_get_margin_temperature(intptr_t device):
     .. seealso:: `nvmlDeviceGetMarginTemperature`
     """
     cdef nvmlMarginTemperature_v1_t[1] margin_temp_info
-    margin_temp_info[0].version = sizeof(nvmlMarginTemperature_v1_t) | (1 << 24)
     with nogil:
+        margin_temp_info[0].version = sizeof(nvmlMarginTemperature_v1_t) | (1 << 24)
         __status__ = nvmlDeviceGetMarginTemperature(<Device>device, margin_temp_info)
     check_status(__status__)
     return margin_temp_info[0].marginTemperature
@@ -25502,10 +25356,10 @@ cpdef object device_get_clock_offsets(intptr_t device, nvmlClockType_t clock_typ
     """
     cdef ClockOffset_v1 info_py = ClockOffset_v1()
     cdef nvmlClockOffset_v1_t *info = <nvmlClockOffset_v1_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlClockOffset_v1_t) | (1 << 24)
-    info.type = clock_type
-    info.pstate = pstate
     with nogil:
+        info.version = sizeof(nvmlClockOffset_v1_t) | (1 << 24)
+        info.type = clock_type
+        info.pstate = pstate
         __status__ = nvmlDeviceGetClockOffsets(<Device>device, info)
     check_status(__status__)
     return info_py
@@ -25558,8 +25412,8 @@ cpdef unsigned int vgpu_instance_get_placement_id(unsigned int vgpu_instance):
     .. seealso:: `nvmlVgpuInstanceGetPlacementId`
     """
     cdef nvmlVgpuPlacementId_t[1] p_placement
-    p_placement[0].version = sizeof(nvmlVgpuPlacementId_v1_t) | (1 << 24)
     with nogil:
+        p_placement[0].version = sizeof(nvmlVgpuPlacementId_v1_t) | (1 << 24)
         __status__ = nvmlVgpuInstanceGetPlacementId(<nvmlVgpuInstance_t>vgpu_instance, p_placement)
     check_status(__status__)
     return p_placement[0].placementId
@@ -25577,8 +25431,8 @@ cpdef object device_get_capabilities(intptr_t device):
     .. seealso:: `nvmlDeviceGetCapabilities`
     """
     cdef nvmlDeviceCapabilities_t[1] caps
-    caps[0].version = sizeof(nvmlDeviceCapabilities_v1_t) | (1 << 24)
     with nogil:
+        caps[0].version = sizeof(nvmlDeviceCapabilities_v1_t) | (1 << 24)
         __status__ = nvmlDeviceGetCapabilities(<Device>device, caps)
     check_status(__status__)
     return caps[0].capMask
@@ -25621,8 +25475,7 @@ cpdef tuple device_get_dram_encryption_mode(intptr_t device):
     cdef nvmlDramEncryptionInfo_t current
     cdef nvmlDramEncryptionInfo_t pending
     with nogil:
-        current.version = sizeof(nvmlDramEncryptionInfo_t) | (1 << 24)
-        pending.version = sizeof(nvmlDramEncryptionInfo_t) | (1 << 24)
+        current.version = pending.version = sizeof(nvmlDramEncryptionInfo_t) | (1 << 24)
         __status__ = nvmlDeviceGetDramEncryptionMode(<Device>device, &current, &pending)
     check_status(__status__)
     return (current.encryptionState, pending.encryptionState)
@@ -25659,8 +25512,8 @@ cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsig
     """
     cdef GpuInstanceProfileInfo_v3 info_py = GpuInstanceProfileInfo_v3()
     cdef nvmlGpuInstanceProfileInfo_v3_t *info = <nvmlGpuInstanceProfileInfo_v3_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
     with nogil:
+        info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
         __status__ = nvmlDeviceGetGpuInstanceProfileInfoByIdV(<Device>device, profile_id, <nvmlGpuInstanceProfileInfo_v2_t *>info)
     check_status(__status__)
     return info_py
@@ -25680,8 +25533,8 @@ cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned in
     """
     cdef GpuInstanceProfileInfo_v3 info_py = GpuInstanceProfileInfo_v3()
     cdef nvmlGpuInstanceProfileInfo_v3_t *info = <nvmlGpuInstanceProfileInfo_v3_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
     with nogil:
+        info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
         __status__ = nvmlDeviceGetGpuInstanceProfileInfoV(<Device>device, profile, <nvmlGpuInstanceProfileInfo_v2_t *>info)
     check_status(__status__)
     return info_py
@@ -25736,8 +25589,8 @@ cpdef unsigned long long device_get_pdi(intptr_t device):
     .. seealso:: `nvmlDeviceGetPdi`
     """
     cdef nvmlPdi_v1_t[1] pdi
-    pdi[0].version = sizeof(nvmlPdi_v1_t) | (1 << 24)
     with nogil:
+        pdi[0].version = sizeof(nvmlPdi_v1_t) | (1 << 24)
         __status__ = nvmlDeviceGetPdi(<Device>device, pdi)
     check_status(__status__)
     return pdi[0].value
@@ -25755,8 +25608,8 @@ cpdef str device_get_performance_modes(intptr_t device):
     .. seealso:: `nvmlDeviceGetPerformanceModes`
     """
     cdef nvmlDevicePerfModes_t[1] perf_modes
-    perf_modes[0].version = sizeof(nvmlDevicePerfModes_v1_t) | (1 << 24)
     with nogil:
+        perf_modes[0].version = sizeof(nvmlDevicePerfModes_v1_t) | (1 << 24)
         __status__ = nvmlDeviceGetPerformanceModes(<Device>device, perf_modes)
     check_status(__status__)
     return cpython.PyUnicode_FromString(perf_modes[0].str)
@@ -25988,7 +25841,7 @@ cpdef device_set_nvlink_device_low_power_threshold(intptr_t device, unsigned int
     check_status(__status__)
 
 
-cpdef unsigned int device_set_power_management_limit_v2(intptr_t device, int power_scope, unsigned int power_value_mw):
+cpdef device_set_power_management_limit_v2(intptr_t device, int power_scope, unsigned int power_value_mw):
     """Set new power limit of this device.
 
     Args:
@@ -26109,3 +25962,22 @@ cpdef unsigned int vgpu_type_get_max_instances_per_gpu_instance(unsigned int vgp
         __status__ = nvmlVgpuTypeGetMaxInstancesPerGpuInstance(max_instance)
     check_status(__status__)
     return max_instance[0].maxInstancePerGI
+
+
+cpdef str device_get_current_clock_freqs(intptr_t device):
+    """Retrieves a string with the associated current GPU Clock and Memory Clock values.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        str: The current clock frequency string.
+
+    .. seealso:: `nvmlDeviceGetCurrentClockFreqs`
+    """
+    cdef nvmlDeviceCurrentClockFreqs_t[1] current_clock_freqs
+    with nogil:
+        current_clock_freqs[0].version = sizeof(nvmlDeviceCurrentClockFreqs_v1_t) | (1 << 24)
+        __status__ = nvmlDeviceGetCurrentClockFreqs(<Device>device, current_clock_freqs)
+    check_status(__status__)
+    return cpython.PyUnicode_FromString(current_clock_freqs[0].str)
