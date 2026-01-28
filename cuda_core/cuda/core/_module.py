@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -536,6 +536,9 @@ class Kernel:
     def __hash__(self) -> int:
         return hash(int(self._handle))
 
+    def __repr__(self) -> str:
+        return f"Kernel(handle={int(self._handle):#x})"
+
 
 CodeTypeT = bytes | bytearray | str
 
@@ -775,3 +778,7 @@ class ObjectCode:
     def __hash__(self) -> int:
         # Trigger lazy load to get the handle
         return hash(int(self.handle))
+
+    def __repr__(self) -> str:
+        # Trigger lazy load to get the handle
+        return f"ObjectCode(handle={int(self.handle):#x}, code_type='{self._code_type}')"
