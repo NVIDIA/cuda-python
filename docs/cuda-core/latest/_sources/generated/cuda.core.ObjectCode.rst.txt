@@ -34,5 +34,6 @@ cuda.core.ObjectCode
    .. autoproperty:: code_type
    .. autoproperty:: handle
    .. autoproperty:: name
+   .. autoproperty:: symbol_mapping
    
    
