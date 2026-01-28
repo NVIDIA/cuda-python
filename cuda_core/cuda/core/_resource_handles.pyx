@@ -21,6 +21,8 @@ from ._resource_handles cimport (
     EventHandle,
     MemoryPoolHandle,
     DevicePtrHandle,
+    LibraryHandle,
+    KernelHandle,
 )
 
 import cuda.bindings.cydriver as cydriver
@@ -91,6 +93,20 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void set_deallocation_stream "cuda_core::set_deallocation_stream" (
         const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
+    # Library handles
+    LibraryHandle create_library_handle_from_file "cuda_core::create_library_handle_from_file" (
+        const char* path) except+ nogil
+    LibraryHandle create_library_handle_from_data "cuda_core::create_library_handle_from_data" (
+        const void* data) except+ nogil
+    LibraryHandle create_library_handle_ref "cuda_core::create_library_handle_ref" (
+        cydriver.CUlibrary library) except+ nogil
+
+    # Kernel handles
+    KernelHandle create_kernel_handle "cuda_core::create_kernel_handle" (
+        const LibraryHandle& h_library, const char* name) except+ nogil
+    KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
+        cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+
 
 # =============================================================================
 # CUDA Driver API capsule
@@ -152,6 +168,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # IPC
     void* p_cuMemPoolImportPointer "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolImportPointer)"
 
+    # Library
+    void* p_cuLibraryLoadFromFile "reinterpret_cast<void*&>(cuda_core::p_cuLibraryLoadFromFile)"
+    void* p_cuLibraryLoadData "reinterpret_cast<void*&>(cuda_core::p_cuLibraryLoadData)"
+    void* p_cuLibraryUnload "reinterpret_cast<void*&>(cuda_core::p_cuLibraryUnload)"
+    void* p_cuLibraryGetKernel "reinterpret_cast<void*&>(cuda_core::p_cuLibraryGetKernel)"
+
 
 # Initialize driver function pointers from cydriver.__pyx_capi__ at module load
 cdef void* _get_driver_fn(str name):
@@ -195,3 +217,9 @@ p_cuMemFreeHost = _get_driver_fn("cuMemFreeHost")
 
 # IPC
 p_cuMemPoolImportPointer = _get_driver_fn("cuMemPoolImportPointer")
+
+# Library
+p_cuLibraryLoadFromFile = _get_driver_fn("cuLibraryLoadFromFile")
+p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
+p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
+p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")

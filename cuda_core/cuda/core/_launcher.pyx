@@ -8,6 +8,7 @@ from cuda.bindings cimport cydriver
 
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
+from cuda.core._module cimport Kernel
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport (
@@ -77,11 +78,11 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
     cdef ParamHolder ker_args = ParamHolder(kernel_args)
     cdef void** args_ptr = <void**><uintptr_t>(ker_args.ptr)
 
-    # TODO: cythonize Module/Kernel/...
     # Note: We now use CUkernel handles exclusively (CUDA 12+), but they can be cast to
     # CUfunction for use with cuLaunchKernel, as both handle types are interchangeable
     # for kernel launch purposes.
-    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>(<uintptr_t>(kernel._handle))
+    cdef Kernel ker = <Kernel>kernel
+    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>as_cu(ker._h_kernel)
 
     # Note: CUkernel can still be launched via cuLaunchKernel (not just cuLaunchKernelEx).
     # We check both binding & driver versions here mainly to see if the "Ex" API is

@@ -335,7 +335,7 @@ if not is_culink_backend:
 
 @pytest.mark.parametrize("options", options)
 def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
-    program = Program(ptx_code_object._module.decode(), "ptx", options=options)
+    program = Program(ptx_code_object.code.decode(), "ptx", options=options)
     assert program.backend == ("driver" if is_culink_backend else "nvJitLink")
     program.compile("cubin")
     program.close()
@@ -378,7 +378,7 @@ def test_program_compile_valid_target_type(init_cuda):
         ptx_kernel = ptx_object_code.get_kernel("my_kernel")
         assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code._module.decode(), "ptx", options={"name": "24"})
+    program = Program(ptx_object_code.code.decode(), "ptx", options={"name": "24"})
     cubin_object_code = program.compile("cubin")
     assert isinstance(cubin_object_code, ObjectCode)
     assert cubin_object_code.name == "24"
