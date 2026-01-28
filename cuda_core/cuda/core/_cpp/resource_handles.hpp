@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -61,6 +61,12 @@ extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
 
 extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
 
+// Library
+extern decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile;
+extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
+extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
+extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
+
 // ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
@@ -69,6 +75,8 @@ using ContextHandle = std::shared_ptr<const CUcontext>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
+using LibraryHandle = std::shared_ptr<const CUlibrary>;
+using KernelHandle = std::shared_ptr<const CUkernel>;
 
 // ============================================================================
 // Context handle functions
@@ -219,6 +227,40 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
+// Library handle functions
+// ============================================================================
+
+// Create an owning library handle by loading from a file path.
+// When the last reference is released, cuLibraryUnload is called automatically.
+// Returns empty handle on error (caller must check).
+LibraryHandle create_library_handle_from_file(const char* path);
+
+// Create an owning library handle by loading from memory data.
+// The driver makes an internal copy of the data; caller can free it after return.
+// When the last reference is released, cuLibraryUnload is called automatically.
+// Returns empty handle on error (caller must check).
+LibraryHandle create_library_handle_from_data(const void* data);
+
+// Create a non-owning library handle (references existing library).
+// Use for borrowed libraries (e.g., from foreign code).
+// The library will NOT be unloaded when the handle is released.
+LibraryHandle create_library_handle_ref(CUlibrary library);
+
+// ============================================================================
+// Kernel handle functions
+// ============================================================================
+
+// Get a kernel from a library by name.
+// The kernel structurally depends on the provided library handle.
+// Kernels have no explicit destroy - their lifetime is tied to the library.
+// Returns empty handle on error (caller must check).
+KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name);
+
+// Create a non-owning kernel handle with library dependency.
+// Use for borrowed kernels. The library handle keeps the library alive.
+KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -243,6 +285,14 @@ inline CUdeviceptr as_cu(const DevicePtrHandle& h) noexcept {
     return h ? *h : 0;
 }
 
+inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUkernel as_cu(const KernelHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 // as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
 inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
@@ -263,6 +313,14 @@ inline std::intptr_t as_intptr(const MemoryPoolHandle& h) noexcept {
 
 inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
     return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
 // as_py() - convert handle to Python driver wrapper object (returns new reference)
@@ -298,6 +356,14 @@ inline PyObject* as_py(const MemoryPoolHandle& h) noexcept {
 
 inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
     return detail::make_py("CUdeviceptr", as_intptr(h));
+}
+
+inline PyObject* as_py(const LibraryHandle& h) noexcept {
+    return detail::make_py("CUlibrary", as_intptr(h));
+}
+
+inline PyObject* as_py(const KernelHandle& h) noexcept {
+    return detail::make_py("CUkernel", as_intptr(h));
 }
 
 }  // namespace cuda_core

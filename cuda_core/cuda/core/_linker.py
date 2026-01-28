@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -444,13 +444,13 @@ class Linker:
             self._add_code_object(code)
 
     def _add_code_object(self, object_code: ObjectCode):
-        data = object_code._module
+        data = object_code.code
         with _exception_manager(self):
             name_str = f"{object_code.name}"
             if _nvjitlink and isinstance(data, bytes):
                 _nvjitlink.add_data(
                     self._mnff.handle,
-                    self._input_type_from_code_type(object_code._code_type),
+                    self._input_type_from_code_type(object_code.code_type),
                     data,
                     len(data),
                     name_str,
@@ -458,7 +458,7 @@ class Linker:
             elif _nvjitlink and isinstance(data, str):
                 _nvjitlink.add_file(
                     self._mnff.handle,
-                    self._input_type_from_code_type(object_code._code_type),
+                    self._input_type_from_code_type(object_code.code_type),
                     data,
                 )
             elif (not _nvjitlink) and isinstance(data, bytes):
@@ -466,7 +466,7 @@ class Linker:
                 handle_return(
                     _driver.cuLinkAddData(
                         self._mnff.handle,
-                        self._input_type_from_code_type(object_code._code_type),
+                        self._input_type_from_code_type(object_code.code_type),
                         data,
                         len(data),
                         name_bytes,
@@ -481,7 +481,7 @@ class Linker:
                 handle_return(
                     _driver.cuLinkAddFile(
                         self._mnff.handle,
-                        self._input_type_from_code_type(object_code._code_type),
+                        self._input_type_from_code_type(object_code.code_type),
                         data.encode(),
                         0,
                         None,

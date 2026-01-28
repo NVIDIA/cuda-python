@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -50,6 +50,11 @@ decltype(&cuMemFree) p_cuMemFree = nullptr;
 decltype(&cuMemFreeHost) p_cuMemFreeHost = nullptr;
 
 decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer = nullptr;
+
+decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile = nullptr;
+decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
+decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
+decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
 // ============================================================================
 // GIL management helpers
@@ -680,6 +685,83 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         );
         return DevicePtrHandle(box, &box->resource);
     }
+}
+
+// ============================================================================
+// Library Handles
+// ============================================================================
+
+namespace {
+struct LibraryBox {
+    CUlibrary resource;
+};
+}  // namespace
+
+LibraryHandle create_library_handle_from_file(const char* path) {
+    GILReleaseGuard gil;
+    CUlibrary library;
+    if (CUDA_SUCCESS != (err = p_cuLibraryLoadFromFile(&library, path, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
+        return {};
+    }
+
+    auto box = std::shared_ptr<const LibraryBox>(
+        new LibraryBox{library},
+        [](const LibraryBox* b) {
+            GILReleaseGuard gil;
+            p_cuLibraryUnload(b->resource);
+            delete b;
+        }
+    );
+    return LibraryHandle(box, &box->resource);
+}
+
+LibraryHandle create_library_handle_from_data(const void* data) {
+    GILReleaseGuard gil;
+    CUlibrary library;
+    if (CUDA_SUCCESS != (err = p_cuLibraryLoadData(&library, data, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
+        return {};
+    }
+
+    auto box = std::shared_ptr<const LibraryBox>(
+        new LibraryBox{library},
+        [](const LibraryBox* b) {
+            GILReleaseGuard gil;
+            p_cuLibraryUnload(b->resource);
+            delete b;
+        }
+    );
+    return LibraryHandle(box, &box->resource);
+}
+
+LibraryHandle create_library_handle_ref(CUlibrary library) {
+    auto box = std::make_shared<const LibraryBox>(LibraryBox{library});
+    return LibraryHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Kernel Handles
+// ============================================================================
+
+namespace {
+struct KernelBox {
+    CUkernel resource;
+    LibraryHandle h_library;  // Keeps library alive
+};
+}  // namespace
+
+KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
+    GILReleaseGuard gil;
+    CUkernel kernel;
+    if (CUDA_SUCCESS != (err = p_cuLibraryGetKernel(&kernel, *h_library, name))) {
+        return {};
+    }
+
+    return create_kernel_handle_ref(kernel, h_library);
+}
+
+KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
+    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
+    return KernelHandle(box, &box->resource);
 }
 
 }  // namespace cuda_core
