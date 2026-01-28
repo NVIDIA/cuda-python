@@ -15,13 +15,12 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 @dataclass
-class FoundHeader:
+class FoundHeaderDir:
     abs_path: str | None
     found_via: str
 
-    def _normalize_path(self) -> FoundHeader:
+    def __post_init__(self) -> None:
         self.abs_path = _abs_norm(self.abs_path)
-        return self
 
 
 def _abs_norm(path: str | None) -> str | None:
@@ -34,12 +33,12 @@ def _joined_isfile(dirpath: str, basename: str) -> bool:
     return os.path.isfile(os.path.join(dirpath, basename))
 
 
-def _find_under_site_packages(sub_dir: str, h_basename: str) -> FoundHeader | None:
+def _find_under_site_packages(sub_dir: str, h_basename: str) -> FoundHeaderDir | None:
     # Installed from a wheel
     hdr_dir: str  # help mypy
     for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
         if _joined_isfile(hdr_dir, h_basename):
-            return FoundHeader(abs_path=hdr_dir, found_via="site-packages")
+            return FoundHeaderDir(abs_path=hdr_dir, found_via="site-packages")
     return None
 
 
@@ -65,7 +64,7 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
     return None
 
 
-def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool) -> FoundHeader | None:
+def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool) -> FoundHeaderDir | None:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
@@ -88,11 +87,11 @@ def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool)
         anchor_point = os.path.dirname(include_path)
     found_header_path = _find_based_on_ctk_layout(libname, h_basename, anchor_point)
     if found_header_path:
-        return FoundHeader(abs_path=found_header_path, found_via="conda")
+        return FoundHeaderDir(abs_path=found_header_path, found_via="conda")
     return None
 
 
-def _find_ctk_header_directory(libname: str) -> FoundHeader | None:
+def _find_ctk_header_directory(libname: str) -> FoundHeaderDir | None:
     h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
 
@@ -106,19 +105,75 @@ def _find_ctk_header_directory(libname: str) -> FoundHeader | None:
     cuda_home = get_cuda_home_or_path()
     if cuda_home:  # noqa: SIM102
         if result := _find_based_on_ctk_layout(libname, h_basename, cuda_home):
-            return FoundHeader(abs_path=result, found_via="CUDA_HOME")
+            return FoundHeaderDir(abs_path=result, found_via="CUDA_HOME")
 
     return None
 
 
 @functools.cache
-def find_nvidia_header_directory(libname: str, include_info: bool = False) -> FoundHeader | str | None:
+def locate_nvidia_header_directory(libname: str) -> FoundHeaderDir | None:
     """Locate the header directory for a supported NVIDIA library.
 
     Args:
         libname (str): The short name of the library whose headers are needed
             (e.g., ``"nvrtc"``, ``"cusolver"``, ``"nvshmem"``).
-        include_info (bool): Whether to include information about the discovery method in the FoundHeader.
+
+    Returns:
+        FoundHeaderDir or None: A FoundHeaderDir object containing the absolute path
+        to the discovered header directory and information about where it was found,
+        or ``None`` if the headers cannot be found.
+
+    Raises:
+        RuntimeError: If ``libname`` is not in the supported set.
+
+    Search order:
+        1. **NVIDIA Python wheels**
+
+           - Scan installed distributions (``site-packages``) for header layouts
+             shipped in NVIDIA wheels (e.g., ``cuda-toolkit[nvrtc]``).
+
+        2. **Conda environments**
+
+           - Check Conda-style installation prefixes, which use platform-specific
+             include directory layouts.
+
+        3. **CUDA Toolkit environment variables**
+
+           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+    """
+
+    if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
+        return _find_ctk_header_directory(libname)
+
+    h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_NON_CTK.get(libname)
+    if h_basename is None:
+        raise RuntimeError(f"UNKNOWN {libname=}")
+
+    candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK.get(libname, [])
+
+    for cdir in candidate_dirs:
+        if found_hdr := _find_under_site_packages(cdir, h_basename):
+            return found_hdr
+
+    if found_hdr := _find_based_on_conda_layout(libname, h_basename, False):
+        return found_hdr
+
+    # Fall back to system install directories
+    candidate_dirs = supported_nvidia_headers.SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname, [])
+    for cdir in candidate_dirs:
+        for hdr_dir in sorted(glob.glob(cdir), reverse=True):
+            if _joined_isfile(hdr_dir, h_basename):
+                # For system installs, we don't have a clear found_via, so use "system"
+                return FoundHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
+    return None
+
+
+def find_nvidia_header_directory(libname: str) -> str | None:
+    """Locate the header directory for a supported NVIDIA library.
+
+    Args:
+        libname (str): The short name of the library whose headers are needed
+            (e.g., ``"nvrtc"``, ``"cusolver"``, ``"nvshmem"``).
 
     Returns:
         str or None: Absolute path to the discovered header directory, or ``None``
@@ -142,35 +197,5 @@ def find_nvidia_header_directory(libname: str, include_info: bool = False) -> Fo
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
     """
-
-    if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
-        found_hdr = _find_ctk_header_directory(libname)
-        if found_hdr:
-            found_hdr._normalize_path()
-            return found_hdr if include_info else found_hdr.abs_path
-        return None
-
-    h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_NON_CTK.get(libname)
-    if h_basename is None:
-        raise RuntimeError(f"UNKNOWN {libname=}")
-
-    candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK.get(libname, [])
-
-    for cdir in candidate_dirs:
-        if found_hdr := _find_under_site_packages(cdir, h_basename):
-            found_hdr._normalize_path()
-            return found_hdr if include_info else found_hdr.abs_path
-
-    if found_hdr := _find_based_on_conda_layout(libname, h_basename, False):
-        found_hdr._normalize_path()
-        return found_hdr if include_info else found_hdr.abs_path
-
-    if include_info:
-        # TODO: what to do here?
-        raise RuntimeError
-    candidate_dirs = supported_nvidia_headers.SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname, [])
-    for cdir in candidate_dirs:
-        for hdr_dir in sorted(glob.glob(cdir), reverse=True):
-            if _joined_isfile(hdr_dir, h_basename):
-                return _abs_norm(hdr_dir)
-    return None
+    found = locate_nvidia_header_directory(libname)
+    return found.abs_path if found else None
