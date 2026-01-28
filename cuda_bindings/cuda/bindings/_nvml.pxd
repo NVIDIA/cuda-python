@@ -17,6 +17,7 @@ ctypedef nvmlDramEncryptionInfo_v1_t DramEncryptionInfo_v1
 ctypedef nvmlMarginTemperature_v1_t MarginTemperature_v1
 ctypedef nvmlFanSpeedInfo_v1_t FanSpeedInfo_v1
 ctypedef nvmlDevicePerfModes_v1_t DevicePerfModes_v1
+ctypedef nvmlDeviceCurrentClockFreqs_v1_t DeviceCurrentClockFreqs_v1
 ctypedef nvmlVgpuHeterogeneousMode_v1_t VgpuHeterogeneousMode_v1
 ctypedef nvmlVgpuPlacementId_v1_t VgpuPlacementId_v1
 ctypedef nvmlVgpuRuntimeState_v1_t VgpuRuntimeState_v1
@@ -226,7 +227,6 @@ cpdef tuple device_get_min_max_clock_of_p_state(intptr_t device, int type, int p
 cpdef tuple device_get_gpc_clk_min_max_vf_offset(intptr_t device)
 cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device)
 cpdef device_set_clock_offsets(intptr_t device, intptr_t info)
-cpdef object device_get_current_clock_freqs(intptr_t device)
 cpdef unsigned int device_get_power_management_limit(intptr_t device) except? 0
 cpdef tuple device_get_power_management_limit_constraints(intptr_t device)
 cpdef unsigned int device_get_power_management_default_limit(intptr_t device) except? 0

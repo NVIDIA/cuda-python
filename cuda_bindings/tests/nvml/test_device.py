@@ -39,8 +39,7 @@ def test_clk_mon_status_t():
 def test_current_clock_freqs(all_devices):
     for device in all_devices:
         clk_freqs = nvml.device_get_current_clock_freqs(device)
-        assert isinstance(clk_freqs, nvml.DeviceCurrentClockFreqs_v1)
-        assert isinstance(clk_freqs.str, str)
+        assert isinstance(clk_freqs, str)
 
 
 def test_grid_licensable_features(all_devices):
