@@ -19,7 +19,7 @@ import pytest
 from cuda.core import system
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import _nvml as nvml
+    from cuda.bindings import nvml
     from cuda.core.system import DeviceArch, _device
 
 
