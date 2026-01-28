@@ -17,6 +17,7 @@ cdef class LaunchConfig:
         public bint cooperative_launch
 
         vector[cydriver.CUlaunchAttribute] _attrs
+        object __weakref__
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self)
 

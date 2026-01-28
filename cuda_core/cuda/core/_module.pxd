@@ -16,6 +16,7 @@ cdef class Kernel:
         KernelHandle _h_kernel
         KernelAttributes _attributes  # lazy
         KernelOccupancy _occupancy  # lazy
+        object __weakref__
 
     @staticmethod
     cdef Kernel _from_obj(KernelHandle h_kernel)
@@ -30,6 +31,7 @@ cdef class ObjectCode:
         object _module      # bytes/str source
         dict _sym_map
         str _name
+        object __weakref__
 
     cdef int _lazy_load_module(self) except -1
 
