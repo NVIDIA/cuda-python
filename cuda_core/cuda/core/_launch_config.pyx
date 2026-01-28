@@ -23,6 +23,9 @@ cdef bint _inited = False
 cdef bint _use_ex = False
 cdef object _lock = threading.Lock()
 
+# Attribute names for identity comparison and representation
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'cooperative_launch')
+
 
 cdef int _lazy_init() except?-1:
     global _inited, _use_ex
@@ -133,11 +136,21 @@ cdef class LaunchConfig:
         if self.cooperative_launch and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
 
+    def _identity(self):
+        return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)
+
     def __repr__(self):
         """Return string representation of LaunchConfig."""
-        return (f"LaunchConfig(grid={self.grid}, cluster={self.cluster}, "
-                f"block={self.block}, shmem_size={self.shmem_size}, "
-                f"cooperative_launch={self.cooperative_launch})")
+        parts = ', '.join(f'{attr}={getattr(self, attr)!r}' for attr in _LAUNCH_CONFIG_ATTRS)
+        return f"LaunchConfig({parts})"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, LaunchConfig):
+            return NotImplemented
+        return self._identity() == (<LaunchConfig>other)._identity()
+
+    def __hash__(self) -> int:
+        return hash(self._identity())
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         _lazy_init()

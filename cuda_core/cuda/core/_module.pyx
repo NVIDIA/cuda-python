@@ -25,6 +25,7 @@ from cuda.core._resource_handles cimport (
     get_last_error,
     as_cu,
     as_py,
+    as_intptr,
 )
 from cuda.core._stream import Stream
 from cuda.core._utils.clear_error_support import (
@@ -604,6 +605,14 @@ cdef class Kernel:
 
         return Kernel._from_obj(h_kernel)
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Kernel):
+            return NotImplemented
+        return as_intptr(self._h_kernel) == as_intptr((<Kernel>other)._h_kernel)
+
+    def __hash__(self) -> int:
+        return hash(as_intptr(self._h_kernel))
+
 
 CodeTypeT = bytes | bytearray | str
 
@@ -842,3 +851,16 @@ cdef class ObjectCode:
         """
         self._lazy_load_module()
         return as_py(self._h_library)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, ObjectCode):
+            return NotImplemented
+        # Trigger lazy load for both objects to compare handles
+        self._lazy_load_module()
+        (<ObjectCode>other)._lazy_load_module()
+        return as_intptr(self._h_library) == as_intptr((<ObjectCode>other)._h_library)
+
+    def __hash__(self) -> int:
+        # Trigger lazy load to get the handle
+        self._lazy_load_module()
+        return hash(as_intptr(self._h_library))
