@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -220,6 +220,9 @@ cdef class Stream:
         if not isinstance(other, Stream):
             return NotImplemented
         return as_intptr(self._h_stream) == as_intptr((<Stream>other)._h_stream)
+
+    def __repr__(self) -> str:
+        return f"Stream(handle={as_intptr(self._h_stream):#x})"
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
