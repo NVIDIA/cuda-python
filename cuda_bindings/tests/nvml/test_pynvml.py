@@ -11,6 +11,7 @@ import pytest
 from cuda.bindings import _nvml as nvml
 
 from . import util
+from .conftest import unsupported_before
 
 XFAIL_LEGACY_NVLINK_MSG = "Legacy NVLink test expected to fail."
 
@@ -67,7 +68,8 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
 def test_device_get_memory_affinity(handles, scope):
     size = 1024
     for handle in handles:
-        node_set = nvml.device_get_memory_affinity(handle, size, scope)
+        with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+            node_set = nvml.device_get_memory_affinity(handle, size, scope)
         assert node_set is not None
         assert len(node_set) == size
 
@@ -77,7 +79,8 @@ def test_device_get_memory_affinity(handles, scope):
 def test_device_get_cpu_affinity_within_scope(handles, scope):
     size = 1024
     for handle in handles:
-        cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
+        with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+            cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
         assert cpu_set is not None
         assert len(cpu_set) == size
 
@@ -137,22 +140,22 @@ def test_device_get_p2p_status(handles, index):
 
 def test_device_get_power_usage(ngpus, handles):
     for i in range(ngpus):
-        try:
+        # Note: documentation says this is supported on Fermi or newer,
+        # but in practice it fails on some later architectures.
+        with unsupported_before(handles[i], None):
             power_mwatts = nvml.device_get_power_usage(handles[i])
-        except nvml.NotSupportedError:
-            pytest.skip("device_get_power_usage not supported")
         assert power_mwatts >= 0.0
 
 
 def test_device_get_total_energy_consumption(ngpus, handles):
     for i in range(ngpus):
-        try:
+        with unsupported_before(handles[i], nvml.DeviceArch.VOLTA):
             energy_mjoules1 = nvml.device_get_total_energy_consumption(handles[i])
-        except nvml.NotSupportedError:
-            pytest.skip("device_get_total_energy_consumption not supported")
+
         for j in range(10):  # idle for 150 ms
             time.sleep(0.015)  # and check for increase every 15 ms
-            energy_mjoules2 = nvml.device_get_total_energy_consumption(handles[i])
+            with unsupported_before(handles[i], nvml.DeviceArch.VOLTA):
+                energy_mjoules2 = nvml.device_get_total_energy_consumption(handles[i])
             assert energy_mjoules2 >= energy_mjoules1
             if energy_mjoules2 > energy_mjoules1:
                 break
@@ -183,7 +186,8 @@ def test_device_get_memory_info(ngpus, handles):
 
 def test_device_get_utilization_rates(ngpus, handles):
     for i in range(ngpus):
-        urate = nvml.device_get_utilization_rates(handles[i])
+        with unsupported_before(handles[i], "FERMI"):
+            urate = nvml.device_get_utilization_rates(handles[i])
         assert urate.gpu >= 0
         assert urate.memory >= 0
 
@@ -240,7 +244,8 @@ def test_device_get_utilization_rates(ngpus, handles):
 
 def test_device_get_pcie_throughput(ngpus, handles):
     for i in range(ngpus):
-        tx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
+        with unsupported_before(handles[i], nvml.DeviceArch.MAXWELL):
+            tx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
         assert tx_bytes_tp >= 0
         rx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_RX_BYTES)
         assert rx_bytes_tp >= 0
@@ -272,10 +277,10 @@ def test_device_get_pcie_throughput(ngpus, handles):
 def test_device_get_nvlink_capability(ngpus, handles, cap_type):
     for i in range(ngpus):
         for j in range(nvml.NVLINK_MAX_LINKS):
-            try:
+            # By the documentation, this should be supported on PASCAL or newer,
+            # but this also seems to fail on newer.
+            with unsupported_before(handles[i], None):
                 cap = nvml.device_get_nvlink_capability(handles[i], j, cap_type)
-            except nvml.NotSupportedError:
-                pytest.skip("NVLink capability not supported")
             assert cap >= 0
 
 

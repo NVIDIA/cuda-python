@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -307,3 +307,9 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
     with nogil:
         __status__ = nvFatbinAddTileIR(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_, <const char*>_options_cmd_line_)
     check_status(__status__)
+
+
+
+
+
+

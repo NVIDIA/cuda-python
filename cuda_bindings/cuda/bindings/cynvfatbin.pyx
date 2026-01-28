@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.1.1. Do not modify it directly.
 
 from ._internal cimport nvfatbin as _nvfatbin
 
@@ -53,3 +53,9 @@ cdef nvFatbinResult nvFatbinAddReloc(nvFatbinHandle handle, const void* code, si
 
 cdef nvFatbinResult nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvfatbin._nvFatbinAddTileIR(handle, code, size, identifier, optionsCmdLine)
+
+
+
+
+
+
