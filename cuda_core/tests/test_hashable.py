@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -12,24 +12,109 @@ These tests verify:
 5. Hash/equality contract compliance (if a == b, then hash(a) must equal hash(b))
 """
 
-from cuda.core import Device
+import pytest
+from cuda.core import Device, LaunchConfig, Program
 from cuda.core._stream import Stream, StreamOptions
+
+# ============================================================================
+# Fixtures for parameterized tests
+# ============================================================================
+
+
+@pytest.fixture
+def sample_device(init_cuda):
+    return Device()
+
+
+@pytest.fixture
+def sample_stream(sample_device):
+    return sample_device.create_stream()
+
+
+@pytest.fixture
+def sample_event(sample_device):
+    return sample_device.create_event()
+
+
+@pytest.fixture
+def sample_context(sample_device):
+    return sample_device.context
+
+
+@pytest.fixture
+def sample_buffer(sample_device):
+    return sample_device.allocate(1024)
+
+
+@pytest.fixture
+def sample_launch_config():
+    return LaunchConfig(grid=(1,), block=(1,))
+
+
+@pytest.fixture
+def sample_object_code(init_cuda):
+    prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
+    return prog.compile("cubin")
+
+
+@pytest.fixture
+def sample_kernel(sample_object_code):
+    return sample_object_code.get_kernel("test_kernel")
+
+
+# All hashable classes
+HASHABLE = [
+    "sample_device",
+    "sample_stream",
+    "sample_event",
+    "sample_context",
+    "sample_buffer",
+    "sample_launch_config",
+    "sample_object_code",
+    "sample_kernel",
+]
+
+
+# ============================================================================
+# Parameterized Hash Tests
+# ============================================================================
+
+
+@pytest.mark.parametrize("fixture_name", HASHABLE)
+def test_hash_consistency(fixture_name, request):
+    """Hash of same object is consistent across calls."""
+    obj = request.getfixturevalue(fixture_name)
+    assert hash(obj) == hash(obj)
+
+
+@pytest.mark.parametrize("fixture_name", HASHABLE)
+def test_set_membership(fixture_name, request):
+    """Objects work correctly in sets."""
+    obj = request.getfixturevalue(fixture_name)
+    s = {obj}
+    assert obj in s
+    assert len(s) == 1
+
+
+@pytest.mark.parametrize("fixture_name", HASHABLE)
+def test_dict_key(fixture_name, request):
+    """Objects work correctly as dict keys."""
+    obj = request.getfixturevalue(fixture_name)
+    d = {obj: "value"}
+    assert d[obj] == "value"
+
 
 # ============================================================================
 # Integration Tests
 # ============================================================================
 
 
-def test_hash_type_disambiguation_and_mixed_dict(init_cuda):
-    """Test that hash salt (type(self)) prevents collisions between different types
-    and that different object types can coexist in dictionaries.
+def test_mixed_type_dict(init_cuda):
+    """Test that different object types can coexist in dictionaries.
 
-    This test validates that:
-    1. Including type(self) in the hash calculation ensures different types with
-       potentially similar underlying values (like monotonically increasing handles
-       or IDs) produce different hashes and don't collide.
-    2. Different object types can be used together in the same dictionary without
-       conflicts.
+    Since each CUDA handle type has unique values within its type (handles are
+    memory addresses or unique identifiers), hash collisions between different
+    types are unlikely in practice.
     """
     device = Device(0)
     device.set_current()
@@ -42,10 +127,7 @@ def test_hash_type_disambiguation_and_mixed_dict(init_cuda):
     # Test 1: Verify all hashes are unique (no collisions between different types)
     hashes = {hash(device), hash(stream), hash(event), hash(context)}
 
-    assert len(hashes) == 4, (
-        f"Hash collision detected! Expected 4 unique hashes, got {len(hashes)}. "
-        f"This indicates the type salt is not working correctly."
-    )
+    assert len(hashes) == 4, f"Hash collision detected! Expected 4 unique hashes, got {len(hashes)}. "
 
     # Test 2: Verify all types can coexist in same dict without conflicts
     mixed_cache = {stream: "stream_data", event: "event_data", context: "context_data", device: "device_data"}

@@ -14,6 +14,7 @@ cdef class Context:
     cdef:
         ContextHandle _h_context
         int _device_id
+        object __weakref__
 
     @staticmethod
     cdef Context _from_handle(type cls, ContextHandle h_context, int device_id)

@@ -46,7 +46,7 @@ cdef class Context:
         return as_intptr(self._h_context) == as_intptr(_other._h_context)
 
     def __hash__(self) -> int:
-        return hash((type(self), as_intptr(self._h_context)))
+        return hash(as_intptr(self._h_context))
 
 
 @dataclass

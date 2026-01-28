@@ -16,6 +16,7 @@ cdef class Event:
         bint _ipc_enabled
         object _ipc_descriptor
         int _device_id
+        object __weakref__
 
     @staticmethod
     cdef Event _init(type cls, int device_id, ContextHandle h_context, options, bint is_free)

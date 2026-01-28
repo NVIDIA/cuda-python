@@ -13,6 +13,7 @@ cdef class Stream:
         int _device_id
         int _nonblocking
         int _priority
+        object __weakref__
 
     @staticmethod
     cdef Stream _from_handle(type cls, StreamHandle h_stream)

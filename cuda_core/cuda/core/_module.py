@@ -528,6 +528,14 @@ class Kernel:
 
         return Kernel._from_obj(kernel_obj, mod)
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Kernel):
+            return NotImplemented
+        return int(self._handle) == int(other._handle)
+
+    def __hash__(self) -> int:
+        return hash(int(self._handle))
+
 
 CodeTypeT = bytes | bytearray | str
 
@@ -546,7 +554,7 @@ class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map", "_name")
+    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map", "_name", "__weakref__")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
     def __new__(self, *args, **kwargs):
@@ -757,3 +765,13 @@ class ObjectCode:
             handle, call ``int(ObjectCode.handle)``.
         """
         return self._handle
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, ObjectCode):
+            return NotImplemented
+        # Trigger lazy load for both objects to compare handles
+        return int(self.handle) == int(other.handle)
+
+    def __hash__(self) -> int:
+        # Trigger lazy load to get the handle
+        return hash(int(self.handle))
