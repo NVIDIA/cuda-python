@@ -37,6 +37,10 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
 
 
 
+cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsigned int ver) nogil:
+    return (size | (ver << 24))
+
+
 ###############################################################################
 # Enum
 ###############################################################################
@@ -20200,7 +20204,7 @@ cpdef object device_get_pci_info_ext(intptr_t device):
     """
     cdef PciInfoExt_v1 pci_py = PciInfoExt_v1()
     cdef nvmlPciInfoExt_t *pci = <nvmlPciInfoExt_t *><intptr_t>(pci_py._get_ptr())
-    pci.version = sizeof(nvmlPciInfoExt_v1_t) | (1 << 24)
+    pci.version = NVML_VERSION_STRUCT(sizeof(nvmlPciInfoExt_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetPciInfoExt(<Device>device, pci)
     check_status(__status__)
@@ -20643,7 +20647,7 @@ cpdef object device_get_cooler_info(intptr_t device):
     """
     cdef CoolerInfo_v1 cooler_info_py = CoolerInfo_v1()
     cdef nvmlCoolerInfo_t *cooler_info = <nvmlCoolerInfo_t *><intptr_t>(cooler_info_py._get_ptr())
-    cooler_info.version = sizeof(nvmlCoolerInfo_v1_t) | (1 << 24)
+    cooler_info.version = NVML_VERSION_STRUCT(sizeof(nvmlCoolerInfo_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetCoolerInfo(<Device>device, cooler_info)
     check_status(__status__)
@@ -21027,7 +21031,7 @@ cpdef object device_get_memory_info_v2(intptr_t device):
     """
     cdef Memory_v2 memory_py = Memory_v2()
     cdef nvmlMemory_v2_t *memory = <nvmlMemory_v2_t *><intptr_t>(memory_py._get_ptr())
-    memory.version = sizeof(nvmlMemory_v2_t) | (2 << 24)
+    memory.version = NVML_VERSION_STRUCT(sizeof(nvmlMemory_v2_t), 2)
     with nogil:
         __status__ = nvmlDeviceGetMemoryInfo_v2(<Device>device, memory)
     check_status(__status__)
@@ -21847,7 +21851,7 @@ cpdef object system_get_conf_compute_settings():
     """
     cdef SystemConfComputeSettings_v1 settings_py = SystemConfComputeSettings_v1()
     cdef nvmlSystemConfComputeSettings_t *settings = <nvmlSystemConfComputeSettings_t *><intptr_t>(settings_py._get_ptr())
-    settings.version = sizeof(nvmlSystemConfComputeSettings_v1_t) | (1 << 24)
+    settings.version = NVML_VERSION_STRUCT(sizeof(nvmlSystemConfComputeSettings_v1_t), 1)
     with nogil:
         __status__ = nvmlSystemGetConfComputeSettings(settings)
     check_status(__status__)
@@ -21907,7 +21911,7 @@ cpdef object device_get_sram_ecc_error_status(intptr_t device):
     """
     cdef EccSramErrorStatus_v1 status_py = EccSramErrorStatus_v1()
     cdef nvmlEccSramErrorStatus_t *status = <nvmlEccSramErrorStatus_t *><intptr_t>(status_py._get_ptr())
-    status.version = sizeof(nvmlEccSramErrorStatus_v1_t) | (1 << 24)
+    status.version = NVML_VERSION_STRUCT(sizeof(nvmlEccSramErrorStatus_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetSramEccErrorStatus(<Device>device, status)
     check_status(__status__)
@@ -22580,7 +22584,7 @@ cpdef object device_get_nvlink_supported_bw_modes(intptr_t device):
     """
     cdef NvlinkSupportedBwModes_v1 supported_bw_mode_py = NvlinkSupportedBwModes_v1()
     cdef nvmlNvlinkSupportedBwModes_t *supported_bw_mode = <nvmlNvlinkSupportedBwModes_t *><intptr_t>(supported_bw_mode_py._get_ptr())
-    supported_bw_mode.version = sizeof(nvmlNvlinkSupportedBwModes_v1_t) | (1 << 24)
+    supported_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSupportedBwModes_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetNvlinkSupportedBwModes(<Device>device, supported_bw_mode)
     check_status(__status__)
@@ -22600,7 +22604,7 @@ cpdef object device_get_nvlink_bw_mode(intptr_t device):
     """
     cdef NvlinkGetBwMode_v1 get_bw_mode_py = NvlinkGetBwMode_v1()
     cdef nvmlNvlinkGetBwMode_t *get_bw_mode = <nvmlNvlinkGetBwMode_t *><intptr_t>(get_bw_mode_py._get_ptr())
-    get_bw_mode.version = sizeof(nvmlNvlinkGetBwMode_v1_t) | (1 << 24)
+    get_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkGetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetNvlinkBwMode(<Device>device, get_bw_mode)
     check_status(__status__)
@@ -22616,7 +22620,7 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
-    set_bw_mode.version = sizeof(nvmlNvlinkSetBwMode_v1_t) | (1 << 24)
+    set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>set_bw_mode)
     check_status(__status__)
@@ -23141,7 +23145,7 @@ cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
     """
     cdef VgpuTypeBar1Info_v1 bar1info_py = VgpuTypeBar1Info_v1()
     cdef nvmlVgpuTypeBar1Info_t *bar1info = <nvmlVgpuTypeBar1Info_t *><intptr_t>(bar1info_py._get_ptr())
-    bar1info.version = sizeof(nvmlVgpuTypeBar1Info_v1_t) | (1 << 24)
+    bar1info.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuTypeBar1Info_v1_t), 1)
     with nogil:
         __status__ = nvmlVgpuTypeGetBAR1Info(<nvmlVgpuTypeId_t>vgpu_type_id, bar1info)
     check_status(__status__)
@@ -23473,7 +23477,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_sc
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
-    (<nvmlVgpuSchedulerState_t*>p_scheduler).version = sizeof(nvmlVgpuSchedulerState_v1_t) | (1 << 24)
+    (<nvmlVgpuSchedulerState_t*>p_scheduler).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>p_scheduler)
     check_status(__status__)
@@ -23492,7 +23496,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
     """
     cdef VgpuSchedulerStateInfo_v1 p_scheduler_state_info_py = VgpuSchedulerStateInfo_v1()
     cdef nvmlVgpuSchedulerStateInfo_t *p_scheduler_state_info = <nvmlVgpuSchedulerStateInfo_t *><intptr_t>(p_scheduler_state_info_py._get_ptr())
-    p_scheduler_state_info.version = sizeof(nvmlVgpuSchedulerState_v1_t) | (1 << 24)
+    p_scheduler_state_info.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceGetVgpuSchedulerState(<GpuInstance>gpu_instance, p_scheduler_state_info)
     check_status(__status__)
@@ -23512,7 +23516,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance):
     """
     cdef VgpuSchedulerLogInfo_v1 p_scheduler_log_info_py = VgpuSchedulerLogInfo_v1()
     cdef nvmlVgpuSchedulerLogInfo_t *p_scheduler_log_info = <nvmlVgpuSchedulerLogInfo_t *><intptr_t>(p_scheduler_log_info_py._get_ptr())
-    p_scheduler_log_info.version = sizeof(nvmlVgpuSchedulerLogInfo_v1_t) | (1 << 24)
+    p_scheduler_log_info.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerLogInfo_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceGetVgpuSchedulerLog(<GpuInstance>gpu_instance, p_scheduler_log_info)
     check_status(__status__)
@@ -23962,7 +23966,7 @@ cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_insta
     """
     cdef ComputeInstanceProfileInfo_v2 info_py = ComputeInstanceProfileInfo_v2()
     cdef nvmlComputeInstanceProfileInfo_v2_t *info = <nvmlComputeInstanceProfileInfo_v2_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlComputeInstanceProfileInfo_v2_t) | (2 << 24)
+    info.version = NVML_VERSION_STRUCT(sizeof(nvmlComputeInstanceProfileInfo_v2_t), 2)
     with nogil:
         __status__ = nvmlGpuInstanceGetComputeInstanceProfileInfoV(<GpuInstance>gpu_instance, profile, eng_profile, info)
     check_status(__status__)
@@ -24265,7 +24269,7 @@ cpdef object device_get_addressing_mode(intptr_t device):
     """
     cdef DeviceAddressingMode_v1 mode_py = DeviceAddressingMode_v1()
     cdef nvmlDeviceAddressingMode_t *mode = <nvmlDeviceAddressingMode_t *><intptr_t>(mode_py._get_ptr())
-    mode.version = sizeof(nvmlDeviceAddressingMode_v1_t) | (1 << 24)
+    mode.version = NVML_VERSION_STRUCT(sizeof(nvmlDeviceAddressingMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetAddressingMode(<Device>device, mode)
     check_status(__status__)
@@ -24285,7 +24289,7 @@ cpdef object device_get_repair_status(intptr_t device):
     """
     cdef RepairStatus_v1 repair_status_py = RepairStatus_v1()
     cdef nvmlRepairStatus_t *repair_status = <nvmlRepairStatus_t *><intptr_t>(repair_status_py._get_ptr())
-    repair_status.version = sizeof(nvmlRepairStatus_v1_t) | (1 << 24)
+    repair_status.version = NVML_VERSION_STRUCT(sizeof(nvmlRepairStatus_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetRepairStatus(<Device>device, repair_status)
     check_status(__status__)
@@ -24357,7 +24361,7 @@ cpdef str system_get_driver_branch():
     # Calculation copied from the macro NVML_STRUCT_VERSION in nvml.h
     # Needs to be updated if the version of the nvmlSystemDriverBranchInfo_t
     # struct changes in the future.
-    info.version = sizeof(nvmlSystemDriverBranchInfo_v1_t) | (1 << 24)
+    info.version = NVML_VERSION_STRUCT(sizeof(nvmlSystemDriverBranchInfo_v1_t), 1)
     cdef unsigned int length = 80
     with nogil:
         __status__ = nvmlSystemGetDriverBranch(&info, length)
@@ -24434,7 +24438,7 @@ cpdef int device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sen
     cdef nvmlTemperature_v1_t[1] temperature
 
     with nogil:
-        temperature[0].version = sizeof(nvmlTemperature_v1_t) | (1 << 24)
+        temperature[0].version = NVML_VERSION_STRUCT(sizeof(nvmlTemperature_v1_t), 1)
         temperature[0].sensorType = <nvmlTemperatureSensors_t>sensorType
         __status__ = nvmlDeviceGetTemperatureV(<Device>device, temperature)
     check_status(__status__)
@@ -24475,7 +24479,7 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlProcessDetailList_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlProcessDetailList_v1_t), 1)
         ptr.mode = mode
         ptr.numProcArrayEntries = 0
         ptr.procArray = NULL
@@ -24563,7 +24567,7 @@ cpdef object device_get_processes_utilization_info(intptr_t device, unsigned lon
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlProcessesUtilizationInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlProcessesUtilizationInfo_v1_t), 1)
         ptr.processSamplesCount = 0
         ptr.lastSeenTimeStamp = last_seen_time_stamp
         ptr.procUtilArray = NULL
@@ -24779,7 +24783,7 @@ cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlVgpuTypeIdInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuTypeIdInfo_v1_t), 1)
         ptr.vgpuCount = 0
         ptr.vgpuTypeIds = NULL
         __status__ = nvmlGpuInstanceGetCreatableVgpus(<GpuInstance>gpu_instance, ptr)
@@ -24811,7 +24815,7 @@ cpdef object gpu_instance_get_active_vgpus(intptr_t gpu_instance):
     cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>activeVgpuInfo._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlActiveVgpuInstanceInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlActiveVgpuInstanceInfo_v1_t), 1)
         ptr.vgpuCount = 0
         ptr.vgpuInstances = NULL
         __status__ = nvmlGpuInstanceGetActiveVgpus(<GpuInstance>gpu_instance, ptr)
@@ -24846,7 +24850,7 @@ cpdef object gpu_instance_get_vgpu_type_creatable_placements(intptr_t gpu_instan
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlVgpuCreatablePlacementInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), 1)
         ptr.count = 0
         ptr.placementIds = NULL
         ptr.vgpuTypeId = vgpu_type_id
@@ -24883,7 +24887,7 @@ cpdef object device_get_vgpu_type_creatable_placements(intptr_t device, unsigned
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlVgpuPlacementList_v2_t) | (2 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuPlacementList_v2_t), 2)
         ptr.count = 0
         ptr.placementIds = NULL
         ptr.mode = mode
@@ -25003,7 +25007,7 @@ cpdef object device_get_vgpu_instances_utilization_info(intptr_t device):
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t *ptr = <nvmlVgpuInstancesUtilizationInfo_t *>vgpuUtilInfo._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), 1)
         ptr.vgpuInstanceCount = 0
         ptr.vgpuUtilArray = NULL
         __status__ = nvmlDeviceGetVgpuInstancesUtilizationInfo(<Device>device, ptr)
@@ -25036,7 +25040,7 @@ cpdef object device_get_vgpu_processes_utilization_info(intptr_t device, unsigne
     cdef nvmlVgpuProcessesUtilizationInfo_v1_t *ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>vgpuProcUtilInfo._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), 1)
         ptr.vgpuProcessCount = 0
         ptr.vgpuProcUtilArray = NULL
         ptr.lastSeenTimeStamp = last_seen_time_stamp
@@ -25122,7 +25126,7 @@ cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device
     cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>errorCounts._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), 1)
         ptr.entryCount = 0
         ptr.entries = NULL
         __status__ = nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(<Device>device, ptr)
@@ -25159,7 +25163,7 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
         gpu_fabric_info_v3_py = GpuFabricInfo_v3()
         gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v3_py._get_ptr())
         with nogil:
-            gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v3_t) | (3 << 24)
+            gpu_fabric_info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuFabricInfo_v3_t), 3)
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v3_py
@@ -25168,7 +25172,7 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
         gpu_fabric_info_v2_py = GpuFabricInfo_v2()
         gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v2_py._get_ptr())
         with nogil:
-            gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
+            gpu_fabric_info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuFabricInfo_v2_t), 2)
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v2_py
@@ -25193,7 +25197,7 @@ cpdef object device_get_platform_info(intptr_t device):
         platform_info_v2_py = PlatformInfo_v2()
         platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v2_py._get_ptr())
         with nogil:
-            platform_info.version = sizeof(nvmlPlatformInfo_v2_t) | (2 << 24)
+            platform_info.version = NVML_VERSION_STRUCT(sizeof(nvmlPlatformInfo_v2_t), 2)
             __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
         check_status(__status__)
         return platform_info_v2_py
@@ -25202,7 +25206,7 @@ cpdef object device_get_platform_info(intptr_t device):
         platform_info_v1_py = PlatformInfo_v1()
         platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v1_py._get_ptr())
         with nogil:
-            platform_info.version = sizeof(nvmlPlatformInfo_v1_t) | (1 << 24)
+            platform_info.version = NVML_VERSION_STRUCT(sizeof(nvmlPlatformInfo_v1_t), 1)
             __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
         check_status(__status__)
         return platform_info_v1_py
@@ -25227,7 +25231,7 @@ cpdef object device_get_nvlink_info(intptr_t device):
         info_v2_py = NvLinkInfo_v2()
         info = <nvmlNvLinkInfo_t *><intptr_t>(info_v2_py._get_ptr())
         with nogil:
-            info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
+            info.version = NVML_VERSION_STRUCT(sizeof(nvmlNvLinkInfo_v2_t), 2)
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v2_py
@@ -25236,7 +25240,7 @@ cpdef object device_get_nvlink_info(intptr_t device):
         info_v1_py = NvLinkInfo_v1()
         info = <nvmlNvLinkInfo_t *><intptr_t>(info_v1_py._get_ptr())
         with nogil:
-            info.version = sizeof(nvmlNvLinkInfo_v1_t) | (1 << 24)
+            info.version = NVML_VERSION_STRUCT(sizeof(nvmlNvLinkInfo_v1_t), 1)
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v1_py
@@ -25246,7 +25250,7 @@ cpdef intptr_t system_event_set_create():
     """Create an empty set of system events. Event set should be freed by ``nvmlSystemEventSetFree``."""
     cdef nvmlSystemEventSetCreateRequest_v1_t[1] request
     with nogil:
-        request[0].version = sizeof(nvmlSystemEventSetCreateRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemEventSetCreateRequest_v1_t), 1)
         __status__ = nvmlSystemEventSetCreate(<nvmlSystemEventSetCreateRequest_t*>request)
     check_status(__status__)
     return <intptr_t>(request[0].set)
@@ -25257,7 +25261,7 @@ cpdef system_event_set_free(intptr_t event_set):
     cdef nvmlSystemEventSetFreeRequest_v1_t[1] request
     request[0].set = <SystemEventSet>event_set
     with nogil:
-        request[0].version = sizeof(nvmlSystemEventSetFreeRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemEventSetFreeRequest_v1_t), 1)
         __status__ = nvmlSystemEventSetFree(<nvmlSystemEventSetFreeRequest_t*>request)
     check_status(__status__)
 
@@ -25271,7 +25275,7 @@ cpdef system_register_events(unsigned long long event_types, intptr_t event_set)
     """
     cdef nvmlSystemRegisterEventRequest_v1_t[1] request
     with nogil:
-        request[0].version = sizeof(nvmlSystemRegisterEventRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemRegisterEventRequest_v1_t), 1)
         request[0].set = <SystemEventSet>event_set
         request[0].eventTypes = event_types
         __status__ = nvmlSystemRegisterEvents(<nvmlSystemRegisterEventRequest_t*>request)
@@ -25293,7 +25297,7 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
     cdef SystemEventData_v1 event_data = SystemEventData_v1(buffer_size)
     request[0].data = <nvmlSystemEventData_v1_t *><intptr_t>(event_data._get_ptr())
     with nogil:
-        request[0].version = sizeof(nvmlSystemEventSetWaitRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemEventSetWaitRequest_v1_t), 1)
         request[0].timeoutms = timeout_ms
         request[0].set = <SystemEventSet>event_set
         request[0].dataSize = buffer_size
@@ -25317,7 +25321,7 @@ cpdef unsigned int device_get_fan_speed_rpm(intptr_t device, unsigned int fan):
     """
     cdef nvmlFanSpeedInfo_v1_t[1] fan_speed
     with nogil:
-        fan_speed[0].version = sizeof(nvmlFanSpeedInfo_v1_t) | (1 << 24)
+        fan_speed[0].version = NVML_VERSION_STRUCT(sizeof(nvmlFanSpeedInfo_v1_t), 1)
         fan_speed[0].fan = fan
         __status__ = nvmlDeviceGetFanSpeedRPM(<Device>device, fan_speed)
     check_status(__status__)
@@ -25337,7 +25341,7 @@ cpdef int device_get_margin_temperature(intptr_t device):
     """
     cdef nvmlMarginTemperature_v1_t[1] margin_temp_info
     with nogil:
-        margin_temp_info[0].version = sizeof(nvmlMarginTemperature_v1_t) | (1 << 24)
+        margin_temp_info[0].version = NVML_VERSION_STRUCT(sizeof(nvmlMarginTemperature_v1_t), 1)
         __status__ = nvmlDeviceGetMarginTemperature(<Device>device, margin_temp_info)
     check_status(__status__)
     return margin_temp_info[0].marginTemperature
@@ -25357,7 +25361,7 @@ cpdef object device_get_clock_offsets(intptr_t device, nvmlClockType_t clock_typ
     cdef ClockOffset_v1 info_py = ClockOffset_v1()
     cdef nvmlClockOffset_v1_t *info = <nvmlClockOffset_v1_t *><intptr_t>(info_py._get_ptr())
     with nogil:
-        info.version = sizeof(nvmlClockOffset_v1_t) | (1 << 24)
+        info.version = NVML_VERSION_STRUCT(sizeof(nvmlClockOffset_v1_t), 1)
         info.type = clock_type
         info.pstate = pstate
         __status__ = nvmlDeviceGetClockOffsets(<Device>device, info)
@@ -25383,7 +25387,7 @@ cpdef object device_get_vgpu_type_supported_placements(intptr_t device, unsigned
     with nogil:
         p_placement_list.count = 0
         p_placement_list.placementIds = NULL
-        p_placement_list.version = sizeof(nvmlVgpuPlacementList_v2_t) | (2 << 24)
+        p_placement_list.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuPlacementList_v2_t), 2)
         __status__ = nvmlDeviceGetVgpuTypeSupportedPlacements(<Device>device, <nvmlVgpuTypeId_t>vgpu_type_id, p_placement_list)
     check_status_size(__status__)
 
@@ -25413,7 +25417,7 @@ cpdef unsigned int vgpu_instance_get_placement_id(unsigned int vgpu_instance):
     """
     cdef nvmlVgpuPlacementId_t[1] p_placement
     with nogil:
-        p_placement[0].version = sizeof(nvmlVgpuPlacementId_v1_t) | (1 << 24)
+        p_placement[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuPlacementId_v1_t), 1)
         __status__ = nvmlVgpuInstanceGetPlacementId(<nvmlVgpuInstance_t>vgpu_instance, p_placement)
     check_status(__status__)
     return p_placement[0].placementId
@@ -25432,7 +25436,7 @@ cpdef object device_get_capabilities(intptr_t device):
     """
     cdef nvmlDeviceCapabilities_t[1] caps
     with nogil:
-        caps[0].version = sizeof(nvmlDeviceCapabilities_v1_t) | (1 << 24)
+        caps[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDeviceCapabilities_v1_t), 1)
         __status__ = nvmlDeviceGetCapabilities(<Device>device, caps)
     check_status(__status__)
     return caps[0].capMask
@@ -25475,7 +25479,7 @@ cpdef tuple device_get_dram_encryption_mode(intptr_t device):
     cdef nvmlDramEncryptionInfo_t current
     cdef nvmlDramEncryptionInfo_t pending
     with nogil:
-        current.version = pending.version = sizeof(nvmlDramEncryptionInfo_t) | (1 << 24)
+        current.version = pending.version = NVML_VERSION_STRUCT(sizeof(nvmlDramEncryptionInfo_t), 1)
         __status__ = nvmlDeviceGetDramEncryptionMode(<Device>device, &current, &pending)
     check_status(__status__)
     return (current.encryptionState, pending.encryptionState)
@@ -25492,7 +25496,7 @@ cpdef device_set_dram_encryption_mode(intptr_t device, int dram_encryption):
     """
     cdef nvmlDramEncryptionInfo_t[1] encryption
     with nogil:
-        encryption[0].version = sizeof(nvmlDramEncryptionInfo_t) | (1 << 24)
+        encryption[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDramEncryptionInfo_t), 1)
         encryption[0].encryptionState = <nvmlEnableState_t>dram_encryption
         __status__ = nvmlDeviceSetDramEncryptionMode(<Device>device, encryption)
     check_status(__status__)
@@ -25513,7 +25517,7 @@ cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsig
     cdef GpuInstanceProfileInfo_v3 info_py = GpuInstanceProfileInfo_v3()
     cdef nvmlGpuInstanceProfileInfo_v3_t *info = <nvmlGpuInstanceProfileInfo_v3_t *><intptr_t>(info_py._get_ptr())
     with nogil:
-        info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
+        info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuInstanceProfileInfo_v3_t), 3)
         __status__ = nvmlDeviceGetGpuInstanceProfileInfoByIdV(<Device>device, profile_id, <nvmlGpuInstanceProfileInfo_v2_t *>info)
     check_status(__status__)
     return info_py
@@ -25534,7 +25538,7 @@ cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned in
     cdef GpuInstanceProfileInfo_v3 info_py = GpuInstanceProfileInfo_v3()
     cdef nvmlGpuInstanceProfileInfo_v3_t *info = <nvmlGpuInstanceProfileInfo_v3_t *><intptr_t>(info_py._get_ptr())
     with nogil:
-        info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
+        info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuInstanceProfileInfo_v3_t), 3)
         __status__ = nvmlDeviceGetGpuInstanceProfileInfoV(<Device>device, profile, <nvmlGpuInstanceProfileInfo_v2_t *>info)
     check_status(__status__)
     return info_py
@@ -25570,7 +25574,7 @@ cpdef intptr_t device_get_handle_by_uuidv(int type, bytes uuid) except? 0:
         raise ValueError("Invalid UUID format specified")
 
     with nogil:
-        uuid_struct[0].version = sizeof(nvmlUUID_v1_t) | (1 << 24)
+        uuid_struct[0].version = NVML_VERSION_STRUCT(sizeof(nvmlUUID_v1_t), 1)
         uuid_struct[0].type = type
         __status__ = nvmlDeviceGetHandleByUUIDV(uuid_struct, &device)
     check_status(__status__)
@@ -25590,7 +25594,7 @@ cpdef unsigned long long device_get_pdi(intptr_t device):
     """
     cdef nvmlPdi_v1_t[1] pdi
     with nogil:
-        pdi[0].version = sizeof(nvmlPdi_v1_t) | (1 << 24)
+        pdi[0].version = NVML_VERSION_STRUCT(sizeof(nvmlPdi_v1_t), 1)
         __status__ = nvmlDeviceGetPdi(<Device>device, pdi)
     check_status(__status__)
     return pdi[0].value
@@ -25609,7 +25613,7 @@ cpdef str device_get_performance_modes(intptr_t device):
     """
     cdef nvmlDevicePerfModes_t[1] perf_modes
     with nogil:
-        perf_modes[0].version = sizeof(nvmlDevicePerfModes_v1_t) | (1 << 24)
+        perf_modes[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDevicePerfModes_v1_t), 1)
         __status__ = nvmlDeviceGetPerformanceModes(<Device>device, perf_modes)
     check_status(__status__)
     return cpython.PyUnicode_FromString(perf_modes[0].str)
@@ -25646,7 +25650,7 @@ cpdef unsigned int device_get_vgpu_heterogeneous_mode(intptr_t device):
     """
     cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
     with nogil:
-        heterogeneous_mode[0].version = sizeof(nvmlVgpuHeterogeneousMode_v1_t) | (1 << 24)
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
         __status__ = nvmlDeviceGetVgpuHeterogeneousMode(<Device>device, heterogeneous_mode)
     check_status(__status__)
     return heterogeneous_mode[0].mode
@@ -25663,7 +25667,7 @@ cpdef device_set_vgpu_heterogeneous_mode(intptr_t device, int mode):
     """
     cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
     with nogil:
-        heterogeneous_mode[0].version = sizeof(nvmlVgpuHeterogeneousMode_v1_t) | (1 << 24)
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
         heterogeneous_mode[0].mode = mode
         __status__ = nvmlDeviceSetVgpuHeterogeneousMode(<Device>device, heterogeneous_mode)
     check_status(__status__)
@@ -25682,7 +25686,7 @@ cpdef object gpu_instance_get_vgpu_heterogeneous_mode(intptr_t gpu_instance):
     """
     cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
     with nogil:
-        heterogeneous_mode[0].version = sizeof(nvmlVgpuHeterogeneousMode_v1_t) | (1 << 24)
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
         __status__ = nvmlGpuInstanceGetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
     check_status(__status__)
     return heterogeneous_mode[0].mode
@@ -25699,7 +25703,7 @@ cpdef gpu_instance_set_vgpu_heterogeneous_mode(intptr_t gpu_instance, unsigned i
     """
     cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
     with nogil:
-        heterogeneous_mode[0].version = sizeof(nvmlVgpuHeterogeneousMode_v1_t) | (1 << 24)
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
         heterogeneous_mode[0].mode = mode
         __status__ = nvmlGpuInstanceSetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
     check_status(__status__)
@@ -25854,7 +25858,7 @@ cpdef device_set_power_management_limit_v2(intptr_t device, int power_scope, uns
     cdef nvmlPowerValue_v2_t[1] power_value
 
     with nogil:
-        power_value[0].version = sizeof(nvmlPowerValue_v2_t) | (2 << 24)
+        power_value[0].version = NVML_VERSION_STRUCT(sizeof(nvmlPowerValue_v2_t), 2)
         power_value[0].powerScope = <nvmlPowerScopeType_t>power_scope
         power_value[0].powerValueMw = power_value_mw
         __status__ = nvmlDeviceSetPowerManagementLimit_v2(<Device>device, power_value)
@@ -25872,7 +25876,7 @@ cpdef device_set_rusd_settings_v1(intptr_t device, unsigned long long poll_mask)
     """
     cdef nvmlRusdSettings_v1_t[1] settings
     with nogil:
-        settings[0].version = sizeof(nvmlRusdSettings_v1_t) | (1 << 24)
+        settings[0].version = NVML_VERSION_STRUCT(sizeof(nvmlRusdSettings_v1_t), 1)
         settings[0].pollMask = poll_mask
         __status__ = nvmlDeviceSetRusdSettings_v1(<Device>device, settings)
     check_status(__status__)
@@ -25903,7 +25907,7 @@ cpdef unsigned long long system_get_conf_compute_key_rotation_threshold_info():
     """
     cdef nvmlConfComputeGetKeyRotationThresholdInfo_t[1] key_rotation_thr_info
     with nogil:
-        key_rotation_thr_info[0].version = sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t) | (1 << 24)
+        key_rotation_thr_info[0].version = NVML_VERSION_STRUCT(sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t), 1)
         __status__ = nvmlSystemGetConfComputeKeyRotationThresholdInfo(key_rotation_thr_info)
     check_status(__status__)
     return key_rotation_thr_info[0].attackerAdvantage
@@ -25919,7 +25923,7 @@ cpdef system_set_conf_compute_key_rotation_threshold_info(unsigned long long max
     """
     cdef nvmlConfComputeSetKeyRotationThresholdInfo_t[1] key_rotation_thr_info
     with nogil:
-        key_rotation_thr_info[0].version = sizeof(nvmlConfComputeSetKeyRotationThresholdInfo_v1_t) | (1 << 24)
+        key_rotation_thr_info[0].version = NVML_VERSION_STRUCT(sizeof(nvmlConfComputeSetKeyRotationThresholdInfo_v1_t), 1)
         key_rotation_thr_info[0].maxAttackerAdvantage = max_attacker_advantage
         __status__ = nvmlSystemSetConfComputeKeyRotationThresholdInfo(key_rotation_thr_info)
     check_status(__status__)
@@ -25938,7 +25942,7 @@ cpdef unsigned long long vgpu_instance_get_runtime_state_size(unsigned int vgpu_
     """
     cdef nvmlVgpuRuntimeState_t[1] p_state
     with nogil:
-        p_state[0].version = sizeof(nvmlVgpuRuntimeState_v1_t) | (1 << 24)
+        p_state[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuRuntimeState_v1_t), 1)
         __status__ = nvmlVgpuInstanceGetRuntimeStateSize(<nvmlVgpuInstance_t>vgpu_instance, p_state)
     check_status(__status__)
     return p_state[0].size
@@ -25957,7 +25961,7 @@ cpdef unsigned int vgpu_type_get_max_instances_per_gpu_instance(unsigned int vgp
     """
     cdef nvmlVgpuTypeMaxInstance_t[1] max_instance
     with nogil:
-        max_instance[0].version = sizeof(nvmlVgpuTypeMaxInstance_v1_t) | (1 << 24)
+        max_instance[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuTypeMaxInstance_v1_t), 1)
         max_instance[0].vgpuTypeId = <nvmlVgpuTypeId_t>vgpu_type_id
         __status__ = nvmlVgpuTypeGetMaxInstancesPerGpuInstance(max_instance)
     check_status(__status__)
@@ -25977,7 +25981,7 @@ cpdef str device_get_current_clock_freqs(intptr_t device):
     """
     cdef nvmlDeviceCurrentClockFreqs_t[1] current_clock_freqs
     with nogil:
-        current_clock_freqs[0].version = sizeof(nvmlDeviceCurrentClockFreqs_v1_t) | (1 << 24)
+        current_clock_freqs[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDeviceCurrentClockFreqs_v1_t), 1)
         __status__ = nvmlDeviceGetCurrentClockFreqs(<Device>device, current_clock_freqs)
     check_status(__status__)
     return cpython.PyUnicode_FromString(current_clock_freqs[0].str)
