@@ -8,13 +8,8 @@ import os
 from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.path_utils import _abs_norm
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-
-
-def _abs_norm(path: str | None) -> str | None:
-    if path:
-        return os.path.normpath(os.path.abspath(path))
-    return None
 
 
 def _joined_isfile(dirpath: str, basename: str) -> bool:
@@ -127,7 +122,11 @@ def find_nvidia_header_directory(libname: str) -> str | None:
     """
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
-        return _abs_norm(_find_ctk_header_directory(libname))
+        ctk_dir = _find_ctk_header_directory(libname)
+        if ctk_dir is not None:
+            path: str = _abs_norm(ctk_dir)
+            return path
+        return None
 
     h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_NON_CTK.get(libname)
     if h_basename is None:
@@ -137,15 +136,21 @@ def find_nvidia_header_directory(libname: str) -> str | None:
     hdr_dir: str | None  # help mypy
     for cdir in candidate_dirs:
         if hdr_dir := _find_under_site_packages(cdir, h_basename):
-            return _abs_norm(hdr_dir)
+            assert hdr_dir is not None
+            path2: str = _abs_norm(hdr_dir)
+            return path2
 
     if hdr_dir := _find_based_on_conda_layout(libname, h_basename, False):
-        return _abs_norm(hdr_dir)
+        assert hdr_dir is not None
+        path3: str = _abs_norm(hdr_dir)
+        return path3
 
     candidate_dirs = supported_nvidia_headers.SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname, [])
     for cdir in candidate_dirs:
         for hdr_dir in sorted(glob.glob(cdir), reverse=True):
             if _joined_isfile(hdr_dir, h_basename):
-                return _abs_norm(hdr_dir)
+                assert hdr_dir is not None
+                path4: str = _abs_norm(hdr_dir)
+                return path4
 
     return None

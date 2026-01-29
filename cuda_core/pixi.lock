@@ -280,7 +280,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
   cu13:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -536,7 +536,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -792,7 +792,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -1184,22 +1184,6 @@ packages:
 - conda: .
   name: cuda-core
   version: 0.5.0
-  build: py314h625260f_0
-  subdir: win-64
-  variants:
-    python: 3.14.*
-    target_platform: win-64
-  depends:
-  - python
-  - numpy
-  - cuda-bindings
-  - vc >=14.1,<15
-  - vc14_runtime >=14.16.27033
-  - python_abi 3.14.* *_cp314
-  license: Apache-2.0
-- conda: .
-  name: cuda-core
-  version: 0.5.0
   build: py314ha479ada_0
   subdir: linux-aarch64
   variants:
@@ -1214,6 +1198,25 @@ packages:
   - libstdcxx >=15
   - python_abi 3.14.* *_cp314
   - cuda-cudart >=13.1.80,<14.0a0
+  license: Apache-2.0
+- conda: .
+  name: cuda-core
+  version: 0.5.0
+  build: py314hae7e39d_0
+  subdir: win-64
+  variants:
+    c_compiler: vs2022
+    cxx_compiler: vs2022
+    python: 3.14.*
+    target_platform: win-64
+  depends:
+  - python
+  - numpy
+  - cuda-bindings
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  - ucrt >=10.0.20348.0
+  - python_abi 3.14.* *_cp314
   license: Apache-2.0
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-crt-dev_linux-64-12.9.86-ha770c72_2.conda
   sha256: e6257534c4b4b6b8a1192f84191c34906ab9968c92680fa09f639e7846a87304
