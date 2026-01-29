@@ -1162,7 +1162,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
 
 
 def test_mempool_attributes_ownership(memory_resource_factory):
-    """Ensure the attributes bundle handles references correctly for all memory resource types."""
+    """Ensure the attributes bundle keeps the pool alive via the handle."""
     MR, MRops = memory_resource_factory
     device = Device()
 
@@ -1190,21 +1190,9 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     mr.close()
     del mr
 
-    # After deleting the memory resource, the attributes suite is disconnected.
-    with pytest.raises(RuntimeError, match="is expired"):
-        _ = attributes.used_mem_high
-
-    # Even when a new object is created (we found a case where the same
-    # mempool handle was really reused).
-    if MR is DeviceMemoryResource:
-        mr = MR(device, dict(max_size=POOL_SIZE))  # noqa: F841
-    elif MR is PinnedMemoryResource:
-        mr = MR(dict(max_size=POOL_SIZE))  # noqa: F841
-    elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_skip(dict())  # noqa: F841
-
-    with pytest.raises(RuntimeError, match="is expired"):
-        _ = attributes.used_mem_high
+    # The attributes bundle keeps the pool alive via MemoryPoolHandle,
+    # so accessing attributes still works even after the MR is deleted.
+    _ = attributes.used_mem_high  # Should not raise
 
 
 # Ensure that memory views dellocate their reference to dlpack tensors

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from libc.string cimport memset
+
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
@@ -152,9 +154,9 @@ cdef class LaunchConfig:
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         _lazy_init()
-        # TODO: memset to zero?
         cdef cydriver.CUlaunchConfig drv_cfg
         cdef cydriver.CUlaunchAttribute attr
+        memset(&drv_cfg, 0, sizeof(drv_cfg))
         self._attrs.resize(0)
 
         # Handle grid dimensions and cluster configuration
