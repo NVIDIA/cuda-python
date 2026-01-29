@@ -19,13 +19,17 @@ else:
 
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import nvml
-    # TODO: We need to be even more specific than version numbers for development.
-    # This can be removed once we have a release including everything we need.
-    for member in ["FieldId", "ClocksEventReasons"]:
-        if not hasattr(nvml, member):
-            CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
-            break
+    try:
+        from cuda.bindings import nvml
+    except ImportError:
+        CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+    else:
+        # TODO: We need to be even more specific than version numbers for development.
+        # This can be removed once we have a release including everything we need.
+        for member in ["FieldId", "ClocksEventReasons"]:
+            if not hasattr(nvml, member):
+                CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+                break
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._nvml_context import initialize
