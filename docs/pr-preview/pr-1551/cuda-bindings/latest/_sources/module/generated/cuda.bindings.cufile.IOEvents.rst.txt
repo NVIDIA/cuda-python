@@ -1,0 +1,33 @@
+﻿cuda.bindings.cufile.IOEvents
+=============================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: IOEvents
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IOEvents.__init__
+      ~IOEvents.from_data
+      ~IOEvents.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IOEvents.cookie
+      ~IOEvents.ptr
+      ~IOEvents.ret
+      ~IOEvents.status
+   
+   
