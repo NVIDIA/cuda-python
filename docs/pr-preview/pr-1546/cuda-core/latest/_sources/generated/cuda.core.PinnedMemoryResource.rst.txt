@@ -1,0 +1,44 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.PinnedMemoryResource
+==============================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: PinnedMemoryResource
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: close
+   .. automethod:: deallocate
+   .. automethod:: from_allocation_handle
+   .. automethod:: from_registry
+   .. automethod:: get_allocation_handle
+   .. automethod:: register
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: attributes
+   .. autoattribute:: device_id
+   .. autoattribute:: handle
+   .. autoattribute:: is_device_accessible
+   .. autoattribute:: is_handle_owned
+   .. autoattribute:: is_host_accessible
+   .. autoattribute:: is_ipc_enabled
+   .. autoattribute:: is_mapped
+   .. autoattribute:: peer_accessible_by
+   .. autoattribute:: uuid
+   
+   
