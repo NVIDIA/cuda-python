@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This code was automatically generated with version 13.1.0. Do not modify it directly.
@@ -145,7 +145,7 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
     bytes
         Message string for the given :py:obj:`~.nvrtcResult` code.
     """
-    cdef cynvrtc.nvrtcResult cyresult = result.value
+    cdef cynvrtc.nvrtcResult cyresult = int(result)
     with nogil:
         err = cynvrtc.nvrtcGetErrorString(cyresult)
     return (nvrtcResult.NVRTC_SUCCESS, err)
