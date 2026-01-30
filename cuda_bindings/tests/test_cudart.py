@@ -1158,6 +1158,10 @@ def test_cudart_cudaMemcpy3DPeerAsync():
     (err,) = cudart.cudaMemcpy(dptr, h1, size, cudart.cudaMemcpyKind.cudaMemcpyHostToDevice)
     assertSuccess(err)
 
+    # ensure the DMA to device memory has completed
+    (err,) = cudart.cudaStreamSynchronize(0)
+    assertSuccess(err)
+
     # D to arr
     (err,) = cudart.cudaMemcpy3DPeerAsync(params, stream)
     assertSuccess(err)
