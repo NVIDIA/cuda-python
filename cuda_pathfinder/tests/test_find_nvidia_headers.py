@@ -19,7 +19,7 @@ import re
 
 import pytest
 
-from cuda.pathfinder import FoundHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
+from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_HEADERS_CTK_ALL,
@@ -59,34 +59,33 @@ def have_distribution_for(libname: str) -> bool:
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_NON_CTK.keys())
 def test_locate_non_ctk_headers(info_summary_append, libname):
-    found_header_dir = locate_nvidia_header_directory(libname)
-    info_summary_append(f"{None if not found_header_dir else found_header_dir.abs_path=!r}")
-    if found_header_dir:
-        assert isinstance(found_header_dir, FoundHeaderDir)
-        assert found_header_dir.found_via in ("site-packages", "conda", "CUDA_HOME")
-        # old api
-        hdr_dir = find_nvidia_header_directory(libname)
-        assert hdr_dir == found_header_dir.abs_path
+    hdr_dir = find_nvidia_header_directory(libname)
+    located_hdr_dir = locate_nvidia_header_directory(libname)
+    assert hdr_dir is None if not located_hdr_dir else hdr_dir == located_hdr_dir.abs_path
 
-        assert os.path.isdir(found_header_dir.abs_path)
-        assert os.path.isfile(os.path.join(found_header_dir.abs_path, SUPPORTED_HEADERS_NON_CTK[libname]))
+    info_summary_append(f"{hdr_dir=!r}")
+    if hdr_dir:
+        assert isinstance(located_hdr_dir, LocatedHeaderDir)
+        assert located_hdr_dir.found_via in ("site-packages", "conda", "CUDA_HOME")
+        assert os.path.isdir(hdr_dir)
+        assert os.path.isfile(os.path.join(hdr_dir, SUPPORTED_HEADERS_NON_CTK[libname]))
     if have_distribution_for(libname):
-        assert found_header_dir.abs_path is not None
-        found_header_dir_parts = found_header_dir.abs_path.split(os.path.sep)
-        assert "site-packages" in found_header_dir_parts
+        assert hdr_dir is not None
+        hdr_dir_parts = hdr_dir.split(os.path.sep)
+        assert "site-packages" in hdr_dir_parts
     elif STRICTNESS == "all_must_work":
-        assert found_header_dir is not None
+        assert hdr_dir is not None
         if conda_prefix := os.environ.get("CONDA_PREFIX"):
-            assert found_header_dir.abs_path.startswith(conda_prefix)
+            assert hdr_dir.startswith(conda_prefix)
         else:
             inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
             if inst_dirs is not None:
                 for inst_dir in inst_dirs:
                     globbed = glob.glob(inst_dir)
-                    if found_header_dir.abs_path in globbed:
+                    if hdr_dir in globbed:
                         break
                 else:
-                    raise RuntimeError(f"{found_header_dir.abs_path=} does not match any {inst_dirs=}")
+                    raise RuntimeError(f"{hdr_dir=} does not match any {inst_dirs=}")
 
 
 def test_supported_headers_site_packages_ctk_consistency():
@@ -95,15 +94,14 @@ def test_supported_headers_site_packages_ctk_consistency():
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
 def test_locate_ctk_headers(info_summary_append, libname):
-    found_header_dir = locate_nvidia_header_directory(libname)
-    info_summary_append(f"{None if not found_header_dir else found_header_dir.abs_path=!r}")
-    if found_header_dir:
-        # old api
-        hdr_dir = find_nvidia_header_directory(libname)
-        assert hdr_dir == found_header_dir.abs_path
+    hdr_dir = find_nvidia_header_directory(libname)
+    located_hdr_dir = locate_nvidia_header_directory(libname)
+    assert hdr_dir is None if not located_hdr_dir else hdr_dir == located_hdr_dir.abs_path
 
-        assert os.path.isdir(found_header_dir.abs_path)
+    info_summary_append(f"{hdr_dir=!r}")
+    if hdr_dir:
+        assert os.path.isdir(hdr_dir)
         h_filename = SUPPORTED_HEADERS_CTK[libname]
-        assert os.path.isfile(os.path.join(found_header_dir.abs_path, h_filename))
+        assert os.path.isfile(os.path.join(hdr_dir, h_filename))
     if STRICTNESS == "all_must_work":
-        assert found_header_dir.abs_path is not None
+        assert hdr_dir is not None
