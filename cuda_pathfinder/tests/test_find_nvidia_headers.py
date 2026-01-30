@@ -44,6 +44,11 @@ def test_unknown_libname():
         find_nvidia_header_directory("unknown-libname")
 
 
+def _located_hdr_dir_asserts(located_hdr_dir):
+    assert isinstance(located_hdr_dir, LocatedHeaderDir)
+    assert located_hdr_dir.found_via in ("site-packages", "conda", "CUDA_HOME", "supported_install_dir")
+
+
 def test_non_ctk_importlib_metadata_distributions_names():
     # Ensure the dict keys above stay in sync with supported_nvidia_headers
     assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(SUPPORTED_HEADERS_NON_CTK_ALL)
@@ -65,8 +70,7 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
 
     info_summary_append(f"{hdr_dir=!r}")
     if hdr_dir:
-        assert isinstance(located_hdr_dir, LocatedHeaderDir)
-        assert located_hdr_dir.found_via in ("site-packages", "conda", "CUDA_HOME")
+        _located_hdr_dir_asserts(located_hdr_dir)
         assert os.path.isdir(hdr_dir)
         assert os.path.isfile(os.path.join(hdr_dir, SUPPORTED_HEADERS_NON_CTK[libname]))
     if have_distribution_for(libname):
@@ -100,6 +104,7 @@ def test_locate_ctk_headers(info_summary_append, libname):
 
     info_summary_append(f"{hdr_dir=!r}")
     if hdr_dir:
+        _located_hdr_dir_asserts(located_hdr_dir)
         assert os.path.isdir(hdr_dir)
         h_filename = SUPPORTED_HEADERS_CTK[libname]
         assert os.path.isfile(os.path.join(hdr_dir, h_filename))
