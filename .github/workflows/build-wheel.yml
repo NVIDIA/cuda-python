@@ -45,6 +45,8 @@ jobs:
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
+        # Skip cache on GitHub-hosted Windows runners.
+        if: ${{ inputs.host-platform != 'win-64' }}
         with:
           enable-apt: true
 
