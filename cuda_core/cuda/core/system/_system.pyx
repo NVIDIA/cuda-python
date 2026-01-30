@@ -21,7 +21,7 @@ else:
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     try:
         from cuda.bindings import nvml
-    except ImportError:
+    except ModuleNotFoundError:
         CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
     else:
         # TODO: We need to be even more specific than version numbers for development.
