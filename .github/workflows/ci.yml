@@ -173,6 +173,7 @@ jobs:
 
   checks:
     name: Check job status
+    if: always()
     runs-on: ubuntu-latest
     needs:
       - test-linux-64
@@ -181,4 +182,14 @@ jobs:
       # we don't build docs on the backport branch, see #809
     steps:
       - name: Exit
-        run: exit 0
+        run: |
+          # if any dependencies were cancelled or failed, that's a failure
+          if ${{ needs.test-linux-64.result == 'cancelled' ||
+                 needs.test-linux-64.result == 'failure' ||
+                 needs.test-linux-aarch64.result == 'cancelled' ||
+                 needs.test-linux-aarch64.result == 'failure' ||
+                 needs.test-windows.result == 'cancelled' ||
+                 needs.test-windows.result == 'failure' }}; then
+            exit 1
+          fi
+          exit 0
