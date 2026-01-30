@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import cuda.bindings.driver as cuda
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 from .conftest import NVMLInitializer
 
