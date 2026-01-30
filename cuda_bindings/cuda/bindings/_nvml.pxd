@@ -6,7 +6,7 @@
 
 from libc.stdint cimport intptr_t
 
-from .cynvml cimport *
+from .cy_nvml cimport *
 
 
 ###############################################################################

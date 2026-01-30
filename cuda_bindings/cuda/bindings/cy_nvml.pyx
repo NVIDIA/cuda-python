@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
 
-from ._internal cimport nvml as _nvml
+from ._internal cimport _nvml as _nvml
 
 
 ###############################################################################
