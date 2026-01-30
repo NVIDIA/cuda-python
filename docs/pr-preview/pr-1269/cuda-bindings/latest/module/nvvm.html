@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d8404505"></script>
+    <script src="../_static/documentation_options.js?v=0ded8b45"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cufile" href="cufile.html" />
+    <link rel="next" title="nvfatbin" href="nvfatbin.html" />
     <link rel="prev" title="nvjitlink" href="nvjitlink.html" />
 
 
@@ -502,10 +502,14 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.2-notes.html">13.1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.3-notes.html">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.2-notes.html">12.9.2</a></li>
@@ -548,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvfatbin.html">nvfatbin</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -1004,11 +1009,11 @@ to a valid sequence of ‘char’, or</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="cufile.html"
+       href="nvfatbin.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cufile</p>
+        <p class="prev-next-title">nvfatbin</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1033,7 +1038,7 @@ to a valid sequence of ‘char’, or</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.version"><code class="docutils literal notranslate"><span class="pre">version()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.ir_version"><code class="docutils literal notranslate"><span class="pre">ir_version()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.create_program"><code class="docutils literal notranslate"><span class="pre">create_program()</span></code></a></li>
@@ -1047,19 +1052,19 @@ to a valid sequence of ‘char’, or</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.get_program_log"><code class="docutils literal notranslate"><span class="pre">get_program_log()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result"><code class="docutils literal notranslate"><span class="pre">Result</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.SUCCESS"><code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">ERROR_OUT_OF_MEMORY</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH"><code class="docutils literal notranslate"><span class="pre">ERROR_IR_VERSION_MISMATCH</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">ERROR_INVALID_INPUT</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">ERROR_INVALID_PROGRAM</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_IR"><code class="docutils literal notranslate"><span class="pre">ERROR_INVALID_IR</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">ERROR_INVALID_OPTION</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM"><code class="docutils literal notranslate"><span class="pre">ERROR_NO_MODULE_IN_PROGRAM</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">ERROR_COMPILATION</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">ERROR_CANCELLED</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result"><code class="docutils literal notranslate"><span class="pre">Result</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.SUCCESS"><code class="docutils literal notranslate"><span class="pre">Result.SUCCESS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_OUT_OF_MEMORY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_IR_VERSION_MISMATCH</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_INVALID_INPUT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_INVALID_PROGRAM</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_IR"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_INVALID_IR</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_INVALID_OPTION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_NO_MODULE_IN_PROGRAM</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvvm.Result.ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_CANCELLED</span></code></a></li>
 </ul>
 </li>
 </ul>
