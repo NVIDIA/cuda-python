@@ -243,16 +243,16 @@ jobs:
           # Note: When [doc-only] is in PR title, test jobs are intentionally
           # skipped and should not cause failure.
           doc_only=${{ needs.should-skip.outputs.doc-only }}
-          if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
+          # Fail if doc job didn't succeed (covers cancelled, failure, skipped, or any unexpected state)
+          if ${{ needs.doc.result != 'success' }}; then
             exit 1
           fi
           if [[ "${doc_only}" != "true" ]]; then
-            if ${{ needs.test-linux-64.result == 'cancelled' ||
-                   needs.test-linux-64.result == 'failure' ||
-                   needs.test-linux-aarch64.result == 'cancelled' ||
-                   needs.test-linux-aarch64.result == 'failure' ||
-                   needs.test-windows.result == 'cancelled' ||
-                   needs.test-windows.result == 'failure' }}; then
+            # Fail if any test job didn't succeed (covers cancelled, failure, skipped, or any unexpected state)
+            # When doc_only != "true", test jobs should have run, so any non-success state is a failure
+            if ${{ needs.test-linux-64.result != 'success' ||
+                   needs.test-linux-aarch64.result != 'success' ||
+                   needs.test-windows.result != 'success' }}; then
               exit 1
             fi
           fi
