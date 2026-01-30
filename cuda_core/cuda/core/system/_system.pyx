@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,13 +19,17 @@ else:
 
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import _nvml as nvml
-    # TODO: We need to be even more specific than version numbers for development.
-    # This can be removed once we have a release including everything we need.
-    for member in ["FieldId", "ClocksEventReasons"]:
-        if not hasattr(nvml, member):
-            CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
-            break
+    try:
+        from cuda.bindings import nvml
+    except ModuleNotFoundError:
+        CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+    else:
+        # TODO: We need to be even more specific than version numbers for development.
+        # This can be removed once we have a release including everything we need.
+        for member in ["FieldId", "ClocksEventReasons"]:
+            if not hasattr(nvml, member):
+                CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+                break
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._nvml_context import initialize

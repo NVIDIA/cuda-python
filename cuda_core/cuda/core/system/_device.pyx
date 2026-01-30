@@ -8,7 +8,7 @@ from libc.math cimport ceil
 from multiprocessing import cpu_count
 from typing import Iterable
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
 

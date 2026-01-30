@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # A set of tests ported from https://github.com/gpuopenanalytics/pynvml/blob/11.5.3/pynvml/tests/test_nvml.py
@@ -7,7 +7,7 @@ import os
 import time
 
 import pytest
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from . import util
 from .conftest import unsupported_before
