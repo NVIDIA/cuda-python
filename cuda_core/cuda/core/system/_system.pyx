@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# This file needs to either use NVML exclusively, or when `cuda.bindings._nvml`
+# This file needs to either use NVML exclusively, or when `cuda.bindings.nvml`
 # isn't available, fall back to non-NVML-based methods for backward
 # compatibility.
 
