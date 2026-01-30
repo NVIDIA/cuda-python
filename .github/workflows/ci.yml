@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -223,7 +223,7 @@ jobs:
     steps:
       - name: Exit
         run: |
-          # if any dependencies were cancelled, that's a failure
+          # if any dependencies were cancelled or failed, that's a failure
           #
           # see https://docs.github.com/en/actions/reference/workflows-and-actions/expressions#always
           # and https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
@@ -243,13 +243,16 @@ jobs:
           # Note: When [doc-only] is in PR title, test jobs are intentionally
           # skipped and should not cause failure.
           doc_only=${{ needs.should-skip.outputs.doc-only }}
-          if ${{ needs.doc.result == 'cancelled' }}; then
+          if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
             exit 1
           fi
           if [[ "${doc_only}" != "true" ]]; then
             if ${{ needs.test-linux-64.result == 'cancelled' ||
+                   needs.test-linux-64.result == 'failure' ||
                    needs.test-linux-aarch64.result == 'cancelled' ||
-                   needs.test-windows.result == 'cancelled' }}; then
+                   needs.test-linux-aarch64.result == 'failure' ||
+                   needs.test-windows.result == 'cancelled' ||
+                   needs.test-windows.result == 'failure' }}; then
               exit 1
             fi
           fi
