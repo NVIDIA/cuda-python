@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -60,8 +60,10 @@ jobs:
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
-        # Skip the cache on Windows nodes outside of our org.
+        # Skip cache on GitHub-hosted Windows runners.
         if: ${{ inputs.host-platform != 'win-64' }}
+        with:
+          enable-apt: true
 
       - name: Set up Python
         id: setup-python1
