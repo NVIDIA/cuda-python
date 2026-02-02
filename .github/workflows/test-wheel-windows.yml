@@ -33,7 +33,7 @@ jobs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Validate Test Type
         run: |
@@ -69,7 +69,7 @@ jobs:
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -201,7 +201,7 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.PY_VER }}
 
