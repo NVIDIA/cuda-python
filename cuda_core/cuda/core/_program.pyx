@@ -631,7 +631,27 @@ class ProgramOptions:
 ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
 
 
-class Program:
+class _ProgramMNFF:
+    """Members needed for postrm release of program handles."""
+
+    __slots__ = "handle", "backend"
+
+    def __init__(self, program_obj, handle, backend):
+        self.handle = handle
+        self.backend = backend
+        weakref.finalize(program_obj, self.close)
+
+    def close(self):
+        if self.handle is not None:
+            if self.backend == "NVRTC":
+                handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
+            elif self.backend == "NVVM":
+                nvvm = _get_nvvm_module()
+                nvvm.destroy_program(self.handle)
+            self.handle = None
+
+
+cdef class Program:
     """Represent a compilation machinery to process programs into
     :obj:`~_module.ObjectCode`.
 
@@ -650,27 +670,8 @@ class Program:
         See :obj:`ProgramOptions` for more information.
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = "handle", "backend"
-
-        def __init__(self, program_obj, handle, backend):
-            self.handle = handle
-            self.backend = backend
-            weakref.finalize(program_obj, self.close)
-
-        def close(self):
-            if self.handle is not None:
-                if self.backend == "NVRTC":
-                    handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
-                elif self.backend == "NVVM":
-                    nvvm = _get_nvvm_module()
-                    nvvm.destroy_program(self.handle)
-                self.handle = None
-
-    __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
-
     def __init__(self, code, code_type, options: ProgramOptions = None):
-        self._mnff = Program._MembersNeededForFinalize(self, None, None)
+        self._mnff = _ProgramMNFF(self, None, None)
 
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
@@ -858,3 +859,6 @@ class Program:
             handle, call ``int(Program.handle)``.
         """
         return self._mnff.handle
+
+    def __repr__(self) -> str:
+        return f"<Program backend='{self._backend}'>"
