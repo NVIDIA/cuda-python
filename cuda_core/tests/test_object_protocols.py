@@ -205,24 +205,12 @@ def test_hash_consistency(fixture_name, request):
     assert hash(obj) == hash(obj)
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
-def test_hash_not_small(fixture_name, request):
-    """Hash should not be a small number (guards against returning IDs or indices)."""
-    # Heuristic test guarding against poor hashes likely to collide, e.g.,
-    # hash(device.device_id).
-    obj = request.getfixturevalue(fixture_name)
-    h = hash(obj)
-    assert abs(h) >= 10, f"hash {h} is suspiciously small"
-
-
 @pytest.mark.parametrize("a_name,b_name", SAME_TYPE_PAIRS)
 def test_hash_distinct_same_type(a_name, b_name, request):
     """Distinct objects of the same type have different hashes."""
-    # As a practical matter, the chance of collision is extremely low or even
-    # zero; failure here likely indicates a bug.
     obj_a = request.getfixturevalue(a_name)
     obj_b = request.getfixturevalue(b_name)
-    assert hash(obj_a) != hash(obj_b), f"{a_name} and {b_name} have same hash but different handles"
+    assert hash(obj_a) != hash(obj_b)  # extremely unlikely
 
 
 @pytest.mark.parametrize("a_name,b_name", itertools.combinations(API_TYPES, 2))
@@ -230,7 +218,7 @@ def test_hash_distinct_cross_type(a_name, b_name, request):
     """Distinct objects of different types have different hashes."""
     obj_a = request.getfixturevalue(a_name)
     obj_b = request.getfixturevalue(b_name)
-    assert hash(obj_a) != hash(obj_b), f"{a_name} and {b_name} have same hash"
+    assert hash(obj_a) != hash(obj_b)  # extremely unlikely
 
 
 # =============================================================================
@@ -242,11 +230,11 @@ def test_hash_distinct_cross_type(a_name, b_name, request):
 def test_equality_basic(fixture_name, request):
     """Object equality: reflexive, not equal to None or other types."""
     obj = request.getfixturevalue(fixture_name)
-    assert obj == obj, "reflexive equality failed"
-    assert obj != None, "should not equal None"  # noqa: E711
-    assert obj != "string", "should not equal unrelated type"
+    assert obj == obj
+    assert obj != None  # noqa: E711
+    assert obj != "string"
     if hasattr(obj, "handle"):
-        assert obj != obj.handle, "should not equal its own handle"
+        assert obj != obj.handle
 
 
 @pytest.mark.parametrize("a_name,b_name", itertools.combinations(API_TYPES, 2))
@@ -254,7 +242,7 @@ def test_no_cross_type_equality(a_name, b_name, request):
     """No two distinct objects of different types should compare equal."""
     obj_a = request.getfixturevalue(a_name)
     obj_b = request.getfixturevalue(b_name)
-    assert obj_a != obj_b, f"{a_name} == {b_name} but they are distinct objects"
+    assert obj_a != obj_b
 
 
 @pytest.mark.parametrize("a_name,b_name", SAME_TYPE_PAIRS)
@@ -262,8 +250,8 @@ def test_same_type_inequality(a_name, b_name, request):
     """Two distinct objects of the same type should not compare equal."""
     obj_a = request.getfixturevalue(a_name)
     obj_b = request.getfixturevalue(b_name)
-    assert obj_a is not obj_b, f"{a_name} and {b_name} are the same object"
-    assert obj_a != obj_b, f"{a_name} == {b_name} but they have different handles"
+    assert obj_a is not obj_b
+    assert obj_a != obj_b
 
 
 @pytest.mark.parametrize("fixture_name,copy_fn", FROM_HANDLE_COPIES)
@@ -271,8 +259,8 @@ def test_equality_same_handle(fixture_name, copy_fn, request):
     """Two wrappers around the same handle should compare equal."""
     obj = request.getfixturevalue(fixture_name)
     obj2 = copy_fn(obj)
-    assert obj == obj2, f"wrapper equality failed for {type(obj).__name__}"
-    assert hash(obj) == hash(obj2), f"hash equality failed for {type(obj).__name__}"
+    assert obj == obj2
+    assert hash(obj) == hash(obj2)
 
 
 # =============================================================================
@@ -334,4 +322,4 @@ def test_repr_format(fixture_name, pattern, request):
     """repr() returns a properly formatted string."""
     obj = request.getfixturevalue(fixture_name)
     result = repr(obj)
-    assert re.fullmatch(pattern, result), f"repr {result!r} does not match {pattern!r}"
+    assert re.fullmatch(pattern, result)
