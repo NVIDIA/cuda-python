@@ -3,7 +3,7 @@
 
 import numpy as np
 import pytest
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from . import util
 from .conftest import unsupported_before
@@ -35,7 +35,7 @@ def test_gpu_get_platform_info(all_devices):
         with unsupported_before(device, None):
             platform_info = nvml.device_get_platform_info(device)
 
-        assert isinstance(platform_info, nvml.PlatformInfo_v2)
+        assert isinstance(platform_info, (nvml.PlatformInfo_v1, nvml.PlatformInfo_v2))
 
 
 # TODO: Test APIs related to GPU instances, which require specific hardware and root

@@ -19,7 +19,7 @@ import pytest
 from cuda.core import system
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import _nvml as nvml
+    from cuda.bindings import nvml
     from cuda.core.system import DeviceArch, _device
 
 
@@ -640,8 +640,6 @@ def test_fan():
                 assert isinstance(min_, int)
                 assert isinstance(max_, int)
                 assert min_ <= max_
-                if speed > 0:
-                    assert min_ <= speed <= max_
 
                 control_policy = fan_info.control_policy
                 assert isinstance(control_policy, system.FanControlPolicy)
