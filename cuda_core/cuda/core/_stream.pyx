@@ -222,7 +222,8 @@ cdef class Stream:
         return as_intptr(self._h_stream) == as_intptr((<Stream>other)._h_stream)
 
     def __repr__(self) -> str:
-        return f"Stream(handle={as_intptr(self._h_stream):#x})"
+        Stream_ensure_ctx(self)
+        return f"<Stream handle={as_intptr(self._h_stream):#x} context={as_intptr(self._h_context):#x}>"
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:

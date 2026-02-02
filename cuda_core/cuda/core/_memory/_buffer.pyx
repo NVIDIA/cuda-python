@@ -335,7 +335,8 @@ cdef class Buffer:
         return hash((as_intptr(self._h_ptr), self._size))
 
     def __repr__(self) -> str:
-        return f"Buffer(ptr={as_intptr(self._h_ptr):#x}, size={self._size})"
+        maybe_is_mapped = " is_mapped=True" if self.is_mapped else ""
+        return f"<Buffer ptr={as_intptr(self._h_ptr):#x} size={self._size}{maybe_is_mapped}>"
 
     @property
     def is_device_accessible(self) -> bool:

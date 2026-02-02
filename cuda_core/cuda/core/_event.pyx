@@ -179,7 +179,7 @@ cdef class Event:
         return as_intptr(self._h_event) == as_intptr(_other._h_event)
 
     def __repr__(self) -> str:
-        return f"Event(handle={as_intptr(self._h_event):#x})"
+        return f"<Event handle={as_intptr(self._h_event):#x}>"
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""

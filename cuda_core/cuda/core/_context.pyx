@@ -49,7 +49,7 @@ cdef class Context:
         return hash(as_intptr(self._h_context))
 
     def __repr__(self) -> str:
-        return f"Context(handle={as_intptr(self._h_context):#x}, device={self._device_id})"
+        return f"<Context handle={as_intptr(self._h_context):#x} device={self._device_id}>"
 
 
 @dataclass

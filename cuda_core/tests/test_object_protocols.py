@@ -78,7 +78,10 @@ def sample_device_alt(init_cuda):
     """An alternate Device object (requires multi-GPU)."""
     if system.get_num_devices() < 2:
         pytest.skip("requires multi-GPU")
-    return Device(1)
+    device_alt = Device(1)
+    device_alt.set_current()
+    Device(0).set_current()
+    return device_alt
 
 
 @pytest.fixture
@@ -96,7 +99,6 @@ def sample_event_alt(sample_device):
 @pytest.fixture
 def sample_context_alt(sample_device_alt):
     """An alternate Context object (requires multi-GPU)."""
-    sample_device_alt.set_current()
     return sample_device_alt.context
 
 
@@ -157,17 +159,17 @@ SAME_TYPE_PAIRS = [
 # Pairs of (fixture_name, regex_pattern) for repr format validation
 REPR_PATTERNS = [
     ("sample_device", r"<Device \d+ \(.+\)>"),
-    ("sample_stream", r"Stream\(handle=0x[0-9a-f]+\)"),
-    ("sample_event", r"Event\(handle=0x[0-9a-f]+\)"),
-    ("sample_context", r"Context\(handle=0x[0-9a-f]+, device=\d+\)"),
-    ("sample_buffer", r"Buffer\(ptr=0x[0-9a-f]+, size=\d+\)"),
+    ("sample_stream", r"<Stream handle=0x[0-9a-f]+ context=0x[0-9a-f]+>"),
+    ("sample_event", r"<Event handle=0x[0-9a-f]+>"),
+    ("sample_context", r"<Context handle=0x[0-9a-f]+ device=\d+>"),
+    ("sample_buffer", r"<Buffer ptr=0x[0-9a-f]+ size=\d+>"),
     (
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
         r"shmem_size=\d+, cooperative_launch=(?:True|False)\)",
     ),
-    ("sample_object_code", r"ObjectCode\(handle=0x[0-9a-f]+, code_type='.+'\)"),
-    ("sample_kernel", r"Kernel\(handle=0x[0-9a-f]+\)"),
+    ("sample_object_code", r"<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>"),
+    ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
 ]
 
 
@@ -199,6 +201,8 @@ def test_hash_consistency(fixture_name, request):
 @pytest.mark.parametrize("fixture_name", API_TYPES)
 def test_hash_not_small(fixture_name, request):
     """Hash should not be a small number (guards against returning IDs or indices)."""
+    # Heuristic test guarding against poor hashes likely to collide, e.g.,
+    # hash(device.device_id).
     obj = request.getfixturevalue(fixture_name)
     h = hash(obj)
     assert abs(h) >= 10, f"hash {h} is suspiciously small"
@@ -207,6 +211,8 @@ def test_hash_not_small(fixture_name, request):
 @pytest.mark.parametrize("a_name,b_name", SAME_TYPE_PAIRS)
 def test_hash_distinct_same_type(a_name, b_name, request):
     """Distinct objects of the same type have different hashes."""
+    # As a practical matter, the chance of collision is extremely low or even
+    # zero; failure here likely indicates a bug.
     obj_a = request.getfixturevalue(a_name)
     obj_b = request.getfixturevalue(b_name)
     assert hash(obj_a) != hash(obj_b), f"{a_name} and {b_name} have same hash but different handles"

@@ -614,7 +614,7 @@ cdef class Kernel:
         return hash(as_intptr(self._h_kernel))
 
     def __repr__(self) -> str:
-        return f"Kernel(handle={as_intptr(self._h_kernel):#x})"
+        return f"<Kernel handle={as_intptr(self._h_kernel):#x}>"
 
 
 CodeTypeT = bytes | bytearray | str
@@ -871,4 +871,4 @@ cdef class ObjectCode:
     def __repr__(self) -> str:
         # Trigger lazy load to get the handle
         self._lazy_load_module()
-        return f"ObjectCode(handle={as_intptr(self._h_library):#x}, code_type='{self._code_type}')"
+        return f"<ObjectCode handle={as_intptr(self._h_library):#x} code_type='{self._code_type}'>"
