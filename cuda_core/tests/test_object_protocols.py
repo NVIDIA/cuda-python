@@ -12,7 +12,7 @@ import re
 import weakref
 
 import pytest
-from cuda.core import Device, LaunchConfig, Program, system
+from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
 
 # =============================================================================
 # Fixtures - Primary samples
@@ -156,6 +156,13 @@ SAME_TYPE_PAIRS = [
     ("sample_kernel", "sample_kernel_alt"),
 ]
 
+# Types with public from_handle methods and how to create a copy
+FROM_HANDLE_COPIES = [
+    ("sample_stream", lambda s: Stream.from_handle(int(s.handle))),
+    ("sample_buffer", lambda b: Buffer.from_handle(b.handle, b.size)),
+    ("sample_kernel", lambda k: Kernel.from_handle(int(k.handle))),
+]
+
 # Pairs of (fixture_name, regex_pattern) for repr format validation
 REPR_PATTERNS = [
     ("sample_device", r"<Device \d+ \(.+\)>"),
@@ -257,6 +264,15 @@ def test_same_type_inequality(a_name, b_name, request):
     obj_b = request.getfixturevalue(b_name)
     assert obj_a is not obj_b, f"{a_name} and {b_name} are the same object"
     assert obj_a != obj_b, f"{a_name} == {b_name} but they have different handles"
+
+
+@pytest.mark.parametrize("fixture_name,copy_fn", FROM_HANDLE_COPIES)
+def test_equality_same_handle(fixture_name, copy_fn, request):
+    """Two wrappers around the same handle should compare equal."""
+    obj = request.getfixturevalue(fixture_name)
+    obj2 = copy_fn(obj)
+    assert obj == obj2, f"wrapper equality failed for {type(obj).__name__}"
+    assert hash(obj) == hash(obj2), f"hash equality failed for {type(obj).__name__}"
 
 
 # =============================================================================
