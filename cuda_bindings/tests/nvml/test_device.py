@@ -94,7 +94,8 @@ def test_device_get_performance_modes(all_devices):
 @pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
 def test_device_get_unrepairable_memory_flag(all_devices):
     for device in all_devices:
-        status = nvml.device_get_unrepairable_memory_flag_v1(device)
+        with unsupported_before(device, None):
+            status = nvml.device_get_unrepairable_memory_flag_v1(device)
         assert isinstance(status, int)
 
 
