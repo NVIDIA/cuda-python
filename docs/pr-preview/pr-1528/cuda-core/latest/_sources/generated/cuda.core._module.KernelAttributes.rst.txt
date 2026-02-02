@@ -36,9 +36,4 @@ cuda.core.\_module.KernelAttributes
 
    
    
-   .. rubric:: Attributes
-
-   
-   .. autoproperty:: slots
-   
    
