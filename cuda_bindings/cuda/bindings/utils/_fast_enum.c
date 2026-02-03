@@ -91,15 +91,21 @@ FastEnum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *val = PyTuple_GET_ITEM(args, 0);
     PyObject *singletons = FastEnum_get_singletons((PyObject *)type);
 
-    if (PyDict_Contains(singletons, val) >= 0) {
-        PyObject *result = PyDict_GetItem(singletons, val); // borrowed ref
-        Py_DECREF(singletons);
-        Py_INCREF(result);
-        return result;
-    } else {
-        Py_DECREF(singletons);
-        PyErr_Format(PyExc_ValueError, "Value %S not in %N", val, type);
-        return NULL;
+    int contains = PyDict_Contains(singletons, val);
+
+    switch (contains) {
+        case 1:
+            PyObject *result = PyDict_GetItem(singletons, val); // borrowed ref
+            Py_DECREF(singletons);
+            Py_INCREF(result);
+            return result;
+        case 0:
+            Py_DECREF(singletons);
+            PyErr_Format(PyExc_ValueError, "Value %S not in %N", val, type);
+            return NULL;
+        case -1:
+            Py_DECREF(singletons);
+            return NULL;
     }
 }
 
