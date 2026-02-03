@@ -217,7 +217,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 
         # Modify each .pth file (usually just one)
         for pth_file in pth_files:
-            print(f"Modifying {pth_file.name} to add Cython include paths")
+            print(f"Modifying {pth_file.name} to add Cython include paths", file=sys.stderr)
 
             # Read existing content
             content = pth_file.read_text()
