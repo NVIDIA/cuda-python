@@ -91,12 +91,13 @@ FastEnum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *val = PyTuple_GET_ITEM(args, 0);
     PyObject *singletons = FastEnum_get_singletons((PyObject *)type);
 
-    if (PyDict_Contains(singletons, val)) {
+    if (PyDict_Contains(singletons, val) >= 0) {
         PyObject *result = PyDict_GetItem(singletons, val); // borrowed ref
         Py_DECREF(singletons);
         Py_INCREF(result);
         return result;
     } else {
+        Py_DECREF(singletons);
         PyErr_Format(PyExc_ValueError, "Value %S not in %N", val, type);
         return NULL;
     }
