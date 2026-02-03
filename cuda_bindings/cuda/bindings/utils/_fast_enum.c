@@ -56,7 +56,7 @@ FastEnum_dealloc(FastEnumObject *self)
 static PyObject *
 _FastEnum_new_member(PyTypeObject *type, PyObject *name, PyObject *value)
 {
-   /* Create the int base */
+    /* Create the int base */
     PyObject *args_value = PyTuple_Pack(1, value);
     if (!args_value) return NULL;
 
@@ -79,12 +79,12 @@ static PyObject *
 FastEnum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     if (kwds && PyDict_Size(kwds) != 0) {
-        PyErr_Format(PyExc_TypeError, "%N does not take keyword arguments", type);
+        PyErr_Format(PyExc_TypeError, "%S does not take keyword arguments", type);
         return NULL;
     }
 
     if (PyTuple_Size(args) != 1) {
-        PyErr_Format(PyExc_ValueError, "%N takes exactly one argument", type);
+        PyErr_Format(PyExc_ValueError, "%S takes exactly one argument", type);
         return NULL;
     }
 
