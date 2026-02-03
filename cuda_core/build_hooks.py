@@ -234,7 +234,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
             # Append to the .pth file (after the import hook line)
             if path_to_add not in content:
                 pth_file.write_text(content + path_to_add + "\n")
-                print(f"Added Cython include path: {cuda_package_dir}")
+                print(f"Added Cython include path: {cuda_package_dir}", file=sys.stderr)
 
         # Repackage the wheel
         # Remove the old wheel first
