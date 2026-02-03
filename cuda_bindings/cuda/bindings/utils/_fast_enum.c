@@ -139,8 +139,12 @@ FastEnum_repr(FastEnumObject *self)
 static PyObject *
 FastEnum_get_value(FastEnumObject *self, void *closure)
 {
-    Py_INCREF(self);
-    return (PyObject *)self;
+    PyObject *args;
+    args = PyTuple_Pack(1, (PyObject *)self);
+    if (!args) return NULL;
+    PyObject *result = PyLong_Type.tp_new(&PyLong_Type, args, NULL);
+    Py_DECREF(args);
+    return (PyObject *)result;
 }
 
 static PyObject *
