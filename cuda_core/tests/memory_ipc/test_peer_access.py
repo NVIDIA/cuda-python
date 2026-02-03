@@ -94,6 +94,8 @@ class TestBufferPeerAccessAfterImport:
         # Test 1: Buffer accessible from resident device (dev1) - should always work
         dev1 = Device(1)
         dev1.set_current()
+        # Sync dev1 to ensure IPC import operations are complete
+        dev1.sync()
         PatternGen(dev1, NBYTES).verify_buffer(buffer, seed=False)
 
         # Test 2: Buffer NOT accessible from dev0 initially (peer access not preserved)
@@ -106,6 +108,9 @@ class TestBufferPeerAccessAfterImport:
         dev1.set_current()
         mr.peer_accessible_by = [0]
         assert mr.peer_accessible_by == (0,)
+        # Sync dev1 to ensure peer access setup and any pending operations are complete
+        # before dev0 accesses the peer memory
+        dev1.sync()
         dev0.set_current()
         PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
 
