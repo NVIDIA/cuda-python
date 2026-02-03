@@ -30,7 +30,9 @@ cuda_bindings/cuda/bindings/_bindings/cynvrtc.pxd
 cuda_bindings/cuda/bindings/_bindings/cynvrtc.pyx
 cuda_bindings/cuda/bindings/_internal/_nvml.pyx
 cuda_bindings/cuda/bindings/_internal/cufile.pyx
+cuda_bindings/cuda/bindings/_internal/nvfatbin.pyx
 cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
+cuda_bindings/cuda/bindings/_internal/nvml.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
 cuda_bindings/cuda/bindings/_lib/utils.pxd
 cuda_bindings/cuda/bindings/_lib/utils.pyx
