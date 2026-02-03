@@ -42,79 +42,65 @@ def clear_find_binary_cache():
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
-def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch):
+def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, mocker):
     conda_prefix = os.path.join(os.sep, "conda")
     cuda_home = os.path.join(os.sep, "cuda")
     site_key = os.path.join("nvidia", "cuda_nvcc", "bin")
     site_dir = os.path.join("site-packages", "cuda_nvcc", "bin")
-    captured = {}
 
-    def fake_find_sub_dirs_all_sitepackages(sub_dirs):
-        captured["sub_dirs"] = tuple(sub_dirs)
-        return [site_dir]
-
-    def fake_which(name, path=None, **_kwargs):
-        captured["name"] = name
-        captured["path"] = path
-        return os.path.join(os.sep, "resolved", "nvcc")
-
-    monkeypatch.setattr(binary_finder_module, "IS_WINDOWS", False)
-    monkeypatch.setattr(
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(
         binary_finder_module.supported_nvidia_binaries,
         "SITE_PACKAGES_BINDIRS",
         {"nvcc": (site_key,)},
     )
-    monkeypatch.setattr(binary_finder_module, "find_sub_dirs_all_sitepackages", fake_find_sub_dirs_all_sitepackages)
+    find_sub_dirs_mock = mocker.patch.object(
+        binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir]
+    )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
-    monkeypatch.setattr(binary_finder_module, "get_cuda_home_or_path", lambda: cuda_home)
-    monkeypatch.setattr(binary_finder_module.shutil, "which", fake_which)
+    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=cuda_home)
+    which_mock = mocker.patch.object(
+        binary_finder_module.shutil, "which", return_value=os.path.join(os.sep, "resolved", "nvcc")
+    )
 
     result = find_nvidia_binary_utility("nvcc")
 
     assert result == os.path.join(os.sep, "resolved", "nvcc")
-    assert captured["name"] == "nvcc"
-    assert captured["sub_dirs"] == tuple(site_key.split(os.sep))
+    find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
     expected_dirs = [
         site_dir,
         os.path.join(conda_prefix, "bin"),
         os.path.join(cuda_home, "bin"),
     ]
-    assert captured["path"] == os.pathsep.join(expected_dirs)
+    which_mock.assert_called_once_with("nvcc", path=os.pathsep.join(expected_dirs))
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
-def test_find_binary_windows_extension_and_search_dirs(monkeypatch):
+def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
     conda_prefix = os.path.join(os.sep, "conda")
     cuda_home = os.path.join(os.sep, "cuda")
     site_key = os.path.join("nvidia", "cuda_nvcc", "bin")
     site_dir = os.path.join("site-packages", "cuda_nvcc", "bin")
-    captured = {}
 
-    def fake_find_sub_dirs_all_sitepackages(sub_dirs):
-        captured["sub_dirs"] = tuple(sub_dirs)
-        return [site_dir]
-
-    def fake_which(name, path=None, **_kwargs):
-        captured["name"] = name
-        captured["path"] = path
-        return os.path.join(os.sep, "resolved", "nvcc.exe")
-
-    monkeypatch.setattr(binary_finder_module, "IS_WINDOWS", True)
-    monkeypatch.setattr(
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(
         binary_finder_module.supported_nvidia_binaries,
         "SITE_PACKAGES_BINDIRS",
         {"nvcc": (site_key,)},
     )
-    monkeypatch.setattr(binary_finder_module, "find_sub_dirs_all_sitepackages", fake_find_sub_dirs_all_sitepackages)
+    find_sub_dirs_mock = mocker.patch.object(
+        binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir]
+    )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
-    monkeypatch.setattr(binary_finder_module, "get_cuda_home_or_path", lambda: cuda_home)
-    monkeypatch.setattr(binary_finder_module.shutil, "which", fake_which)
+    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=cuda_home)
+    which_mock = mocker.patch.object(
+        binary_finder_module.shutil, "which", return_value=os.path.join(os.sep, "resolved", "nvcc.exe")
+    )
 
     result = find_nvidia_binary_utility("nvcc")
 
     assert result == os.path.join(os.sep, "resolved", "nvcc.exe")
-    assert captured["name"] == "nvcc.exe"
-    assert captured["sub_dirs"] == tuple(site_key.split(os.sep))
+    find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
     expected_dirs = [
         site_dir,
         os.path.join(conda_prefix, "Library", "bin"),
@@ -123,7 +109,69 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch):
         os.path.join(cuda_home, "bin", "x86_64"),
         os.path.join(cuda_home, "bin"),
     ]
-    assert captured["path"] == os.pathsep.join(expected_dirs)
+    which_mock.assert_called_once_with("nvcc.exe", path=os.pathsep.join(expected_dirs))
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
+    site_key = os.path.join("nvidia", "cuda_nvcc", "bin")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(
+        binary_finder_module.supported_nvidia_binaries,
+        "SITE_PACKAGES_BINDIRS",
+        {"nvcc": (site_key,)},
+    )
+    find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=None)
+    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
+
+    result = find_nvidia_binary_utility("nvcc")
+
+    assert result is None
+    find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
+    which_mock.assert_called_once_with("nvcc", path="")
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
+    conda_prefix = os.path.join(os.sep, "conda")
+    cuda_home = os.path.join(os.sep, "cuda")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
+    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=cuda_home)
+    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
+
+    result = find_nvidia_binary_utility("nvcc")
+
+    assert result is None
+    find_sub_dirs_mock.assert_not_called()
+    expected_dirs = [
+        os.path.join(conda_prefix, "bin"),
+        os.path.join(cuda_home, "bin"),
+    ]
+    which_mock.assert_called_once_with("nvcc", path=os.pathsep.join(expected_dirs))
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
+def test_find_binary_cache_negative_result(monkeypatch, mocker):
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=None)
+    which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
+
+    first = find_nvidia_binary_utility("nvcc")
+    second = find_nvidia_binary_utility("nvcc")
+
+    assert first is None
+    assert second is None
+    which_mock.assert_called_once_with("nvcc", path="")
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
