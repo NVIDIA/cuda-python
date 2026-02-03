@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -177,6 +177,9 @@ cdef class Event:
             return NotImplemented
         cdef Event _other = <Event>other
         return as_intptr(self._h_event) == as_intptr(_other._h_event)
+
+    def __repr__(self) -> str:
+        return f"<Event handle={as_intptr(self._h_event):#x}>"
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
