@@ -9,11 +9,21 @@ This module provides :class:`Program` for compiling source code into
 
 from __future__ import annotations
 
-import weakref
 from dataclasses import dataclass
 from warnings import warn
 
 from cuda.bindings import driver, nvrtc
+
+from libc.stdint cimport intptr_t
+
+from ._resource_handles cimport (
+    NvrtcProgramHandle,
+    NvvmProgramHandle,
+    as_intptr,
+    create_nvrtc_program_handle,
+    create_nvvm_program_handle,
+)
+from cuda.bindings cimport cynvrtc, cynvvm
 from cuda.core._device import Device
 from cuda.core._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core._module import ObjectCode
@@ -65,7 +75,9 @@ cdef class Program:
         """Destroy this program."""
         if self._linker:
             self._linker.close()
-        self._mnff.close()
+        # Reset handles - the C++ shared_ptr destructor handles cleanup
+        self._h_nvrtc = NvrtcProgramHandle()
+        self._h_nvvm = NvvmProgramHandle()
 
     def compile(
         self, target_type: str, name_expressions: tuple | list = (), logs = None
@@ -107,7 +119,15 @@ cdef class Program:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Program.handle)``.
         """
-        return self._mnff.handle
+        if self._backend == "NVRTC":
+            ptr = as_intptr(self._h_nvrtc)
+            return nvrtc.nvrtcProgram(ptr) if ptr else None
+        elif self._backend == "NVVM":
+            # NVVM uses raw integers for handles, not wrapper classes
+            ptr = as_intptr(self._h_nvvm)
+            return ptr if ptr else None
+        else:
+            return self._linker.handle if self._linker else None
 
     @staticmethod
     def driver_can_load_nvrtc_ptx_output() -> bool:
@@ -422,26 +442,6 @@ cdef object_nvvm_module = None
 cdef bint _nvvm_import_attempted = False
 
 
-class _ProgramMNFF:
-    """Members needed for postrm release of program handles."""
-
-    __slots__ = "handle", "backend"
-
-    def __init__(self, program_obj, handle, backend):
-        self.handle = handle
-        self.backend = backend
-        weakref.finalize(program_obj, self.close)
-
-    def close(self):
-        if self.handle is not None:
-            if self.backend == "NVRTC":
-                handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
-            elif self.backend == "NVVM":
-                nvvm = _get_nvvm_module()
-                nvvm.destroy_program(self.handle)
-            self.handle = None
-
-
 def _get_nvvm_module():
     """Get the NVVM module, importing it lazily with availability checks."""
     global _nvvm_module, _nvvm_import_attempted
@@ -530,7 +530,6 @@ cdef inline object _translate_program_options(object options):
 
 cdef inline int Program_init(Program self, object code, str code_type, object options) except -1:
     """Initialize a Program instance."""
-    self._mnff = _ProgramMNFF(self, None, None)
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
 
@@ -538,8 +537,8 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         assert_type(code, str)
         # TODO: support pre-loaded headers & include names
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-        self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
-        self._mnff.backend = "NVRTC"
+        py_prog = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
+        self._h_nvrtc = create_nvrtc_program_handle(<cynvrtc.nvrtcProgram><intptr_t>int(py_prog))
         self._backend = "NVRTC"
         self._linker = None
 
@@ -557,9 +556,9 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             raise TypeError("NVVM IR code must be provided as str, bytes, or bytearray")
 
         nvvm = _get_nvvm_module()
-        self._mnff.handle = nvvm.create_program()
-        self._mnff.backend = "NVVM"
-        nvvm.add_module_to_program(self._mnff.handle, code, len(code), options._name.decode())
+        py_prog = nvvm.create_program()
+        nvvm.add_module_to_program(py_prog, code, len(code), options._name.decode())
+        self._h_nvvm = create_nvvm_program_handle(<cynvvm.nvvmProgram><intptr_t>int(py_prog))
         self._backend = "NVVM"
         self._linker = None
 
@@ -581,37 +580,40 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
             category=RuntimeWarning,
         )
 
+    # Create Python wrapper for handle_return calls that need it
+    py_handle = nvrtc.nvrtcProgram(as_intptr(self._h_nvrtc))
+
     if name_expressions:
         for n in name_expressions:
             handle_return(
-                nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()),
-                handle=self._mnff.handle,
+                nvrtc.nvrtcAddNameExpression(py_handle, n.encode()),
+                handle=py_handle,
             )
 
     options = self._options.as_bytes("nvrtc")
     handle_return(
-        nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
-        handle=self._mnff.handle,
+        nvrtc.nvrtcCompileProgram(py_handle, len(options), options),
+        handle=py_handle,
     )
 
     size_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}Size")
     comp_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}")
-    size = handle_return(size_func(self._mnff.handle), handle=self._mnff.handle)
+    size = handle_return(size_func(py_handle), handle=py_handle)
     data = b" " * size
-    handle_return(comp_func(self._mnff.handle, data), handle=self._mnff.handle)
+    handle_return(comp_func(py_handle, data), handle=py_handle)
 
     symbol_mapping = {}
     if name_expressions:
         for n in name_expressions:
             symbol_mapping[n] = handle_return(
-                nvrtc.nvrtcGetLoweredName(self._mnff.handle, n.encode()), handle=self._mnff.handle
+                nvrtc.nvrtcGetLoweredName(py_handle, n.encode()), handle=py_handle
             )
 
     if logs is not None:
-        logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(self._mnff.handle), handle=self._mnff.handle)
+        logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(py_handle), handle=py_handle)
         if logsize > 1:
             log = b" " * logsize
-            handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
+            handle_return(nvrtc.nvrtcGetProgramLog(py_handle, log), handle=py_handle)
             logs.write(log.decode("utf-8", errors="backslashreplace"))
 
     return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
@@ -628,32 +630,35 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
         nvvm_options.append("-gen-lto")
 
     nvvm = _get_nvvm_module()
+    # NVVM uses raw integers for handles
+    py_handle = as_intptr(self._h_nvvm)
+
     try:
-        nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
-        nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+        nvvm.verify_program(py_handle, len(nvvm_options), nvvm_options)
+        nvvm.compile_program(py_handle, len(nvvm_options), nvvm_options)
     except Exception as e:
         # Capture NVVM program log on error
         error_log = ""
         try:
-            logsize = nvvm.get_program_log_size(self._mnff.handle)
+            logsize = nvvm.get_program_log_size(py_handle)
             if logsize > 1:
                 log = bytearray(logsize)
-                nvvm.get_program_log(self._mnff.handle, log)
+                nvvm.get_program_log(py_handle, log)
                 error_log = log.decode("utf-8", errors="backslashreplace")
         except Exception:
             pass
         e.args = (e.args[0] + (f"\nNVVM program log: {error_log}" if error_log else ""), *e.args[1:])
         raise
 
-    size = nvvm.get_compiled_result_size(self._mnff.handle)
+    size = nvvm.get_compiled_result_size(py_handle)
     data = bytearray(size)
-    nvvm.get_compiled_result(self._mnff.handle, data)
+    nvvm.get_compiled_result(py_handle, data)
 
     if logs is not None:
-        logsize = nvvm.get_program_log_size(self._mnff.handle)
+        logsize = nvvm.get_program_log_size(py_handle)
         if logsize > 1:
             log = bytearray(logsize)
-            nvvm.get_program_log(self._mnff.handle, log)
+            nvvm.get_program_log(py_handle, log)
             logs.write(log.decode("utf-8", errors="backslashreplace"))
 
     return ObjectCode._init(data, target_type, name=self._options.name)
