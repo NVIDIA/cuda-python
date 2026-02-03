@@ -101,7 +101,7 @@ FastEnum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             return result;
         case 0:
             Py_DECREF(singletons);
-            PyErr_Format(PyExc_ValueError, "Value %S not in %N", val, type);
+            PyErr_Format(PyExc_ValueError, "Value %S not in %S", val, type);
             return NULL;
         case -1:
             Py_DECREF(singletons);
@@ -139,12 +139,8 @@ FastEnum_repr(FastEnumObject *self)
 static PyObject *
 FastEnum_get_value(FastEnumObject *self, void *closure)
 {
-    PyObject *args;
-    args = PyTuple_Pack(1, (PyObject *)self);
-    if (!args) return NULL;
-    PyObject *result = PyLong_Type.tp_new(&PyLong_Type, args, NULL);
-    Py_DECREF(args);
-    return (PyObject *)result;
+    Py_INCREF(self);
+    return (PyObject *)self;
 }
 
 static PyObject *
