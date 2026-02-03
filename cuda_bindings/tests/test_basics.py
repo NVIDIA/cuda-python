@@ -35,7 +35,9 @@ def test_enum(MyEnum):
     with pytest.raises(ValueError):
         container(5)
 
-    with pytest.raises(ValueError):
+    # Different Python versions raise different error types here from
+    # stdlib.enum.IntEnum
+    with pytest.raises((ValueError, TypeError)):
         container(1, 2, 3)
 
     with pytest.raises(TypeError):
