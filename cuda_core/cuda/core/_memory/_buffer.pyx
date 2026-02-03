@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -333,6 +333,10 @@ cdef class Buffer:
 
     def __hash__(self) -> int:
         return hash((as_intptr(self._h_ptr), self._size))
+
+    def __repr__(self) -> str:
+        maybe_is_mapped = " is_mapped=True" if self.is_mapped else ""
+        return f"<Buffer ptr={as_intptr(self._h_ptr):#x} size={self._size}{maybe_is_mapped}>"
 
     @property
     def is_device_accessible(self) -> bool:
