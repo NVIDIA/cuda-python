@@ -247,7 +247,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
                     arcname = file_path.relative_to(extract_dir)
                     zf.write(file_path, arcname)
 
-        print(f"Successfully patched {wheel_file.name}")
+        print(f"Successfully patched {wheel_file.name}", file=sys.stderr)
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
