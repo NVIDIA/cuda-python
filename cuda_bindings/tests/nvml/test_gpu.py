@@ -20,7 +20,8 @@ def test_gpu_get_module_id(nvml_init):
         if util.is_vgpu(device):
             continue
 
-        module_id = nvml.device_get_module_id(device)
+        with unsupported_before(device, None):
+            module_id = nvml.device_get_module_id(device)
         assert isinstance(module_id, int)
 
 
