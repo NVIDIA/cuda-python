@@ -7,6 +7,6 @@ cdef class Program:
     cdef:
         object _mnff
         str _backend
-        object _linker  # Linker (not yet Cythonized)
+        object _linker  # Linker
         object _options  # ProgramOptions
         object __weakref__

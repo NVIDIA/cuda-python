@@ -146,7 +146,7 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     sym_map = mod.symbol_mapping
     mod_obj = ObjectCode.from_ptx(ptx, symbol_mapping=sym_map)
     assert mod.code == ptx
-    if not Program._can_load_generated_ptx():
+    if not Program.driver_can_load_nvrtc_ptx_output():
         pytest.skip("PTX version too new for current driver")
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
@@ -160,7 +160,7 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
     assert mod_obj.code == str(ptx_file)
     assert mod_obj.code_type == "ptx"
-    if not Program._can_load_generated_ptx():
+    if not Program.driver_can_load_nvrtc_ptx_output():
         pytest.skip("PTX version too new for current driver")
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
