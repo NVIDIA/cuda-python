@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import atexit
@@ -298,7 +298,7 @@ def prep_extensions(sources, libraries):
     libraries = libraries if libraries else []
     exts = []
     for pyx in files:
-        mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
+        mod_name = pyx[: pyx.rfind(".")].replace(os.sep, ".").replace("/", ".")
         exts.append(
             Extension(
                 mod_name,
@@ -374,6 +374,7 @@ sources_list = [
     (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
     (["cuda/bindings/utils/*.pyx"], None),
+    (["cuda/bindings/utils/_fast_enum.c"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),
     # internal files used by generated bindings
