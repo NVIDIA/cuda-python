@@ -212,7 +212,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
         # Find the .pth file (should be named something like __editable___cuda_core-*.pth)
         pth_files = list(extract_dir.glob("**/*.pth"))
         if not pth_files:
-            print("Warning: No .pth file found in editable wheel")
+            print("Warning: No .pth file found in editable wheel", file=sys.stderr)
             return
 
         # Modify each .pth file (usually just one)
