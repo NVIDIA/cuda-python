@@ -108,7 +108,7 @@ def _build_cuda_core():
         cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))
-            print(f"Added cuda-bindings parent path for Cython: {cuda_package_dir}")
+            print(f"Added cuda-bindings parent path for Cython: {cuda_package_dir}", file=sys.stderr)
     except ImportError:
         # cuda-bindings not available in editable mode, will use installed version
         pass
