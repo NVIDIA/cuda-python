@@ -25,8 +25,7 @@ def test_find_binary_utilities(info_summary_append, utility_name):
     bin_path = find_nvidia_binary_utility(utility_name)
     info_summary_append(f"{bin_path=!r}")
 
-    if bin_path is not None:
-        assert os.path.isfile(bin_path)
+    assert bin_path is None or os.path.isfile(bin_path)
 
 
 def test_supported_binaries_consistency():
