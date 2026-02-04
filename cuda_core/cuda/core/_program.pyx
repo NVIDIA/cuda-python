@@ -14,16 +14,16 @@ from warnings import warn
 
 from cuda.bindings import driver, nvrtc
 
-from libc.stdint cimport intptr_t
+from libcpp.vector cimport vector
 
 from ._resource_handles cimport (
-    NvrtcProgramHandle,
-    NvvmProgramHandle,
-    as_intptr,
+    as_cu,
+    as_py,
     create_nvrtc_program_handle,
     create_nvvm_program_handle,
 )
 from cuda.bindings cimport cynvrtc, cynvvm
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN_NVRTC, HANDLE_RETURN_NVVM
 from cuda.core._device import Device
 from cuda.core._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core._module import ObjectCode
@@ -40,8 +40,11 @@ from cuda.core._utils.cuda_utils import (
 
 __all__ = ["Program", "ProgramOptions"]
 
-ProgramHandleT = nvrtc.nvrtcProgram | LinkerHandleT
-"""Type alias for program handle types across different backends."""
+ProgramHandleT = nvrtc.nvrtcProgram | int | LinkerHandleT
+"""Type alias for program handle types across different backends.
+
+The ``int`` type covers NVVM handles, which don't have a wrapper class.
+"""
 
 
 # =============================================================================
@@ -76,8 +79,8 @@ cdef class Program:
         if self._linker:
             self._linker.close()
         # Reset handles - the C++ shared_ptr destructor handles cleanup
-        self._h_nvrtc = NvrtcProgramHandle()
-        self._h_nvvm = NvvmProgramHandle()
+        self._h_nvrtc.reset()
+        self._h_nvvm.reset()
 
     def compile(
         self, target_type: str, name_expressions: tuple | list = (), logs = None
@@ -120,14 +123,11 @@ cdef class Program:
             handle, call ``int(Program.handle)``.
         """
         if self._backend == "NVRTC":
-            ptr = as_intptr(self._h_nvrtc)
-            return nvrtc.nvrtcProgram(ptr) if ptr else None
+            return as_py(self._h_nvrtc)
         elif self._backend == "NVVM":
-            # NVVM uses raw integers for handles, not wrapper classes
-            ptr = as_intptr(self._h_nvvm)
-            return ptr if ptr else None
+            return as_py(self._h_nvvm)  # returns int (NVVM uses raw integers)
         else:
-            return self._linker.handle if self._linker else None
+            return self._linker.handle
 
     @staticmethod
     def driver_can_load_nvrtc_ptx_output() -> bool:
@@ -392,7 +392,7 @@ class ProgramOptions:
     def _prepare_nvvm_options(self, as_bytes: bool = True) -> list[bytes] | list[str]:
         return _prepare_nvvm_options_impl(self, as_bytes)
 
-    def as_bytes(self, backend: str) -> list[bytes]:
+    def as_bytes(self, backend: str, target_type: str | None = None) -> list[bytes]:
         """Convert program options to bytes format for the specified backend.
 
         This method transforms the program options into a format suitable for the
@@ -403,6 +403,9 @@ class ProgramOptions:
         ----------
         backend : str
             The compiler backend to prepare options for. Must be either "nvrtc" or "nvvm".
+        target_type : str, optional
+            The compilation target type (e.g., "ptx", "cubin", "ltoir"). Some backends
+            require additional options based on the target type.
 
         Returns
         -------
@@ -425,7 +428,10 @@ class ProgramOptions:
         if backend == "nvrtc":
             return self._prepare_nvrtc_options()
         elif backend == "nvvm":
-            return self._prepare_nvvm_options(as_bytes=True)
+            options = self._prepare_nvvm_options(as_bytes=True)
+            if target_type == "ltoir" and b"-gen-lto" not in options:
+                options.append(b"-gen-lto")
+            return options
         else:
             raise ValueError(f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvvm'")
 
@@ -530,15 +536,27 @@ cdef inline object _translate_program_options(object options):
 
 cdef inline int Program_init(Program self, object code, str code_type, object options) except -1:
     """Initialize a Program instance."""
+    cdef cynvrtc.nvrtcProgram nvrtc_prog
+    cdef cynvvm.nvvmProgram nvvm_prog
+    cdef bytes code_bytes
+    cdef const char* code_ptr
+    cdef const char* name_ptr
+    cdef size_t code_len
+
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
 
     if code_type == "c++":
         assert_type(code, str)
         # TODO: support pre-loaded headers & include names
-        # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-        py_prog = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
-        self._h_nvrtc = create_nvrtc_program_handle(<cynvrtc.nvrtcProgram><intptr_t>int(py_prog))
+        code_bytes = code.encode()
+        code_ptr = <const char*>code_bytes
+        name_ptr = <const char*>options._name
+
+        with nogil:
+            HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
+                &nvrtc_prog, code_ptr, name_ptr, 0, NULL, NULL))
+        self._h_nvrtc = create_nvrtc_program_handle(nvrtc_prog)
         self._backend = "NVRTC"
         self._linker = None
 
@@ -550,15 +568,21 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._backend = self._linker.backend
 
     elif code_type == "nvvm":
+        _get_nvvm_module()  # Validate NVVM availability
         if isinstance(code, str):
             code = code.encode("utf-8")
         elif not isinstance(code, (bytes, bytearray)):
             raise TypeError("NVVM IR code must be provided as str, bytes, or bytearray")
 
-        nvvm = _get_nvvm_module()
-        py_prog = nvvm.create_program()
-        nvvm.add_module_to_program(py_prog, code, len(code), options._name.decode())
-        self._h_nvvm = create_nvvm_program_handle(<cynvvm.nvvmProgram><intptr_t>int(py_prog))
+        code_ptr = <const char*>(<bytes>code)
+        name_ptr = <const char*>options._name
+        code_len = len(code)
+
+        with nogil:
+            HANDLE_RETURN_NVVM(NULL, cynvvm.nvvmCreateProgram(&nvvm_prog))
+        self._h_nvvm = create_nvvm_program_handle(nvvm_prog)  # RAII from here
+        with nogil:
+            HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(nvvm_prog, code_ptr, code_len, name_ptr))
         self._backend = "NVVM"
         self._linker = None
 
@@ -571,115 +595,149 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
 
 cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
-    """Compile using NVRTC backend."""
-    if target_type == "ptx" and not _can_load_generated_ptx():
-        warn(
-            "The CUDA driver version is older than the backend version. "
-            "The generated ptx will not be loadable by the current driver.",
-            stacklevel=2,
-            category=RuntimeWarning,
-        )
+    """Compile using NVRTC backend and return ObjectCode."""
+    cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
+    cdef size_t output_size = 0
+    cdef size_t logsize = 0
+    cdef vector[const char*] options_vec
+    cdef char* data_ptr = NULL
+    cdef bytes name_bytes
+    cdef const char* name_ptr = NULL
+    cdef const char* lowered_name = NULL
+    cdef dict symbol_mapping = {}
 
-    # Create Python wrapper for handle_return calls that need it
-    py_handle = nvrtc.nvrtcProgram(as_intptr(self._h_nvrtc))
-
+    # Add name expressions before compilation
     if name_expressions:
         for n in name_expressions:
-            handle_return(
-                nvrtc.nvrtcAddNameExpression(py_handle, n.encode()),
-                handle=py_handle,
-            )
+            name_bytes = n.encode() if isinstance(n, str) else n
+            name_ptr = <const char*>name_bytes
+            HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcAddNameExpression(prog, name_ptr))
 
-    options = self._options.as_bytes("nvrtc")
-    handle_return(
-        nvrtc.nvrtcCompileProgram(py_handle, len(options), options),
-        handle=py_handle,
-    )
+    # Build options array
+    options_list = self._options.as_bytes("nvrtc", target_type)
+    options_vec.resize(len(options_list))
+    for i in range(len(options_list)):
+        options_vec[i] = <const char*>(<bytes>options_list[i])
 
-    size_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}Size")
-    comp_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}")
-    size = handle_return(size_func(py_handle), handle=py_handle)
-    data = b" " * size
-    handle_return(comp_func(py_handle, data), handle=py_handle)
+    # Compile
+    with nogil:
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
 
-    symbol_mapping = {}
+    # Get compiled output based on target type
+    if target_type == "ptx":
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetPTXSize(prog, &output_size))
+        data = bytearray(output_size)
+        data_ptr = <char*>(<bytearray>data)
+        with nogil:
+            HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetPTX(prog, data_ptr))
+    elif target_type == "cubin":
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetCUBINSize(prog, &output_size))
+        data = bytearray(output_size)
+        data_ptr = <char*>(<bytearray>data)
+        with nogil:
+            HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetCUBIN(prog, data_ptr))
+    else:  # ltoir
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetLTOIRSize(prog, &output_size))
+        data = bytearray(output_size)
+        data_ptr = <char*>(<bytearray>data)
+        with nogil:
+            HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetLTOIR(prog, data_ptr))
+
+    # Get lowered names after compilation
     if name_expressions:
         for n in name_expressions:
-            symbol_mapping[n] = handle_return(
-                nvrtc.nvrtcGetLoweredName(py_handle, n.encode()), handle=py_handle
-            )
+            name_bytes = n.encode() if isinstance(n, str) else n
+            name_ptr = <const char*>name_bytes
+            HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetLoweredName(prog, name_ptr, &lowered_name))
+            symbol_mapping[n] = lowered_name if lowered_name != NULL else None
 
+    # Get compilation log if requested
     if logs is not None:
-        logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(py_handle), handle=py_handle)
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetProgramLogSize(prog, &logsize))
         if logsize > 1:
-            log = b" " * logsize
-            handle_return(nvrtc.nvrtcGetProgramLog(py_handle, log), handle=py_handle)
+            log = bytearray(logsize)
+            data_ptr = <char*>(<bytearray>log)
+            with nogil:
+                HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetProgramLog(prog, data_ptr))
             logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-    return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
+    return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=self._options.name)
 
 
 cdef object Program_compile_nvvm(Program self, str target_type, object logs):
-    """Compile using NVVM backend."""
-    if target_type not in ("ptx", "ltoir"):
-        raise ValueError(f'NVVM backend only supports target_type="ptx", "ltoir", got "{target_type}"')
+    """Compile using NVVM backend and return ObjectCode."""
+    cdef cynvvm.nvvmProgram prog = as_cu(self._h_nvvm)
+    cdef size_t output_size = 0
+    cdef size_t logsize = 0
+    cdef vector[const char*] options_vec
+    cdef char* data_ptr = NULL
 
-    # TODO: flip to True when NVIDIA/cuda-python#1354 is resolved and CUDA 12 is dropped
-    nvvm_options = self._options._prepare_nvvm_options(as_bytes=False)
-    if target_type == "ltoir" and "-gen-lto" not in nvvm_options:
-        nvvm_options.append("-gen-lto")
+    # Build options array
+    options_list = self._options.as_bytes("nvvm", target_type)
+    options_vec.resize(len(options_list))
+    for i in range(len(options_list)):
+        options_vec[i] = <const char*>(<bytes>options_list[i])
 
-    nvvm = _get_nvvm_module()
-    # NVVM uses raw integers for handles
-    py_handle = as_intptr(self._h_nvvm)
+    # Compile
+    with nogil:
+        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
+        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
 
-    try:
-        nvvm.verify_program(py_handle, len(nvvm_options), nvvm_options)
-        nvvm.compile_program(py_handle, len(nvvm_options), nvvm_options)
-    except Exception as e:
-        # Capture NVVM program log on error
-        error_log = ""
-        try:
-            logsize = nvvm.get_program_log_size(py_handle)
-            if logsize > 1:
-                log = bytearray(logsize)
-                nvvm.get_program_log(py_handle, log)
-                error_log = log.decode("utf-8", errors="backslashreplace")
-        except Exception:
-            pass
-        e.args = (e.args[0] + (f"\nNVVM program log: {error_log}" if error_log else ""), *e.args[1:])
-        raise
+    # Get compiled result
+    HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResultSize(prog, &output_size))
+    data = bytearray(output_size)
+    data_ptr = <char*>(<bytearray>data)
+    with nogil:
+        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResult(prog, data_ptr))
 
-    size = nvvm.get_compiled_result_size(py_handle)
-    data = bytearray(size)
-    nvvm.get_compiled_result(py_handle, data)
-
+    # Get compilation log if requested
     if logs is not None:
-        logsize = nvvm.get_program_log_size(py_handle)
+        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLogSize(prog, &logsize))
         if logsize > 1:
             log = bytearray(logsize)
-            nvvm.get_program_log(py_handle, log)
+            data_ptr = <char*>(<bytearray>log)
+            with nogil:
+                HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLog(prog, data_ptr))
             logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-    return ObjectCode._init(data, target_type, name=self._options.name)
+    return ObjectCode._init(bytes(data), target_type, name=self._options.name)
+
+# Supported target types per backend
+cdef dict SUPPORTED_TARGETS = {
+    "NVRTC": ("ptx", "cubin", "ltoir"),
+    "NVVM": ("ptx", "ltoir"),
+    "nvJitLink": ("cubin", "ptx"),
+    "driver": ("cubin", "ptx"),
+}
 
 
 cdef object Program_compile(Program self, str target_type, object name_expressions, object logs):
     """Compile the program to the specified target type."""
-    supported_target_types = ("ptx", "cubin", "ltoir")
-    if target_type not in supported_target_types:
-        raise ValueError(f'Unsupported target_type="{target_type}" ({supported_target_types=})')
+    # Validate target_type for this backend
+    supported = SUPPORTED_TARGETS.get(self._backend)
+    if supported is None:
+        raise ValueError(f'Unknown backend="{self._backend}"')
+    if target_type not in supported:
+        raise ValueError(
+            f'Unsupported target_type="{target_type}" for {self._backend} '
+            f'(supported: {", ".join(repr(t) for t in supported)})'
+        )
 
     if self._backend == "NVRTC":
+        if target_type == "ptx" and not _can_load_generated_ptx():
+            warn(
+                "The CUDA driver version is older than the backend version. "
+                "The generated ptx will not be loadable by the current driver.",
+                stacklevel=2,
+                category=RuntimeWarning,
+            )
         return Program_compile_nvrtc(self, target_type, name_expressions, logs)
+
     elif self._backend == "NVVM":
         return Program_compile_nvvm(self, target_type, logs)
 
-    # Linker backend (PTX code type)
-    supported_backends = ("nvJitLink", "driver")
-    if self._backend not in supported_backends:
-        raise ValueError(f'Unsupported backend="{self._backend}" ({supported_backends=})')
-    return self._linker.link(target_type)
+    else:
+        return self._linker.link(target_type)
 
 
 cdef inline list _prepare_nvrtc_options_impl(object opts):

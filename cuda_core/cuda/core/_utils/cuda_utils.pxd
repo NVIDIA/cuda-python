@@ -19,8 +19,8 @@ cdef const cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
 
 
 cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil
-cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcResult err, cynvrtc.nvrtcProgram prog) except?-1 nogil
-cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmResult err, cynvvm.nvvmProgram prog) except?-1 nogil
+cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil
+cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil
 
 
 # TODO: stop exposing these within the codebase?

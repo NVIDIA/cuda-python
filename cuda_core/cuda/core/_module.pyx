@@ -816,7 +816,8 @@ cdef class ObjectCode:
         try:
             name = self._sym_map[name]
         except KeyError:
-            name = name.encode()
+            if isinstance(name, str):
+                name = name.encode()
 
         cdef KernelHandle h_kernel = create_kernel_handle(self._h_library, <const char*>name)
         if not h_kernel:

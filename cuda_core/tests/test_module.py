@@ -104,6 +104,8 @@ def test_get_kernel(init_cuda):
     kernel = object_code.get_kernel("ABC")
     assert object_code.handle is not None
     assert kernel.handle is not None
+    # Also works with bytes
+    assert object_code.get_kernel(b"ABC").handle is not None
 
 
 @pytest.mark.parametrize(

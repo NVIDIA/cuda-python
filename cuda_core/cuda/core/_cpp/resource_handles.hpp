@@ -11,10 +11,8 @@
 #include <memory>
 
 // Forward declaration for NVVM - avoids nvvm.h dependency
-// Use void* to match cuda.bindings.cynvvm's typedef for compatibility
-#ifndef CYTHON_EXTERN_C
-typedef void *nvvmProgram;
-#endif
+// Use void* to match cuda.bindings.cynvvm's typedef
+using nvvmProgram = void*;
 
 namespace cuda_core {
 
@@ -445,7 +443,8 @@ inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
 }
 
 inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
-    return detail::make_py("cuda.bindings.nvvm", "nvvmProgram", as_intptr(h));
+    // NVVM bindings use raw integers, not wrapper classes
+    return PyLong_FromSsize_t(as_intptr(h));
 }
 
 }  // namespace cuda_core
