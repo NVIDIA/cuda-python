@@ -139,15 +139,13 @@ FastEnum_repr(FastEnumObject *self)
 static PyObject *
 FastEnum_get_value(FastEnumObject *self, void *closure)
 {
-    Py_INCREF(self);
-    return (PyObject *)self;
+    return Py_NewRef((PyObject *)self);
 }
 
 static PyObject *
 FastEnum_get_name(FastEnumObject *self, void *closure)
 {
-    Py_INCREF(self->name);
-    return self->name;
+    return Py_NewRef(self->name);
 }
 
 static PyGetSetDef FastEnum_getseters[] = {
