@@ -19,6 +19,9 @@ on:
       matrix_filter:
         type: string
         default: "."
+      nruns:
+        type: number
+        default: 1
 
 jobs:
   compute-matrix:
@@ -212,6 +215,10 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
+
+      - name: Set up test repetition on nightly runs
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
       - name: Run cuda.pathfinder tests with see_what_works
         env:

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,6 +19,9 @@ on:
       matrix_filter:
         type: string
         default: "."
+      nruns:
+        type: number
+        default: 1
 
 defaults:
   run:
@@ -240,6 +243,9 @@ jobs:
 
       - name: Set up compute-sanitizer
         run: setup-sanitizer
+
+      - name: Set up test repetition on nightly runs
+        run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
       - name: Run cuda.pathfinder tests with see_what_works
         env:
