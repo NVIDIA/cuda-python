@@ -396,6 +396,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_header_directory.html">cuda.pathfinder.find_nvidia_header_directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_BINARY_UTILITIES.html">cuda.pathfinder.SUPPORTED_BINARY_UTILITIES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_binary_utility.html">cuda.pathfinder.find_nvidia_binary_utility</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
@@ -469,7 +471,7 @@
   <section id="cuda-pathfinder-api-reference">
 <span id="module-cuda.pathfinder"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference<a class="headerlink" href="#cuda-pathfinder-api-reference" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> module provides utilities for loading NVIDIA dynamic libraries,
-and experimental APIs for locating NVIDIA C/C++ header directories.</p>
+locating NVIDIA C/C++ header directories, and finding CUDA binary utilities.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html#cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES" title="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUPPORTED_NVIDIA_LIBNAMES</span></code></a></p></td>
@@ -489,6 +491,12 @@ and experimental APIs for locating NVIDIA C/C++ header directories.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_header_directory.html#cuda.pathfinder.find_nvidia_header_directory" title="cuda.pathfinder.find_nvidia_header_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_nvidia_header_directory</span></code></a>(libname)</p></td>
 <td><p>Locate the header directory for a supported NVIDIA library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_BINARY_UTILITIES.html#cuda.pathfinder.SUPPORTED_BINARY_UTILITIES" title="cuda.pathfinder.SUPPORTED_BINARY_UTILITIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUPPORTED_BINARY_UTILITIES</span></code></a></p></td>
+<td><p>Tuple of supported CUDA binary utility names that can be located via <code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility()</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_binary_utility.html#cuda.pathfinder.find_nvidia_binary_utility" title="cuda.pathfinder.find_nvidia_binary_utility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_nvidia_binary_utility</span></code></a>(utility_name)</p></td>
+<td><p>Locate a CUDA binary utility executable.</p></td>
 </tr>
 </tbody>
 </table>
