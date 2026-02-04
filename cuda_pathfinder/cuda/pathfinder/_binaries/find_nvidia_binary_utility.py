@@ -93,7 +93,8 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     if (conda_prefix := os.environ.get("CONDA_PREFIX")) is not None:
         if IS_WINDOWS:
             dirs.append(os.path.join(conda_prefix, "Library", "bin"))
-        dirs.append(os.path.join(conda_prefix, "bin"))
+        else:
+            dirs.append(os.path.join(conda_prefix, "bin"))
 
     # 3. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH)
     if (cuda_home := get_cuda_home_or_path()) is not None:

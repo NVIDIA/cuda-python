@@ -103,7 +103,6 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
     expected_dirs = [
         site_dir,
         os.path.join(conda_prefix, "Library", "bin"),
-        os.path.join(conda_prefix, "bin"),
         os.path.join(cuda_home, "bin", "x64"),
         os.path.join(cuda_home, "bin", "x86_64"),
         os.path.join(cuda_home, "bin"),
