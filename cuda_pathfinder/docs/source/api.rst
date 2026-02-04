@@ -7,7 +7,7 @@
 =================================
 
 The ``cuda.pathfinder`` module provides utilities for loading NVIDIA dynamic libraries,
-and experimental APIs for locating NVIDIA C/C++ header directories.
+locating NVIDIA C/C++ header directories, and finding CUDA binary utilities.
 
 .. autosummary::
    :toctree: generated/
@@ -20,3 +20,6 @@ and experimental APIs for locating NVIDIA C/C++ header directories.
    SUPPORTED_HEADERS_CTK
    SUPPORTED_HEADERS_NON_CTK
    find_nvidia_header_directory
+
+   SUPPORTED_BINARY_UTILITIES
+   find_nvidia_binary_utility

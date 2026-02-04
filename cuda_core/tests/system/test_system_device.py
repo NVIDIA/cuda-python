@@ -19,7 +19,7 @@ import pytest
 from cuda.core import system
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from cuda.bindings import _nvml as nvml
+    from cuda.bindings import nvml
     from cuda.core.system import DeviceArch, _device
 
 
@@ -75,7 +75,7 @@ def test_device_architecture():
 
 def test_device_bar1_memory():
     for device in system.Device.get_all_devices():
-        with unsupported_before(device, DeviceArch.KEPLER):
+        with unsupported_before(device, None):
             bar1_memory_info = device.bar1_memory_info
         free, total, used = (
             bar1_memory_info.free,
@@ -136,7 +136,8 @@ def test_device_cuda_compute_capability():
 
 def test_device_memory():
     for device in system.Device.get_all_devices():
-        memory_info = device.memory_info
+        with unsupported_before(device, None):
+            memory_info = device.memory_info
         free, total, used, reserved = memory_info.free, memory_info.total, memory_info.used, memory_info.reserved
 
         assert isinstance(memory_info, system.MemoryInfo)
@@ -212,7 +213,8 @@ def test_device_pci_info():
         assert isinstance(pci_info.get_current_pcie_link_width(), int)
         assert 0 <= pci_info.get_current_pcie_link_width() <= 0xFF
 
-        assert isinstance(pci_info.get_pcie_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
+        with unsupported_before(device, None):
+            assert isinstance(pci_info.get_pcie_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
 
         assert isinstance(pci_info.get_pcie_replay_counter(), int)
 
@@ -421,7 +423,8 @@ def test_index():
 
 def test_module_id():
     for device in system.Device.get_all_devices():
-        module_id = device.module_id
+        with unsupported_before(device, None):
+            module_id = device.module_id
         assert isinstance(module_id, int)
         assert module_id >= 0
 
@@ -509,7 +512,8 @@ def test_get_inforom_version():
         with unsupported_before(device, "HAS_INFOROM"):
             inforom = device.inforom
 
-        inforom_image_version = inforom.image_version
+        with unsupported_before(device, "HAS_INFOROM"):
+            inforom_image_version = inforom.image_version
         assert isinstance(inforom_image_version, str)
         assert len(inforom_image_version) > 0
 
@@ -558,7 +562,7 @@ def test_clock():
             # These are ordered from oldest API to newest API so we test as much
             # as we can on each hardware architecture.
 
-            with unsupported_before(device, "FERMI"):
+            with unsupported_before(device, None):
                 pstate = device.performance_state
 
             min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
@@ -600,10 +604,12 @@ def test_clock():
 
 def test_clock_event_reasons():
     for device in system.Device.get_all_devices():
-        reasons = device.get_current_clock_event_reasons()
+        with unsupported_before(device, None):
+            reasons = device.get_current_clock_event_reasons()
         assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
 
-        reasons = device.get_supported_clock_event_reasons()
+        with unsupported_before(device, None):
+            reasons = device.get_supported_clock_event_reasons()
         assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
 
 
@@ -706,7 +712,8 @@ def test_temperature():
 
 def test_pstates():
     for device in system.Device.get_all_devices():
-        pstate = device.performance_state
+        with unsupported_before(device, None):
+            pstate = device.performance_state
         assert isinstance(pstate, system.Pstates)
 
         pstates = device.get_supported_pstates()

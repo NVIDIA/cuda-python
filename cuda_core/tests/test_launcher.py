@@ -150,6 +150,7 @@ def test_launch_invalid_values(init_cuda):
         launch(StreamWrapper(stream), config, ker)
 
     launch(stream, config, ker)
+    stream.sync()  # TODO(#1539)
 
 
 # Parametrize: (python_type, cpp_type, init_value)

@@ -5,7 +5,7 @@
 from functools import cache
 
 import pytest
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from .conftest import unsupported_before
 
@@ -38,7 +38,8 @@ def test_clk_mon_status_t():
 
 def test_current_clock_freqs(all_devices):
     for device in all_devices:
-        clk_freqs = nvml.device_get_current_clock_freqs(device)
+        with unsupported_before(device, None):
+            clk_freqs = nvml.device_get_current_clock_freqs(device)
         assert isinstance(clk_freqs, str)
 
 
@@ -87,14 +88,16 @@ def test_device_get_pdi(all_devices):
 
 def test_device_get_performance_modes(all_devices):
     for device in all_devices:
-        modes = nvml.device_get_performance_modes(device)
+        with unsupported_before(device, None):
+            modes = nvml.device_get_performance_modes(device)
         assert isinstance(modes, str)
 
 
 @pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
 def test_device_get_unrepairable_memory_flag(all_devices):
     for device in all_devices:
-        status = nvml.device_get_unrepairable_memory_flag_v1(device)
+        with unsupported_before(device, None):
+            status = nvml.device_get_unrepairable_memory_flag_v1(device)
         assert isinstance(status, int)
 
 
@@ -132,7 +135,10 @@ def test_nvlink_low_power_threshold(all_devices):
     for device in all_devices:
         # Docs say supported on HOPPER or newer
         with unsupported_before(device, None):
-            nvml.device_set_nvlink_device_low_power_threshold(device, 0)
+            try:
+                nvml.device_set_nvlink_device_low_power_threshold(device, 0)
+            except nvml.NoPermissionError:
+                pytest.skip("No permission to set NVLink low power threshold")
 
 
 def test_get_power_management_limit(all_devices):

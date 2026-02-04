@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -613,6 +613,9 @@ cdef class Kernel:
     def __hash__(self) -> int:
         return hash(as_intptr(self._h_kernel))
 
+    def __repr__(self) -> str:
+        return f"<Kernel handle={as_intptr(self._h_kernel):#x}>"
+
 
 CodeTypeT = bytes | bytearray | str
 
@@ -864,3 +867,8 @@ cdef class ObjectCode:
         # Trigger lazy load to get the handle
         self._lazy_load_module()
         return hash(as_intptr(self._h_library))
+
+    def __repr__(self) -> str:
+        # Trigger lazy load to get the handle
+        self._lazy_load_module()
+        return f"<ObjectCode handle={as_intptr(self._h_library):#x} code_type='{self._code_type}'>"

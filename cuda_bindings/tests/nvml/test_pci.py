@@ -4,7 +4,7 @@
 
 import contextlib
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from .conftest import unsupported_before
 
