@@ -978,7 +978,7 @@ def test_mempool_ipc_errors(mempool_device):
 
 def test_pinned_mempool_ipc_basic():
     """Test basic IPC functionality for PinnedMemoryResource."""
-    device = Device()
+    device = Device(0)
     device.set_current()
 
     skip_if_pinned_memory_unsupported(device)
@@ -995,6 +995,7 @@ def test_pinned_mempool_ipc_basic():
     assert mr.is_ipc_enabled
     assert mr.is_device_accessible
     assert mr.is_host_accessible
+    # For IPC-enabled pinned pools, device_id reflects the host NUMA location ID.
     expected_numa_id = device.properties.host_numa_id
     if expected_numa_id < 0:
         expected_numa_id = 0
