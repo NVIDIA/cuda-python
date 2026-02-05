@@ -163,6 +163,7 @@ def _build_cuda_core():
         ext_modules,
         verbose=True,
         language_level=3,
+        build_dir="build/cython",
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
