@@ -49978,18 +49978,62 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     --------
     :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapEncodeIm2colWide`, :py:obj:`~.cuTensorMapReplaceAddress`
     """
-    elementStrides = [] if elementStrides is None else elementStrides
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in elementStrides):
-        raise TypeError("Argument 'elementStrides' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
-    boxDim = [] if boxDim is None else boxDim
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in boxDim):
-        raise TypeError("Argument 'boxDim' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
-    globalStrides = [] if globalStrides is None else globalStrides
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalStrides):
-        raise TypeError("Argument 'globalStrides' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
-    globalDim = [] if globalDim is None else globalDim
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalDim):
-        raise TypeError("Argument 'globalDim' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
+    cdef cydriver.cuuint32_t* cyelementStrides
+    cdef size_t elementStridesLen
+    cdef cydriver.cuuint32_t[5] elementStridesStatic
+    elementStridesLen = 0 if elementStrides is None else len(elementStrides)
+    if elementStridesLen == 0:
+        cyelementStrides = NULL
+    elif elementStridesLen == 1:
+        cyelementStrides = <cydriver.cuuint32_t *>(<cuuint32_t?> elementStrides[0])._pvt_ptr
+    elif elementStridesLen <= 5:
+        for idx in range(elementStridesLen):
+            elementStridesStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> elementStrides[idx])._pvt_ptr[0]
+        cyelementStrides = elementStridesStatic
+    else:
+        raise ValueError("Argument 'elementStrides' too long, must be <= 5")
+    cdef cydriver.cuuint32_t* cyboxDim
+    cdef size_t boxDimLen
+    cdef cydriver.cuuint32_t[5] boxDimStatic
+    boxDimLen = 0 if boxDim is None else len(boxDim)
+    if boxDimLen == 0:
+        cyboxDim = NULL
+    elif boxDimLen == 1:
+        cyboxDim = <cydriver.cuuint32_t *>(<cuuint32_t?> boxDim[0])._pvt_ptr
+    elif boxDimLen <= 5:
+        for idx in range(boxDimLen):
+            boxDimStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> boxDim[idx])._pvt_ptr[0]
+        cyboxDim = boxDimStatic
+    else:
+        raise ValueError("Argument 'boxDim' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalStrides
+    cdef size_t globalStridesLen
+    cdef cydriver.cuuint64_t[5] globalStridesStatic
+    globalStridesLen = 0 if globalStrides is None else len(globalStrides)
+    if globalStridesLen == 0:
+        cyglobalStrides = NULL
+    elif globalStridesLen == 1:
+        cyglobalStrides = <cydriver.cuuint64_t *>(<cuuint64_t?> globalStrides[0])._pvt_ptr
+    elif globalStridesLen <= 5:
+        for idx in range(globalStridesLen):
+            globalStridesStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalStrides[idx])._pvt_ptr[0]
+        cyglobalStrides = globalStridesStatic
+    else:
+        raise ValueError("Argument 'globalStrides' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalDim
+    cdef size_t globalDimLen
+    cdef cydriver.cuuint64_t[5] globalDimStatic
+    globalDimLen = 0 if globalDim is None else len(globalDim)
+    if globalDimLen == 0:
+        cyglobalDim = NULL
+    elif globalDimLen == 1:
+        cyglobalDim = <cydriver.cuuint64_t *>(<cuuint64_t?> globalDim[0])._pvt_ptr
+    elif globalDimLen <= 5:
+        for idx in range(globalDimLen):
+            globalDimStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalDim[idx])._pvt_ptr[0]
+        cyglobalDim = globalDimStatic
+    else:
+        raise ValueError("Argument 'globalDim' too long, must be <= 5")
     cdef cydriver.cuuint32_t cytensorRank
     if tensorRank is None:
         ptensorRank = 0
@@ -50002,60 +50046,12 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cyglobalAddress = _HelperInputVoidPtr(globalAddress)
     cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
-    cdef cydriver.cuuint64_t* cyglobalDim = NULL
-    if len(globalDim) > 1:
-        cyglobalDim = <cydriver.cuuint64_t*> calloc(len(globalDim), sizeof(cydriver.cuuint64_t))
-        if cyglobalDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalDim)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalDim)):
-                cyglobalDim[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalDim[idx])._pvt_ptr[0]
-    elif len(globalDim) == 1:
-        cyglobalDim = <cydriver.cuuint64_t*>(<cuuint64_t>globalDim[0])._pvt_ptr
-    cdef cydriver.cuuint64_t* cyglobalStrides = NULL
-    if len(globalStrides) > 1:
-        cyglobalStrides = <cydriver.cuuint64_t*> calloc(len(globalStrides), sizeof(cydriver.cuuint64_t))
-        if cyglobalStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalStrides)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalStrides)):
-                cyglobalStrides[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalStrides[idx])._pvt_ptr[0]
-    elif len(globalStrides) == 1:
-        cyglobalStrides = <cydriver.cuuint64_t*>(<cuuint64_t>globalStrides[0])._pvt_ptr
-    cdef cydriver.cuuint32_t* cyboxDim = NULL
-    if len(boxDim) > 1:
-        cyboxDim = <cydriver.cuuint32_t*> calloc(len(boxDim), sizeof(cydriver.cuuint32_t))
-        if cyboxDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(boxDim)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(boxDim)):
-                cyboxDim[idx] = <cydriver.cuuint32_t>(<cuuint32_t>boxDim[idx])._pvt_ptr[0]
-    elif len(boxDim) == 1:
-        cyboxDim = <cydriver.cuuint32_t*>(<cuuint32_t>boxDim[0])._pvt_ptr
-    cdef cydriver.cuuint32_t* cyelementStrides = NULL
-    if len(elementStrides) > 1:
-        cyelementStrides = <cydriver.cuuint32_t*> calloc(len(elementStrides), sizeof(cydriver.cuuint32_t))
-        if cyelementStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(elementStrides)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(elementStrides)):
-                cyelementStrides[idx] = <cydriver.cuuint32_t>(<cuuint32_t>elementStrides[idx])._pvt_ptr[0]
-    elif len(elementStrides) == 1:
-        cyelementStrides = <cydriver.cuuint32_t*>(<cuuint32_t>elementStrides[0])._pvt_ptr
     cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
     cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
     cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
     cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
         err = cydriver.cuTensorMapEncodeTiled(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cyboxDim, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
-    if len(globalDim) > 1 and cyglobalDim is not NULL:
-        free(cyglobalDim)
-    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
-        free(cyglobalStrides)
-    if len(boxDim) > 1 and cyboxDim is not NULL:
-        free(cyboxDim)
-    if len(elementStrides) > 1 and cyelementStrides is not NULL:
-        free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], tensorMap)
@@ -50316,9 +50312,20 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     --------
     :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2colWide`, :py:obj:`~.cuTensorMapReplaceAddress`
     """
-    elementStrides = [] if elementStrides is None else elementStrides
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in elementStrides):
-        raise TypeError("Argument 'elementStrides' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
+    cdef cydriver.cuuint32_t* cyelementStrides
+    cdef size_t elementStridesLen
+    cdef cydriver.cuuint32_t[5] elementStridesStatic
+    elementStridesLen = 0 if elementStrides is None else len(elementStrides)
+    if elementStridesLen == 0:
+        cyelementStrides = NULL
+    elif elementStridesLen == 1:
+        cyelementStrides = <cydriver.cuuint32_t *>(<cuuint32_t?> elementStrides[0])._pvt_ptr
+    elif elementStridesLen <= 5:
+        for idx in range(elementStridesLen):
+            elementStridesStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> elementStrides[idx])._pvt_ptr[0]
+        cyelementStrides = elementStridesStatic
+    else:
+        raise ValueError("Argument 'elementStrides' too long, must be <= 5")
     cdef cydriver.cuuint32_t cypixelsPerColumn
     if pixelsPerColumn is None:
         ppixelsPerColumn = 0
@@ -50341,12 +50348,34 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     pixelBoxLowerCorner = [] if pixelBoxLowerCorner is None else pixelBoxLowerCorner
     if not all(isinstance(_x, (int)) for _x in pixelBoxLowerCorner):
         raise TypeError("Argument 'pixelBoxLowerCorner' is not instance of type (expected tuple[int] or list[int]")
-    globalStrides = [] if globalStrides is None else globalStrides
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalStrides):
-        raise TypeError("Argument 'globalStrides' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
-    globalDim = [] if globalDim is None else globalDim
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalDim):
-        raise TypeError("Argument 'globalDim' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
+    cdef cydriver.cuuint64_t* cyglobalStrides
+    cdef size_t globalStridesLen
+    cdef cydriver.cuuint64_t[5] globalStridesStatic
+    globalStridesLen = 0 if globalStrides is None else len(globalStrides)
+    if globalStridesLen == 0:
+        cyglobalStrides = NULL
+    elif globalStridesLen == 1:
+        cyglobalStrides = <cydriver.cuuint64_t *>(<cuuint64_t?> globalStrides[0])._pvt_ptr
+    elif globalStridesLen <= 5:
+        for idx in range(globalStridesLen):
+            globalStridesStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalStrides[idx])._pvt_ptr[0]
+        cyglobalStrides = globalStridesStatic
+    else:
+        raise ValueError("Argument 'globalStrides' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalDim
+    cdef size_t globalDimLen
+    cdef cydriver.cuuint64_t[5] globalDimStatic
+    globalDimLen = 0 if globalDim is None else len(globalDim)
+    if globalDimLen == 0:
+        cyglobalDim = NULL
+    elif globalDimLen == 1:
+        cyglobalDim = <cydriver.cuuint64_t *>(<cuuint64_t?> globalDim[0])._pvt_ptr
+    elif globalDimLen <= 5:
+        for idx in range(globalDimLen):
+            globalDimStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalDim[idx])._pvt_ptr[0]
+        cyglobalDim = globalDimStatic
+    else:
+        raise ValueError("Argument 'globalDim' too long, must be <= 5")
     cdef cydriver.cuuint32_t cytensorRank
     if tensorRank is None:
         ptensorRank = 0
@@ -50359,50 +50388,14 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cyglobalAddress = _HelperInputVoidPtr(globalAddress)
     cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
-    cdef cydriver.cuuint64_t* cyglobalDim = NULL
-    if len(globalDim) > 1:
-        cyglobalDim = <cydriver.cuuint64_t*> calloc(len(globalDim), sizeof(cydriver.cuuint64_t))
-        if cyglobalDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalDim)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalDim)):
-                cyglobalDim[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalDim[idx])._pvt_ptr[0]
-    elif len(globalDim) == 1:
-        cyglobalDim = <cydriver.cuuint64_t*>(<cuuint64_t>globalDim[0])._pvt_ptr
-    cdef cydriver.cuuint64_t* cyglobalStrides = NULL
-    if len(globalStrides) > 1:
-        cyglobalStrides = <cydriver.cuuint64_t*> calloc(len(globalStrides), sizeof(cydriver.cuuint64_t))
-        if cyglobalStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalStrides)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalStrides)):
-                cyglobalStrides[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalStrides[idx])._pvt_ptr[0]
-    elif len(globalStrides) == 1:
-        cyglobalStrides = <cydriver.cuuint64_t*>(<cuuint64_t>globalStrides[0])._pvt_ptr
     cdef vector[int] cypixelBoxLowerCorner = pixelBoxLowerCorner
     cdef vector[int] cypixelBoxUpperCorner = pixelBoxUpperCorner
-    cdef cydriver.cuuint32_t* cyelementStrides = NULL
-    if len(elementStrides) > 1:
-        cyelementStrides = <cydriver.cuuint32_t*> calloc(len(elementStrides), sizeof(cydriver.cuuint32_t))
-        if cyelementStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(elementStrides)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(elementStrides)):
-                cyelementStrides[idx] = <cydriver.cuuint32_t>(<cuuint32_t>elementStrides[idx])._pvt_ptr[0]
-    elif len(elementStrides) == 1:
-        cyelementStrides = <cydriver.cuuint32_t*>(<cuuint32_t>elementStrides[0])._pvt_ptr
     cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
     cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
     cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
     cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
         err = cydriver.cuTensorMapEncodeIm2col(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cypixelBoxLowerCorner.data(), cypixelBoxUpperCorner.data(), cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
-    if len(globalDim) > 1 and cyglobalDim is not NULL:
-        free(cyglobalDim)
-    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
-        free(cyglobalStrides)
-    if len(elementStrides) > 1 and cyelementStrides is not NULL:
-        free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], tensorMap)
@@ -50650,9 +50643,20 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     --------
     :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapReplaceAddress`
     """
-    elementStrides = [] if elementStrides is None else elementStrides
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in elementStrides):
-        raise TypeError("Argument 'elementStrides' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
+    cdef cydriver.cuuint32_t* cyelementStrides
+    cdef size_t elementStridesLen
+    cdef cydriver.cuuint32_t[5] elementStridesStatic
+    elementStridesLen = 0 if elementStrides is None else len(elementStrides)
+    if elementStridesLen == 0:
+        cyelementStrides = NULL
+    elif elementStridesLen == 1:
+        cyelementStrides = <cydriver.cuuint32_t *>(<cuuint32_t?> elementStrides[0])._pvt_ptr
+    elif elementStridesLen <= 5:
+        for idx in range(elementStridesLen):
+            elementStridesStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> elementStrides[idx])._pvt_ptr[0]
+        cyelementStrides = elementStridesStatic
+    else:
+        raise ValueError("Argument 'elementStrides' too long, must be <= 5")
     cdef cydriver.cuuint32_t cypixelsPerColumn
     if pixelsPerColumn is None:
         ppixelsPerColumn = 0
@@ -50669,12 +50673,34 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     else:
         pchannelsPerPixel = int(cuuint32_t(channelsPerPixel))
     cychannelsPerPixel = <cydriver.cuuint32_t><void_ptr>pchannelsPerPixel
-    globalStrides = [] if globalStrides is None else globalStrides
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalStrides):
-        raise TypeError("Argument 'globalStrides' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
-    globalDim = [] if globalDim is None else globalDim
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalDim):
-        raise TypeError("Argument 'globalDim' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
+    cdef cydriver.cuuint64_t* cyglobalStrides
+    cdef size_t globalStridesLen
+    cdef cydriver.cuuint64_t[5] globalStridesStatic
+    globalStridesLen = 0 if globalStrides is None else len(globalStrides)
+    if globalStridesLen == 0:
+        cyglobalStrides = NULL
+    elif globalStridesLen == 1:
+        cyglobalStrides = <cydriver.cuuint64_t *>(<cuuint64_t?> globalStrides[0])._pvt_ptr
+    elif globalStridesLen <= 5:
+        for idx in range(globalStridesLen):
+            globalStridesStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalStrides[idx])._pvt_ptr[0]
+        cyglobalStrides = globalStridesStatic
+    else:
+        raise ValueError("Argument 'globalStrides' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalDim
+    cdef size_t globalDimLen
+    cdef cydriver.cuuint64_t[5] globalDimStatic
+    globalDimLen = 0 if globalDim is None else len(globalDim)
+    if globalDimLen == 0:
+        cyglobalDim = NULL
+    elif globalDimLen == 1:
+        cyglobalDim = <cydriver.cuuint64_t *>(<cuuint64_t?> globalDim[0])._pvt_ptr
+    elif globalDimLen <= 5:
+        for idx in range(globalDimLen):
+            globalDimStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalDim[idx])._pvt_ptr[0]
+        cyglobalDim = globalDimStatic
+    else:
+        raise ValueError("Argument 'globalDim' too long, must be <= 5")
     cdef cydriver.cuuint32_t cytensorRank
     if tensorRank is None:
         ptensorRank = 0
@@ -50687,36 +50713,6 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cyglobalAddress = _HelperInputVoidPtr(globalAddress)
     cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
-    cdef cydriver.cuuint64_t* cyglobalDim = NULL
-    if len(globalDim) > 1:
-        cyglobalDim = <cydriver.cuuint64_t*> calloc(len(globalDim), sizeof(cydriver.cuuint64_t))
-        if cyglobalDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalDim)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalDim)):
-                cyglobalDim[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalDim[idx])._pvt_ptr[0]
-    elif len(globalDim) == 1:
-        cyglobalDim = <cydriver.cuuint64_t*>(<cuuint64_t>globalDim[0])._pvt_ptr
-    cdef cydriver.cuuint64_t* cyglobalStrides = NULL
-    if len(globalStrides) > 1:
-        cyglobalStrides = <cydriver.cuuint64_t*> calloc(len(globalStrides), sizeof(cydriver.cuuint64_t))
-        if cyglobalStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalStrides)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalStrides)):
-                cyglobalStrides[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalStrides[idx])._pvt_ptr[0]
-    elif len(globalStrides) == 1:
-        cyglobalStrides = <cydriver.cuuint64_t*>(<cuuint64_t>globalStrides[0])._pvt_ptr
-    cdef cydriver.cuuint32_t* cyelementStrides = NULL
-    if len(elementStrides) > 1:
-        cyelementStrides = <cydriver.cuuint32_t*> calloc(len(elementStrides), sizeof(cydriver.cuuint32_t))
-        if cyelementStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(elementStrides)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(elementStrides)):
-                cyelementStrides[idx] = <cydriver.cuuint32_t>(<cuuint32_t>elementStrides[idx])._pvt_ptr[0]
-    elif len(elementStrides) == 1:
-        cyelementStrides = <cydriver.cuuint32_t*>(<cuuint32_t>elementStrides[0])._pvt_ptr
     cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
     cdef cydriver.CUtensorMapIm2ColWideMode cymode = int(mode)
     cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
@@ -50724,12 +50720,6 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
         err = cydriver.cuTensorMapEncodeIm2colWide(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cymode, cyswizzle, cyl2Promotion, cyoobFill)
-    if len(globalDim) > 1 and cyglobalDim is not NULL:
-        free(cyglobalDim)
-    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
-        free(cyglobalStrides)
-    if len(elementStrides) > 1 and cyelementStrides is not NULL:
-        free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], tensorMap)
