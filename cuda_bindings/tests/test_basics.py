@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import enum
+import sys
 
 import pytest
 from cuda.bindings.utils import _fast_enum
@@ -59,7 +60,8 @@ def test_enum(MyEnum):
 
     for item in container:
         assert isinstance(item, container)
-        assert item in container
+        if sys.version_info >= (3, 12):
+            assert item in container
         assert item.value in container
         assert item.name in dir(container)
         for item2 in container:
