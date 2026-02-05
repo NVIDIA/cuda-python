@@ -34,7 +34,7 @@ def test_enum(MyEnum):
     assert container(1) is val
 
     with pytest.raises(ValueError):
-        container(5)
+        container(3)
 
     # Different Python versions raise different error types here from
     # stdlib.enum.IntEnum
@@ -51,6 +51,8 @@ def test_enum(MyEnum):
     assert isinstance(val.name, str)
 
     assert container.GREEN | container.BLUE == 3
+    assert repr(container.GREEN | container.BLUE) == "3"
+    assert type(container.GREEN | container.BLUE) is int
     assert container.GREEN.BLUE is container.BLUE
 
     assert repr(container) == f"<enum '{container.__name__}'>"
