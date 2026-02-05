@@ -74,6 +74,7 @@ class GraphMemoryTestManager:
         self.stream.sync()
 
 
+@pytest.mark.usefixtures("requires_concurrent_managed_access")
 @pytest.mark.parametrize("mode", ["no_graph", "global", "thread_local", "relaxed"])
 @pytest.mark.parametrize("action", ["incr", "fill"])
 def test_graph_alloc(mempool_device, mode, action):
@@ -142,6 +143,7 @@ def test_graph_alloc(mempool_device, mode, action):
             assert compare_buffer_to_constant(out, 6)
 
 
+@pytest.mark.usefixtures("requires_concurrent_managed_access")
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
 def test_graph_alloc_with_output(mempool_device, mode):

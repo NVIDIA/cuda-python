@@ -16,6 +16,8 @@ from cuda_python_test_helpers import under_compute_sanitizer
 ENABLE_LOGGING = False  # Set True for test debugging and development
 NBYTES = 64
 
+pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
+
 
 def test_latchkernel():
     """Test LatchKernel."""

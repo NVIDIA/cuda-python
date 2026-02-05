@@ -16,6 +16,8 @@ NMRS = 3
 NTASKS = 20
 POOL_SIZE = 2097152
 
+pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
+
 
 class TestIpcWorkerPool:
     """

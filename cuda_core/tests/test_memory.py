@@ -164,13 +164,26 @@ def buffer_initialization(dummy_mr: MemoryResource):
     buffer.close()
 
 
-def test_buffer_initialization():
+@pytest.mark.parametrize(
+    ("mr_factory", "needs_device"),
+    [
+        (DummyDeviceMemoryResource, True),
+        (DummyHostMemoryResource, False),
+        (DummyUnifiedMemoryResource, True),
+        (DummyPinnedMemoryResource, True),
+    ],
+    ids=["device", "host", "unified", "pinned"],
+)
+def test_buffer_initialization(mr_factory, needs_device, request):
     device = Device()
     device.set_current()
-    buffer_initialization(DummyDeviceMemoryResource(device))
-    buffer_initialization(DummyHostMemoryResource())
-    buffer_initialization(DummyUnifiedMemoryResource(device))
-    buffer_initialization(DummyPinnedMemoryResource(device))
+    if mr_factory is DummyUnifiedMemoryResource:
+        request.getfixturevalue("requires_concurrent_managed_access")
+    mr = mr_factory(device) if needs_device else mr_factory()
+    buffer_initialization(mr)
+
+
+def test_buffer_initialization_invalid_mr():
     with pytest.raises(TypeError):
         buffer_initialization(MemoryResource())
 
@@ -198,12 +211,22 @@ def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
     src_buffer.close()
 
 
-def test_buffer_copy_to():
+@pytest.mark.parametrize(
+    ("mr_factory", "check"),
+    [
+        (DummyDeviceMemoryResource, False),
+        (DummyUnifiedMemoryResource, False),
+        (DummyPinnedMemoryResource, True),
+    ],
+    ids=["device", "unified", "pinned"],
+)
+def test_buffer_copy_to(mr_factory, check, request):
     device = Device()
     device.set_current()
-    buffer_copy_to(DummyDeviceMemoryResource(device), device)
-    buffer_copy_to(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_to(DummyPinnedMemoryResource(device), device, check=True)
+    if mr_factory is DummyUnifiedMemoryResource:
+        request.getfixturevalue("requires_concurrent_managed_access")
+    mr = mr_factory(device)
+    buffer_copy_to(mr, device, check=check)
 
 
 def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
@@ -229,12 +252,22 @@ def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
     src_buffer.close()
 
 
-def test_buffer_copy_from():
+@pytest.mark.parametrize(
+    ("mr_factory", "check"),
+    [
+        (DummyDeviceMemoryResource, False),
+        (DummyUnifiedMemoryResource, False),
+        (DummyPinnedMemoryResource, True),
+    ],
+    ids=["device", "unified", "pinned"],
+)
+def test_buffer_copy_from(mr_factory, check, request):
     device = Device()
     device.set_current()
-    buffer_copy_from(DummyDeviceMemoryResource(device), device)
-    buffer_copy_from(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
+    if mr_factory is DummyUnifiedMemoryResource:
+        request.getfixturevalue("requires_concurrent_managed_access")
+    mr = mr_factory(device)
+    buffer_copy_from(mr, device, check=check)
 
 
 def _bytes_repeat(pattern: bytes, size: int) -> bytes:
@@ -256,6 +289,7 @@ def fill_env(request):
     if request.param == "device":
         mr = DummyDeviceMemoryResource(device)
     elif request.param == "unified":
+        request.getfixturevalue("requires_concurrent_managed_access")
         mr = DummyUnifiedMemoryResource(device)
     else:
         mr = DummyPinnedMemoryResource(device)
@@ -345,13 +379,23 @@ def buffer_close(dummy_mr: MemoryResource):
     assert buffer.memory_resource is None
 
 
-def test_buffer_close():
+@pytest.mark.parametrize(
+    ("mr_factory", "needs_device"),
+    [
+        (DummyDeviceMemoryResource, True),
+        (DummyHostMemoryResource, False),
+        (DummyUnifiedMemoryResource, True),
+        (DummyPinnedMemoryResource, True),
+    ],
+    ids=["device", "host", "unified", "pinned"],
+)
+def test_buffer_close(mr_factory, needs_device, request):
     device = Device()
     device.set_current()
-    buffer_close(DummyDeviceMemoryResource(device))
-    buffer_close(DummyHostMemoryResource())
-    buffer_close(DummyUnifiedMemoryResource(device))
-    buffer_close(DummyPinnedMemoryResource(device))
+    if mr_factory is DummyUnifiedMemoryResource:
+        request.getfixturevalue("requires_concurrent_managed_access")
+    mr = mr_factory(device) if needs_device else mr_factory()
+    buffer_close(mr)
 
 
 def test_buffer_external_host():
@@ -447,7 +491,7 @@ def test_buffer_external_pinned_registered(change_device):
 
 
 @pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_managed(change_device):
+def test_buffer_external_managed(change_device, requires_concurrent_managed_access):
     n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
@@ -517,9 +561,11 @@ def test_buffer_dunder_dlpack():
         (DummyPinnedMemoryResource, (DLDeviceType.kDLCUDAHost, 0)),
     ],
 )
-def test_buffer_dunder_dlpack_device_success(DummyMR, expected):
+def test_buffer_dunder_dlpack_device_success(DummyMR, expected, request):
     device = Device()
     device.set_current()
+    if DummyMR is DummyUnifiedMemoryResource:
+        request.getfixturevalue("requires_concurrent_managed_access")
     dummy_mr = DummyMR() if DummyMR is DummyHostMemoryResource else DummyMR(device)
     buffer = dummy_mr.allocate(size=1024)
     assert buffer.__dlpack_device__() == expected

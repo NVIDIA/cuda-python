@@ -6,6 +6,7 @@ import os
 
 import helpers
 import pytest
+from cuda.bindings._test_helpers.managed_memory import managed_memory_skip_reason
 
 try:
     from cuda.bindings import driver
@@ -35,6 +36,9 @@ def skip_if_pinned_memory_unsupported(device):
 
 
 def skip_if_managed_memory_unsupported(device):
+    reason = managed_memory_skip_reason(device)
+    if reason:
+        pytest.skip(reason)
     try:
         if not device.properties.memory_pools_supported or not device.properties.concurrent_managed_access:
             pytest.skip("Device does not support managed memory pool operations")
@@ -49,6 +53,13 @@ def create_managed_memory_resource_or_skip(*args, **kwargs):
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
         raise
+
+
+@pytest.fixture
+def requires_concurrent_managed_access():
+    reason = managed_memory_skip_reason()
+    if reason:
+        pytest.skip(reason)
 
 
 @pytest.fixture(scope="session", autouse=True)

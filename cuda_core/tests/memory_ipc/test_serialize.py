@@ -5,12 +5,15 @@ import multiprocessing as mp
 import multiprocessing.reduction
 import os
 
+import pytest
 from cuda.core import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 POOL_SIZE = 2097152
+
+pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
 
 
 class TestObjectSerializationDirect:
