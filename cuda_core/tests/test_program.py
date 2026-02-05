@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -6,11 +6,11 @@ import re
 import warnings
 
 import pytest
-from cuda.core.experimental import _linker
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._module import Kernel, ObjectCode
-from cuda.core.experimental._program import Program, ProgramOptions
-from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core import _linker
+from cuda.core._device import Device
+from cuda.core._module import Kernel, ObjectCode
+from cuda.core._program import Program, ProgramOptions
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
@@ -21,12 +21,11 @@ try:
     _test_helpers_available = True
 except ImportError:
     _test_helpers_available = False
-
-
+    
 def _is_nvvm_available():
     """Check if NVVM is available."""
     try:
-        from cuda.core.experimental._program import _get_nvvm_module
+        from cuda.core._program import _get_nvvm_module
 
         _get_nvvm_module()
         return True
@@ -39,7 +38,7 @@ nvvm_available = pytest.mark.skipif(
 )
 
 try:
-    from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
 
     _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 except Exception:
@@ -49,6 +48,7 @@ except Exception:
 def _get_nvrtc_version_for_tests():
     """
     Get NVRTC version.
+
     Returns:
         int: Version in format major * 1000 + minor * 100 (e.g., 13200 for CUDA 13.2)
         None: If NVRTC is not available
@@ -59,6 +59,7 @@ def _get_nvrtc_version_for_tests():
         return version
     except Exception:
         return None
+
 
 _libnvvm_version = None
 _libnvvm_version_attempted = False
@@ -97,7 +98,7 @@ def _get_libnvvm_version_for_tests():
     _libnvvm_version_attempted = True
 
     try:
-        from cuda.core.experimental._program import _get_nvvm_module
+        from cuda.core._program import _get_nvvm_module
 
         nvvm = _get_nvvm_module()
 
@@ -145,7 +146,7 @@ def nvvm_ir():
     fallback assumes no version metadata will be present in
     the input nvvm ir
     """
-    from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
@@ -340,7 +341,7 @@ if not is_culink_backend:
 
 @pytest.mark.parametrize("options", options)
 def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
-    program = Program(ptx_code_object._module.decode(), "ptx", options=options)
+    program = Program(ptx_code_object.code.decode(), "ptx", options=options)
     assert program.backend == ("driver" if is_culink_backend else "nvJitLink")
     program.compile("cubin")
     program.close()
@@ -383,7 +384,7 @@ def test_program_compile_valid_target_type(init_cuda):
         ptx_kernel = ptx_object_code.get_kernel("my_kernel")
         assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code._module.decode(), "ptx", options={"name": "24"})
+    program = Program(ptx_object_code.code.decode(), "ptx", options={"name": "24"})
     cubin_object_code = program.compile("cubin")
     assert isinstance(cubin_object_code, ObjectCode)
     assert cubin_object_code.name == "24"
@@ -420,7 +421,7 @@ def test_program_close():
 @nvvm_available
 def test_nvvm_deferred_import():
     """Test that our deferred NVVM import works correctly"""
-    from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     assert nvvm is not None
@@ -689,6 +690,7 @@ def test_cpp_program_with_extra_sources():
     options = ProgramOptions(extra_sources=helper)
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
+        
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)

@@ -13,11 +13,11 @@ from warnings import warn
 if TYPE_CHECKING:
     import cuda.bindings
 
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
-from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils.clear_error_support import assert_type
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._device import Device
+from cuda.core._linker import Linker, LinkerHandleT, LinkerOptions
+from cuda.core._module import ObjectCode
+from cuda.core._utils.clear_error_support import assert_type
+from cuda.core._utils.cuda_utils import (
     CUDAError,
     _handle_boolean_option,
     check_or_create_options,
@@ -102,10 +102,6 @@ def _get_nvvm_module():
         _nvvm_module = None
         raise e
 
-def _find_libdevice_path():
-    """Find libdevice.10.bc for NVVM compilation using cuda.pathfinder."""
-    from cuda.pathfinder import get_libdevice_path
-    return get_libdevice_path()
 
 def _process_define_macro_inner(formatted_options, macro):
     if isinstance(macro, str):
@@ -118,7 +114,11 @@ def _process_define_macro_inner(formatted_options, macro):
         return True
     return False
 
-
+def _find_libdevice_path():
+    """Find libdevice.10.bc for NVVM compilation using cuda.pathfinder."""
+    from cuda.pathfinder import get_libdevice_path
+    return get_libdevice_path()
+    
 def _process_define_macro(formatted_options, macro):
     union_type = "Union[str, tuple[str, str]]"
     if _process_define_macro_inner(formatted_options, macro):
@@ -236,13 +236,9 @@ class ProgramOptions:
     no_display_error_number : bool, optional
         Disable the display of a diagnostic number for warning messages.
         Default: False
-    diag_error : Union[int, list[int]], optional
-        Emit error for a specified diagnostic message number or comma separated list of numbers.
-        Default: None
-    diag_suppress : Union[int, list[int]], optional
-        Suppress a specified diagnostic message number or comma separated list of numbers.
-        Default: None
-    diag_warn : Union[int, list[int]], optional
+    diag_error: Union[int, list[int], tuple[int]] | None = None
+    diag_suppress: Union[int, list[int], tuple[int]] | None = None
+    diag_warn: Union[int, list[int], tuple[int]] | None = None
         Emit warning for a specified diagnostic message number or comma separated lis of numbers.
         Default: None
     brief_diagnostics : bool, optional
@@ -339,7 +335,6 @@ class ProgramOptions:
     split_compile: int | None = None
     fdevice_syntax_only: bool | None = None
     minimal: bool | None = None
-    # Creating as 2 tuples ((names, source), (names,source))
     extra_sources: (
         Union[List[Tuple[str, Union[str, bytes, bytearray]]], Tuple[Tuple[str, Union[str, bytes, bytearray]]]] | None
     ) = None
@@ -356,7 +351,7 @@ class ProgramOptions:
     pch_messages: bool | None = None
     instantiate_templates_in_pch: bool | None = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
-    use_libdevice: bool | None = None # Use libdevice
+    use_libdevice: bool | None = None # For libdevice execution 
 
     def __post_init__(self):
         self._name = self.name.encode()
@@ -501,7 +496,7 @@ class ProgramOptions:
             options.append("--numba-debug")
         return [o.encode() for o in options]
 
-    def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
+     def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
         options = []
 
         # Options supported by NVVM
@@ -690,11 +685,11 @@ class Program:
         if code_type == "c++":
             assert_type(code, str)
             # TODO: support pre-loaded headers & include names
-
+            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
             if options.extra_sources is not None:
                 raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
 
-            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
             self._mnff.backend = "NVRTC"
             self._backend = "NVRTC"
@@ -704,7 +699,6 @@ class Program:
             assert_type(code, str)
             if options.extra_sources is not None:
                 raise ValueError("extra_sources is not supported by the PTX backend.")
-
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
@@ -872,7 +866,7 @@ class Program:
             nvvm = _get_nvvm_module()
             with _nvvm_exception_manager(self):
                 nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
-                # Invoke libdevice
+                # libdevice compilation 
                 if getattr(self, '_use_libdevice', False):
                     libdevice_path = _find_libdevice_path()
                     if libdevice_path is None:
@@ -882,7 +876,7 @@ class Program:
                         )
                     with open(libdevice_path, "rb") as f:
                         libdevice_bc = f.read()
-                    # Use lazy_add_module for libdevice bitcode only following numba-cuda
+                    # libdevice for numba-cuda
                     nvvm.lazy_add_module_to_program(self._mnff.handle, libdevice_bc, len(libdevice_bc), None)
                 
                 nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
