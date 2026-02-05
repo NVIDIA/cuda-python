@@ -44,6 +44,8 @@ else:
 PARSER_CACHING = os.environ.get("CUDA_PYTHON_PARSER_CACHING", False)
 PARSER_CACHING = bool(PARSER_CACHING)
 
+COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+
 # ----------------------------------------------------------------------
 # Parse user-provided CUDA headers
 
@@ -276,6 +278,10 @@ if sys.platform != "win32":
     # extra_compile_args += ["-D _LIBCPP_ENABLE_ASSERTIONS"] # Consider: if clang, use libc++ preprocessor macros.
     else:
         extra_compile_args += ["-O3"]
+if COMPILE_FOR_COVERAGE:
+    # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
+    # related to free-threading builds.
+    extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
 # For Setup
 extensions = []
@@ -342,10 +348,15 @@ def cleanup_dst_files():
 
 
 def do_cythonize(extensions):
+    compiler_directives = dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True)
+
+    if COMPILE_FOR_COVERAGE:
+        compiler_directives["linetrace"] = True
+
     return cythonize(
         extensions,
         nthreads=nthreads,
-        compiler_directives=dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True),
+        compiler_directives=compiler_directives,
         **extra_cythonize_kwargs,
     )
 

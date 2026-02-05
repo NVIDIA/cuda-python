@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -15,6 +15,9 @@ on:
     branches:
       - "pull-request/[0-9]+"
       - "main"
+  schedule:
+    # every 24 hours at midnight UTC
+    - cron: "0 0 * * *"
 
 jobs:
   ci-vars:
@@ -24,7 +27,7 @@ jobs:
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
       - name: Get CUDA build versions
@@ -40,9 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
+      doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
@@ -50,13 +54,23 @@ jobs:
         run: |
           set -euxo pipefail
           if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
-            skip="$(gh pr view "$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')" --json title --jq '.title | contains("[no-ci]")')"
+            pr_number="$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')"
+            pr_title="$(gh pr view "${pr_number}" --json title --jq '.title')"
+            skip="$(echo "${pr_title}" | grep -q '\[no-ci\]' && echo true || echo false)"
+            doc_only="$(echo "${pr_title}" | grep -q '\[doc-only\]' && echo true || echo false)"
           else
             skip=false
+            doc_only=false
           fi
           echo "skip=${skip}" >> "$GITHUB_OUTPUT"
+          echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
 
-  # WARNING: make sure all of the build jobs are in sync
+  # NOTE: Build jobs are intentionally split by platform rather than using a single
+  # matrix. This allows each test job to depend only on its corresponding build,
+  # so faster platforms can proceed through build & test without waiting for slower
+  # ones. Keep these job definitions textually identical except for:
+  #   - host-platform value
+  #   - if: condition (build-linux-64 omits doc-only check since it's needed for docs)
   build-linux-64:
     needs:
       - ci-vars
@@ -75,7 +89,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # WARNING: make sure all of the build jobs are in sync
+  # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
     needs:
       - ci-vars
@@ -86,7 +100,7 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -94,7 +108,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # WARNING: make sure all of the build jobs are in sync
+  # See build-linux-64 for why build jobs are split by platform.
   build-windows:
     needs:
       - ci-vars
@@ -105,7 +119,7 @@ jobs:
         host-platform:
           - win-64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -113,7 +127,11 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # WARNING: make sure both Linux test jobs are in sync
+  # NOTE: Test jobs are split by platform for the same reason as build jobs (see
+  # build-linux-64). Keep these job definitions textually identical except for:
+  #   - host-platform value
+  #   - build job under needs:
+  #   - uses: (test-wheel-linux.yml vs test-wheel-windows.yml)
   test-linux-64:
     strategy:
       fail-fast: false
@@ -121,11 +139,12 @@ jobs:
         host-platform:
           - linux-64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
+      - should-skip
       - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
@@ -133,8 +152,9 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
-  # WARNING: make sure both Linux test jobs are in sync
+  # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
     strategy:
       fail-fast: false
@@ -142,11 +162,12 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
+      - should-skip
       - build-linux-aarch64
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
@@ -154,7 +175,9 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
+  # See test-linux-64 for why test jobs are split by platform.
   test-windows:
     strategy:
       fail-fast: false
@@ -162,11 +185,12 @@ jobs:
         host-platform:
           - win-64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
+      - should-skip
       - build-windows
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
@@ -174,6 +198,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
   doc:
     name: Docs
@@ -196,6 +221,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     needs:
+      - should-skip
       - test-linux-64
       - test-linux-aarch64
       - test-windows
@@ -203,7 +229,7 @@ jobs:
     steps:
       - name: Exit
         run: |
-          # if any dependencies were cancelled, that's a failure
+          # if any dependencies were cancelled or failed, that's a failure
           #
           # see https://docs.github.com/en/actions/reference/workflows-and-actions/expressions#always
           # and https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
@@ -219,11 +245,21 @@ jobs:
           # failing job(s) will timeout causing a cancellation here and the
           # build to succeed which we don't want (originally this was just
           # 'exit 0')
-          if ${{ needs.test-linux-64.result == 'cancelled' ||
-                 needs.test-linux-aarch64.result == 'cancelled' ||
-                 needs.test-windows.result == 'cancelled' ||
-                 needs.doc.result == 'cancelled' }}; then
+          #
+          # Note: When [doc-only] is in PR title, test jobs are intentionally
+          # skipped and should not cause failure.
+          doc_only=${{ needs.should-skip.outputs.doc-only }}
+          if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
             exit 1
-          else
-            exit 0
           fi
+          if [[ "${doc_only}" != "true" ]]; then
+            if ${{ needs.test-linux-64.result == 'cancelled' ||
+                   needs.test-linux-64.result == 'failure' ||
+                   needs.test-linux-aarch64.result == 'cancelled' ||
+                   needs.test-linux-aarch64.result == 'failure' ||
+                   needs.test-windows.result == 'cancelled' ||
+                   needs.test-windows.result == 'failure' }}; then
+              exit 1
+            fi
+          fi
+          exit 0

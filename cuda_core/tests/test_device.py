@@ -6,15 +6,15 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import Device
-from cuda.core.experimental._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
+from cuda.core import Device
+from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
 
 def test_device_init_disabled():
     with pytest.raises(RuntimeError, match=r"^DeviceProperties cannot be instantiated directly\."):
-        cuda.core.experimental._device.DeviceProperties()  # Ensure back door is locked.
+        cuda.core._device.DeviceProperties()  # Ensure back door is locked.
 
 
 @pytest.fixture(scope="module")
@@ -23,6 +23,30 @@ def cuda_version():
     _py_major_ver, _ = get_binding_version()
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     return _py_major_ver, _driver_ver
+
+
+def test_to_system_device(deinit_cuda):
+    from cuda.core.system import _system
+
+    device = Device()
+
+    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        with pytest.raises(RuntimeError):
+            device.to_system_device()
+        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
+
+    from cuda.core.system import Device as SystemDevice
+
+    system_device = device.to_system_device()
+    assert isinstance(system_device, SystemDevice)
+    assert system_device.uuid == device.uuid
+
+    # Technically, this test will only work with PCI devices, but are there
+    # non-PCI devices we need to support?
+
+    # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
+    # 4-byte domain
+    assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
 
 
 def test_device_set_current(deinit_cuda):
@@ -44,6 +68,16 @@ def test_device_alloc(deinit_cuda):
     device.sync()
     assert buffer.handle != 0
     assert buffer.size == 1024
+    assert buffer.device_id == int(device)
+
+
+def test_device_alloc_zero_bytes(deinit_cuda):
+    device = Device()
+    device.set_current()
+    buffer = device.allocate(0)
+    device.sync()
+    assert buffer.handle >= 0
+    assert buffer.size == 0
     assert buffer.device_id == int(device)
 
 

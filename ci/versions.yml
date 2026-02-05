@@ -5,6 +5,6 @@ backport_branch: "12.9.x"
 
 cuda:
   build:
-    version: "13.1.0"
+    version: "13.1.1"
   prev_build:
     version: "12.9.1"

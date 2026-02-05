@@ -28,7 +28,7 @@ jobs:
     if: github.repository_owner == 'NVIDIA'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           # Fetch all history and branches for worktree operations
           fetch-depth: 0

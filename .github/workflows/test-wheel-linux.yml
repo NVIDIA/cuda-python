@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,6 +19,9 @@ on:
       matrix_filter:
         type: string
         default: "."
+      nruns:
+        type: number
+        default: 1
 
 defaults:
   run:
@@ -36,7 +39,7 @@ jobs:
       OLD_BRANCH: ${{ steps.compute-matrix.outputs.OLD_BRANCH }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Validate Test Type
         run: |
@@ -57,12 +60,6 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          # Add special runner for amd64 if applicable
-          if [[ "${ARCH}" == "amd64" ]]; then
-            SPECIAL_RUNNERS=$(yq -o json '.linux.special_runners.amd64' ci/test-matrix.yml)
-            TEST_MATRIX=$(echo "$TEST_MATRIX" | yq -o json ". + $SPECIAL_RUNNERS")
-          fi
-
           # Apply matrix filter and wrap in include structure
           MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
@@ -73,12 +70,12 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}
     needs: compute-matrix
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
-    runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
+    runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Our self-hosted runners require a container
@@ -93,7 +90,7 @@ jobs:
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -118,21 +115,21 @@ jobs:
         run: ./ci/tools/env-vars test
 
       - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cuda-python-wheel
           path: .
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -184,7 +181,7 @@ jobs:
 
       - name: Download cuda.bindings Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -196,7 +193,7 @@ jobs:
           ls -lahR $CUDA_BINDINGS_CYTHON_TESTS_DIR
 
       - name: Download cuda.core build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -208,7 +205,7 @@ jobs:
 
       - name: Download cuda.core Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
@@ -220,7 +217,7 @@ jobs:
           ls -lahR $CUDA_CORE_CYTHON_TESTS_DIR
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.PY_VER }}
         env:
@@ -247,6 +244,9 @@ jobs:
       - name: Set up compute-sanitizer
         run: setup-sanitizer
 
+      - name: Set up test repetition on nightly runs
+        run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
+
       - name: Run cuda.pathfinder tests with see_what_works
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
@@ -260,6 +260,16 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
+      - name: Run cuda.bindings examples
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: |
+          pushd cuda_bindings
+          ${SANITIZER_CMD} pytest -ra -s -vv examples/
+          popd
+
       - name: Run cuda.core tests
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
@@ -269,16 +279,16 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_python*.whl
+            pip install --only-binary=:all: cuda_python*.whl
           else
-            pip install $(ls cuda_python*.whl)[all]
+            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
+          pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This code was automatically generated with version 13.1.0. Do not modify it directly.
@@ -8398,7 +8398,7 @@ cdef class CUstreamMemOpWaitValueParams_st:
         return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].waitValue.operation]
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].waitValue.operation = operation.value
+        self._pvt_ptr[0].waitValue.operation = int(operation)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue.address' in found_struct}}
     @property
@@ -8588,7 +8588,7 @@ cdef class CUstreamMemOpWriteValueParams_st:
         return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].writeValue.operation]
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].writeValue.operation = operation.value
+        self._pvt_ptr[0].writeValue.operation = int(operation)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.writeValue.address' in found_struct}}
     @property
@@ -8726,7 +8726,7 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
         return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].flushRemoteWrites.operation]
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].flushRemoteWrites.operation = operation.value
+        self._pvt_ptr[0].flushRemoteWrites.operation = int(operation)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.flushRemoteWrites.flags' in found_struct}}
     @property
@@ -8792,7 +8792,7 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
         return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].memoryBarrier.operation]
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].memoryBarrier.operation = operation.value
+        self._pvt_ptr[0].memoryBarrier.operation = int(operation)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier.flags' in found_struct}}
     @property
@@ -8917,7 +8917,7 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].atomicReduction.operation]
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].atomicReduction.operation = operation.value
+        self._pvt_ptr[0].atomicReduction.operation = int(operation)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.atomicReduction.flags' in found_struct}}
     @property
@@ -8935,7 +8935,7 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         return _dict_CUstreamAtomicReductionOpType[self._pvt_ptr[0].atomicReduction.reductionOp]
     @reductionOp.setter
     def reductionOp(self, reductionOp not None : CUstreamAtomicReductionOpType):
-        self._pvt_ptr[0].atomicReduction.reductionOp = reductionOp.value
+        self._pvt_ptr[0].atomicReduction.reductionOp = int(reductionOp)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.atomicReduction.dataType' in found_struct}}
     @property
@@ -8945,7 +8945,7 @@ cdef class CUstreamMemOpAtomicReductionParams_st:
         return _dict_CUstreamAtomicReductionDataType[self._pvt_ptr[0].atomicReduction.dataType]
     @dataType.setter
     def dataType(self, dataType not None : CUstreamAtomicReductionDataType):
-        self._pvt_ptr[0].atomicReduction.dataType = dataType.value
+        self._pvt_ptr[0].atomicReduction.dataType = int(dataType)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
     @property
@@ -9129,7 +9129,7 @@ cdef class CUstreamBatchMemOpParams_union:
         return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].operation]
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
-        self._pvt_ptr[0].operation = operation.value
+        self._pvt_ptr[0].operation = int(operation)
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue' in found_struct}}
     @property
@@ -9612,7 +9612,7 @@ cdef class CUasyncNotificationInfo_st:
         return _dict_CUasyncNotificationType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUasyncNotificationType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUasyncNotificationInfo_st.info' in found_struct}}
     @property
@@ -9961,7 +9961,7 @@ cdef class CUaccessPolicyWindow_st:
         return _dict_CUaccessProperty[self._pvt_ptr[0].hitProp]
     @hitProp.setter
     def hitProp(self, hitProp not None : CUaccessProperty):
-        self._pvt_ptr[0].hitProp = hitProp.value
+        self._pvt_ptr[0].hitProp = int(hitProp)
     {{endif}}
     {{if 'CUaccessPolicyWindow_st.missProp' in found_struct}}
     @property
@@ -9971,7 +9971,7 @@ cdef class CUaccessPolicyWindow_st:
         return _dict_CUaccessProperty[self._pvt_ptr[0].missProp]
     @missProp.setter
     def missProp(self, missProp not None : CUaccessProperty):
-        self._pvt_ptr[0].missProp = missProp.value
+        self._pvt_ptr[0].missProp = int(missProp)
     {{endif}}
 {{endif}}
 {{if 'CUDA_KERNEL_NODE_PARAMS_st' in found_struct}}
@@ -11403,7 +11403,7 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         return _dict_CUgraphConditionalNodeType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUgraphConditionalNodeType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUDA_CONDITIONAL_NODE_PARAMS.size' in found_struct}}
     @property
@@ -11703,7 +11703,7 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
         return _dict_CUgraphInstantiateResult[self._pvt_ptr[0].result_out]
     @result_out.setter
     def result_out(self, result_out not None : CUgraphInstantiateResult):
-        self._pvt_ptr[0].result_out = result_out.value
+        self._pvt_ptr[0].result_out = int(result_out)
     {{endif}}
 {{endif}}
 {{if 'CUlaunchMemSyncDomainMap_st' in found_struct}}
@@ -12486,7 +12486,7 @@ cdef class CUlaunchAttributeValue_union:
         return _dict_CUsynchronizationPolicy[self._pvt_ptr[0].syncPolicy]
     @syncPolicy.setter
     def syncPolicy(self, syncPolicy not None : CUsynchronizationPolicy):
-        self._pvt_ptr[0].syncPolicy = syncPolicy.value
+        self._pvt_ptr[0].syncPolicy = int(syncPolicy)
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     @property
@@ -12504,7 +12504,7 @@ cdef class CUlaunchAttributeValue_union:
         return _dict_CUclusterSchedulingPolicy[self._pvt_ptr[0].clusterSchedulingPolicyPreference]
     @clusterSchedulingPolicyPreference.setter
     def clusterSchedulingPolicyPreference(self, clusterSchedulingPolicyPreference not None : CUclusterSchedulingPolicy):
-        self._pvt_ptr[0].clusterSchedulingPolicyPreference = clusterSchedulingPolicyPreference.value
+        self._pvt_ptr[0].clusterSchedulingPolicyPreference = int(clusterSchedulingPolicyPreference)
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.programmaticStreamSerializationAllowed' in found_struct}}
     @property
@@ -12554,7 +12554,7 @@ cdef class CUlaunchAttributeValue_union:
         return _dict_CUlaunchMemSyncDomain[self._pvt_ptr[0].memSyncDomain]
     @memSyncDomain.setter
     def memSyncDomain(self, memSyncDomain not None : CUlaunchMemSyncDomain):
-        self._pvt_ptr[0].memSyncDomain = memSyncDomain.value
+        self._pvt_ptr[0].memSyncDomain = int(memSyncDomain)
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.preferredClusterDim' in found_struct}}
     @property
@@ -12651,7 +12651,7 @@ cdef class CUlaunchAttribute_st:
         return _dict_CUlaunchAttributeID[self._pvt_ptr[0].id]
     @id.setter
     def id(self, id not None : CUlaunchAttributeID):
-        self._pvt_ptr[0].id = id.value
+        self._pvt_ptr[0].id = int(id)
     {{endif}}
     {{if 'CUlaunchAttribute_st.value' in found_struct}}
     @property
@@ -13068,7 +13068,7 @@ cdef class CUexecAffinityParam_st:
         return _dict_CUexecAffinityType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUexecAffinityType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUexecAffinityParam_st.param' in found_struct}}
     @property
@@ -13138,7 +13138,7 @@ cdef class CUctxCigParam_st:
         return _dict_CUcigDataType[self._pvt_ptr[0].sharedDataType]
     @sharedDataType.setter
     def sharedDataType(self, sharedDataType not None : CUcigDataType):
-        self._pvt_ptr[0].sharedDataType = sharedDataType.value
+        self._pvt_ptr[0].sharedDataType = int(sharedDataType)
     {{endif}}
     {{if 'CUctxCigParam_st.sharedData' in found_struct}}
     @property
@@ -13606,7 +13606,7 @@ cdef class CUDA_MEMCPY2D_st:
         return _dict_CUmemorytype[self._pvt_ptr[0].srcMemoryType]
     @srcMemoryType.setter
     def srcMemoryType(self, srcMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].srcMemoryType = srcMemoryType.value
+        self._pvt_ptr[0].srcMemoryType = int(srcMemoryType)
     {{endif}}
     {{if 'CUDA_MEMCPY2D_st.srcHost' in found_struct}}
     @property
@@ -13684,7 +13684,7 @@ cdef class CUDA_MEMCPY2D_st:
         return _dict_CUmemorytype[self._pvt_ptr[0].dstMemoryType]
     @dstMemoryType.setter
     def dstMemoryType(self, dstMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].dstMemoryType = dstMemoryType.value
+        self._pvt_ptr[0].dstMemoryType = int(dstMemoryType)
     {{endif}}
     {{if 'CUDA_MEMCPY2D_st.dstHost' in found_struct}}
     @property
@@ -14089,7 +14089,7 @@ cdef class CUDA_MEMCPY3D_st:
         return _dict_CUmemorytype[self._pvt_ptr[0].srcMemoryType]
     @srcMemoryType.setter
     def srcMemoryType(self, srcMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].srcMemoryType = srcMemoryType.value
+        self._pvt_ptr[0].srcMemoryType = int(srcMemoryType)
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.srcHost' in found_struct}}
     @property
@@ -14200,7 +14200,7 @@ cdef class CUDA_MEMCPY3D_st:
         return _dict_CUmemorytype[self._pvt_ptr[0].dstMemoryType]
     @dstMemoryType.setter
     def dstMemoryType(self, dstMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].dstMemoryType = dstMemoryType.value
+        self._pvt_ptr[0].dstMemoryType = int(dstMemoryType)
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.dstHost' in found_struct}}
     @property
@@ -14637,7 +14637,7 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         return _dict_CUmemorytype[self._pvt_ptr[0].srcMemoryType]
     @srcMemoryType.setter
     def srcMemoryType(self, srcMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].srcMemoryType = srcMemoryType.value
+        self._pvt_ptr[0].srcMemoryType = int(srcMemoryType)
     {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.srcHost' in found_struct}}
     @property
@@ -14756,7 +14756,7 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         return _dict_CUmemorytype[self._pvt_ptr[0].dstMemoryType]
     @dstMemoryType.setter
     def dstMemoryType(self, dstMemoryType not None : CUmemorytype):
-        self._pvt_ptr[0].dstMemoryType = dstMemoryType.value
+        self._pvt_ptr[0].dstMemoryType = int(dstMemoryType)
     {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.dstHost' in found_struct}}
     @property
@@ -15074,7 +15074,7 @@ cdef class CUDA_ARRAY_DESCRIPTOR_st:
         return _dict_CUarray_format[self._pvt_ptr[0].Format]
     @Format.setter
     def Format(self, Format not None : CUarray_format):
-        self._pvt_ptr[0].Format = Format.value
+        self._pvt_ptr[0].Format = int(Format)
     {{endif}}
     {{if 'CUDA_ARRAY_DESCRIPTOR_st.NumChannels' in found_struct}}
     @property
@@ -15208,7 +15208,7 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
         return _dict_CUarray_format[self._pvt_ptr[0].Format]
     @Format.setter
     def Format(self, Format not None : CUarray_format):
-        self._pvt_ptr[0].Format = Format.value
+        self._pvt_ptr[0].Format = int(Format)
     {{endif}}
     {{if 'CUDA_ARRAY3D_DESCRIPTOR_st.NumChannels' in found_struct}}
     @property
@@ -15733,7 +15733,7 @@ cdef class anon_struct9:
         return _dict_CUarray_format[self._pvt_ptr[0].res.linear.format]
     @format.setter
     def format(self, format not None : CUarray_format):
-        self._pvt_ptr[0].res.linear.format = format.value
+        self._pvt_ptr[0].res.linear.format = int(format)
     {{endif}}
     {{if 'CUDA_RESOURCE_DESC_st.res.linear.numChannels' in found_struct}}
     @property
@@ -15868,7 +15868,7 @@ cdef class anon_struct10:
         return _dict_CUarray_format[self._pvt_ptr[0].res.pitch2D.format]
     @format.setter
     def format(self, format not None : CUarray_format):
-        self._pvt_ptr[0].res.pitch2D.format = format.value
+        self._pvt_ptr[0].res.pitch2D.format = int(format)
     {{endif}}
     {{if 'CUDA_RESOURCE_DESC_st.res.pitch2D.numChannels' in found_struct}}
     @property
@@ -16156,7 +16156,7 @@ cdef class CUDA_RESOURCE_DESC_st:
         return _dict_CUresourcetype[self._pvt_ptr[0].resType]
     @resType.setter
     def resType(self, resType not None : CUresourcetype):
-        self._pvt_ptr[0].resType = resType.value
+        self._pvt_ptr[0].resType = int(resType)
     {{endif}}
     {{if 'CUDA_RESOURCE_DESC_st.res' in found_struct}}
     @property
@@ -16312,7 +16312,7 @@ cdef class CUDA_TEXTURE_DESC_st:
         return [_dict_CUaddress_mode[_x] if _x in _dict_CUaddress_mode else None for _x in list(self._pvt_ptr[0].addressMode)]
     @addressMode.setter
     def addressMode(self, addressMode):
-        self._pvt_ptr[0].addressMode = [_x.value for _x in addressMode]
+        self._pvt_ptr[0].addressMode = [int(_x) for _x in addressMode]
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}
     @property
@@ -16322,7 +16322,7 @@ cdef class CUDA_TEXTURE_DESC_st:
         return _dict_CUfilter_mode[self._pvt_ptr[0].filterMode]
     @filterMode.setter
     def filterMode(self, filterMode not None : CUfilter_mode):
-        self._pvt_ptr[0].filterMode = filterMode.value
+        self._pvt_ptr[0].filterMode = int(filterMode)
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.flags' in found_struct}}
     @property
@@ -16348,7 +16348,7 @@ cdef class CUDA_TEXTURE_DESC_st:
         return _dict_CUfilter_mode[self._pvt_ptr[0].mipmapFilterMode]
     @mipmapFilterMode.setter
     def mipmapFilterMode(self, mipmapFilterMode not None : CUfilter_mode):
-        self._pvt_ptr[0].mipmapFilterMode = mipmapFilterMode.value
+        self._pvt_ptr[0].mipmapFilterMode = int(mipmapFilterMode)
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.mipmapLevelBias' in found_struct}}
     @property
@@ -16520,7 +16520,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
         return _dict_CUresourceViewFormat[self._pvt_ptr[0].format]
     @format.setter
     def format(self, format not None : CUresourceViewFormat):
-        self._pvt_ptr[0].format = format.value
+        self._pvt_ptr[0].format = int(format)
     {{endif}}
     {{if 'CUDA_RESOURCE_VIEW_DESC_st.width' in found_struct}}
     @property
@@ -17190,7 +17190,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         return _dict_CUexternalMemoryHandleType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUexternalMemoryHandleType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle' in found_struct}}
     @property
@@ -17673,7 +17673,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         return _dict_CUexternalSemaphoreHandleType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUexternalSemaphoreHandleType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle' in found_struct}}
     @property
@@ -19574,7 +19574,7 @@ cdef class CUarrayMapInfo_st:
         return _dict_CUresourcetype[self._pvt_ptr[0].resourceType]
     @resourceType.setter
     def resourceType(self, resourceType not None : CUresourcetype):
-        self._pvt_ptr[0].resourceType = resourceType.value
+        self._pvt_ptr[0].resourceType = int(resourceType)
     {{endif}}
     {{if 'CUarrayMapInfo_st.resource' in found_struct}}
     @property
@@ -19592,7 +19592,7 @@ cdef class CUarrayMapInfo_st:
         return _dict_CUarraySparseSubresourceType[self._pvt_ptr[0].subresourceType]
     @subresourceType.setter
     def subresourceType(self, subresourceType not None : CUarraySparseSubresourceType):
-        self._pvt_ptr[0].subresourceType = subresourceType.value
+        self._pvt_ptr[0].subresourceType = int(subresourceType)
     {{endif}}
     {{if 'CUarrayMapInfo_st.subresource' in found_struct}}
     @property
@@ -19610,7 +19610,7 @@ cdef class CUarrayMapInfo_st:
         return _dict_CUmemOperationType[self._pvt_ptr[0].memOperationType]
     @memOperationType.setter
     def memOperationType(self, memOperationType not None : CUmemOperationType):
-        self._pvt_ptr[0].memOperationType = memOperationType.value
+        self._pvt_ptr[0].memOperationType = int(memOperationType)
     {{endif}}
     {{if 'CUarrayMapInfo_st.memHandleType' in found_struct}}
     @property
@@ -19620,7 +19620,7 @@ cdef class CUarrayMapInfo_st:
         return _dict_CUmemHandleType[self._pvt_ptr[0].memHandleType]
     @memHandleType.setter
     def memHandleType(self, memHandleType not None : CUmemHandleType):
-        self._pvt_ptr[0].memHandleType = memHandleType.value
+        self._pvt_ptr[0].memHandleType = int(memHandleType)
     {{endif}}
     {{if 'CUarrayMapInfo_st.memHandle' in found_struct}}
     @property
@@ -19722,7 +19722,7 @@ cdef class CUmemLocation_st:
         return _dict_CUmemLocationType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUmemLocationType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     @property
@@ -19935,7 +19935,7 @@ cdef class CUmemAllocationProp_st:
         return _dict_CUmemAllocationType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUmemAllocationType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUmemAllocationProp_st.requestedHandleTypes' in found_struct}}
     @property
@@ -19945,7 +19945,7 @@ cdef class CUmemAllocationProp_st:
         return _dict_CUmemAllocationHandleType[self._pvt_ptr[0].requestedHandleTypes]
     @requestedHandleTypes.setter
     def requestedHandleTypes(self, requestedHandleTypes not None : CUmemAllocationHandleType):
-        self._pvt_ptr[0].requestedHandleTypes = requestedHandleTypes.value
+        self._pvt_ptr[0].requestedHandleTypes = int(requestedHandleTypes)
     {{endif}}
     {{if 'CUmemAllocationProp_st.location' in found_struct}}
     @property
@@ -20150,7 +20150,7 @@ cdef class CUmemAccessDesc_st:
         return _dict_CUmemAccess_flags[self._pvt_ptr[0].flags]
     @flags.setter
     def flags(self, flags not None : CUmemAccess_flags):
-        self._pvt_ptr[0].flags = flags.value
+        self._pvt_ptr[0].flags = int(flags)
     {{endif}}
 {{endif}}
 {{if 'CUgraphExecUpdateResultInfo_st' in found_struct}}
@@ -20231,7 +20231,7 @@ cdef class CUgraphExecUpdateResultInfo_st:
         return _dict_CUgraphExecUpdateResult[self._pvt_ptr[0].result]
     @result.setter
     def result(self, result not None : CUgraphExecUpdateResult):
-        self._pvt_ptr[0].result = result.value
+        self._pvt_ptr[0].result = int(result)
     {{endif}}
     {{if 'CUgraphExecUpdateResultInfo_st.errorNode' in found_struct}}
     @property
@@ -20386,7 +20386,7 @@ cdef class CUmemPoolProps_st:
         return _dict_CUmemAllocationType[self._pvt_ptr[0].allocType]
     @allocType.setter
     def allocType(self, allocType not None : CUmemAllocationType):
-        self._pvt_ptr[0].allocType = allocType.value
+        self._pvt_ptr[0].allocType = int(allocType)
     {{endif}}
     {{if 'CUmemPoolProps_st.handleTypes' in found_struct}}
     @property
@@ -20396,7 +20396,7 @@ cdef class CUmemPoolProps_st:
         return _dict_CUmemAllocationHandleType[self._pvt_ptr[0].handleTypes]
     @handleTypes.setter
     def handleTypes(self, handleTypes not None : CUmemAllocationHandleType):
-        self._pvt_ptr[0].handleTypes = handleTypes.value
+        self._pvt_ptr[0].handleTypes = int(handleTypes)
     {{endif}}
     {{if 'CUmemPoolProps_st.location' in found_struct}}
     @property
@@ -20585,7 +20585,7 @@ cdef class CUmemcpyAttributes_st:
         return _dict_CUmemcpySrcAccessOrder[self._pvt_ptr[0].srcAccessOrder]
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : CUmemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = srcAccessOrder.value
+        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
     {{endif}}
     {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
     @property
@@ -21113,7 +21113,7 @@ cdef class CUmemcpy3DOperand_st:
         return _dict_CUmemcpy3DOperandType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUmemcpy3DOperandType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
     @property
@@ -21245,7 +21245,7 @@ cdef class CUDA_MEMCPY3D_BATCH_OP_st:
         return _dict_CUmemcpySrcAccessOrder[self._pvt_ptr[0].srcAccessOrder]
     @srcAccessOrder.setter
     def srcAccessOrder(self, srcAccessOrder not None : CUmemcpySrcAccessOrder):
-        self._pvt_ptr[0].srcAccessOrder = srcAccessOrder.value
+        self._pvt_ptr[0].srcAccessOrder = int(srcAccessOrder)
     {{endif}}
     {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
     @property
@@ -21724,7 +21724,7 @@ cdef class CUDA_CHILD_GRAPH_NODE_PARAMS_st:
         return _dict_CUgraphChildGraphNodeOwnership[self._pvt_ptr[0].ownership]
     @ownership.setter
     def ownership(self, ownership not None : CUgraphChildGraphNodeOwnership):
-        self._pvt_ptr[0].ownership = ownership.value
+        self._pvt_ptr[0].ownership = int(ownership)
     {{endif}}
 {{endif}}
 {{if 'CUDA_EVENT_RECORD_NODE_PARAMS_st' in found_struct}}
@@ -22101,7 +22101,7 @@ cdef class CUgraphNodeParams_st:
         return _dict_CUgraphNodeType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUgraphNodeType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUgraphNodeParams_st.reserved0' in found_struct}}
     @property
@@ -22802,7 +22802,7 @@ cdef class CUmemDecompressParams_st:
         return _dict_CUmemDecompressAlgorithm[self._pvt_ptr[0].algo]
     @algo.setter
     def algo(self, algo not None : CUmemDecompressAlgorithm):
-        self._pvt_ptr[0].algo = algo.value
+        self._pvt_ptr[0].algo = int(algo)
     {{endif}}
     {{if 'CUmemDecompressParams_st.padding' in found_struct}}
     @property
@@ -23019,7 +23019,7 @@ cdef class CUdevWorkqueueConfigResource_st:
         return _dict_CUdevWorkqueueConfigScope[self._pvt_ptr[0].sharingScope]
     @sharingScope.setter
     def sharingScope(self, sharingScope not None : CUdevWorkqueueConfigScope):
-        self._pvt_ptr[0].sharingScope = sharingScope.value
+        self._pvt_ptr[0].sharingScope = int(sharingScope)
     {{endif}}
 {{endif}}
 {{if 'CUdevWorkqueueResource_st' in found_struct}}
@@ -23320,7 +23320,7 @@ cdef class CUdevResource_st:
         return _dict_CUdevResourceType[self._pvt_ptr[0].type]
     @type.setter
     def type(self, type not None : CUdevResourceType):
-        self._pvt_ptr[0].type = type.value
+        self._pvt_ptr[0].type = int(type)
     {{endif}}
     {{if 'CUdevResource_st._internal_padding' in found_struct}}
     @property
@@ -23667,7 +23667,7 @@ cdef class CUeglFrame_st:
         return _dict_CUeglFrameType[self._pvt_ptr[0].frameType]
     @frameType.setter
     def frameType(self, frameType not None : CUeglFrameType):
-        self._pvt_ptr[0].frameType = frameType.value
+        self._pvt_ptr[0].frameType = int(frameType)
     {{endif}}
     {{if True}}
     @property
@@ -23677,7 +23677,7 @@ cdef class CUeglFrame_st:
         return _dict_CUeglColorFormat[self._pvt_ptr[0].eglColorFormat]
     @eglColorFormat.setter
     def eglColorFormat(self, eglColorFormat not None : CUeglColorFormat):
-        self._pvt_ptr[0].eglColorFormat = eglColorFormat.value
+        self._pvt_ptr[0].eglColorFormat = int(eglColorFormat)
     {{endif}}
     {{if True}}
     @property
@@ -23687,7 +23687,7 @@ cdef class CUeglFrame_st:
         return _dict_CUarray_format[self._pvt_ptr[0].cuFormat]
     @cuFormat.setter
     def cuFormat(self, cuFormat not None : CUarray_format):
-        self._pvt_ptr[0].cuFormat = cuFormat.value
+        self._pvt_ptr[0].cuFormat = int(cuFormat)
     {{endif}}
 {{endif}}
 {{if 'cuuint32_t' in found_types}}
@@ -24145,7 +24145,7 @@ def cuGetErrorString(error not None : CUresult):
     --------
     :py:obj:`~.CUresult`, :py:obj:`~.cudaGetErrorString`
     """
-    cdef cydriver.CUresult cyerror = error.value
+    cdef cydriver.CUresult cyerror = int(error)
     cdef const char* pStr = NULL
     with nogil:
         err = cydriver.cuGetErrorString(cyerror, &pStr)
@@ -24181,7 +24181,7 @@ def cuGetErrorName(error not None : CUresult):
     --------
     :py:obj:`~.CUresult`, :py:obj:`~.cudaGetErrorName`
     """
-    cdef cydriver.CUresult cyerror = error.value
+    cdef cydriver.CUresult cyerror = int(error)
     cdef const char* pStr = NULL
     with nogil:
         err = cydriver.cuGetErrorName(cyerror, &pStr)
@@ -24524,7 +24524,7 @@ def cuDeviceGetTexture1DLinearMaxWidth(pformat not None : CUarray_format, unsign
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
     cdef size_t maxWidthInElements = 0
-    cdef cydriver.CUarray_format cypformat = pformat.value
+    cdef cydriver.CUarray_format cypformat = int(pformat)
     with nogil:
         err = cydriver.cuDeviceGetTexture1DLinearMaxWidth(&maxWidthInElements, cypformat, numChannels, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -24568,7 +24568,7 @@ def cuDeviceGetAttribute(attrib not None : CUdevice_attribute, dev):
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
     cdef int pi = 0
-    cdef cydriver.CUdevice_attribute cyattrib = attrib.value
+    cdef cydriver.CUdevice_attribute cyattrib = int(attrib)
     with nogil:
         err = cydriver.cuDeviceGetAttribute(&pi, cyattrib, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -24634,7 +24634,7 @@ def cuDeviceGetHostAtomicCapabilities(operations : Optional[tuple[CUatomicOperat
         cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
         if cycapabilities is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-    cdef vector[cydriver.CUatomicOperation] cyoperations = [pyoperations.value for pyoperations in (operations)]
+    cdef vector[cydriver.CUatomicOperation] cyoperations = [int(pyoperations) for pyoperations in (operations)]
     if count > len(operations): raise RuntimeError("List is too small: " + str(len(operations)) + " < " + str(count))
     with nogil:
         err = cydriver.cuDeviceGetHostAtomicCapabilities(cycapabilities, cyoperations.data(), count, cydev)
@@ -24922,7 +24922,7 @@ def cuDeviceGetExecAffinitySupport(typename not None : CUexecAffinityType, dev):
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
     cdef int pi = 0
-    cdef cydriver.CUexecAffinityType cytypename = typename.value
+    cdef cydriver.CUexecAffinityType cytypename = int(typename)
     with nogil:
         err = cydriver.cuDeviceGetExecAffinitySupport(&pi, cytypename, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -24974,8 +24974,8 @@ def cuFlushGPUDirectRDMAWrites(target not None : CUflushGPUDirectRDMAWritesTarge
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`,
     """
-    cdef cydriver.CUflushGPUDirectRDMAWritesTarget cytarget = target.value
-    cdef cydriver.CUflushGPUDirectRDMAWritesScope cyscope = scope.value
+    cdef cydriver.CUflushGPUDirectRDMAWritesTarget cytarget = int(target)
+    cdef cydriver.CUflushGPUDirectRDMAWritesScope cyscope = int(scope)
     with nogil:
         err = cydriver.cuFlushGPUDirectRDMAWrites(cytarget, cyscope)
     return (_dict_CUresult[err],)
@@ -26152,7 +26152,7 @@ def cuCtxSetLimit(limit not None : CUlimit, size_t value):
     --------
     :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cudaDeviceSetLimit`
     """
-    cdef cydriver.CUlimit cylimit = limit.value
+    cdef cydriver.CUlimit cylimit = int(limit)
     with nogil:
         err = cydriver.cuCtxSetLimit(cylimit, value)
     return (_dict_CUresult[err],)
@@ -26209,7 +26209,7 @@ def cuCtxGetLimit(limit not None : CUlimit):
     :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cudaDeviceGetLimit`
     """
     cdef size_t pvalue = 0
-    cdef cydriver.CUlimit cylimit = limit.value
+    cdef cydriver.CUlimit cylimit = int(limit)
     with nogil:
         err = cydriver.cuCtxGetLimit(&pvalue, cylimit)
     if err != cydriver.CUDA_SUCCESS:
@@ -26317,7 +26317,7 @@ def cuCtxSetCacheConfig(config not None : CUfunc_cache):
     --------
     :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cuFuncSetCacheConfig`, :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cuKernelSetCacheConfig`
     """
-    cdef cydriver.CUfunc_cache cyconfig = config.value
+    cdef cydriver.CUfunc_cache cyconfig = int(config)
     with nogil:
         err = cydriver.cuCtxSetCacheConfig(cyconfig)
     return (_dict_CUresult[err],)
@@ -26469,7 +26469,7 @@ def cuCtxGetExecAffinity(typename not None : CUexecAffinityType):
     :py:obj:`~.CUexecAffinityParam`
     """
     cdef CUexecAffinityParam pExecAffinity = CUexecAffinityParam()
-    cdef cydriver.CUexecAffinityType cytypename = typename.value
+    cdef cydriver.CUexecAffinityType cytypename = int(typename)
     with nogil:
         err = cydriver.cuCtxGetExecAffinity(<cydriver.CUexecAffinityParam*>pExecAffinity._pvt_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -26771,7 +26771,7 @@ def cuCtxSetSharedMemConfig(config not None : CUsharedconfig):
     --------
     :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cuCtxGetSharedMemConfig`, :py:obj:`~.cuFuncSetCacheConfig`, :py:obj:`~.cudaDeviceSetSharedMemConfig`
     """
-    cdef cydriver.CUsharedconfig cyconfig = config.value
+    cdef cydriver.CUsharedconfig cyconfig = int(config)
     with nogil:
         err = cydriver.cuCtxSetSharedMemConfig(cyconfig)
     return (_dict_CUresult[err],)
@@ -26895,7 +26895,7 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
     cdef void* cyimage_ptr = <void*><void_ptr>cyimage.cptr
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [pyoptions.value for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -27263,7 +27263,7 @@ def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option]
         raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [pyoptions.value for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -27338,12 +27338,12 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
     else:
         pstate = int(CUlinkState(state))
     cystate = <cydriver.CUlinkState><void_ptr>pstate
-    cdef cydriver.CUjitInputType cytypename = typename.value
+    cdef cydriver.CUjitInputType cytypename = int(typename)
     cydata = _HelperInputVoidPtr(data)
     cdef void* cydata_ptr = <void*><void_ptr>cydata.cptr
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [pyoptions.value for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -27410,10 +27410,10 @@ def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigne
     else:
         pstate = int(CUlinkState(state))
     cystate = <cydriver.CUlinkState><void_ptr>pstate
-    cdef cydriver.CUjitInputType cytypename = typename.value
+    cdef cydriver.CUjitInputType cytypename = int(typename)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [pyoptions.value for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -27678,13 +27678,13 @@ def cuLibraryLoadData(code, jitOptions : Optional[tuple[CUjit_option] | list[CUj
     cdef CUlibrary library = CUlibrary()
     cycode = _HelperInputVoidPtr(code)
     cdef void* cycode_ptr = <void*><void_ptr>cycode.cptr
-    cdef vector[cydriver.CUjit_option] cyjitOptions = [pyjitOptions.value for pyjitOptions in (jitOptions)]
+    cdef vector[cydriver.CUjit_option] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = [pylibraryOptions.value for pylibraryOptions in (libraryOptions)]
+    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = [int(pylibraryOptions) for pylibraryOptions in (libraryOptions)]
     pylist = [_HelperCUlibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -27775,13 +27775,13 @@ def cuLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[CUjit_opti
     if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     cdef CUlibrary library = CUlibrary()
-    cdef vector[cydriver.CUjit_option] cyjitOptions = [pyjitOptions.value for pyjitOptions in (jitOptions)]
+    cdef vector[cydriver.CUjit_option] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = [pylibraryOptions.value for pylibraryOptions in (libraryOptions)]
+    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = [int(pylibraryOptions) for pylibraryOptions in (libraryOptions)]
     pylist = [_HelperCUlibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -28361,7 +28361,7 @@ def cuKernelGetAttribute(attrib not None : CUfunction_attribute, kernel, dev):
         pkernel = int(CUkernel(kernel))
     cykernel = <cydriver.CUkernel><void_ptr>pkernel
     cdef int pi = 0
-    cdef cydriver.CUfunction_attribute cyattrib = attrib.value
+    cdef cydriver.CUfunction_attribute cyattrib = int(attrib)
     with nogil:
         err = cydriver.cuKernelGetAttribute(&pi, cyattrib, cykernel, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -28478,7 +28478,7 @@ def cuKernelSetAttribute(attrib not None : CUfunction_attribute, int val, kernel
     else:
         pkernel = int(CUkernel(kernel))
     cykernel = <cydriver.CUkernel><void_ptr>pkernel
-    cdef cydriver.CUfunction_attribute cyattrib = attrib.value
+    cdef cydriver.CUfunction_attribute cyattrib = int(attrib)
     with nogil:
         err = cydriver.cuKernelSetAttribute(cyattrib, val, cykernel, cydev)
     return (_dict_CUresult[err],)
@@ -28562,7 +28562,7 @@ def cuKernelSetCacheConfig(kernel, config not None : CUfunc_cache, dev):
     else:
         pkernel = int(CUkernel(kernel))
     cykernel = <cydriver.CUkernel><void_ptr>pkernel
-    cdef cydriver.CUfunc_cache cyconfig = config.value
+    cdef cydriver.CUfunc_cache cyconfig = int(config)
     with nogil:
         err = cydriver.cuKernelSetCacheConfig(cykernel, cyconfig, cydev)
     return (_dict_CUresult[err],)
@@ -33431,7 +33431,7 @@ def cuMemGetHandleForAddressRange(dptr, size_t size, handleType not None : CUmem
     cydptr = <cydriver.CUdeviceptr><void_ptr>pdptr
     cdef int handle = 0
     cdef void* cyhandle_ptr = <void*>&handle
-    cdef cydriver.CUmemRangeHandleType cyhandleType = handleType.value
+    cdef cydriver.CUmemRangeHandleType cyhandleType = int(handleType)
     with nogil:
         err = cydriver.cuMemGetHandleForAddressRange(cyhandle_ptr, cydptr, size, cyhandleType, flags)
     if err != cydriver.CUDA_SUCCESS:
@@ -34224,7 +34224,7 @@ def cuMemExportToShareableHandle(handle, handleType not None : CUmemAllocationHa
     cyhandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>phandle
     cdef _HelperCUmemAllocationHandleType cyshareableHandle = _HelperCUmemAllocationHandleType(handleType)
     cdef void* cyshareableHandle_ptr = <void*><void_ptr>cyshareableHandle.cptr
-    cdef cydriver.CUmemAllocationHandleType cyhandleType = handleType.value
+    cdef cydriver.CUmemAllocationHandleType cyhandleType = int(handleType)
     with nogil:
         err = cydriver.cuMemExportToShareableHandle(cyshareableHandle_ptr, cyhandle, cyhandleType, flags)
     if err != cydriver.CUDA_SUCCESS:
@@ -34274,7 +34274,7 @@ def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAlloca
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
     cyosHandle = _HelperInputVoidPtr(osHandle)
     cdef void* cyosHandle_ptr = <void*><void_ptr>cyosHandle.cptr
-    cdef cydriver.CUmemAllocationHandleType cyshHandleType = shHandleType.value
+    cdef cydriver.CUmemAllocationHandleType cyshHandleType = int(shHandleType)
     with nogil:
         err = cydriver.cuMemImportFromShareableHandle(<cydriver.CUmemGenericAllocationHandle*>handle._pvt_ptr, cyosHandle_ptr, cyshHandleType)
     if err != cydriver.CUDA_SUCCESS:
@@ -34313,7 +34313,7 @@ def cuMemGetAllocationGranularity(prop : Optional[CUmemAllocationProp], option n
     """
     cdef size_t granularity = 0
     cdef cydriver.CUmemAllocationProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
-    cdef cydriver.CUmemAllocationGranularity_flags cyoption = option.value
+    cdef cydriver.CUmemAllocationGranularity_flags cyoption = int(option)
     with nogil:
         err = cydriver.cuMemGetAllocationGranularity(&granularity, cyprop_ptr, cyoption)
     if err != cydriver.CUDA_SUCCESS:
@@ -34620,7 +34620,7 @@ def cuMemPoolSetAttribute(pool, attr not None : CUmemPool_attribute, value):
     else:
         ppool = int(CUmemoryPool(pool))
     cypool = <cydriver.CUmemoryPool><void_ptr>ppool
-    cdef cydriver.CUmemPool_attribute cyattr = attr.value
+    cdef cydriver.CUmemPool_attribute cyattr = int(attr)
     cdef _HelperCUmemPool_attribute cyvalue = _HelperCUmemPool_attribute(attr, value, is_getter=False)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     with nogil:
@@ -34702,7 +34702,7 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
     else:
         ppool = int(CUmemoryPool(pool))
     cypool = <cydriver.CUmemoryPool><void_ptr>ppool
-    cdef cydriver.CUmemPool_attribute cyattr = attr.value
+    cdef cydriver.CUmemPool_attribute cyattr = int(attr)
     cdef _HelperCUmemPool_attribute cyvalue = _HelperCUmemPool_attribute(attr, 0, is_getter=True)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     with nogil:
@@ -34991,7 +34991,7 @@ def cuMemGetDefaultMemPool(location : Optional[CUmemLocation], typename not None
     """
     cdef CUmemoryPool pool_out = CUmemoryPool()
     cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location is not None else NULL
-    cdef cydriver.CUmemAllocationType cytypename = typename.value
+    cdef cydriver.CUmemAllocationType cytypename = int(typename)
     with nogil:
         err = cydriver.cuMemGetDefaultMemPool(<cydriver.CUmemoryPool*>pool_out._pvt_ptr, cylocation_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -35044,7 +35044,7 @@ def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     """
     cdef CUmemoryPool pool = CUmemoryPool()
     cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location is not None else NULL
-    cdef cydriver.CUmemAllocationType cytypename = typename.value
+    cdef cydriver.CUmemAllocationType cytypename = int(typename)
     with nogil:
         err = cydriver.cuMemGetMemPool(<cydriver.CUmemoryPool*>pool._pvt_ptr, cylocation_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -35112,7 +35112,7 @@ def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUme
         ppool = int(CUmemoryPool(pool))
     cypool = <cydriver.CUmemoryPool><void_ptr>ppool
     cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location is not None else NULL
-    cdef cydriver.CUmemAllocationType cytypename = typename.value
+    cdef cydriver.CUmemAllocationType cytypename = int(typename)
     with nogil:
         err = cydriver.cuMemSetMemPool(cylocation_ptr, cytypename, cypool)
     return (_dict_CUresult[err],)
@@ -35226,7 +35226,7 @@ def cuMemPoolExportToShareableHandle(pool, handleType not None : CUmemAllocation
     cypool = <cydriver.CUmemoryPool><void_ptr>ppool
     cdef _HelperCUmemAllocationHandleType cyhandle_out = _HelperCUmemAllocationHandleType(handleType)
     cdef void* cyhandle_out_ptr = <void*><void_ptr>cyhandle_out.cptr
-    cdef cydriver.CUmemAllocationHandleType cyhandleType = handleType.value
+    cdef cydriver.CUmemAllocationHandleType cyhandleType = int(handleType)
     with nogil:
         err = cydriver.cuMemPoolExportToShareableHandle(cyhandle_out_ptr, cypool, cyhandleType, flags)
     if err != cydriver.CUDA_SUCCESS:
@@ -35275,7 +35275,7 @@ def cuMemPoolImportFromShareableHandle(handle, handleType not None : CUmemAlloca
     cdef CUmemoryPool pool_out = CUmemoryPool()
     cyhandle = _HelperInputVoidPtr(handle)
     cdef void* cyhandle_ptr = <void*><void_ptr>cyhandle.cptr
-    cdef cydriver.CUmemAllocationHandleType cyhandleType = handleType.value
+    cdef cydriver.CUmemAllocationHandleType cyhandleType = int(handleType)
     with nogil:
         err = cydriver.cuMemPoolImportFromShareableHandle(<cydriver.CUmemoryPool*>pool_out._pvt_ptr, cyhandle_ptr, cyhandleType, flags)
     if err != cydriver.CUDA_SUCCESS:
@@ -35949,7 +35949,7 @@ def cuMulticastGetGranularity(prop : Optional[CUmulticastObjectProp], option not
     """
     cdef size_t granularity = 0
     cdef cydriver.CUmulticastObjectProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
-    cdef cydriver.CUmulticastGranularity_flags cyoption = option.value
+    cdef cydriver.CUmulticastGranularity_flags cyoption = int(option)
     with nogil:
         err = cydriver.cuMulticastGetGranularity(&granularity, cyprop_ptr, cyoption)
     if err != cydriver.CUDA_SUCCESS:
@@ -36162,7 +36162,7 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
     cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
     cdef _HelperCUpointer_attribute cydata = _HelperCUpointer_attribute(attribute, 0, is_getter=True)
     cdef void* cydata_ptr = <void*><void_ptr>cydata.cptr
-    cdef cydriver.CUpointer_attribute cyattribute = attribute.value
+    cdef cydriver.CUpointer_attribute cyattribute = int(attribute)
     with nogil:
         err = cydriver.cuPointerGetAttribute(cydata_ptr, cyattribute, cyptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -36492,7 +36492,7 @@ def cuMemAdvise(devPtr, size_t count, advice not None : CUmem_advise, location n
     else:
         pdevPtr = int(CUdeviceptr(devPtr))
     cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
-    cdef cydriver.CUmem_advise cyadvice = advice.value
+    cdef cydriver.CUmem_advise cyadvice = int(advice)
     with nogil:
         err = cydriver.cuMemAdvise(cydevPtr, count, cyadvice, location._pvt_ptr[0])
     return (_dict_CUresult[err],)
@@ -36981,7 +36981,7 @@ def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_att
     cydevPtr = <cydriver.CUdeviceptr><void_ptr>pdevPtr
     cdef _HelperCUmem_range_attribute cydata = _HelperCUmem_range_attribute(attribute, dataSize)
     cdef void* cydata_ptr = <void*><void_ptr>cydata.cptr
-    cdef cydriver.CUmem_range_attribute cyattribute = attribute.value
+    cdef cydriver.CUmem_range_attribute cyattribute = int(attribute)
     with nogil:
         err = cydriver.cuMemRangeGetAttribute(cydata_ptr, dataSize, cyattribute, cydevPtr, count)
     if err != cydriver.CUDA_SUCCESS:
@@ -37066,7 +37066,7 @@ def cuMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : Opt
     cdef _InputVoidPtrPtrHelper voidStarHelperdata = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyvoidStarHelper_ptr = <void**><void_ptr>voidStarHelperdata.cptr
     cdef vector[size_t] cydataSizes = dataSizes
-    cdef vector[cydriver.CUmem_range_attribute] cyattributes = [pyattributes.value for pyattributes in (attributes)]
+    cdef vector[cydriver.CUmem_range_attribute] cyattributes = [int(pyattributes) for pyattributes in (attributes)]
     if numAttributes > <size_t>len(dataSizes): raise RuntimeError("List is too small: " + str(len(dataSizes)) + " < " + str(numAttributes))
     if numAttributes > <size_t>len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
     with nogil:
@@ -37126,7 +37126,7 @@ def cuPointerSetAttribute(value, attribute not None : CUpointer_attribute, ptr):
     cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
     cdef _HelperCUpointer_attribute cyvalue = _HelperCUpointer_attribute(attribute, value, is_getter=False)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
-    cdef cydriver.CUpointer_attribute cyattribute = attribute.value
+    cdef cydriver.CUpointer_attribute cyattribute = int(attribute)
     with nogil:
         err = cydriver.cuPointerSetAttribute(cyvalue_ptr, cyattribute, cyptr)
     return (_dict_CUresult[err],)
@@ -37215,7 +37215,7 @@ def cuPointerGetAttributes(unsigned int numAttributes, attributes : Optional[tup
     if not all(isinstance(_x, (CUpointer_attribute)) for _x in attributes):
         raise TypeError("Argument 'attributes' is not instance of type (expected tuple[cydriver.CUpointer_attribute] or list[cydriver.CUpointer_attribute]")
     if numAttributes > len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
-    cdef vector[cydriver.CUpointer_attribute] cyattributes = [pyattributes.value for pyattributes in (attributes)]
+    cdef vector[cydriver.CUpointer_attribute] cyattributes = [int(pyattributes) for pyattributes in (attributes)]
     pylist = [_HelperCUpointer_attribute(pyattributes, 0, is_getter=True) for pyattributes in attributes]
     cdef _InputVoidPtrPtrHelper voidStarHelperdata = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyvoidStarHelper_ptr = <void**><void_ptr>voidStarHelperdata.cptr
@@ -37882,7 +37882,7 @@ def cuStreamBeginCapture(hStream, mode not None : CUstreamCaptureMode):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef cydriver.CUstreamCaptureMode cymode = mode.value
+    cdef cydriver.CUstreamCaptureMode cymode = int(mode)
     with nogil:
         err = cydriver.cuStreamBeginCapture(cyhStream, cymode)
     return (_dict_CUresult[err],)
@@ -37984,7 +37984,7 @@ def cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies : Optional[tuple[C
     elif len(dependencyData) == 1:
         cydependencyData = (<CUgraphEdgeData>dependencyData[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUstreamCaptureMode cymode = mode.value
+    cdef cydriver.CUstreamCaptureMode cymode = int(mode)
     with nogil:
         err = cydriver.cuStreamBeginCaptureToGraph(cyhStream, cyhGraph, cydependencies, cydependencyData, numDependencies, cymode)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -38060,7 +38060,7 @@ def cuThreadExchangeStreamCaptureMode(mode not None : CUstreamCaptureMode):
     --------
     :py:obj:`~.cuStreamBeginCapture`
     """
-    cdef cydriver.CUstreamCaptureMode cymode = mode.value
+    cdef cydriver.CUstreamCaptureMode cymode = int(mode)
     with nogil:
         err = cydriver.cuThreadExchangeStreamCaptureMode(&cymode)
     if err != cydriver.CUDA_SUCCESS:
@@ -38682,7 +38682,7 @@ def cuStreamGetAttribute(hStream, attr not None : CUstreamAttrID):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef cydriver.CUstreamAttrID cyattr = attr.value
+    cdef cydriver.CUstreamAttrID cyattr = int(attr)
     cdef CUstreamAttrValue value_out = CUstreamAttrValue()
     with nogil:
         err = cydriver.cuStreamGetAttribute(cyhStream, cyattr, <cydriver.CUstreamAttrValue*>value_out._pvt_ptr)
@@ -38727,7 +38727,7 @@ def cuStreamSetAttribute(hStream, attr not None : CUstreamAttrID, value : Option
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef cydriver.CUstreamAttrID cyattr = attr.value
+    cdef cydriver.CUstreamAttrID cyattr = int(attr)
     cdef cydriver.CUstreamAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
     with nogil:
         err = cydriver.cuStreamSetAttribute(cyhStream, cyattr, cyvalue_ptr)
@@ -40412,7 +40412,7 @@ def cuFuncGetAttribute(attrib not None : CUfunction_attribute, hfunc):
         phfunc = int(CUfunction(hfunc))
     cyhfunc = <cydriver.CUfunction><void_ptr>phfunc
     cdef int pi = 0
-    cdef cydriver.CUfunction_attribute cyattrib = attrib.value
+    cdef cydriver.CUfunction_attribute cyattrib = int(attrib)
     with nogil:
         err = cydriver.cuFuncGetAttribute(&pi, cyattrib, cyhfunc)
     if err != cydriver.CUDA_SUCCESS:
@@ -40508,7 +40508,7 @@ def cuFuncSetAttribute(hfunc, attrib not None : CUfunction_attribute, int value)
     else:
         phfunc = int(CUfunction(hfunc))
     cyhfunc = <cydriver.CUfunction><void_ptr>phfunc
-    cdef cydriver.CUfunction_attribute cyattrib = attrib.value
+    cdef cydriver.CUfunction_attribute cyattrib = int(attrib)
     with nogil:
         err = cydriver.cuFuncSetAttribute(cyhfunc, cyattrib, value)
     return (_dict_CUresult[err],)
@@ -40574,7 +40574,7 @@ def cuFuncSetCacheConfig(hfunc, config not None : CUfunc_cache):
     else:
         phfunc = int(CUfunction(hfunc))
     cyhfunc = <cydriver.CUfunction><void_ptr>phfunc
-    cdef cydriver.CUfunc_cache cyconfig = config.value
+    cdef cydriver.CUfunc_cache cyconfig = int(config)
     with nogil:
         err = cydriver.cuFuncSetCacheConfig(cyhfunc, cyconfig)
     return (_dict_CUresult[err],)
@@ -42118,7 +42118,7 @@ def cuFuncSetSharedMemConfig(hfunc, config not None : CUsharedconfig):
     else:
         phfunc = int(CUfunction(hfunc))
     cyhfunc = <cydriver.CUfunction><void_ptr>phfunc
-    cdef cydriver.CUsharedconfig cyconfig = config.value
+    cdef cydriver.CUsharedconfig cyconfig = int(config)
     with nogil:
         err = cydriver.cuFuncSetSharedMemConfig(cyhfunc, cyconfig)
     return (_dict_CUresult[err],)
@@ -44292,7 +44292,7 @@ def cuDeviceGetGraphMemAttribute(device, attr not None : CUgraphMem_attribute):
     else:
         pdevice = int(CUdevice(device))
     cydevice = <cydriver.CUdevice>pdevice
-    cdef cydriver.CUgraphMem_attribute cyattr = attr.value
+    cdef cydriver.CUgraphMem_attribute cyattr = int(attr)
     cdef _HelperCUgraphMem_attribute cyvalue = _HelperCUgraphMem_attribute(attr, 0, is_getter=True)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     with nogil:
@@ -44344,7 +44344,7 @@ def cuDeviceSetGraphMemAttribute(device, attr not None : CUgraphMem_attribute, v
     else:
         pdevice = int(CUdevice(device))
     cydevice = <cydriver.CUdevice>pdevice
-    cdef cydriver.CUgraphMem_attribute cyattr = attr.value
+    cdef cydriver.CUgraphMem_attribute cyattr = int(attr)
     cdef _HelperCUgraphMem_attribute cyvalue = _HelperCUgraphMem_attribute(attr, value, is_getter=False)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     with nogil:
@@ -46763,7 +46763,7 @@ def cuGraphKernelNodeGetAttribute(hNode, attr not None : CUkernelNodeAttrID):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUkernelNodeAttrID cyattr = attr.value
+    cdef cydriver.CUkernelNodeAttrID cyattr = int(attr)
     cdef CUkernelNodeAttrValue value_out = CUkernelNodeAttrValue()
     with nogil:
         err = cydriver.cuGraphKernelNodeGetAttribute(cyhNode, cyattr, <cydriver.CUkernelNodeAttrValue*>value_out._pvt_ptr)
@@ -46807,7 +46807,7 @@ def cuGraphKernelNodeSetAttribute(hNode, attr not None : CUkernelNodeAttrID, val
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUkernelNodeAttrID cyattr = attr.value
+    cdef cydriver.CUkernelNodeAttrID cyattr = int(attr)
     cdef cydriver.CUkernelNodeAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
     with nogil:
         err = cydriver.cuGraphKernelNodeSetAttribute(cyhNode, cyattr, cyvalue_ptr)
@@ -48137,7 +48137,7 @@ def cuTexRefSetFormat(hTexRef, fmt not None : CUarray_format, int NumPackedCompo
     else:
         phTexRef = int(CUtexref(hTexRef))
     cyhTexRef = <cydriver.CUtexref><void_ptr>phTexRef
-    cdef cydriver.CUarray_format cyfmt = fmt.value
+    cdef cydriver.CUarray_format cyfmt = int(fmt)
     with nogil:
         err = cydriver.cuTexRefSetFormat(cyhTexRef, cyfmt, NumPackedComponents)
     return (_dict_CUresult[err],)
@@ -48190,7 +48190,7 @@ def cuTexRefSetAddressMode(hTexRef, int dim, am not None : CUaddress_mode):
     else:
         phTexRef = int(CUtexref(hTexRef))
     cyhTexRef = <cydriver.CUtexref><void_ptr>phTexRef
-    cdef cydriver.CUaddress_mode cyam = am.value
+    cdef cydriver.CUaddress_mode cyam = int(am)
     with nogil:
         err = cydriver.cuTexRefSetAddressMode(cyhTexRef, dim, cyam)
     return (_dict_CUresult[err],)
@@ -48237,7 +48237,7 @@ def cuTexRefSetFilterMode(hTexRef, fm not None : CUfilter_mode):
     else:
         phTexRef = int(CUtexref(hTexRef))
     cyhTexRef = <cydriver.CUtexref><void_ptr>phTexRef
-    cdef cydriver.CUfilter_mode cyfm = fm.value
+    cdef cydriver.CUfilter_mode cyfm = int(fm)
     with nogil:
         err = cydriver.cuTexRefSetFilterMode(cyhTexRef, cyfm)
     return (_dict_CUresult[err],)
@@ -48284,7 +48284,7 @@ def cuTexRefSetMipmapFilterMode(hTexRef, fm not None : CUfilter_mode):
     else:
         phTexRef = int(CUtexref(hTexRef))
     cyhTexRef = <cydriver.CUtexref><void_ptr>phTexRef
-    cdef cydriver.CUfilter_mode cyfm = fm.value
+    cdef cydriver.CUfilter_mode cyfm = int(fm)
     with nogil:
         err = cydriver.cuTexRefSetMipmapFilterMode(cyhTexRef, cyfm)
     return (_dict_CUresult[err],)
@@ -49978,18 +49978,62 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     --------
     :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapEncodeIm2colWide`, :py:obj:`~.cuTensorMapReplaceAddress`
     """
-    elementStrides = [] if elementStrides is None else elementStrides
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in elementStrides):
-        raise TypeError("Argument 'elementStrides' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
-    boxDim = [] if boxDim is None else boxDim
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in boxDim):
-        raise TypeError("Argument 'boxDim' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
-    globalStrides = [] if globalStrides is None else globalStrides
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalStrides):
-        raise TypeError("Argument 'globalStrides' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
-    globalDim = [] if globalDim is None else globalDim
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalDim):
-        raise TypeError("Argument 'globalDim' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
+    cdef cydriver.cuuint32_t* cyelementStrides
+    cdef size_t elementStridesLen
+    cdef cydriver.cuuint32_t[5] elementStridesStatic
+    elementStridesLen = 0 if elementStrides is None else len(elementStrides)
+    if elementStridesLen == 0:
+        cyelementStrides = NULL
+    elif elementStridesLen == 1:
+        cyelementStrides = <cydriver.cuuint32_t *>(<cuuint32_t?> elementStrides[0])._pvt_ptr
+    elif elementStridesLen <= 5:
+        for idx in range(elementStridesLen):
+            elementStridesStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> elementStrides[idx])._pvt_ptr[0]
+        cyelementStrides = elementStridesStatic
+    else:
+        raise ValueError("Argument 'elementStrides' too long, must be <= 5")
+    cdef cydriver.cuuint32_t* cyboxDim
+    cdef size_t boxDimLen
+    cdef cydriver.cuuint32_t[5] boxDimStatic
+    boxDimLen = 0 if boxDim is None else len(boxDim)
+    if boxDimLen == 0:
+        cyboxDim = NULL
+    elif boxDimLen == 1:
+        cyboxDim = <cydriver.cuuint32_t *>(<cuuint32_t?> boxDim[0])._pvt_ptr
+    elif boxDimLen <= 5:
+        for idx in range(boxDimLen):
+            boxDimStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> boxDim[idx])._pvt_ptr[0]
+        cyboxDim = boxDimStatic
+    else:
+        raise ValueError("Argument 'boxDim' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalStrides
+    cdef size_t globalStridesLen
+    cdef cydriver.cuuint64_t[5] globalStridesStatic
+    globalStridesLen = 0 if globalStrides is None else len(globalStrides)
+    if globalStridesLen == 0:
+        cyglobalStrides = NULL
+    elif globalStridesLen == 1:
+        cyglobalStrides = <cydriver.cuuint64_t *>(<cuuint64_t?> globalStrides[0])._pvt_ptr
+    elif globalStridesLen <= 5:
+        for idx in range(globalStridesLen):
+            globalStridesStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalStrides[idx])._pvt_ptr[0]
+        cyglobalStrides = globalStridesStatic
+    else:
+        raise ValueError("Argument 'globalStrides' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalDim
+    cdef size_t globalDimLen
+    cdef cydriver.cuuint64_t[5] globalDimStatic
+    globalDimLen = 0 if globalDim is None else len(globalDim)
+    if globalDimLen == 0:
+        cyglobalDim = NULL
+    elif globalDimLen == 1:
+        cyglobalDim = <cydriver.cuuint64_t *>(<cuuint64_t?> globalDim[0])._pvt_ptr
+    elif globalDimLen <= 5:
+        for idx in range(globalDimLen):
+            globalDimStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalDim[idx])._pvt_ptr[0]
+        cyglobalDim = globalDimStatic
+    else:
+        raise ValueError("Argument 'globalDim' too long, must be <= 5")
     cdef cydriver.cuuint32_t cytensorRank
     if tensorRank is None:
         ptensorRank = 0
@@ -49999,63 +50043,15 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
         ptensorRank = int(cuuint32_t(tensorRank))
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
     cdef CUtensorMap tensorMap = CUtensorMap()
-    cdef cydriver.CUtensorMapDataType cytensorDataType = tensorDataType.value
+    cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cyglobalAddress = _HelperInputVoidPtr(globalAddress)
     cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
-    cdef cydriver.cuuint64_t* cyglobalDim = NULL
-    if len(globalDim) > 1:
-        cyglobalDim = <cydriver.cuuint64_t*> calloc(len(globalDim), sizeof(cydriver.cuuint64_t))
-        if cyglobalDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalDim)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalDim)):
-                cyglobalDim[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalDim[idx])._pvt_ptr[0]
-    elif len(globalDim) == 1:
-        cyglobalDim = <cydriver.cuuint64_t*>(<cuuint64_t>globalDim[0])._pvt_ptr
-    cdef cydriver.cuuint64_t* cyglobalStrides = NULL
-    if len(globalStrides) > 1:
-        cyglobalStrides = <cydriver.cuuint64_t*> calloc(len(globalStrides), sizeof(cydriver.cuuint64_t))
-        if cyglobalStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalStrides)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalStrides)):
-                cyglobalStrides[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalStrides[idx])._pvt_ptr[0]
-    elif len(globalStrides) == 1:
-        cyglobalStrides = <cydriver.cuuint64_t*>(<cuuint64_t>globalStrides[0])._pvt_ptr
-    cdef cydriver.cuuint32_t* cyboxDim = NULL
-    if len(boxDim) > 1:
-        cyboxDim = <cydriver.cuuint32_t*> calloc(len(boxDim), sizeof(cydriver.cuuint32_t))
-        if cyboxDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(boxDim)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(boxDim)):
-                cyboxDim[idx] = <cydriver.cuuint32_t>(<cuuint32_t>boxDim[idx])._pvt_ptr[0]
-    elif len(boxDim) == 1:
-        cyboxDim = <cydriver.cuuint32_t*>(<cuuint32_t>boxDim[0])._pvt_ptr
-    cdef cydriver.cuuint32_t* cyelementStrides = NULL
-    if len(elementStrides) > 1:
-        cyelementStrides = <cydriver.cuuint32_t*> calloc(len(elementStrides), sizeof(cydriver.cuuint32_t))
-        if cyelementStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(elementStrides)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(elementStrides)):
-                cyelementStrides[idx] = <cydriver.cuuint32_t>(<cuuint32_t>elementStrides[idx])._pvt_ptr[0]
-    elif len(elementStrides) == 1:
-        cyelementStrides = <cydriver.cuuint32_t*>(<cuuint32_t>elementStrides[0])._pvt_ptr
-    cdef cydriver.CUtensorMapInterleave cyinterleave = interleave.value
-    cdef cydriver.CUtensorMapSwizzle cyswizzle = swizzle.value
-    cdef cydriver.CUtensorMapL2promotion cyl2Promotion = l2Promotion.value
-    cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = oobFill.value
+    cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
+    cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
+    cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
+    cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
         err = cydriver.cuTensorMapEncodeTiled(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cyboxDim, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
-    if len(globalDim) > 1 and cyglobalDim is not NULL:
-        free(cyglobalDim)
-    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
-        free(cyglobalStrides)
-    if len(boxDim) > 1 and cyboxDim is not NULL:
-        free(cyboxDim)
-    if len(elementStrides) > 1 and cyelementStrides is not NULL:
-        free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], tensorMap)
@@ -50316,9 +50312,20 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     --------
     :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2colWide`, :py:obj:`~.cuTensorMapReplaceAddress`
     """
-    elementStrides = [] if elementStrides is None else elementStrides
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in elementStrides):
-        raise TypeError("Argument 'elementStrides' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
+    cdef cydriver.cuuint32_t* cyelementStrides
+    cdef size_t elementStridesLen
+    cdef cydriver.cuuint32_t[5] elementStridesStatic
+    elementStridesLen = 0 if elementStrides is None else len(elementStrides)
+    if elementStridesLen == 0:
+        cyelementStrides = NULL
+    elif elementStridesLen == 1:
+        cyelementStrides = <cydriver.cuuint32_t *>(<cuuint32_t?> elementStrides[0])._pvt_ptr
+    elif elementStridesLen <= 5:
+        for idx in range(elementStridesLen):
+            elementStridesStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> elementStrides[idx])._pvt_ptr[0]
+        cyelementStrides = elementStridesStatic
+    else:
+        raise ValueError("Argument 'elementStrides' too long, must be <= 5")
     cdef cydriver.cuuint32_t cypixelsPerColumn
     if pixelsPerColumn is None:
         ppixelsPerColumn = 0
@@ -50341,12 +50348,34 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     pixelBoxLowerCorner = [] if pixelBoxLowerCorner is None else pixelBoxLowerCorner
     if not all(isinstance(_x, (int)) for _x in pixelBoxLowerCorner):
         raise TypeError("Argument 'pixelBoxLowerCorner' is not instance of type (expected tuple[int] or list[int]")
-    globalStrides = [] if globalStrides is None else globalStrides
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalStrides):
-        raise TypeError("Argument 'globalStrides' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
-    globalDim = [] if globalDim is None else globalDim
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalDim):
-        raise TypeError("Argument 'globalDim' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
+    cdef cydriver.cuuint64_t* cyglobalStrides
+    cdef size_t globalStridesLen
+    cdef cydriver.cuuint64_t[5] globalStridesStatic
+    globalStridesLen = 0 if globalStrides is None else len(globalStrides)
+    if globalStridesLen == 0:
+        cyglobalStrides = NULL
+    elif globalStridesLen == 1:
+        cyglobalStrides = <cydriver.cuuint64_t *>(<cuuint64_t?> globalStrides[0])._pvt_ptr
+    elif globalStridesLen <= 5:
+        for idx in range(globalStridesLen):
+            globalStridesStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalStrides[idx])._pvt_ptr[0]
+        cyglobalStrides = globalStridesStatic
+    else:
+        raise ValueError("Argument 'globalStrides' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalDim
+    cdef size_t globalDimLen
+    cdef cydriver.cuuint64_t[5] globalDimStatic
+    globalDimLen = 0 if globalDim is None else len(globalDim)
+    if globalDimLen == 0:
+        cyglobalDim = NULL
+    elif globalDimLen == 1:
+        cyglobalDim = <cydriver.cuuint64_t *>(<cuuint64_t?> globalDim[0])._pvt_ptr
+    elif globalDimLen <= 5:
+        for idx in range(globalDimLen):
+            globalDimStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalDim[idx])._pvt_ptr[0]
+        cyglobalDim = globalDimStatic
+    else:
+        raise ValueError("Argument 'globalDim' too long, must be <= 5")
     cdef cydriver.cuuint32_t cytensorRank
     if tensorRank is None:
         ptensorRank = 0
@@ -50356,53 +50385,17 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
         ptensorRank = int(cuuint32_t(tensorRank))
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
     cdef CUtensorMap tensorMap = CUtensorMap()
-    cdef cydriver.CUtensorMapDataType cytensorDataType = tensorDataType.value
+    cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cyglobalAddress = _HelperInputVoidPtr(globalAddress)
     cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
-    cdef cydriver.cuuint64_t* cyglobalDim = NULL
-    if len(globalDim) > 1:
-        cyglobalDim = <cydriver.cuuint64_t*> calloc(len(globalDim), sizeof(cydriver.cuuint64_t))
-        if cyglobalDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalDim)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalDim)):
-                cyglobalDim[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalDim[idx])._pvt_ptr[0]
-    elif len(globalDim) == 1:
-        cyglobalDim = <cydriver.cuuint64_t*>(<cuuint64_t>globalDim[0])._pvt_ptr
-    cdef cydriver.cuuint64_t* cyglobalStrides = NULL
-    if len(globalStrides) > 1:
-        cyglobalStrides = <cydriver.cuuint64_t*> calloc(len(globalStrides), sizeof(cydriver.cuuint64_t))
-        if cyglobalStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalStrides)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalStrides)):
-                cyglobalStrides[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalStrides[idx])._pvt_ptr[0]
-    elif len(globalStrides) == 1:
-        cyglobalStrides = <cydriver.cuuint64_t*>(<cuuint64_t>globalStrides[0])._pvt_ptr
     cdef vector[int] cypixelBoxLowerCorner = pixelBoxLowerCorner
     cdef vector[int] cypixelBoxUpperCorner = pixelBoxUpperCorner
-    cdef cydriver.cuuint32_t* cyelementStrides = NULL
-    if len(elementStrides) > 1:
-        cyelementStrides = <cydriver.cuuint32_t*> calloc(len(elementStrides), sizeof(cydriver.cuuint32_t))
-        if cyelementStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(elementStrides)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(elementStrides)):
-                cyelementStrides[idx] = <cydriver.cuuint32_t>(<cuuint32_t>elementStrides[idx])._pvt_ptr[0]
-    elif len(elementStrides) == 1:
-        cyelementStrides = <cydriver.cuuint32_t*>(<cuuint32_t>elementStrides[0])._pvt_ptr
-    cdef cydriver.CUtensorMapInterleave cyinterleave = interleave.value
-    cdef cydriver.CUtensorMapSwizzle cyswizzle = swizzle.value
-    cdef cydriver.CUtensorMapL2promotion cyl2Promotion = l2Promotion.value
-    cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = oobFill.value
+    cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
+    cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
+    cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
+    cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
         err = cydriver.cuTensorMapEncodeIm2col(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cypixelBoxLowerCorner.data(), cypixelBoxUpperCorner.data(), cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
-    if len(globalDim) > 1 and cyglobalDim is not NULL:
-        free(cyglobalDim)
-    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
-        free(cyglobalStrides)
-    if len(elementStrides) > 1 and cyelementStrides is not NULL:
-        free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], tensorMap)
@@ -50650,9 +50643,20 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     --------
     :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapReplaceAddress`
     """
-    elementStrides = [] if elementStrides is None else elementStrides
-    if not all(isinstance(_x, (cuuint32_t,)) for _x in elementStrides):
-        raise TypeError("Argument 'elementStrides' is not instance of type (expected tuple[cydriver.cuuint32_t,] or list[cydriver.cuuint32_t,]")
+    cdef cydriver.cuuint32_t* cyelementStrides
+    cdef size_t elementStridesLen
+    cdef cydriver.cuuint32_t[5] elementStridesStatic
+    elementStridesLen = 0 if elementStrides is None else len(elementStrides)
+    if elementStridesLen == 0:
+        cyelementStrides = NULL
+    elif elementStridesLen == 1:
+        cyelementStrides = <cydriver.cuuint32_t *>(<cuuint32_t?> elementStrides[0])._pvt_ptr
+    elif elementStridesLen <= 5:
+        for idx in range(elementStridesLen):
+            elementStridesStatic[idx] = <cydriver.cuuint32_t>(<cuuint32_t?> elementStrides[idx])._pvt_ptr[0]
+        cyelementStrides = elementStridesStatic
+    else:
+        raise ValueError("Argument 'elementStrides' too long, must be <= 5")
     cdef cydriver.cuuint32_t cypixelsPerColumn
     if pixelsPerColumn is None:
         ppixelsPerColumn = 0
@@ -50669,12 +50673,34 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     else:
         pchannelsPerPixel = int(cuuint32_t(channelsPerPixel))
     cychannelsPerPixel = <cydriver.cuuint32_t><void_ptr>pchannelsPerPixel
-    globalStrides = [] if globalStrides is None else globalStrides
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalStrides):
-        raise TypeError("Argument 'globalStrides' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
-    globalDim = [] if globalDim is None else globalDim
-    if not all(isinstance(_x, (cuuint64_t,)) for _x in globalDim):
-        raise TypeError("Argument 'globalDim' is not instance of type (expected tuple[cydriver.cuuint64_t,] or list[cydriver.cuuint64_t,]")
+    cdef cydriver.cuuint64_t* cyglobalStrides
+    cdef size_t globalStridesLen
+    cdef cydriver.cuuint64_t[5] globalStridesStatic
+    globalStridesLen = 0 if globalStrides is None else len(globalStrides)
+    if globalStridesLen == 0:
+        cyglobalStrides = NULL
+    elif globalStridesLen == 1:
+        cyglobalStrides = <cydriver.cuuint64_t *>(<cuuint64_t?> globalStrides[0])._pvt_ptr
+    elif globalStridesLen <= 5:
+        for idx in range(globalStridesLen):
+            globalStridesStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalStrides[idx])._pvt_ptr[0]
+        cyglobalStrides = globalStridesStatic
+    else:
+        raise ValueError("Argument 'globalStrides' too long, must be <= 5")
+    cdef cydriver.cuuint64_t* cyglobalDim
+    cdef size_t globalDimLen
+    cdef cydriver.cuuint64_t[5] globalDimStatic
+    globalDimLen = 0 if globalDim is None else len(globalDim)
+    if globalDimLen == 0:
+        cyglobalDim = NULL
+    elif globalDimLen == 1:
+        cyglobalDim = <cydriver.cuuint64_t *>(<cuuint64_t?> globalDim[0])._pvt_ptr
+    elif globalDimLen <= 5:
+        for idx in range(globalDimLen):
+            globalDimStatic[idx] = <cydriver.cuuint64_t>(<cuuint64_t?> globalDim[idx])._pvt_ptr[0]
+        cyglobalDim = globalDimStatic
+    else:
+        raise ValueError("Argument 'globalDim' too long, must be <= 5")
     cdef cydriver.cuuint32_t cytensorRank
     if tensorRank is None:
         ptensorRank = 0
@@ -50684,52 +50710,16 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
         ptensorRank = int(cuuint32_t(tensorRank))
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
     cdef CUtensorMap tensorMap = CUtensorMap()
-    cdef cydriver.CUtensorMapDataType cytensorDataType = tensorDataType.value
+    cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cyglobalAddress = _HelperInputVoidPtr(globalAddress)
     cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
-    cdef cydriver.cuuint64_t* cyglobalDim = NULL
-    if len(globalDim) > 1:
-        cyglobalDim = <cydriver.cuuint64_t*> calloc(len(globalDim), sizeof(cydriver.cuuint64_t))
-        if cyglobalDim is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalDim)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalDim)):
-                cyglobalDim[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalDim[idx])._pvt_ptr[0]
-    elif len(globalDim) == 1:
-        cyglobalDim = <cydriver.cuuint64_t*>(<cuuint64_t>globalDim[0])._pvt_ptr
-    cdef cydriver.cuuint64_t* cyglobalStrides = NULL
-    if len(globalStrides) > 1:
-        cyglobalStrides = <cydriver.cuuint64_t*> calloc(len(globalStrides), sizeof(cydriver.cuuint64_t))
-        if cyglobalStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(globalStrides)) + 'x' + str(sizeof(cydriver.cuuint64_t)))
-        else:
-            for idx in range(len(globalStrides)):
-                cyglobalStrides[idx] = <cydriver.cuuint64_t>(<cuuint64_t>globalStrides[idx])._pvt_ptr[0]
-    elif len(globalStrides) == 1:
-        cyglobalStrides = <cydriver.cuuint64_t*>(<cuuint64_t>globalStrides[0])._pvt_ptr
-    cdef cydriver.cuuint32_t* cyelementStrides = NULL
-    if len(elementStrides) > 1:
-        cyelementStrides = <cydriver.cuuint32_t*> calloc(len(elementStrides), sizeof(cydriver.cuuint32_t))
-        if cyelementStrides is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(len(elementStrides)) + 'x' + str(sizeof(cydriver.cuuint32_t)))
-        else:
-            for idx in range(len(elementStrides)):
-                cyelementStrides[idx] = <cydriver.cuuint32_t>(<cuuint32_t>elementStrides[idx])._pvt_ptr[0]
-    elif len(elementStrides) == 1:
-        cyelementStrides = <cydriver.cuuint32_t*>(<cuuint32_t>elementStrides[0])._pvt_ptr
-    cdef cydriver.CUtensorMapInterleave cyinterleave = interleave.value
-    cdef cydriver.CUtensorMapIm2ColWideMode cymode = mode.value
-    cdef cydriver.CUtensorMapSwizzle cyswizzle = swizzle.value
-    cdef cydriver.CUtensorMapL2promotion cyl2Promotion = l2Promotion.value
-    cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = oobFill.value
+    cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
+    cdef cydriver.CUtensorMapIm2ColWideMode cymode = int(mode)
+    cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
+    cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
+    cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
         err = cydriver.cuTensorMapEncodeIm2colWide(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cymode, cyswizzle, cyl2Promotion, cyoobFill)
-    if len(globalDim) > 1 and cyglobalDim is not NULL:
-        free(cyglobalDim)
-    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
-        free(cyglobalStrides)
-    if len(elementStrides) > 1 and cyelementStrides is not NULL:
-        free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], tensorMap)
@@ -51010,7 +51000,7 @@ def cuDeviceGetP2PAttribute(attrib not None : CUdevice_P2PAttribute, srcDevice, 
         psrcDevice = int(CUdevice(srcDevice))
     cysrcDevice = <cydriver.CUdevice>psrcDevice
     cdef int value = 0
-    cdef cydriver.CUdevice_P2PAttribute cyattrib = attrib.value
+    cdef cydriver.CUdevice_P2PAttribute cyattrib = int(attrib)
     with nogil:
         err = cydriver.cuDeviceGetP2PAttribute(&value, cyattrib, cysrcDevice, cydstDevice)
     if err != cydriver.CUDA_SUCCESS:
@@ -51088,7 +51078,7 @@ def cuDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[CUatomicOperati
         cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
         if cycapabilities is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-    cdef vector[cydriver.CUatomicOperation] cyoperations = [pyoperations.value for pyoperations in (operations)]
+    cdef vector[cydriver.CUatomicOperation] cyoperations = [int(pyoperations) for pyoperations in (operations)]
     if count > len(operations): raise RuntimeError("List is too small: " + str(len(operations)) + " < " + str(count))
     with nogil:
         err = cydriver.cuDeviceGetP2PAtomicCapabilities(cycapabilities, cyoperations.data(), count, cysrcDevice, cydstDevice)
@@ -51690,7 +51680,7 @@ def cuCoredumpGetAttribute(attrib not None : CUcoredumpSettings):
     --------
     :py:obj:`~.cuCoredumpGetAttributeGlobal`, :py:obj:`~.cuCoredumpSetAttribute`, :py:obj:`~.cuCoredumpSetAttributeGlobal`
     """
-    cdef cydriver.CUcoredumpSettings cyattrib = attrib.value
+    cdef cydriver.CUcoredumpSettings cyattrib = int(attrib)
     cdef _HelperCUcoredumpSettings cyvalue = _HelperCUcoredumpSettings(attrib, 0, is_getter=True)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     cdef size_t size = cyvalue.size()
@@ -51806,7 +51796,7 @@ def cuCoredumpGetAttributeGlobal(attrib not None : CUcoredumpSettings):
     --------
     :py:obj:`~.cuCoredumpGetAttribute`, :py:obj:`~.cuCoredumpSetAttribute`, :py:obj:`~.cuCoredumpSetAttributeGlobal`
     """
-    cdef cydriver.CUcoredumpSettings cyattrib = attrib.value
+    cdef cydriver.CUcoredumpSettings cyattrib = int(attrib)
     cdef _HelperCUcoredumpSettings cyvalue = _HelperCUcoredumpSettings(attrib, 0, is_getter=True)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     cdef size_t size = cyvalue.size()
@@ -51929,7 +51919,7 @@ def cuCoredumpSetAttribute(attrib not None : CUcoredumpSettings, value):
     --------
     :py:obj:`~.cuCoredumpGetAttributeGlobal`, :py:obj:`~.cuCoredumpGetAttribute`, :py:obj:`~.cuCoredumpSetAttributeGlobal`
     """
-    cdef cydriver.CUcoredumpSettings cyattrib = attrib.value
+    cdef cydriver.CUcoredumpSettings cyattrib = int(attrib)
     cdef _HelperCUcoredumpSettings cyvalue = _HelperCUcoredumpSettings(attrib, value, is_getter=False)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     cdef size_t size = cyvalue.size()
@@ -52055,7 +52045,7 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
     --------
     :py:obj:`~.cuCoredumpGetAttribute`, :py:obj:`~.cuCoredumpGetAttributeGlobal`, :py:obj:`~.cuCoredumpSetAttribute`
     """
-    cdef cydriver.CUcoredumpSettings cyattrib = attrib.value
+    cdef cydriver.CUcoredumpSettings cyattrib = int(attrib)
     cdef _HelperCUcoredumpSettings cyvalue = _HelperCUcoredumpSettings(attrib, value, is_getter=False)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     cdef size_t size = cyvalue.size()
@@ -52305,7 +52295,7 @@ def cuDeviceGetDevResource(device, typename not None : CUdevResourceType):
         pdevice = int(CUdevice(device))
     cydevice = <cydriver.CUdevice>pdevice
     cdef CUdevResource resource = CUdevResource()
-    cdef cydriver.CUdevResourceType cytypename = typename.value
+    cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuDeviceGetDevResource(cydevice, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -52349,7 +52339,7 @@ def cuCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
         phCtx = int(CUcontext(hCtx))
     cyhCtx = <cydriver.CUcontext><void_ptr>phCtx
     cdef CUdevResource resource = CUdevResource()
-    cdef cydriver.CUdevResourceType cytypename = typename.value
+    cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuCtxGetDevResource(cyhCtx, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -52393,7 +52383,7 @@ def cuGreenCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
         phCtx = int(CUgreenCtx(hCtx))
     cyhCtx = <cydriver.CUgreenCtx><void_ptr>phCtx
     cdef CUdevResource resource = CUdevResource()
-    cdef cydriver.CUdevResourceType cytypename = typename.value
+    cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuGreenCtxGetDevResource(cyhCtx, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -53083,7 +53073,7 @@ def cuStreamGetDevResource(hStream, typename not None : CUdevResourceType):
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
     cdef CUdevResource resource = CUdevResource()
-    cdef cydriver.CUdevResourceType cytypename = typename.value
+    cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuStreamGetDevResource(cyhStream, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
     if err != cydriver.CUDA_SUCCESS:
@@ -54447,7 +54437,7 @@ def cuGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : CUGLDevic
         cypCudaDevices = <cydriver.CUdevice*>calloc(cudaDeviceCount, sizeof(cydriver.CUdevice))
         if cypCudaDevices is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(cudaDeviceCount) + 'x' + str(sizeof(cydriver.CUdevice)))
-    cdef cydriver.CUGLDeviceList cydeviceList = deviceList.value
+    cdef cydriver.CUGLDeviceList cydeviceList = int(deviceList)
     with nogil:
         err = cydriver.cuGLGetDevices(&pCudaDeviceCount, cypCudaDevices, cudaDeviceCount, cydeviceList)
     if CUresult(err) == CUresult(0):

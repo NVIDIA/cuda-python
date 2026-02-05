@@ -1,7 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 [build-system]
-requires = ["setuptools>=77.0.0", "cython>=3.2,<3.3", "pyclibrary>=0.1.7"]
+requires = [
+    "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8",
+    "cython>=3.2,<3.3",
+    "pyclibrary>=0.1.7",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -29,7 +34,7 @@ dependencies = ["cuda-pathfinder ~=1.1"]
 
 [project.optional-dependencies]
 all = [
-    "cuda-toolkit[nvrtc,nvjitlink,nvvm]==13.*",
+    "cuda-toolkit[nvrtc,nvjitlink,nvvm,nvfatbin]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 
@@ -40,6 +45,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pytest-repeat",
     "pyglet>=2.1.9",
 ]
 
@@ -51,7 +57,6 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 include = ["cuda*"]
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.bindings._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.cibuildwheel]
@@ -72,3 +77,10 @@ required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable --showlocals"
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/bindings/_version.py"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]

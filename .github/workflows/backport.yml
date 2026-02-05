@@ -9,21 +9,32 @@ on:
     types: [closed, labeled]
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      backport-branch:
+        description: "Branch to backport commits onto"
+        required: false
+        type: string
+      pull-request:
+        description: "PR to backport"
+        required: true
+        type: number
+
 
 permissions:
   contents: write       # so it can comment
   pull-requests: write  # so it can create pull requests
 
 jobs:
-  backport:
-    name: Backport pull request
+  backport-from-pr:
+    name: Backport directly from a pull request
     if: ${{ github.repository_owner == 'nvidia' &&
             github.event.pull_request.merged == true &&
             contains( github.event.pull_request.labels.*.name, 'to-be-backported')
          }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Load branch name
         id: get-branch
@@ -32,9 +43,34 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@d07416681cab29bf2661702f925f020aaa962997  # v3.4.1
+        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
         with:
           copy_assignees: true
           copy_labels_pattern: true
           copy_requested_reviewers: true
           target_branches: ${{ env.OLD_BRANCH }}
+  backport-to-branch:
+    name: Backport a specific PR against a specific branch
+    if: github.repository_owner == 'nvidia' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Load branch from environment name
+        if: inputs.backport-branch == null
+        run: |
+          BACKPORT_BRANCH=$(yq '.backport_branch' ci/versions.yml)
+          echo "BACKPORT_BRANCH=${BRANCH}" >> $GITHUB_ENV
+
+      - name: Load branch name from input
+        if: inputs.backport-branch != null
+        run: echo "BACKPORT_BRANCH=${{ inputs.backport-branch }}" >> $GITHUB_ENV
+
+      - name: Create backport pull requests
+        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
+        with:
+          copy_assignees: true
+          copy_labels_pattern: true
+          copy_requested_reviewers: true
+          target_branches: ${{ env.BACKPORT_BRANCH }}
+          source_pr_number: ${{ inputs.pull-request }}

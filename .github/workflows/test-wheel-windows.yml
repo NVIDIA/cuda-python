@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,6 +19,9 @@ on:
       matrix_filter:
         type: string
         default: "."
+      nruns:
+        type: number
+        default: 1
 
 jobs:
   compute-matrix:
@@ -33,7 +36,7 @@ jobs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Validate Test Type
         run: |
@@ -66,14 +69,16 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
+    runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
+        with:
+          enable-apt: true
 
       - name: Update driver
         env:
@@ -106,21 +111,21 @@ jobs:
         run: ./ci/tools/env-vars test
 
       - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cuda-python-wheel
           path: .
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -163,7 +168,7 @@ jobs:
 
       - name: Download cuda.bindings Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -175,7 +180,7 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -187,7 +192,7 @@ jobs:
 
       - name: Download cuda.core Cython tests
         if: ${{ env.SKIP_CYTHON_TEST == '0' }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
@@ -199,7 +204,7 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.PY_VER }}
 
@@ -210,6 +215,10 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
+
+      - name: Set up test repetition on nightly runs
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
       - name: Run cuda.pathfinder tests with see_what_works
         env:
@@ -226,6 +235,17 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests bindings
 
+      - name: Run cuda.bindings examples
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd cuda_bindings
+          ${SANITIZER_CMD} pytest -ra -s -vv examples/
+          popd
+
       - name: Run cuda.core tests
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
@@ -236,16 +256,16 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
+            pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            pip install --only-binary=:all: "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
+          pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
 

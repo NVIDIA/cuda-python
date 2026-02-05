@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -17,7 +17,7 @@ import platform
 import re
 
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Buffer,
     Device,
     DeviceMemoryResource,
@@ -31,14 +31,14 @@ from cuda.core.experimental import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core.experimental import (
+from cuda.core import (
     system as ccx_system,
 )
-from cuda.core.experimental._dlpack import DLDeviceType
-from cuda.core.experimental._memory import IPCBufferDescriptor
-from cuda.core.experimental._utils.cuda_utils import CUDAError, handle_return
-from cuda.core.experimental.utils import StridedMemoryView
-from helpers import IS_WINDOWS
+from cuda.core._dlpack import DLDeviceType
+from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core.utils import StridedMemoryView
+from helpers import IS_WINDOWS, supports_ipc_mempool
 from helpers.buffers import DummyUnifiedMemoryResource
 
 from conftest import (
@@ -46,7 +46,6 @@ from conftest import (
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
 )
-from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -149,7 +148,7 @@ def test_package_contents():
         "VirtualMemoryResource",
     ]
     d = {}
-    exec("from cuda.core.experimental._memory import *", d)  # noqa: S102
+    exec("from cuda.core._memory import *", d)  # noqa: S102
     d = {k: v for k, v in d.items() if not k.startswith("__")}
     assert sorted(expected) == sorted(d.keys())
 
@@ -172,6 +171,8 @@ def test_buffer_initialization():
     buffer_initialization(DummyHostMemoryResource())
     buffer_initialization(DummyUnifiedMemoryResource(device))
     buffer_initialization(DummyPinnedMemoryResource(device))
+    with pytest.raises(TypeError):
+        buffer_initialization(MemoryResource())
 
 
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
@@ -365,7 +366,7 @@ def test_buffer_external_host():
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_device(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -389,7 +390,7 @@ def test_buffer_external_device(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_alloc(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -414,7 +415,7 @@ def test_buffer_external_pinned_alloc(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_registered(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -447,7 +448,7 @@ def test_buffer_external_pinned_registered(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_managed(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -1161,7 +1162,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
 
 
 def test_mempool_attributes_ownership(memory_resource_factory):
-    """Ensure the attributes bundle handles references correctly for all memory resource types."""
+    """Ensure the attributes bundle keeps the pool alive via the handle."""
     MR, MRops = memory_resource_factory
     device = Device()
 
@@ -1189,21 +1190,9 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     mr.close()
     del mr
 
-    # After deleting the memory resource, the attributes suite is disconnected.
-    with pytest.raises(RuntimeError, match="is expired"):
-        _ = attributes.used_mem_high
-
-    # Even when a new object is created (we found a case where the same
-    # mempool handle was really reused).
-    if MR is DeviceMemoryResource:
-        mr = MR(device, dict(max_size=POOL_SIZE))  # noqa: F841
-    elif MR is PinnedMemoryResource:
-        mr = MR(dict(max_size=POOL_SIZE))  # noqa: F841
-    elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_skip(dict())  # noqa: F841
-
-    with pytest.raises(RuntimeError, match="is expired"):
-        _ = attributes.used_mem_high
+    # The attributes bundle keeps the pool alive via MemoryPoolHandle,
+    # so accessing attributes still works even after the MR is deleted.
+    _ = attributes.used_mem_high  # Should not raise
 
 
 # Ensure that memory views dellocate their reference to dlpack tensors
@@ -1239,3 +1228,28 @@ def test_graph_memory_resource_object(init_cuda):
     # These objects are interned.
     assert gmr1 is gmr2 is gmr3
     assert gmr1 == gmr2 == gmr3
+
+
+def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
+    MR, MROps = memory_resource_factory
+
+    device = Device()
+    device.set_current()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+        mr = MR()
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
+        mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
+    else:
+        assert MR is DeviceMemoryResource
+        mr = MR(device)
+
+    buffer = mr.allocate(0)
+    device.sync()
+    assert buffer.handle >= 0
+    assert buffer.size == 0
+    assert buffer.device_id == mr.device_id

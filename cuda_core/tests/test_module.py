@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
 import pickle
 import warnings
 
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions
-from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
+from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
     import numba
@@ -41,17 +41,17 @@ def cuda12_4_prerequisite_check():
 
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
-        cuda.core.experimental._module.KernelAttributes()  # Ensure back door is locked.
+        cuda.core._module.KernelAttributes()  # Ensure back door is locked.
 
 
 def test_kernel_occupancy_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelOccupancy cannot be instantiated directly\."):
-        cuda.core.experimental._module.KernelOccupancy()  # Ensure back door is locked.
+        cuda.core._module.KernelOccupancy()  # Ensure back door is locked.
 
 
 def test_kernel_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Kernel objects cannot be instantiated directly\."):
-        cuda.core.experimental._module.Kernel()  # Ensure back door is locked.
+        cuda.core._module.Kernel()  # Ensure back door is locked.
 
 
 def test_object_code_init_disabled():
@@ -79,7 +79,7 @@ def get_saxpy_kernel_ptx(init_cuda):
         "ptx",
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
-    ptx = mod._module
+    ptx = mod.code
     return ptx, mod
 
 
@@ -100,10 +100,10 @@ def test_get_kernel(init_cuda):
         if any("The CUDA driver version is older than the backend version" in str(warning.message) for warning in w):
             pytest.skip("PTX version too new for current driver")
 
-    assert object_code._handle is None
+    # Verify lazy loading: get_kernel triggers module loading and returns a valid kernel
     kernel = object_code.get_kernel("ABC")
-    assert object_code._handle is not None
-    assert kernel._handle is not None
+    assert object_code.handle is not None
+    assert kernel.handle is not None
 
 
 @pytest.mark.parametrize(
@@ -143,7 +143,7 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
 
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
-    sym_map = mod._sym_map
+    sym_map = mod.symbol_mapping
     mod_obj = ObjectCode.from_ptx(ptx, symbol_mapping=sym_map)
     assert mod.code == ptx
     if not Program._can_load_generated_ptx():
@@ -153,7 +153,7 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
 
 def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     ptx, mod = get_saxpy_kernel_ptx
-    sym_map = mod._sym_map
+    sym_map = mod.symbol_mapping
     assert isinstance(ptx, bytes)
     ptx_file = tmp_path / "test.ptx"
     ptx_file.write_bytes(ptx)
@@ -167,8 +167,8 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
 
 def test_object_code_load_cubin(get_saxpy_kernel_cubin):
     _, mod = get_saxpy_kernel_cubin
-    cubin = mod._module
-    sym_map = mod._sym_map
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(cubin, bytes)
     mod = ObjectCode.from_cubin(cubin, symbol_mapping=sym_map)
     assert mod.code == cubin
@@ -177,8 +177,8 @@ def test_object_code_load_cubin(get_saxpy_kernel_cubin):
 
 def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path):
     _, mod = get_saxpy_kernel_cubin
-    cubin = mod._module
-    sym_map = mod._sym_map
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(cubin, bytes)
     cubin_file = tmp_path / "test.cubin"
     cubin_file.write_bytes(cubin)
@@ -194,14 +194,13 @@ def test_object_code_handle(get_saxpy_kernel_cubin):
 
 def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
     mod = get_saxpy_kernel_ltoir
-    ltoir = mod._module
-    sym_map = mod._sym_map
+    ltoir = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(ltoir, bytes)
     mod_obj = ObjectCode.from_ltoir(ltoir, symbol_mapping=sym_map)
     assert mod_obj.code == ltoir
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
-    assert mod_obj._handle is None
     # Test that get_kernel fails for unsupported code type
     with pytest.raises(RuntimeError, match=r'Unsupported code type "ltoir"'):
         mod_obj.get_kernel("saxpy<float>")
@@ -209,8 +208,8 @@ def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
 
 def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     mod = get_saxpy_kernel_ltoir
-    ltoir = mod._module
-    sym_map = mod._sym_map
+    ltoir = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(ltoir, bytes)
     ltoir_file = tmp_path / "test.ltoir"
     ltoir_file.write_bytes(ltoir)
@@ -218,7 +217,6 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     assert mod_obj.code == str(ltoir_file)
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
-    assert mod_obj._handle is None
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
@@ -231,7 +229,6 @@ def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
             _ = krn.num_arguments
         return
 
-    assert "ParamInfo" in str(type(krn).arguments_info.fget.__annotations__)
     arg_info = krn.arguments_info
     n_args = len(arg_info)
     assert n_args == krn.num_arguments
@@ -387,7 +384,7 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
-    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
+    launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
     max_active_clusters = query_fn(launch_config)
     assert isinstance(max_active_clusters, int)
@@ -402,7 +399,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
-    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
+    launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
     max_potential_cluster_size = query_fn(launch_config)
     assert isinstance(max_potential_cluster_size, int)
@@ -418,5 +415,146 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
 
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code
-    assert objcode._sym_map == result._sym_map
+    assert objcode.symbol_mapping == result.symbol_mapping
     assert objcode.code_type == result.code_type
+
+
+def test_kernel_from_handle(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() with a valid handle"""
+    original_kernel, objcode = get_saxpy_kernel_cubin
+
+    # Get the handle from the original kernel
+    handle = int(original_kernel.handle)
+
+    # Create a new Kernel from the handle
+    kernel_from_handle = Kernel.from_handle(handle, objcode)
+    assert isinstance(kernel_from_handle, Kernel)
+
+    # Verify we can access kernel attributes
+    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    assert isinstance(max_threads, int)
+    assert max_threads > 0
+
+
+def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() without providing a module"""
+    original_kernel, _ = get_saxpy_kernel_cubin
+
+    # Get the handle from the original kernel
+    handle = int(original_kernel.handle)
+
+    # Create a new Kernel from the handle without a module
+    # This is supported on CUDA 12+ backend (CUkernel)
+    kernel_from_handle = Kernel.from_handle(handle)
+    assert isinstance(kernel_from_handle, Kernel)
+
+    # Verify we can still access kernel attributes
+    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    assert isinstance(max_threads, int)
+    assert max_threads > 0
+
+
+@pytest.mark.parametrize(
+    "invalid_value",
+    [
+        pytest.param("not_an_int", id="str"),
+        pytest.param(2.71828, id="float"),
+        pytest.param(None, id="None"),
+        pytest.param({"handle": 123}, id="dict"),
+        pytest.param([456], id="list"),
+        pytest.param((789,), id="tuple"),
+        pytest.param(3 + 4j, id="complex"),
+        pytest.param(b"\xde\xad\xbe\xef", id="bytes"),
+        pytest.param({999}, id="set"),
+        pytest.param(object(), id="object"),
+    ],
+)
+def test_kernel_from_handle_type_validation(invalid_value):
+    """Test Kernel.from_handle() with wrong handle types"""
+    with pytest.raises(TypeError):
+        Kernel.from_handle(invalid_value)
+
+
+def test_kernel_from_handle_invalid_module_type(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() with invalid module parameter"""
+    original_kernel, _ = get_saxpy_kernel_cubin
+    handle = int(original_kernel.handle)
+
+    # Invalid module type (should fail type assertion in _from_obj)
+    with pytest.raises((TypeError, AssertionError)):
+        Kernel.from_handle(handle, mod="not_an_objectcode")
+
+    with pytest.raises((TypeError, AssertionError)):
+        Kernel.from_handle(handle, mod=12345)
+
+
+def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
+    """Test creating multiple Kernel instances from the same handle"""
+    original_kernel, objcode = get_saxpy_kernel_cubin
+    handle = int(original_kernel.handle)
+
+    # Create multiple Kernel instances from the same handle
+    kernel1 = Kernel.from_handle(handle, objcode)
+    kernel2 = Kernel.from_handle(handle, objcode)
+    kernel3 = Kernel.from_handle(handle, objcode)
+
+    # All should be valid Kernel objects
+    assert isinstance(kernel1, Kernel)
+    assert isinstance(kernel2, Kernel)
+    assert isinstance(kernel3, Kernel)
+
+    # All should reference the same underlying CUDA kernel handle
+    assert int(kernel1.handle) == int(kernel2.handle) == int(kernel3.handle) == handle
+
+
+def test_kernel_keeps_library_alive(init_cuda):
+    """Test that a Kernel keeps its underlying library alive after ObjectCode goes out of scope."""
+    import gc
+
+    import numpy as np
+
+    def get_kernel_only():
+        """Return a kernel, letting ObjectCode go out of scope."""
+        code = """
+        extern "C" __global__ void write_value(int* out) {
+            if (threadIdx.x == 0 && blockIdx.x == 0) {
+                *out = 42;
+            }
+        }
+        """
+        program = Program(code, "c++")
+        object_code = program.compile("cubin")
+        kernel = object_code.get_kernel("write_value")
+        # ObjectCode goes out of scope here
+        return kernel
+
+    kernel = get_kernel_only()
+
+    # Force GC to ensure ObjectCode destructor runs
+    gc.collect()
+
+    # Kernel should still be valid
+    assert kernel.handle is not None
+    assert kernel.num_arguments == 1
+
+    # Actually launch the kernel to prove library is still loaded
+    device = Device()
+    stream = device.create_stream()
+
+    # Allocate pinned host buffer and device buffer
+    pinned_mr = cuda.core.LegacyPinnedMemoryResource()
+    host_buf = pinned_mr.allocate(4)  # sizeof(int)
+    result = np.from_dlpack(host_buf).view(np.int32)
+    result[:] = 0
+
+    dev_buf = device.memory_resource.allocate(4)
+
+    # Launch kernel
+    config = cuda.core.LaunchConfig(grid=1, block=1)
+    cuda.core.launch(stream, config, kernel, dev_buf)
+
+    # Copy result back to host
+    dev_buf.copy_to(host_buf, stream=stream)
+    stream.sync()
+
+    assert result[0] == 42, f"Expected 42, got {result[0]}"

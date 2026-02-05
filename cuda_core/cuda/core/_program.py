@@ -236,9 +236,13 @@ class ProgramOptions:
     no_display_error_number : bool, optional
         Disable the display of a diagnostic number for warning messages.
         Default: False
-    diag_error: Union[int, list[int], tuple[int]] | None = None
-    diag_suppress: Union[int, list[int], tuple[int]] | None = None
-    diag_warn: Union[int, list[int], tuple[int]] | None = None
+    diag_error : Union[int, list[int]], optional
+        Emit error for a specified diagnostic message number or comma separated list of numbers.
+        Default: None
+    diag_suppress : Union[int, list[int]], optional
+        Suppress a specified diagnostic message number or comma separated list of numbers.
+        Default: None
+    diag_warn : Union[int, list[int]], optional
         Emit warning for a specified diagnostic message number or comma separated lis of numbers.
         Default: None
     brief_diagnostics : bool, optional
@@ -496,7 +500,8 @@ class ProgramOptions:
             options.append("--numba-debug")
         return [o.encode() for o in options]
 
-     def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
+    def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
+
         options = []
 
         # Options supported by NVVM

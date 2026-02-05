@@ -1,14 +1,16 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. module:: cuda.core.experimental
+.. module:: cuda.core
 
-``cuda.core.experimental`` API Reference
-========================================
+``cuda.core`` API Reference
+===========================
 
-All of the APIs listed (or cross-referenced from) below are considered *experimental*
-and subject to future changes without deprecation notice. Once stabilized they will be
-moved out of the ``experimental`` namespace.
+This is the main API reference for ``cuda.core``. The package has not yet
+reached version 1.0.0, and APIs may change between minor versions, possibly
+without deprecation warnings. Once version 1.0.0 is released, APIs will
+be considered stable and will follow semantic versioning with appropriate
+deprecation periods for breaking changes.
 
 
 CUDA runtime
@@ -21,11 +23,15 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
+
+   :template: autosummary/cyclass.rst
+
    Buffer
    Stream
    Event
    MemoryResource
    DeviceMemoryResource
+   GraphMemoryResource
    PinnedMemoryResource
    ManagedMemoryResource
    LegacyPinnedMemoryResource
@@ -61,14 +67,73 @@ CUDA compilation toolchain
    LinkerOptions
 
 
-CUDA system information
------------------------
+CUDA system information and NVIDIA Management Library (NVML)
+------------------------------------------------------------
 
-.. automethod:: cuda.core.experimental._system.System.get_driver_version
-.. automethod:: cuda.core.experimental._system.System.get_num_devices
+.. autosummary::
+   :toctree: generated/
 
+   system.get_driver_version
+   system.get_driver_version_full
+   system.get_driver_branch
+   system.get_num_devices
+   system.get_nvml_version
+   system.get_process_name
+   system.get_topology_common_ancestor
+   system.get_p2p_status
 
-.. module:: cuda.core.experimental.utils
+   system.register_events
+   system.RegisteredSystemEvents
+   system.SystemEvent
+   system.SystemEvents
+   system.SystemEventType
+
+   :template: autosummary/cyclass.rst
+
+   system.Device
+   system.AddressingMode
+   system.AffinityScope
+   system.BAR1MemoryInfo
+   system.BrandType
+   system.ClockId
+   system.ClockInfo
+   system.ClockOffsets
+   system.ClocksEventReasons
+   system.ClockType
+   system.CoolerControl
+   system.CoolerInfo
+   system.CoolerTarget
+   system.DeviceArch
+   system.DeviceAttributes
+   system.DeviceEvents
+   system.EventData
+   system.EventType
+   system.FanControlPolicy
+   system.FanInfo
+   system.FieldId
+   system.FieldValue
+   system.FieldValues
+   system.GpuDynamicPstatesInfo
+   system.GpuDynamicPstatesUtilization
+   system.GpuP2PCapsIndex
+   system.GpuP2PStatus
+   system.GpuTopologyLevel
+   system.InforomInfo
+   system.InforomObject
+   system.MemoryInfo
+   system.PcieUtilCounter
+   system.PciInfo
+   system.Pstates
+   system.RepairStatus
+   system.Temperature
+   system.TemperatureSensors
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalSensor
+   system.ThermalSettings
+   system.ThermalTarget
+
+.. module:: cuda.core.utils
 
 Utility functions
 -----------------

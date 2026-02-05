@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Device,
     DeviceMemoryResource,
     GraphCompleteOptions,
@@ -180,6 +180,23 @@ def test_graph_alloc_with_output(mempool_device, mode):
     graph.launch(stream)
     stream.sync()
     assert compare_buffer_to_constant(out, 6)
+
+
+@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+def test_graph_mem_alloc_zero(mempool_device, mode):
+    device = mempool_device
+    gb = device.create_graph_builder().begin_building(mode)
+    stream = device.create_stream()
+    gmr = GraphMemoryResource(device)
+    buffer = gmr.allocate(0, stream=gb)
+    graph = gb.end_building().complete()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert buffer.handle >= 0
+    assert buffer.size == 0
+    assert buffer.device_id == int(device)
 
 
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
