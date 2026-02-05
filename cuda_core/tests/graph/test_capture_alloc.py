@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+"""Graph memory resource tests."""
+
 import pytest
 from cuda.core import (
     Device,
