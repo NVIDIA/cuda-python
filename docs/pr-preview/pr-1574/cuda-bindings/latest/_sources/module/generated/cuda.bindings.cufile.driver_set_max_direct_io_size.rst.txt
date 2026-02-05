@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.driver\_set\_max\_direct\_io\_size
-=======================================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: driver_set_max_direct_io_size
