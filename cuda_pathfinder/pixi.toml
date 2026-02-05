@@ -13,6 +13,7 @@ cuda-pathfinder = { path = "." }
 [feature.test.dependencies]
 pytest = ">=6.2.4"
 pytest-mock = "*"
+pytest-repeat = "*"
 
 [feature.cu12.system-requirements]
 cuda = "12"
