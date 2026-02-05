@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from functools import cache
 import pytest
 
 try:
-    from cuda.bindings import driver
+    from cuda.bindings import driver  # type: ignore
 except Exception:
-    from cuda import cuda as driver
+    from cuda import cuda as driver  # type: ignore
 
 
 def _resolve_device_id(device) -> int:

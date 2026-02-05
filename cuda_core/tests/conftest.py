@@ -6,7 +6,7 @@ import os
 
 import helpers
 import pytest
-from cuda.bindings._test_helpers.managed_memory import managed_memory_skip_reason
+from cuda_python_test_helpers.managed_memory import managed_memory_skip_reason
 
 try:
     from cuda.bindings import driver

@@ -10,7 +10,7 @@ import cuda.bindings.runtime as cudart
 import numpy as np
 import pytest
 from cuda.bindings import driver
-from cuda.bindings._test_helpers.managed_memory import managed_memory_skip_reason
+from cuda_python_test_helpers.managed_memory import managed_memory_skip_reason
 
 
 def driverVersionLessThan(target):
