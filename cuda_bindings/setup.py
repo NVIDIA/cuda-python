@@ -356,6 +356,7 @@ def do_cythonize(extensions):
     return cythonize(
         extensions,
         nthreads=nthreads,
+        build_dir="build/cython",
         compiler_directives=compiler_directives,
         **extra_cythonize_kwargs,
     )
