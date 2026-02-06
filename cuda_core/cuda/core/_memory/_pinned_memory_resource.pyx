@@ -76,13 +76,45 @@ def _check_numa_nodes():
         if numa_count is not None and numa_count > 1:
             warnings.warn(
                 f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
-                f"uses location ID 0, which may not work correctly with multiple "
-                f"NUMA nodes.",
+                f"targets the host NUMA node closest to the current device; "
+                f"this may not work correctly with multiple NUMA nodes.",
                 UserWarning,
                 stacklevel=3
             )
 
         _numa_warning_shown = True
+
+
+def _host_numa_id_for_current_device() -> int:
+    """Return host NUMA node closest to current device (fallback to 0)."""
+    cdef cydriver.CUdevice dev
+    cdef cydriver.CUresult err
+    cdef int host_numa_id
+
+    with nogil:
+        err = cydriver.cuCtxGetDevice(&dev)
+    if err in (
+        cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT,
+        cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED,
+    ):
+        return 0
+    HANDLE_RETURN(err)
+
+    with nogil:
+        err = cydriver.cuDeviceGetAttribute(
+            &host_numa_id,
+            cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID,
+            dev
+        )
+    if err in (
+        cydriver.CUresult.CUDA_ERROR_INVALID_VALUE,
+        cydriver.CUresult.CUDA_ERROR_NOT_SUPPORTED,
+    ):
+        return 0
+    HANDLE_RETURN(err)
+    if host_numa_id < 0:
+        return 0
+    return host_numa_id
 
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
@@ -134,10 +166,10 @@ cdef class PinnedMemoryResource(_MemPool):
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
     option. When IPC is enabled, the location type is automatically set to
     CU_MEM_LOCATION_TYPE_HOST_NUMA instead of CU_MEM_LOCATION_TYPE_HOST,
-    with location ID 0.
+    using the host NUMA node closest to the current device.
 
-    Note: IPC support for pinned memory requires a single NUMA node. A warning
-    is issued if multiple NUMA nodes are detected.
+    Note: IPC support for pinned memory can be sensitive to NUMA placement. A
+    warning is issued if multiple NUMA nodes are detected.
 
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
@@ -150,6 +182,7 @@ cdef class PinnedMemoryResource(_MemPool):
         cdef _MemPoolOptions opts_base = _MemPoolOptions()
 
         cdef bint ipc_enabled = False
+        cdef int location_id = -1
         if opts:
             ipc_enabled = opts.ipc_enabled
             if ipc_enabled and not _ipc.is_supported():
@@ -157,6 +190,7 @@ cdef class PinnedMemoryResource(_MemPool):
             if ipc_enabled:
                 # Check for multiple NUMA nodes on Linux
                 _check_numa_nodes()
+                location_id = _host_numa_id_for_current_device()
             opts_base._max_size = opts.max_size
             opts_base._use_current = False
         opts_base._ipc_enabled = ipc_enabled
@@ -166,7 +200,7 @@ cdef class PinnedMemoryResource(_MemPool):
             opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
         opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
 
-        super().__init__(0 if ipc_enabled else -1, opts_base)
+        super().__init__(location_id if ipc_enabled else -1, opts_base)
 
     def __reduce__(self):
         return PinnedMemoryResource.from_registry, (self.uuid,)

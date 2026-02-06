@@ -348,8 +348,8 @@ cdef int _MP_init_current(_MemPool self, int dev_id, _MemPoolOptions opts) excep
     elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
             and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA:
         IF CUDA_CORE_BUILD_MAJOR >= 13:
-            assert dev_id == 0
-            loc.id = 0
+            assert dev_id >= 0
+            loc.id = dev_id
             loc.type = opts._location
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemGetMemPool(&pool, &loc, opts._type))
