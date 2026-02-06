@@ -403,27 +403,17 @@ jobs:
           # Verify both Linux and Windows coverage files exist
           echo "=== Checking coverage files ==="
 
-          MISSING_FILES=0
-
           if [ ! -f ".coverage.linux" ]; then
             echo "[ERROR] .coverage.linux not found!"
-            MISSING_FILES=1
-          else
-            echo "[OK] Found .coverage.linux"
+            exit 1
           fi
+          echo "[OK] Found .coverage.linux"
 
           if [ ! -f ".coverage.windows" ]; then
             echo "[ERROR] .coverage.windows not found!"
-            MISSING_FILES=1
-          else
-            echo "[OK] Found .coverage.windows"
-          fi
-
-          if [ $MISSING_FILES -eq 1 ]; then
-            echo ""
-            echo "[ERROR] Both Linux and Windows coverage files are required for multi-platform coverage!"
             exit 1
           fi
+          echo "[OK] Found .coverage.windows"
 
           echo "=== Available coverage files ==="
           ls -lh .coverage.*
