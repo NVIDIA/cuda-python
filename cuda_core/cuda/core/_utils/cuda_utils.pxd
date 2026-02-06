@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,11 +6,7 @@ cimport cpython
 from cpython.object cimport PyObject
 from libc.stdint cimport int64_t, int32_t
 
-from cuda.bindings cimport cydriver
-
-
-ctypedef fused supported_error_type:
-    cydriver.CUresult
+from cuda.bindings cimport cydriver, cynvrtc, cynvvm
 
 
 ctypedef fused integer_t:
@@ -22,7 +18,9 @@ ctypedef fused integer_t:
 cdef const cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
 
 
-cdef int HANDLE_RETURN(supported_error_type err) except?-1 nogil
+cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil
+cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil
+cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil
 
 
 # TODO: stop exposing these within the codebase?

@@ -13,6 +13,7 @@ import weakref
 
 import pytest
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
+from cuda.core._program import _can_load_generated_ptx
 
 # =============================================================================
 # Fixtures - Primary samples
@@ -56,16 +57,86 @@ def sample_launch_config():
 
 
 @pytest.fixture
-def sample_object_code(init_cuda):
-    """A sample ObjectCode object."""
+def sample_kernel(sample_object_code_cubin):
+    """A sample Kernel object."""
+    return sample_object_code_cubin.get_kernel("test_kernel")
+
+
+# =============================================================================
+# Fixtures - ObjectCode variations (by code_type)
+# =============================================================================
+
+
+@pytest.fixture
+def sample_object_code_cubin(init_cuda):
+    """An ObjectCode compiled to cubin."""
     prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
     return prog.compile("cubin")
 
 
 @pytest.fixture
-def sample_kernel(sample_object_code):
-    """A sample Kernel object."""
-    return sample_object_code.get_kernel("test_kernel")
+def sample_object_code_ptx(init_cuda):
+    """An ObjectCode compiled to PTX."""
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+    prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
+    return prog.compile("ptx")
+
+
+@pytest.fixture
+def sample_object_code_ltoir(init_cuda):
+    """An ObjectCode compiled to LTOIR."""
+    prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
+    return prog.compile("ltoir")
+
+
+# =============================================================================
+# Fixtures - Program variations (by backend)
+# =============================================================================
+
+
+@pytest.fixture
+def sample_program_nvrtc(init_cuda):
+    """A Program using NVRTC backend (C++ code)."""
+    return Program('extern "C" __global__ void k() {}', "c++")
+
+
+@pytest.fixture
+def sample_program_ptx(init_cuda):
+    """A Program using linker backend (PTX code)."""
+    # First compile C++ to PTX, then create a Program from PTX
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+    prog = Program('extern "C" __global__ void k() {}', "c++")
+    obj = prog.compile("ptx")
+    ptx_code = obj.code.decode() if isinstance(obj.code, bytes) else obj.code
+    return Program(ptx_code, "ptx")
+
+
+@pytest.fixture
+def sample_program_nvvm(init_cuda):
+    """A Program using NVVM backend (NVVM IR code)."""
+    # Minimal NVVM IR that declares a kernel
+    # fmt: off
+    nvvm_ir = (
+        'target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-'
+        'i64:64:64-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"\n'
+        'target triple = "nvptx64-nvidia-cuda"\n'
+        "\n"
+        "define void @test_kernel() {\n"
+        "  ret void\n"
+        "}\n"
+        "\n"
+        "!nvvm.annotations = !{!0}\n"
+        '!0 = !{void ()* @test_kernel, !"kernel", i32 1}\n'
+    )
+    # fmt: on
+    try:
+        return Program(nvvm_ir, "nvvm")
+    except RuntimeError as e:
+        if "NVVM" in str(e):
+            pytest.skip("NVVM not available")
+        raise
 
 
 # =============================================================================
@@ -131,16 +202,41 @@ def sample_kernel_alt(sample_object_code_alt):
 # Type groupings
 # =============================================================================
 
-# All types that should support weak references
-API_TYPES = [
+# Types with __hash__ support
+HASH_TYPES = [
     "sample_device",
     "sample_stream",
     "sample_event",
     "sample_context",
     "sample_buffer",
     "sample_launch_config",
-    "sample_object_code",
+    "sample_object_code_cubin",
     "sample_kernel",
+]
+
+# Types with __eq__ support
+EQ_TYPES = [
+    "sample_device",
+    "sample_stream",
+    "sample_event",
+    "sample_context",
+    "sample_buffer",
+    "sample_launch_config",
+    "sample_object_code_cubin",
+    "sample_kernel",
+]
+
+# Types with __weakref__ support
+WEAKREF_TYPES = [
+    "sample_device",
+    "sample_stream",
+    "sample_event",
+    "sample_context",
+    "sample_buffer",
+    "sample_launch_config",
+    "sample_object_code_cubin",
+    "sample_kernel",
+    "sample_program_nvrtc",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -152,7 +248,7 @@ SAME_TYPE_PAIRS = [
     ("sample_context", "sample_context_alt"),
     ("sample_buffer", "sample_buffer_alt"),
     ("sample_launch_config", "sample_launch_config_alt"),
-    ("sample_object_code", "sample_object_code_alt"),
+    ("sample_object_code_cubin", "sample_object_code_alt"),
     ("sample_kernel", "sample_kernel_alt"),
 ]
 
@@ -163,8 +259,13 @@ FROM_HANDLE_COPIES = [
     ("sample_kernel", lambda k: Kernel.from_handle(int(k.handle))),
 ]
 
+# Derived type groupings for collection tests
+DICT_KEY_TYPES = sorted(set(HASH_TYPES) & set(EQ_TYPES))
+WEAK_KEY_TYPES = sorted(set(HASH_TYPES) & set(EQ_TYPES) & set(WEAKREF_TYPES))
+
 # Pairs of (fixture_name, regex_pattern) for repr format validation
 REPR_PATTERNS = [
+    # Core types
     ("sample_device", r"<Device \d+ \(.+\)>"),
     ("sample_stream", r"<Stream handle=0x[0-9a-f]+ context=0x[0-9a-f]+>"),
     ("sample_event", r"<Event handle=0x[0-9a-f]+>"),
@@ -175,8 +276,15 @@ REPR_PATTERNS = [
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
         r"shmem_size=\d+, cooperative_launch=(?:True|False)\)",
     ),
-    ("sample_object_code", r"<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>"),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
+    # ObjectCode variations (by code_type)
+    ("sample_object_code_cubin", r"<ObjectCode handle=0x[0-9a-f]+ code_type='cubin'>"),
+    ("sample_object_code_ptx", r"<ObjectCode handle=0x[0-9a-f]+ code_type='ptx'>"),
+    ("sample_object_code_ltoir", r"<ObjectCode handle=0x[0-9a-f]+ code_type='ltoir'>"),
+    # Program variations (by backend)
+    ("sample_program_nvrtc", r"<Program backend='NVRTC'>"),
+    ("sample_program_ptx", r"<Program backend='(nvJitLink|driver)'>"),
+    ("sample_program_nvvm", r"<Program backend='NVVM'>"),
 ]
 
 
@@ -185,7 +293,7 @@ REPR_PATTERNS = [
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", WEAKREF_TYPES)
 def test_weakref_supported(fixture_name, request):
     """Object supports weak references."""
     obj = request.getfixturevalue(fixture_name)
@@ -198,7 +306,7 @@ def test_weakref_supported(fixture_name, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", HASH_TYPES)
 def test_hash_consistency(fixture_name, request):
     """Hash is consistent across multiple calls."""
     obj = request.getfixturevalue(fixture_name)
@@ -213,7 +321,7 @@ def test_hash_distinct_same_type(a_name, b_name, request):
     assert hash(obj_a) != hash(obj_b)  # extremely unlikely
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(API_TYPES, 2))
+@pytest.mark.parametrize("a_name,b_name", itertools.combinations(HASH_TYPES, 2))
 def test_hash_distinct_cross_type(a_name, b_name, request):
     """Distinct objects of different types have different hashes."""
     obj_a = request.getfixturevalue(a_name)
@@ -226,7 +334,7 @@ def test_hash_distinct_cross_type(a_name, b_name, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", EQ_TYPES)
 def test_equality_basic(fixture_name, request):
     """Object equality: reflexive, not equal to None or other types."""
     obj = request.getfixturevalue(fixture_name)
@@ -237,7 +345,7 @@ def test_equality_basic(fixture_name, request):
         assert obj != obj.handle
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(API_TYPES, 2))
+@pytest.mark.parametrize("a_name,b_name", itertools.combinations(EQ_TYPES, 2))
 def test_no_cross_type_equality(a_name, b_name, request):
     """No two distinct objects of different types should compare equal."""
     obj_a = request.getfixturevalue(a_name)
@@ -268,7 +376,7 @@ def test_equality_same_handle(fixture_name, copy_fn, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", DICT_KEY_TYPES)
 def test_usable_as_dict_key(fixture_name, request):
     """Object can be used as a dictionary key."""
     obj = request.getfixturevalue(fixture_name)
@@ -277,7 +385,7 @@ def test_usable_as_dict_key(fixture_name, request):
     assert obj in d
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", DICT_KEY_TYPES)
 def test_usable_in_set(fixture_name, request):
     """Object can be added to a set."""
     obj = request.getfixturevalue(fixture_name)
@@ -285,7 +393,7 @@ def test_usable_in_set(fixture_name, request):
     assert obj in s
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", WEAKREF_TYPES)
 def test_usable_in_weak_value_dict(fixture_name, request):
     """Object can be used as a WeakValueDictionary value."""
     obj = request.getfixturevalue(fixture_name)
@@ -294,7 +402,7 @@ def test_usable_in_weak_value_dict(fixture_name, request):
     assert wvd["key"] is obj
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", WEAK_KEY_TYPES)
 def test_usable_in_weak_key_dict(fixture_name, request):
     """Object can be used as a WeakKeyDictionary key."""
     obj = request.getfixturevalue(fixture_name)
@@ -303,7 +411,7 @@ def test_usable_in_weak_key_dict(fixture_name, request):
     assert wkd[obj] == "value"
 
 
-@pytest.mark.parametrize("fixture_name", API_TYPES)
+@pytest.mark.parametrize("fixture_name", WEAK_KEY_TYPES)
 def test_usable_in_weak_set(fixture_name, request):
     """Object can be added to a WeakSet."""
     obj = request.getfixturevalue(fixture_name)

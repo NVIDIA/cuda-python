@@ -6,8 +6,13 @@
 
 #include <Python.h>
 #include <cuda.h>
+#include <nvrtc.h>
 #include <cstdint>
 #include <memory>
+
+// Forward declaration for NVVM - avoids nvvm.h dependency
+// Use void* to match cuda.bindings.cynvvm's typedef
+using nvvmProgram = void*;
 
 namespace cuda_core {
 
@@ -68,6 +73,28 @@ extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
 extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // ============================================================================
+// NVRTC function pointers
+//
+// These are populated by _resource_handles.pyx at module import time using
+// function pointers extracted from cuda.bindings.cynvrtc.__pyx_capi__.
+// ============================================================================
+
+extern decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram;
+
+// ============================================================================
+// NVVM function pointers
+//
+// These are populated by _resource_handles.pyx at module import time using
+// function pointers extracted from cuda.bindings.cynvvm.__pyx_capi__.
+// Note: May be null if NVVM is not available at runtime.
+// ============================================================================
+
+// Function pointer type for nvvmDestroyProgram (avoids nvvm.h dependency)
+// Signature: nvvmResult nvvmDestroyProgram(nvvmProgram *prog)
+using NvvmDestroyProgramFn = int (*)(nvvmProgram*);
+extern NvvmDestroyProgramFn p_nvvmDestroyProgram;
+
+// ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
 
@@ -77,6 +104,8 @@ using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
+using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
+using NvvmProgramHandle = std::shared_ptr<const nvvmProgram>;
 
 // ============================================================================
 // Context handle functions
@@ -261,6 +290,33 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
 
 // ============================================================================
+// NVRTC Program handle functions
+// ============================================================================
+
+// Create an owning NVRTC program handle.
+// When the last reference is released, nvrtcDestroyProgram is called.
+// Use this to wrap a program created via nvrtcCreateProgram.
+NvrtcProgramHandle create_nvrtc_program_handle(nvrtcProgram prog);
+
+// Create a non-owning NVRTC program handle (references existing program).
+// The program will NOT be destroyed when the handle is released.
+NvrtcProgramHandle create_nvrtc_program_handle_ref(nvrtcProgram prog);
+
+// ============================================================================
+// NVVM Program handle functions
+// ============================================================================
+
+// Create an owning NVVM program handle.
+// When the last reference is released, nvvmDestroyProgram is called.
+// Use this to wrap a program created via nvvmCreateProgram.
+// Note: If NVVM is not available (p_nvvmDestroyProgram is null), the deleter is a no-op.
+NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog);
+
+// Create a non-owning NVVM program handle (references existing program).
+// The program will NOT be destroyed when the handle is released.
+NvvmProgramHandle create_nvvm_program_handle_ref(nvvmProgram prog);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -290,6 +346,14 @@ inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
 }
 
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline nvvmProgram as_cu(const NvvmProgramHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -323,11 +387,19 @@ inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-// as_py() - convert handle to Python driver wrapper object (returns new reference)
+inline std::intptr_t as_intptr(const NvrtcProgramHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const NvvmProgramHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+// as_py() - convert handle to Python wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
-inline PyObject* make_py(const char* class_name, std::intptr_t value) noexcept {
-    PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
+inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
+    PyObject* mod = PyImport_ImportModule(module_name);
     if (!mod) return nullptr;
     PyObject* cls = PyObject_GetAttrString(mod, class_name);
     Py_DECREF(mod);
@@ -339,31 +411,40 @@ inline PyObject* make_py(const char* class_name, std::intptr_t value) noexcept {
 }  // namespace detail
 
 inline PyObject* as_py(const ContextHandle& h) noexcept {
-    return detail::make_py("CUcontext", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
 }
 
 inline PyObject* as_py(const StreamHandle& h) noexcept {
-    return detail::make_py("CUstream", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUstream", as_intptr(h));
 }
 
 inline PyObject* as_py(const EventHandle& h) noexcept {
-    return detail::make_py("CUevent", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUevent", as_intptr(h));
 }
 
 inline PyObject* as_py(const MemoryPoolHandle& h) noexcept {
-    return detail::make_py("CUmemoryPool", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUmemoryPool", as_intptr(h));
 }
 
 inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
-    return detail::make_py("CUdeviceptr", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
 }
 
 inline PyObject* as_py(const LibraryHandle& h) noexcept {
-    return detail::make_py("CUlibrary", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
 }
 
 inline PyObject* as_py(const KernelHandle& h) noexcept {
-    return detail::make_py("CUkernel", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
+}
+
+inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.nvrtc", "nvrtcProgram", as_intptr(h));
+}
+
+inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
+    // NVVM bindings use raw integers, not wrapper classes
+    return PyLong_FromSsize_t(as_intptr(h));
 }
 
 }  // namespace cuda_core

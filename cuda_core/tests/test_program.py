@@ -284,7 +284,6 @@ def test_cpp_program_with_various_options(init_cuda, options):
     assert program.backend == "NVRTC"
     program.compile("ptx")
     program.close()
-    assert program.handle is None
 
 
 @pytest.mark.skipif(
@@ -299,7 +298,6 @@ def test_cpp_program_with_trace_option(init_cuda, tmp_path):
     assert program.backend == "NVRTC"
     program.compile("ptx")
     program.close()
-    assert program.handle is None
 
 
 @pytest.mark.skipif((_get_nvrtc_version_for_tests() or 0) < 12800, reason="PCH requires NVRTC >= 12.8")
@@ -314,7 +312,6 @@ def test_cpp_program_with_pch_options(init_cuda, tmp_path):
         assert program.backend == "NVRTC"
         program.compile("ptx")
         program.close()
-        assert program.handle is None
 
 
 options = [
@@ -339,7 +336,6 @@ def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
     assert program.backend == ("driver" if is_culink_backend else "nvJitLink")
     program.compile("cubin")
     program.close()
-    assert program.handle is None
 
 
 def test_program_init_valid_code_type():
@@ -409,7 +405,8 @@ def test_program_close():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
     program.close()
-    assert program.handle is None
+    # close() is idempotent
+    program.close()
 
 
 @nvvm_available
@@ -441,7 +438,7 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
 def test_nvvm_compile_invalid_target(nvvm_ir):
     """Test that NVVM programs reject invalid compilation targets"""
     program = Program(nvvm_ir, "nvvm")
-    with pytest.raises(ValueError, match='NVVM backend only supports target_type="ptx"'):
+    with pytest.raises(ValueError, match='Unsupported target_type="cubin" for NVVM'):
         program.compile("cubin")
     program.close()
 
