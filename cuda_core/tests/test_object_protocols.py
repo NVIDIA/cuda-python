@@ -13,6 +13,7 @@ import weakref
 
 import pytest
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
+from cuda.core._program import _can_load_generated_ptx
 
 # =============================================================================
 # Fixtures - Primary samples
@@ -76,7 +77,7 @@ def sample_object_code_cubin(init_cuda):
 @pytest.fixture
 def sample_object_code_ptx(init_cuda):
     """An ObjectCode compiled to PTX."""
-    if not Program.driver_can_load_nvrtc_ptx_output():
+    if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
     prog = Program('extern "C" __global__ void test_kernel() {}', "c++")
     return prog.compile("ptx")
@@ -104,7 +105,7 @@ def sample_program_nvrtc(init_cuda):
 def sample_program_ptx(init_cuda):
     """A Program using linker backend (PTX code)."""
     # First compile C++ to PTX, then create a Program from PTX
-    if not Program.driver_can_load_nvrtc_ptx_output():
+    if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
     prog = Program('extern "C" __global__ void k() {}', "c++")
     obj = prog.compile("ptx")

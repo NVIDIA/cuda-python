@@ -800,7 +800,7 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        name : Any
+        name : str | bytes
             Name of the kernel to retrieve.
 
         Returns
