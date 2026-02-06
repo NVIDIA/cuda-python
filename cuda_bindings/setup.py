@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import atexit
@@ -298,7 +298,7 @@ def prep_extensions(sources, libraries):
     libraries = libraries if libraries else []
     exts = []
     for pyx in files:
-        mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
+        mod_name = pyx[: pyx.rfind(".")].replace(os.sep, ".").replace("/", ".")
         exts.append(
             Extension(
                 mod_name,
