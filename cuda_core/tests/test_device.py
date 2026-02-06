@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 try:
@@ -8,6 +8,7 @@ except ImportError:
     from cuda import cudart as runtime
 import cuda.core
 import pytest
+from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
@@ -30,7 +31,7 @@ def test_to_system_device(deinit_cuda):
 
     device = Device()
 
-    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or not hardware_supports_nvml():
         with pytest.raises(RuntimeError):
             device.to_system_device()
         pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
