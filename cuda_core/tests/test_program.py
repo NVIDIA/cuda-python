@@ -15,7 +15,13 @@ from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
+try:
+    from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir
 
+    _test_helpers_available = True
+except ImportError:
+    _test_helpers_available = False
+    
 def _is_nvvm_available():
     """Check if NVVM is available."""
     try:
@@ -499,6 +505,192 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
     program.close()
 
 
+@nvvm_available
+@pytest.mark.parametrize(
+    "options",
+    [
+        ProgramOptions(name="ltoir_test1", arch="sm_90", device_code_optimize=False),
+        ProgramOptions(name="ltoir_test2", arch="sm_100", link_time_optimization=True),
+        ProgramOptions(
+            name="ltoir_test3",
+            arch="sm_90",
+            ftz=True,
+            prec_sqrt=False,
+            prec_div=False,
+            fma=True,
+            device_code_optimize=True,
+            link_time_optimization=True,
+        ),
+    ],
+)
+def test_nvvm_program_options_ltoir(init_cuda, nvvm_ir, options):
+    """Test NVVM programs for LTOIR with different options"""
+    program = Program(nvvm_ir, "nvvm", options)
+    assert program.backend == "NVVM"
+
+    ltoir_code = program.compile("ltoir")
+    assert isinstance(ltoir_code, ObjectCode)
+    assert ltoir_code.name == options.name
+    code_content = ltoir_code.code
+    assert len(code_content) > 0
+    program.close()
+
+
+@nvvm_available
+def test_nvvm_program_with_single_extra_source(nvvm_ir):
+    """Test NVVM program with a single extra source"""
+    from cuda.core.experimental._program import _get_nvvm_module
+
+    nvvm = _get_nvvm_module()
+    major, minor, debug_major, debug_minor = nvvm.ir_version()
+    # helper nvvm ir for multiple module loading
+    helper_nvvmir = f"""target triple = "nvptx64-unknown-cuda"
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+
+define i32 @helper_add(i32 %x) {{
+entry:
+  %result = add i32 %x, 1
+  ret i32 %result
+}}
+
+!nvvmir.version = !{{!0}}
+!0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
+"""  # noqa: E501
+
+    options = ProgramOptions(
+        name="multi_module_test",
+        extra_sources=[
+            ("helper", helper_nvvmir),
+        ],
+    )
+    program = Program(nvvm_ir, "nvvm", options)
+
+    assert program.backend == "NVVM"
+
+    ptx_code = program.compile("ptx")
+    assert isinstance(ptx_code, ObjectCode)
+    assert ptx_code.name == "multi_module_test"
+
+    program.close()
+
+
+@nvvm_available
+def test_nvvm_program_with_multiple_extra_sources():
+    """Test NVVM program with multiple extra sources"""
+    from cuda.core.experimental._program import _get_nvvm_module
+
+    nvvm = _get_nvvm_module()
+    major, minor, debug_major, debug_minor = nvvm.ir_version()
+
+    main_nvvm_ir = f"""target triple = "nvptx64-unknown-cuda"
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+
+declare i32 @helper_add(i32) nounwind readnone
+declare i32 @helper_mul(i32) nounwind readnone
+
+define void @main_kernel(i32* %data) {{
+entry:
+  %tid = call i32 @llvm.nvvm.read.ptx.sreg.tid.x()
+  %ptr = getelementptr inbounds i32, i32* %data, i32 %tid
+  %val = load i32, i32* %ptr, align 4
+
+  %val1 = call i32 @helper_add(i32 %val)
+  %val2 = call i32 @helper_mul(i32 %val1)
+
+  store i32 %val2, i32* %ptr, align 4
+  ret void
+}}
+
+declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
+
+!nvvm.annotations = !{{!0}}
+!0 = !{{void (i32*)* @main_kernel, !"kernel", i32 1}}
+
+!nvvmir.version = !{{!1}}
+!1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
+"""  # noqa: E501
+
+    helper1_ir = f"""target triple = "nvptx64-unknown-cuda"
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+
+define i32 @helper_add(i32 %x) nounwind readnone {{
+entry:
+  %result = add i32 %x, 1
+  ret i32 %result
+}}
+
+!nvvmir.version = !{{!0}}
+!0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
+"""  # noqa: E501
+
+    helper2_ir = f"""target triple = "nvptx64-unknown-cuda"
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+
+define i32 @helper_mul(i32 %x) nounwind readnone {{
+entry:
+  %result = mul i32 %x, 2
+  ret i32 %result
+}}
+
+!nvvmir.version = !{{!0}}
+!0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
+"""  # noqa: E501
+
+    options = ProgramOptions(
+        name="nvvm_multi_helper_test",
+        extra_sources=[
+            ("helper1", helper1_ir),
+            ("helper2", helper2_ir),
+        ],
+    )
+    program = Program(main_nvvm_ir, "nvvm", options)
+
+    assert program.backend == "NVVM"
+    ptx_code = program.compile("ptx")
+    assert isinstance(ptx_code, ObjectCode)
+    assert ptx_code.name == "nvvm_multi_helper_test"
+
+    ltoir_code = program.compile("ltoir")
+    assert isinstance(ltoir_code, ObjectCode)
+    assert ltoir_code.name == "nvvm_multi_helper_test"
+
+    program.close()
+
+
+@nvvm_available
+@pytest.mark.skipif(not _test_helpers_available, reason="cuda_python_test_helpers not accessible")
+def test_bitcode_format(minimal_nvvmir):
+    if len(minimal_nvvmir) < 4:
+        pytest.skip("Bitcode file is not valid or empty")
+
+    options = ProgramOptions(name="minimal_nvvmir_bitcode_test", arch="sm_90")
+    program = Program(minimal_nvvmir, "nvvm", options)
+
+    assert program.backend == "NVVM"
+    ptx_result = program.compile("ptx")
+    assert isinstance(ptx_result, ObjectCode)
+    assert ptx_result.name == "minimal_nvvmir_bitcode_test"
+    assert len(ptx_result.code) > 0
+    program_lto = Program(minimal_nvvmir, "nvvm", options)
+    try:
+        ltoir_result = program_lto.compile("ltoir")
+        assert isinstance(ltoir_result, ObjectCode)
+        assert len(ltoir_result.code) > 0
+        print(f"LTOIR size: {len(ltoir_result.code)} bytes")
+    except Exception as e:
+        print(f"LTOIR compilation failed : {e}")
+    finally:
+        program.close()
+
+
+def test_cpp_program_with_extra_sources():
+    # negative test with NVRTC with multiple sources
+    code = 'extern "C" __global__ void my_kernel(){}'
+    helper = 'extern "C" __global__ void helper(){}'
+    options = ProgramOptions(extra_sources=helper)
+    with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
+        Program(code, "c++", options)
+        
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)

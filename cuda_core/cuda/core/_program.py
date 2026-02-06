@@ -114,7 +114,11 @@ def _process_define_macro_inner(formatted_options, macro):
         return True
     return False
 
-
+def _find_libdevice_path():
+    """Find libdevice.10.bc for NVVM compilation using cuda.pathfinder."""
+    from cuda.pathfinder import get_libdevice_path
+    return get_libdevice_path()
+    
 def _process_define_macro(formatted_options, macro):
     union_type = "Union[str, tuple[str, str]]"
     if _process_define_macro_inner(formatted_options, macro):
@@ -301,7 +305,7 @@ class ProgramOptions:
     debug: bool | None = None
     lineinfo: bool | None = None
     device_code_optimize: bool | None = None
-    ptxas_options: str | list[str] | tuple[str] | None = None
+    ptxas_options: Union[str, list[str], tuple[str]] | None = None
     max_register_count: int | None = None
     ftz: bool | None = None
     prec_sqrt: bool | None = None
@@ -311,10 +315,12 @@ class ProgramOptions:
     extra_device_vectorization: bool | None = None
     link_time_optimization: bool | None = None
     gen_opt_lto: bool | None = None
-    define_macro: str | tuple[str, str] | list[str | tuple[str, str]] | tuple[str | tuple[str, str], ...] | None = None
-    undefine_macro: str | list[str] | tuple[str] | None = None
-    include_path: str | list[str] | tuple[str] | None = None
-    pre_include: str | list[str] | tuple[str] | None = None
+    define_macro: (
+        Union[str, tuple[str, str], list[Union[str, tuple[str, str]]], tuple[Union[str, tuple[str, str]]]] | None
+    ) = None
+    undefine_macro: Union[str, list[str], tuple[str]] | None = None
+    include_path: Union[str, list[str], tuple[str]] | None = None
+    pre_include: Union[str, list[str], tuple[str]] | None = None
     no_source_include: bool | None = None
     std: str | None = None
     builtin_move_forward: bool | None = None
@@ -325,14 +331,17 @@ class ProgramOptions:
     device_int128: bool | None = None
     optimization_info: str | None = None
     no_display_error_number: bool | None = None
-    diag_error: int | list[int] | tuple[int] | None = None
-    diag_suppress: int | list[int] | tuple[int] | None = None
-    diag_warn: int | list[int] | tuple[int] | None = None
+    diag_error: Union[int, list[int], tuple[int]] | None = None
+    diag_suppress: Union[int, list[int], tuple[int]] | None = None
+    diag_warn: Union[int, list[int], tuple[int]] | None = None
     brief_diagnostics: bool | None = None
     time: str | None = None
     split_compile: int | None = None
     fdevice_syntax_only: bool | None = None
     minimal: bool | None = None
+    extra_sources: (
+        Union[List[Tuple[str, Union[str, bytes, bytearray]]], Tuple[Tuple[str, Union[str, bytes, bytearray]]]] | None
+    ) = None
     no_cache: bool | None = None
     fdevice_time_trace: str | None = None
     device_float128: bool | None = None
@@ -346,6 +355,7 @@ class ProgramOptions:
     pch_messages: bool | None = None
     instantiate_templates_in_pch: bool | None = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
+    use_libdevice: bool | None = None # For libdevice execution 
 
     def __post_init__(self):
         self._name = self.name.encode()
@@ -490,7 +500,8 @@ class ProgramOptions:
             options.append("--numba-debug")
         return [o.encode() for o in options]
 
-    def _prepare_nvvm_options(self, as_bytes: bool = True) -> list[bytes] | list[str]:
+    def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
+
         options = []
 
         # Options supported by NVVM
@@ -667,18 +678,22 @@ class Program:
                     nvvm.destroy_program(self.handle)
                 self.handle = None
 
-    __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
+    __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options", "_module_count")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None, None)
 
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
+        self._module_count = 0
 
         if code_type == "c++":
             assert_type(code, str)
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+            if options.extra_sources is not None:
+                raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
+
 
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
             self._mnff.backend = "NVRTC"
@@ -687,6 +702,8 @@ class Program:
 
         elif code_type == "ptx":
             assert_type(code, str)
+            if options.extra_sources is not None:
+                raise ValueError("extra_sources is not supported by the PTX backend.")
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
@@ -702,6 +719,41 @@ class Program:
             self._mnff.handle = nvvm.create_program()
             self._mnff.backend = "NVVM"
             nvvm.add_module_to_program(self._mnff.handle, code, len(code), options._name.decode())
+            self._module_count = 1
+            # Add extra modules if provided
+            if options.extra_sources is not None:
+                if not is_sequence(options.extra_sources):
+                    raise TypeError(
+                        "extra_modules must be a sequence of 2-tuples:((name1, source1), (name2, source2), ...)"
+                    )
+                for i, module in enumerate(options.extra_sources):
+                    if not isinstance(module, tuple) or len(module) != 2:
+                        raise TypeError(
+                            f"Each extra module must be a 2-tuple (name, source)"
+                            f", got {type(module).__name__} at index {i}"
+                        )
+
+                    module_name, module_source = module
+
+                    if not isinstance(module_name, str):
+                        raise TypeError(f"Module name at index {i} must be a string,got {type(module_name).__name__}")
+
+                    if isinstance(module_source, str):
+                        # Textual LLVM IR - encode to UTF-8 bytes
+                        module_source = module_source.encode("utf-8")
+                    elif not isinstance(module_source, (bytes, bytearray)):
+                        raise TypeError(
+                            f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
+                            f"or bytearray, got {type(module_source).__name__}"
+                        )
+
+                    if len(module_source) == 0:
+                        raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
+
+                    nvvm.add_module_to_program(self._mnff.handle, module_source, len(module_source), module_name)
+                    self._module_count += 1
+                    
+            self._use_libdevice = options.use_libdevice
             self._backend = "NVVM"
             self._linker = None
 
@@ -819,6 +871,19 @@ class Program:
             nvvm = _get_nvvm_module()
             with _nvvm_exception_manager(self):
                 nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+                # libdevice compilation 
+                if getattr(self, '_use_libdevice', False):
+                    libdevice_path = _find_libdevice_path()
+                    if libdevice_path is None:
+                        raise RuntimeError(
+                            "use_libdevice=True but could not find libdevice.10.bc. "
+                            "Ensure CUDA toolkit is installed."
+                        )
+                    with open(libdevice_path, "rb") as f:
+                        libdevice_bc = f.read()
+                    # libdevice for numba-cuda
+                    nvvm.lazy_add_module_to_program(self._mnff.handle, libdevice_bc, len(libdevice_bc), None)
+                
                 nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
 
             size = nvvm.get_compiled_result_size(self._mnff.handle)
