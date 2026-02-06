@@ -138,7 +138,7 @@ jobs:
 
       - name: Set cuda package install root
         run: |
-          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
+          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; import os; print(os.path.dirname(cuda.__path__[0]))')" >> $GITHUB_ENV
           echo "REPO_ROOT=$(pwd)" >> $GITHUB_ENV
 
       - name: Run cuda.pathfinder tests
@@ -236,7 +236,7 @@ jobs:
           cuda-version: ${{ env.CUDA_VER }}
 
       - name: Patch cuda_bindings for Cython coverage
-        shell: pwsh
+        shell: powershell
         run: |
           $setupPath = "cuda_bindings\setup.py"
           (Get-Content $setupPath -Raw) -replace 'build_dir="build/cython",', 'build_dir=".",' | Set-Content $setupPath -NoNewline
@@ -247,7 +247,7 @@ jobs:
           echo "Applied coverage patches to cuda_bindings"
 
       - name: Patch cuda_core for Cython coverage
-        shell: pwsh
+        shell: powershell
         run: |
           $buildHooksPath = "cuda_core\build_hooks.py"
           (Get-Content $buildHooksPath -Raw) -replace 'build_dir="build/cython",', 'build_dir=".",' | Set-Content $buildHooksPath -NoNewline
