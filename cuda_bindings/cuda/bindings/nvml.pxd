@@ -182,9 +182,9 @@ cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2
 cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_ind_ex) except? -1
 cpdef str device_get_uuid(intptr_t device)
 cpdef unsigned int device_get_minor_number(intptr_t device) except? 0
-cpdef str device_get_board_part_number(intptr_t device)
-cpdef str device_get_inforom_version(intptr_t device, int object)
-cpdef str device_get_inforom_image_version(intptr_t device)
+cpdef bytes device_get_board_part_number(intptr_t device)
+cpdef bytes device_get_inforom_version(intptr_t device, int object)
+cpdef bytes device_get_inforom_image_version(intptr_t device)
 cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) except? 0
 cpdef device_validate_inforom(intptr_t device)
 cpdef tuple device_get_last_bbx_flush_time(intptr_t device)

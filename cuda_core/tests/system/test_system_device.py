@@ -514,11 +514,11 @@ def test_get_inforom_version():
 
         with unsupported_before(device, "HAS_INFOROM"):
             inforom_image_version = inforom.image_version
-        assert isinstance(inforom_image_version, str)
+        assert isinstance(inforom_image_version, bytes)
         assert len(inforom_image_version) > 0
 
         inforom_version = inforom.get_version(system.InforomObject.INFOROM_OEM)
-        assert isinstance(inforom_version, str)
+        assert isinstance(inforom_version, bytes)
         assert len(inforom_version) > 0
 
         checksum = inforom.configuration_checksum
@@ -537,7 +537,7 @@ def test_get_inforom_version():
 
         with unsupported_before(device, "HAS_INFOROM"):
             board_part_number = inforom.board_part_number
-        assert isinstance(board_part_number, str)
+        assert isinstance(board_part_number, bytes)
         assert len(board_part_number) > 0
 
         inforom.validate()

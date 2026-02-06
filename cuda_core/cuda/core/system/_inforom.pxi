@@ -12,7 +12,7 @@ cdef class InforomInfo:
     def __init__(self, device: Device):
         self._device = device
 
-    def get_version(self, inforom: InforomObject) -> str:
+    def get_version(self, inforom: InforomObject) -> bytes:
         """
         Retrieves the InfoROM version for a given InfoROM object.
 
@@ -34,7 +34,7 @@ cdef class InforomInfo:
         return nvml.device_get_inforom_version(self._device._handle, inforom)
 
     @property
-    def image_version(self) -> str:
+    def image_version(self) -> bytes:
         """
         Retrieves the global InfoROM image version.
 
@@ -100,7 +100,7 @@ cdef class InforomInfo:
         return nvml.device_get_last_bbx_flush_time(self._device._handle)
 
     @property
-    def board_part_number(self) -> str:
+    def board_part_number(self) -> bytes:
         """
         The device board part number which is programmed into the board's InfoROM.
         """

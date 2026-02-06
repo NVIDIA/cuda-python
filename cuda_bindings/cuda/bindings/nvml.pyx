@@ -20035,7 +20035,7 @@ cpdef unsigned int device_get_minor_number(intptr_t device) except? 0:
     return minor_number
 
 
-cpdef str device_get_board_part_number(intptr_t device):
+cpdef bytes device_get_board_part_number(intptr_t device):
     """Retrieves the the device board part number which is programmed into the board's InfoROM.
 
     Args:
@@ -20048,10 +20048,10 @@ cpdef str device_get_board_part_number(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetBoardPartNumber(<Device>device, part_number, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(part_number)
+    return cpython.PyBytes_FromStringAndSize(part_number, 80)
 
 
-cpdef str device_get_inforom_version(intptr_t device, int object):
+cpdef bytes device_get_inforom_version(intptr_t device, int object):
     """Retrieves the version information for the device's infoROM object.
 
     Args:
@@ -20065,10 +20065,10 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
     with nogil:
         __status__ = nvmlDeviceGetInforomVersion(<Device>device, <_InforomObject>object, version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return cpython.PyBytes_FromStringAndSize(version, 16)
 
 
-cpdef str device_get_inforom_image_version(intptr_t device):
+cpdef bytes device_get_inforom_image_version(intptr_t device):
     """Retrieves the global infoROM image version.
 
     Args:
@@ -20081,7 +20081,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetInforomImageVersion(<Device>device, version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return cpython.PyBytes_FromStringAndSize(version, 16)
 
 
 cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) except? 0:
