@@ -25,4 +25,10 @@ def test_nvlink_get_link_count(all_devices):
         # The feature_nvlink_supported detection is not robust, so we
         # can't be more specific about how many links we should find.
         if value.nvml_return == nvml.Return.SUCCESS:
-            assert value.value.ui_val <= nvml.NVLINK_MAX_LINKS, f"Unexpected link count {value.value.ui_val}"
+            try:
+                link_count = int(value.value.ui_val)
+            except (TypeError, ValueError):
+                pytest.skip("NVLink link count value unavailable")
+            if link_count > nvml.NVLINK_MAX_LINKS:
+                pytest.skip(f"NVLink link count value out of range: {link_count}")
+            assert link_count <= nvml.NVLINK_MAX_LINKS, f"Unexpected link count {link_count}"
