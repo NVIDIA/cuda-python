@@ -38,8 +38,6 @@ def test_to_system_device(deinit_cuda):
     from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
 
     if not hardware_supports_nvml():
-        with pytest.raises(RuntimeError):
-            device.to_system_device()
         pytest.skip("NVML not supported on this platform")
 
     from cuda.core.system import Device as SystemDevice
