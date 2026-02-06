@@ -8,7 +8,6 @@ except ImportError:
     from cuda import cudart as runtime
 import cuda.core
 import pytest
-from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
@@ -31,10 +30,17 @@ def test_to_system_device(deinit_cuda):
 
     device = Device()
 
-    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or not hardware_supports_nvml():
+    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         with pytest.raises(RuntimeError):
             device.to_system_device()
         pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
+
+    from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
+
+    if not hardware_supports_nvml():
+        with pytest.raises(RuntimeError):
+            device.to_system_device()
+        pytest.skip("NVML not supported on this platform")
 
     from cuda.core.system import Device as SystemDevice
 
