@@ -3,9 +3,28 @@
 
 
 from contextlib import contextmanager
+from functools import cache
 
 import pytest
 from cuda.bindings import nvml
+
+
+@cache
+def hardware_supports_nvml():
+    """
+    Tries to call the simplest NVML API possible to see if just the basics
+    works.  If not we are probably on one of the platforms where NVML is not
+    supported at all (e.g. Jetson Orin).
+    """
+    nvml.init_v2()
+    try:
+        nvml.system_get_driver_branch()
+    except nvml.NotSupportedError:
+        return False
+    else:
+        return True
+    finally:
+        nvml.shutdown()
 
 
 @contextmanager
