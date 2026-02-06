@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -13,6 +13,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
+from cuda.core._utils.cuda_utils import CUDAError
 from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
@@ -166,7 +167,12 @@ def test_graph_alloc_with_output(mempool_device, mode):
     out.copy_from(in_, stream=gb)
     launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
     options = GraphCompleteOptions(auto_free_on_launch=True)
-    graph = gb.end_building().complete(options)
+    try:
+        graph = gb.end_building().complete(options)
+    except CUDAError as exc:
+        if "CUDA_ERROR_INVALID_VALUE" in str(exc):
+            pytest.skip("auto_free_on_launch not supported on this platform")
+        raise
 
     # Launch the graph. The output buffer is allocated and set to one.
     graph.upload(stream)

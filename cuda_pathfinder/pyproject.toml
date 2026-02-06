@@ -14,6 +14,7 @@ dependencies = []
 test = [
     "pytest>=6.2.4",
     "pytest-mock",
+    "pytest-repeat",
 ]
 # Internal organization of test dependencies.
 cu12 = [

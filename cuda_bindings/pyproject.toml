@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 [build-system]
 requires = [
@@ -45,6 +45,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pytest-repeat",
     "pyglet>=2.1.9",
 ]
 
@@ -54,6 +55,9 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 
 [tool.setuptools.packages.find]
 include = ["cuda*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.cpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
