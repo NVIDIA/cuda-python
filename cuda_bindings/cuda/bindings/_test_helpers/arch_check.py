@@ -19,7 +19,7 @@ def hardware_supports_nvml():
     nvml.init_v2()
     try:
         nvml.system_get_driver_branch()
-    except nvml.NotSupportedError:
+    except (nvml.NotSupportedError, nvml.UnknownError):
         return False
     else:
         return True
