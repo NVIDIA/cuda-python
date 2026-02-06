@@ -16,29 +16,15 @@ def hardware_supports_nvml():
     works.  If not we are probably on one of the platforms where NVML is not
     supported at all (e.g. Jetson Orin).
     """
-    initialized = False
+    nvml.init_v2()
     try:
-        try:
-            nvml.init_v2()
-        except Exception:
-            # NVML cannot be initialized in this environment; treat as unsupported.
-            return False
-        else:
-            initialized = True
-
-        try:
-            nvml.system_get_driver_branch()
-        except nvml.NotSupportedError:
-            return False
-        else:
-            return True
+        nvml.system_get_driver_branch()
+    except nvml.NotSupportedError:
+        return False
+    else:
+        return True
     finally:
-        if initialized:
-            # Ignore shutdown errors in this lightweight capability check.
-            try:
-                nvml.shutdown()
-            except Exception:
-                pass
+        nvml.shutdown()
 
 
 @contextmanager
