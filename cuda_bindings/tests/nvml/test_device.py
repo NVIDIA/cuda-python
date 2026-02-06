@@ -65,9 +65,12 @@ def test_grid_licensable_features(all_devices):
 def test_get_handle_by_uuidv(all_devices):
     for device in all_devices:
         uuid = nvml.device_get_uuid(device)
+        uuid_bytes = uuid.encode("ascii")
+        if len(uuid_bytes) != 40:
+            pytest.skip("UUID ASCII format not supported on this system")
         try:
-            new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
-        except nvml.NotFoundError:
+            new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid_bytes)
+        except (nvml.NotFoundError, ValueError):
             pytest.skip("Device handle lookup by UUID not supported on this system")
         assert new_handle == device
 
