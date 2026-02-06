@@ -10,6 +10,7 @@ from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch
 NBYTES = 1024
 
 
+@pytest.mark.skip(reason="nvbug 5821337: peer access tests disabled until resolved")
 def test_peer_access_basic(mempool_device_x2):
     """Basic tests for dmr.peer_accessible_by."""
     dev0, dev1 = mempool_device_x2
@@ -46,6 +47,7 @@ def test_peer_access_basic(mempool_device_x2):
         zero_on_dev0.copy_from(buf_on_dev1, stream=stream_on_dev0)
 
 
+@pytest.mark.skip(reason="nvbug 5821337: peer access tests disabled until resolved")
 def test_peer_access_property_x2(mempool_device_x2):
     """The the dmr.peer_accessible_by property (but not its functionality)."""
     # The peer access list is a sorted tuple and always excludes the self
@@ -78,6 +80,7 @@ def test_peer_access_property_x2(mempool_device_x2):
         dmr.peer_accessible_by = [num_devices]  # device ID out of bounds
 
 
+@pytest.mark.skip(reason="nvbug 5821337: peer access tests disabled until resolved")
 def test_peer_access_transitions(mempool_device_x3):
     """Advanced tests for dmr.peer_accessible_by."""
 

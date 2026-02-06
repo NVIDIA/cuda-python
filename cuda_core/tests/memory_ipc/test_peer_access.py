@@ -13,6 +13,7 @@ NBYTES = 64
 POOL_SIZE = 2097152
 
 
+@pytest.mark.skip(reason="nvbug 5821337: peer access tests disabled until resolved")
 class TestPeerAccessNotPreservedOnImport:
     """
     Verify that peer access settings are not preserved when a memory resource
@@ -51,6 +52,7 @@ class TestPeerAccessNotPreservedOnImport:
         mr.close()
 
 
+@pytest.mark.skip(reason="nvbug 5821337: peer access tests disabled until resolved")
 class TestBufferPeerAccessAfterImport:
     """
     Verify that buffers imported via IPC can be accessed from peer devices after
