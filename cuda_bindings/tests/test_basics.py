@@ -68,7 +68,8 @@ def test_enum(MyEnum):
         assert item.name in dir(container)
         for item2 in container:
             assert hasattr(item, item2.name)
-            assert item2.name in dir(item)
+            if sys.version_info >= (3, 11):
+                assert item2.name in dir(item)
             assert getattr(item, item2.name) is item2
 
     for name, val in container.__members__.items():
