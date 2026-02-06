@@ -16,7 +16,6 @@ cuda.core.Program
    .. automethod:: __init__
    .. automethod:: close
    .. automethod:: compile
-   .. automethod:: driver_can_load_nvrtc_ptx_output
 
    
    
