@@ -19,6 +19,18 @@ class NVMLInitializer:
         nvml.shutdown()
 
 
+def get_device_pci_info(device):
+    try:
+        return nvml.device_get_pci_info_v3(device)
+    except (nvml.NotSupportedError, nvml.FunctionNotFoundError):
+        pass
+
+    try:
+        return nvml.device_get_pci_info_ext(device)
+    except (nvml.NotSupportedError, nvml.FunctionNotFoundError):
+        return None
+
+
 @pytest.fixture
 def nvml_init():
     with NVMLInitializer():
@@ -39,22 +51,27 @@ def device_info():
                 dev = nvml.device_get_handle_by_index_v2(i)
             except nvml.NoPermissionError:
                 continue
-            pci_info = nvml.device_get_pci_info_v3(dev)
+            pci_info = get_device_pci_info(dev)
 
             name = nvml.device_get_name(dev)
             # Get architecture name ex: Ampere, Kepler
             arch_id = nvml.device_get_architecture(dev)
 
             BoardCfg = namedtuple("BoardCfg", "name, ids_arr")
-            board = BoardCfg(name, ids_arr=[(pci_info.pci_device_id, pci_info.pci_sub_system_id)])
+            if pci_info is None:
+                board = BoardCfg(name, ids_arr=[])
+                bus_id = None
+                device_id = None
+            else:
+                board = BoardCfg(name, ids_arr=[(pci_info.pci_device_id, pci_info.pci_sub_system_id)])
+                bus_id = pci_info.bus_id
+                device_id = pci_info.device_
 
             try:
                 serial = nvml.device_get_serial(dev)
             except nvml.NvmlError:
                 serial = None
 
-            bus_id = pci_info.bus_id
-            device_id = pci_info.device_
             uuid = nvml.device_get_uuid(dev)
 
             BoardDetails = namedtuple("BoardDetails", "name, board, arch_id, bus_id, device_id, serial")
@@ -126,6 +143,11 @@ def uuids(ngpus, handles):
 
 @pytest.fixture
 def pci_info(ngpus, handles):
-    pci_info = [nvml.device_get_pci_info_v3(handles[i]) for i in range(ngpus)]
+    pci_info = []
+    for handle in handles:
+        info = get_device_pci_info(handle)
+        if info is None:
+            pytest.skip("PCI info not supported on this device")
+        pci_info.append(info)
     assert len(pci_info) == ngpus
     return pci_info

@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import cuda.bindings.driver as cuda
+import pytest
 from cuda.bindings import nvml
 
-from .conftest import NVMLInitializer
+from .conftest import NVMLInitializer, get_device_pci_info
 
 
 def get_nvml_device_names():
@@ -15,7 +16,9 @@ def get_nvml_device_names():
         for idx in range(num_devices):
             handle = nvml.device_get_handle_by_index_v2(idx)
             name = nvml.device_get_name(handle)
-            info = nvml.device_get_pci_info_v3(handle)
+            info = get_device_pci_info(handle)
+            if info is None:
+                pytest.skip("PCI info not supported on this device")
             assert isinstance(info.bus, int)
             assert isinstance(name, str)
             result.append({"name": name, "id": info.bus})

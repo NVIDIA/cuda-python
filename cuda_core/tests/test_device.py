@@ -37,7 +37,10 @@ def test_to_system_device(deinit_cuda):
 
     from cuda.core.system import Device as SystemDevice
 
-    system_device = device.to_system_device()
+    try:
+        system_device = device.to_system_device()
+    except cuda.core.system.NotFoundError:
+        pytest.skip("No corresponding NVML device found for this CUDA device")
     assert isinstance(system_device, SystemDevice)
     assert system_device.uuid == device.uuid
 

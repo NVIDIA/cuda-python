@@ -4,14 +4,17 @@
 
 import contextlib
 
+import pytest
 from cuda.bindings import nvml
 
-from .conftest import unsupported_before
+from .conftest import get_device_pci_info, unsupported_before
 
 
 def test_discover_gpus(all_devices):
     for device in all_devices:
-        pci_info = nvml.device_get_pci_info_v3(device)
+        pci_info = get_device_pci_info(device)
+        if pci_info is None or not isinstance(pci_info, nvml.PciInfo):
+            pytest.skip("PCI info v3 not supported for device_discover_gpus")
         # Docs say this should be supported on PASCAL and later
         with unsupported_before(device, None), contextlib.suppress(nvml.OperatingSystemError):
             nvml.device_discover_gpus(pci_info.ptr)

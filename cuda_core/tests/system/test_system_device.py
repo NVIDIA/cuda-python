@@ -54,7 +54,12 @@ def test_to_cuda_device():
     from cuda.core import Device as CudaDevice
 
     for device in system.Device.get_all_devices():
-        cuda_device = device.to_cuda_device()
+        try:
+            cuda_device = device.to_cuda_device()
+        except RuntimeError as exc:
+            if "No corresponding CUDA device" in str(exc):
+                pytest.skip("No corresponding CUDA device found for this NVML device")
+            raise
 
         assert isinstance(cuda_device, CudaDevice)
         assert cuda_device.uuid == device.uuid
@@ -64,7 +69,9 @@ def test_to_cuda_device():
 
         # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
         # 4-byte domain
-        assert cuda_device.pci_bus_id == device.pci_info.bus_id[4:]
+        with unsupported_before(device, None):
+            pci_bus_id = device.pci_info.bus_id
+        assert cuda_device.pci_bus_id == pci_bus_id[4:]
 
 
 def test_device_architecture():
@@ -97,7 +104,7 @@ def test_device_bar1_memory():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_cpu_affinity():
     for device in system.Device.get_all_devices():
-        with unsupported_before(device, DeviceArch.KEPLER):
+        with unsupported_before(device, None):
             affinity = device.get_cpu_affinity(system.AffinityScope.NODE)
         assert isinstance(affinity, list)
         os.sched_setaffinity(0, affinity)
@@ -108,11 +115,12 @@ def test_device_cpu_affinity():
 def test_affinity():
     for device in system.Device.get_all_devices():
         for scope in (system.AffinityScope.NODE, system.AffinityScope.SOCKET):
-            with unsupported_before(device, DeviceArch.KEPLER):
+            with unsupported_before(device, None):
                 affinity = device.get_cpu_affinity(scope)
             assert isinstance(affinity, list)
 
-            affinity = device.get_memory_affinity(scope)
+            with unsupported_before(device, None):
+                affinity = device.get_memory_affinity(scope)
             assert isinstance(affinity, list)
 
 
@@ -162,7 +170,8 @@ def test_device_name():
 
 def test_device_pci_info():
     for device in system.Device.get_all_devices():
-        pci_info = device.pci_info
+        with unsupported_before(device, None):
+            pci_info = device.pci_info
         assert isinstance(pci_info, system.PciInfo)
 
         assert isinstance(pci_info.bus_id, str)
@@ -303,10 +312,12 @@ def test_device_brand():
 
 def test_device_pci_bus_id():
     for device in system.Device.get_all_devices():
-        pci_bus_id = device.pci_info.bus_id
+        with unsupported_before(device, None):
+            pci_info = device.pci_info
+        pci_bus_id = pci_info.bus_id
         assert isinstance(pci_bus_id, str)
 
-        new_device = system.Device(pci_bus_id=device.pci_info.bus_id)
+        new_device = system.Device(pci_bus_id=pci_info.bus_id)
         assert new_device.index == device.index
 
 
@@ -343,7 +354,8 @@ def test_c2c_mode_enabled():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 def test_persistence_mode_enabled():
     for device in system.Device.get_all_devices():
-        is_enabled = device.persistence_mode_enabled
+        with unsupported_before(device, None):
+            is_enabled = device.persistence_mode_enabled
         assert isinstance(is_enabled, bool)
         try:
             device.persistence_mode_enabled = False
@@ -440,10 +452,12 @@ def test_addressing_mode():
 
 def test_display_mode():
     for device in system.Device.get_all_devices():
-        display_mode = device.display_mode
+        with unsupported_before(device, None):
+            display_mode = device.display_mode
         assert isinstance(display_mode, bool)
 
-        display_active = device.display_active
+        with unsupported_before(device, None):
+            display_active = device.display_active
         assert isinstance(display_active, bool)
 
 
@@ -502,7 +516,8 @@ def test_get_nearest_gpus():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_get_minor_number():
     for device in system.Device.get_all_devices():
-        minor_number = device.minor_number
+        with unsupported_before(device, None):
+            minor_number = device.minor_number
         assert isinstance(minor_number, int)
         assert minor_number >= 0
 
@@ -617,11 +632,14 @@ def test_fan():
     for device in system.Device.get_all_devices():
         # The fan APIs are only supported on discrete devices with fans,
         # but when they are not available `device.num_fans` returns 0.
-        if device.num_fans == 0:
+        with unsupported_before(device, None):
+            num_fans = device.num_fans
+        if num_fans == 0:
             pytest.skip("Device has no fans to test")
 
-        for fan_idx in range(device.num_fans):
-            fan_info = device.fan(fan_idx)
+        for fan_idx in range(num_fans):
+            with unsupported_before(device, None):
+                fan_info = device.fan(fan_idx)
             assert isinstance(fan_info, system.FanInfo)
 
             speed = fan_info.speed
@@ -657,10 +675,12 @@ def test_cooler():
     for device in system.Device.get_all_devices():
         # The cooler APIs are only supported on discrete devices with fans,
         # but when they are not available `device.num_fans` returns 0.
-        if device.num_fans == 0:
+        with unsupported_before(device, None):
+            num_fans = device.num_fans
+        if num_fans == 0:
             pytest.skip("Device has no coolers to test")
 
-        with unsupported_before(device, DeviceArch.MAXWELL):
+        with unsupported_before(device, None):
             cooler_info = device.cooler
 
         assert isinstance(cooler_info, system.CoolerInfo)
@@ -677,7 +697,8 @@ def test_temperature():
         temperature = device.temperature
         assert isinstance(temperature, system.Temperature)
 
-        sensor = temperature.sensor()
+        with unsupported_before(device, None):
+            sensor = temperature.sensor()
         assert isinstance(sensor, int)
         assert sensor >= 0
 

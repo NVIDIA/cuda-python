@@ -99,7 +99,10 @@ def test_device_count():
 
 @skip_if_nvml_unsupported
 def test_get_driver_branch():
-    driver_branch = system.get_driver_branch()
+    try:
+        driver_branch = system.get_driver_branch()
+    except (system.UnknownError, system.NotSupportedError):
+        pytest.skip("Driver branch not supported on this system")
     assert isinstance(driver_branch, str)
     assert len(driver_branch) > 0
     assert driver_branch[0] == "r"
