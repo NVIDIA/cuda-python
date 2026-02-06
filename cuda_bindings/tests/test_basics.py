@@ -62,9 +62,9 @@ def test_enum(MyEnum):
 
     for item in container:
         assert isinstance(item, container)
+        assert item in container
         if sys.version_info >= (3, 12):
-            assert item in container
-        assert item.value in container
+            assert item.value in container
         assert item.name in dir(container)
         for item2 in container:
             assert hasattr(item, item2.name)
