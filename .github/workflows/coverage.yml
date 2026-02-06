@@ -140,8 +140,6 @@ jobs:
         run: |
           echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
           echo "REPO_ROOT=$(pwd)" >> $GITHUB_ENV
-          echo "Install root: $INSTALL_ROOT"
-          echo "Repo root: $REPO_ROOT"
 
       - name: Run cuda.pathfinder tests
         continue-on-error: true
@@ -195,15 +193,23 @@ jobs:
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
     steps:
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
+
+      - name: Update driver
+        env:
+          DRIVER_MODE: "TCC"
+          GPU_TYPE: "a100"
+        run: |
+          ci/tools/install_gpu_driver.ps1
+
+      - name: Ensure GPU is working
+        run: |
+          nvidia-smi
 
       - name: Set environment variables
         shell: bash --noprofile --norc -xeuo pipefail {0}
