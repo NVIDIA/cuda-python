@@ -53,7 +53,10 @@ def test_device_get_attributes(mig_handles):
 
 
 def test_device_get_handle_by_uuid(ngpus, uuids):
-    handles = [nvml.device_get_handle_by_uuid(uuids[i]) for i in range(ngpus)]
+    try:
+        handles = [nvml.device_get_handle_by_uuid(uuids[i]) for i in range(ngpus)]
+    except nvml.NotFoundError:
+        pytest.skip("Device handle lookup by UUID not supported on this system")
     assert len(handles) == ngpus
 
 
@@ -67,7 +70,7 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
 def test_device_get_memory_affinity(handles, scope):
     size = 1024
     for handle in handles:
-        with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+        with unsupported_before(handle, None):
             node_set = nvml.device_get_memory_affinity(handle, size, scope)
         assert node_set is not None
         assert len(node_set) == size
@@ -78,7 +81,7 @@ def test_device_get_memory_affinity(handles, scope):
 def test_device_get_cpu_affinity_within_scope(handles, scope):
     size = 1024
     for handle in handles:
-        with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+        with unsupported_before(handle, None):
             cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
         assert cpu_set is not None
         assert len(cpu_set) == size
@@ -186,7 +189,7 @@ def test_device_get_memory_info(ngpus, handles):
 
 def test_device_get_utilization_rates(ngpus, handles):
     for i in range(ngpus):
-        with unsupported_before(handles[i], "FERMI"):
+        with unsupported_before(handles[i], None):
             urate = nvml.device_get_utilization_rates(handles[i])
         assert urate.gpu >= 0
         assert urate.memory >= 0

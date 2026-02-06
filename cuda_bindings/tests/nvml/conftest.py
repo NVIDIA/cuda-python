@@ -74,18 +74,29 @@ def device_info():
 
             uuid = nvml.device_get_uuid(dev)
 
-            BoardDetails = namedtuple("BoardDetails", "name, board, arch_id, bus_id, device_id, serial")
-            bus_id_to_board_details[uuid] = BoardDetails(name, board, arch_id, bus_id, device_id, serial)
+            BoardDetails = namedtuple("BoardDetails", "name, board, arch_id, bus_id, device_id, serial, index")
+            bus_id_to_board_details[uuid] = BoardDetails(name, board, arch_id, bus_id, device_id, serial, i)
 
     return bus_id_to_board_details
 
 
 def get_devices(device_info):
-    for uuid in list(device_info.keys()):
+    for uuid, details in device_info.items():
         try:
             yield nvml.device_get_handle_by_uuid(uuid)
+            continue
         except nvml.NoPermissionError:
             continue  # ignore devices that can't be accessed
+        except (nvml.NotFoundError, nvml.NotSupportedError, nvml.FunctionNotFoundError):
+            pass
+
+        if details.index is None:
+            continue
+
+        try:
+            yield nvml.device_get_handle_by_index_v2(details.index)
+        except (nvml.NoPermissionError, nvml.NotFoundError, nvml.NotSupportedError, nvml.FunctionNotFoundError):
+            continue
 
 
 @pytest.fixture

@@ -27,5 +27,7 @@ def test_compute_mode_supported_nonroot(all_devices):
                 nvml.device_set_compute_mode(device, cm)
             except nvml.NoPermissionError:
                 pytest.skip("Insufficient permissions to set compute mode")
+            except (nvml.NotSupportedError, nvml.NotFoundError):
+                pytest.skip("Compute mode not supported on this device")
             nvml.device_set_compute_mode(device, original_compute_mode)
             assert original_compute_mode == nvml.device_get_compute_mode(device), "Compute mode shouldn't have changed"

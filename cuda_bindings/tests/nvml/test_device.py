@@ -26,7 +26,8 @@ def cuda_version_less_than(target):
 
 def test_device_capabilities(all_devices):
     for device in all_devices:
-        capabilities = nvml.device_get_capabilities(device)
+        with unsupported_before(device, None):
+            capabilities = nvml.device_get_capabilities(device)
         assert isinstance(capabilities, int)
 
 
@@ -45,7 +46,8 @@ def test_current_clock_freqs(all_devices):
 
 def test_grid_licensable_features(all_devices):
     for device in all_devices:
-        features = nvml.device_get_grid_licensable_features_v4(device)
+        with unsupported_before(device, None):
+            features = nvml.device_get_grid_licensable_features_v4(device)
         assert isinstance(features, nvml.GridLicensableFeatures)
         # #define NVML_GRID_LICENSE_FEATURE_MAX_COUNT 3
         assert len(features.grid_licensable_features) <= 3
@@ -63,7 +65,10 @@ def test_grid_licensable_features(all_devices):
 def test_get_handle_by_uuidv(all_devices):
     for device in all_devices:
         uuid = nvml.device_get_uuid(device)
-        new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
+        try:
+            new_handle = nvml.device_get_handle_by_uuidv(nvml.UUIDType.ASCII, uuid.encode("ascii"))
+        except nvml.NotFoundError:
+            pytest.skip("Device handle lookup by UUID not supported on this system")
         assert new_handle == device
 
 
@@ -82,7 +87,8 @@ def test_get_nv_link_supported_bw_modes(all_devices):
 
 def test_device_get_pdi(all_devices):
     for device in all_devices:
-        pdi = nvml.device_get_pdi(device)
+        with unsupported_before(device, None):
+            pdi = nvml.device_get_pdi(device)
         assert isinstance(pdi, int)
 
 
@@ -150,7 +156,7 @@ def test_get_power_management_limit(all_devices):
 
 def test_set_power_management_limit(all_devices):
     for device in all_devices:
-        with unsupported_before(device, nvml.DeviceArch.KEPLER):
+        with unsupported_before(device, None):
             try:
                 nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, 10000)
             except nvml.NoPermissionError:

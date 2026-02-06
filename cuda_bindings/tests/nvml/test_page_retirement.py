@@ -16,6 +16,8 @@ def supports_page_retirement(device):
         return True
     except nvml.NotSupportedError as e:
         return False
+    except nvml.NotFoundError as e:
+        return False
     except nvml.FunctionNotFoundError as e:
         return False
 

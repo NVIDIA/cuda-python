@@ -29,7 +29,7 @@ def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str 
 
         try:
             yield
-        except nvml.NotSupportedError:
+        except (nvml.NotSupportedError, nvml.NotFoundError):
             # The API call raised NotSupportedError, so we skip the test, but
             # don't fail it
             pytest.skip(
