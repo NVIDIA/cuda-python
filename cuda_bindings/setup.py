@@ -374,7 +374,6 @@ sources_list = [
     (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
     (["cuda/bindings/utils/*.pyx"], None),
-    (["cuda/bindings/utils/_fast_enum.c"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),
     # internal files used by generated bindings
