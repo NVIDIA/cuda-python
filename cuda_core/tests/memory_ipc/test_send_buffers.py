@@ -14,6 +14,8 @@ NMRS = 3
 NTASKS = 7
 POOL_SIZE = 2097152
 
+pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
+
 
 class TestIpcSendBuffers:
     @pytest.mark.parametrize("nmrs", (1, NMRS))

@@ -22,12 +22,12 @@ if CUDA_PATH is not None:
             CCCL_INCLUDE_PATHS = (path,) + CCCL_INCLUDE_PATHS
 
 
-try:
-    from cuda_python_test_helpers import *  # noqa: F403
-except ImportError:
-    # Import shared platform helpers for tests across repos
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
-    from cuda_python_test_helpers import *  # noqa: F403
+helpers_root = pathlib.Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"
+if helpers_root.is_dir() and str(helpers_root) not in sys.path:
+    # Prefer the in-repo helpers over any installed copy.
+    sys.path.insert(0, str(helpers_root))
+
+from cuda_python_test_helpers import *  # noqa: E402, F403
 
 
 @functools.cache

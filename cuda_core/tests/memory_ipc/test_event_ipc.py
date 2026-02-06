@@ -17,6 +17,8 @@ NBYTES = 64
 class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
+    pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
+
     def test_main(self, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device

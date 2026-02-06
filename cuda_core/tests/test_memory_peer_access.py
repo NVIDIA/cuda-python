@@ -10,6 +10,7 @@ from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch
 NBYTES = 1024
 
 
+@pytest.mark.usefixtures("requires_concurrent_managed_access")
 def test_peer_access_basic(mempool_device_x2):
     """Basic tests for dmr.peer_accessible_by."""
     dev0, dev1 = mempool_device_x2
@@ -78,6 +79,7 @@ def test_peer_access_property_x2(mempool_device_x2):
         dmr.peer_accessible_by = [num_devices]  # device ID out of bounds
 
 
+@pytest.mark.usefixtures("requires_concurrent_managed_access")
 def test_peer_access_transitions(mempool_device_x3):
     """Advanced tests for dmr.peer_accessible_by."""
 
