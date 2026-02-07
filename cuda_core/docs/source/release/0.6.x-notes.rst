@@ -1,0 +1,40 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 0.6.x Release Notes
+=================================
+
+
+Highlights
+----------
+
+None.
+
+
+Breaking Changes
+----------------
+
+None.
+
+
+New features
+------------
+
+None.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- Wheel and installed package sizes significantly reduced (e.g., on a typical Linux x86_64
+  build, wheel from ~4.6 MB to ~1.6 MB and installed from ~26 MB to ~4.4 MB) by excluding
+  Cython source files, generated C++ files, and other build artifacts from distribution
+  packages.
