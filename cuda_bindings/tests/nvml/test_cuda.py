@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import os
+
 import cuda.bindings.driver as cuda
 from cuda.bindings import nvml
 
@@ -50,10 +52,16 @@ def get_cuda_device_names(sort_by_bus_id=True):
     return result
 
 
-def test_cuda_device_order(monkeypatch):
-    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
-
+def test_cuda_device_order():
     cuda_devices = get_cuda_device_names()
     nvml_devices = get_nvml_device_names()
 
-    assert cuda_devices == nvml_devices, "CUDA and NVML device lists do not match"
+    if "CUDA_VISIBLE_DEVICES" not in os.environ:
+        # If that environment variable isn't set, the device lists should match exactly
+        assert cuda_devices == nvml_devices, "CUDA and NVML device lists do not match"
+    else:
+        # If the environment variable is set, there may possible be fewer CUDA devices,
+        # and each of them should still be found in NVML devices.
+        assert len(cuda_devices) <= len(nvml_devices)
+        for cuda_device in cuda_devices:
+            assert cuda_device in nvml_devices, f"CUDA device {cuda_device} not found in NVML device list"
