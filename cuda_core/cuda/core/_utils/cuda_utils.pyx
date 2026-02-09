@@ -20,6 +20,8 @@ except ImportError:
     from cuda import cudart as runtime
     from cuda import nvrtc
 
+from cuda.bindings.nvvm import nvvmError
+
 from cuda.bindings cimport cynvrtc, cynvvm
 
 from cuda.core._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
@@ -33,9 +35,6 @@ class CUDAError(Exception):
 class NVRTCError(CUDAError):
     pass
 
-
-class NVVMError(CUDAError):
-    pass
 
 
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
@@ -73,21 +72,16 @@ cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err)
     """Handle NVRTC result codes, raising NVRTCError with program log on failure."""
     if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
         return 0
-    # Get error string (can be called without GIL)
+    with gil:
+        _raise_nvrtc_error(prog, err)
+
+
+cdef int _raise_nvrtc_error(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except -1:
+    """Build error message with program log and raise NVRTCError."""
     cdef const char* err_str = cynvrtc.nvrtcGetErrorString(err)
-    # Get program log size for additional context
     cdef size_t logsize = 0
     if prog != NULL:
         cynvrtc.nvrtcGetProgramLogSize(prog, &logsize)
-    # Need GIL for Python string operations and exception raising
-    with gil:
-        _raise_nvrtc_error(err, err_str, prog, logsize)
-    return -1  # Never reached, but satisfies return type
-
-
-cdef int _raise_nvrtc_error(cynvrtc.nvrtcResult err, const char* err_str,
-                            cynvrtc.nvrtcProgram prog, size_t logsize) except -1:
-    """Helper to raise NVRTCError with program log (requires GIL)."""
     cdef bytes log_bytes
     cdef str log_str = ""
     if logsize > 1 and prog != NULL:
@@ -101,34 +95,28 @@ cdef int _raise_nvrtc_error(cynvrtc.nvrtcResult err, const char* err_str,
 
 
 cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil:
-    """Handle NVVM result codes, raising NVVMError with program log on failure."""
+    """Handle NVVM result codes, raising nvvmError with program log on failure."""
     if err == cynvvm.nvvmResult.NVVM_SUCCESS:
         return 0
-    # Get error string (can be called without GIL)
-    cdef const char* err_str = cynvvm.nvvmGetErrorString(err)
-    # Get program log size for additional context
+    with gil:
+        _raise_nvvm_error(prog, err)
+
+
+cdef int _raise_nvvm_error(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except -1:
+    """Raise nvvmError annotated with the program log."""
     cdef size_t logsize = 0
     if prog != NULL:
         cynvvm.nvvmGetProgramLogSize(prog, &logsize)
-    # Need GIL for Python string operations and exception raising
-    with gil:
-        _raise_nvvm_error(err, err_str, prog, logsize)
-    return -1  # Never reached, but satisfies return type
-
-
-cdef int _raise_nvvm_error(cynvvm.nvvmResult err, const char* err_str,
-                           cynvvm.nvvmProgram prog, size_t logsize) except -1:
-    """Helper to raise NVVMError with program log (requires GIL)."""
     cdef bytes log_bytes
     cdef str log_str = ""
     if logsize > 1 and prog != NULL:
         log_bytes = b" " * logsize
         if cynvvm.nvvmGetProgramLog(prog, <char*>log_bytes) == cynvvm.nvvmResult.NVVM_SUCCESS:
             log_str = log_bytes.decode("utf-8", errors="backslashreplace")
-    err_msg = f"{err}: {err_str.decode()}" if err_str != NULL else f"NVVM error {err}"
+    cdef object exc = nvvmError(err)
     if log_str:
-        err_msg += f", compilation log:\n\n{log_str}"
-    raise NVVMError(err_msg)
+        exc.args = (exc.args[0] + f"\nNVVM program log: {log_str}", *exc.args[1:])
+    raise exc
 
 
 cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
