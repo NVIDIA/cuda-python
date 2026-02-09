@@ -50,7 +50,9 @@ def get_cuda_device_names(sort_by_bus_id=True):
     return result
 
 
-def test_cuda_device_order():
+def test_cuda_device_order(monkeypatch):
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+
     cuda_devices = get_cuda_device_names()
     nvml_devices = get_nvml_device_names()
 
