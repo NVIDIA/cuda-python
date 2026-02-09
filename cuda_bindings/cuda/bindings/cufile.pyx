@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
@@ -8,7 +8,7 @@ cimport cython  # NOQA
 from libc cimport errno
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
-from enum import IntEnum as _IntEnum
+from cuda.bindings.utils._fast_enum import FastEnum as _FastEnum
 
 import cython
 
@@ -2288,6 +2288,8 @@ cdef class StatsLevel2:
     def read_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field read_size_kb_hist, got {len(val)}")
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
@@ -2303,6 +2305,8 @@ cdef class StatsLevel2:
     def write_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field write_size_kb_hist, got {len(val)}")
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
@@ -2441,7 +2445,7 @@ cdef class StatsLevel3:
             raise ValueError("This StatsLevel3 instance is read-only")
         cdef PerGpuStats val_ = val
         if len(val) != 16:
-            raise ValueError(f"Expected length 16 for field per_gpu_stats, got {len(val)}")
+            raise ValueError(f"Expected length { 16 } for field per_gpu_stats, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].per_gpu_stats), <void *>(val_._get_ptr()), sizeof(CUfilePerGpuStats_t) * 16)
 
     @property
@@ -2496,7 +2500,7 @@ cdef class StatsLevel3:
 # Enum
 ###############################################################################
 
-class OpError(_IntEnum):
+class OpError(_FastEnum):
     """See `CUfileOpError`."""
     SUCCESS = CU_FILE_SUCCESS
     DRIVER_NOT_INITIALIZED = CU_FILE_DRIVER_NOT_INITIALIZED
@@ -2548,48 +2552,48 @@ class OpError(_IntEnum):
     BATCH_NOCOMPAT_ERROR = CU_FILE_BATCH_NOCOMPAT_ERROR
     IO_MAX_ERROR = CU_FILE_IO_MAX_ERROR
 
-class DriverStatusFlags(_IntEnum):
+class DriverStatusFlags(_FastEnum):
     """See `CUfileDriverStatusFlags_t`."""
-    LUSTRE_SUPPORTED = CU_FILE_LUSTRE_SUPPORTED
-    WEKAFS_SUPPORTED = CU_FILE_WEKAFS_SUPPORTED
-    NFS_SUPPORTED = CU_FILE_NFS_SUPPORTED
+    LUSTRE_SUPPORTED = (CU_FILE_LUSTRE_SUPPORTED, 'Support for DDN LUSTRE')
+    WEKAFS_SUPPORTED = (CU_FILE_WEKAFS_SUPPORTED, 'Support for WEKAFS')
+    NFS_SUPPORTED = (CU_FILE_NFS_SUPPORTED, 'Support for NFS')
     GPFS_SUPPORTED = CU_FILE_GPFS_SUPPORTED
-    NVME_SUPPORTED = CU_FILE_NVME_SUPPORTED
-    NVMEOF_SUPPORTED = CU_FILE_NVMEOF_SUPPORTED
-    SCSI_SUPPORTED = CU_FILE_SCSI_SUPPORTED
-    SCALEFLUX_CSD_SUPPORTED = CU_FILE_SCALEFLUX_CSD_SUPPORTED
-    NVMESH_SUPPORTED = CU_FILE_NVMESH_SUPPORTED
-    BEEGFS_SUPPORTED = CU_FILE_BEEGFS_SUPPORTED
-    NVME_P2P_SUPPORTED = CU_FILE_NVME_P2P_SUPPORTED
-    SCATEFS_SUPPORTED = CU_FILE_SCATEFS_SUPPORTED
-    VIRTIOFS_SUPPORTED = CU_FILE_VIRTIOFS_SUPPORTED
-    MAX_TARGET_TYPES = CU_FILE_MAX_TARGET_TYPES
+    NVME_SUPPORTED = (CU_FILE_NVME_SUPPORTED, '< Support for GPFS Support for NVMe')
+    NVMEOF_SUPPORTED = (CU_FILE_NVMEOF_SUPPORTED, 'Support for NVMeOF')
+    SCSI_SUPPORTED = (CU_FILE_SCSI_SUPPORTED, 'Support for SCSI')
+    SCALEFLUX_CSD_SUPPORTED = (CU_FILE_SCALEFLUX_CSD_SUPPORTED, 'Support for Scaleflux CSD')
+    NVMESH_SUPPORTED = (CU_FILE_NVMESH_SUPPORTED, 'Support for NVMesh Block Dev')
+    BEEGFS_SUPPORTED = (CU_FILE_BEEGFS_SUPPORTED, 'Support for BeeGFS')
+    NVME_P2P_SUPPORTED = (CU_FILE_NVME_P2P_SUPPORTED, 'Do not use this macro. This is deprecated now')
+    SCATEFS_SUPPORTED = (CU_FILE_SCATEFS_SUPPORTED, 'Support for ScateFS')
+    VIRTIOFS_SUPPORTED = (CU_FILE_VIRTIOFS_SUPPORTED, 'Support for VirtioFS')
+    MAX_TARGET_TYPES = (CU_FILE_MAX_TARGET_TYPES, 'Maximum FS supported')
 
-class DriverControlFlags(_IntEnum):
+class DriverControlFlags(_FastEnum):
     """See `CUfileDriverControlFlags_t`."""
-    USE_POLL_MODE = CU_FILE_USE_POLL_MODE
-    ALLOW_COMPAT_MODE = CU_FILE_ALLOW_COMPAT_MODE
+    USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
+    ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
 
-class FeatureFlags(_IntEnum):
+class FeatureFlags(_FastEnum):
     """See `CUfileFeatureFlags_t`."""
-    DYN_ROUTING_SUPPORTED = CU_FILE_DYN_ROUTING_SUPPORTED
-    BATCH_IO_SUPPORTED = CU_FILE_BATCH_IO_SUPPORTED
-    STREAMS_SUPPORTED = CU_FILE_STREAMS_SUPPORTED
-    PARALLEL_IO_SUPPORTED = CU_FILE_PARALLEL_IO_SUPPORTED
-    P2P_SUPPORTED = CU_FILE_P2P_SUPPORTED
+    DYN_ROUTING_SUPPORTED = (CU_FILE_DYN_ROUTING_SUPPORTED, 'Support for Dynamic routing to handle devices across the PCIe bridges')
+    BATCH_IO_SUPPORTED = (CU_FILE_BATCH_IO_SUPPORTED, 'Supported')
+    STREAMS_SUPPORTED = (CU_FILE_STREAMS_SUPPORTED, 'Supported')
+    PARALLEL_IO_SUPPORTED = (CU_FILE_PARALLEL_IO_SUPPORTED, 'Supported')
+    P2P_SUPPORTED = (CU_FILE_P2P_SUPPORTED, 'Support for PCI P2PDMA')
 
-class FileHandleType(_IntEnum):
+class FileHandleType(_FastEnum):
     """See `CUfileFileHandleType`."""
-    OPAQUE_FD = CU_FILE_HANDLE_TYPE_OPAQUE_FD
-    OPAQUE_WIN32 = CU_FILE_HANDLE_TYPE_OPAQUE_WIN32
+    OPAQUE_FD = (CU_FILE_HANDLE_TYPE_OPAQUE_FD, 'Linux based fd')
+    OPAQUE_WIN32 = (CU_FILE_HANDLE_TYPE_OPAQUE_WIN32, 'Windows based handle (unsupported)')
     USERSPACE_FS = CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
-class Opcode(_IntEnum):
+class Opcode(_FastEnum):
     """See `CUfileOpcode_t`."""
     READ = CUFILE_READ
     WRITE = CUFILE_WRITE
 
-class Status(_IntEnum):
+class Status(_FastEnum):
     """See `CUfileStatus_t`."""
     WAITING = CUFILE_WAITING
     PENDING = CUFILE_PENDING
@@ -2599,11 +2603,11 @@ class Status(_IntEnum):
     TIMEOUT = CUFILE_TIMEOUT
     FAILED = CUFILE_FAILED
 
-class BatchMode(_IntEnum):
+class BatchMode(_FastEnum):
     """See `CUfileBatchMode_t`."""
     BATCH = CUFILE_BATCH
 
-class SizeTConfigParameter(_IntEnum):
+class SizeTConfigParameter(_FastEnum):
     """See `CUFileSizeTConfigParameter_t`."""
     PROFILE_STATS = CUFILE_PARAM_PROFILE_STATS
     EXECUTION_MAX_IO_QUEUE_DEPTH = CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
@@ -2618,7 +2622,7 @@ class SizeTConfigParameter(_IntEnum):
     POLLTHRESHOLD_SIZE_KB = CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
     PROPERTIES_BATCH_IO_TIMEOUT_MS = CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
-class BoolConfigParameter(_IntEnum):
+class BoolConfigParameter(_FastEnum):
     """See `CUFileBoolConfigParameter_t`."""
     PROPERTIES_USE_POLL_MODE = CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
     PROPERTIES_ALLOW_COMPAT_MODE = CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
@@ -2633,24 +2637,24 @@ class BoolConfigParameter(_IntEnum):
     SKIP_TOPOLOGY_DETECTION = CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
     STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
-class StringConfigParameter(_IntEnum):
+class StringConfigParameter(_FastEnum):
     """See `CUFileStringConfigParameter_t`."""
     LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
 
-class ArrayConfigParameter(_IntEnum):
+class ArrayConfigParameter(_FastEnum):
     """See `CUFileArrayConfigParameter_t`."""
     POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
     POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
 
-class P2PFlags(_IntEnum):
+class P2PFlags(_FastEnum):
     """See `CUfileP2PFlags_t`."""
-    P2PDMA = CUFILE_P2PDMA
-    NVFS = CUFILE_NVFS
-    DMABUF = CUFILE_DMABUF
-    C2C = CUFILE_C2C
-    NVIDIA_PEERMEM = CUFILE_NVIDIA_PEERMEM
+    P2PDMA = (CUFILE_P2PDMA, 'Support for PCI P2PDMA')
+    NVFS = (CUFILE_NVFS, 'Support for nvidia-fs')
+    DMABUF = (CUFILE_DMABUF, 'Support for DMA Buffer')
+    C2C = (CUFILE_C2C, 'Support for Chip-to-Chip (Grace-based systems)')
+    NVIDIA_PEERMEM = (CUFILE_NVIDIA_PEERMEM, 'Only for IBM Spectrum Scale and WekaFS')
 
 
 ###############################################################################

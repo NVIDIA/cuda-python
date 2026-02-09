@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
@@ -6,7 +6,7 @@ from libc.stdlib cimport calloc, free
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.string cimport memcpy
-from enum import Enum as _Enum
+from cuda.bindings.utils._fast_enum import FastEnum as _FastEnum
 import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.param_packer as param_packer
@@ -73,7 +73,7 @@ cdef class _HelperKernelParams:
                         self._ckernelParams[idx] = <void*><void_ptr>value.getPtr()
                     elif isinstance(value, (_ctypes.Structure)):
                         self._ckernelParams[idx] = <void*><void_ptr>_ctypes.addressof(value)
-                    elif isinstance(value, (_Enum)):
+                    elif isinstance(value, (_FastEnum)):
                         self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
                         (<int*>self._ckernelParams[idx])[0] = value.value
                         data_idx += sizeof(int)
