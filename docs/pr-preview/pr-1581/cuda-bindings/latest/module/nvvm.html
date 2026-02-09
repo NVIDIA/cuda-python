@@ -914,74 +914,61 @@ to a valid sequence of ‘char’, or</p></li>
 <h2>Types<a class="headerlink" href="#types" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.Result" title="Link to this definition">#</a></dt>
-<dd><p>See <a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv410nvvmResult" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmResult</span></code></a>.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.Result" title="Link to this definition">#</a></dt>
+<dd><p>NVVM API call result code.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.SUCCESS">
-<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.SUCCESS" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.SUCCESS:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.SUCCESS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY">
-<span class="sig-name descname"><span class="pre">ERROR_OUT_OF_MEMORY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_OUT_OF_MEMORY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_OUT_OF_MEMORY:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE">
-<span class="sig-name descname"><span class="pre">ERROR_PROGRAM_CREATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_PROGRAM_CREATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_PROGRAM_CREATION_FAILURE:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH">
-<span class="sig-name descname"><span class="pre">ERROR_IR_VERSION_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_IR_VERSION_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_IR_VERSION_MISMATCH:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_INPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_INPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_INPUT:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_PROGRAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_PROGRAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_PROGRAM:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_INVALID_IR">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_IR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_IR" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_IR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_IR:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_IR" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_OPTION:</span> <span class="pre">7&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM">
-<span class="sig-name descname"><span class="pre">ERROR_NO_MODULE_IN_PROGRAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_NO_MODULE_IN_PROGRAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_NO_MODULE_IN_PROGRAM:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_COMPILATION">
-<span class="sig-name descname"><span class="pre">ERROR_COMPILATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_COMPILATION" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_COMPILATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_COMPILATION:</span> <span class="pre">9&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_COMPILATION" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.ERROR_CANCELLED">
-<span class="sig-name descname"><span class="pre">ERROR_CANCELLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_CANCELLED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_CANCELLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_CANCELLED:</span> <span class="pre">10&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.ERROR_CANCELLED" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

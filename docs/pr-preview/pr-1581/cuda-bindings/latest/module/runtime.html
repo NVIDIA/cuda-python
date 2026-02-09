@@ -2459,7 +2459,7 @@ Both streams must have the same context.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Destination stream</p></li>
-<li><p><strong>src</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Source stream For attributes see <a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrID" title="cuda.bindings.runtime.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a></p></li>
+<li><p><strong>src</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Source stream For attributes see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2485,7 +2485,7 @@ member of <cite>value_out</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrID" title="cuda.bindings.runtime.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2513,7 +2513,7 @@ submitted to the stream. It will not affect previously submitted work.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrID" title="cuda.bindings.runtime.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code>)</p></li>
 <li><p><strong>value</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrValue" title="cuda.bindings.runtime.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>)</p></li>
 </ul>
 </dd>
@@ -10221,7 +10221,7 @@ Both node must have the same context.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hDst</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – Destination node</p></li>
 <li><p><strong>hSrc</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – Source node For list of attributes see
-<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a></p></li>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -10247,7 +10247,7 @@ corresponding member of <cite>value_out</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hNode</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -10274,7 +10274,7 @@ corresponding member of <cite>value_out</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hNode</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code>)</p></li>
 <li><p><strong>value</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue" title="cuda.bindings.runtime.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>)</p></li>
 </ul>
 </dd>
@@ -26895,11 +26895,6 @@ order to interpret this field.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttrID">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;enum</span> <span class="pre">'cudaStreamAttrID'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttrID" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttributeAccessPolicyWindow</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -26927,11 +26922,6 @@ order to interpret this field.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttrValue">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.bindings.runtime.cudaStreamAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttrValue" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaKernelNodeAttrID">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;enum</span> <span class="pre">'cudaKernelNodeAttrID'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -29499,14 +29489,12 @@ order to interpret this field.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodePortDefault"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortDefault</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodePortProgrammatic"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortProgrammatic</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodePortLaunchCompletion"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortLaunchCompletion</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttrID"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttrID</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeAccessPolicyWindow</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeSynchronizationPolicy"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeSynchronizationPolicy</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeMemSyncDomainMap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeMemSyncDomainMap</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeMemSyncDomain"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeMemSyncDomain</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributePriority"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributePriority</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttrValue"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttrValue</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttrID</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeAccessPolicyWindow"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeAccessPolicyWindow</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeCooperative"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeCooperative</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributePriority"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributePriority</span></code></a></li>
