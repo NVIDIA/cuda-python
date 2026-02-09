@@ -106,6 +106,16 @@ jobs:
         run: |
           env
 
+      - name: Display compiler version
+        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        run: |
+          cc --version
+
+      - name: Display compiler version
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          cl.exe
+
       - name: Install twine
         run: |
           pip install twine
