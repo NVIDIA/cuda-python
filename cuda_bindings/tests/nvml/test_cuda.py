@@ -60,7 +60,7 @@ def test_cuda_device_order():
         # If that environment variable isn't set, the device lists should match exactly
         assert cuda_devices == nvml_devices, "CUDA and NVML device lists do not match"
     else:
-        # If the environment variable is set, there may possible be fewer CUDA devices,
+        # If the environment variable is set, there may possibly be fewer CUDA devices,
         # and each of them should still be found in NVML devices.
         assert len(cuda_devices) <= len(nvml_devices)
         for cuda_device in cuda_devices:
