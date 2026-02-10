@@ -101,7 +101,7 @@ def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_
     for rel_path in rel_paths:
         for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
             if os.path.isdir(dirname):
-                return dirname
+                return os.path.normpath(dirname)
 
     return None
 
