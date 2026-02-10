@@ -33,7 +33,7 @@ def _info_summary_handler(request):
 
 
 @pytest.fixture
-def info_log(request, _info_summary_handler):  # noqa: ARG001
+def info_log(request, _info_summary_handler):
     return logging.LoggerAdapter(
         logging.getLogger(_LOGGER_NAME),
         extra={"test_node": request.node.name},
