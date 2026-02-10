@@ -2,22 +2,33 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_utils/platform_aware.py: 75%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/pathfinder/_utils/platform_aware.py: 75.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudart]|run",
+  "c": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cufile]|run",
+  "d": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvJitLink]|run",
+  "e": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvfatbin]|run",
+  "f": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvrtc]|run",
+  "g": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvvm]|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_utils&#8201;/&#8201;platform_aware.py</b>:
-            <span class="pc_cov">75%</span>
+            <span class="pc_cov">75.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -64,8 +75,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_2f3b744c44be98a7__version_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -83,21 +94,21 @@
     <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">import</span> <span class="nam">sys</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">import</span> <span class="nam">sys</span>&nbsp;</span><span class="r"><label for="ctxs4" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="nam">IS_WINDOWS</span> <span class="op">=</span> <span class="nam">sys</span><span class="op">.</span><span class="nam">platform</span> <span class="op">==</span> <span class="str">"win32"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="nam">IS_WINDOWS</span> <span class="op">=</span> <span class="nam">sys</span><span class="op">.</span><span class="nam">platform</span> <span class="op">==</span> <span class="str">"win32"</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">def</span> <span class="nam">quote_for_shell</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">def</span> <span class="nam">quote_for_shell</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">6 ctx</label></span><span class="ctxs">1bcdefg</span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">        <span class="com"># This is a relatively heavy import; keep pathfinder lean if possible.</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">        <span class="key">from</span> <span class="nam">subprocess</span> <span class="key">import</span> <span class="nam">list2cmdline</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="key">return</span> <span class="nam">list2cmdline</span><span class="op">(</span><span class="op">[</span><span class="nam">s</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="key">import</span> <span class="nam">shlex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="key">import</span> <span class="nam">shlex</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">6 ctx</label></span><span class="ctxs">1bcdefg</span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">return</span> <span class="nam">shlex</span><span class="op">.</span><span class="nam">quote</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">return</span> <span class="nam">shlex</span><span class="op">.</span><span class="nam">quote</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">6 ctx</label></span><span class="ctxs">1bcdefg</span></p>
 </main>
 <footer>
     <div class="content">
@@ -106,8 +117,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_2f3b744c44be98a7__version_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

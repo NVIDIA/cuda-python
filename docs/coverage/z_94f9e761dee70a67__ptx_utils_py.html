@@ -2,22 +2,29 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/utils/_ptx_utils.py: 79%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/utils/_ptx_utils.py: 78.57%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_utils.py::test_ptx_utils[\\n.version 8.8\\n.target sm_75\\n.address_size 64\\n\\n\\t// .globl\\tempty_kernel\\n\\n.visible .entry empty_kernel()\\n{\\n\\tret;\\n}\\n-8.8-12090]|run",
+  "c": "tests/test_utils.py::test_ptx_utils[\\n.version  7.2\\n.target sm_75\\n.address_size 64\\n\\n\\t// .globl\\tempty_kernel\\n\\n.visible .entry empty_kernel()\\n{\\n\\tret;\\n}\\n-7.2-11020]|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;utils&#8201;/&#8201;_ptx_utils.py</b>:
-            <span class="pc_cov">79%</span>
+            <span class="pc_cov">78.57%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -62,10 +69,10 @@
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_94f9e761dee70a67___init___py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8___init___py.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_94f9e761dee70a67__version_check_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -83,11 +90,11 @@
     <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">import</span> <span class="nam">re</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">import</span> <span class="nam">re</span>&nbsp;</span><span class="r"><label for="ctxs4" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="com"># Mapping based on the official PTX ISA &lt;-> CUDA Release table</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="com"># https://docs.nvidia.com/cuda/parallel-thread-execution/#release-notes-ptx-release-history</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="nam">_ptx_to_cuda</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="nam">_ptx_to_cuda</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
     <p class="run run2"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="str">"1.0"</span><span class="op">:</span> <span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="str">"1.1"</span><span class="op">:</span> <span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="num">1</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">    <span class="str">"1.2"</span><span class="op">:</span> <span class="op">(</span><span class="num">2</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -134,7 +141,7 @@
     <p class="run run2"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="key">def</span> <span class="nam">get_minimal_required_cuda_ver_from_ptx_ver</span><span class="op">(</span><span class="nam">ptx_version</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">int</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="key">def</span> <span class="nam">get_minimal_required_cuda_ver_from_ptx_ver</span><span class="op">(</span><span class="nam">ptx_version</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">int</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs55" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="str">    Maps the PTX ISA version to the minimal CUDA driver, nvPTXCompiler, or nvJitLink version</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="str">    that is needed to load a PTX of the given ISA version.</span>&nbsp;</span><span class="r"></span></p>
@@ -162,19 +169,19 @@
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="str">    >>> get_minimal_required_driver_ver_from_ptx_ver("7.0")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="str">    11000</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">        <span class="nam">major</span><span class="op">,</span> <span class="nam">minor</span> <span class="op">=</span> <span class="nam">_ptx_to_cuda</span><span class="op">[</span><span class="nam">ptx_version</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">        <span class="key">return</span> <span class="num">1000</span> <span class="op">*</span> <span class="nam">major</span> <span class="op">+</span> <span class="num">10</span> <span class="op">*</span> <span class="nam">minor</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">        <span class="nam">major</span><span class="op">,</span> <span class="nam">minor</span> <span class="op">=</span> <span class="nam">_ptx_to_cuda</span><span class="op">[</span><span class="nam">ptx_version</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">        <span class="key">return</span> <span class="num">1000</span> <span class="op">*</span> <span class="nam">major</span> <span class="op">+</span> <span class="num">10</span> <span class="op">*</span> <span class="nam">minor</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">    <span class="key">except</span> <span class="nam">KeyError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Unknown or unsupported PTX ISA version: </span><span class="op">{</span><span class="nam">ptx_version</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span> <span class="key">from</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="com"># Regex pattern to match .version directive and capture the version number</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="com"># TODO: if import speed is a concern, consider lazy-initializing it.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="nam">_ptx_ver_pattern</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r"\.version\s+([0-9]+\.[0-9]+)"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="nam">_ptx_ver_pattern</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r"\.version\s+([0-9]+\.[0-9]+)"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="key">def</span> <span class="nam">get_ptx_ver</span><span class="op">(</span><span class="nam">ptx</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="key">def</span> <span class="nam">get_ptx_ver</span><span class="op">(</span><span class="nam">ptx</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs95" class="ctx">(empty)</label></span></p>
     <p class="exc show_exc"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc exc2 show_exc"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="str">    Extract the PTX ISA version string from PTX source code.</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc exc2 show_exc"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -208,9 +215,9 @@
     <p class="exc exc2 show_exc"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="str">    >>> get_ptx_ver(ptx)</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc exc2 show_exc"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="str">    '8.8'</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc exc2 show_exc"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">    <span class="nam">m</span> <span class="op">=</span> <span class="nam">_ptx_ver_pattern</span><span class="op">.</span><span class="nam">search</span><span class="op">(</span><span class="nam">ptx</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">    <span class="key">if</span> <span class="nam">m</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">        <span class="key">return</span> <span class="nam">m</span><span class="op">.</span><span class="nam">group</span><span class="op">(</span><span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">    <span class="nam">m</span> <span class="op">=</span> <span class="nam">_ptx_ver_pattern</span><span class="op">.</span><span class="nam">search</span><span class="op">(</span><span class="nam">ptx</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">    <span class="key">if</span> <span class="nam">m</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">        <span class="key">return</span> <span class="nam">m</span><span class="op">.</span><span class="nam">group</span><span class="op">(</span><span class="num">1</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="str">"No .version directive found in PTX source. Is it a valid PTX?"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
@@ -219,10 +226,10 @@
         <p>
             <a class="nav" href="z_94f9e761dee70a67___init___py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_0efdcd0c69c2ddb8___init___py.html">&#xbb; next</a>
+            <a class="nav" href="z_94f9e761dee70a67__version_check_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

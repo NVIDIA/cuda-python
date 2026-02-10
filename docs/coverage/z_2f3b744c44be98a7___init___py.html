@@ -2,22 +2,27 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/__init__.py: 100%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/pathfinder/__init__.py: 100.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;__init__.py</b>:
-            <span class="pc_cov">100%</span>
+            <span class="pc_cov">100.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -54,18 +59,18 @@
             </div>
         </aside>
         <h2>
-            <span class="text">9 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">9<span class="text"> run</span></button>
+            <span class="text">14 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">14<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8_utils_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_find_nvidia_dynamic_lib_py.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_43b9fc2813ae0b7b_find_nvidia_binary_utility_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -85,36 +90,51 @@
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="str">"""cuda.pathfinder public APIs"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">load_dl_common</span> <span class="key">import</span> <span class="nam">DynamicLibNotFoundError</span> <span class="key">as</span> <span class="nam">DynamicLibNotFoundError</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">load_dl_common</span> <span class="key">import</span> <span class="nam">LoadedDL</span> <span class="key">as</span> <span class="nam">LoadedDL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">load_nvidia_dynamic_lib</span> <span class="key">import</span> <span class="nam">load_nvidia_dynamic_lib</span> <span class="key">as</span> <span class="nam">load_nvidia_dynamic_lib</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">supported_nvidia_libs</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="nam">SUPPORTED_LIBNAMES</span> <span class="key">as</span> <span class="nam">SUPPORTED_NVIDIA_LIBNAMES</span><span class="op">,</span>  <span class="com"># noqa: F401</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">find_nvidia_headers</span> <span class="key">import</span> <span class="nam">find_nvidia_header_directory</span> <span class="key">as</span> <span class="nam">find_nvidia_header_directory</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">supported_nvidia_headers</span> <span class="key">import</span> <span class="nam">SUPPORTED_HEADERS_CTK</span> <span class="key">as</span> <span class="nam">_SUPPORTED_HEADERS_CTK</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_version</span> <span class="key">import</span> <span class="nam">__version__</span> <span class="key">as</span> <span class="nam">__version__</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="com"># Indirections to help Sphinx find the docstrings.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="com">#: Mapping from short CUDA Toolkit (CTK) library names to their canonical</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="com">#: header basenames (used to validate a discovered include directory).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="com">#: Example: ``"cublas" &#8594; "cublas.h"``. The key set is platform-aware</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="com">#: (e.g., ``"cufile"`` may be Linux-only).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="nam">SUPPORTED_HEADERS_CTK</span> <span class="op">=</span> <span class="nam">_SUPPORTED_HEADERS_CTK</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_binaries</span><span class="op">.</span><span class="nam">find_nvidia_binary_utility</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
+    <p class="run run2"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">    <span class="nam">find_nvidia_binary_utility</span> <span class="key">as</span> <span class="nam">find_nvidia_binary_utility</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_binaries</span><span class="op">.</span><span class="nam">supported_nvidia_binaries</span> <span class="key">import</span> <span class="nam">SUPPORTED_BINARIES</span> <span class="key">as</span> <span class="nam">_SUPPORTED_BINARIES</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">load_dl_common</span> <span class="key">import</span> <span class="nam">DynamicLibNotFoundError</span> <span class="key">as</span> <span class="nam">DynamicLibNotFoundError</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">load_dl_common</span> <span class="key">import</span> <span class="nam">LoadedDL</span> <span class="key">as</span> <span class="nam">LoadedDL</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">load_nvidia_dynamic_lib</span> <span class="key">import</span> <span class="nam">load_nvidia_dynamic_lib</span> <span class="key">as</span> <span class="nam">load_nvidia_dynamic_lib</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_dynamic_libs</span><span class="op">.</span><span class="nam">supported_nvidia_libs</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs13" class="ctx">(empty)</label></span></p>
+    <p class="run run2"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="nam">SUPPORTED_LIBNAMES</span> <span class="key">as</span> <span class="nam">SUPPORTED_NVIDIA_LIBNAMES</span><span class="op">,</span>  <span class="com"># noqa: F401</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">find_nvidia_headers</span> <span class="key">import</span> <span class="nam">LocatedHeaderDir</span> <span class="key">as</span> <span class="nam">LocatedHeaderDir</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">find_nvidia_headers</span> <span class="key">import</span> <span class="nam">find_nvidia_header_directory</span> <span class="key">as</span> <span class="nam">find_nvidia_header_directory</span>&nbsp;</span><span class="r"><label for="ctxs17" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">find_nvidia_headers</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="run run2"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="nam">locate_nvidia_header_directory</span> <span class="key">as</span> <span class="nam">locate_nvidia_header_directory</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">supported_nvidia_headers</span> <span class="key">import</span> <span class="nam">SUPPORTED_HEADERS_CTK</span> <span class="key">as</span> <span class="nam">_SUPPORTED_HEADERS_CTK</span>&nbsp;</span><span class="r"><label for="ctxs21" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="com"># Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="com"># It will be removed in release 1.2.4.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="nam">_find_nvidia_header_directory</span> <span class="op">=</span> <span class="nam">find_nvidia_header_directory</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_version</span> <span class="key">import</span> <span class="nam">__version__</span>  <span class="com"># isort: skip  # noqa: F401</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="com"># Indirections to help Sphinx find the docstrings.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="com">#: Mapping from short CUDA Toolkit (CTK) library names to their canonical</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="com">#: header basenames (used to validate a discovered include directory).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="com">#: Example: ``"cublas" &#8594; "cublas.h"``. The key set is platform-aware</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="com">#: (e.g., ``"cufile"`` may be Linux-only).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="nam">SUPPORTED_HEADERS_CTK</span> <span class="op">=</span> <span class="nam">_SUPPORTED_HEADERS_CTK</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="com">#: Tuple of supported CUDA binary utility names that can be located</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="com">#: via ``find_nvidia_binary_utility()``. Platform-aware (e.g., some</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="com">#: utilities may be available only on Linux or Windows).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="com">#: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="nam">SUPPORTED_BINARY_UTILITIES</span> <span class="op">=</span> <span class="nam">_SUPPORTED_BINARIES</span>&nbsp;</span><span class="r"><label for="ctxs36" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="com"># Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="com"># It will be removed in release 1.2.4.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="nam">_find_nvidia_header_directory</span> <span class="op">=</span> <span class="nam">find_nvidia_header_directory</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
 </main>
 <footer>
     <div class="content">
         <p>
             <a class="nav" href="z_0efdcd0c69c2ddb8_utils_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_b173e2ae1fca2bc7_find_nvidia_dynamic_lib_py.html">&#xbb; next</a>
+            <a class="nav" href="z_43b9fc2813ae0b7b_find_nvidia_binary_utility_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

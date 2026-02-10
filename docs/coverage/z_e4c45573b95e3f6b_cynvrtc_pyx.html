@@ -2,22 +2,355 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/_bindings/cynvrtc.pyx: 58%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/_bindings/cynvrtc.pyx: 57.52%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
+  "c": "tests/test_module.py::test_object_code_load_ptx|setup",
+  "d": "tests/test_graph.py::test_graph_build_mode|run",
+  "e": "tests/test_graph.py::test_graph_child_graph|run",
+  "f": "tests/test_graph.py::test_graph_complete_options|run",
+  "g": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "h": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "i": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "j": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "k": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "l": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "n": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "o": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "p": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "q": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "r": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "s": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "t": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "u": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "v": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "w": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "x": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "y": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "z": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "A": "tests/test_graph.py::test_graph_conditional_while[0]|run",
+  "B": "tests/test_graph.py::test_graph_conditional_while[1]|run",
+  "C": "tests/test_graph.py::test_graph_conditional_while[False]|run",
+  "D": "tests/test_graph.py::test_graph_conditional_while[True]|run",
+  "E": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "F": "tests/test_graph.py::test_graph_fork_join|run",
+  "G": "tests/test_graph.py::test_graph_is_join_required|run",
+  "H": "tests/test_graph.py::test_graph_repeat_capture|run",
+  "I": "tests/test_graph.py::test_graph_straight|run",
+  "J": "tests/test_graph.py::test_graph_stream_lifetime|run",
+  "K": "tests/test_graph.py::test_graph_update|run",
+  "L": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "M": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "N": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "O": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "P": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "Q": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "R": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "S": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "T": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "U": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "V": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  "W": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  "X": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  "Y": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "Z": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  "0": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  "1": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "2": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "3": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "4": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "5": "tests/test_module.py::test_kernel_from_handle_invalid_module_type|setup",
+  "6": "tests/test_module.py::test_kernel_from_handle_multiple_instances|setup",
+  "7": "tests/test_module.py::test_kernel_from_handle_no_module|setup",
+  "8": "tests/test_module.py::test_kernel_from_handle|setup",
+  "9": "tests/test_module.py::test_module_serialization_roundtrip|setup",
+  "!": "tests/test_module.py::test_num_args_error_handling|run",
+  "#": "tests/test_module.py::test_num_arguments[int-0]|run",
+  "$": "tests/test_module.py::test_num_arguments[int-1]|run",
+  "%": "tests/test_module.py::test_num_arguments[int-2]|run",
+  "'": "tests/test_module.py::test_num_arguments[int-3]|run",
+  "(": "tests/test_module.py::test_num_arguments[int-16]|run",
+  ")": "tests/test_module.py::test_num_arguments[short-0]|run",
+  "*": "tests/test_module.py::test_num_arguments[short-1]|run",
+  "+": "tests/test_module.py::test_num_arguments[short-2]|run",
+  ",": "tests/test_module.py::test_num_arguments[short-3]|run",
+  "-": "tests/test_module.py::test_num_arguments[short-16]|run",
+  ".": "tests/test_module.py::test_object_code_handle|setup",
+  "/": "tests/test_module.py::test_object_code_load_cubin_from_file|setup",
+  ":": "tests/test_module.py::test_object_code_load_cubin|setup",
+  ";": "tests/test_module.py::test_object_code_load_ltoir_from_file|setup",
+  "=": "tests/test_module.py::test_object_code_load_ltoir|setup",
+  "?": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[1-256]|setup",
+  "@": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-64]|setup",
+  "[": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-96]|setup",
+  "]": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-128]|setup",
+  "^": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[3-120]|setup",
+  "_": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[4-32]|setup",
+  "`": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-32]|setup",
+  "{": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-64]|setup",
+  "|": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-96]|setup",
+  "}": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-120]|setup",
+  "~": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-128]|setup",
+  "ab": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-256]|setup",
+  "bb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-32]|setup",
+  "cb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-64]|setup",
+  "db": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-96]|setup",
+  "eb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-120]|setup",
+  "fb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-128]|setup",
+  "gb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-256]|setup",
+  "hb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-32]|setup",
+  "ib": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-64]|setup",
+  "jb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-96]|setup",
+  "kb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-120]|setup",
+  "lb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-128]|setup",
+  "mb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-256]|setup",
+  "nb": "tests/test_module.py::test_occupancy_max_active_clusters[2]|setup",
+  "ob": "tests/test_module.py::test_occupancy_max_active_clusters[None]|setup",
+  "pb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-0]|setup",
+  "qb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-32]|setup",
+  "rb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-64]|setup",
+  "sb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-96]|setup",
+  "tb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-120]|setup",
+  "ub": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-128]|setup",
+  "vb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-256]|setup",
+  "wb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-0]|setup",
+  "xb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-32]|setup",
+  "yb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-64]|setup",
+  "zb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-96]|setup",
+  "Ab": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-120]|setup",
+  "Bb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-128]|setup",
+  "Cb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-256]|setup",
+  "Db": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-0]|setup",
+  "Eb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-32]|setup",
+  "Fb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-64]|setup",
+  "Gb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-96]|setup",
+  "Hb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-120]|setup",
+  "Ib": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-128]|setup",
+  "Jb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-256]|setup",
+  "Kb": "tests/test_module.py::test_occupancy_max_potential_cluster_size|setup",
+  "Lb": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|setup",
+  "Mb": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|setup",
+  "Nb": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|setup",
+  "Ob": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|setup",
+  "Pb": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|setup",
+  "Qb": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|setup",
+  "Rb": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|setup",
+  "Sb": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|setup",
+  "Tb": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|setup",
+  "Ub": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|setup",
+  "Vb": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|setup",
+  "Wb": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|setup",
+  "Xb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|setup",
+  "Yb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|setup",
+  "Zb": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|setup",
+  "0b": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|setup",
+  "1b": "tests/test_module.py::test_saxpy_arguments|setup",
+  "2b": "tests/test_graph_mem.py::test_graph_alloc[fill-global]|run",
+  "3b": "tests/test_graph_mem.py::test_graph_alloc[fill-no_graph]|run",
+  "4b": "tests/test_graph_mem.py::test_graph_alloc[fill-relaxed]|run",
+  "5b": "tests/test_graph_mem.py::test_graph_alloc[fill-thread_local]|run",
+  "6b": "tests/test_graph_mem.py::test_graph_alloc[incr-global]|run",
+  "7b": "tests/test_graph_mem.py::test_graph_alloc[incr-no_graph]|run",
+  "8b": "tests/test_graph_mem.py::test_graph_alloc[incr-relaxed]|run",
+  "9b": "tests/test_graph_mem.py::test_graph_alloc[incr-thread_local]|run",
+  "!b": "tests/test_graph_mem.py::test_graph_alloc_with_output[global]|run",
+  "#b": "tests/test_graph_mem.py::test_graph_alloc_with_output[relaxed]|run",
+  "$b": "tests/test_graph_mem.py::test_graph_alloc_with_output[thread_local]|run",
+  "%b": "tests/test_kernelParams.py::test_kernelParams[ctypes]|run",
+  "'b": "tests/test_kernelParams.py::test_kernelParams[no-ctypes]|run",
+  "(b": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[by-address]|run",
+  ")b": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[not-by-address]|run",
+  "*b": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol_numpy|run",
+  "+b": "tests/test_kernelParams.py::test_kernelParams_empty|run",
+  ",b": "tests/test_kernelParams.py::test_kernelParams_struct_custom|run",
+  "-b": "tests/test_kernelParams.py::test_kernelParams_types_cuda|run",
+  ".b": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "/b": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  ":b": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  ";b": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "=b": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "?b": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  "@b": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "[b": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "]b": "tests/test_linker.py::test_linker_get_error_log|setup",
+  "^b": "tests/test_linker.py::test_linker_get_info_log|setup",
+  "_b": "tests/test_linker.py::test_linker_init[options0]|setup",
+  "`b": "tests/test_linker.py::test_linker_init[options1]|setup",
+  "{b": "tests/test_linker.py::test_linker_init[options2]|setup",
+  "|b": "tests/test_linker.py::test_linker_init[options3]|setup",
+  "}b": "tests/test_linker.py::test_linker_init[options4]|setup",
+  "~b": "tests/test_linker.py::test_linker_init[options5]|setup",
+  "ac": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
+  "bc": "tests/test_linker.py::test_linker_link_cubin|setup",
+  "cc": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
+  "dc": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
+  "ec": "tests/test_module.py::test_get_kernel|run",
+  "fc": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
+  "gc": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
+  "hc": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
+  "ic": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
+  "jc": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
+  "kc": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
+  "lc": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
+  "mc": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
+  "nc": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
+  "oc": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
+  "pc": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
+  "qc": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
+  "rc": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
+  "sc": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
+  "tc": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
+  "uc": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
+  "vc": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
+  "wc": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
+  "xc": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
+  "yc": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
+  "zc": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
+  "Ac": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
+  "Bc": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
+  "Cc": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
+  "Dc": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
+  "Ec": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
+  "Fc": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
+  "Gc": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
+  "Hc": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
+  "Ic": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
+  "Jc": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
+  "Kc": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
+  "Lc": "tests/test_linker.py::test_linker_get_error_log|run",
+  "Mc": "tests/test_linker.py::test_linker_init[options6]|setup",
+  "Nc": "tests/test_linker.py::test_linker_init[options7]|setup",
+  "Oc": "tests/test_linker.py::test_linker_init[options8]|setup",
+  "Pc": "tests/test_linker.py::test_linker_init[options9]|setup",
+  "Qc": "tests/test_linker.py::test_linker_init[options10]|setup",
+  "Rc": "tests/test_linker.py::test_linker_init[options11]|setup",
+  "Sc": "tests/test_linker.py::test_linker_init[options12]|setup",
+  "Tc": "tests/test_linker.py::test_linker_init[options13]|setup",
+  "Uc": "tests/test_linker.py::test_linker_init[options14]|setup",
+  "Vc": "tests/test_linker.py::test_linker_init[options15]|setup",
+  "Wc": "tests/test_linker.py::test_linker_init[options16]|setup",
+  "Xc": "tests/test_linker.py::test_linker_init[options17]|setup",
+  "Yc": "tests/test_linker.py::test_linker_init[options18]|setup",
+  "Zc": "tests/test_linker.py::test_linker_init[options19]|setup",
+  "0c": "tests/test_linker.py::test_linker_init[options20]|setup",
+  "1c": "tests/test_linker.py::test_linker_init[options21]|setup",
+  "2c": "tests/test_linker.py::test_linker_init[options22]|setup",
+  "3c": "tests/test_linker.py::test_linker_init[options23]|setup",
+  "4c": "tests/test_program.py::test_cpp_program_with_pch_options|run",
+  "5c": "tests/test_program.py::test_cpp_program_with_trace_option|run",
+  "6c": "tests/test_program.py::test_cpp_program_with_various_options[options34]|run",
+  "7c": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
+  "8c": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
+  "9c": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
+  "!c": "tests/test_program.py::test_ptx_program_with_various_options[options4]|setup",
+  "#c": "tests/test_event.py::test_timing_success|run",
+  "$c": "tests/test_launcher.py::test_launch_invalid_values|run",
+  "%c": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "'c": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
+  "(c": "tests/test_object_protocols.py::test_equality_basic[sample_object_code]|run",
+  ")c": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
+  "*c": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
+  "+c": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code]|run",
+  ",c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
+  "-c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code]|run",
+  ".c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
+  "/c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code]|run",
+  ":c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
+  ";c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code]|run",
+  "=c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
+  "?c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
+  "@c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
+  "[c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
+  "]c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code-sample_kernel]|run",
+  "^c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
+  "_c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code]|run",
+  "`c": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
+  "{c": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code-sample_object_code_alt]|run",
+  "|c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
+  "}c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code]|run",
+  "~c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
+  "ad": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code]|run",
+  "bd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
+  "cd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code]|run",
+  "dd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
+  "ed": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
+  "fd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
+  "gd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
+  "hd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code-sample_kernel]|run",
+  "id": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
+  "jd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code]|run",
+  "kd": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
+  "ld": "tests/test_object_protocols.py::test_repr_format[sample_object_code-<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>]|run",
+  "md": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
+  "nd": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code-sample_object_code_alt]|run",
+  "od": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
+  "pd": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code]|run",
+  "qd": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
+  "rd": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code]|run",
+  "sd": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
+  "td": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code]|run",
+  "ud": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
+  "vd": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code]|run",
+  "wd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
+  "xd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code]|run",
+  "yd": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
+  "zd": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code]|run",
+  "Ad": "tests/test_program.py::test_program_compile_valid_target_type|run",
+  "Bd": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "Cd": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "Dd": "tests/test_event.py::test_error_timing_incomplete|run",
+  "Ed": "tests/test_helpers.py::test_latchkernel|run",
+  "Fd": "tests/test_launcher.py::test_cooperative_launch|run",
+  "Gd": "tests/test_linker.py::test_linker_link_ptx_nvjitlink|setup",
+  "Hd": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|setup",
+  "Id": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_80]|setup",
+  "Jd": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|setup",
+  "Kd": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_100]|setup",
+  "Ld": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|setup",
+  "Md": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_80]|setup",
+  "Nd": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_90]|setup",
+  "Od": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|setup",
+  "Pd": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH[sm_80]|setup",
+  "Qd": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH[sm_80]|setup",
+  "Rd": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|setup",
+  "Sd": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
+  "Td": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
+  "Ud": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
+  "Vd": "tests/test_program.py::test_program_backend_property|run",
+  "Wd": "tests/test_program.py::test_program_close|run",
+  "Xd": "tests/test_program.py::test_program_compile_invalid_target_type|run",
+  "Yd": "tests/test_program.py::test_program_handle_property|run",
+  "Zd": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "0d": "tests/test_nvrtc.py::test_nvrtcGetSupportedArchs|run",
+  "1d": "tests/test_module.py::test_object_code_load_ptx_from_file|run",
+  "2d": "tests/test_module.py::test_object_code_load_ptx|run",
+  "3d": "tests/test_nvrtc.py::test_nvrtcGetLoweredName_failure|run",
+  "4d": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
+  "5d": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
+  "6d": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
+  "7d": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
+  "8d": "tests/test_linker.py::test_linker_link_ptx_culink|setup",
+  "9d": "tests/test_program.py::test_ptx_program_with_various_options[options0]|setup"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;_bindings&#8201;/&#8201;cynvrtc.pyx</b>:
-            <span class="pc_cov">58%</span>
+            <span class="pc_cov">57.52%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -64,8 +397,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_e4c45573b95e3f6b_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -80,109 +413,109 @@
     </div>
 </header>
 <main id="source">
-    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt"># This code was automatically generated with version 13.1.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">cimport cuda.bindings._lib.dlfcn as dlfcn</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from cuda.pathfinder import load_nvidia_dynamic_lib</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from cuda.pathfinder import load_nvidia_dynamic_lib</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from libc.stdint cimport intptr_t, uintptr_t</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">import threading</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">import threading</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">cdef object __symbol_lock = threading.Lock()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">cdef bint __cuPythonInit = False</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetErrorString = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">cdef void *__nvrtcVersion = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetNumSupportedArchs = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetSupportedArchs = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">cdef void *__nvrtcCreateProgram = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">cdef void *__nvrtcDestroyProgram = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">cdef void *__nvrtcCompileProgram = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPTXSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPTX = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetCUBINSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetCUBIN = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetLTOIRSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetLTOIR = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetOptiXIRSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetOptiXIR = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetProgramLogSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetProgramLog = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">cdef void *__nvrtcAddNameExpression = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetLoweredName = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPCHHeapSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">cdef void *__nvrtcSetPCHHeapSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPCHCreateStatus = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPCHHeapSizeRequired = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef void *__nvrtcSetFlowCallback = NULL</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">cdef object __symbol_lock = threading.Lock()</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">cdef bint __cuPythonInit = False</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetErrorString = NULL</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">cdef void *__nvrtcVersion = NULL</span>&nbsp;</span><span class="r"><label for="ctxs13" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetNumSupportedArchs = NULL</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetSupportedArchs = NULL</span>&nbsp;</span><span class="r"><label for="ctxs15" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">cdef void *__nvrtcCreateProgram = NULL</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">cdef void *__nvrtcDestroyProgram = NULL</span>&nbsp;</span><span class="r"><label for="ctxs17" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">cdef void *__nvrtcCompileProgram = NULL</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPTXSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPTX = NULL</span>&nbsp;</span><span class="r"><label for="ctxs20" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetCUBINSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs21" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetCUBIN = NULL</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetLTOIRSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetLTOIR = NULL</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetOptiXIRSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs25" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetOptiXIR = NULL</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetProgramLogSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetProgramLog = NULL</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">cdef void *__nvrtcAddNameExpression = NULL</span>&nbsp;</span><span class="r"><label for="ctxs29" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetLoweredName = NULL</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPCHHeapSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">cdef void *__nvrtcSetPCHHeapSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPCHCreateStatus = NULL</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef void *__nvrtcGetPCHHeapSizeRequired = NULL</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef void *__nvrtcSetFlowCallback = NULL</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">cdef int _cuPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">cdef int _cuPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs37" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    global __cuPythonInit</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    # Load library</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    with gil, __symbol_lock:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        handle = &lt;void*>&lt;uintptr_t>(load_nvidia_dynamic_lib("nvrtc")._handle_uint)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    with gil, __symbol_lock:</span>&nbsp;</span><span class="r"><label for="ctxs41" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        handle = &lt;void*>&lt;uintptr_t>(load_nvidia_dynamic_lib("nvrtc")._handle_uint)</span>&nbsp;</span><input type="checkbox" id="ctxs42"><span class="r"><label for="ctxs42" class="ctx">252 ctx</label></span><span class="ctxs">2a #cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K $cL M N O P Q 4d5dR S 6d7dT U V W X Y Z 0 1 2 3 4 ]b^b_b`b{b|b}b~bacbccc8ddcec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcVdWdXdAdYdZd9d</span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        # Load function</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        global __nvrtcGetErrorString</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">        __nvrtcGetErrorString = dlfcn.dlsym(handle, 'nvrtcGetErrorString')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">        __nvrtcGetErrorString = dlfcn.dlsym(handle, 'nvrtcGetErrorString')</span>&nbsp;</span><span class="r"><label for="ctxs46" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        global __nvrtcVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        __nvrtcVersion = dlfcn.dlsym(handle, 'nvrtcVersion')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        __nvrtcVersion = dlfcn.dlsym(handle, 'nvrtcVersion')</span>&nbsp;</span><span class="r"><label for="ctxs48" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">        global __nvrtcGetNumSupportedArchs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">        __nvrtcGetNumSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetNumSupportedArchs')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">        __nvrtcGetNumSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetNumSupportedArchs')</span>&nbsp;</span><span class="r"><label for="ctxs50" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        global __nvrtcGetSupportedArchs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">        __nvrtcGetSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetSupportedArchs')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">        __nvrtcGetSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetSupportedArchs')</span>&nbsp;</span><span class="r"><label for="ctxs52" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">        global __nvrtcCreateProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        __nvrtcCreateProgram = dlfcn.dlsym(handle, 'nvrtcCreateProgram')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        __nvrtcCreateProgram = dlfcn.dlsym(handle, 'nvrtcCreateProgram')</span>&nbsp;</span><span class="r"><label for="ctxs54" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">        global __nvrtcDestroyProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        __nvrtcDestroyProgram = dlfcn.dlsym(handle, 'nvrtcDestroyProgram')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        __nvrtcDestroyProgram = dlfcn.dlsym(handle, 'nvrtcDestroyProgram')</span>&nbsp;</span><span class="r"><label for="ctxs56" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">        global __nvrtcCompileProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">        __nvrtcCompileProgram = dlfcn.dlsym(handle, 'nvrtcCompileProgram')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">        __nvrtcCompileProgram = dlfcn.dlsym(handle, 'nvrtcCompileProgram')</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">        global __nvrtcGetPTXSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">        __nvrtcGetPTXSize = dlfcn.dlsym(handle, 'nvrtcGetPTXSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">        __nvrtcGetPTXSize = dlfcn.dlsym(handle, 'nvrtcGetPTXSize')</span>&nbsp;</span><span class="r"><label for="ctxs60" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">        global __nvrtcGetPTX</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">        __nvrtcGetPTX = dlfcn.dlsym(handle, 'nvrtcGetPTX')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">        __nvrtcGetPTX = dlfcn.dlsym(handle, 'nvrtcGetPTX')</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        global __nvrtcGetCUBINSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        __nvrtcGetCUBINSize = dlfcn.dlsym(handle, 'nvrtcGetCUBINSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        __nvrtcGetCUBINSize = dlfcn.dlsym(handle, 'nvrtcGetCUBINSize')</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">        global __nvrtcGetCUBIN</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        __nvrtcGetCUBIN = dlfcn.dlsym(handle, 'nvrtcGetCUBIN')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        __nvrtcGetCUBIN = dlfcn.dlsym(handle, 'nvrtcGetCUBIN')</span>&nbsp;</span><span class="r"><label for="ctxs66" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">        global __nvrtcGetLTOIRSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        __nvrtcGetLTOIRSize = dlfcn.dlsym(handle, 'nvrtcGetLTOIRSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        __nvrtcGetLTOIRSize = dlfcn.dlsym(handle, 'nvrtcGetLTOIRSize')</span>&nbsp;</span><span class="r"><label for="ctxs68" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        global __nvrtcGetLTOIR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        __nvrtcGetLTOIR = dlfcn.dlsym(handle, 'nvrtcGetLTOIR')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        __nvrtcGetLTOIR = dlfcn.dlsym(handle, 'nvrtcGetLTOIR')</span>&nbsp;</span><span class="r"><label for="ctxs70" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        global __nvrtcGetOptiXIRSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        __nvrtcGetOptiXIRSize = dlfcn.dlsym(handle, 'nvrtcGetOptiXIRSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        __nvrtcGetOptiXIRSize = dlfcn.dlsym(handle, 'nvrtcGetOptiXIRSize')</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        global __nvrtcGetOptiXIR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        __nvrtcGetOptiXIR = dlfcn.dlsym(handle, 'nvrtcGetOptiXIR')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        __nvrtcGetOptiXIR = dlfcn.dlsym(handle, 'nvrtcGetOptiXIR')</span>&nbsp;</span><span class="r"><label for="ctxs74" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        global __nvrtcGetProgramLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        __nvrtcGetProgramLogSize = dlfcn.dlsym(handle, 'nvrtcGetProgramLogSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        __nvrtcGetProgramLogSize = dlfcn.dlsym(handle, 'nvrtcGetProgramLogSize')</span>&nbsp;</span><span class="r"><label for="ctxs76" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        global __nvrtcGetProgramLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        __nvrtcGetProgramLog = dlfcn.dlsym(handle, 'nvrtcGetProgramLog')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        __nvrtcGetProgramLog = dlfcn.dlsym(handle, 'nvrtcGetProgramLog')</span>&nbsp;</span><span class="r"><label for="ctxs78" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">        global __nvrtcAddNameExpression</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">        __nvrtcAddNameExpression = dlfcn.dlsym(handle, 'nvrtcAddNameExpression')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">        __nvrtcAddNameExpression = dlfcn.dlsym(handle, 'nvrtcAddNameExpression')</span>&nbsp;</span><span class="r"><label for="ctxs80" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        global __nvrtcGetLoweredName</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">        __nvrtcGetLoweredName = dlfcn.dlsym(handle, 'nvrtcGetLoweredName')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">        __nvrtcGetLoweredName = dlfcn.dlsym(handle, 'nvrtcGetLoweredName')</span>&nbsp;</span><span class="r"><label for="ctxs82" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">        global __nvrtcGetPCHHeapSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        __nvrtcGetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        __nvrtcGetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSize')</span>&nbsp;</span><span class="r"><label for="ctxs84" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">        global __nvrtcSetPCHHeapSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        __nvrtcSetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcSetPCHHeapSize')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        __nvrtcSetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcSetPCHHeapSize')</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        global __nvrtcGetPCHCreateStatus</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        __nvrtcGetPCHCreateStatus = dlfcn.dlsym(handle, 'nvrtcGetPCHCreateStatus')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        __nvrtcGetPCHCreateStatus = dlfcn.dlsym(handle, 'nvrtcGetPCHCreateStatus')</span>&nbsp;</span><span class="r"><label for="ctxs88" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        global __nvrtcGetPCHHeapSizeRequired</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        __nvrtcGetPCHHeapSizeRequired = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        __nvrtcGetPCHHeapSizeRequired = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')</span>&nbsp;</span><span class="r"><label for="ctxs90" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        global __nvrtcSetFlowCallback</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        __cuPythonInit = True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        __cuPythonInit = True</span>&nbsp;</span><span class="r"><label for="ctxs93" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"><label for="ctxs94" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt"># Create a very small function to check whether we are init'ed, so the C</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt"># compiler can inline it.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">cdef inline int cuPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    if __cuPythonInit:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    return _cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">cdef inline int cuPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs98" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    if __cuPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">323 ctx</label></span><span class="ctxs">2a BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = 1db 2dc ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd3d0d'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdAdYdZd!c</span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">329 ctx</label></span><span class="ctxs">2a BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b4d/b5dR S :b6d;b7dT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbccc8ddcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = 1db 2dc ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd3d0d'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdAdYdZd9d!c</span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    return _cuPythonInit()</span>&nbsp;</span><span class="r"><label for="ctxs101" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">cdef const char* _nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">cdef const char* _nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs103" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    global __nvrtcGetErrorString</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    if __nvrtcGetErrorString == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -191,115 +524,115 @@
     <p class="mis show_mis"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    err = (&lt;const char* (*)(nvrtcResult) except ?NULL nogil> __nvrtcGetErrorString)(result)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs112" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    global __nvrtcVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">    if __nvrtcVersion == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">85 ctx</label></span><span class="ctxs">2a %b'b(b)b*b+b,b-bLc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcec1db 2dc 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">    if __nvrtcVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">85 ctx</label></span><span class="ctxs">2a %b'b(b)b*b+b,b-bLc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcec1db 2dc 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcVersion" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(int*, int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcVersion)(major, minor)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(int*, int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcVersion)(major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">85 ctx</label></span><span class="ctxs">2a %b'b(b)b*b+b,b-bLc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcec1db 2dc 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">85 ctx</label></span><span class="ctxs">2a %b'b(b)b*b+b,b-bLc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcec1db 2dc 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs121" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    global __nvrtcGetNumSupportedArchs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">    if __nvrtcGetNumSupportedArchs == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">    if __nvrtcGetNumSupportedArchs == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetNumSupportedArchs" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetNumSupportedArchs)(numArchs)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetNumSupportedArchs)(numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs130" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    global __nvrtcGetSupportedArchs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">    if __nvrtcGetSupportedArchs == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">    if __nvrtcGetSupportedArchs == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">2 ctx</label></span><span class="ctxs">2a 0d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetSupportedArchs" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetSupportedArchs)(supportedArchs)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetSupportedArchs)(supportedArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">1 ctx</label></span><span class="ctxs">20d</span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs139" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">    global __nvrtcCreateProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    if __nvrtcCreateProgram == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">318 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdAdYdZd!c</span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    if __nvrtcCreateProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">324 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b4d/b5dR S :b6d;b7dT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbccc8ddcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdAdYdZd9d!c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcCreateProgram" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcCreateProgram)(prog, src, name, numHeaders, headers, includeNames)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcCreateProgram)(prog, src, name, numHeaders, headers, includeNames)</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">318 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdAdYdZd!c</span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">318 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdAdYdZd!c</span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs148" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    global __nvrtcDestroyProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    if __nvrtcDestroyProgram == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">309 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEdFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdYdZd!c</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    if __nvrtcDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">309 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEdFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdYdZd!c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcDestroyProgram" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcDestroyProgram)(prog)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcDestroyProgram)(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">309 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEdFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdYdZd!c</span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">309 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEdFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cVdWdXdYdZd!c</span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs157" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">    global __nvrtcCompileProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">    if __nvrtcCompileProgram == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">313 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">    if __nvrtcCompileProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs160"><span class="r"><label for="ctxs160" class="ctx">313 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcCompileProgram" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, int, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcCompileProgram)(prog, numOptions, options)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, int, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcCompileProgram)(prog, numOptions, options)</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">313 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">313 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcGdec5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bHdIdJdKdLdMdNdOdPdQdRdSdTdUd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs166" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    global __nvrtcGetPTXSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">    if __nvrtcGetPTXSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">    if __nvrtcGetPTXSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetPTXSize" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPTXSize)(prog, ptxSizeRet)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPTXSize)(prog, ptxSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs173"><span class="r"><label for="ctxs173" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs175" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">    global __nvrtcGetPTX</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">    if __nvrtcGetPTX == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">    if __nvrtcGetPTX == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs178"><span class="r"><label for="ctxs178" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetPTX" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPTX)(prog, ptx)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPTX)(prog, ptx)</span>&nbsp;</span><input type="checkbox" id="ctxs181"><span class="r"><label for="ctxs181" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
+    <p class="run"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs182"><span class="r"><label for="ctxs182" class="ctx">74 ctx</label></span><span class="ctxs">2Lc]b^b_b`b{b|b}b~bMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3cacbcccdcecb c 4c5cfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKc6c7c8c9cAd!c</span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs184" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">    global __nvrtcGetCUBINSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">    if __nvrtcGetCUBINSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
+    <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">    if __nvrtcGetCUBINSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs187"><span class="r"><label for="ctxs187" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetCUBINSize" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetCUBINSize)(prog, cubinSizeRet)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetCUBINSize)(prog, cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs190"><span class="r"><label for="ctxs190" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
     <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs193" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    global __nvrtcGetCUBIN</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    if __nvrtcGetCUBIN == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs195"><span class="r"><label for="ctxs195" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
+    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    if __nvrtcGetCUBIN == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetCUBIN" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetCUBIN)(prog, cubin)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetCUBIN)(prog, cubin)</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
+    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs200"><span class="r"><label for="ctxs200" class="ctx">228 ctx</label></span><span class="ctxs">2BdCdDd#cd e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bEd%b'b(b)b*b+b,b-bFd$cL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 %c9 ! # $ % ' ( ) * + , - . / : ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1bLdMdNdOdPdQd'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzd</span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs202" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">    global __nvrtcGetLTOIRSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">    if __nvrtcGetLTOIRSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
+    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">    if __nvrtcGetLTOIRSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs205"><span class="r"><label for="ctxs205" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetLTOIRSize" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLTOIRSize)(prog, LTOIRSizeRet)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLTOIRSize)(prog, LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
+    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs209"><span class="r"><label for="ctxs209" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
     <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs211" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">    global __nvrtcGetLTOIR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">    if __nvrtcGetLTOIR == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
+    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">    if __nvrtcGetLTOIR == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs214"><span class="r"><label for="ctxs214" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetLTOIR" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLTOIR)(prog, LTOIR)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLTOIR)(prog, LTOIR)</span>&nbsp;</span><input type="checkbox" id="ctxs217"><span class="r"><label for="ctxs217" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
+    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs218"><span class="r"><label for="ctxs218" class="ctx">11 ctx</label></span><span class="ctxs">2Gd; = HdIdJdKdRdSdTdUd</span></p>
     <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs220" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">    global __nvrtcGetOptiXIRSize</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    if __nvrtcGetOptiXIRSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -308,7 +641,7 @@
     <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetOptiXIRSize)(prog, optixirSizeRet)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs229" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">    global __nvrtcGetOptiXIR</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    if __nvrtcGetOptiXIR == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -317,43 +650,43 @@
     <p class="mis show_mis"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetOptiXIR)(prog, optixir)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs238" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    global __nvrtcGetProgramLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    if __nvrtcGetProgramLogSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
+    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    if __nvrtcGetProgramLogSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetProgramLogSize" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetProgramLogSize)(prog, logSizeRet)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetProgramLogSize)(prog, logSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
     <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs247" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">    global __nvrtcGetProgramLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    if __nvrtcGetProgramLog == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    if __nvrtcGetProgramLog == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetProgramLog" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetProgramLog)(prog, log)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetProgramLog)(prog, log)</span>&nbsp;</span><input type="checkbox" id="ctxs253"><span class="r"><label for="ctxs253" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
+    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">8 ctx</label></span><span class="ctxs">2%b'b(b)b*b+b,b-b</span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs256" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    global __nvrtcAddNameExpression</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">    if __nvrtcAddNameExpression == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">161 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b</span></p>
+    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">    if __nvrtcAddNameExpression == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs259"><span class="r"><label for="ctxs259" class="ctx">161 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcAddNameExpression" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, const char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcAddNameExpression)(prog, name_expression)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, const char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcAddNameExpression)(prog, name_expression)</span>&nbsp;</span><input type="checkbox" id="ctxs262"><span class="r"><label for="ctxs262" class="ctx">161 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b</span></p>
+    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs263"><span class="r"><label for="ctxs263" class="ctx">161 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b</span></p>
     <p class="pln"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs265" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">    global __nvrtcGetLoweredName</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">    if __nvrtcGetLoweredName == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs267"><span class="r"><label for="ctxs267" class="ctx">162 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b3d</span></p>
+    <p class="run"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">    if __nvrtcGetLoweredName == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs268"><span class="r"><label for="ctxs268" class="ctx">162 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b3d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "nvrtcGetLoweredName" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, const char*, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLoweredName)(prog, name_expression, lowered_name)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, const char*, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLoweredName)(prog, name_expression, lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs271"><span class="r"><label for="ctxs271" class="ctx">162 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b3d</span></p>
+    <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs272"><span class="r"><label for="ctxs272" class="ctx">162 ctx</label></span><span class="ctxs">2d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K 2b3b4b5b6b7b8b9b!b#b$bL M N O P Q .b/bR S :b;bT =b?b@b[bU V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = b c ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b3d</span></p>
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs274" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">    global __nvrtcGetPCHHeapSize</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">    if __nvrtcGetPCHHeapSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -362,7 +695,7 @@
     <p class="mis show_mis"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPCHHeapSize)(ret)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs283" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    global __nvrtcSetPCHHeapSize</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    if __nvrtcSetPCHHeapSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -371,7 +704,7 @@
     <p class="mis show_mis"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(size_t) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcSetPCHHeapSize)(size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs292" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    global __nvrtcGetPCHCreateStatus</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">    if __nvrtcGetPCHCreateStatus == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -380,7 +713,7 @@
     <p class="mis show_mis"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPCHCreateStatus)(prog)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs301" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">    global __nvrtcGetPCHHeapSizeRequired</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">    if __nvrtcGetPCHHeapSizeRequired == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -389,7 +722,7 @@
     <p class="mis show_mis"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPCHHeapSizeRequired)(prog, size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs310" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">    global __nvrtcSetFlowCallback</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">    if __nvrtcSetFlowCallback == NULL:</span>&nbsp;</span><span class="r"></span></p>
@@ -398,9 +731,9 @@
     <p class="mis show_mis"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">    err = (&lt;nvrtcResult (*)(nvrtcProgram, void*, void*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcSetFlowCallback)(prog, callback, payload)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">cdef dict func_ptrs = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">cdef dict func_ptrs = None</span>&nbsp;</span><span class="r"><label for="ctxs319" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">cpdef dict _inspect_function_pointers():</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">cpdef dict _inspect_function_pointers():</span>&nbsp;</span><span class="r"><label for="ctxs321" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    global func_ptrs</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">    if func_ptrs is not None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">        return func_ptrs</span>&nbsp;</span><span class="r"></span></p>
@@ -460,7 +793,7 @@
     <p class="mis show_mis"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t"><span class="txt">    func_ptrs = data</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t"><span class="txt">    return data</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t"><span class="txt">cpdef _inspect_function_pointer(str name):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t"><span class="txt">cpdef _inspect_function_pointer(str name):</span>&nbsp;</span><span class="r"><label for="ctxs381" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t"><span class="txt">    global func_ptrs</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t"><span class="txt">    if func_ptrs is None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t384" href="#t384">384</a></span><span class="t"><span class="txt">        func_ptrs = _inspect_function_pointers()</span>&nbsp;</span><span class="r"></span></p>
@@ -473,8 +806,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_e4c45573b95e3f6b_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

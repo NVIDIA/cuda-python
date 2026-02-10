@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_kernel_arg_handler.pyx: 76.10%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "b": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "c": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "d": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "e": "tests/test_graph.py::test_graph_conditional_while[0]|run",
+  "f": "tests/test_graph.py::test_graph_conditional_while[1]|run",
+  "g": "tests/test_graph.py::test_graph_conditional_while[False]|run",
+  "h": "tests/test_graph.py::test_graph_conditional_while[True]|run",
+  "i": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "j": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "k": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "l": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "n": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "o": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "p": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "q": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "r": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "s": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "t": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "u": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "v": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "w": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "x": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "y": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "z": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "A": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "B": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "C": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "D": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "E": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "F": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "G": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "H": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "I": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "J": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "K": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  "L": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "M": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  "N": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "O": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "P": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "Q": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "R": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "S": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "T": "(empty)",
+  "U": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  "V": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  "W": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "X": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  "Y": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "Z": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "0": "tests/test_graph_mem.py::test_graph_alloc[fill-global]|run",
+  "1": "tests/test_graph_mem.py::test_graph_alloc[fill-no_graph]|run",
+  "2": "tests/test_graph_mem.py::test_graph_alloc[fill-relaxed]|run",
+  "3": "tests/test_graph_mem.py::test_graph_alloc[fill-thread_local]|run",
+  "4": "tests/test_graph_mem.py::test_graph_alloc[incr-global]|run",
+  "5": "tests/test_graph_mem.py::test_graph_alloc[incr-no_graph]|run",
+  "6": "tests/test_graph_mem.py::test_graph_alloc[incr-relaxed]|run",
+  "7": "tests/test_graph_mem.py::test_graph_alloc[incr-thread_local]|run",
+  "8": "tests/test_graph_mem.py::test_graph_alloc_with_output[global]|run",
+  "9": "tests/test_graph_mem.py::test_graph_alloc_with_output[relaxed]|run",
+  "!": "tests/test_graph_mem.py::test_graph_alloc_with_output[thread_local]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "%": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "'": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "(": "tests/test_event.py::test_error_timing_incomplete|run",
+  ")": "tests/test_graph.py::test_graph_child_graph|run",
+  "*": "tests/test_graph.py::test_graph_repeat_capture|run",
+  "+": "tests/test_graph.py::test_graph_update|run",
+  ",": "tests/test_helpers.py::test_latchkernel|run",
+  "-": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  ".": "tests/test_event.py::test_timing_success|run",
+  "/": "tests/test_graph.py::test_graph_build_mode|run",
+  ":": "tests/test_graph.py::test_graph_complete_options|run",
+  ";": "tests/test_graph.py::test_graph_fork_join|run",
+  "=": "tests/test_graph.py::test_graph_is_join_required|run",
+  "?": "tests/test_graph.py::test_graph_straight|run",
+  "@": "tests/test_graph.py::test_graph_stream_lifetime|run",
+  "[": "tests/test_launcher.py::test_cooperative_launch|run",
+  "]": "tests/test_launcher.py::test_launch_invalid_values|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_kernel_arg_handler.pyx</b>:
+            <span class="pc_cov">76.10%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">205 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">156<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">49<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pxd.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from cpython.mem cimport PyMem_Malloc, PyMem_Free</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from libc.stdint cimport (intptr_t,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">                          int8_t, int16_t, int32_t, int64_t,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">                          uint8_t, uint16_t, uint32_t, uint64_t,)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from libcpp cimport bool as cpp_bool</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from libcpp.complex cimport complex as cpp_complex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">from libcpp cimport nullptr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">from libcpp cimport vector</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">import ctypes</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">import numpy</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">from cuda.core._memory import Buffer</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils import driver</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">ctypedef cpp_complex.complex[float] cpp_single_complex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">ctypedef cpp_complex.complex[double] cpp_double_complex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt"># We need an identifier for fp16 for copying scalars on the host. This is a minimal</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt"># implementation borrowed from cuda_fp16.h.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">cdef extern from *:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    #if __cplusplus >= 201103L</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    #define __CUDA_ALIGN__(n) alignas(n)    /* C++11 kindly gives us a keyword for this */</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    #else</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    #if defined(__GNUC__)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    #define __CUDA_ALIGN__(n) __attribute__ ((aligned(n)))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    #elif defined(_MSC_VER)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    #define __CUDA_ALIGN__(n) __declspec(align(n))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    #else</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    #define __CUDA_ALIGN__(n)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    #endif /* defined(__GNUC__) */</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    #endif /* __cplusplus >= 201103L */</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    typedef struct __CUDA_ALIGN__(2) {</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        /**</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">         * Storage field contains bits representation of the \p half floating-point number.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">         */</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        unsigned short x;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">    } __half_raw;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    ctypedef struct __half_raw:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        unsigned short x</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">ctypedef fused supported_type:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    cpp_bool</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    int8_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">    int16_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    int32_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    int64_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">    uint8_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">    uint16_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    uint32_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">    uint64_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">    __half_raw</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    float</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">    double</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    intptr_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    cpp_single_complex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    cpp_double_complex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt"># cache ctypes/numpy type objects to avoid attribute access</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">cdef object ctypes_bool = ctypes.c_bool</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">cdef object ctypes_int8 = ctypes.c_int8</span>&nbsp;</span><span class="r"><label for="ctxs74" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">cdef object ctypes_int16 = ctypes.c_int16</span>&nbsp;</span><span class="r"><label for="ctxs75" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">cdef object ctypes_int32 = ctypes.c_int32</span>&nbsp;</span><span class="r"><label for="ctxs76" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">cdef object ctypes_int64 = ctypes.c_int64</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">cdef object ctypes_uint8 = ctypes.c_uint8</span>&nbsp;</span><span class="r"><label for="ctxs78" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">cdef object ctypes_uint16 = ctypes.c_uint16</span>&nbsp;</span><span class="r"><label for="ctxs79" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">cdef object ctypes_uint32 = ctypes.c_uint32</span>&nbsp;</span><span class="r"><label for="ctxs80" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">cdef object ctypes_uint64 = ctypes.c_uint64</span>&nbsp;</span><span class="r"><label for="ctxs81" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">cdef object ctypes_float = ctypes.c_float</span>&nbsp;</span><span class="r"><label for="ctxs82" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">cdef object ctypes_double = ctypes.c_double</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">cdef object numpy_bool = numpy.bool_</span>&nbsp;</span><span class="r"><label for="ctxs84" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">cdef object numpy_int8 = numpy.int8</span>&nbsp;</span><span class="r"><label for="ctxs85" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">cdef object numpy_int16 = numpy.int16</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">cdef object numpy_int32 = numpy.int32</span>&nbsp;</span><span class="r"><label for="ctxs87" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">cdef object numpy_int64 = numpy.int64</span>&nbsp;</span><span class="r"><label for="ctxs88" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">cdef object numpy_uint8 = numpy.uint8</span>&nbsp;</span><span class="r"><label for="ctxs89" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">cdef object numpy_uint16 = numpy.uint16</span>&nbsp;</span><span class="r"><label for="ctxs90" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">cdef object numpy_uint32 = numpy.uint32</span>&nbsp;</span><span class="r"><label for="ctxs91" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">cdef object numpy_uint64 = numpy.uint64</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">cdef object numpy_float16 = numpy.float16</span>&nbsp;</span><span class="r"><label for="ctxs93" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">cdef object numpy_float32 = numpy.float32</span>&nbsp;</span><span class="r"><label for="ctxs94" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">cdef object numpy_float64 = numpy.float64</span>&nbsp;</span><span class="r"><label for="ctxs95" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">cdef object numpy_complex64 = numpy.complex64</span>&nbsp;</span><span class="r"><label for="ctxs96" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">cdef object numpy_complex128 = numpy.complex128</span>&nbsp;</span><span class="r"><label for="ctxs97" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt"># limitation due to cython/cython#534</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">ctypedef void* voidptr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt"># Cython can't infer the overload without at least one input argument with fused type</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">cdef inline int prepare_arg(</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        vector.vector[void*]&amp; data,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        vector.vector[void*]&amp; data_addresses,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        arg,  # important: keep it a Python object and don't cast</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        const size_t idx,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        const supported_type* __unused=NULL) except -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    cdef void* ptr = PyMem_Malloc(sizeof(supported_type))</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">    # note: this should also work once ctypes has complex support:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    # python/cpython#121248</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    if supported_type is cpp_single_complex:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr)[0] = cpp_complex.complex[float](arg.real, arg.imag)</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">    elif supported_type is cpp_double_complex:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr)[0] = cpp_complex.complex[double](arg.real, arg.imag)</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">2 ctx</label></span><span class="ctxs">1KZ</span></p>
+    <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    elif supported_type is __half_raw:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr).x = &lt;int16_t>(arg.view(numpy_int16))</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        (&lt;supported_type*>ptr)[0] = &lt;supported_type>(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    data_addresses[idx] = ptr  # take the address to the scalar</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    data[idx] = ptr  # for later dealloc</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">cdef inline int prepare_ctypes_arg(</span>&nbsp;</span><span class="r"><label for="ctxs127" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        vector.vector[void*]&amp; data,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        vector.vector[void*]&amp; data_addresses,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        arg,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        const size_t idx) except -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    cdef object arg_type = type(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">    if arg_type is ctypes_bool:</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        return prepare_arg[cpp_bool](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">5 ctx</label></span><span class="ctxs">1jknoJ</span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_int8:</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">35 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiIzAGFHECBD</span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        return prepare_arg[int8_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">1 ctx</label></span><span class="ctxs">1I</span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_int16:</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">34 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizAGFHECBD</span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        return prepare_arg[int16_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">1H</span></p>
+    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_int32:</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">33 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizAGFECBD</span></p>
+    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        return prepare_arg[int32_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">1 ctx</label></span><span class="ctxs">1G</span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_int64:</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">32 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizAFECBD</span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">        return prepare_arg[int64_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">1 ctx</label></span><span class="ctxs">1F</span></p>
+    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_uint8:</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">31 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizAECBD</span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        return prepare_arg[uint8_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_uint16:</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">30 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizACBD</span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        return prepare_arg[uint16_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_uint32:</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">29 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizACB</span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">        return prepare_arg[uint32_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_uint64:</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">28 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizAB</span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return prepare_arg[uint64_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">1 ctx</label></span><span class="ctxs">1B</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_float:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">27 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghizA</span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        return prepare_arg[float](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">1 ctx</label></span><span class="ctxs">1A</span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">    elif arg_type is ctypes_double:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">26 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiz</span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">        return prepare_arg[double](data, data_addresses, arg.value, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        # If no exact types are found, fallback to slower `isinstance` check</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        if isinstance(arg, ctypes_bool):</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">            return prepare_arg[cpp_bool](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_int8):</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">            return prepare_arg[int8_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_int16):</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">            return prepare_arg[int16_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_int32):</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">            return prepare_arg[int32_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_int64):</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">            return prepare_arg[int64_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_uint8):</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">            return prepare_arg[uint8_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_uint16):</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">            return prepare_arg[uint16_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_uint32):</span>&nbsp;</span><input type="checkbox" id="ctxs171"><span class="r"><label for="ctxs171" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">            return prepare_arg[uint32_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_uint64):</span>&nbsp;</span><input type="checkbox" id="ctxs173"><span class="r"><label for="ctxs173" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">            return prepare_arg[uint64_t](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_float):</span>&nbsp;</span><input type="checkbox" id="ctxs175"><span class="r"><label for="ctxs175" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">            return prepare_arg[float](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">        elif isinstance(arg, ctypes_double):</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">            return prepare_arg[double](data, data_addresses, arg.value, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">            return 1</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">cdef inline int prepare_numpy_arg(</span>&nbsp;</span><span class="r"><label for="ctxs183" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">        vector.vector[void*]&amp; data,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">        vector.vector[void*]&amp; data_addresses,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        arg,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">        const size_t idx) except -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">    cdef object arg_type = type(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">50 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKNOMXWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    if arg_type is numpy_bool:</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">50 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKNOMXWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">        return prepare_arg[cpp_bool](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs190"><span class="r"><label for="ctxs190" class="ctx">5 ctx</label></span><span class="ctxs">1lmpqY</span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    elif arg_type is numpy_int8:</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">49 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMXWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">        return prepare_arg[int8_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">1 ctx</label></span><span class="ctxs">1X</span></p>
+    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">    elif arg_type is numpy_int16:</span>&nbsp;</span><input type="checkbox" id="ctxs193"><span class="r"><label for="ctxs193" class="ctx">48 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">        return prepare_arg[int16_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">1 ctx</label></span><span class="ctxs">1W</span></p>
+    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">    elif arg_type is numpy_int32:</span>&nbsp;</span><input type="checkbox" id="ctxs195"><span class="r"><label for="ctxs195" class="ctx">47 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">        return prepare_arg[int32_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">1 ctx</label></span><span class="ctxs">1V</span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    elif arg_type is numpy_int64:</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">46 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return prepare_arg[int64_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">1 ctx</label></span><span class="ctxs">1U</span></p>
+    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    elif arg_type is numpy_uint8:</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">45 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMSRQP</span></p>
+    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">        return prepare_arg[uint8_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs200"><span class="r"><label for="ctxs200" class="ctx">1 ctx</label></span><span class="ctxs">1S</span></p>
+    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    elif arg_type is numpy_uint16:</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">44 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMRQP</span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">        return prepare_arg[uint16_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs202"><span class="r"><label for="ctxs202" class="ctx">1 ctx</label></span><span class="ctxs">1R</span></p>
+    <p class="run"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">    elif arg_type is numpy_uint32:</span>&nbsp;</span><input type="checkbox" id="ctxs203"><span class="r"><label for="ctxs203" class="ctx">43 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMQP</span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">        return prepare_arg[uint32_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
+    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">    elif arg_type is numpy_uint64:</span>&nbsp;</span><input type="checkbox" id="ctxs205"><span class="r"><label for="ctxs205" class="ctx">42 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOMP</span></p>
+    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        return prepare_arg[uint64_t](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">1 ctx</label></span><span class="ctxs">1P</span></p>
+    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">    elif arg_type is numpy_float16:</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">41 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKNOM</span></p>
+    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        return prepare_arg[__half_raw](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">    elif arg_type is numpy_float32:</span>&nbsp;</span><input type="checkbox" id="ctxs209"><span class="r"><label for="ctxs209" class="ctx">40 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKOM</span></p>
+    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">        return prepare_arg[float](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs210"><span class="r"><label for="ctxs210" class="ctx">1 ctx</label></span><span class="ctxs">1O</span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">    elif arg_type is numpy_float64:</span>&nbsp;</span><input type="checkbox" id="ctxs211"><span class="r"><label for="ctxs211" class="ctx">39 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLKM</span></p>
+    <p class="run"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        return prepare_arg[double](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs212"><span class="r"><label for="ctxs212" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    elif arg_type is numpy_complex64:</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">38 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDLK</span></p>
+    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        return prepare_arg[cpp_single_complex](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs214"><span class="r"><label for="ctxs214" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    elif arg_type is numpy_complex128:</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">37 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBDK</span></p>
+    <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">        return prepare_arg[cpp_double_complex](data, data_addresses, arg, idx)</span>&nbsp;</span><input type="checkbox" id="ctxs216"><span class="r"><label for="ctxs216" class="ctx">1 ctx</label></span><span class="ctxs">1K</span></p>
+    <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">        # If no exact types are found, fallback to slower `isinstance` check</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        if isinstance(arg, numpy_bool):</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">            return prepare_arg[cpp_bool](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_int8):</span>&nbsp;</span><input type="checkbox" id="ctxs221"><span class="r"><label for="ctxs221" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">            return prepare_arg[int8_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_int16):</span>&nbsp;</span><input type="checkbox" id="ctxs223"><span class="r"><label for="ctxs223" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">            return prepare_arg[int16_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_int32):</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">            return prepare_arg[int32_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_int64):</span>&nbsp;</span><input type="checkbox" id="ctxs227"><span class="r"><label for="ctxs227" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">            return prepare_arg[int64_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_uint8):</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">            return prepare_arg[uint8_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_uint16):</span>&nbsp;</span><input type="checkbox" id="ctxs231"><span class="r"><label for="ctxs231" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">            return prepare_arg[uint16_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_uint32):</span>&nbsp;</span><input type="checkbox" id="ctxs233"><span class="r"><label for="ctxs233" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">            return prepare_arg[uint32_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_uint64):</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">            return prepare_arg[uint64_t](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_float16):</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">            return prepare_arg[__half_raw](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_float32):</span>&nbsp;</span><input type="checkbox" id="ctxs239"><span class="r"><label for="ctxs239" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">            return prepare_arg[float](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_float64):</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">            return prepare_arg[double](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_complex64):</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">            return prepare_arg[cpp_single_complex](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        elif isinstance(arg, numpy_complex128):</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">            return prepare_arg[cpp_double_complex](data, data_addresses, arg, idx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">            return 1</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">cdef class ParamHolder:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    def __init__(self, kernel_args):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        if len(kernel_args) == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">81 ctx</label></span><span class="ctxs">1%'(./):rsabjklmtucdnopqvwxyefghi;=*?@+0123456789!,[]$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">            self.ptr = 0</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">14 ctx</label></span><span class="ctxs">1./:efghi;=?@[]</span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">14 ctx</label></span><span class="ctxs">1./:efghi;=?@[]</span></p>
+    <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">        cdef size_t n_args = len(kernel_args)</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">        cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">        cdef int not_prepared</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">        cdef object arg_type</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        self.data = vector.vector[voidptr](n_args, nullptr)</span>&nbsp;</span><input type="checkbox" id="ctxs262"><span class="r"><label for="ctxs262" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">        self.data_addresses = vector.vector[voidptr](n_args)</span>&nbsp;</span><input type="checkbox" id="ctxs263"><span class="r"><label for="ctxs263" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">        for i, arg in enumerate(kernel_args):</span>&nbsp;</span><input type="checkbox" id="ctxs264"><span class="r"><label for="ctxs264" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">            arg_type = type(arg)</span>&nbsp;</span><input type="checkbox" id="ctxs265"><span class="r"><label for="ctxs265" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">            if arg_type is Buffer:</span>&nbsp;</span><input type="checkbox" id="ctxs266"><span class="r"><label for="ctxs266" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">                # we need the address of where the actual buffer address is stored</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">                if type(arg.handle) is int:</span>&nbsp;</span><input type="checkbox" id="ctxs268"><span class="r"><label for="ctxs268" class="ctx">12 ctx</label></span><span class="ctxs">10123456789!-</span></p>
+    <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">                    # see note below on handling int arguments</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">                    prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)</span>&nbsp;</span><input type="checkbox" id="ctxs270"><span class="r"><label for="ctxs270" class="ctx">12 ctx</label></span><span class="ctxs">10123456789!-</span></p>
+    <p class="run"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><input type="checkbox" id="ctxs271"><span class="r"><label for="ctxs271" class="ctx">12 ctx</label></span><span class="ctxs">10123456789!-</span></p>
+    <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">                else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">                    # it's a CUdeviceptr:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">                    self.data_addresses[i] = &lt;void*>&lt;intptr_t>(arg.handle.getPtr())</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">            elif arg_type is bool:</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">71 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">                prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">6 ctx</label></span><span class="ctxs">1abcdi$</span></p>
+    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs278"><span class="r"><label for="ctxs278" class="ctx">6 ctx</label></span><span class="ctxs">1abcdi$</span></p>
+    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">            elif arg_type is int:</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">71 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP</span></p>
+    <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">                # Here's the dilemma: We want to have a fast path to pass in Python</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">                # integers as pointer addresses, but one could also (mistakenly) pass</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">                # it with the intention of passing a scalar integer. It's a mistake</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">                # bacause a Python int is ambiguous (arbitrary width). Our judgement</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">                # call here is to treat it as a pointer address, without any warning!</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">                prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs285"><span class="r"><label for="ctxs285" class="ctx">70 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefgh*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">70 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefgh*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">            elif arg_type is float:</span>&nbsp;</span><input type="checkbox" id="ctxs287"><span class="r"><label for="ctxs287" class="ctx">52 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKZNOM#XWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">                prepare_arg[double](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">1 ctx</label></span><span class="ctxs">1#</span></p>
+    <p class="run"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs289"><span class="r"><label for="ctxs289" class="ctx">1 ctx</label></span><span class="ctxs">1#</span></p>
+    <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">            elif arg_type is complex:</span>&nbsp;</span><input type="checkbox" id="ctxs290"><span class="r"><label for="ctxs290" class="ctx">51 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKZNOMXWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">                prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs291"><span class="r"><label for="ctxs291" class="ctx">1 ctx</label></span><span class="ctxs">1Z</span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">                continue</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">1 ctx</label></span><span class="ctxs">1Z</span></p>
+    <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">            not_prepared = prepare_numpy_arg(self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">50 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKNOMXWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">            if not_prepared:</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">50 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKNOMXWVUSRQP</span></p>
+    <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">                not_prepared = prepare_ctypes_arg(self.data, self.data_addresses, arg, i)</span>&nbsp;</span><input type="checkbox" id="ctxs296"><span class="r"><label for="ctxs296" class="ctx">36 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiJIzAGFHECBD</span></p>
+    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">            if not_prepared:</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">50 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghiYJIzAGFHECBDLKNOMXWVUSRQP</span></p>
+    <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">                # TODO: revisit this treatment if we decide to cythonize cuda.core</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">                if arg_type is driver.CUgraphConditionalHandle:</span>&nbsp;</span><input type="checkbox" id="ctxs299"><span class="r"><label for="ctxs299" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">                    prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, &lt;intptr_t>int(arg), i)</span>&nbsp;</span><input type="checkbox" id="ctxs300"><span class="r"><label for="ctxs300" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><input type="checkbox" id="ctxs301"><span class="r"><label for="ctxs301" class="ctx">25 ctx</label></span><span class="ctxs">1rsabjklmtucdnopqvwxyefghi</span></p>
+    <p class="pln"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">                # If no exact types are found, fallback to slower `isinstance` check</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">                elif isinstance(arg, Buffer):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">                    if isinstance(arg.handle, int):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">                        prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">                        continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">                    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">                        self.data_addresses[i] = &lt;void*>&lt;intptr_t>(arg.handle.getPtr())</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">                        continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">                elif isinstance(arg, bool):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">                    prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">                elif isinstance(arg, int):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">                    prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">                elif isinstance(arg, float):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">                    prepare_arg[double](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">                elif isinstance(arg, complex):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">                    prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">                elif isinstance(arg, driver.CUgraphConditionalHandle):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">                    prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, arg, i)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">                    continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">                # TODO: support ctypes/numpy struct</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">                raise TypeError("the argument is of unsupported type: " + str(type(arg)))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">        self.kernel_args = kernel_args</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">        self.ptr = &lt;intptr_t>self.data_addresses.data()</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">        for data in self.data:</span>&nbsp;</span><input type="checkbox" id="ctxs332"><span class="r"><label for="ctxs332" class="ctx">81 ctx</label></span><span class="ctxs">1%'(./):rsabjklmtucdnopqvwxyefghi;=*?@+0123456789!,[]$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">            if data:</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+    <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">                PyMem_Free(data)</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">72 ctx</label></span><span class="ctxs">1%'()rsabjklmtucdnopqvwxyefghi*+0123456789!,$YJIzAGFHECBDLKZNOM#XWVUSRQP-</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pxd.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

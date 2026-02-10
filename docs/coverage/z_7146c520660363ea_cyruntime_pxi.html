@@ -2,22 +2,29 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/_lib/cyruntime/cyruntime.pxi: 1%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/_lib/cyruntime/cyruntime.pxi: 0.60%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[0]|run",
+  "b": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[2]|run",
+  "c": "tests/test_graphics_apis.py::test_cuda_register_image_invalid|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;_lib&#8201;/&#8201;cyruntime&#8201;/&#8201;cyruntime.pxi</b>:
-            <span class="pc_cov">1%</span>
+            <span class="pc_cov">0.60%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -60,12 +67,12 @@
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_62eee82334cdf477___init___py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_1c6fa6fde3f60f5e_utils_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_62eee82334cdf477_utils_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -180,13 +187,13 @@
     <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, cyruntime.GLuint image, cyruntime.GLenum target, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    cdef cudaError_t err = cudaSuccess</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    cdef cudaError_t err = cudaSuccess</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    # cudaFree(0) is a NOP operations that initializes the context state</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    err = cudaFree(&lt;void*>0)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    if err != cudaSuccess:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    err = cudaFree(&lt;void*>0)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    if err != cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">        return err</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    err = &lt;cudaError_t>cydriver._cuGraphicsGLRegisterImage(&lt;cydriver.CUgraphicsResource*>resource, image, target, flags)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    err = &lt;cudaError_t>cydriver._cuGraphicsGLRegisterImage(&lt;cydriver.CUgraphicsResource*>resource, image, target, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, cyruntime.GLuint buffer, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    cdef cudaError_t err = cudaSuccess</span>&nbsp;</span><span class="r"></span></p>
@@ -1260,12 +1267,12 @@
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_62eee82334cdf477___init___py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_1c6fa6fde3f60f5e_utils_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_62eee82334cdf477_utils_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

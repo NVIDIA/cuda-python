@@ -2,22 +2,101 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cycufile.pyx: 75%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/cycufile.pyx: 74.71%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_cufile.py::test_get_stats_l1|run",
+  "c": "tests/test_cufile.py::test_get_stats_l2|run",
+  "d": "tests/test_cufile.py::test_get_stats_l3|run",
+  "e": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|run",
+  "f": "tests/test_cufile.py::test_get_stats_l1|teardown",
+  "g": "tests/test_cufile.py::test_get_stats_l2|teardown",
+  "h": "tests/test_cufile.py::test_get_stats_l3|teardown",
+  "i": "tests/test_cufile.py::test_set_stats_level|teardown",
+  "j": "tests/test_cufile.py::test_stats_start_stop|teardown",
+  "k": "tests/test_cufile.py::test_set_get_parameter_bool|run",
+  "l": "tests/test_cufile.py::test_stats_start_stop|run",
+  "m": "tests/test_cufile.py::test_batch_io_basic|run",
+  "n": "tests/test_cufile.py::test_batch_io_cancel|run",
+  "o": "tests/test_cufile.py::test_batch_io_large_operations|run",
+  "p": "tests/test_cufile.py::test_cufile_read_write_host_memory|run",
+  "q": "tests/test_cufile.py::test_cufile_read_write_large|run",
+  "r": "tests/test_cufile.py::test_cufile_read_write|run",
+  "s": "tests/test_cufile.py::test_buf_register_already_registered|run",
+  "t": "tests/test_cufile.py::test_buf_register_host_memory|run",
+  "u": "tests/test_cufile.py::test_buf_register_invalid_flags|run",
+  "v": "tests/test_cufile.py::test_buf_register_large_buffer|run",
+  "w": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
+  "x": "tests/test_cufile.py::test_buf_register_simple|run",
+  "y": "tests/test_cufile.py::test_get_stats_l1|setup",
+  "z": "tests/test_cufile.py::test_get_stats_l2|setup",
+  "A": "tests/test_cufile.py::test_get_stats_l3|setup",
+  "B": "tests/test_cufile.py::test_set_stats_level|setup",
+  "C": "tests/test_cufile.py::test_stats_start_stop|setup",
+  "D": "tests/test_cufile.py::test_set_get_parameter_size_t|run",
+  "E": "tests/test_cufile.py::test_set_get_parameter_string|run",
+  "F": "tests/test_cufile.py::test_set_stats_level|run",
+  "G": "tests/test_cufile.py::test_cufile_async_read_write|run",
+  "H": "tests/test_cufile.py::test_cufile_read_async|run",
+  "I": "tests/test_cufile.py::test_cufile_write_async|run",
+  "J": "tests/test_cufile.py::test_handle_register|run",
+  "K": "tests/test_cufile.py::test_batch_io_basic|setup",
+  "L": "tests/test_cufile.py::test_batch_io_cancel|setup",
+  "M": "tests/test_cufile.py::test_batch_io_large_operations|setup",
+  "N": "tests/test_cufile.py::test_buf_register_already_registered|setup",
+  "O": "tests/test_cufile.py::test_buf_register_host_memory|setup",
+  "P": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
+  "Q": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
+  "R": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
+  "S": "tests/test_cufile.py::test_buf_register_simple|setup",
+  "T": "tests/test_cufile.py::test_cufile_async_read_write|setup",
+  "U": "tests/test_cufile.py::test_cufile_read_async|setup",
+  "V": "tests/test_cufile.py::test_cufile_read_write_host_memory|setup",
+  "W": "tests/test_cufile.py::test_cufile_read_write_large|setup",
+  "X": "tests/test_cufile.py::test_cufile_read_write|setup",
+  "Y": "tests/test_cufile.py::test_cufile_write_async|setup",
+  "Z": "tests/test_cufile.py::test_get_bar_size_in_kb|setup",
+  "0": "tests/test_cufile.py::test_get_parameter_min_max_value|setup",
+  "1": "tests/test_cufile.py::test_handle_register|setup",
+  "2": "tests/test_cufile.py::test_batch_io_basic|teardown",
+  "3": "tests/test_cufile.py::test_batch_io_cancel|teardown",
+  "4": "tests/test_cufile.py::test_batch_io_large_operations|teardown",
+  "5": "tests/test_cufile.py::test_buf_register_already_registered|teardown",
+  "6": "tests/test_cufile.py::test_buf_register_host_memory|teardown",
+  "7": "tests/test_cufile.py::test_buf_register_invalid_flags|teardown",
+  "8": "tests/test_cufile.py::test_buf_register_large_buffer|teardown",
+  "9": "tests/test_cufile.py::test_buf_register_multiple_buffers|teardown",
+  "!": "tests/test_cufile.py::test_buf_register_simple|teardown",
+  "#": "tests/test_cufile.py::test_cufile_async_read_write|teardown",
+  "$": "tests/test_cufile.py::test_cufile_read_async|teardown",
+  "%": "tests/test_cufile.py::test_cufile_read_write_host_memory|teardown",
+  "'": "tests/test_cufile.py::test_cufile_read_write_large|teardown",
+  "(": "tests/test_cufile.py::test_cufile_read_write|teardown",
+  ")": "tests/test_cufile.py::test_cufile_write_async|teardown",
+  "*": "tests/test_cufile.py::test_get_bar_size_in_kb|teardown",
+  "+": "tests/test_cufile.py::test_get_parameter_min_max_value|teardown",
+  ",": "tests/test_cufile.py::test_handle_register|teardown",
+  "-": "tests/test_cufile.py::test_get_parameter_min_max_value|run",
+  ".": "tests/test_cufile.py::test_get_bar_size_in_kb|run",
+  "/": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|setup"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;cycufile.pyx</b>:
-            <span class="pc_cov">75%</span>
+            <span class="pc_cov">74.71%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -60,12 +139,12 @@
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_bb8e88d71740c463_cy_nvml_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_bb8e88d71740c463_cufile_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -80,11 +159,11 @@
     </div>
 </header>
 <main id="source">
-    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from ._internal cimport cufile as _cufile</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -94,188 +173,188 @@
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt"># Wrapper functions</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    return _cufile._cuFileHandleRegister(fh, descr)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs15" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    return _cufile._cuFileHandleRegister(fh, descr)</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">13 ctx</label></span><span class="ctxs">1mnoGHpqrIbcdJ</span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">cdef void cuFileHandleDeregister(CUfileHandle_t fh) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">    _cufile._cuFileHandleDeregister(fh)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBufRegister(const void* bufPtr_base, size_t length, int flags) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    return _cufile._cuFileBufRegister(bufPtr_base, length, flags)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBufRegister(const void* bufPtr_base, size_t length, int flags) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    return _cufile._cuFileBufRegister(bufPtr_base, length, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">12 ctx</label></span><span class="ctxs">1mnostuvwxpqr</span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBufDeregister(const void* bufPtr_base) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    return _cufile._cuFileBufDeregister(bufPtr_base)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBufDeregister(const void* bufPtr_base) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    return _cufile._cuFileBufDeregister(bufPtr_base)</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">6 ctx</label></span><span class="ctxs">1stuvwx</span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">cdef ssize_t cuFileRead(CUfileHandle_t fh, void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">cdef ssize_t cuFileRead(CUfileHandle_t fh, void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    return _cufile._cuFileRead(fh, bufPtr_base, size, file_offset, bufPtr_offset)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs36" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    return _cufile._cuFileWrite(fh, bufPtr_base, size, file_offset, bufPtr_offset)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverOpen() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverOpen()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverOpen() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">24 ctx</label></span><span class="ctxs">1KLMNOPQRSTUVWXYZ0yzA1eBC</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs44" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose()</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose_v2() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose_v2()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose_v2() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs48" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">24 ctx</label></span><span class="ctxs">123456789!#$%'()*+fgh,eij</span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">cdef long cuFileUseCount() except* nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">cdef long cuFileUseCount() except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs52" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    return _cufile._cuFileUseCount()</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs56" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverGetProperties(props)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs60" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverSetPollMode(poll, poll_threshold_size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetMaxDirectIOSize(size_t max_direct_io_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetMaxDirectIOSize(size_t max_direct_io_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverSetMaxDirectIOSize(max_direct_io_size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetMaxCacheSize(size_t max_cache_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetMaxCacheSize(size_t max_cache_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs68" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverSetMaxCacheSize(max_cache_size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetMaxPinnedMemSize(size_t max_pinned_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverSetMaxPinnedMemSize(size_t max_pinned_size) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverSetMaxPinnedMemSize(max_pinned_size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOSetUp(CUfileBatchHandle_t* batch_idp, unsigned nr) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOSetUp(CUfileBatchHandle_t* batch_idp, unsigned nr) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs76" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    return _cufile._cuFileBatchIOSetUp(batch_idp, nr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOSubmit(CUfileBatchHandle_t batch_idp, unsigned nr, CUfileIOParams_t* iocbp, unsigned int flags) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOSubmit(CUfileBatchHandle_t batch_idp, unsigned nr, CUfileIOParams_t* iocbp, unsigned int flags) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs80" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">    return _cufile._cuFileBatchIOSubmit(batch_idp, nr, iocbp, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOGetStatus(CUfileBatchHandle_t batch_idp, unsigned min_nr, unsigned* nr, CUfileIOEvents_t* iocbp, timespec* timeout) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOGetStatus(CUfileBatchHandle_t batch_idp, unsigned min_nr, unsigned* nr, CUfileIOEvents_t* iocbp, timespec* timeout) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs84" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    return _cufile._cuFileBatchIOGetStatus(batch_idp, min_nr, nr, iocbp, timeout)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs88" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    return _cufile._cuFileBatchIOCancel(batch_idp)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">cdef void cuFileBatchIODestroy(CUfileBatchHandle_t batch_idp) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">    _cufile._cuFileBatchIODestroy(batch_idp)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileReadAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_read_p, CUstream stream) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileReadAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_read_p, CUstream stream) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs97" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    return _cufile._cuFileReadAsync(fh, bufPtr_base, size_p, file_offset_p, bufPtr_offset_p, bytes_read_p, stream)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileWriteAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_written_p, CUstream stream) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileWriteAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_written_p, CUstream stream) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs101" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    return _cufile._cuFileWriteAsync(fh, bufPtr_base, size_p, file_offset_p, bufPtr_offset_p, bytes_written_p, stream)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStreamRegister(CUstream stream, unsigned flags) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStreamRegister(CUstream stream, unsigned flags) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    return _cufile._cuFileStreamRegister(stream, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStreamDeregister(CUstream stream) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStreamDeregister(CUstream stream) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs109" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    return _cufile._cuFileStreamDeregister(stream)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetVersion(int* version) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetVersion(version)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetVersion(int* version) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs113" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetVersion(version)</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">2 ctx</label></span><span class="ctxs">1ak</span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t* value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterSizeT(param, value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t* value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs117" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterSizeT(param, value)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterBool(param, value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs121" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterBool(param, value)</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param, char* desc_str, int len) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterString(param, desc_str, len)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param, char* desc_str, int len) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs125" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterString(param, desc_str, len)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterSizeT(param, value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs129" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterSizeT(param, value)</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterBool(param, value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs133" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterBool(param, value)</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterString(param, desc_str)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs137" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterString(param, desc_str)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs141" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs142"><span class="r"><label for="ctxs142" class="ctx">1 ctx</label></span><span class="ctxs">1-</span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetStatsLevel(int level) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetStatsLevel(level)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetStatsLevel(int level) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs145" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetStatsLevel(level)</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">10 ctx</label></span><span class="ctxs">1bfcgdhFilj</span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsLevel(int* level) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetStatsLevel(level)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsLevel(int* level) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs149" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetStatsLevel(level)</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">6 ctx</label></span><span class="ctxs">1yzAFBC</span></p>
     <p class="pln"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStatsStart() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">    return _cufile._cuFileStatsStart()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStatsStart() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs153" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">    return _cufile._cuFileStatsStart()</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">4 ctx</label></span><span class="ctxs">1bcdl</span></p>
     <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStatsStop() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">    return _cufile._cuFileStatsStop()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStatsStop() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs157" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">    return _cufile._cuFileStatsStop()</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
     <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStatsReset() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">    return _cufile._cuFileStatsReset()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileStatsReset() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs161" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">    return _cufile._cuFileStatsReset()</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">5 ctx</label></span><span class="ctxs">1fghij</span></p>
     <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsL1(CUfileStatsLevel1_t* stats) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsL1(CUfileStatsLevel1_t* stats) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs165" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetStatsL1(stats)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsL2(CUfileStatsLevel2_t* stats) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsL2(CUfileStatsLevel2_t* stats) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs169" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetStatsL2(stats)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs173" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetStatsL3(stats)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetBARSizeInKB(gpuIndex, barSize)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs177" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetBARSizeInKB(gpuIndex, barSize)</span>&nbsp;</span><input type="checkbox" id="ctxs178"><span class="r"><label for="ctxs178" class="ctx">1 ctx</label></span><span class="ctxs">1.</span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterPosixPoolSlabArray(size_values, count_values, len)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs181" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">    return _cufile._cuFileSetParameterPosixPoolSlabArray(size_values, count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs182"><span class="r"><label for="ctxs182" class="ctx">1 ctx</label></span><span class="ctxs">1/</span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterPosixPoolSlabArray(size_values, count_values, len)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs185" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterPosixPoolSlabArray(size_values, count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">1 ctx</label></span><span class="ctxs">1e</span></p>
 </main>
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_bb8e88d71740c463_cy_nvml_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_bb8e88d71740c463_cufile_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

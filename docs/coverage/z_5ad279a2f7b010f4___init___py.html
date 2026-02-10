@@ -2,22 +2,27 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/experimental/__init__.py: 100%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/core/experimental/__init__.py: 100.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/test_experimental_backward_compat.py::test_experimental_backward_compatibility|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;experimental&#8201;/&#8201;__init__.py</b>:
-            <span class="pc_cov">100%</span>
+            <span class="pc_cov">100.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -54,18 +59,18 @@
             </div>
         </aside>
         <h2>
-            <span class="text">21 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">21<span class="text"> run</span></button>
+            <span class="text">17 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">17<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__version_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8_utils_py.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_dbb36602d1591427___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -96,16 +101,16 @@
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="key">def</span> <span class="nam">_warn_deprecated</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="key">def</span> <span class="nam">_warn_deprecated</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="str">"""Emit a deprecation warning for using the experimental namespace.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="str">    Note: This warning is only when the experimental module is first imported.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="str">    Subsequent accesses to attributes (like utils, Device, etc.) do not trigger</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="str">    additional warnings since they are already set in the module namespace.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="key">import</span> <span class="nam">warnings</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="key">import</span> <span class="nam">warnings</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="nam">warnings</span><span class="op">.</span><span class="nam">warn</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="nam">warnings</span><span class="op">.</span><span class="nam">warn</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run run2"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="str">"The cuda.core.experimental namespace is deprecated. "</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="str">"Please import directly from cuda.core instead. "</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="str">"For example, use 'from cuda.core import Device' instead of "</span>&nbsp;</span><span class="r"></span></p>
@@ -117,28 +122,28 @@
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="com"># Import from new locations and re-export</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="nam">_warn_deprecated</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="nam">_warn_deprecated</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span> <span class="key">import</span> <span class="nam">utils</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span> <span class="key">import</span> <span class="nam">system</span><span class="op">,</span> <span class="nam">utils</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="com"># Make utils accessible as a submodule for backward compatibility</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="nam">__import__</span><span class="op">(</span><span class="str">"sys"</span><span class="op">)</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__spec__</span><span class="op">.</span><span class="nam">name</span> <span class="op">+</span> <span class="str">".utils"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">utils</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="nam">__import__</span><span class="op">(</span><span class="str">"sys"</span><span class="op">)</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__spec__</span><span class="op">.</span><span class="nam">name</span> <span class="op">+</span> <span class="str">".utils"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">utils</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_device</span> <span class="key">import</span> <span class="nam">Device</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_event</span> <span class="key">import</span> <span class="nam">Event</span><span class="op">,</span> <span class="nam">EventOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_graph</span> <span class="key">import</span> <span class="op">(</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_device</span> <span class="key">import</span> <span class="nam">Device</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_event</span> <span class="key">import</span> <span class="nam">Event</span><span class="op">,</span> <span class="nam">EventOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_graph</span> <span class="key">import</span> <span class="op">(</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run run2"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">    <span class="nam">Graph</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="nam">GraphBuilder</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">    <span class="nam">GraphCompleteOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="nam">GraphDebugPrintOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_launch_config</span> <span class="key">import</span> <span class="nam">LaunchConfig</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_launcher</span> <span class="key">import</span> <span class="nam">launch</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_layout</span> <span class="key">import</span> <span class="nam">_StridedLayout</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_linker</span> <span class="key">import</span> <span class="nam">Linker</span><span class="op">,</span> <span class="nam">LinkerOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_memory</span> <span class="key">import</span> <span class="op">(</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_launch_config</span> <span class="key">import</span> <span class="nam">LaunchConfig</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_launcher</span> <span class="key">import</span> <span class="nam">launch</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_layout</span> <span class="key">import</span> <span class="nam">_StridedLayout</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_linker</span> <span class="key">import</span> <span class="nam">Linker</span><span class="op">,</span> <span class="nam">LinkerOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs58"><span class="r"><label for="ctxs58" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_memory</span> <span class="key">import</span> <span class="op">(</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run run2"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">    <span class="nam">Buffer</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">    <span class="nam">DeviceMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">    <span class="nam">DeviceMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -152,24 +157,19 @@
     <p class="run run2"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">    <span class="nam">VirtualMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">    <span class="nam">VirtualMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_module</span> <span class="key">import</span> <span class="nam">Kernel</span><span class="op">,</span> <span class="nam">ObjectCode</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_program</span> <span class="key">import</span> <span class="nam">Program</span><span class="op">,</span> <span class="nam">ProgramOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_stream</span> <span class="key">import</span> <span class="nam">Stream</span><span class="op">,</span> <span class="nam">StreamOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_system</span> <span class="key">import</span> <span class="nam">System</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="nam">system</span> <span class="op">=</span> <span class="nam">System</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="nam">__import__</span><span class="op">(</span><span class="str">"sys"</span><span class="op">)</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__spec__</span><span class="op">.</span><span class="nam">name</span> <span class="op">+</span> <span class="str">".system"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">system</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="key">del</span> <span class="nam">System</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_module</span> <span class="key">import</span> <span class="nam">Kernel</span><span class="op">,</span> <span class="nam">ObjectCode</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_program</span> <span class="key">import</span> <span class="nam">Program</span><span class="op">,</span> <span class="nam">ProgramOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">_stream</span> <span class="key">import</span> <span class="nam">Stream</span><span class="op">,</span> <span class="nam">StreamOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
 </main>
 <footer>
     <div class="content">
         <p>
             <a class="nav" href="z_0efdcd0c69c2ddb8__version_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_0efdcd0c69c2ddb8_utils_py.html">&#xbb; next</a>
+            <a class="nav" href="z_dbb36602d1591427___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

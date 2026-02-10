@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_utils/clear_error_support.py: 75.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "d": "tests/test_event.py::test_error_timing_incomplete|run",
+  "e": "tests/test_event.py::test_timing_success|run",
+  "f": "tests/test_graph.py::test_graph_build_mode|run",
+  "g": "tests/test_graph.py::test_graph_child_graph|run",
+  "h": "tests/test_graph.py::test_graph_complete_options|run",
+  "i": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "j": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "k": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "l": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "n": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "o": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "p": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "q": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "r": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "s": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "t": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "u": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "v": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "w": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "x": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "y": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "z": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "A": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "B": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "C": "tests/test_graph.py::test_graph_conditional_while[0]|run",
+  "D": "tests/test_graph.py::test_graph_conditional_while[1]|run",
+  "E": "tests/test_graph.py::test_graph_conditional_while[False]|run",
+  "F": "tests/test_graph.py::test_graph_conditional_while[True]|run",
+  "G": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "H": "tests/test_graph.py::test_graph_fork_join|run",
+  "I": "tests/test_graph.py::test_graph_is_join_required|run",
+  "J": "tests/test_graph.py::test_graph_repeat_capture|run",
+  "K": "tests/test_graph.py::test_graph_straight|run",
+  "L": "tests/test_graph.py::test_graph_stream_lifetime|run",
+  "M": "tests/test_graph.py::test_graph_update|run",
+  "N": "tests/test_graph_mem.py::test_graph_alloc[fill-global]|run",
+  "O": "tests/test_graph_mem.py::test_graph_alloc[fill-no_graph]|run",
+  "P": "tests/test_graph_mem.py::test_graph_alloc[fill-relaxed]|run",
+  "Q": "tests/test_graph_mem.py::test_graph_alloc[fill-thread_local]|run",
+  "R": "tests/test_graph_mem.py::test_graph_alloc[incr-global]|run",
+  "S": "tests/test_graph_mem.py::test_graph_alloc[incr-no_graph]|run",
+  "T": "tests/test_graph_mem.py::test_graph_alloc[incr-relaxed]|run",
+  "U": "tests/test_graph_mem.py::test_graph_alloc[incr-thread_local]|run",
+  "V": "tests/test_graph_mem.py::test_graph_alloc_with_output[global]|run",
+  "W": "tests/test_graph_mem.py::test_graph_alloc_with_output[relaxed]|run",
+  "X": "tests/test_graph_mem.py::test_graph_alloc_with_output[thread_local]|run",
+  "Y": "tests/test_helpers.py::test_latchkernel|run",
+  "Z": "tests/test_launcher.py::test_cooperative_launch|run",
+  "0": "tests/test_launcher.py::test_launch_invalid_values|run",
+  "1": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "2": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "3": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "4": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "5": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "6": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "7": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "8": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "%": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "'": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "(": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  ")": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "*": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "+": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  ",": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  "-": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  ".": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  "/": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  ":": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  ";": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  "=": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "?": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "@": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "[": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "]": "tests/test_module.py::test_kernel_from_handle_invalid_module_type|setup",
+  "^": "tests/test_module.py::test_kernel_from_handle_multiple_instances|setup",
+  "_": "tests/test_module.py::test_kernel_from_handle_no_module|setup",
+  "`": "tests/test_module.py::test_kernel_from_handle|setup",
+  "{": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "|": "tests/test_module.py::test_module_serialization_roundtrip|setup",
+  "}": "tests/test_module.py::test_num_args_error_handling|run",
+  "~": "tests/test_module.py::test_num_arguments[int-0]|run",
+  "ab": "tests/test_module.py::test_num_arguments[int-1]|run",
+  "bb": "tests/test_module.py::test_num_arguments[int-2]|run",
+  "cb": "tests/test_module.py::test_num_arguments[int-3]|run",
+  "db": "tests/test_module.py::test_num_arguments[int-16]|run",
+  "eb": "tests/test_module.py::test_num_arguments[short-0]|run",
+  "fb": "tests/test_module.py::test_num_arguments[short-1]|run",
+  "gb": "tests/test_module.py::test_num_arguments[short-2]|run",
+  "hb": "tests/test_module.py::test_num_arguments[short-3]|run",
+  "ib": "tests/test_module.py::test_num_arguments[short-16]|run",
+  "jb": "tests/test_module.py::test_object_code_handle|setup",
+  "kb": "tests/test_module.py::test_object_code_load_cubin_from_file|setup",
+  "lb": "tests/test_module.py::test_object_code_load_cubin|setup",
+  "mb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[1-256]|setup",
+  "nb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-64]|setup",
+  "ob": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-96]|setup",
+  "pb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-128]|setup",
+  "qb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[3-120]|setup",
+  "rb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[4-32]|setup",
+  "sb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-32]|setup",
+  "tb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-64]|setup",
+  "ub": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-96]|setup",
+  "vb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-120]|setup",
+  "wb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-128]|setup",
+  "xb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-256]|setup",
+  "yb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-32]|setup",
+  "zb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-64]|setup",
+  "Ab": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-96]|setup",
+  "Bb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-120]|setup",
+  "Cb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-128]|setup",
+  "Db": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-256]|setup",
+  "Eb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-32]|setup",
+  "Fb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-64]|setup",
+  "Gb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-96]|setup",
+  "Hb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-120]|setup",
+  "Ib": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-128]|setup",
+  "Jb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-256]|setup",
+  "Kb": "tests/test_module.py::test_occupancy_max_active_clusters[2]|setup",
+  "Lb": "tests/test_module.py::test_occupancy_max_active_clusters[None]|setup",
+  "Mb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-0]|setup",
+  "Nb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-32]|setup",
+  "Ob": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-64]|setup",
+  "Pb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-96]|setup",
+  "Qb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-120]|setup",
+  "Rb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-128]|setup",
+  "Sb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-256]|setup",
+  "Tb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-0]|setup",
+  "Ub": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-32]|setup",
+  "Vb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-64]|setup",
+  "Wb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-96]|setup",
+  "Xb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-120]|setup",
+  "Yb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-128]|setup",
+  "Zb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-256]|setup",
+  "0b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-0]|setup",
+  "1b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-32]|setup",
+  "2b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-64]|setup",
+  "3b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-96]|setup",
+  "4b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-120]|setup",
+  "5b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-128]|setup",
+  "6b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-256]|setup",
+  "7b": "tests/test_module.py::test_occupancy_max_potential_cluster_size|setup",
+  "8b": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|setup",
+  "9b": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|setup",
+  "!b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|setup",
+  "#b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|setup",
+  "$b": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|setup",
+  "%b": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|setup",
+  "'b": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|setup",
+  "(b": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|setup",
+  ")b": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|setup",
+  "*b": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|setup",
+  "+b": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|setup",
+  ",b": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|setup",
+  "-b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|setup",
+  ".b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|setup",
+  "/b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|setup",
+  ":b": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|setup",
+  ";b": "tests/test_module.py::test_saxpy_arguments|setup",
+  "=b": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
+  "?b": "tests/test_object_protocols.py::test_equality_basic[sample_object_code]|run",
+  "@b": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
+  "[b": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
+  "]b": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code]|run",
+  "^b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
+  "_b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code]|run",
+  "`b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
+  "{b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code]|run",
+  "|b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
+  "}b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code]|run",
+  "~b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
+  "ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
+  "bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
+  "cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
+  "dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code-sample_kernel]|run",
+  "ec": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
+  "fc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code]|run",
+  "gc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
+  "hc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code-sample_object_code_alt]|run",
+  "ic": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
+  "jc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
+  "kc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
+  "lc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
+  "mc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
+  "nc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code-sample_kernel]|run",
+  "oc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
+  "pc": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
+  "qc": "tests/test_object_protocols.py::test_repr_format[sample_object_code-<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>]|run",
+  "rc": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
+  "sc": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code-sample_object_code_alt]|run",
+  "tc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
+  "uc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code]|run",
+  "vc": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
+  "wc": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code]|run",
+  "xc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
+  "yc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code]|run",
+  "zc": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
+  "Ac": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code]|run",
+  "Bc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
+  "Cc": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
+  "Dc": "tests/test_program.py::test_program_init_invalid_code_format|run",
+  "Ec": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
+  "Fc": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
+  "Gc": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
+  "Hc": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
+  "Ic": "tests/test_linker.py::test_linker_get_error_log|run",
+  "Jc": "tests/test_linker.py::test_linker_get_error_log|setup",
+  "Kc": "tests/test_linker.py::test_linker_get_info_log|run",
+  "Lc": "tests/test_linker.py::test_linker_get_info_log|setup",
+  "Mc": "tests/test_linker.py::test_linker_init[options0]|run",
+  "Nc": "tests/test_linker.py::test_linker_init[options0]|setup",
+  "Oc": "tests/test_linker.py::test_linker_init[options1]|run",
+  "Pc": "tests/test_linker.py::test_linker_init[options1]|setup",
+  "Qc": "tests/test_linker.py::test_linker_init[options2]|run",
+  "Rc": "tests/test_linker.py::test_linker_init[options2]|setup",
+  "Sc": "tests/test_linker.py::test_linker_init[options3]|run",
+  "Tc": "tests/test_linker.py::test_linker_init[options3]|setup",
+  "Uc": "tests/test_linker.py::test_linker_init[options4]|run",
+  "Vc": "tests/test_linker.py::test_linker_init[options4]|setup",
+  "Wc": "tests/test_linker.py::test_linker_init[options5]|run",
+  "Xc": "tests/test_linker.py::test_linker_init[options5]|setup",
+  "Yc": "tests/test_linker.py::test_linker_init[options6]|run",
+  "Zc": "tests/test_linker.py::test_linker_init[options6]|setup",
+  "0c": "tests/test_linker.py::test_linker_init[options7]|run",
+  "1c": "tests/test_linker.py::test_linker_init[options7]|setup",
+  "2c": "tests/test_linker.py::test_linker_init[options8]|run",
+  "3c": "tests/test_linker.py::test_linker_init[options8]|setup",
+  "4c": "tests/test_linker.py::test_linker_init[options9]|run",
+  "5c": "tests/test_linker.py::test_linker_init[options9]|setup",
+  "6c": "tests/test_linker.py::test_linker_init[options10]|run",
+  "7c": "tests/test_linker.py::test_linker_init[options10]|setup",
+  "8c": "tests/test_linker.py::test_linker_init[options11]|run",
+  "9c": "tests/test_linker.py::test_linker_init[options11]|setup",
+  "!c": "tests/test_linker.py::test_linker_init[options12]|run",
+  "#c": "tests/test_linker.py::test_linker_init[options12]|setup",
+  "$c": "tests/test_linker.py::test_linker_init[options13]|run",
+  "%c": "tests/test_linker.py::test_linker_init[options13]|setup",
+  "'c": "tests/test_linker.py::test_linker_init[options14]|run",
+  "(c": "tests/test_linker.py::test_linker_init[options14]|setup",
+  ")c": "tests/test_linker.py::test_linker_init[options15]|run",
+  "*c": "tests/test_linker.py::test_linker_init[options15]|setup",
+  "+c": "tests/test_linker.py::test_linker_init[options16]|run",
+  ",c": "tests/test_linker.py::test_linker_init[options16]|setup",
+  "-c": "tests/test_linker.py::test_linker_init[options17]|run",
+  ".c": "tests/test_linker.py::test_linker_init[options17]|setup",
+  "/c": "tests/test_linker.py::test_linker_init[options18]|run",
+  ":c": "tests/test_linker.py::test_linker_init[options18]|setup",
+  ";c": "tests/test_linker.py::test_linker_init[options19]|run",
+  "=c": "tests/test_linker.py::test_linker_init[options19]|setup",
+  "?c": "tests/test_linker.py::test_linker_init[options20]|run",
+  "@c": "tests/test_linker.py::test_linker_init[options20]|setup",
+  "[c": "tests/test_linker.py::test_linker_init[options21]|run",
+  "]c": "tests/test_linker.py::test_linker_init[options21]|setup",
+  "^c": "tests/test_linker.py::test_linker_init[options22]|run",
+  "_c": "tests/test_linker.py::test_linker_init[options22]|setup",
+  "`c": "tests/test_linker.py::test_linker_init[options23]|run",
+  "{c": "tests/test_linker.py::test_linker_init[options23]|setup",
+  "|c": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
+  "}c": "tests/test_linker.py::test_linker_link_cubin|run",
+  "~c": "tests/test_linker.py::test_linker_link_cubin|setup",
+  "ad": "tests/test_linker.py::test_linker_link_invalid_target_type|run",
+  "bd": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
+  "cd": "tests/test_linker.py::test_linker_link_ptx_culink|setup",
+  "dd": "tests/test_linker.py::test_linker_link_ptx_multiple|run",
+  "ed": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
+  "fd": "tests/test_linker.py::test_linker_link_ptx_nvjitlink|run",
+  "gd": "tests/test_linker.py::test_linker_link_ptx_nvjitlink|setup",
+  "hd": "tests/test_module.py::test_get_kernel|run",
+  "id": "tests/test_module.py::test_object_code_load_ltoir_from_file|setup",
+  "jd": "tests/test_module.py::test_object_code_load_ltoir|setup",
+  "kd": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
+  "ld": "tests/test_module.py::test_object_code_load_ptx|setup",
+  "md": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code]|run",
+  "nd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code]|run",
+  "od": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code]|run",
+  "pd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
+  "qd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
+  "rd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code]|run",
+  "sd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code]|run",
+  "td": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code]|run",
+  "ud": "tests/test_program.py::test_cpp_program_with_pch_options|run",
+  "vd": "tests/test_program.py::test_cpp_program_with_trace_option|run",
+  "wd": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
+  "xd": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
+  "yd": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
+  "zd": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
+  "Ad": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
+  "Bd": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
+  "Cd": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
+  "Dd": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
+  "Ed": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
+  "Fd": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
+  "Gd": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
+  "Hd": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
+  "Id": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
+  "Jd": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
+  "Kd": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
+  "Ld": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
+  "Md": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
+  "Nd": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
+  "Od": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
+  "Pd": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
+  "Qd": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
+  "Rd": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
+  "Sd": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
+  "Td": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
+  "Ud": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
+  "Vd": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
+  "Wd": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
+  "Xd": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
+  "Yd": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
+  "Zd": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
+  "0d": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
+  "1d": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
+  "2d": "tests/test_program.py::test_cpp_program_with_various_options[options34]|run",
+  "3d": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
+  "4d": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
+  "5d": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
+  "6d": "tests/test_program.py::test_program_backend_property|run",
+  "7d": "tests/test_program.py::test_program_close|run",
+  "8d": "tests/test_program.py::test_program_compile_invalid_target_type|run",
+  "9d": "tests/test_program.py::test_program_compile_valid_target_type|run",
+  "!d": "tests/test_program.py::test_program_handle_property|run",
+  "#d": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "$d": "tests/test_program.py::test_ptx_program_with_various_options[options0]|run",
+  "%d": "tests/test_program.py::test_ptx_program_with_various_options[options0]|setup",
+  "'d": "tests/test_program.py::test_ptx_program_with_various_options[options1]|run",
+  "(d": "tests/test_program.py::test_ptx_program_with_various_options[options2]|run",
+  ")d": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
+  "*d": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
+  "+d": "tests/test_program.py::test_ptx_program_with_various_options[options4]|setup",
+  ",d": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
+  "-d": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
+  ".d": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
+  "/d": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
+  ":d": "tests/test_module.py::test_object_code_load_cubin_from_file|run",
+  ";d": "tests/test_module.py::test_object_code_load_cubin|run",
+  "=d": "tests/test_module.py::test_object_code_load_ltoir|run",
+  "?d": "tests/test_program.py::test_nvvm_program_creation_compilation|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_utils&#8201;/&#8201;clear_error_support.py</b>:
+            <span class="pc_cov">75.00%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">8 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">6<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">2<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_b1c5cc5642be1834___init___py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="com"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">def</span> <span class="nam">assert_type</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">    <span class="str">"""Ensure obj is of expected_type, else raise AssertionError with a clear message."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs8"><span class="r"><label for="ctxs8" class="ctx">341 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 Ec8 Fc9 ! # Gc$ Hc% ' ( ) * + , - . / : ; = ? @ [ IcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhd] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbidjdkdldmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicmdjcndkcodlcpdmcqdncocrdpcqcrcsctcucvcwcxcyczcAcBcsdCctdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!dDc#d$d%d'd(d)d*d+d,d-d.d/d</span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Expected type </span><span class="op">{</span><span class="nam">expected_type</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">, but got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs9"><span class="r"><label for="ctxs9" class="ctx">1 ctx</label></span><span class="ctxs">2Dc</span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="key">def</span> <span class="nam">assert_type_str_or_bytes_like</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="str">"""Ensure obj is of type str or bytes, else raise AssertionError with a clear message."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="op">(</span><span class="nam">str</span><span class="op">,</span> <span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">210 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjb:dkb;dlb=dmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCc?d</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Expected type str or bytes or bytearray, but got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="key">def</span> <span class="nam">raise_code_path_meant_to_be_unreachable</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="str">"This code path is meant to be unreachable."</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_b1c5cc5642be1834___init___py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

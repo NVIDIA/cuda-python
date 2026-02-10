@@ -2,22 +2,48 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/utils/__init__.py: 100%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/utils/__init__.py: 100.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_utils.py::test_get_handle_error[None]|run",
+  "c": "tests/test_utils.py::test_get_handle_error[target0]|run",
+  "d": "tests/test_utils.py::test_get_handle_error[target1]|run",
+  "e": "tests/test_utils.py::test_get_handle_error[target2]|run",
+  "f": "tests/test_utils.py::test_get_handle[CUcontext]|run",
+  "g": "tests/test_utils.py::test_get_handle[CUevent]|run",
+  "h": "tests/test_utils.py::test_get_handle[CUfunction]|run",
+  "i": "tests/test_utils.py::test_get_handle[CUgraphExec]|run",
+  "j": "tests/test_utils.py::test_get_handle[CUgraphNode]|run",
+  "k": "tests/test_utils.py::test_get_handle[CUgraph]|run",
+  "l": "tests/test_utils.py::test_get_handle[CUkernel]|run",
+  "m": "tests/test_utils.py::test_get_handle[CUlibrary]|run",
+  "n": "tests/test_utils.py::test_get_handle[CUmemoryPool]|run",
+  "o": "tests/test_utils.py::test_get_handle[CUmodule]|run",
+  "p": "tests/test_utils.py::test_get_handle[CUstream]|run",
+  "q": "tests/test_utils.py::test_get_handle[cudaEvent_t]|run",
+  "r": "tests/test_utils.py::test_get_handle[cudaGraphExec_t]|run",
+  "s": "tests/test_utils.py::test_get_handle[cudaGraphNode_t]|run",
+  "t": "tests/test_utils.py::test_get_handle[cudaGraph_t]|run",
+  "u": "tests/test_utils.py::test_get_handle[cudaMemPool_t]|run",
+  "v": "tests/test_utils.py::test_get_handle[cudaStream_t]|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;utils&#8201;/&#8201;__init__.py</b>:
-            <span class="pc_cov">100%</span>
+            <span class="pc_cov">100.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -54,18 +80,18 @@
             </div>
         </aside>
         <h2>
-            <span class="text">11 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">11<span class="text"> run</span></button>
+            <span class="text">12 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">12<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_bb8e88d71740c463__version_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_94f9e761dee70a67__ptx_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -82,44 +108,45 @@
 <main id="source">
     <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">Any</span><span class="op">,</span> <span class="nam">Callable</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">Any</span><span class="op">,</span> <span class="nam">Callable</span>&nbsp;</span><span class="r"><label for="ctxs3" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">from</span> <span class="op">.</span><span class="nam">_ptx_utils</span> <span class="key">import</span> <span class="nam">get_minimal_required_cuda_ver_from_ptx_ver</span><span class="op">,</span> <span class="nam">get_ptx_ver</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="nam">_handle_getters</span><span class="op">:</span> <span class="nam">dict</span><span class="op">[</span><span class="nam">type</span><span class="op">,</span> <span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">Any</span><span class="op">]</span><span class="op">,</span> <span class="nam">int</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">from</span> <span class="op">.</span><span class="nam">_ptx_utils</span> <span class="key">import</span> <span class="nam">get_minimal_required_cuda_ver_from_ptx_ver</span><span class="op">,</span> <span class="nam">get_ptx_ver</span>&nbsp;</span><span class="r"><label for="ctxs5" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">from</span> <span class="op">.</span><span class="nam">_version_check</span> <span class="key">import</span> <span class="nam">warn_if_cuda_major_version_mismatch</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="nam">_handle_getters</span><span class="op">:</span> <span class="nam">dict</span><span class="op">[</span><span class="nam">type</span><span class="op">,</span> <span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">Any</span><span class="op">]</span><span class="op">,</span> <span class="nam">int</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="key">def</span> <span class="nam">_add_cuda_native_handle_getter</span><span class="op">(</span><span class="nam">t</span><span class="op">:</span> <span class="nam">type</span><span class="op">,</span> <span class="nam">getter</span><span class="op">:</span> <span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">Any</span><span class="op">]</span><span class="op">,</span> <span class="nam">int</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">    <span class="nam">_handle_getters</span><span class="op">[</span><span class="nam">t</span><span class="op">]</span> <span class="op">=</span> <span class="nam">getter</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">def</span> <span class="nam">_add_cuda_native_handle_getter</span><span class="op">(</span><span class="nam">t</span><span class="op">:</span> <span class="nam">type</span><span class="op">,</span> <span class="nam">getter</span><span class="op">:</span> <span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="nam">Any</span><span class="op">]</span><span class="op">,</span> <span class="nam">int</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="nam">_handle_getters</span><span class="op">[</span><span class="nam">t</span><span class="op">]</span> <span class="op">=</span> <span class="nam">getter</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="key">def</span> <span class="nam">get_cuda_native_handle</span><span class="op">(</span><span class="nam">obj</span><span class="op">:</span> <span class="nam">Any</span><span class="op">)</span> <span class="op">-></span> <span class="nam">int</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="str">"""Returns the address of the provided CUDA Python object as a Python int.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="str">    Parameters</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="str">    ----------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="str">    obj : Any</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="str">        CUDA Python object</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="str">    Returns</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="str">    -------</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="str">    int : The object address.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="nam">obj_type</span> <span class="op">=</span> <span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="key">return</span> <span class="nam">_handle_getters</span><span class="op">[</span><span class="nam">obj_type</span><span class="op">]</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">except</span> <span class="nam">KeyError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="str">"Unknown type: "</span> <span class="op">+</span> <span class="nam">str</span><span class="op">(</span><span class="nam">obj_type</span><span class="op">)</span><span class="op">)</span> <span class="key">from</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="key">def</span> <span class="nam">get_cuda_native_handle</span><span class="op">(</span><span class="nam">obj</span><span class="op">:</span> <span class="nam">Any</span><span class="op">)</span> <span class="op">-></span> <span class="nam">int</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs15" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">    <span class="str">"""Returns the address of the provided CUDA Python object as a Python int.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="str">    Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="str">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="str">    obj : Any</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="str">        CUDA Python object</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="str">    Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="str">    -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="str">    int : The object address.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">obj_type</span> <span class="op">=</span> <span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">21 ctx</label></span><span class="ctxs">1fghijklmnopqrstuvbcde</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">21 ctx</label></span><span class="ctxs">1fghijklmnopqrstuvbcde</span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">return</span> <span class="nam">_handle_getters</span><span class="op">[</span><span class="nam">obj_type</span><span class="op">]</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">21 ctx</label></span><span class="ctxs">1fghijklmnopqrstuvbcde</span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="key">except</span> <span class="nam">KeyError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="str">"Unknown type: "</span> <span class="op">+</span> <span class="nam">str</span><span class="op">(</span><span class="nam">obj_type</span><span class="op">)</span><span class="op">)</span> <span class="key">from</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
 </main>
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_bb8e88d71740c463__version_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_94f9e761dee70a67__ptx_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

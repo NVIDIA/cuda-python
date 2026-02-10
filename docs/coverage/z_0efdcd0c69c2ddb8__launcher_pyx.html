@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_launcher.pyx: 88.89%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/test_launcher.py::test_cooperative_launch|run",
+  "b": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "d": "tests/test_event.py::test_error_timing_incomplete|run",
+  "e": "tests/test_event.py::test_timing_success|run",
+  "f": "tests/test_graph.py::test_graph_build_mode|run",
+  "g": "tests/test_graph.py::test_graph_child_graph|run",
+  "h": "tests/test_graph.py::test_graph_complete_options|run",
+  "i": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "j": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "k": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "l": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "n": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "o": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "p": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "q": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "r": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "s": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "t": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "u": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "v": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "w": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "x": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "y": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "z": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "A": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "B": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "C": "tests/test_graph.py::test_graph_conditional_while[0]|run",
+  "D": "tests/test_graph.py::test_graph_conditional_while[1]|run",
+  "E": "tests/test_graph.py::test_graph_conditional_while[False]|run",
+  "F": "tests/test_graph.py::test_graph_conditional_while[True]|run",
+  "G": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "H": "tests/test_graph.py::test_graph_fork_join|run",
+  "I": "tests/test_graph.py::test_graph_is_join_required|run",
+  "J": "tests/test_graph.py::test_graph_repeat_capture|run",
+  "K": "tests/test_graph.py::test_graph_straight|run",
+  "L": "tests/test_graph.py::test_graph_stream_lifetime|run",
+  "M": "tests/test_graph.py::test_graph_update|run",
+  "N": "tests/test_graph_mem.py::test_graph_alloc[fill-global]|run",
+  "O": "tests/test_graph_mem.py::test_graph_alloc[fill-no_graph]|run",
+  "P": "tests/test_graph_mem.py::test_graph_alloc[fill-relaxed]|run",
+  "Q": "tests/test_graph_mem.py::test_graph_alloc[fill-thread_local]|run",
+  "R": "tests/test_graph_mem.py::test_graph_alloc[incr-global]|run",
+  "S": "tests/test_graph_mem.py::test_graph_alloc[incr-no_graph]|run",
+  "T": "tests/test_graph_mem.py::test_graph_alloc[incr-relaxed]|run",
+  "U": "tests/test_graph_mem.py::test_graph_alloc[incr-thread_local]|run",
+  "V": "tests/test_graph_mem.py::test_graph_alloc_with_output[global]|run",
+  "W": "tests/test_graph_mem.py::test_graph_alloc_with_output[relaxed]|run",
+  "X": "tests/test_graph_mem.py::test_graph_alloc_with_output[thread_local]|run",
+  "Y": "tests/test_helpers.py::test_latchkernel|run",
+  "Z": "tests/test_launcher.py::test_launch_invalid_values|run",
+  "0": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "1": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "2": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "3": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "4": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "5": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "6": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "7": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "8": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "%": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "'": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  "(": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  ")": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "*": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "+": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  ",": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  "-": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  ".": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "/": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  ":": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  ";": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "=": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "?": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "@": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "[": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "]": "(empty)"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_launcher.pyx</b>:
+            <span class="pc_cov">88.89%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">45 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">40<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">5<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__layout_pxd.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from libc.stdint cimport uintptr_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from cuda.core._launch_config cimport LaunchConfig</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from cuda.core._kernel_arg_handler cimport ParamHolder</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">from cuda.core._module cimport Kernel</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">from cuda.core._resource_handles cimport as_cu</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">from cuda.core._stream cimport Stream_accept, Stream</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils cimport (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    check_or_create_options,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    HANDLE_RETURN,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">import threading</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">from cuda.core._module import Kernel</span>&nbsp;</span><span class="r"><label for="ctxs21" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">from cuda.core._stream import Stream</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils import (</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    _reduce_3_tuple,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    get_binding_version,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">cdef bint _inited = False</span>&nbsp;</span><span class="r"><label for="ctxs29" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">cdef bint _use_ex = False</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef object _lock = threading.Lock()</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef int _lazy_init() except?-1:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    global _inited, _use_ex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    if _inited:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">80 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    cdef int _driver_ver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    with _lock:</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        if _inited:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">            return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        # binding availability depends on cuda-python version</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        _py_major_minor = get_binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">2 ctx</label></span><span class="ctxs">1]b</span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuDriverGetVersion(&amp;_driver_ver))</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        _inited = True</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):</span>&nbsp;</span><span class="r"><label for="ctxs53" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">    """Launches a :obj:`~_module.Kernel`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    object with launch-time configuration.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">    Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">        The stream establishing the stream ordering semantic of a</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">        launch.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    config : :obj:`LaunchConfig`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        Launch configurations inline with options provided by</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        :obj:`~_launcher.LaunchConfig` dataclass.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    kernel : :obj:`~_module.Kernel`</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        Kernel to launch.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    *kernel_args : Any</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        Variable length argument list that is provided to the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        launching kernel.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    cdef Stream s = Stream_accept(stream, allow_stream_protocol=True)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    _lazy_init()</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">    cdef LaunchConfig conf = check_or_create_options(LaunchConfig, config, "launch config")</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">    # TODO: can we ensure kernel_args is valid/safe to use here?</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    # TODO: merge with HelperKernelParams?</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    cdef ParamHolder ker_args = ParamHolder(kernel_args)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">    cdef void** args_ptr = &lt;void**>&lt;uintptr_t>(ker_args.ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">    # Note: We now use CUkernel handles exclusively (CUDA 12+), but they can be cast to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">    # CUfunction for use with cuLaunchKernel, as both handle types are interchangeable</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    # for kernel launch purposes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    cdef Kernel ker = &lt;Kernel>kernel</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    cdef cydriver.CUfunction func_handle = &lt;cydriver.CUfunction>as_cu(ker._h_kernel)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    # Note: CUkernel can still be launched via cuLaunchKernel (not just cuLaunchKernelEx).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    # We check both binding &amp; driver versions here mainly to see if the "Ex" API is</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    # available and if so we use it, as it's more feature rich.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">    if _use_ex:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        drv_cfg = conf._to_native_launch_config()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        drv_cfg.hStream = as_cu(s._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        if conf.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">            _check_cooperative_launch(kernel, conf, s)</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuLaunchKernelEx(&amp;drv_cfg, func_handle, args_ptr, NULL))</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">81 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        # TODO: check if config has any unsupported attrs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        HANDLE_RETURN(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">            cydriver.cuLaunchKernel(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">                func_handle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">                conf.grid[0], conf.grid[1], conf.grid[2],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">                conf.block[0], conf.block[1], conf.block[2],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">                conf.shmem_size, as_cu(s._h_stream), args_ptr, NULL</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">cdef _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):</span>&nbsp;</span><span class="r"><label for="ctxs109" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    dev = stream.device</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    num_sm = dev.properties.multiprocessor_count</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">    max_grid_size = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">        kernel.occupancy.max_active_blocks_per_multiprocessor(_reduce_3_tuple(config.block), config.shmem_size) * num_sm</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">    if _reduce_3_tuple(config.grid) > max_grid_size:</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">2 ctx</label></span><span class="ctxs">1]a</span></p>
+    <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        # For now let's try not to be smart and adjust the grid size behind users' back.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        # We explicitly ask users to adjust.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        x, y, z = config.grid</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        raise ValueError(f"The specified grid size ({x} * {y} * {z}) exceeds the limit ({max_grid_size})")</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_0efdcd0c69c2ddb8__layout_pxd.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

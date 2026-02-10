@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/system/_nvml_context.pxd: 57.14%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/system/test_system_system.py::test_device_count|run",
+  "b": "tests/test_device.py::test_device_id|run",
+  "c": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[False]|setup",
+  "d": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[True]|setup",
+  "e": "tests/memory_ipc/test_peer_access.py::TestPeerAccessNotPreservedOnImport::test_main|setup",
+  "f": "tests/system/test_system_device.py::test_addressing_mode|run",
+  "g": "tests/system/test_system_device.py::test_affinity|run",
+  "h": "tests/system/test_system_device.py::test_auto_boosted_clocks_enabled|run",
+  "i": "tests/system/test_system_device.py::test_c2c_mode_enabled|run",
+  "j": "tests/system/test_system_device.py::test_clock_event_reasons|run",
+  "k": "tests/system/test_system_device.py::test_clock|run",
+  "l": "tests/system/test_system_device.py::test_cooler|run",
+  "m": "tests/system/test_system_device.py::test_device_architecture|run",
+  "n": "tests/system/test_system_device.py::test_device_attributes|run",
+  "o": "tests/system/test_system_device.py::test_device_bar1_memory|run",
+  "p": "tests/system/test_system_device.py::test_device_brand|run",
+  "q": "tests/system/test_system_device.py::test_device_count|run",
+  "r": "tests/system/test_system_device.py::test_device_cpu_affinity|run",
+  "s": "tests/system/test_system_device.py::test_device_cuda_compute_capability|run",
+  "t": "tests/system/test_system_device.py::test_device_cuda_compute_capability|setup",
+  "u": "tests/system/test_system_device.py::test_device_memory|run",
+  "v": "tests/system/test_system_device.py::test_device_name|run",
+  "w": "tests/system/test_system_device.py::test_device_name|setup",
+  "x": "tests/system/test_system_device.py::test_device_pci_bus_id|run",
+  "y": "tests/system/test_system_device.py::test_device_pci_info|run",
+  "z": "tests/system/test_system_device.py::test_device_serial|run",
+  "A": "tests/system/test_system_device.py::test_device_uuid|run",
+  "B": "tests/system/test_system_device.py::test_devices_are_the_same_architecture|run",
+  "C": "tests/system/test_system_device.py::test_display_mode|run",
+  "D": "tests/system/test_system_device.py::test_fan|run",
+  "E": "tests/system/test_system_device.py::test_field_values|run",
+  "F": "tests/system/test_system_device.py::test_get_inforom_version|run",
+  "G": "tests/system/test_system_device.py::test_get_minor_number|run",
+  "H": "tests/system/test_system_device.py::test_get_nearest_gpus|run",
+  "I": "tests/system/test_system_device.py::test_index|run",
+  "J": "tests/system/test_system_device.py::test_module_id|run",
+  "K": "tests/system/test_system_device.py::test_numa_node_id|run",
+  "L": "tests/system/test_system_device.py::test_persistence_mode_enabled|run",
+  "M": "tests/system/test_system_device.py::test_pstates|run",
+  "N": "tests/system/test_system_device.py::test_register_events|run",
+  "O": "tests/system/test_system_device.py::test_repair_status|run",
+  "P": "tests/system/test_system_device.py::test_temperature|run",
+  "Q": "tests/system/test_system_device.py::test_to_cuda_device|run",
+  "R": "tests/system/test_system_events.py::test_register_events|run",
+  "S": "tests/system/test_system_system.py::test_cuda_driver_version|run",
+  "T": "tests/system/test_system_system.py::test_devices|run",
+  "U": "tests/system/test_system_system.py::test_driver_version|run",
+  "V": "tests/system/test_system_system.py::test_get_driver_branch|run",
+  "W": "tests/system/test_system_system.py::test_get_process_name|run",
+  "X": "tests/system/test_system_system.py::test_gpu_driver_version|run",
+  "Y": "tests/system/test_system_system.py::test_num_devices|run",
+  "Z": "tests/test_device.py::test_to_system_device|run",
+  "0": "tests/test_memory.py::test_buffer_external_device[False]|run",
+  "1": "tests/test_memory.py::test_buffer_external_device[True]|run",
+  "2": "tests/test_memory.py::test_buffer_external_managed[False]|run",
+  "3": "tests/test_memory.py::test_buffer_external_managed[True]|run",
+  "4": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
+  "5": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
+  "6": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
+  "7": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
+  "8": "tests/test_memory_peer_access.py::test_peer_access_basic|setup",
+  "9": "tests/test_memory_peer_access.py::test_peer_access_property_x2|setup",
+  "!": "tests/test_memory_peer_access.py::test_peer_access_transitions|setup",
+  "#": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|run",
+  "$": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|run",
+  "%": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|run",
+  "'": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|run",
+  "(": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|run",
+  ")": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|run",
+  "*": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|run",
+  "+": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|run",
+  ",": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|run",
+  "-": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|run",
+  ".": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|run",
+  "/": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|run",
+  ":": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|run",
+  ";": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|run",
+  "=": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|run",
+  "?": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|run",
+  "@": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_context-sample_context_alt]|run",
+  "[": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_device-sample_device_alt]|run",
+  "]": "tests/test_object_protocols.py::test_same_type_inequality[sample_context-sample_context_alt]|run",
+  "^": "tests/test_object_protocols.py::test_same_type_inequality[sample_device-sample_device_alt]|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;system&#8201;/&#8201;_nvml_context.pxd</b>:
+            <span class="pc_cov">57.14%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">7 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">4<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_dbb36602d1591427__memory_pxi.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__nvml_context_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">cdef extern from *:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">    #if defined(_WIN32) || defined(_WIN64)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">        #include &lt;process.h></span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">    #else</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">        #include &lt;unistd.h></span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    #endif</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    int getpid() nogil</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">ctypedef enum _NVMLState:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">    UNINITIALIZED = 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">    INITIALIZED = 1</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">    DISABLED_LIBRARY_NOT_FOUND = 2</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt"># Initialisation must occur per-process, so an initialised state is a</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt"># (state, pid) pair</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">cdef _NVMLState _NVML_STATE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef int _NVML_OWNER_PID</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cpdef _initialize()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cpdef inline initialize():</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">83 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSaTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[]^</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">83 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSaTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[]^</span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    ):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">83 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSaTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[]^</span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    _initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">cpdef inline bint is_initialized():</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">    Check whether the NVML context is initialized on this process.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">    -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    result: bool</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">        Whether the NVML context is initialized on this process.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    return _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">cpdef validate()</span>&nbsp;</span><span class="r"></span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_dbb36602d1591427__memory_pxi.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_dbb36602d1591427__nvml_context_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

@@ -2,22 +2,355 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cynvrtc.pyx: 84%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/cynvrtc.pyx: 83.67%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
+  "c": "tests/test_module.py::test_object_code_load_ptx|setup",
+  "d": "tests/test_kernelParams.py::test_kernelParams[ctypes]|run",
+  "e": "tests/test_kernelParams.py::test_kernelParams[no-ctypes]|run",
+  "f": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[by-address]|run",
+  "g": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[not-by-address]|run",
+  "h": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol_numpy|run",
+  "i": "tests/test_kernelParams.py::test_kernelParams_empty|run",
+  "j": "tests/test_kernelParams.py::test_kernelParams_struct_custom|run",
+  "k": "tests/test_kernelParams.py::test_kernelParams_types_cuda|run",
+  "l": "tests/test_graph.py::test_graph_build_mode|run",
+  "m": "tests/test_graph.py::test_graph_child_graph|run",
+  "n": "tests/test_graph.py::test_graph_complete_options|run",
+  "o": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "p": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "q": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "r": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "s": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "t": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "u": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "v": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "w": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "x": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "y": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "z": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "A": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "B": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "C": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "D": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "E": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "F": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "G": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "H": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "I": "tests/test_graph.py::test_graph_conditional_while[0]|run",
+  "J": "tests/test_graph.py::test_graph_conditional_while[1]|run",
+  "K": "tests/test_graph.py::test_graph_conditional_while[False]|run",
+  "L": "tests/test_graph.py::test_graph_conditional_while[True]|run",
+  "M": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "N": "tests/test_graph.py::test_graph_fork_join|run",
+  "O": "tests/test_graph.py::test_graph_is_join_required|run",
+  "P": "tests/test_graph.py::test_graph_repeat_capture|run",
+  "Q": "tests/test_graph.py::test_graph_straight|run",
+  "R": "tests/test_graph.py::test_graph_stream_lifetime|run",
+  "S": "tests/test_graph.py::test_graph_update|run",
+  "T": "tests/test_graph_mem.py::test_graph_alloc[fill-global]|run",
+  "U": "tests/test_graph_mem.py::test_graph_alloc[fill-no_graph]|run",
+  "V": "tests/test_graph_mem.py::test_graph_alloc[fill-relaxed]|run",
+  "W": "tests/test_graph_mem.py::test_graph_alloc[fill-thread_local]|run",
+  "X": "tests/test_graph_mem.py::test_graph_alloc[incr-global]|run",
+  "Y": "tests/test_graph_mem.py::test_graph_alloc[incr-no_graph]|run",
+  "Z": "tests/test_graph_mem.py::test_graph_alloc[incr-relaxed]|run",
+  "0": "tests/test_graph_mem.py::test_graph_alloc[incr-thread_local]|run",
+  "1": "tests/test_graph_mem.py::test_graph_alloc_with_output[global]|run",
+  "2": "tests/test_graph_mem.py::test_graph_alloc_with_output[relaxed]|run",
+  "3": "tests/test_graph_mem.py::test_graph_alloc_with_output[thread_local]|run",
+  "4": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "5": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "6": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "7": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "8": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "%": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "'": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "(": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  ")": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "*": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "+": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  ",": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "-": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  ".": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "/": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  ":": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  ";": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  "=": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "?": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  "@": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  "[": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "]": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "^": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "_": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "`": "tests/test_module.py::test_kernel_from_handle_invalid_module_type|setup",
+  "{": "tests/test_module.py::test_kernel_from_handle_multiple_instances|setup",
+  "|": "tests/test_module.py::test_kernel_from_handle_no_module|setup",
+  "}": "tests/test_module.py::test_kernel_from_handle|setup",
+  "~": "tests/test_module.py::test_module_serialization_roundtrip|setup",
+  "ab": "tests/test_module.py::test_num_args_error_handling|run",
+  "bb": "tests/test_module.py::test_num_arguments[int-0]|run",
+  "cb": "tests/test_module.py::test_num_arguments[int-1]|run",
+  "db": "tests/test_module.py::test_num_arguments[int-2]|run",
+  "eb": "tests/test_module.py::test_num_arguments[int-3]|run",
+  "fb": "tests/test_module.py::test_num_arguments[int-16]|run",
+  "gb": "tests/test_module.py::test_num_arguments[short-0]|run",
+  "hb": "tests/test_module.py::test_num_arguments[short-1]|run",
+  "ib": "tests/test_module.py::test_num_arguments[short-2]|run",
+  "jb": "tests/test_module.py::test_num_arguments[short-3]|run",
+  "kb": "tests/test_module.py::test_num_arguments[short-16]|run",
+  "lb": "tests/test_module.py::test_object_code_handle|setup",
+  "mb": "tests/test_module.py::test_object_code_load_cubin_from_file|setup",
+  "nb": "tests/test_module.py::test_object_code_load_cubin|setup",
+  "ob": "tests/test_module.py::test_object_code_load_ltoir_from_file|setup",
+  "pb": "tests/test_module.py::test_object_code_load_ltoir|setup",
+  "qb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[1-256]|setup",
+  "rb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-64]|setup",
+  "sb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-96]|setup",
+  "tb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-128]|setup",
+  "ub": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[3-120]|setup",
+  "vb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[4-32]|setup",
+  "wb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-32]|setup",
+  "xb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-64]|setup",
+  "yb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-96]|setup",
+  "zb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-120]|setup",
+  "Ab": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-128]|setup",
+  "Bb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-256]|setup",
+  "Cb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-32]|setup",
+  "Db": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-64]|setup",
+  "Eb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-96]|setup",
+  "Fb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-120]|setup",
+  "Gb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-128]|setup",
+  "Hb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-256]|setup",
+  "Ib": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-32]|setup",
+  "Jb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-64]|setup",
+  "Kb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-96]|setup",
+  "Lb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-120]|setup",
+  "Mb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-128]|setup",
+  "Nb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-256]|setup",
+  "Ob": "tests/test_module.py::test_occupancy_max_active_clusters[2]|setup",
+  "Pb": "tests/test_module.py::test_occupancy_max_active_clusters[None]|setup",
+  "Qb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-0]|setup",
+  "Rb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-32]|setup",
+  "Sb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-64]|setup",
+  "Tb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-96]|setup",
+  "Ub": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-120]|setup",
+  "Vb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-128]|setup",
+  "Wb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-256]|setup",
+  "Xb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-0]|setup",
+  "Yb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-32]|setup",
+  "Zb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-64]|setup",
+  "0b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-96]|setup",
+  "1b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-120]|setup",
+  "2b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-128]|setup",
+  "3b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-256]|setup",
+  "4b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-0]|setup",
+  "5b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-32]|setup",
+  "6b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-64]|setup",
+  "7b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-96]|setup",
+  "8b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-120]|setup",
+  "9b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-128]|setup",
+  "!b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-256]|setup",
+  "#b": "tests/test_module.py::test_occupancy_max_potential_cluster_size|setup",
+  "$b": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|setup",
+  "%b": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|setup",
+  "'b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|setup",
+  "(b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|setup",
+  ")b": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|setup",
+  "*b": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|setup",
+  "+b": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|setup",
+  ",b": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|setup",
+  "-b": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|setup",
+  ".b": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|setup",
+  "/b": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|setup",
+  ":b": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|setup",
+  ";b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|setup",
+  "=b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|setup",
+  "?b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|setup",
+  "@b": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|setup",
+  "[b": "tests/test_module.py::test_saxpy_arguments|setup",
+  "]b": "tests/test_linker.py::test_linker_get_error_log|run",
+  "^b": "tests/test_linker.py::test_linker_get_error_log|setup",
+  "_b": "tests/test_linker.py::test_linker_get_info_log|setup",
+  "`b": "tests/test_linker.py::test_linker_init[options0]|setup",
+  "{b": "tests/test_linker.py::test_linker_init[options1]|setup",
+  "|b": "tests/test_linker.py::test_linker_init[options2]|setup",
+  "}b": "tests/test_linker.py::test_linker_init[options3]|setup",
+  "~b": "tests/test_linker.py::test_linker_init[options4]|setup",
+  "ac": "tests/test_linker.py::test_linker_init[options5]|setup",
+  "bc": "tests/test_linker.py::test_linker_init[options6]|setup",
+  "cc": "tests/test_linker.py::test_linker_init[options7]|setup",
+  "dc": "tests/test_linker.py::test_linker_init[options8]|setup",
+  "ec": "tests/test_linker.py::test_linker_init[options9]|setup",
+  "fc": "tests/test_linker.py::test_linker_init[options10]|setup",
+  "gc": "tests/test_linker.py::test_linker_init[options11]|setup",
+  "hc": "tests/test_linker.py::test_linker_init[options12]|setup",
+  "ic": "tests/test_linker.py::test_linker_init[options13]|setup",
+  "jc": "tests/test_linker.py::test_linker_init[options14]|setup",
+  "kc": "tests/test_linker.py::test_linker_init[options15]|setup",
+  "lc": "tests/test_linker.py::test_linker_init[options16]|setup",
+  "mc": "tests/test_linker.py::test_linker_init[options17]|setup",
+  "nc": "tests/test_linker.py::test_linker_init[options18]|setup",
+  "oc": "tests/test_linker.py::test_linker_init[options19]|setup",
+  "pc": "tests/test_linker.py::test_linker_init[options20]|setup",
+  "qc": "tests/test_linker.py::test_linker_init[options21]|setup",
+  "rc": "tests/test_linker.py::test_linker_init[options22]|setup",
+  "sc": "tests/test_linker.py::test_linker_init[options23]|setup",
+  "tc": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
+  "uc": "tests/test_linker.py::test_linker_link_cubin|setup",
+  "vc": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
+  "wc": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
+  "xc": "tests/test_module.py::test_get_kernel|run",
+  "yc": "tests/test_program.py::test_cpp_program_with_pch_options|run",
+  "zc": "tests/test_program.py::test_cpp_program_with_trace_option|run",
+  "Ac": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
+  "Bc": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
+  "Cc": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
+  "Dc": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
+  "Ec": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
+  "Fc": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
+  "Gc": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
+  "Hc": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
+  "Ic": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
+  "Jc": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
+  "Kc": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
+  "Lc": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
+  "Mc": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
+  "Nc": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
+  "Oc": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
+  "Pc": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
+  "Qc": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
+  "Rc": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
+  "Sc": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
+  "Tc": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
+  "Uc": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
+  "Vc": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
+  "Wc": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
+  "Xc": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
+  "Yc": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
+  "Zc": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
+  "0c": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
+  "1c": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
+  "2c": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
+  "3c": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
+  "4c": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
+  "5c": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
+  "6c": "tests/test_program.py::test_cpp_program_with_various_options[options34]|run",
+  "7c": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
+  "8c": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
+  "9c": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
+  "!c": "tests/test_program.py::test_ptx_program_with_various_options[options4]|setup",
+  "#c": "tests/test_program.py::test_program_compile_valid_target_type|run",
+  "$c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "%c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "'c": "tests/test_event.py::test_error_timing_incomplete|run",
+  "(c": "tests/test_event.py::test_timing_success|run",
+  ")c": "tests/test_helpers.py::test_latchkernel|run",
+  "*c": "tests/test_launcher.py::test_cooperative_launch|run",
+  "+c": "tests/test_launcher.py::test_launch_invalid_values|run",
+  ",c": "tests/test_linker.py::test_linker_link_ptx_nvjitlink|setup",
+  "-c": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  ".c": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|setup",
+  "/c": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_80]|setup",
+  ":c": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|setup",
+  ";c": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_100]|setup",
+  "=c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|setup",
+  "?c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_80]|setup",
+  "@c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_90]|setup",
+  "[c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|setup",
+  "]c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH[sm_80]|setup",
+  "^c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH[sm_80]|setup",
+  "_c": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|setup",
+  "`c": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
+  "{c": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
+  "|c": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
+  "}c": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
+  "~c": "tests/test_object_protocols.py::test_equality_basic[sample_object_code]|run",
+  "ad": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
+  "bd": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
+  "cd": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code]|run",
+  "dd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
+  "ed": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code]|run",
+  "fd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
+  "gd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code]|run",
+  "hd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
+  "id": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code]|run",
+  "jd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
+  "kd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
+  "ld": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
+  "md": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
+  "nd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code-sample_kernel]|run",
+  "od": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
+  "pd": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code]|run",
+  "qd": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
+  "rd": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code-sample_object_code_alt]|run",
+  "sd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
+  "td": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code]|run",
+  "ud": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
+  "vd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code]|run",
+  "wd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
+  "xd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code]|run",
+  "yd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
+  "zd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
+  "Ad": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
+  "Bd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
+  "Cd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code-sample_kernel]|run",
+  "Dd": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
+  "Ed": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code]|run",
+  "Fd": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
+  "Gd": "tests/test_object_protocols.py::test_repr_format[sample_object_code-<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>]|run",
+  "Hd": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
+  "Id": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code-sample_object_code_alt]|run",
+  "Jd": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
+  "Kd": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code]|run",
+  "Ld": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
+  "Md": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code]|run",
+  "Nd": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
+  "Od": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code]|run",
+  "Pd": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
+  "Qd": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code]|run",
+  "Rd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
+  "Sd": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code]|run",
+  "Td": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
+  "Ud": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code]|run",
+  "Vd": "tests/test_nvrtc.py::test_nvrtcGetSupportedArchs|run",
+  "Wd": "tests/test_program.py::test_program_backend_property|run",
+  "Xd": "tests/test_program.py::test_program_close|run",
+  "Yd": "tests/test_program.py::test_program_compile_invalid_target_type|run",
+  "Zd": "tests/test_program.py::test_program_handle_property|run",
+  "0d": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "1d": "tests/test_module.py::test_object_code_load_ptx_from_file|run",
+  "2d": "tests/test_module.py::test_object_code_load_ptx|run",
+  "3d": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
+  "4d": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
+  "5d": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
+  "6d": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
+  "7d": "tests/test_linker.py::test_linker_link_ptx_culink|setup",
+  "8d": "tests/test_program.py::test_ptx_program_with_various_options[options0]|setup",
+  "9d": "tests/test_nvrtc.py::test_nvrtcGetLoweredName_failure|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;cynvrtc.pyx</b>:
-            <span class="pc_cov">84%</span>
+            <span class="pc_cov">83.67%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -60,12 +393,12 @@
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_bb8e88d71740c463_cynvjitlink_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_bb8e88d71740c463_cynvml_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cynvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -80,93 +413,93 @@
     </div>
 </header>
 <main id="source">
-    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt"># This code was automatically generated with version 13.1.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">cimport cuda.bindings._bindings.cynvrtc as cynvrtc</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">cdef const char* nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">cdef const char* nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs7" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetErrorString(result)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcVersion(major, minor)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcVersion(major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs11"><span class="r"><label for="ctxs11" class="ctx">85 ctx</label></span><span class="ctxs">2a d e f g h i j k ]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxc1db 2dc yczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c#c!c</span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetNumSupportedArchs(numArchs)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs13" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetNumSupportedArchs(numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">1 ctx</label></span><span class="ctxs">2Vd</span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetSupportedArchs(supportedArchs)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetSupportedArchs(supportedArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">1 ctx</label></span><span class="ctxs">2Vd</span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcCreateProgram(prog, src, name, numHeaders, headers, includeNames)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcCreateProgram(prog, src, name, numHeaders, headers, includeNames)</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">324 ctx</label></span><span class="ctxs">2$c%c'c(cl m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 )cd e f g h i j k *c+c4 5 6 7 8 9 ! 3d# 4d$ % ' 5d( 6d) * + , - . / : ; = ? @ [ ] ^ _ ]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvc7dwc,cxc` { | } -c~ abbbcbdbebfbgbhbibjbkblbmbnbobpbb c qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9cWdXdYd#cZd0d8d!c</span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcDestroyProgram(prog)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">309 ctx</label></span><span class="ctxs">2$c%c'c(cl m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 )c*c+c4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwc,cxc` { | } -c~ abbbcbdbebfbgbhbibjbkblbmbnbobpbb c qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9cWdXdYdZd0d!c</span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcCompileProgram(prog, numOptions, options)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs25" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcCompileProgram(prog, numOptions, options)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">313 ctx</label></span><span class="ctxs">2$c%c'c(cl m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 )cd e f g h i j k *c+c4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwc,cxc` { | } -c~ abbbcbdbebfbgbhbibjbkblbmbnbobpbb c qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c#c!c</span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPTXSize(prog, ptxSizeRet)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPTXSize(prog, ptxSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">74 ctx</label></span><span class="ctxs">2]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcb c yczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c#c!c</span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPTX(prog, ptx)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPTX(prog, ptx)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">74 ctx</label></span><span class="ctxs">2]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcb c yczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c#c!c</span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetCUBINSize(prog, cubinSizeRet)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetCUBINSize(prog, cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">228 ctx</label></span><span class="ctxs">2$c%c'c(cl m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 )cd e f g h i j k *c+c4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } -c~ abbbcbdbebfbgbhbibjbkblbmbnbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b=c?c@c[c]c^c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUd</span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetCUBIN(prog, cubin)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs37" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetCUBIN(prog, cubin)</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">228 ctx</label></span><span class="ctxs">2$c%c'c(cl m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 )cd e f g h i j k *c+c4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } -c~ abbbcbdbebfbgbhbibjbkblbmbnbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b=c?c@c[c]c^c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUd</span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetLTOIRSize(prog, LTOIRSizeRet)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetLTOIRSize(prog, LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">11 ctx</label></span><span class="ctxs">2,cobpb.c/c:c;c_c`c{c|c</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetLTOIR(prog, LTOIR)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs43" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetLTOIR(prog, LTOIR)</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">11 ctx</label></span><span class="ctxs">2,cobpb.c/c:c;c_c`c{c|c</span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs46" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetOptiXIRSize(prog, optixirSizeRet)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs49" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetOptiXIR(prog, optixir)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetProgramLogSize(prog, logSizeRet)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs52" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetProgramLogSize(prog, logSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">8 ctx</label></span><span class="ctxs">1defghijk</span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetProgramLog(prog, log)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs55" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetProgramLog(prog, log)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">8 ctx</label></span><span class="ctxs">1defghijk</span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcAddNameExpression(prog, name_expression)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcAddNameExpression(prog, name_expression)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">161 ctx</label></span><span class="ctxs">2l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbb c qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b</span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs61" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">162 ctx</label></span><span class="ctxs">2l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbb c qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b9d</span></p>
     <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPCHHeapSize(ret)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs67" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcSetPCHHeapSize(size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs70" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPCHCreateStatus(prog)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcGetPCHHeapSizeRequired(prog, size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs76" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    return cynvrtc._nvrtcSetFlowCallback(prog, callback, payload)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_bb8e88d71740c463_cynvjitlink_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_bb8e88d71740c463_cynvml_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_cynvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>

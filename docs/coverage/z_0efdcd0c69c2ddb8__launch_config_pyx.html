@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_launch_config.pyx: 62.37%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "b": "tests/test_launcher.py::test_cooperative_launch|run",
+  "c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "d": "tests/test_event.py::test_error_timing_incomplete|run",
+  "e": "tests/test_event.py::test_timing_success|run",
+  "f": "tests/test_graph.py::test_graph_build_mode|run",
+  "g": "tests/test_graph.py::test_graph_child_graph|run",
+  "h": "tests/test_graph.py::test_graph_complete_options|run",
+  "i": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "j": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "k": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "l": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "n": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "o": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "p": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "q": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "r": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "s": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "t": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "u": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "v": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "w": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "x": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "y": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "z": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "A": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "B": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "C": "tests/test_graph.py::test_graph_conditional_while[0]|run",
+  "D": "tests/test_graph.py::test_graph_conditional_while[1]|run",
+  "E": "tests/test_graph.py::test_graph_conditional_while[False]|run",
+  "F": "tests/test_graph.py::test_graph_conditional_while[True]|run",
+  "G": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "H": "tests/test_graph.py::test_graph_fork_join|run",
+  "I": "tests/test_graph.py::test_graph_is_join_required|run",
+  "J": "tests/test_graph.py::test_graph_repeat_capture|run",
+  "K": "tests/test_graph.py::test_graph_straight|run",
+  "L": "tests/test_graph.py::test_graph_stream_lifetime|run",
+  "M": "tests/test_graph.py::test_graph_update|run",
+  "N": "tests/test_graph_mem.py::test_graph_alloc[fill-global]|run",
+  "O": "tests/test_graph_mem.py::test_graph_alloc[fill-no_graph]|run",
+  "P": "tests/test_graph_mem.py::test_graph_alloc[fill-relaxed]|run",
+  "Q": "tests/test_graph_mem.py::test_graph_alloc[fill-thread_local]|run",
+  "R": "tests/test_graph_mem.py::test_graph_alloc[incr-global]|run",
+  "S": "tests/test_graph_mem.py::test_graph_alloc[incr-no_graph]|run",
+  "T": "tests/test_graph_mem.py::test_graph_alloc[incr-relaxed]|run",
+  "U": "tests/test_graph_mem.py::test_graph_alloc[incr-thread_local]|run",
+  "V": "tests/test_graph_mem.py::test_graph_alloc_with_output[global]|run",
+  "W": "tests/test_graph_mem.py::test_graph_alloc_with_output[relaxed]|run",
+  "X": "tests/test_graph_mem.py::test_graph_alloc_with_output[thread_local]|run",
+  "Y": "tests/test_helpers.py::test_latchkernel|run",
+  "Z": "tests/test_launcher.py::test_launch_invalid_values|run",
+  "0": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "1": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "2": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "3": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "4": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "5": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "6": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "7": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "8": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "%": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "'": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  "(": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  ")": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
+  "*": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "+": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
+  ",": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
+  "-": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
+  ".": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
+  "/": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
+  ":": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
+  ";": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
+  "=": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
+  "?": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
+  "@": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
+  "[": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "]": "tests/test_launcher.py::test_launch_config_init|run",
+  "^": "(empty)",
+  "_": "tests/test_object_protocols.py::test_equality_basic[sample_launch_config]|run",
+  "`": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
+  "{": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
+  "|": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
+  "}": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
+  "~": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_launch_config]|run",
+  "ab": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_launch_config]|run",
+  "bb": "tests/test_object_protocols.py::test_same_type_inequality[sample_launch_config-sample_launch_config_alt]|run",
+  "cb": "tests/test_object_protocols.py::test_hash_consistency[sample_launch_config]|run",
+  "db": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|run",
+  "eb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_launch_config]|run",
+  "fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_launch_config]|run",
+  "gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_launch_config]|run",
+  "hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_launch_config]|run",
+  "ib": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_launch_config-sample_launch_config_alt]|run",
+  "jb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|run",
+  "kb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_launch_config]|run",
+  "lb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_launch_config]|run",
+  "mb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_launch_config]|run",
+  "nb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_launch_config]|run",
+  "ob": "tests/test_object_protocols.py::test_repr_format[sample_launch_config-LaunchConfig\\\\(grid=\\\\(\\\\d+, \\\\d+, \\\\d+\\\\), cluster=.+, block=\\\\(\\\\d+, \\\\d+, \\\\d+\\\\), shmem_size=\\\\d+, cooperative_launch=(?:True|False)\\\\)]|run",
+  "pb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_launch_config]|run",
+  "qb": "tests/test_object_protocols.py::test_usable_in_set[sample_launch_config]|run",
+  "rb": "tests/test_launcher.py::test_launch_config_shmem_size|run",
+  "sb": "tests/test_launcher.py::test_launch_config_cluster_grid_conversion|run",
+  "tb": "tests/test_launcher.py::test_launch_config_native_conversion|run",
+  "ub": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_launch_config]|run",
+  "vb": "tests/test_object_protocols.py::test_weakref_supported[sample_launch_config]|run",
+  "wb": "tests/test_launcher.py::test_launch_config_invalid_values|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_launch_config.pyx</b>:
+            <span class="pc_cov">62.37%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">93 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">58<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">35<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__launcher_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from libc.string cimport memset</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils cimport (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">    HANDLE_RETURN,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">import threading</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">from cuda.core._device import Device</span>&nbsp;</span><span class="r"><label for="ctxs13" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils import (</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    CUDAError,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    cast_to_3_tuple,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    driver,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">    get_binding_version,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef bint _inited = False</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">cdef bint _use_ex = False</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef object _lock = threading.Lock()</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt"># Attribute names for identity comparison and representation</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'cooperative_launch')</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">cdef int _lazy_init() except?-1:</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    global _inited, _use_ex</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    if _inited:</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">111 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b sb] wbtbrbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">111 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b sb] wbtbrbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    cdef tuple _py_major_minor</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    cdef int _driver_ver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    with _lock:</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">2 ctx</label></span><span class="ctxs">1a]</span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">        if _inited:</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">2 ctx</label></span><span class="ctxs">1a]</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">            return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        # binding availability depends on cuda-python version</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        _py_major_minor = get_binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs42"><span class="r"><label for="ctxs42" class="ctx">2 ctx</label></span><span class="ctxs">1a]</span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuDriverGetVersion(&amp;_driver_ver))</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">2 ctx</label></span><span class="ctxs">1a]</span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">2 ctx</label></span><span class="ctxs">1a]</span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        _inited = True</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">3 ctx</label></span><span class="ctxs">1^a]</span></p>
+    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">2 ctx</label></span><span class="ctxs">1a]</span></p>
+    <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">cdef class LaunchConfig:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">    """Customizable launch options.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    Note</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">    ----</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    When cluster is specified, the grid parameter represents the number of</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    clusters (not blocks). The hierarchy is: grid (clusters) -> cluster (blocks) -></span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">    block (threads). Each dimension in grid specifies clusters in the grid, each dimension in</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    cluster specifies blocks per cluster, and each dimension in block specifies</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    threads per block.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">    Attributes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">    grid : Union[tuple, int]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        Collection of threads that will execute a kernel function. When cluster</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">        is not specified, this represents the number of blocks, otherwise</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        this represents the number of clusters.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    cluster : Union[tuple, int]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        Group of blocks (Thread Block Cluster) that will execute on the same</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        GPU Processing Cluster (GPC). Blocks within a cluster have access to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        distributed shared memory and can be explicitly synchronized.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    block : Union[tuple, int]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        Group of threads (Thread Block) that will execute on the same</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        streaming multiprocessor (SM). Threads within a thread blocks have</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        access to shared memory and can be explicitly synchronized.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">    shmem_size : int, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        Dynamic shared-memory size per thread block in bytes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        (Default to size 0)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    cooperative_launch : bool, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">        Whether this config can be used to launch a cooperative kernel.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">    # TODO: expand LaunchConfig to include other attributes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    # Note: attributes are declared in _launch_config.pxd</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    def __init__(self, grid=None, cluster=None, block=None,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">                 shmem_size=None, cooperative_launch=False):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        """Initialize LaunchConfig with validation.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        grid : Union[tuple, int], optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">            Grid dimensions (number of blocks or clusters if cluster is specified)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        cluster : Union[tuple, int], optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">            Cluster dimensions (Thread Block Cluster)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        block : Union[tuple, int], optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">            Block dimensions (threads per block)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        shmem_size : int, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">            Dynamic shared memory size in bytes (default: 0)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        cooperative_launch : bool, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">            Whether to launch as cooperative kernel (default: False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        _lazy_init()</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">111 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b sb] wbtbrbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        # Convert and validate grid and block dimensions</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">        self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">111 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b sb] wbtbrbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        self.block = cast_to_3_tuple("LaunchConfig.block", block)</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">111 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b sb] wbtbrbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        # FIXME: Calling Device() strictly speaking is not quite right; we should instead</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        # look up the device from stream. We probably need to defer the checks related to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        # device compute capability or attributes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        # thread block clusters are supported starting H100</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        if cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">110 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b sb] tbrbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">            if not _use_ex:</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">2 ctx</label></span><span class="ctxs">2sbtb</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">                err, drvers = driver.cuDriverGetVersion()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">                drvers_fmt = f" (got driver version {drvers})" if err == driver.CUresult.CUDA_SUCCESS else ""</span>&nbsp;</span><span class="r"><label for="ctxs115" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">                raise CUDAError(f"thread block clusters require cuda.bindings &amp; driver 11.8+{drvers_fmt}")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">            cc = Device().compute_capability</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">2 ctx</label></span><span class="ctxs">2sbtb</span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">            if cc &lt; (9, 0):</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">2 ctx</label></span><span class="ctxs">2sbtb</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">                raise CUDAError(</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">2 ctx</label></span><span class="ctxs">2sbtb</span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">                    f"thread block clusters are not supported on devices with compute capability &lt; 9.0 (got {cc})"</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">2 ctx</label></span><span class="ctxs">2sbtb</span></p>
+    <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">            self.cluster = None</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">108 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b ] rbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        # Handle shmem_size default</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">        if shmem_size is None:</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">108 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b ] rbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">            self.shmem_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">106 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b rb0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">            self.shmem_size = shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">3 ctx</label></span><span class="ctxs">2] rbZ </span></p>
+    <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        # Handle cooperative_launch</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">        self.cooperative_launch = cooperative_launch</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">109 ctx</label></span><span class="ctxs">2^ c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b ] rbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        # Validate cooperative launch support</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        if self.cooperative_launch and not Device().properties.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">108 ctx</label></span><span class="ctxs">2c a d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y b ] rbZ 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ _ cbdbebfbgb` { hbibjbkblbmb| } nbobbbpbqb~ abubvb</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">            raise CUDAError("cooperative kernels are not supported on this device")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    def _identity(self):</span>&nbsp;</span><span class="r"><label for="ctxs139" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        return tuple(getattr(self, attr) for attr in _LAUNCH_CONFIG_ATTRS)</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">15 ctx</label></span><span class="ctxs">2_ cbdbebfbgb` { hbibbbpbqb~ ab</span></p>
+    <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        """Return string representation of LaunchConfig."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        parts = ', '.join(f'{attr}={getattr(self, attr)!r}' for attr in _LAUNCH_CONFIG_ATTRS)</span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">5 ctx</label></span><span class="ctxs">2` { | } ob</span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        return f"LaunchConfig({parts})"</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">5 ctx</label></span><span class="ctxs">2` { | } ob</span></p>
+    <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    def __eq__(self, other) -> bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">        if not isinstance(other, LaunchConfig):</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">11 ctx</label></span><span class="ctxs">2_ jbkblbmb| } nbbb~ ab</span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">            return NotImplemented</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">8 ctx</label></span><span class="ctxs">2_ jbkblbmb| } nb</span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return self._identity() == (&lt;LaunchConfig>other)._identity()</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">4 ctx</label></span><span class="ctxs">2_ bb~ ab</span></p>
+    <p class="pln"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    def __hash__(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        return hash(self._identity())</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">13 ctx</label></span><span class="ctxs">2cbdbebfbgb` { hbibpbqb~ ab</span></p>
+    <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">    cdef cydriver.CUlaunchConfig _to_native_launch_config(self):</span>&nbsp;</span><span class="r"><label for="ctxs155" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        _lazy_init()</span>&nbsp;</span><input type="checkbox" id="ctxs156"><span class="r"><label for="ctxs156" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        cdef cydriver.CUlaunchConfig drv_cfg</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">        cdef cydriver.CUlaunchAttribute attr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        memset(&amp;drv_cfg, 0, sizeof(drv_cfg))</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">        self._attrs.resize(0)</span>&nbsp;</span><input type="checkbox" id="ctxs160"><span class="r"><label for="ctxs160" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">        # Handle grid dimensions and cluster configuration</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        if self.cluster is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">            # Convert grid from cluster units to block units</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">            drv_cfg.gridDimX = self.grid[0] * self.cluster[0]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">            drv_cfg.gridDimY = self.grid[1] * self.cluster[1]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">            drv_cfg.gridDimZ = self.grid[2] * self.cluster[2]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">            # Set up cluster attribute</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">            attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z = self.cluster</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">            self._attrs.push_back(attr)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">            drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = self.grid</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">        drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = self.block</span>&nbsp;</span><input type="checkbox" id="ctxs176"><span class="r"><label for="ctxs176" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">        drv_cfg.sharedMemBytes = self.shmem_size</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">        if self.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs179"><span class="r"><label for="ctxs179" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">            attr.value.cooperative = 1</span>&nbsp;</span><input type="checkbox" id="ctxs181"><span class="r"><label for="ctxs181" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">            self._attrs.push_back(attr)</span>&nbsp;</span><input type="checkbox" id="ctxs182"><span class="r"><label for="ctxs182" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">        drv_cfg.numAttrs = self._attrs.size()</span>&nbsp;</span><input type="checkbox" id="ctxs184"><span class="r"><label for="ctxs184" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">        drv_cfg.attrs = self._attrs.data()</span>&nbsp;</span><input type="checkbox" id="ctxs185"><span class="r"><label for="ctxs185" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">        return drv_cfg</span>&nbsp;</span><input type="checkbox" id="ctxs187"><span class="r"><label for="ctxs187" class="ctx">81 ctx</label></span><span class="ctxs">1cadefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYbZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt"># TODO: once all modules are cythonized, this function can be dropped in favor of the cdef method above</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">cpdef object _to_native_launch_config(LaunchConfig config):</span>&nbsp;</span><span class="r"><label for="ctxs191" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">    """Convert LaunchConfig to native driver CUlaunchConfig.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    config : LaunchConfig</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">        High-level launch configuration</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    -------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    driver.CUlaunchConfig</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">        Native CUDA driver launch configuration</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    _lazy_init()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">    cdef object drv_cfg = driver.CUlaunchConfig()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">    cdef list attrs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">    cdef object attr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">    cdef object dim</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    cdef tuple grid_blocks</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">    # Handle grid dimensions and cluster configuration</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    if config.cluster is not None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        # Convert grid from cluster units to block units</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        grid_blocks = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">            config.grid[0] * config.cluster[0],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">            config.grid[1] * config.cluster[1],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">            config.grid[2] * config.cluster[2],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = grid_blocks</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">        # Set up cluster attribute</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">        attr = driver.CUlaunchAttribute()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">        dim = attr.value.clusterDim</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">        dim.x, dim.y, dim.z = config.cluster</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">        attrs = [attr]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">        attrs = []</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">    drv_cfg.sharedMemBytes = config.shmem_size</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    if config.cooperative_launch:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        attr = driver.CUlaunchAttribute()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">        attr.value.cooperative = 1</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">        attrs.append(attr)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    drv_cfg.numAttrs = len(attrs)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">    drv_cfg.attrs = attrs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    return drv_cfg</span>&nbsp;</span><span class="r"></span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__launch_config_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_0efdcd0c69c2ddb8__launcher_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

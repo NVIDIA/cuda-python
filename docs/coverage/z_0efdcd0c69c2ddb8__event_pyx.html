@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_event.pyx: 81.20%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-False-True]|run",
+  "b": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-True-True]|run",
+  "c": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-False-True]|run",
+  "d": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-True-True]|run",
+  "e": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-False-False]|run",
+  "f": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-True-False]|run",
+  "g": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-False-False]|run",
+  "h": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-True-False]|run",
+  "i": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "j": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "k": "tests/test_multiprocessing_warning.py::test_warn_on_fork_method_event|run",
+  "l": "tests/memory_ipc/test_event_ipc.py::test_event_is_monadic|run",
+  "m": "tests/test_event.py::test_error_timing_disabled|run",
+  "n": "tests/test_event.py::test_error_timing_incomplete|run",
+  "o": "tests/test_event.py::test_error_timing_recorded|run",
+  "p": "tests/test_event.py::test_sync|run",
+  "q": "tests/test_object_protocols.py::test_equality_basic[sample_event]|run",
+  "r": "tests/test_event.py::test_event_hash_equality|run",
+  "s": "tests/test_event.py::test_is_done|run",
+  "t": "tests/test_event.py::test_timing_success|run",
+  "u": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_event]|run",
+  "v": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_event]|run",
+  "w": "tests/test_event.py::test_event_device|run",
+  "x": "tests/test_event.py::test_event_equality_reflexive|run",
+  "y": "tests/test_event.py::test_event_inequality_different_events|run",
+  "z": "tests/test_event.py::test_is_sync_busy_waited|run",
+  "A": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
+  "B": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
+  "C": "tests/test_object_protocols.py::test_same_type_inequality[sample_event-sample_event_alt]|run",
+  "D": "tests/test_event.py::test_event_context|run",
+  "E": "tests/test_event.py::test_event_type_safety|run",
+  "F": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
+  "G": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
+  "H": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_event]|run",
+  "I": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|run",
+  "J": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_context]|run",
+  "K": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_launch_config]|run",
+  "L": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_event]|run",
+  "M": "tests/test_device.py::test_device_create_event|run",
+  "N": "tests/test_event.py::test_event_dict_key|run",
+  "O": "tests/test_event.py::test_event_hash_consistency|run",
+  "P": "tests/test_event.py::test_event_set_membership|run",
+  "Q": "tests/test_graph.py::test_graph_conditional_if[0]|run",
+  "R": "tests/test_graph.py::test_graph_conditional_if[1]|run",
+  "S": "tests/test_graph.py::test_graph_conditional_if[False]|run",
+  "T": "tests/test_graph.py::test_graph_conditional_if[True]|run",
+  "U": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
+  "V": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
+  "W": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
+  "X": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
+  "Y": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
+  "Z": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
+  "0": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
+  "1": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
+  "2": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
+  "3": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
+  "4": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
+  "5": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
+  "6": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
+  "7": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
+  "8": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
+  "9": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
+  "!": "tests/test_graph.py::test_graph_dot_print_options|run",
+  "#": "tests/test_graph.py::test_graph_fork_join|run",
+  "$": "tests/test_graph.py::test_graph_is_join_required|run",
+  "%": "tests/test_object_protocols.py::test_hash_consistency[sample_event]|run",
+  "'": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_event]|run",
+  "(": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|run",
+  ")": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_context]|run",
+  "*": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_launch_config]|run",
+  "+": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_event]|run",
+  ",": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_event-sample_event_alt]|run",
+  "-": "tests/test_object_protocols.py::test_repr_format[sample_event-<Event handle=0x[0-9a-f]+>]|run",
+  ".": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_event]|run",
+  "/": "tests/test_object_protocols.py::test_usable_in_set[sample_event]|run",
+  ":": "tests/test_event.py::test_event_creation|run",
+  ";": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_event]|run",
+  "=": "tests/test_object_protocols.py::test_weakref_supported[sample_event]|run",
+  "?": "tests/test_stream.py::test_stream_record|run",
+  "@": "tests/test_stream.py::test_stream_wait_event|run",
+  "[": "(empty)",
+  "]": "tests/memory_ipc/test_event_ipc.py::test_event_timing_disabled[options0]|run",
+  "^": "tests/memory_ipc/test_event_ipc.py::test_event_timing_disabled[options1]|run",
+  "_": "tests/test_event.py::test_event_init_disabled|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_event.pyx</b>:
+            <span class="pc_cov">81.20%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">117 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">95<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">22<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__kernel_arg_handler_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from __future__ import annotations</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">cimport cpython</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">from libc.string cimport memcpy</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from cuda.core._context cimport Context</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">from cuda.core._resource_handles cimport (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    ContextHandle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    EventHandle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    create_event_handle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    create_event_handle_ipc,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    as_intptr,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    as_cu,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">    as_py,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils cimport (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">    check_or_create_options,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    HANDLE_RETURN</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">import cython</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">from dataclasses import dataclass</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">import multiprocessing</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils import (</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    CUDAError,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">@dataclass</span>&nbsp;</span><span class="r"><label for="ctxs36" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">cdef class EventOptions:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    """Customizable :obj:`~_event.Event` options.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    Attributes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">    enable_timing : bool, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">        Event will record timing data. (Default to False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    busy_waited_sync : bool, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        If True, event will use blocking synchronization. When a CPU</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">        thread calls synchronize, the call will block until the event</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        has actually been completed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        Otherwise, the CPU thread will busy-wait until the event has</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">        been completed. (Default to False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    ipc_enabled : bool, optional</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        Event will be suitable for interprocess use.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">        Note that enable_timing must be False. (Default to False)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    enable_timing: bool | None = False</span>&nbsp;</span><span class="r"><label for="ctxs56" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">    busy_waited_sync: bool | None = False</span>&nbsp;</span><span class="r"><label for="ctxs57" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    ipc_enabled: bool | None = False</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">cdef class Event:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    """Represent a record at a specific point of execution within a CUDA stream.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">    Applications can asynchronously record events at any point in</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    the program. An event keeps a record of all previous work within</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">    the last recorded stream.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    Events can be used to monitor device's progress, query completion</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    of work up to event's record, help establish dependencies</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    between GPU work submissions, and record the elapsed time (in milliseconds)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    on GPU:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    .. code-block:: python</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        # To create events and record the timing:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">        s = Device().create_stream()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        e1 = Device().create_event({"enable_timing": True})</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        e2 = Device().create_event({"enable_timing": True})</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">        s.record(e1)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">        # ... run some GPU works ...</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        s.record(e2)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">        e2.sync()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">        print(f"time = {e2 - e1} milliseconds")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    Directly creating an :obj:`~_event.Event` is not supported due to ambiguity,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    and they should instead be created through a :obj:`~_stream.Stream` object.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">    def __init__(self, *args, **kwargs):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">1 ctx</label></span><span class="ctxs">1_</span></p>
+    <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs93" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">    cdef Event _init(type cls, int device_id, ContextHandle h_context, options, bint is_free):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        cdef Event self = cls.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        cdef unsigned int flags = 0x0</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        self._timing_disabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        self._busy_waited = False</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        self._ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        self._ipc_descriptor = None</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        if not opts.enable_timing:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">            flags |= cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">77 ctx</label></span><span class="ctxs">1ijeafbgchdlMmD:wNxOryPEszpQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">            self._timing_disabled = True</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">77 ctx</label></span><span class="ctxs">1ijeafbgchdlMmD:wNxOryPEszpQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">        if opts.busy_waited_sync:</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">            flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">5 ctx</label></span><span class="ctxs">1abcdz</span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">            self._busy_waited = True</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">5 ctx</label></span><span class="ctxs">1abcdz</span></p>
+    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        if opts.ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">82 ctx</label></span><span class="ctxs">1ijeafbgchdl]^MmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">            if is_free:</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">14 ctx</label></span><span class="ctxs">1ijeafbgchdl]^k</span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">                raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">1 ctx</label></span><span class="ctxs">1l</span></p>
+    <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">                    "IPC-enabled events must be bound; use Stream.record for creation."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">            flags |= cydriver.CUevent_flags.CU_EVENT_INTERPROCESS</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">14 ctx</label></span><span class="ctxs">1ijeafbgchdl]^k</span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">            self._ipc_enabled = True</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">14 ctx</label></span><span class="ctxs">1ijeafbgchdl]^k</span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">            if not self._timing_disabled:</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">15 ctx</label></span><span class="ctxs">1[ijeafbgchdl]^k</span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">                raise TypeError("IPC-enabled events cannot use timing.")</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">2 ctx</label></span><span class="ctxs">1]^</span></p>
+    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        # C++ creates the event and returns owning handle with context dependency</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        cdef EventHandle h_event = create_event_handle(h_context, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if not h_event:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            raise RuntimeError("Failed to create CUDA event")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        self._h_event = h_event</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        self._h_context = h_context</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        self._device_id = device_id</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        if opts.ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">            self.get_ipc_descriptor()</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">80 ctx</label></span><span class="ctxs">1ijeafbgchdlMmnoD:wNxOryPEszptQRSTUVWXYZ0123456789!#$kq%'()F*G+,HIJAKBL-C./uv;=?@</span></p>
+    <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs128" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        """Destroy the event.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        Releases the event handle. The underlying CUDA event is destroyed</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        when the last reference is released.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        self._h_event.reset()</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">24 ctx</label></span><span class="ctxs">1QRSTUVWXYZ0123456789!#$k</span></p>
+    <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">    def __isub__(self, other):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return NotImplemented</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    def __rsub__(self, other):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        return NotImplemented</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    def __sub__(self, other: Event):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        # return self - other (in milliseconds)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        cdef float timing</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">4 ctx</label></span><span class="ctxs">1mnot</span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">            err = cydriver.cuEventElapsedTime(&amp;timing, as_cu((&lt;Event>other)._h_event), as_cu(self._h_event))</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">4 ctx</label></span><span class="ctxs">1mnot</span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">        if err == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">4 ctx</label></span><span class="ctxs">1mnot</span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">            return timing</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">2 ctx</label></span><span class="ctxs">1nt</span></p>
+    <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">            if err == cydriver.CUresult.CUDA_ERROR_INVALID_HANDLE:</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">3 ctx</label></span><span class="ctxs">1mno</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">                if self.is_timing_disabled or other.is_timing_disabled:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">2 ctx</label></span><span class="ctxs">1mo</span></p>
+    <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">                    explanation = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">                        "Both Events must be created with timing enabled in order to subtract them; "</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">1 ctx</label></span><span class="ctxs">1m</span></p>
+    <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">                        "use EventOptions(enable_timing=True) when creating both events."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">                    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">                else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">                    explanation = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">                        "Both Events must be recorded before they can be subtracted; "</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">1 ctx</label></span><span class="ctxs">1o</span></p>
+    <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">                        "use Stream.record() to record both events to a stream."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">                    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">            elif err == cydriver.CUresult.CUDA_ERROR_NOT_READY:</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">3 ctx</label></span><span class="ctxs">1mno</span></p>
+    <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">                explanation = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">                    "One or both events have not completed; "</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">1 ctx</label></span><span class="ctxs">1n</span></p>
+    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">                    "use Event.sync(), Stream.sync(), or Device.sync() to wait for the events to complete "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">                    "before subtracting them."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">            else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">                raise CUDAError(err)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">            raise RuntimeError(explanation)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">3 ctx</label></span><span class="ctxs">1mno</span></p>
+    <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    def __hash__(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">        return hash(as_intptr(self._h_event))</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">17 ctx</label></span><span class="ctxs">1NOrP%'()F*G+,./uv</span></p>
+    <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    def __eq__(self, other) -> bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        # Note: using isinstance because `Event` can be subclassed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">        if not isinstance(other, Event):</span>&nbsp;</span><input type="checkbox" id="ctxs176"><span class="r"><label for="ctxs176" class="ctx">15 ctx</label></span><span class="ctxs">1xryEqHIJAKBLCuv</span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">            return NotImplemented</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">9 ctx</label></span><span class="ctxs">1EqHIJAKBL</span></p>
+    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">        cdef Event _other = &lt;Event>other</span>&nbsp;</span><input type="checkbox" id="ctxs178"><span class="r"><label for="ctxs178" class="ctx">7 ctx</label></span><span class="ctxs">1xryqCuv</span></p>
+    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">        return as_intptr(self._h_event) == as_intptr(_other._h_event)</span>&nbsp;</span><input type="checkbox" id="ctxs179"><span class="r"><label for="ctxs179" class="ctx">7 ctx</label></span><span class="ctxs">1xryqCuv</span></p>
+    <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">    def __repr__(self) -> str:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">        return f"&lt;Event handle={as_intptr(self._h_event):#x}>"</span>&nbsp;</span><input type="checkbox" id="ctxs182"><span class="r"><label for="ctxs182" class="ctx">15 ctx</label></span><span class="ctxs">1ijeafbgchdFGAB-</span></p>
+    <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">    def get_ipc_descriptor(self) -> IPCEventDescriptor:</span>&nbsp;</span><span class="r"><label for="ctxs184" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">        """Export an event allocated for sharing between processes."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        if self._ipc_descriptor is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">            return self._ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs187"><span class="r"><label for="ctxs187" class="ctx">11 ctx</label></span><span class="ctxs">1ijeafbgchdk</span></p>
+    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">            raise RuntimeError("Event is not IPC-enabled")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">        cdef cydriver.CUipcEventHandle data</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&amp;data, as_cu(self._h_event)))</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">        cdef bytes data_b = cpython.PyBytes_FromStringAndSize(&lt;char*>(data.reserved), sizeof(data.reserved))</span>&nbsp;</span><input type="checkbox" id="ctxs193"><span class="r"><label for="ctxs193" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">        self._ipc_descriptor = IPCEventDescriptor._init(data_b, self._busy_waited)</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">        return self._ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs195"><span class="r"><label for="ctxs195" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs197" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">    def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">        """Import an event that was exported from another process."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">        cdef cydriver.CUipcEventHandle data</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">        memcpy(data.reserved, &lt;const void*>&lt;const char*>(ipc_descriptor._reserved), sizeof(data.reserved))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">        cdef Event self = Event.__new__(cls)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">        # IPC events: the originating process owns the event and its context</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">        cdef EventHandle h_event = create_event_handle_ipc(data)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">        if not h_event:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">            raise RuntimeError("Failed to open IPC event handle")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        self._h_event = h_event</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        self._h_context = ContextHandle()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">        self._timing_disabled = True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">        self._busy_waited = ipc_descriptor._busy_waited</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">        self._ipc_enabled = True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        self._ipc_descriptor = ipc_descriptor</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        self._device_id = -1</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    def is_ipc_enabled(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">        """Return True if the event can be shared across process boundaries, otherwise False."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        return self._ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">    def is_timing_disabled(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">        """Return True if the event does not record timing data, otherwise False."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">        return self._timing_disabled</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">10 ctx</label></span><span class="ctxs">1eafbgchdmo</span></p>
+    <p class="pln"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">    def is_sync_busy_waited(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">        """Return True if the event synchronization would keep the CPU busy-waiting, otherwise False."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        return self._busy_waited</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">9 ctx</label></span><span class="ctxs">1eafbgchdz</span></p>
+    <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    def sync(self):</span>&nbsp;</span><span class="r"><label for="ctxs231" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">        """Synchronize until the event completes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">        If the event was created with busy_waited_sync, then the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">        calling CPU thread will block until the event has been</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        completed by the device.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        Otherwise the CPU thread will busy-wait until the event</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">        has been completed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">3 ctx</label></span><span class="ctxs">1npt</span></p>
+    <p class="run"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuEventSynchronize(as_cu(self._h_event)))</span>&nbsp;</span><input type="checkbox" id="ctxs242"><span class="r"><label for="ctxs242" class="ctx">3 ctx</label></span><span class="ctxs">1npt</span></p>
+    <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    def is_done(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        """Return True if all captured works have been completed, otherwise False."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">2 ctx</label></span><span class="ctxs">1sp</span></p>
+    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">            result = cydriver.cuEventQuery(as_cu(self._h_event))</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">2 ctx</label></span><span class="ctxs">1sp</span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        if result == cydriver.CUresult.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">2 ctx</label></span><span class="ctxs">1sp</span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">            return True</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">2 ctx</label></span><span class="ctxs">1sp</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">            return False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">        HANDLE_RETURN(result)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">    def handle(self) -> cuda.bindings.driver.CUevent:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">        """Return the underlying CUevent object.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">        .. caution::</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">            This handle is a Python object. To get the memory address of the underlying C</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">            handle, call ``int(Event.handle)``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">        return as_py(self._h_event)</span>&nbsp;</span><input type="checkbox" id="ctxs264"><span class="r"><label for="ctxs264" class="ctx">4 ctx</label></span><span class="ctxs">1ijMq</span></p>
+    <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">    def device(self) -> Device:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">        """Return the :obj:`~_device.Device` singleton associated with this event.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        Note</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">        ----</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">        The current context on the device may differ from this</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">        event's context. This case occurs when a different CUDA</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        context is set current after a event is created.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        if self._device_id >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">            from ._device import Device  # avoid circular import</span>&nbsp;</span><input type="checkbox" id="ctxs278"><span class="r"><label for="ctxs278" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">            return Device(self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    def context(self) -> Context:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        """Return the :obj:`~_context.Context` associated with this event."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">        if self._h_context and self._device_id >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs284"><span class="r"><label for="ctxs284" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">            return Context._from_handle(Context, self._h_context, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs285"><span class="r"><label for="ctxs285" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="pln"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">cdef class IPCEventDescriptor:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">    """Serializable object describing an event that can be shared between processes."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">    cdef:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">        bytes _reserved</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">        bint _busy_waited</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">    def __init__(self, *arg, **kwargs):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">        raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs298" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">    def _init(cls, reserved: bytes, busy_waited: cython.bint):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">        cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs300"><span class="r"><label for="ctxs300" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">        self._reserved = reserved</span>&nbsp;</span><input type="checkbox" id="ctxs301"><span class="r"><label for="ctxs301" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">        self._busy_waited = busy_waited</span>&nbsp;</span><input type="checkbox" id="ctxs302"><span class="r"><label for="ctxs302" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">12 ctx</label></span><span class="ctxs">1ijeafbgchdlk</span></p>
+    <p class="pln"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">    def __eq__(self, IPCEventDescriptor rhs):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">        # No need to check self._busy_waited.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">        return self._reserved == rhs._reserved</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">8 ctx</label></span><span class="ctxs">1eafbgchd</span></p>
+    <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs309" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">        return self._init, (self._reserved, self._busy_waited)</span>&nbsp;</span><input type="checkbox" id="ctxs310"><span class="r"><label for="ctxs310" class="ctx">10 ctx</label></span><span class="ctxs">1ijeafbgchd</span></p>
+    <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">def _reduce_event(event):</span>&nbsp;</span><span class="r"><label for="ctxs313" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs314"><span class="r"><label for="ctxs314" class="ctx">11 ctx</label></span><span class="ctxs">1ijeafbgchdk</span></p>
+    <p class="run"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">    return event.from_ipc_descriptor, (event.get_ipc_descriptor(),)</span>&nbsp;</span><input type="checkbox" id="ctxs315"><span class="r"><label for="ctxs315" class="ctx">11 ctx</label></span><span class="ctxs">1ijeafbgchdk</span></p>
+    <p class="pln"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">multiprocessing.reduction.register(Event, _reduce_event)</span>&nbsp;</span><span class="r"><label for="ctxs317" class="ctx">(empty)</label></span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_0efdcd0c69c2ddb8__kernel_arg_handler_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

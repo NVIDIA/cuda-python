@@ -2,22 +2,102 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/_internal/nvjitlink.pyx: 64%</title>
-    <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_a5a05ca4.css" type="text/css">
-    <script src="coverage_html_cb_bcae5fc4.js" defer></script>
+    <title>Coverage for cuda/bindings/_internal/nvjitlink.pyx: 67.54%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_linker.py::test_linker_get_info_log|run",
+  "c": "tests/test_linker.py::test_linker_get_error_log|run",
+  "d": "tests/test_linker.py::test_linker_init[options0]|run",
+  "e": "tests/test_linker.py::test_linker_init[options1]|run",
+  "f": "tests/test_linker.py::test_linker_init[options2]|run",
+  "g": "tests/test_linker.py::test_linker_init[options3]|run",
+  "h": "tests/test_linker.py::test_linker_init[options4]|run",
+  "i": "tests/test_linker.py::test_linker_init[options5]|run",
+  "j": "tests/test_linker.py::test_linker_init[options6]|run",
+  "k": "tests/test_linker.py::test_linker_init[options7]|run",
+  "l": "tests/test_linker.py::test_linker_init[options8]|run",
+  "m": "tests/test_linker.py::test_linker_init[options9]|run",
+  "n": "tests/test_linker.py::test_linker_init[options10]|run",
+  "o": "tests/test_linker.py::test_linker_init[options11]|run",
+  "p": "tests/test_linker.py::test_linker_init[options12]|run",
+  "q": "tests/test_linker.py::test_linker_init[options13]|run",
+  "r": "tests/test_linker.py::test_linker_init[options14]|run",
+  "s": "tests/test_linker.py::test_linker_init[options15]|run",
+  "t": "tests/test_linker.py::test_linker_init[options16]|run",
+  "u": "tests/test_linker.py::test_linker_init[options17]|run",
+  "v": "tests/test_linker.py::test_linker_init[options18]|run",
+  "w": "tests/test_linker.py::test_linker_init[options19]|run",
+  "x": "tests/test_linker.py::test_linker_init[options20]|run",
+  "y": "tests/test_linker.py::test_linker_init[options21]|run",
+  "z": "tests/test_linker.py::test_linker_init[options22]|run",
+  "A": "tests/test_linker.py::test_linker_init[options23]|run",
+  "B": "tests/test_linker.py::test_linker_link_cubin|run",
+  "C": "tests/test_linker.py::test_linker_link_ptx_multiple|run",
+  "D": "tests/test_linker.py::test_linker_link_ptx_nvjitlink|run",
+  "E": "tests/test_nvjitlink.py::test_get_info_log[sm_75_6.4]|run",
+  "F": "tests/test_nvjitlink.py::test_get_info_log[sm_80_7.0]|run",
+  "G": "tests/test_nvjitlink.py::test_get_info_log[sm_90_8.5]|run",
+  "H": "tests/test_nvjitlink.py::test_get_info_log[sm_100_8.8]|run",
+  "I": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_75_6.4]|run",
+  "J": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_80_7.0]|run",
+  "K": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_90_8.5]|run",
+  "L": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_100_8.8]|run",
+  "M": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|run",
+  "N": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|run",
+  "O": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|run",
+  "P": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|run",
+  "Q": "tests/test_program.py::test_ptx_program_with_various_options[options0]|run",
+  "R": "tests/test_program.py::test_ptx_program_with_various_options[options1]|run",
+  "S": "tests/test_program.py::test_ptx_program_with_various_options[options2]|run",
+  "T": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
+  "U": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
+  "V": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
+  "W": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
+  "X": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
+  "Y": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
+  "Z": "tests/test_nvjitlink.py::test_get_error_log[sm_75]|run",
+  "0": "tests/test_nvjitlink.py::test_get_error_log[sm_80]|run",
+  "1": "tests/test_nvjitlink.py::test_get_error_log[sm_90]|run",
+  "2": "tests/test_nvjitlink.py::test_get_error_log[sm_100]|run",
+  "3": "tests/test_nvjitlink.py::test_add_data[sm_75_6.4]|run",
+  "4": "tests/test_nvjitlink.py::test_add_data[sm_80_7.0]|run",
+  "5": "tests/test_nvjitlink.py::test_add_data[sm_90_8.5]|run",
+  "6": "tests/test_nvjitlink.py::test_add_data[sm_100_8.8]|run",
+  "7": "tests/test_nvjitlink.py::test_add_file[sm_75_6.4]|run",
+  "8": "tests/test_nvjitlink.py::test_add_file[sm_80_7.0]|run",
+  "9": "tests/test_nvjitlink.py::test_add_file[sm_90_8.5]|run",
+  "!": "tests/test_nvjitlink.py::test_add_file[sm_100_8.8]|run",
+  "#": "tests/test_linker.py::test_linker_link_invalid_target_type|run",
+  "$": "tests/test_nvjitlink.py::test_complete_empty[sm_75]|run",
+  "%": "tests/test_nvjitlink.py::test_complete_empty[sm_80]|run",
+  "'": "tests/test_nvjitlink.py::test_complete_empty[sm_90]|run",
+  "(": "tests/test_nvjitlink.py::test_complete_empty[sm_100]|run",
+  ")": "tests/test_nvjitlink.py::test_create_and_destroy[sm_75]|run",
+  "*": "tests/test_nvjitlink.py::test_create_and_destroy[sm_80]|run",
+  "+": "tests/test_nvjitlink.py::test_create_and_destroy[sm_90]|run",
+  ",": "tests/test_nvjitlink.py::test_create_and_destroy[sm_100]|run",
+  "-": "tests/test_linker.py::test_linker_init_invalid_arch|run",
+  ".": "tests/test_nvjitlink.py::test_invalid_arch_error|run",
+  "/": "tests/test_nvjitlink.py::test_package_version|run",
+  ":": "tests/test_nvjitlink.py::test_unrecognized_option_error|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;_internal&#8201;/&#8201;nvjitlink.pyx</b>:
-            <span class="pc_cov">64%</span>
+            <span class="pc_cov">67.54%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
-                <img id="keyboard_icon" src="keybd_closed_cb_ce680311.png" alt="Show/hide keyboard shortcuts">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
@@ -55,17 +135,17 @@
         </aside>
         <h2>
             <span class="text">228 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">146<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">82<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">154<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">74<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_1c6fa6fde3f60f5e_cufile_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_1c6fa6fde3f60f5e_nvfatbin_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_nvvm_pyx.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -80,18 +160,18 @@
     </div>
 </header>
 <main id="source">
-    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.0.1 to 13.1.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.0.1 to 13.1.1. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from libc.stdint cimport intptr_t, uintptr_t</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">import threading</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from .utils import FunctionNotFoundError, NotSupportedError</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">import threading</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from .utils import FunctionNotFoundError, NotSupportedError</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">from cuda.pathfinder import load_nvidia_dynamic_lib</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">from cuda.pathfinder import load_nvidia_dynamic_lib</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
@@ -114,12 +194,12 @@
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    const void* RTLD_DEFAULT 'RTLD_DEFAULT'</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef int get_cuda_version():</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef int get_cuda_version():</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    cdef void* handle = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    cdef int err, driver_ver = 0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    # Load driver to check version</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        err_msg = dlerror()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')</span>&nbsp;</span><span class="r"></span></p>
@@ -138,365 +218,365 @@
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt"># Wrapper init</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">cdef object __symbol_lock = threading.Lock()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">cdef bint __py_nvjitlink_init = False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">cdef object __symbol_lock = threading.Lock()</span>&nbsp;</span><span class="r"><label for="ctxs59" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">cdef bint __py_nvjitlink_init = False</span>&nbsp;</span><span class="r"><label for="ctxs60" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkCreate = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkDestroy = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkAddData = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkAddFile = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkComplete = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedCubinSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedCubin = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedPtxSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedPtx = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetErrorLogSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetErrorLog = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetInfoLogSize = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetInfoLog = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkVersion = NULL</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkCreate = NULL</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkDestroy = NULL</span>&nbsp;</span><span class="r"><label for="ctxs63" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkAddData = NULL</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkAddFile = NULL</span>&nbsp;</span><span class="r"><label for="ctxs65" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkComplete = NULL</span>&nbsp;</span><span class="r"><label for="ctxs66" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedCubinSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs67" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedCubin = NULL</span>&nbsp;</span><span class="r"><label for="ctxs68" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedPtxSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs69" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetLinkedPtx = NULL</span>&nbsp;</span><span class="r"><label for="ctxs70" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetErrorLogSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs71" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetErrorLog = NULL</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetInfoLogSize = NULL</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkGetInfoLog = NULL</span>&nbsp;</span><span class="r"><label for="ctxs74" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">cdef void* __nvJitLinkVersion = NULL</span>&nbsp;</span><span class="r"><label for="ctxs75" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">cdef void* load_library() except* with gil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">    return &lt;void*>handle</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">cdef void* load_library() except* with gil:</span>&nbsp;</span><span class="r"><label for="ctxs78" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint</span>&nbsp;</span><span class="r"><label for="ctxs79" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">    return &lt;void*>handle</span>&nbsp;</span><span class="r"><label for="ctxs80" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">cdef int _init_nvjitlink() except -1 nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">cdef int _init_nvjitlink() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    global __py_nvjitlink_init</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    cdef void* handle = NULL</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    cdef void* handle = NULL</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    with gil, __symbol_lock:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    with gil, __symbol_lock:</span>&nbsp;</span><span class="r"><label for="ctxs88" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        # Recheck the flag after obtaining the locks</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        if __py_nvjitlink_init:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        if __py_nvjitlink_init:</span>&nbsp;</span><span class="r"><label for="ctxs90" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            return 0</span>&nbsp;</span><span class="r"><label for="ctxs91" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        # Load function</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        global __nvJitLinkCreate</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        __nvJitLinkCreate = dlsym(RTLD_DEFAULT, 'nvJitLinkCreate')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        if __nvJitLinkCreate == NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            __nvJitLinkCreate = dlsym(handle, 'nvJitLinkCreate')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        __nvJitLinkCreate = dlsym(RTLD_DEFAULT, 'nvJitLinkCreate')</span>&nbsp;</span><span class="r"><label for="ctxs95" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        if __nvJitLinkCreate == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs96" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs97" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs98" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            __nvJitLinkCreate = dlsym(handle, 'nvJitLinkCreate')</span>&nbsp;</span><span class="r"><label for="ctxs99" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        global __nvJitLinkDestroy</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        __nvJitLinkDestroy = dlsym(RTLD_DEFAULT, 'nvJitLinkDestroy')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        if __nvJitLinkDestroy == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        __nvJitLinkDestroy = dlsym(RTLD_DEFAULT, 'nvJitLinkDestroy')</span>&nbsp;</span><span class="r"><label for="ctxs102" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        if __nvJitLinkDestroy == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs103" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">            __nvJitLinkDestroy = dlsym(handle, 'nvJitLinkDestroy')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        global __nvJitLinkAddData</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        __nvJitLinkAddData = dlsym(RTLD_DEFAULT, 'nvJitLinkAddData')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        if __nvJitLinkAddData == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        __nvJitLinkAddData = dlsym(RTLD_DEFAULT, 'nvJitLinkAddData')</span>&nbsp;</span><span class="r"><label for="ctxs109" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        if __nvJitLinkAddData == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs110" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">            __nvJitLinkAddData = dlsym(handle, 'nvJitLinkAddData')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        global __nvJitLinkAddFile</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        __nvJitLinkAddFile = dlsym(RTLD_DEFAULT, 'nvJitLinkAddFile')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        if __nvJitLinkAddFile == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        __nvJitLinkAddFile = dlsym(RTLD_DEFAULT, 'nvJitLinkAddFile')</span>&nbsp;</span><span class="r"><label for="ctxs116" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        if __nvJitLinkAddFile == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs117" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            __nvJitLinkAddFile = dlsym(handle, 'nvJitLinkAddFile')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        global __nvJitLinkComplete</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        __nvJitLinkComplete = dlsym(RTLD_DEFAULT, 'nvJitLinkComplete')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        if __nvJitLinkComplete == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        __nvJitLinkComplete = dlsym(RTLD_DEFAULT, 'nvJitLinkComplete')</span>&nbsp;</span><span class="r"><label for="ctxs123" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        if __nvJitLinkComplete == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs124" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">            __nvJitLinkComplete = dlsym(handle, 'nvJitLinkComplete')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        global __nvJitLinkGetLinkedCubinSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedCubinSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubinSize')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedCubinSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedCubinSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubinSize')</span>&nbsp;</span><span class="r"><label for="ctxs130" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedCubinSize == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs131" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs133" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">            __nvJitLinkGetLinkedCubinSize = dlsym(handle, 'nvJitLinkGetLinkedCubinSize')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        global __nvJitLinkGetLinkedCubin</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedCubin = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubin')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedCubin == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedCubin = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubin')</span>&nbsp;</span><span class="r"><label for="ctxs137" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedCubin == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs138" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">            __nvJitLinkGetLinkedCubin = dlsym(handle, 'nvJitLinkGetLinkedCubin')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        global __nvJitLinkGetLinkedPtxSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedPtxSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtxSize')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedPtxSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedPtxSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtxSize')</span>&nbsp;</span><span class="r"><label for="ctxs144" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedPtxSize == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs145" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">            __nvJitLinkGetLinkedPtxSize = dlsym(handle, 'nvJitLinkGetLinkedPtxSize')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        global __nvJitLinkGetLinkedPtx</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedPtx = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtx')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedPtx == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        __nvJitLinkGetLinkedPtx = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtx')</span>&nbsp;</span><span class="r"><label for="ctxs151" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        if __nvJitLinkGetLinkedPtx == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs152" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">            __nvJitLinkGetLinkedPtx = dlsym(handle, 'nvJitLinkGetLinkedPtx')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs154" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">            __nvJitLinkGetLinkedPtx = dlsym(handle, 'nvJitLinkGetLinkedPtx')</span>&nbsp;</span><span class="r"><label for="ctxs155" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        global __nvJitLinkGetErrorLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">        __nvJitLinkGetErrorLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLogSize')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        if __nvJitLinkGetErrorLogSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">        __nvJitLinkGetErrorLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLogSize')</span>&nbsp;</span><span class="r"><label for="ctxs158" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        if __nvJitLinkGetErrorLogSize == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs159" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs161" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">            __nvJitLinkGetErrorLogSize = dlsym(handle, 'nvJitLinkGetErrorLogSize')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">        global __nvJitLinkGetErrorLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        __nvJitLinkGetErrorLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLog')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">        if __nvJitLinkGetErrorLog == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        __nvJitLinkGetErrorLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLog')</span>&nbsp;</span><span class="r"><label for="ctxs165" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">        if __nvJitLinkGetErrorLog == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs166" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">            __nvJitLinkGetErrorLog = dlsym(handle, 'nvJitLinkGetErrorLog')</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">            __nvJitLinkGetErrorLog = dlsym(handle, 'nvJitLinkGetErrorLog')</span>&nbsp;</span><span class="r"><label for="ctxs169" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">        global __nvJitLinkGetInfoLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">        __nvJitLinkGetInfoLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLogSize')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        if __nvJitLinkGetInfoLogSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">        __nvJitLinkGetInfoLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLogSize')</span>&nbsp;</span><span class="r"><label for="ctxs172" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        if __nvJitLinkGetInfoLogSize == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs173" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">            __nvJitLinkGetInfoLogSize = dlsym(handle, 'nvJitLinkGetInfoLogSize')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">        global __nvJitLinkGetInfoLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">        __nvJitLinkGetInfoLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLog')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        if __nvJitLinkGetInfoLog == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">        __nvJitLinkGetInfoLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLog')</span>&nbsp;</span><span class="r"><label for="ctxs179" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        if __nvJitLinkGetInfoLog == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs180" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">            __nvJitLinkGetInfoLog = dlsym(handle, 'nvJitLinkGetInfoLog')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">        global __nvJitLinkVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        __nvJitLinkVersion = dlsym(RTLD_DEFAULT, 'nvJitLinkVersion')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">        if __nvJitLinkVersion == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        __nvJitLinkVersion = dlsym(RTLD_DEFAULT, 'nvJitLinkVersion')</span>&nbsp;</span><span class="r"><label for="ctxs186" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">        if __nvJitLinkVersion == NULL:</span>&nbsp;</span><span class="r"><label for="ctxs187" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">            __nvJitLinkVersion = dlsym(handle, 'nvJitLinkVersion')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">        __py_nvjitlink_init = True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">        __py_nvjitlink_init = True</span>&nbsp;</span><span class="r"><label for="ctxs192" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"><label for="ctxs193" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_nvjitlink() except -1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    if __py_nvjitlink_init:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_nvjitlink() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs196" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    if __py_nvjitlink_init:</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">76 ctx</label></span><span class="ctxs">1acbdefghijklmnopqrstuvwxyzA-B#CD3456789!$%'()*+,Z012EFGHIJKLMNOP./:QRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">76 ctx</label></span><span class="ctxs">1acbdefghijklmnopqrstuvwxyzA-B#CD3456789!$%'()*+,Z012EFGHIJKLMNOP./:QRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return _init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return _init_nvjitlink()</span>&nbsp;</span><span class="r"><label for="ctxs200" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">cdef dict func_ptrs = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">cdef dict func_ptrs = None</span>&nbsp;</span><span class="r"><label for="ctxs202" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">cpdef dict _inspect_function_pointers():</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">cpdef dict _inspect_function_pointers():</span>&nbsp;</span><span class="r"><label for="ctxs205" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">    global func_ptrs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">    if func_ptrs is not None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">    if func_ptrs is not None:</span>&nbsp;</span><span class="r"><label for="ctxs207" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        return func_ptrs</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">    cdef dict data = {}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"><label for="ctxs210" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">    cdef dict data = {}</span>&nbsp;</span><span class="r"><label for="ctxs211" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    global __nvJitLinkCreate</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">    data["__nvJitLinkCreate"] = &lt;intptr_t>__nvJitLinkCreate</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">    data["__nvJitLinkCreate"] = &lt;intptr_t>__nvJitLinkCreate</span>&nbsp;</span><span class="r"><label for="ctxs214" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    global __nvJitLinkDestroy</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    data["__nvJitLinkDestroy"] = &lt;intptr_t>__nvJitLinkDestroy</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    data["__nvJitLinkDestroy"] = &lt;intptr_t>__nvJitLinkDestroy</span>&nbsp;</span><span class="r"><label for="ctxs217" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">    global __nvJitLinkAddData</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">    data["__nvJitLinkAddData"] = &lt;intptr_t>__nvJitLinkAddData</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">    data["__nvJitLinkAddData"] = &lt;intptr_t>__nvJitLinkAddData</span>&nbsp;</span><span class="r"><label for="ctxs220" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">    global __nvJitLinkAddFile</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    data["__nvJitLinkAddFile"] = &lt;intptr_t>__nvJitLinkAddFile</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">    data["__nvJitLinkAddFile"] = &lt;intptr_t>__nvJitLinkAddFile</span>&nbsp;</span><span class="r"><label for="ctxs223" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">    global __nvJitLinkComplete</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    data["__nvJitLinkComplete"] = &lt;intptr_t>__nvJitLinkComplete</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">    data["__nvJitLinkComplete"] = &lt;intptr_t>__nvJitLinkComplete</span>&nbsp;</span><span class="r"><label for="ctxs226" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedCubinSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedCubinSize"] = &lt;intptr_t>__nvJitLinkGetLinkedCubinSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedCubinSize"] = &lt;intptr_t>__nvJitLinkGetLinkedCubinSize</span>&nbsp;</span><span class="r"><label for="ctxs229" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedCubin</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedCubin"] = &lt;intptr_t>__nvJitLinkGetLinkedCubin</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedCubin"] = &lt;intptr_t>__nvJitLinkGetLinkedCubin</span>&nbsp;</span><span class="r"><label for="ctxs232" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedPtxSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedPtxSize"] = &lt;intptr_t>__nvJitLinkGetLinkedPtxSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedPtxSize"] = &lt;intptr_t>__nvJitLinkGetLinkedPtxSize</span>&nbsp;</span><span class="r"><label for="ctxs235" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedPtx</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedPtx"] = &lt;intptr_t>__nvJitLinkGetLinkedPtx</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetLinkedPtx"] = &lt;intptr_t>__nvJitLinkGetLinkedPtx</span>&nbsp;</span><span class="r"><label for="ctxs238" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    global __nvJitLinkGetErrorLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetErrorLogSize"] = &lt;intptr_t>__nvJitLinkGetErrorLogSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetErrorLogSize"] = &lt;intptr_t>__nvJitLinkGetErrorLogSize</span>&nbsp;</span><span class="r"><label for="ctxs241" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    global __nvJitLinkGetErrorLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetErrorLog"] = &lt;intptr_t>__nvJitLinkGetErrorLog</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetErrorLog"] = &lt;intptr_t>__nvJitLinkGetErrorLog</span>&nbsp;</span><span class="r"><label for="ctxs244" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    global __nvJitLinkGetInfoLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetInfoLogSize"] = &lt;intptr_t>__nvJitLinkGetInfoLogSize</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetInfoLogSize"] = &lt;intptr_t>__nvJitLinkGetInfoLogSize</span>&nbsp;</span><span class="r"><label for="ctxs247" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    global __nvJitLinkGetInfoLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetInfoLog"] = &lt;intptr_t>__nvJitLinkGetInfoLog</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    data["__nvJitLinkGetInfoLog"] = &lt;intptr_t>__nvJitLinkGetInfoLog</span>&nbsp;</span><span class="r"><label for="ctxs250" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    global __nvJitLinkVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    data["__nvJitLinkVersion"] = &lt;intptr_t>__nvJitLinkVersion</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    data["__nvJitLinkVersion"] = &lt;intptr_t>__nvJitLinkVersion</span>&nbsp;</span><span class="r"><label for="ctxs253" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    func_ptrs = data</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">    return data</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    func_ptrs = data</span>&nbsp;</span><span class="r"><label for="ctxs255" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">    return data</span>&nbsp;</span><span class="r"><label for="ctxs256" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">cpdef _inspect_function_pointer(str name):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">cpdef _inspect_function_pointer(str name):</span>&nbsp;</span><span class="r"><label for="ctxs259" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">    global func_ptrs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">    if func_ptrs is None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        func_ptrs = _inspect_function_pointers()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">    return func_ptrs[name]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">    if func_ptrs is None:</span>&nbsp;</span><span class="r"><label for="ctxs261" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        func_ptrs = _inspect_function_pointers()</span>&nbsp;</span><span class="r"><label for="ctxs262" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">    return func_ptrs[name]</span>&nbsp;</span><span class="r"><label for="ctxs263" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt"># Wrapper functions</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptions, const char** options) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptions, const char** options) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs270" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">    global __nvJitLinkCreate</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    if __nvJitLinkCreate == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs272"><span class="r"><label for="ctxs272" class="ctx">74 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzA-B#CD3456789!$%'()*+,Z012EFGHIJKLMNOP.:QRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    if __nvJitLinkCreate == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs273"><span class="r"><label for="ctxs273" class="ctx">74 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzA-B#CD3456789!$%'()*+,Z012EFGHIJKLMNOP.:QRSTUVWXY</span></p>
     <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkCreate is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle*, uint32_t, const char**) noexcept nogil>__nvJitLinkCreate)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle*, uint32_t, const char**) noexcept nogil>__nvJitLinkCreate)(</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">74 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzA-B#CD3456789!$%'()*+,Z012EFGHIJKLMNOP.:QRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        handle, numOptions, options)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs280" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">    global __nvJitLinkDestroy</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">    if __nvJitLinkDestroy == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">71 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzAB#CD3456789!$%'()*+,Z012EFGHIJKLMNOPQRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">    if __nvJitLinkDestroy == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs283"><span class="r"><label for="ctxs283" class="ctx">71 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzAB#CD3456789!$%'()*+,Z012EFGHIJKLMNOPQRSTUVWXY</span></p>
     <p class="mis show_mis"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkDestroy is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle*) noexcept nogil>__nvJitLinkDestroy)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle*) noexcept nogil>__nvJitLinkDestroy)(</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">71 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzAB#CD3456789!$%'()*+,Z012EFGHIJKLMNOPQRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">        handle)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void* data, size_t size, const char* name) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void* data, size_t size, const char* name) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs290" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">    global __nvJitLinkAddData</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    if __nvJitLinkAddData == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">55 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzAB#CD3456EFGHIJKLMNOPQRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    if __nvJitLinkAddData == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs293"><span class="r"><label for="ctxs293" class="ctx">55 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzAB#CD3456EFGHIJKLMNOPQRSTUVWXY</span></p>
     <p class="mis show_mis"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkAddData is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, nvJitLinkInputType, const void*, size_t, const char*) noexcept nogil>__nvJitLinkAddData)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, nvJitLinkInputType, const void*, size_t, const char*) noexcept nogil>__nvJitLinkAddData)(</span>&nbsp;</span><input type="checkbox" id="ctxs296"><span class="r"><label for="ctxs296" class="ctx">55 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzAB#CD3456EFGHIJKLMNOPQRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">        handle, inputType, data, size, name)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char* fileName) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char* fileName) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs300" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">    global __nvJitLinkAddFile</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    if __nvJitLinkAddFile == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs302"><span class="r"><label for="ctxs302" class="ctx">4 ctx</label></span><span class="ctxs">1789!</span></p>
+    <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    if __nvJitLinkAddFile == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">4 ctx</label></span><span class="ctxs">1789!</span></p>
     <p class="mis show_mis"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkAddFile is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, nvJitLinkInputType, const char*) noexcept nogil>__nvJitLinkAddFile)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, nvJitLinkInputType, const char*) noexcept nogil>__nvJitLinkAddFile)(</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">4 ctx</label></span><span class="ctxs">1789!</span></p>
     <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">        handle, inputType, fileName)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs310" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">    global __nvJitLinkComplete</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">    if __nvJitLinkComplete == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">66 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCD3456789!$%'(Z012EFGHIJKLMNOPQRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">    if __nvJitLinkComplete == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs313"><span class="r"><label for="ctxs313" class="ctx">66 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCD3456789!$%'(Z012EFGHIJKLMNOPQRSTUVWXY</span></p>
     <p class="mis show_mis"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkComplete is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle) noexcept nogil>__nvJitLinkComplete)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle) noexcept nogil>__nvJitLinkComplete)(</span>&nbsp;</span><input type="checkbox" id="ctxs316"><span class="r"><label for="ctxs316" class="ctx">66 ctx</label></span><span class="ctxs">1cbdefghijklmnopqrstuvwxyzABCD3456789!$%'(Z012EFGHIJKLMNOPQRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">        handle)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs320" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedCubinSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedCubinSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs322"><span class="r"><label for="ctxs322" class="ctx">40 ctx</label></span><span class="ctxs">1bdefghijklmnopqrstuvwxyzABCIJKLQRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedCubinSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs323"><span class="r"><label for="ctxs323" class="ctx">40 ctx</label></span><span class="ctxs">1bdefghijklmnopqrstuvwxyzABCIJKLQRSTUVWXY</span></p>
     <p class="mis show_mis"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetLinkedCubinSize is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetLinkedCubinSize)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetLinkedCubinSize)(</span>&nbsp;</span><input type="checkbox" id="ctxs326"><span class="r"><label for="ctxs326" class="ctx">40 ctx</label></span><span class="ctxs">1bdefghijklmnopqrstuvwxyzABCIJKLQRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">        handle, size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubin) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubin) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs330" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedCubin</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedCubin == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs332"><span class="r"><label for="ctxs332" class="ctx">40 ctx</label></span><span class="ctxs">1bdefghijklmnopqrstuvwxyzABCIJKLQRSTUVWXY</span></p>
+    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedCubin == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">40 ctx</label></span><span class="ctxs">1bdefghijklmnopqrstuvwxyzABCIJKLQRSTUVWXY</span></p>
     <p class="mis show_mis"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetLinkedCubin is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, void*) noexcept nogil>__nvJitLinkGetLinkedCubin)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, void*) noexcept nogil>__nvJitLinkGetLinkedCubin)(</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">40 ctx</label></span><span class="ctxs">1bdefghijklmnopqrstuvwxyzABCIJKLQRSTUVWXY</span></p>
     <p class="pln"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">        handle, cubin)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs340" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedPtxSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedPtxSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs342"><span class="r"><label for="ctxs342" class="ctx">5 ctx</label></span><span class="ctxs">1DMNOP</span></p>
+    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedPtxSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs343"><span class="r"><label for="ctxs343" class="ctx">5 ctx</label></span><span class="ctxs">1DMNOP</span></p>
     <p class="mis show_mis"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetLinkedPtxSize is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetLinkedPtxSize)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetLinkedPtxSize)(</span>&nbsp;</span><input type="checkbox" id="ctxs346"><span class="r"><label for="ctxs346" class="ctx">5 ctx</label></span><span class="ctxs">1DMNOP</span></p>
     <p class="pln"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        handle, size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs350" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">    global __nvJitLinkGetLinkedPtx</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedPtx == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs352"><span class="r"><label for="ctxs352" class="ctx">5 ctx</label></span><span class="ctxs">1DMNOP</span></p>
+    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    if __nvJitLinkGetLinkedPtx == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs353"><span class="r"><label for="ctxs353" class="ctx">5 ctx</label></span><span class="ctxs">1DMNOP</span></p>
     <p class="mis show_mis"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetLinkedPtx is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, char*) noexcept nogil>__nvJitLinkGetLinkedPtx)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, char*) noexcept nogil>__nvJitLinkGetLinkedPtx)(</span>&nbsp;</span><input type="checkbox" id="ctxs356"><span class="r"><label for="ctxs356" class="ctx">5 ctx</label></span><span class="ctxs">1DMNOP</span></p>
     <p class="pln"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">        handle, ptx)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs360" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">    global __nvJitLinkGetErrorLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    if __nvJitLinkGetErrorLogSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">5 ctx</label></span><span class="ctxs">1cZ012</span></p>
+    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    if __nvJitLinkGetErrorLogSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs363"><span class="r"><label for="ctxs363" class="ctx">5 ctx</label></span><span class="ctxs">1cZ012</span></p>
     <p class="mis show_mis"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetErrorLogSize is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetErrorLogSize)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetErrorLogSize)(</span>&nbsp;</span><input type="checkbox" id="ctxs366"><span class="r"><label for="ctxs366" class="ctx">5 ctx</label></span><span class="ctxs">1cZ012</span></p>
     <p class="pln"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">        handle, size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs370" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t"><span class="txt">    global __nvJitLinkGetErrorLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t"><span class="txt">    if __nvJitLinkGetErrorLog == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs372"><span class="r"><label for="ctxs372" class="ctx">5 ctx</label></span><span class="ctxs">1cZ012</span></p>
+    <p class="run"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t"><span class="txt">    if __nvJitLinkGetErrorLog == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs373"><span class="r"><label for="ctxs373" class="ctx">5 ctx</label></span><span class="ctxs">1cZ012</span></p>
     <p class="mis show_mis"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t375" href="#t375">375</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetErrorLog is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, char*) noexcept nogil>__nvJitLinkGetErrorLog)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, char*) noexcept nogil>__nvJitLinkGetErrorLog)(</span>&nbsp;</span><input type="checkbox" id="ctxs376"><span class="r"><label for="ctxs376" class="ctx">5 ctx</label></span><span class="ctxs">1cZ012</span></p>
     <p class="pln"><span class="n"><a id="t377" href="#t377">377</a></span><span class="t"><span class="txt">        handle, log)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs380" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t"><span class="txt">    global __nvJitLinkGetInfoLogSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t"><span class="txt">    if __nvJitLinkGetInfoLogSize == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs382"><span class="r"><label for="ctxs382" class="ctx">5 ctx</label></span><span class="ctxs">1bEFGH</span></p>
+    <p class="run"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t"><span class="txt">    if __nvJitLinkGetInfoLogSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs383"><span class="r"><label for="ctxs383" class="ctx">5 ctx</label></span><span class="ctxs">1bEFGH</span></p>
     <p class="mis show_mis"><span class="n"><a id="t384" href="#t384">384</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t385" href="#t385">385</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetInfoLogSize is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetInfoLogSize)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetInfoLogSize)(</span>&nbsp;</span><input type="checkbox" id="ctxs386"><span class="r"><label for="ctxs386" class="ctx">5 ctx</label></span><span class="ctxs">1bEFGH</span></p>
     <p class="pln"><span class="n"><a id="t387" href="#t387">387</a></span><span class="t"><span class="txt">        handle, size)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t388" href="#t388">388</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t389" href="#t389">389</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t390" href="#t390">390</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t390" href="#t390">390</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs390" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t391" href="#t391">391</a></span><span class="t"><span class="txt">    global __nvJitLinkGetInfoLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t392" href="#t392">392</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t393" href="#t393">393</a></span><span class="t"><span class="txt">    if __nvJitLinkGetInfoLog == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t392" href="#t392">392</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs392"><span class="r"><label for="ctxs392" class="ctx">5 ctx</label></span><span class="ctxs">1bEFGH</span></p>
+    <p class="run"><span class="n"><a id="t393" href="#t393">393</a></span><span class="t"><span class="txt">    if __nvJitLinkGetInfoLog == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs393"><span class="r"><label for="ctxs393" class="ctx">5 ctx</label></span><span class="ctxs">1bEFGH</span></p>
     <p class="mis show_mis"><span class="n"><a id="t394" href="#t394">394</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t395" href="#t395">395</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkGetInfoLog is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t396" href="#t396">396</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, char*) noexcept nogil>__nvJitLinkGetInfoLog)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t396" href="#t396">396</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(nvJitLinkHandle, char*) noexcept nogil>__nvJitLinkGetInfoLog)(</span>&nbsp;</span><input type="checkbox" id="ctxs396"><span class="r"><label for="ctxs396" class="ctx">5 ctx</label></span><span class="ctxs">1bEFGH</span></p>
     <p class="pln"><span class="n"><a id="t397" href="#t397">397</a></span><span class="t"><span class="txt">        handle, log)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t398" href="#t398">398</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t399" href="#t399">399</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t400" href="#t400">400</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t400" href="#t400">400</a></span><span class="t"><span class="txt">cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs400" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t401" href="#t401">401</a></span><span class="t"><span class="txt">    global __nvJitLinkVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t402" href="#t402">402</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t403" href="#t403">403</a></span><span class="t"><span class="txt">    if __nvJitLinkVersion == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t402" href="#t402">402</a></span><span class="t"><span class="txt">    _check_or_init_nvjitlink()</span>&nbsp;</span><input type="checkbox" id="ctxs402"><span class="r"><label for="ctxs402" class="ctx">2 ctx</label></span><span class="ctxs">1a/</span></p>
+    <p class="run"><span class="n"><a id="t403" href="#t403">403</a></span><span class="t"><span class="txt">    if __nvJitLinkVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs403"><span class="r"><label for="ctxs403" class="ctx">2 ctx</label></span><span class="ctxs">1a/</span></p>
     <p class="mis show_mis"><span class="n"><a id="t404" href="#t404">404</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t405" href="#t405">405</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvJitLinkVersion is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t406" href="#t406">406</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(unsigned int*, unsigned int*) noexcept nogil>__nvJitLinkVersion)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t406" href="#t406">406</a></span><span class="t"><span class="txt">    return (&lt;nvJitLinkResult (*)(unsigned int*, unsigned int*) noexcept nogil>__nvJitLinkVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs406"><span class="r"><label for="ctxs406" class="ctx">2 ctx</label></span><span class="ctxs">1a/</span></p>
     <p class="pln"><span class="n"><a id="t407" href="#t407">407</a></span><span class="t"><span class="txt">        major, minor)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_1c6fa6fde3f60f5e_cufile_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_1c6fa6fde3f60f5e_nvfatbin_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_1c6fa6fde3f60f5e_nvvm_pyx.html">&#xbb; next</a>
+            <a class="nav" href="z_1c6fa6fde3f60f5e_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-18 00:44 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
+            created at 2026-02-10 13:25 +0000
         </p>
     </div>
 </footer>
