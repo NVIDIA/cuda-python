@@ -184,47 +184,23 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
-  coverage-windows:
-    name: Coverage (Windows)
-    runs-on: "windows-amd64-gpu-a100-latest-1"
+  # Build Windows wheels on GitHub-hosted runner (has VS, no GPU)
+  build-wheel-windows:
+    name: Build Wheels (Windows)
+    runs-on: windows-2022
     permissions:
-      id-token: write
-      contents: write
+      contents: read
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     env:
       HOST_PLATFORM: "win-64"
-      ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
-
-      - name: Setup proxy cache
-        uses: nv-gha-runners/setup-proxy-cache@main
-        continue-on-error: true
-
-      - name: Update driver
-        env:
-          DRIVER_MODE: "TCC"
-          GPU_TYPE: "a100"
-        run: |
-          ci/tools/install_gpu_driver.ps1
-
-      - name: Ensure GPU is working
-        run: |
-          nvidia-smi
-
-      - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        env:
-          BUILD_CUDA_VER: ${{ env.CUDA_VER }}
-          CUDA_VER: ${{ env.CUDA_VER }}
-          HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
-          LOCAL_CTK: ${{ env.LOCAL_CTK }}
-          PY_VER: ${{ env.PY_VER }}
-          SHA: ${{ github.sha }}
-        run: ./ci/tools/env-vars test
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
@@ -235,11 +211,10 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Set up mini CTK
-        if: ${{ env.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
-          host-platform: ${{ env.HOST_PLATFORM }}
+          host-platform: win-64
           cuda-version: ${{ env.CUDA_VER }}
 
       - name: Patch cuda_bindings for Cython coverage
@@ -268,45 +243,125 @@ jobs:
         run: |
           python -m venv .venv
 
-      - name: Build cuda-pathfinder
+      - name: Build and install cuda.pathfinder
         run: |
-          .venv\Scripts\pip install -v .\cuda_pathfinder
+          .venv/Scripts/pip install wheel setuptools Cython
+          .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
 
-      - name: Build cuda-python-test-helpers
-        run: |
-          .venv\Scripts\pip install -v .\cuda_python_test_helpers
-
-      - name: Build cuda-bindings
+      - name: Build cuda.bindings wheel
         run: |
           cd cuda_bindings
-          ..\.venv\Scripts\pip install -v . --group test
+          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
-      - name: Build cuda-core
+      - name: Build cuda.core wheel
         run: |
+          export PIP_FIND_LINKS="$(pwd)/wheels"
+          export PIP_PRE=1
           cd cuda_core
-          ..\.venv\Scripts\pip install -v . --group test
+          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
-      - name: Install coverage tools
+      - name: List wheel artifacts
         run: |
-          .venv\Scripts\pip install coverage pytest-cov Cython
+          echo "=== Windows wheel artifacts ==="
+          ls -lahR ./wheels/
+
+      - name: Upload Windows wheel artifacts
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: coverage-windows-wheels
+          path: ./wheels/*.whl
+          retention-days: 1
+          if-no-files-found: error
+
+  # Run coverage tests on self-hosted GPU runner (no VS needed, installs pre-built wheels)
+  coverage-windows:
+    name: Coverage (Windows)
+    needs: [build-wheel-windows]
+    runs-on: "windows-amd64-gpu-a100-latest-1"
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      HOST_PLATFORM: "win-64"
+      ARCH: "amd64"
+      CUDA_PYTHON_COVERAGE: "1"
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
+      - name: Update driver
+        shell: powershell
+        env:
+          DRIVER_MODE: "TCC"
+          GPU_TYPE: "a100"
+        run: |
+          ci/tools/install_gpu_driver.ps1
+
+      - name: Ensure GPU is working
+        run: |
+          nvidia-smi
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ env.PY_VER }}
+
+      - name: Download Windows wheel artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        with:
+          name: coverage-windows-wheels
+          path: ./wheels/
+
+      - name: List downloaded wheel artifacts
+        run: |
+          echo "=== Downloaded wheel artifacts ==="
+          ls -lahR ./wheels/
+
+      - name: Create venv
+        run: |
+          python -m venv .venv
+
+      - name: Install wheels from build job
+        run: |
+          .venv/Scripts/pip install ./wheels/cuda_pathfinder*.whl
+          echo "Installed cuda.pathfinder"
+
+          .venv/Scripts/pip install ./wheels/cuda_bindings*.whl
+          echo "Installed cuda.bindings"
+
+          .venv/Scripts/pip install ./wheels/cuda_core*.whl
+          echo "Installed cuda.core"
+
+      - name: Install test dependencies and coverage tools
+        run: |
+          .venv/Scripts/pip install -v ./cuda_python_test_helpers
+          .venv/Scripts/pip install coverage pytest-cov Cython
+          .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
+          .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
         id: install-root
-        shell: bash
         run: |
           INSTALL_ROOT=$(.venv/Scripts/python -c 'import cuda; import os; print(os.path.dirname(cuda.__path__[0]))')
           echo "INSTALL_ROOT=$INSTALL_ROOT" >> $GITHUB_OUTPUT
           echo "Install root: $INSTALL_ROOT"
 
       - name: Run cuda.pathfinder tests
-        shell: bash
         continue-on-error: true
         run: |
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
       - name: Run cuda.bindings tests (with 8MB stack)
-        shell: bash
         continue-on-error: true
         run: |
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
@@ -342,14 +397,12 @@ jobs:
           PYTEST_EOF
 
       - name: Run cuda.core tests
-        shell: bash
         continue-on-error: true
         run: |
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_core/tests"
 
       - name: Copy Windows coverage file to workspace
-        shell: bash
         run: |
           cp "${{ steps.install-root.outputs.INSTALL_ROOT }}/.coverage" "$GITHUB_WORKSPACE/.coverage.windows"
           echo "Copied .coverage.windows to $GITHUB_WORKSPACE"
