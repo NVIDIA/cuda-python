@@ -15,7 +15,7 @@ cdef extern from *:
     #elif defined(__GNUC__) || defined(__GNUG__)
         #define _COMPILER_VERSION ("GCC " __VERSION__)
     #elif defined(_MSC_VER)
-        #define _COMPILER_VERSION ("MSVC " _MSC_VER)
+        #define _COMPILER_VERSION ("MSVC " Py_STRINGIFY(_MSC_VER))
     #else
         #define _COMPILER_VERSION ("Unknown Compiler")
     #endif
