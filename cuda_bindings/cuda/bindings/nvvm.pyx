@@ -9,7 +9,7 @@ cimport cython  # NOQA
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from cuda.bindings.utils._fast_enum import FastEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 
 
 ###############################################################################

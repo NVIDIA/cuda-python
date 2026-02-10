@@ -13,7 +13,7 @@ from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
-from .utils._fast_enum import FastEnum as _FastEnum
+from ._internal._fast_enum import FastEnum as _FastEnum
 
 import cuda.bindings.driver as _driver
 _driver = _driver.__dict__

@@ -8,7 +8,7 @@ cimport cython  # NOQA
 from libc cimport errno
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
-from cuda.bindings.utils._fast_enum import FastEnum as _FastEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
 import cython
 
