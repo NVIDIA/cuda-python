@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 .. module:: cuda.bindings
@@ -10,6 +10,10 @@ Highlights
 ----------
 
 * Add ``nvFatbin`` bindings. (PR #1467 <https://github.com/NVIDIA/cuda-python/pull/1467>_)
+* Performance improvement: ``cuda.bindings`` now uses a faster ``enum``
+  implementation, rather than the standard library's ``enum.IntEnum``.
+  This leads to much faster import times, and slightly faster attribute access
+  times.  (`PR #1581 <https://github.com/NVIDIA/cuda-python/pull/1581>`_)
 
 Experimental
 ------------
