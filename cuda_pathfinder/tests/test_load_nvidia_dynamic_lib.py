@@ -111,7 +111,7 @@ def _is_expected_load_nvidia_dynamic_lib_failure(libname):
     "libname",
     supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else supported_nvidia_libs.SUPPORTED_LINUX_SONAMES,
 )
-def test_load_nvidia_dynamic_lib(info_summary_append, libname):
+def test_load_nvidia_dynamic_lib(info_log, libname):
     # Use a fresh Python subprocess for each load to isolate global dynamic
     # loader state and keep the tests aligned with the canary probe model.
     timeout = 120 if IS_WINDOWS else 30
@@ -133,9 +133,9 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         skip_if_missing_libnvcudla_so(libname, timeout=timeout)
         if STRICTNESS == "all_must_work" and not _is_expected_load_nvidia_dynamic_lib_failure(libname):
             raise_child_process_failed()
-        info_summary_append(f"Not found: {libname=!r}")
+        info_log.info(f"Not found: {libname=!r}")
     else:
         abs_path = payload.abs_path
         assert abs_path is not None
-        info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
+        info_log.info(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)  # double-check the abs_path

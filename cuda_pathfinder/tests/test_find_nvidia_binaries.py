@@ -21,9 +21,9 @@ def test_unknown_utility_name():
 
 
 @pytest.mark.parametrize("utility_name", SUPPORTED_BINARIES)
-def test_find_binary_utilities(info_summary_append, utility_name):
+def test_find_binary_utilities(info_log, utility_name):
     bin_path = find_nvidia_binary_utility(utility_name)
-    info_summary_append(f"{bin_path=!r}")
+    info_log.info(f"{bin_path=!r}")
 
     assert bin_path is None or os.path.isfile(bin_path)
 
