@@ -675,6 +675,10 @@
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">nvFatbin</span></code> bindings. (PR #1467 &lt;<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/pull/1467">NVIDIA/cuda-python#1467</a>&gt;_)</p></li>
+<li><p>Performance improvement: <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> now uses a faster <code class="docutils literal notranslate"><span class="pre">enum</span></code>
+implementation, rather than the standard library’s <code class="docutils literal notranslate"><span class="pre">enum.IntEnum</span></code>.
+This leads to much faster import times, and slightly faster attribute access
+times.  (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1581">PR #1581</a>)</p></li>
 </ul>
 </section>
 <section id="experimental">
