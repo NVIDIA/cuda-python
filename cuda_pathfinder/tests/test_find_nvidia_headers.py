@@ -63,12 +63,12 @@ def have_distribution_for(libname: str) -> bool:
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_NON_CTK.keys())
-def test_locate_non_ctk_headers(info_summary_append, libname):
+def test_locate_non_ctk_headers(info_log, libname):
     hdr_dir = find_nvidia_header_directory(libname)
     located_hdr_dir = locate_nvidia_header_directory(libname)
     assert hdr_dir is None if not located_hdr_dir else hdr_dir == located_hdr_dir.abs_path
 
-    info_summary_append(f"{hdr_dir=!r}")
+    info_log.info(f"{hdr_dir=!r}")
     if hdr_dir:
         _located_hdr_dir_asserts(located_hdr_dir)
         assert os.path.isdir(hdr_dir)
@@ -97,12 +97,12 @@ def test_supported_headers_site_packages_ctk_consistency():
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
-def test_locate_ctk_headers(info_summary_append, libname):
+def test_locate_ctk_headers(info_log, libname):
     hdr_dir = find_nvidia_header_directory(libname)
     located_hdr_dir = locate_nvidia_header_directory(libname)
     assert hdr_dir is None if not located_hdr_dir else hdr_dir == located_hdr_dir.abs_path
 
-    info_summary_append(f"{hdr_dir=!r}")
+    info_log.info(f"{hdr_dir=!r}")
     if hdr_dir:
         _located_hdr_dir_asserts(located_hdr_dir)
         assert os.path.isdir(hdr_dir)

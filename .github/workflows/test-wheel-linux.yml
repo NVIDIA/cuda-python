@@ -297,3 +297,11 @@ jobs:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
         run: run-tests pathfinder
+
+      - name: Upload cuda.pathfinder test info summary
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: cuda-pathfinder-test-info-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cuda${{ matrix.CUDA_VER }}-${{ matrix.LOCAL_CTK == '1' && 'local' || 'wheels' }}-${{ matrix.GPU }}
+          path: cuda_pathfinder/test-info-summary-*.log
+          if-no-files-found: error
