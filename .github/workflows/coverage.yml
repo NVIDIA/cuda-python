@@ -315,6 +315,13 @@ jobs:
         with:
           python-version: ${{ env.PY_VER }}
 
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: win-64
+          cuda-version: ${{ env.CUDA_VER }}
+
       - name: Download Windows wheel artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
