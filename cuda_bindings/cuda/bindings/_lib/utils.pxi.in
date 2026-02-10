@@ -6,7 +6,7 @@ from libc.stdlib cimport calloc, free
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.string cimport memcpy
-from cuda.bindings.utils._fast_enum import FastEnum as _FastEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.param_packer as param_packer
