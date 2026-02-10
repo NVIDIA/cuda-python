@@ -93,8 +93,8 @@
   "_": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
   "`": "tests/test_memory.py::test_mempool_ipc_errors|run",
   "{": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
-  "|": "tests/example_tests/test_basic_examples.py::TestExamples::test_example[/__w/cuda-python/cuda-python/cuda_core/tests/example_tests/../../examples/memory_ops.py]|run",
-  "}": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[True-False-False]|run",
+  "|": "tests/example_tests/test_basic_examples.py::TestExamples::test_example[/__w/cuda-python/cuda-python/cuda_core/tests/example_tests/../../examples/show_device_properties.py]|run",
+  "}": "tests/test_module.py::test_kernel_keeps_library_alive|run",
   "~": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
   "ab": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run"
 }
@@ -159,7 +159,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -292,14 +292,14 @@
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs117" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        """Close the handle."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if self._handle >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">31 ctx</label></span><span class="ctxs">1|cd}efghabLMNOPQRSTUVWXYZ0m1o23</span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            try:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">31 ctx</label></span><span class="ctxs">1|cd}efghabLMNOPQRSTUVWXYZ0m1o23</span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                os.close(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">31 ctx</label></span><span class="ctxs">1|cd}efghabLMNOPQRSTUVWXYZ0m1o23</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if self._handle >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">31 ctx</label></span><span class="ctxs">1|cdefghabLMNOPQRSTUVWXYZ0m}1o23</span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            try:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">31 ctx</label></span><span class="ctxs">1|cdefghabLMNOPQRSTUVWXYZ0m}1o23</span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                os.close(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">31 ctx</label></span><span class="ctxs">1|cdefghabLMNOPQRSTUVWXYZ0m}1o23</span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            finally:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                self._handle = -1</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">31 ctx</label></span><span class="ctxs">1|cd}efghabLMNOPQRSTUVWXYZ0m1o23</span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                self._handle = -1</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">31 ctx</label></span><span class="ctxs">1|cdefghabLMNOPQRSTUVWXYZ0m}1o23</span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">31 ctx</label></span><span class="ctxs">1|cd}efghabLMNOPQRSTUVWXYZ0m1o23</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">31 ctx</label></span><span class="ctxs">1|cdefghabLMNOPQRSTUVWXYZ0m}1o23</span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    def __int__(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        if self._handle &lt; 0:</span>&nbsp;</span><span class="r"></span></p>
@@ -440,7 +440,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

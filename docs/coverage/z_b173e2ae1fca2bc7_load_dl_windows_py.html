@@ -2,263 +2,14 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_dynamic_libs/load_dl_windows.py: 46.38%</title>
+    <title>Coverage for cuda/pathfinder/_dynamic_libs/load_dl_windows.py: 78.26%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/test_event.py::test_timing_success|run",
-  "c": "tests/test_graph.py::test_graph_build_mode|run",
-  "d": "tests/test_graph.py::test_graph_child_graph|run",
-  "e": "tests/test_graph.py::test_graph_complete_options|run",
-  "f": "tests/test_graph.py::test_graph_conditional_if[0]|run",
-  "g": "tests/test_graph.py::test_graph_conditional_if[1]|run",
-  "h": "tests/test_graph.py::test_graph_conditional_if[False]|run",
-  "i": "tests/test_graph.py::test_graph_conditional_if[True]|run",
-  "j": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
-  "k": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
-  "l": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
-  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
-  "n": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
-  "o": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
-  "p": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
-  "q": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
-  "r": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
-  "s": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
-  "t": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
-  "u": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
-  "v": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
-  "w": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
-  "x": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
-  "y": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
-  "z": "tests/test_graph.py::test_graph_conditional_while[0]|run",
-  "A": "tests/test_graph.py::test_graph_conditional_while[1]|run",
-  "B": "tests/test_graph.py::test_graph_conditional_while[False]|run",
-  "C": "tests/test_graph.py::test_graph_conditional_while[True]|run",
-  "D": "tests/test_graph.py::test_graph_dot_print_options|run",
-  "E": "tests/test_graph.py::test_graph_fork_join|run",
-  "F": "tests/test_graph.py::test_graph_is_join_required|run",
-  "G": "tests/test_graph.py::test_graph_repeat_capture|run",
-  "H": "tests/test_graph.py::test_graph_straight|run",
-  "I": "tests/test_graph.py::test_graph_stream_lifetime|run",
-  "J": "tests/test_graph.py::test_graph_update|run",
-  "K": "tests/test_launcher.py::test_launch_invalid_values|run",
-  "L": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
-  "M": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
-  "N": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
-  "O": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
-  "P": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
-  "Q": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
-  "R": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
-  "S": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
-  "T": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
-  "U": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
-  "V": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
-  "W": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
-  "X": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "Y": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
-  "Z": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
-  "0": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
-  "1": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
-  "2": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
-  "3": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
-  "4": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
-  "5": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
-  "6": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
-  "7": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
-  "8": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
-  "9": "tests/test_linker.py::test_linker_get_error_log|setup",
-  "!": "tests/test_linker.py::test_linker_get_info_log|setup",
-  "#": "tests/test_linker.py::test_linker_init[options0]|setup",
-  "$": "tests/test_linker.py::test_linker_init[options1]|setup",
-  "%": "tests/test_linker.py::test_linker_init[options2]|setup",
-  "'": "tests/test_linker.py::test_linker_init[options3]|setup",
-  "(": "tests/test_linker.py::test_linker_init[options4]|setup",
-  ")": "tests/test_linker.py::test_linker_init[options5]|setup",
-  "*": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
-  "+": "tests/test_linker.py::test_linker_link_cubin|setup",
-  ",": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
-  "-": "tests/test_linker.py::test_linker_link_ptx_culink|setup",
-  ".": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
-  "/": "tests/test_module.py::test_get_kernel|run",
-  ":": "tests/test_module.py::test_kernel_from_handle_invalid_module_type|setup",
-  ";": "tests/test_module.py::test_kernel_from_handle_multiple_instances|setup",
-  "=": "tests/test_module.py::test_kernel_from_handle_no_module|setup",
-  "?": "tests/test_module.py::test_kernel_from_handle|setup",
-  "@": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "[": "tests/test_module.py::test_module_serialization_roundtrip|setup",
-  "]": "tests/test_module.py::test_num_args_error_handling|run",
-  "^": "tests/test_module.py::test_num_arguments[int-0]|run",
-  "_": "tests/test_module.py::test_num_arguments[int-1]|run",
-  "`": "tests/test_module.py::test_num_arguments[int-2]|run",
-  "{": "tests/test_module.py::test_num_arguments[int-3]|run",
-  "|": "tests/test_module.py::test_num_arguments[int-16]|run",
-  "}": "tests/test_module.py::test_num_arguments[short-0]|run",
-  "~": "tests/test_module.py::test_num_arguments[short-1]|run",
-  "ab": "tests/test_module.py::test_num_arguments[short-2]|run",
-  "bb": "tests/test_module.py::test_num_arguments[short-3]|run",
-  "cb": "tests/test_module.py::test_num_arguments[short-16]|run",
-  "db": "tests/test_module.py::test_object_code_handle|setup",
-  "eb": "tests/test_module.py::test_object_code_load_cubin_from_file|setup",
-  "fb": "tests/test_module.py::test_object_code_load_cubin|setup",
-  "gb": "tests/test_module.py::test_object_code_load_ltoir_from_file|setup",
-  "hb": "tests/test_module.py::test_object_code_load_ltoir|setup",
-  "ib": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
-  "jb": "tests/test_module.py::test_object_code_load_ptx|setup",
-  "kb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[1-256]|setup",
-  "lb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-64]|setup",
-  "mb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-96]|setup",
-  "nb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-128]|setup",
-  "ob": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[3-120]|setup",
-  "pb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[4-32]|setup",
-  "qb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-32]|setup",
-  "rb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-64]|setup",
-  "sb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-96]|setup",
-  "tb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-120]|setup",
-  "ub": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-128]|setup",
-  "vb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-256]|setup",
-  "wb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-32]|setup",
-  "xb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-64]|setup",
-  "yb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-96]|setup",
-  "zb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-120]|setup",
-  "Ab": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-128]|setup",
-  "Bb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-256]|setup",
-  "Cb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-32]|setup",
-  "Db": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-64]|setup",
-  "Eb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-96]|setup",
-  "Fb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-120]|setup",
-  "Gb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-128]|setup",
-  "Hb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-256]|setup",
-  "Ib": "tests/test_module.py::test_occupancy_max_active_clusters[2]|setup",
-  "Jb": "tests/test_module.py::test_occupancy_max_active_clusters[None]|setup",
-  "Kb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-0]|setup",
-  "Lb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-32]|setup",
-  "Mb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-64]|setup",
-  "Nb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-96]|setup",
-  "Ob": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-120]|setup",
-  "Pb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-128]|setup",
-  "Qb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-256]|setup",
-  "Rb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-0]|setup",
-  "Sb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-32]|setup",
-  "Tb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-64]|setup",
-  "Ub": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-96]|setup",
-  "Vb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-120]|setup",
-  "Wb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-128]|setup",
-  "Xb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-256]|setup",
-  "Yb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-0]|setup",
-  "Zb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-32]|setup",
-  "0b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-64]|setup",
-  "1b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-96]|setup",
-  "2b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-120]|setup",
-  "3b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-128]|setup",
-  "4b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-256]|setup",
-  "5b": "tests/test_module.py::test_occupancy_max_potential_cluster_size|setup",
-  "6b": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|setup",
-  "7b": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|setup",
-  "8b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|setup",
-  "9b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|setup",
-  "!b": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|setup",
-  "#b": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|setup",
-  "$b": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|setup",
-  "%b": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|setup",
-  "'b": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|setup",
-  "(b": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|setup",
-  ")b": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|setup",
-  "*b": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|setup",
-  "+b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|setup",
-  ",b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|setup",
-  "-b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|setup",
-  ".b": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|setup",
-  "/b": "tests/test_module.py::test_saxpy_arguments|setup",
-  ":b": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
-  ";b": "tests/test_object_protocols.py::test_equality_basic[sample_object_code]|run",
-  "=b": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
-  "?b": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
-  "@b": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code]|run",
-  "[b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
-  "]b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code]|run",
-  "^b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
-  "_b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code]|run",
-  "`b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
-  "{b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code]|run",
-  "|b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
-  "}b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
-  "~b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
-  "ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
-  "bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code-sample_kernel]|run",
-  "cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
-  "dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code]|run",
-  "ec": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
-  "fc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code-sample_object_code_alt]|run",
-  "gc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
-  "hc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code]|run",
-  "ic": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
-  "jc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code]|run",
-  "kc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
-  "lc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code]|run",
-  "mc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
-  "nc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
-  "oc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
-  "pc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
-  "qc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code-sample_kernel]|run",
-  "rc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
-  "sc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code]|run",
-  "tc": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
-  "uc": "tests/test_object_protocols.py::test_repr_format[sample_object_code-<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>]|run",
-  "vc": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
-  "wc": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code-sample_object_code_alt]|run",
-  "xc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
-  "yc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code]|run",
-  "zc": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
-  "Ac": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code]|run",
-  "Bc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
-  "Cc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code]|run",
-  "Dc": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
-  "Ec": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code]|run",
-  "Fc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
-  "Gc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code]|run",
-  "Hc": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
-  "Ic": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code]|run",
-  "Jc": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
-  "Kc": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
-  "Lc": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
-  "Mc": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
-  "Nc": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
-  "Oc": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
-  "Pc": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
-  "Qc": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
-  "Rc": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
-  "Sc": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
-  "Tc": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
-  "Uc": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
-  "Vc": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
-  "Wc": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
-  "Xc": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
-  "Yc": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
-  "Zc": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
-  "0c": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
-  "1c": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
-  "2c": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
-  "3c": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
-  "4c": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
-  "5c": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
-  "6c": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
-  "7c": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
-  "8c": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
-  "9c": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
-  "!c": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
-  "#c": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
-  "$c": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
-  "%c": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
-  "'c": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
-  "(c": "tests/test_program.py::test_program_backend_property|run",
-  ")c": "tests/test_program.py::test_program_close|run",
-  "*c": "tests/test_program.py::test_program_compile_invalid_target_type|run",
-  "+c": "tests/test_program.py::test_program_compile_valid_target_type|run",
-  ",c": "tests/test_program.py::test_program_handle_property|run",
-  "-c": "tests/test_program.py::test_program_init_valid_code_type|run",
-  ".c": "tests/test_program.py::test_ptx_program_with_various_options[options0]|setup"
+  "b": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
+  "c": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -268,7 +19,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_dynamic_libs&#8201;/&#8201;load_dl_windows.py</b>:
-            <span class="pc_cov">46.38%</span>
+            <span class="pc_cov">78.26%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -311,8 +62,8 @@
         </aside>
         <h2>
             <span class="text">69 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">32<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">37<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">54<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">15<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -321,7 +72,7 @@
             <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_load_nvidia_dynamic_lib_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -386,11 +137,11 @@
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="key">def</span> <span class="nam">ctypes_handle_to_unsigned_int</span><span class="op">(</span><span class="nam">handle</span><span class="op">:</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">wintypes</span><span class="op">.</span><span class="nam">HMODULE</span><span class="op">)</span> <span class="op">-></span> <span class="nam">int</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs49" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">    <span class="str">"""Convert ctypes HMODULE to unsigned int."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="nam">handle_uint</span> <span class="op">=</span> <span class="nam">int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">    <span class="key">if</span> <span class="nam">handle_uint</span> <span class="op">&lt;</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="nam">handle_uint</span> <span class="op">=</span> <span class="nam">int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">    <span class="key">if</span> <span class="nam">handle_uint</span> <span class="op">&lt;</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">        <span class="com"># Convert from signed to unsigned representation</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">        <span class="nam">handle_uint</span> <span class="op">+=</span> <span class="nam">POINTER_ADDRESS_SPACE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">    <span class="key">return</span> <span class="nam">handle_uint</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">    <span class="key">return</span> <span class="nam">handle_uint</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="key">def</span> <span class="nam">add_dll_directory</span><span class="op">(</span><span class="nam">dll_abs_path</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
@@ -402,45 +153,45 @@
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="str">    Raises:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="str">        AssertionError: If the directory containing the DLL does not exist</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">    <span class="nam">dirpath</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">dirname</span><span class="op">(</span><span class="nam">dll_abs_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">    <span class="key">assert</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">dirpath</span><span class="op">)</span><span class="op">,</span> <span class="nam">dll_abs_path</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">    <span class="nam">dirpath</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">dirname</span><span class="op">(</span><span class="nam">dll_abs_path</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs67" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">    <span class="key">assert</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">dirpath</span><span class="op">)</span><span class="op">,</span> <span class="nam">dll_abs_path</span>&nbsp;</span><span class="r"><label for="ctxs68" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">    <span class="com"># Add the DLL directory to the search path</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">    <span class="nam">result</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">AddDllDirectory</span><span class="op">(</span><span class="nam">dirpath</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">result</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">    <span class="nam">result</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">AddDllDirectory</span><span class="op">(</span><span class="nam">dirpath</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs71" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">result</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">        <span class="com"># Fallback: just update PATH if AddDllDirectory fails</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">        <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">    <span class="com"># Update PATH as a fallback for dependent DLL resolution</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="nam">curr_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"PATH"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">    <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">[</span><span class="str">"PATH"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">dirpath</span> <span class="key">if</span> <span class="nam">curr_path</span> <span class="key">is</span> <span class="key">None</span> <span class="key">else</span> <span class="nam">os</span><span class="op">.</span><span class="nam">pathsep</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="op">(</span><span class="nam">curr_path</span><span class="op">,</span> <span class="nam">dirpath</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="nam">curr_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"PATH"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">    <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">[</span><span class="str">"PATH"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">dirpath</span> <span class="key">if</span> <span class="nam">curr_path</span> <span class="key">is</span> <span class="key">None</span> <span class="key">else</span> <span class="nam">os</span><span class="op">.</span><span class="nam">pathsep</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="op">(</span><span class="nam">curr_path</span><span class="op">,</span> <span class="nam">dirpath</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs78" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="key">def</span> <span class="nam">abs_path_for_dynamic_library</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">handle</span><span class="op">:</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">wintypes</span><span class="op">.</span><span class="nam">HMODULE</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs81" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">    <span class="str">"""Get the absolute path of a loaded dynamic library on Windows."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">    <span class="com"># Create buffer for the path</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">    <span class="nam">buffer</span> <span class="op">=</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">create_unicode_buffer</span><span class="op">(</span><span class="num">260</span><span class="op">)</span>  <span class="com"># MAX_PATH</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">    <span class="nam">length</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">GetModuleFileNameW</span><span class="op">(</span><span class="nam">handle</span><span class="op">,</span> <span class="nam">buffer</span><span class="op">,</span> <span class="nam">len</span><span class="op">(</span><span class="nam">buffer</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">    <span class="nam">buffer</span> <span class="op">=</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">create_unicode_buffer</span><span class="op">(</span><span class="num">260</span><span class="op">)</span>  <span class="com"># MAX_PATH</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">    <span class="nam">length</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">GetModuleFileNameW</span><span class="op">(</span><span class="nam">handle</span><span class="op">,</span> <span class="nam">buffer</span><span class="op">,</span> <span class="nam">len</span><span class="op">(</span><span class="nam">buffer</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">    <span class="key">if</span> <span class="nam">length</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">    <span class="key">if</span> <span class="nam">length</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">        <span class="nam">error_code</span> <span class="op">=</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">GetLastError</span><span class="op">(</span><span class="op">)</span>  <span class="com"># type: ignore[attr-defined]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">        <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">GetModuleFileNameW failed for </span><span class="op">{</span><span class="nam">libname</span><span class="op">!</span><span class="nam">r</span><span class="op">}</span><span class="fst"> (error code: </span><span class="op">{</span><span class="nam">error_code</span><span class="op">}</span><span class="fst">)</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">    <span class="com"># If buffer was too small, try with larger buffer</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">    <span class="key">if</span> <span class="nam">length</span> <span class="op">==</span> <span class="nam">len</span><span class="op">(</span><span class="nam">buffer</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">    <span class="key">if</span> <span class="nam">length</span> <span class="op">==</span> <span class="nam">len</span><span class="op">(</span><span class="nam">buffer</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">        <span class="nam">buffer</span> <span class="op">=</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">create_unicode_buffer</span><span class="op">(</span><span class="num">32768</span><span class="op">)</span>  <span class="com"># Extended path length</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">        <span class="nam">length</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">GetModuleFileNameW</span><span class="op">(</span><span class="nam">handle</span><span class="op">,</span> <span class="nam">buffer</span><span class="op">,</span> <span class="nam">len</span><span class="op">(</span><span class="nam">buffer</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="key">if</span> <span class="nam">length</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">            <span class="nam">error_code</span> <span class="op">=</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">GetLastError</span><span class="op">(</span><span class="op">)</span>  <span class="com"># type: ignore[attr-defined]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">            <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">GetModuleFileNameW failed for </span><span class="op">{</span><span class="nam">libname</span><span class="op">!</span><span class="nam">r</span><span class="op">}</span><span class="fst"> (error code: </span><span class="op">{</span><span class="nam">error_code</span><span class="op">}</span><span class="fst">)</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="key">return</span> <span class="nam">buffer</span><span class="op">.</span><span class="nam">value</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="key">return</span> <span class="nam">buffer</span><span class="op">.</span><span class="nam">value</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="key">def</span> <span class="nam">check_if_already_loaded_from_elsewhere</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">have_abs_path</span><span class="op">:</span> <span class="nam">bool</span><span class="op">)</span> <span class="op">-></span> <span class="nam">LoadedDL</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs102" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="key">for</span> <span class="nam">dll_name</span> <span class="key">in</span> <span class="nam">SUPPORTED_WINDOWS_DLLS</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
-    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">        <span class="nam">handle</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">GetModuleHandleW</span><span class="op">(</span><span class="nam">dll_name</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
-    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">        <span class="key">if</span> <span class="nam">handle</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="key">for</span> <span class="nam">dll_name</span> <span class="key">in</span> <span class="nam">SUPPORTED_WINDOWS_DLLS</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">        <span class="nam">handle</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">GetModuleHandleW</span><span class="op">(</span><span class="nam">dll_name</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">        <span class="key">if</span> <span class="nam">handle</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">            <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">abs_path_for_dynamic_library</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">handle</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">            <span class="key">if</span> <span class="nam">have_abs_path</span> <span class="key">and</span> <span class="nam">libname</span> <span class="key">in</span> <span class="nam">LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">                <span class="com"># This is a side-effect if the pathfinder loads the library via</span>&nbsp;</span><span class="r"></span></p>
@@ -448,7 +199,7 @@
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">                <span class="com"># activate it even if the library was already loaded from elsewhere.</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">                <span class="nam">add_dll_directory</span><span class="op">(</span><span class="nam">abs_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">            <span class="key">return</span> <span class="nam">LoadedDL</span><span class="op">(</span><span class="nam">abs_path</span><span class="op">,</span> <span class="key">True</span><span class="op">,</span> <span class="nam">ctypes_handle_to_unsigned_int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span><span class="op">,</span> <span class="str">"was-already-loaded-from-elsewhere"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">    <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">    <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="key">def</span> <span class="nam">load_with_system_search</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">LoadedDL</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs116" class="ctx">(empty)</label></span></p>
@@ -461,13 +212,13 @@
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="str">        A LoadedDL object if successful, None if the library cannot be loaded</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">    <span class="com"># Reverse tabulated names to achieve new &#8594; old search order.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">    <span class="key">for</span> <span class="nam">dll_name</span> <span class="key">in</span> <span class="nam">reversed</span><span class="op">(</span><span class="nam">SUPPORTED_WINDOWS_DLLS</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
-    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">        <span class="nam">handle</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">LoadLibraryExW</span><span class="op">(</span><span class="nam">dll_name</span><span class="op">,</span> <span class="key">None</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
-    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">        <span class="key">if</span> <span class="nam">handle</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">            <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">abs_path_for_dynamic_library</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">handle</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">            <span class="key">return</span> <span class="nam">LoadedDL</span><span class="op">(</span><span class="nam">abs_path</span><span class="op">,</span> <span class="key">False</span><span class="op">,</span> <span class="nam">ctypes_handle_to_unsigned_int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span><span class="op">,</span> <span class="str">"system-search"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">    <span class="key">for</span> <span class="nam">dll_name</span> <span class="key">in</span> <span class="nam">reversed</span><span class="op">(</span><span class="nam">SUPPORTED_WINDOWS_DLLS</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">        <span class="nam">handle</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">LoadLibraryExW</span><span class="op">(</span><span class="nam">dll_name</span><span class="op">,</span> <span class="key">None</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">        <span class="key">if</span> <span class="nam">handle</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">            <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">abs_path_for_dynamic_library</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">handle</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">            <span class="key">return</span> <span class="nam">LoadedDL</span><span class="op">(</span><span class="nam">abs_path</span><span class="op">,</span> <span class="key">False</span><span class="op">,</span> <span class="nam">ctypes_handle_to_unsigned_int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span><span class="op">,</span> <span class="str">"system-search"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">252 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="key">def</span> <span class="nam">load_with_abs_path</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">found_path</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">found_via</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">)</span> <span class="op">-></span> <span class="nam">LoadedDL</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs135" class="ctx">(empty)</label></span></p>
@@ -483,17 +234,17 @@
     <p class="pln"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="str">    Raises:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="str">        RuntimeError: If the DLL cannot be loaded</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t">    <span class="key">if</span> <span class="nam">libname</span> <span class="key">in</span> <span class="nam">LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t">        <span class="nam">add_dll_directory</span><span class="op">(</span><span class="nam">found_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t">    <span class="key">if</span> <span class="nam">libname</span> <span class="key">in</span> <span class="nam">LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t">        <span class="nam">add_dll_directory</span><span class="op">(</span><span class="nam">found_path</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs149" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t">    <span class="nam">flags</span> <span class="op">=</span> <span class="nam">WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS</span> <span class="op">|</span> <span class="nam">WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t">    <span class="nam">handle</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">LoadLibraryExW</span><span class="op">(</span><span class="nam">found_path</span><span class="op">,</span> <span class="key">None</span><span class="op">,</span> <span class="nam">flags</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t">    <span class="nam">flags</span> <span class="op">=</span> <span class="nam">WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS</span> <span class="op">|</span> <span class="nam">WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t">    <span class="nam">handle</span> <span class="op">=</span> <span class="nam">kernel32</span><span class="op">.</span><span class="nam">LoadLibraryExW</span><span class="op">(</span><span class="nam">found_path</span><span class="op">,</span> <span class="key">None</span><span class="op">,</span> <span class="nam">flags</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
     <p class="pln"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">handle</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">handle</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
     <p class="mis show_mis"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t">        <span class="nam">error_code</span> <span class="op">=</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">GetLastError</span><span class="op">(</span><span class="op">)</span>  <span class="com"># type: ignore[attr-defined]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t">        <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Failed to load DLL at </span><span class="op">{</span><span class="nam">found_path</span><span class="op">}</span><span class="fst">: Windows error </span><span class="op">{</span><span class="nam">error_code</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t">    <span class="key">return</span> <span class="nam">LoadedDL</span><span class="op">(</span><span class="nam">found_path</span><span class="op">,</span> <span class="key">False</span><span class="op">,</span> <span class="nam">ctypes_handle_to_unsigned_int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span><span class="op">,</span> <span class="nam">found_via</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t">    <span class="key">return</span> <span class="nam">LoadedDL</span><span class="op">(</span><span class="nam">found_path</span><span class="op">,</span> <span class="key">False</span><span class="op">,</span> <span class="nam">ctypes_handle_to_unsigned_int</span><span class="op">(</span><span class="nam">handle</span><span class="op">)</span><span class="op">,</span> <span class="nam">found_via</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
 </main>
 <footer>
     <div class="content">
@@ -503,7 +254,7 @@
             <a class="nav" href="z_b173e2ae1fca2bc7_load_nvidia_dynamic_lib_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_dynamic_libs/supported_nvidia_libs.py: 89.29%</title>
+    <title>Coverage for cuda/pathfinder/_dynamic_libs/supported_nvidia_libs.py: 100.00%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "(empty)"
+  "a": "(empty)",
+  "b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -17,7 +18,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_dynamic_libs&#8201;/&#8201;supported_nvidia_libs.py</b>:
-            <span class="pc_cov">89.29%</span>
+            <span class="pc_cov">100.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -60,8 +61,8 @@
         </aside>
         <h2>
             <span class="text">28 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">25<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">28<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -70,7 +71,7 @@
             <a id="nextFileLink" class="nav" href="z_6650cae04eb59e5d_find_nvidia_headers_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -519,14 +520,14 @@
     <p class="pln"><span class="n"><a id="t432" href="#t432">432</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t433" href="#t433">433</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t434" href="#t434">434</a></span><span class="t"><span class="key">def</span> <span class="nam">is_suppressed_dll_file</span><span class="op">(</span><span class="nam">path_basename</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs434" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t435" href="#t435">435</a></span><span class="t">    <span class="key">if</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">"nvrtc"</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t435" href="#t435">435</a></span><span class="t">    <span class="key">if</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">"nvrtc"</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs435"><span class="r"><label for="ctxs435" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="pln"><span class="n"><a id="t436" href="#t436">436</a></span><span class="t">        <span class="com"># nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t437" href="#t437">437</a></span><span class="t">        <span class="com">#     nvidia\cuda_nvrtc\bin\</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t438" href="#t438">438</a></span><span class="t">        <span class="com">#         nvrtc-builtins64_128.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t439" href="#t439">439</a></span><span class="t">        <span class="com">#         nvrtc64_120_0.alt.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t440" href="#t440">440</a></span><span class="t">        <span class="com">#         nvrtc64_120_0.dll</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t441" href="#t441">441</a></span><span class="t">        <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">endswith</span><span class="op">(</span><span class="str">".alt.dll"</span><span class="op">)</span> <span class="key">or</span> <span class="str">"-builtins"</span> <span class="key">in</span> <span class="nam">path_basename</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t442" href="#t442">442</a></span><span class="t">    <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="op">(</span><span class="str">"cudart32_"</span><span class="op">,</span> <span class="str">"nvvm32"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t441" href="#t441">441</a></span><span class="t">        <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">endswith</span><span class="op">(</span><span class="str">".alt.dll"</span><span class="op">)</span> <span class="key">or</span> <span class="str">"-builtins"</span> <span class="key">in</span> <span class="nam">path_basename</span>&nbsp;</span><span class="r"><label for="ctxs441" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t442" href="#t442">442</a></span><span class="t">    <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="op">(</span><span class="str">"cudart32_"</span><span class="op">,</span> <span class="str">"nvvm32"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs442"><span class="r"><label for="ctxs442" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
 </main>
 <footer>
     <div class="content">
@@ -536,7 +537,7 @@
             <a class="nav" href="z_6650cae04eb59e5d_find_nvidia_headers_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

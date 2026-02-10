@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_utils/platform_aware.py: 75.00%</title>
+    <title>Coverage for cuda/pathfinder/_utils/platform_aware.py: 100.00%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "(empty)",
-  "b": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudart]|run",
-  "c": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cufile]|run",
-  "d": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvJitLink]|run",
-  "e": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvfatbin]|run",
-  "f": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvrtc]|run",
-  "g": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvvm]|run"
+  "a": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudart]|run",
+  "b": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvJitLink]|run",
+  "c": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvfatbin]|run",
+  "d": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvrtc]|run",
+  "e": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvvm]|run",
+  "f": "(empty)",
+  "g": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cufile]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -23,7 +23,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_utils&#8201;/&#8201;platform_aware.py</b>:
-            <span class="pc_cov">75.00%</span>
+            <span class="pc_cov">100.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -66,8 +66,8 @@
         </aside>
         <h2>
             <span class="text">8 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">6<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">2<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">8<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -76,7 +76,7 @@
             <a id="nextFileLink" class="nav" href="z_2f3b744c44be98a7__version_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -100,15 +100,15 @@
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">def</span> <span class="nam">quote_for_shell</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">6 ctx</label></span><span class="ctxs">1bcdefg</span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">6 ctx</label></span><span class="ctxs">1agbcde</span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">        <span class="com"># This is a relatively heavy import; keep pathfinder lean if possible.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">        <span class="key">from</span> <span class="nam">subprocess</span> <span class="key">import</span> <span class="nam">list2cmdline</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">        <span class="key">from</span> <span class="nam">subprocess</span> <span class="key">import</span> <span class="nam">list2cmdline</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">5 ctx</label></span><span class="ctxs">1abcde</span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="key">return</span> <span class="nam">list2cmdline</span><span class="op">(</span><span class="op">[</span><span class="nam">s</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="key">return</span> <span class="nam">list2cmdline</span><span class="op">(</span><span class="op">[</span><span class="nam">s</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">5 ctx</label></span><span class="ctxs">1abcde</span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="key">import</span> <span class="nam">shlex</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">6 ctx</label></span><span class="ctxs">1bcdefg</span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="key">import</span> <span class="nam">shlex</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">6 ctx</label></span><span class="ctxs">1agbcde</span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">return</span> <span class="nam">shlex</span><span class="op">.</span><span class="nam">quote</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">6 ctx</label></span><span class="ctxs">1bcdefg</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">return</span> <span class="nam">shlex</span><span class="op">.</span><span class="nam">quote</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">6 ctx</label></span><span class="ctxs">1agbcde</span></p>
 </main>
 <footer>
     <div class="content">
@@ -118,7 +118,7 @@
             <a class="nav" href="z_2f3b744c44be98a7__version_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

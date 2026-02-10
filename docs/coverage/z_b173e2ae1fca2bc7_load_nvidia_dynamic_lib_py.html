@@ -2,266 +2,16 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_dynamic_libs/load_nvidia_dynamic_lib.py: 91.67%</title>
+    <title>Coverage for cuda/pathfinder/_dynamic_libs/load_nvidia_dynamic_lib.py: 88.89%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
-  "c": "tests/test_event.py::test_timing_success|run",
-  "d": "tests/test_graph.py::test_graph_build_mode|run",
-  "e": "tests/test_graph.py::test_graph_child_graph|run",
-  "f": "tests/test_graph.py::test_graph_complete_options|run",
-  "g": "tests/test_graph.py::test_graph_conditional_if[0]|run",
-  "h": "tests/test_graph.py::test_graph_conditional_if[1]|run",
-  "i": "tests/test_graph.py::test_graph_conditional_if[False]|run",
-  "j": "tests/test_graph.py::test_graph_conditional_if[True]|run",
-  "k": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
-  "l": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
-  "m": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
-  "n": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
-  "o": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
-  "p": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
-  "q": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
-  "r": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
-  "s": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
-  "t": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
-  "u": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
-  "v": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
-  "w": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
-  "x": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
-  "y": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
-  "z": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
-  "A": "tests/test_graph.py::test_graph_conditional_while[0]|run",
-  "B": "tests/test_graph.py::test_graph_conditional_while[1]|run",
-  "C": "tests/test_graph.py::test_graph_conditional_while[False]|run",
-  "D": "tests/test_graph.py::test_graph_conditional_while[True]|run",
-  "E": "tests/test_graph.py::test_graph_dot_print_options|run",
-  "F": "tests/test_graph.py::test_graph_fork_join|run",
-  "G": "tests/test_graph.py::test_graph_is_join_required|run",
-  "H": "tests/test_graph.py::test_graph_repeat_capture|run",
-  "I": "tests/test_graph.py::test_graph_straight|run",
-  "J": "tests/test_graph.py::test_graph_stream_lifetime|run",
-  "K": "tests/test_graph.py::test_graph_update|run",
-  "L": "tests/test_launcher.py::test_launch_invalid_values|run",
-  "M": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
-  "N": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
-  "O": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
-  "P": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
-  "Q": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
-  "R": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
-  "S": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
-  "T": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
-  "U": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
-  "V": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
-  "W": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
-  "X": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
-  "Y": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "Z": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
-  "0": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
-  "1": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
-  "2": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
-  "3": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
-  "4": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
-  "5": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
-  "6": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
-  "7": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
-  "8": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
-  "9": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
-  "!": "tests/test_linker.py::test_linker_get_error_log|setup",
-  "#": "tests/test_linker.py::test_linker_get_info_log|setup",
-  "$": "tests/test_linker.py::test_linker_init[options0]|setup",
-  "%": "tests/test_linker.py::test_linker_init[options1]|setup",
-  "'": "tests/test_linker.py::test_linker_init[options2]|setup",
-  "(": "tests/test_linker.py::test_linker_init[options3]|setup",
-  ")": "tests/test_linker.py::test_linker_init[options4]|setup",
-  "*": "tests/test_linker.py::test_linker_init[options5]|setup",
-  "+": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
-  ",": "tests/test_linker.py::test_linker_link_cubin|setup",
-  "-": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
-  ".": "tests/test_linker.py::test_linker_link_ptx_culink|setup",
-  "/": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
-  ":": "tests/test_module.py::test_get_kernel|run",
-  ";": "tests/test_module.py::test_kernel_from_handle_invalid_module_type|setup",
-  "=": "tests/test_module.py::test_kernel_from_handle_multiple_instances|setup",
-  "?": "tests/test_module.py::test_kernel_from_handle_no_module|setup",
-  "@": "tests/test_module.py::test_kernel_from_handle|setup",
-  "[": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "]": "tests/test_module.py::test_module_serialization_roundtrip|setup",
-  "^": "tests/test_module.py::test_num_args_error_handling|run",
-  "_": "tests/test_module.py::test_num_arguments[int-0]|run",
-  "`": "tests/test_module.py::test_num_arguments[int-1]|run",
-  "{": "tests/test_module.py::test_num_arguments[int-2]|run",
-  "|": "tests/test_module.py::test_num_arguments[int-3]|run",
-  "}": "tests/test_module.py::test_num_arguments[int-16]|run",
-  "~": "tests/test_module.py::test_num_arguments[short-0]|run",
-  "ab": "tests/test_module.py::test_num_arguments[short-1]|run",
-  "bb": "tests/test_module.py::test_num_arguments[short-2]|run",
-  "cb": "tests/test_module.py::test_num_arguments[short-3]|run",
-  "db": "tests/test_module.py::test_num_arguments[short-16]|run",
-  "eb": "tests/test_module.py::test_object_code_handle|setup",
-  "fb": "tests/test_module.py::test_object_code_load_cubin_from_file|setup",
-  "gb": "tests/test_module.py::test_object_code_load_cubin|setup",
-  "hb": "tests/test_module.py::test_object_code_load_ltoir_from_file|setup",
-  "ib": "tests/test_module.py::test_object_code_load_ltoir|setup",
-  "jb": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
-  "kb": "tests/test_module.py::test_object_code_load_ptx|setup",
-  "lb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[1-256]|setup",
-  "mb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-64]|setup",
-  "nb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-96]|setup",
-  "ob": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-128]|setup",
-  "pb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[3-120]|setup",
-  "qb": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[4-32]|setup",
-  "rb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-32]|setup",
-  "sb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-64]|setup",
-  "tb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-96]|setup",
-  "ub": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-120]|setup",
-  "vb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-128]|setup",
-  "wb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-256]|setup",
-  "xb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-32]|setup",
-  "yb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-64]|setup",
-  "zb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-96]|setup",
-  "Ab": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-120]|setup",
-  "Bb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-128]|setup",
-  "Cb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-256]|setup",
-  "Db": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-32]|setup",
-  "Eb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-64]|setup",
-  "Fb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-96]|setup",
-  "Gb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-120]|setup",
-  "Hb": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-128]|setup",
-  "Ib": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-256]|setup",
-  "Jb": "tests/test_module.py::test_occupancy_max_active_clusters[2]|setup",
-  "Kb": "tests/test_module.py::test_occupancy_max_active_clusters[None]|setup",
-  "Lb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-0]|setup",
-  "Mb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-32]|setup",
-  "Nb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-64]|setup",
-  "Ob": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-96]|setup",
-  "Pb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-120]|setup",
-  "Qb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-128]|setup",
-  "Rb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-256]|setup",
-  "Sb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-0]|setup",
-  "Tb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-32]|setup",
-  "Ub": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-64]|setup",
-  "Vb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-96]|setup",
-  "Wb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-120]|setup",
-  "Xb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-128]|setup",
-  "Yb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-256]|setup",
-  "Zb": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-0]|setup",
-  "0b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-32]|setup",
-  "1b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-64]|setup",
-  "2b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-96]|setup",
-  "3b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-120]|setup",
-  "4b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-128]|setup",
-  "5b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-256]|setup",
-  "6b": "tests/test_module.py::test_occupancy_max_potential_cluster_size|setup",
-  "7b": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|setup",
-  "8b": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|setup",
-  "9b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|setup",
-  "!b": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|setup",
-  "#b": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|setup",
-  "$b": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|setup",
-  "%b": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|setup",
-  "'b": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|setup",
-  "(b": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|setup",
-  ")b": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|setup",
-  "*b": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|setup",
-  "+b": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|setup",
-  ",b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|setup",
-  "-b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|setup",
-  ".b": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|setup",
-  "/b": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|setup",
-  ":b": "tests/test_module.py::test_saxpy_arguments|setup",
-  ";b": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
-  "=b": "tests/test_object_protocols.py::test_equality_basic[sample_object_code]|run",
-  "?b": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
-  "@b": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
-  "[b": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code]|run",
-  "]b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
-  "^b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code]|run",
-  "_b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
-  "`b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code]|run",
-  "{b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
-  "|b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code]|run",
-  "}b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
-  "~b": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
-  "ac": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
-  "bc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
-  "cc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code-sample_kernel]|run",
-  "dc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
-  "ec": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code]|run",
-  "fc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
-  "gc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code-sample_object_code_alt]|run",
-  "hc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
-  "ic": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code]|run",
-  "jc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
-  "kc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code]|run",
-  "lc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
-  "mc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code]|run",
-  "nc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
-  "oc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
-  "pc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
-  "qc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
-  "rc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code-sample_kernel]|run",
-  "sc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
-  "tc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code]|run",
-  "uc": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
-  "vc": "tests/test_object_protocols.py::test_repr_format[sample_object_code-<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>]|run",
-  "wc": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
-  "xc": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code-sample_object_code_alt]|run",
-  "yc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
-  "zc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code]|run",
-  "Ac": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
-  "Bc": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code]|run",
-  "Cc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
-  "Dc": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code]|run",
-  "Ec": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
-  "Fc": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code]|run",
-  "Gc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
-  "Hc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code]|run",
-  "Ic": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
-  "Jc": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code]|run",
-  "Kc": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
-  "Lc": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
-  "Mc": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
-  "Nc": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
-  "Oc": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
-  "Pc": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
-  "Qc": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
-  "Rc": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
-  "Sc": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
-  "Tc": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
-  "Uc": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
-  "Vc": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
-  "Wc": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
-  "Xc": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
-  "Yc": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
-  "Zc": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
-  "0c": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
-  "1c": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
-  "2c": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
-  "3c": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
-  "4c": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
-  "5c": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
-  "6c": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
-  "7c": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
-  "8c": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
-  "9c": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
-  "!c": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
-  "#c": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
-  "$c": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
-  "%c": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
-  "'c": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
-  "(c": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
-  ")c": "tests/test_program.py::test_program_backend_property|run",
-  "*c": "tests/test_program.py::test_program_close|run",
-  "+c": "tests/test_program.py::test_program_compile_invalid_target_type|run",
-  ",c": "tests/test_program.py::test_program_compile_valid_target_type|run",
-  "-c": "tests/test_program.py::test_program_handle_property|run",
-  ".c": "tests/test_program.py::test_program_init_valid_code_type|run",
-  "/c": "tests/test_program.py::test_ptx_program_with_various_options[options0]|setup",
-  ":c": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
-  ";c": "tests/test_load_nvidia_dynamic_lib.py::test_runtime_error_on_non_64bit_python|run"
+  "b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup",
+  "c": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options0]|setup",
+  "d": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
+  "e": "tests/test_load_nvidia_dynamic_lib.py::test_runtime_error_on_non_64bit_python|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -271,7 +21,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_dynamic_libs&#8201;/&#8201;load_nvidia_dynamic_lib.py</b>:
-            <span class="pc_cov">91.67%</span>
+            <span class="pc_cov">88.89%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -314,8 +64,8 @@
         </aside>
         <h2>
             <span class="text">36 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">33<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">32<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">4<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -324,7 +74,7 @@
             <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_supported_nvidia_libs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -365,39 +115,39 @@
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="key">def</span> <span class="nam">_load_lib_no_cache</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">LoadedDL</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">finder</span> <span class="op">=</span> <span class="nam">_FindNvidiaDynamicLib</span><span class="op">(</span><span class="nam">libname</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">try_site_packages</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">finder</span> <span class="op">=</span> <span class="nam">_FindNvidiaDynamicLib</span><span class="op">(</span><span class="nam">libname</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">try_site_packages</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="nam">found_via</span> <span class="op">=</span> <span class="str">"site-packages"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">try_with_conda_prefix</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">try_with_conda_prefix</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">            <span class="nam">found_via</span> <span class="op">=</span> <span class="str">"conda"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="com"># If the library was already loaded by someone else, reproduce any OS-specific</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="com"># side-effects we would have applied on a direct absolute-path load (e.g.,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">    <span class="com"># AddDllDirectory on Windows for libs that require it).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="nam">loaded</span> <span class="op">=</span> <span class="nam">check_if_already_loaded_from_elsewhere</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="nam">loaded</span> <span class="op">=</span> <span class="nam">check_if_already_loaded_from_elsewhere</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="com"># Load dependencies regardless of who loaded the primary lib first.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">    <span class="com"># Doing this *after* the side-effect ensures dependencies resolve consistently</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">    <span class="com"># relative to the actually loaded location.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="nam">load_dependencies</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">load_nvidia_dynamic_lib</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="nam">load_dependencies</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">load_nvidia_dynamic_lib</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">    <span class="key">if</span> <span class="nam">loaded</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">    <span class="key">if</span> <span class="nam">loaded</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="key">return</span> <span class="nam">loaded</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="nam">loaded</span> <span class="op">=</span> <span class="nam">load_with_system_search</span><span class="op">(</span><span class="nam">libname</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">        <span class="key">if</span> <span class="nam">loaded</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">            <span class="key">return</span> <span class="nam">loaded</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">2 ctx</label></span><span class="ctxs">2a :c</span></p>
-    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">        <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">try_with_cuda_home</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">253 ctx</label></span><span class="ctxs">2a c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">        <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs54"><span class="r"><label for="ctxs54" class="ctx">253 ctx</label></span><span class="ctxs">2a c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">            <span class="nam">finder</span><span class="op">.</span><span class="nam">raise_not_found_error</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">252 ctx</label></span><span class="ctxs">2a c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="nam">loaded</span> <span class="op">=</span> <span class="nam">load_with_system_search</span><span class="op">(</span><span class="nam">libname</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">        <span class="key">if</span> <span class="nam">loaded</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">            <span class="key">return</span> <span class="nam">loaded</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">2 ctx</label></span><span class="ctxs">1ad</span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">        <span class="nam">abs_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">try_with_cuda_home</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">        <span class="key">if</span> <span class="nam">abs_path</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs54"><span class="r"><label for="ctxs54" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">            <span class="nam">finder</span><span class="op">.</span><span class="nam">raise_not_found_error</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">            <span class="nam">found_via</span> <span class="op">=</span> <span class="str">"CUDA_HOME"</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">            <span class="nam">found_via</span> <span class="op">=</span> <span class="str">"CUDA_HOME"</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">    <span class="key">return</span> <span class="nam">load_with_abs_path</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">abs_path</span><span class="op">,</span> <span class="nam">found_via</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">    <span class="key">return</span> <span class="nam">load_with_abs_path</span><span class="op">(</span><span class="nam">libname</span><span class="op">,</span> <span class="nam">abs_path</span><span class="op">,</span> <span class="nam">found_via</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="op">@</span><span class="nam">functools</span><span class="op">.</span><span class="nam">cache</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
@@ -469,14 +219,14 @@
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="str">        guarantee that multiple libraries are all resolved from the same location.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">    <span class="nam">pointer_size_bits</span> <span class="op">=</span> <span class="nam">struct</span><span class="op">.</span><span class="nam">calcsize</span><span class="op">(</span><span class="str">"P"</span><span class="op">)</span> <span class="op">*</span> <span class="num">8</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">255 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / ;c: ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">if</span> <span class="nam">pointer_size_bits</span> <span class="op">!=</span> <span class="num">64</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">255 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / ;c: ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
-    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">1 ctx</label></span><span class="ctxs">2;c</span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">    <span class="nam">pointer_size_bits</span> <span class="op">=</span> <span class="nam">struct</span><span class="op">.</span><span class="nam">calcsize</span><span class="op">(</span><span class="str">"P"</span><span class="op">)</span> <span class="op">*</span> <span class="num">8</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">5 ctx</label></span><span class="ctxs">1adebc</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">if</span> <span class="nam">pointer_size_bits</span> <span class="op">!=</span> <span class="num">64</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">5 ctx</label></span><span class="ctxs">1adebc</span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">1 ctx</label></span><span class="ctxs">1e</span></p>
     <p class="run run2"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">            <span class="fst">f"</span><span class="fst">cuda.pathfinder.load_nvidia_dynamic_lib() requires 64-bit Python.</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">            <span class="fst">f"</span><span class="fst"> Currently running: </span><span class="op">{</span><span class="nam">pointer_size_bits</span><span class="op">}</span><span class="fst">-bit Python</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">            <span class="fst">f"</span><span class="fst"> </span><span class="op">{</span><span class="nam">sys</span><span class="op">.</span><span class="nam">version_info</span><span class="op">.</span><span class="nam">major</span><span class="op">}</span><span class="fst">.</span><span class="op">{</span><span class="nam">sys</span><span class="op">.</span><span class="nam">version_info</span><span class="op">.</span><span class="nam">minor</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">    <span class="key">return</span> <span class="nam">_load_lib_no_cache</span><span class="op">(</span><span class="nam">libname</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">254 ctx</label></span><span class="ctxs">2a :cc d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:bb ;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c</span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">    <span class="key">return</span> <span class="nam">_load_lib_no_cache</span><span class="op">(</span><span class="nam">libname</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">4 ctx</label></span><span class="ctxs">1adbc</span></p>
 </main>
 <footer>
     <div class="content">
@@ -486,7 +236,7 @@
             <a class="nav" href="z_b173e2ae1fca2bc7_supported_nvidia_libs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

@@ -12,297 +12,47 @@
   "c": "tests/test_utils_find_sub_dirs.py::test_single_wildcard|run",
   "d": "tests/test_utils_find_sub_dirs.py::test_exact_match|run",
   "e": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
-  "f": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuda-gdbserver]|run",
-  "g": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsight-compute]|run",
-  "h": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsight-sys]|run",
-  "i": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsys]|run",
-  "j": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cccl]|run",
-  "k": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
-  "l": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudart]|run",
-  "m": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufft]|run",
-  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufile]|run",
-  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[curand]|run",
-  "p": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
-  "q": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusparse]|run",
-  "r": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[npp]|run",
-  "s": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvcc]|run",
-  "t": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvfatbin]|run",
-  "u": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjitlink]|run",
-  "v": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
-  "w": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
-  "x": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvvm]|run",
-  "y": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
-  "z": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutensor]|run",
-  "A": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run",
-  "B": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
-  "C": "tests/test_utils_find_sub_dirs.py::test_find_sub_dirs_all_sitepackages_no_match|run",
-  "D": "tests/test_utils_find_sub_dirs.py::test_find_sub_dirs_sys_path_no_math|run",
-  "E": "tests/test_utils_find_sub_dirs.py::test_no_match|run",
-  "F": "tests/test_utils_find_sub_dirs.py::test_empty_sub_dirs|run",
-  "G": "tests/test_utils_find_sub_dirs.py::test_empty_parent_paths|run",
-  "H": "tests/test_event.py::test_timing_success|run",
-  "I": "tests/test_find_nvidia_binaries.py::test_caching_per_utility|run",
+  "f": "tests/test_find_nvidia_binaries.py::test_caching_per_utility|run",
+  "g": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuda-gdb]|run",
+  "h": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[ncu]|run",
+  "i": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsight-compute]|run",
+  "j": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsight-sys]|run",
+  "k": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cccl]|run",
+  "l": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
+  "m": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudart]|run",
+  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufft]|run",
+  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufile]|run",
+  "p": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[curand]|run",
+  "q": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
+  "r": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusparse]|run",
+  "s": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[npp]|run",
+  "t": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvcc]|run",
+  "u": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvfatbin]|run",
+  "v": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjitlink]|run",
+  "w": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
+  "x": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
+  "y": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvvm]|run",
+  "z": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
+  "A": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutensor]|run",
+  "B": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run",
+  "C": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup",
+  "D": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options0]|setup",
+  "E": "tests/test_utils_find_sub_dirs.py::test_find_sub_dirs_all_sitepackages_no_match|run",
+  "F": "tests/test_utils_find_sub_dirs.py::test_find_sub_dirs_sys_path_no_math|run",
+  "G": "tests/test_utils_find_sub_dirs.py::test_no_match|run",
+  "H": "tests/test_utils_find_sub_dirs.py::test_empty_sub_dirs|run",
+  "I": "tests/test_utils_find_sub_dirs.py::test_empty_parent_paths|run",
   "J": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[bin2c]|run",
   "K": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[compute-sanitizer]|run",
-  "L": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuda-gdb]|run",
+  "L": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuda-gdbserver]|run",
   "M": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuobjdump]|run",
   "N": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[fatbinary]|run",
-  "O": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[ncu]|run",
+  "O": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsys]|run",
   "P": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvcc]|run",
   "Q": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvdisasm]|run",
   "R": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvlink]|run",
   "S": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvprof]|run",
-  "T": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvprune]|run",
-  "U": "tests/test_graph.py::test_graph_build_mode|run",
-  "V": "tests/test_graph.py::test_graph_child_graph|run",
-  "W": "tests/test_graph.py::test_graph_complete_options|run",
-  "X": "tests/test_graph.py::test_graph_conditional_if[0]|run",
-  "Y": "tests/test_graph.py::test_graph_conditional_if[1]|run",
-  "Z": "tests/test_graph.py::test_graph_conditional_if[False]|run",
-  "0": "tests/test_graph.py::test_graph_conditional_if[True]|run",
-  "1": "tests/test_graph.py::test_graph_conditional_if[condition_value2]|run",
-  "2": "tests/test_graph.py::test_graph_conditional_if[condition_value3]|run",
-  "3": "tests/test_graph.py::test_graph_conditional_if[condition_value4]|run",
-  "4": "tests/test_graph.py::test_graph_conditional_if[condition_value5]|run",
-  "5": "tests/test_graph.py::test_graph_conditional_if_else[0]|run",
-  "6": "tests/test_graph.py::test_graph_conditional_if_else[1]|run",
-  "7": "tests/test_graph.py::test_graph_conditional_if_else[False]|run",
-  "8": "tests/test_graph.py::test_graph_conditional_if_else[True]|run",
-  "9": "tests/test_graph.py::test_graph_conditional_if_else[condition_value2]|run",
-  "!": "tests/test_graph.py::test_graph_conditional_if_else[condition_value3]|run",
-  "#": "tests/test_graph.py::test_graph_conditional_if_else[condition_value4]|run",
-  "$": "tests/test_graph.py::test_graph_conditional_if_else[condition_value5]|run",
-  "%": "tests/test_graph.py::test_graph_conditional_switch[0]|run",
-  "'": "tests/test_graph.py::test_graph_conditional_switch[1]|run",
-  "(": "tests/test_graph.py::test_graph_conditional_switch[2]|run",
-  ")": "tests/test_graph.py::test_graph_conditional_switch[3]|run",
-  "*": "tests/test_graph.py::test_graph_conditional_while[0]|run",
-  "+": "tests/test_graph.py::test_graph_conditional_while[1]|run",
-  ",": "tests/test_graph.py::test_graph_conditional_while[False]|run",
-  "-": "tests/test_graph.py::test_graph_conditional_while[True]|run",
-  ".": "tests/test_graph.py::test_graph_dot_print_options|run",
-  "/": "tests/test_graph.py::test_graph_fork_join|run",
-  ":": "tests/test_graph.py::test_graph_is_join_required|run",
-  ";": "tests/test_graph.py::test_graph_repeat_capture|run",
-  "=": "tests/test_graph.py::test_graph_straight|run",
-  "?": "tests/test_graph.py::test_graph_stream_lifetime|run",
-  "@": "tests/test_graph.py::test_graph_update|run",
-  "[": "tests/test_launcher.py::test_launch_invalid_values|run",
-  "]": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
-  "^": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
-  "_": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
-  "`": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
-  "{": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
-  "|": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
-  "}": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed int--123456]|run",
-  "~": "tests/test_launcher.py::test_launch_scalar_argument[c_longlong-signed long long--123456789]|run",
-  "ab": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
-  "bb": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
-  "cb": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned int-123456]|run",
-  "db": "tests/test_launcher.py::test_launch_scalar_argument[c_ulonglong-unsigned long long-123456789]|run",
-  "eb": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "fb": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
-  "gb": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
-  "hb": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
-  "ib": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
-  "jb": "tests/test_launcher.py::test_launch_scalar_argument[int16-signed short--1234]|run",
-  "kb": "tests/test_launcher.py::test_launch_scalar_argument[int32-signed int--123456]|run",
-  "lb": "tests/test_launcher.py::test_launch_scalar_argument[int64-signed long long--123456789]|run",
-  "mb": "tests/test_launcher.py::test_launch_scalar_argument[uint8-unsigned char-42]|run",
-  "nb": "tests/test_launcher.py::test_launch_scalar_argument[uint16-unsigned short-1234]|run",
-  "ob": "tests/test_launcher.py::test_launch_scalar_argument[uint32-unsigned int-123456]|run",
-  "pb": "tests/test_launcher.py::test_launch_scalar_argument[uint64-unsigned long long-123456789]|run",
-  "qb": "tests/test_linker.py::test_linker_get_error_log|setup",
-  "rb": "tests/test_linker.py::test_linker_get_info_log|setup",
-  "sb": "tests/test_linker.py::test_linker_init[options0]|setup",
-  "tb": "tests/test_linker.py::test_linker_init[options1]|setup",
-  "ub": "tests/test_linker.py::test_linker_init[options2]|setup",
-  "vb": "tests/test_linker.py::test_linker_init[options3]|setup",
-  "wb": "tests/test_linker.py::test_linker_init[options4]|setup",
-  "xb": "tests/test_linker.py::test_linker_init[options5]|setup",
-  "yb": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
-  "zb": "tests/test_linker.py::test_linker_link_cubin|setup",
-  "Ab": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
-  "Bb": "tests/test_linker.py::test_linker_link_ptx_culink|setup",
-  "Cb": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
-  "Db": "tests/test_module.py::test_get_kernel|run",
-  "Eb": "tests/test_module.py::test_kernel_from_handle_invalid_module_type|setup",
-  "Fb": "tests/test_module.py::test_kernel_from_handle_multiple_instances|setup",
-  "Gb": "tests/test_module.py::test_kernel_from_handle_no_module|setup",
-  "Hb": "tests/test_module.py::test_kernel_from_handle|setup",
-  "Ib": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "Jb": "tests/test_module.py::test_module_serialization_roundtrip|setup",
-  "Kb": "tests/test_module.py::test_num_args_error_handling|run",
-  "Lb": "tests/test_module.py::test_num_arguments[int-0]|run",
-  "Mb": "tests/test_module.py::test_num_arguments[int-1]|run",
-  "Nb": "tests/test_module.py::test_num_arguments[int-2]|run",
-  "Ob": "tests/test_module.py::test_num_arguments[int-3]|run",
-  "Pb": "tests/test_module.py::test_num_arguments[int-16]|run",
-  "Qb": "tests/test_module.py::test_num_arguments[short-0]|run",
-  "Rb": "tests/test_module.py::test_num_arguments[short-1]|run",
-  "Sb": "tests/test_module.py::test_num_arguments[short-2]|run",
-  "Tb": "tests/test_module.py::test_num_arguments[short-3]|run",
-  "Ub": "tests/test_module.py::test_num_arguments[short-16]|run",
-  "Vb": "tests/test_module.py::test_object_code_handle|setup",
-  "Wb": "tests/test_module.py::test_object_code_load_cubin_from_file|setup",
-  "Xb": "tests/test_module.py::test_object_code_load_cubin|setup",
-  "Yb": "tests/test_module.py::test_object_code_load_ltoir_from_file|setup",
-  "Zb": "tests/test_module.py::test_object_code_load_ltoir|setup",
-  "0b": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
-  "1b": "tests/test_module.py::test_object_code_load_ptx|setup",
-  "2b": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[1-256]|setup",
-  "3b": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-64]|setup",
-  "4b": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-96]|setup",
-  "5b": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[2-128]|setup",
-  "6b": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[3-120]|setup",
-  "7b": "tests/test_module.py::test_occupancy_available_dynamic_shared_memory_per_block[4-32]|setup",
-  "8b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-32]|setup",
-  "9b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-64]|setup",
-  "!b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-96]|setup",
-  "#b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-120]|setup",
-  "$b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-128]|setup",
-  "%b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[0-256]|setup",
-  "'b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-32]|setup",
-  "(b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-64]|setup",
-  ")b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-96]|setup",
-  "*b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-120]|setup",
-  "+b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-128]|setup",
-  ",b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[32-256]|setup",
-  "-b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-32]|setup",
-  ".b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-64]|setup",
-  "/b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-96]|setup",
-  ":b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-120]|setup",
-  ";b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-128]|setup",
-  "=b": "tests/test_module.py::test_occupancy_max_active_block_per_multiprocessor[4096-256]|setup",
-  "?b": "tests/test_module.py::test_occupancy_max_active_clusters[2]|setup",
-  "@b": "tests/test_module.py::test_occupancy_max_active_clusters[None]|setup",
-  "[b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-0]|setup",
-  "]b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-32]|setup",
-  "^b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-64]|setup",
-  "_b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-96]|setup",
-  "`b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-120]|setup",
-  "{b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-128]|setup",
-  "|b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[0-256]|setup",
-  "}b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-0]|setup",
-  "~b": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-32]|setup",
-  "ac": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-64]|setup",
-  "bc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-96]|setup",
-  "cc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-120]|setup",
-  "dc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-128]|setup",
-  "ec": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[32-256]|setup",
-  "fc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-0]|setup",
-  "gc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-32]|setup",
-  "hc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-64]|setup",
-  "ic": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-96]|setup",
-  "jc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-120]|setup",
-  "kc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-128]|setup",
-  "lc": "tests/test_module.py::test_occupancy_max_potential_block_size_constant[4096-256]|setup",
-  "mc": "tests/test_module.py::test_occupancy_max_potential_cluster_size|setup",
-  "nc": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|setup",
-  "oc": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|setup",
-  "pc": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|setup",
-  "qc": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|setup",
-  "rc": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|setup",
-  "sc": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|setup",
-  "tc": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|setup",
-  "uc": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|setup",
-  "vc": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|setup",
-  "wc": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|setup",
-  "xc": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|setup",
-  "yc": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|setup",
-  "zc": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|setup",
-  "Ac": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|setup",
-  "Bc": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|setup",
-  "Cc": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|setup",
-  "Dc": "tests/test_module.py::test_saxpy_arguments|setup",
-  "Ec": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
-  "Fc": "tests/test_object_protocols.py::test_equality_basic[sample_object_code]|run",
-  "Gc": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
-  "Hc": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
-  "Ic": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code]|run",
-  "Jc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
-  "Kc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code]|run",
-  "Lc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
-  "Mc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code]|run",
-  "Nc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
-  "Oc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code]|run",
-  "Pc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
-  "Qc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code]|run",
-  "Rc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
-  "Sc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code]|run",
-  "Tc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code-sample_kernel]|run",
-  "Uc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
-  "Vc": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code]|run",
-  "Wc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
-  "Xc": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code-sample_object_code_alt]|run",
-  "Yc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
-  "Zc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code]|run",
-  "0c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
-  "1c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code]|run",
-  "2c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
-  "3c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code]|run",
-  "4c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
-  "5c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code]|run",
-  "6c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
-  "7c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code]|run",
-  "8c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code-sample_kernel]|run",
-  "9c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
-  "!c": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code]|run",
-  "#c": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
-  "$c": "tests/test_object_protocols.py::test_repr_format[sample_object_code-<ObjectCode handle=0x[0-9a-f]+ code_type='.+'>]|run",
-  "%c": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
-  "'c": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code-sample_object_code_alt]|run",
-  "(c": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
-  ")c": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code]|run",
-  "*c": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
-  "+c": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code]|run",
-  ",c": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
-  "-c": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code]|run",
-  ".c": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
-  "/c": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code]|run",
-  ":c": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
-  ";c": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code]|run",
-  "=c": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
-  "?c": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code]|run",
-  "@c": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
-  "[c": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
-  "]c": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
-  "^c": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
-  "_c": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
-  "`c": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
-  "{c": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
-  "|c": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
-  "}c": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
-  "~c": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
-  "ad": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
-  "bd": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
-  "cd": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
-  "dd": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
-  "ed": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
-  "fd": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
-  "gd": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
-  "hd": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
-  "id": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
-  "jd": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
-  "kd": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
-  "ld": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
-  "md": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
-  "nd": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
-  "od": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
-  "pd": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
-  "qd": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
-  "rd": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
-  "sd": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
-  "td": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
-  "ud": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
-  "vd": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
-  "wd": "tests/test_program.py::test_program_backend_property|run",
-  "xd": "tests/test_program.py::test_program_close|run",
-  "yd": "tests/test_program.py::test_program_compile_invalid_target_type|run",
-  "zd": "tests/test_program.py::test_program_compile_valid_target_type|run",
-  "Ad": "tests/test_program.py::test_program_handle_property|run",
-  "Bd": "tests/test_program.py::test_program_init_valid_code_type|run",
-  "Cd": "tests/test_program.py::test_ptx_program_with_various_options[options0]|setup"
+  "T": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvprune]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -365,7 +115,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_platform_aware_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -391,18 +141,18 @@
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">def</span> <span class="nam">find_sub_dirs_no_cache</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="nam">results</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbGFdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="key">for</span> <span class="nam">base</span> <span class="key">in</span> <span class="nam">parent_dirs</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbGFdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="nam">stack</span> <span class="op">=</span> <span class="op">[</span><span class="op">(</span><span class="nam">base</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span><span class="op">]</span>  <span class="com"># (current_path, index into sub_dirs)</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">32 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbFdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="key">while</span> <span class="nam">stack</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">32 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbFdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">            <span class="nam">current_path</span><span class="op">,</span> <span class="nam">idx</span> <span class="op">=</span> <span class="nam">stack</span><span class="op">.</span><span class="nam">pop</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">32 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbFdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">            <span class="key">if</span> <span class="nam">idx</span> <span class="op">==</span> <span class="nam">len</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">32 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbFdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">                <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">current_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">4 ctx</label></span><span class="ctxs">1bFdc</span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">                    <span class="nam">results</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">current_path</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">4 ctx</label></span><span class="ctxs">1bFdc</span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">4 ctx</label></span><span class="ctxs">1bFdc</span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">    <span class="nam">results</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">35 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbIHdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="key">for</span> <span class="nam">base</span> <span class="key">in</span> <span class="nam">parent_dirs</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">35 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbIHdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="nam">stack</span> <span class="op">=</span> <span class="op">[</span><span class="op">(</span><span class="nam">base</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span><span class="op">]</span>  <span class="com"># (current_path, index into sub_dirs)</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">34 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbHdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="key">while</span> <span class="nam">stack</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">34 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbHdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">            <span class="nam">current_path</span><span class="op">,</span> <span class="nam">idx</span> <span class="op">=</span> <span class="nam">stack</span><span class="op">.</span><span class="nam">pop</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">34 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbHdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">            <span class="key">if</span> <span class="nam">idx</span> <span class="op">==</span> <span class="nam">len</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">34 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbHdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">                <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">current_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">4 ctx</label></span><span class="ctxs">1bHdc</span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">                    <span class="nam">results</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">current_path</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">4 ctx</label></span><span class="ctxs">1bHdc</span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">4 ctx</label></span><span class="ctxs">1bHdc</span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">            <span class="nam">sub</span> <span class="op">=</span> <span class="nam">sub_dirs</span><span class="op">[</span><span class="nam">idx</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">31 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">            <span class="key">if</span> <span class="nam">sub</span> <span class="op">==</span> <span class="str">"*"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">31 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbdCDEc</span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">            <span class="nam">sub</span> <span class="op">=</span> <span class="nam">sub_dirs</span><span class="op">[</span><span class="nam">idx</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">            <span class="key">if</span> <span class="nam">sub</span> <span class="op">==</span> <span class="str">"*"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbdEFGc</span></p>
     <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">                <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">2 ctx</label></span><span class="ctxs">1bc</span></p>
     <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">                    <span class="nam">entries</span> <span class="op">=</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">listdir</span><span class="op">(</span><span class="nam">current_path</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">2 ctx</label></span><span class="ctxs">1bc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">                <span class="key">except</span> <span class="nam">OSError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -412,27 +162,27 @@
     <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">                    <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">entry_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">2 ctx</label></span><span class="ctxs">1bc</span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">                        <span class="nam">stack</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="op">(</span><span class="nam">entry_path</span><span class="op">,</span> <span class="nam">idx</span> <span class="op">+</span> <span class="num">1</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">2 ctx</label></span><span class="ctxs">1bc</span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">                <span class="nam">next_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">current_path</span><span class="op">,</span> <span class="nam">sub</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">31 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbdCDEc</span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">                <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">next_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">31 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbdCDEc</span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">                <span class="nam">next_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">current_path</span><span class="op">,</span> <span class="nam">sub</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbdEFGc</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">                <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">isdir</span><span class="op">(</span><span class="nam">next_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbdEFGc</span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">                    <span class="nam">stack</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="op">(</span><span class="nam">next_path</span><span class="op">,</span> <span class="nam">idx</span> <span class="op">+</span> <span class="num">1</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">3 ctx</label></span><span class="ctxs">1bdc</span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="key">return</span> <span class="nam">results</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbGFdCDEc</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="key">return</span> <span class="nam">results</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">35 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbIHdEFGc</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="op">@</span><span class="nam">functools</span><span class="op">.</span><span class="nam">cache</span>&nbsp;</span><span class="r"><label for="ctxs39" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">def</span> <span class="nam">find_sub_dirs_cached</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs_no_cache</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">33 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABbGFdCDEc</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs_no_cache</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">35 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCDbIHdEFGc</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="key">def</span> <span class="nam">find_sub_dirs</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs44" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs_cached</span><span class="op">(</span><span class="nam">tuple</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">)</span><span class="op">,</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">296 ctx</label></span><span class="ctxs">2a e H I J K L f M N O g h i P Q R S T j k l m n o p q r s t u v w x y z A U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcB EcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdb G F d C D E c </span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs_cached</span><span class="op">(</span><span class="nam">tuple</span><span class="op">(</span><span class="nam">parent_dirs</span><span class="op">)</span><span class="op">,</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">46 ctx</label></span><span class="ctxs">1aefJKgLMNhijOPQRSTklmnopqrstuvwxyzABCDbIHdEFGc</span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="key">def</span> <span class="nam">find_sub_dirs_sys_path</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs48" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs</span><span class="op">(</span><span class="nam">sys</span><span class="op">.</span><span class="nam">path</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs</span><span class="op">(</span><span class="nam">sys</span><span class="op">.</span><span class="nam">path</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">1 ctx</label></span><span class="ctxs">1F</span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="key">def</span> <span class="nam">find_sub_dirs_all_sitepackages</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs52" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs</span><span class="op">(</span><span class="op">(</span><span class="nam">site</span><span class="op">.</span><span class="nam">getusersitepackages</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="op">*</span><span class="nam">site</span><span class="op">.</span><span class="nam">getsitepackages</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">289 ctx</label></span><span class="ctxs">2a e H I J K L f M N O g h i P Q R S T j k l m n o p q r s t u v w x y z A U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcB EcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdC </span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="key">return</span> <span class="nam">find_sub_dirs</span><span class="op">(</span><span class="op">(</span><span class="nam">site</span><span class="op">.</span><span class="nam">getusersitepackages</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="op">*</span><span class="nam">site</span><span class="op">.</span><span class="nam">getsitepackages</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">,</span> <span class="nam">sub_dirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">39 ctx</label></span><span class="ctxs">1aefJKgLMNhijOPQRSTklmnopqrstuvwxyzABCDE</span></p>
 </main>
 <footer>
     <div class="content">
@@ -442,7 +192,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_platform_aware_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

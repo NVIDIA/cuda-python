@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_linker.py: 70.59%</title>
+    <title>Coverage for cuda/core/_linker.py: 70.26%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
@@ -49,8 +49,7 @@
   "N": "tests/test_linker.py::test_linker_link_invalid_target_type|run",
   "O": "tests/test_linker.py::test_linker_init_invalid_arch|run",
   "P": "tests/test_linker.py::test_linker_options_as_bytes_nvjitlink|run",
-  "Q": "tests/test_linker.py::test_linker_options_as_bytes_driver_not_supported|run",
-  "R": "tests/test_linker.py::test_linker_options_as_bytes_invalid_backend|run"
+  "Q": "tests/test_linker.py::test_linker_options_as_bytes_invalid_backend|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -60,7 +59,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_linker.py</b>:
-            <span class="pc_cov">70.59%</span>
+            <span class="pc_cov">70.26%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -103,8 +102,8 @@
         </aside>
         <h2>
             <span class="text">306 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">216<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">90<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">215<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">91<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">2<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -113,7 +112,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -207,8 +206,8 @@
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="key">def</span> <span class="nam">_lazy_init</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs78" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">    <span class="key">global</span> <span class="nam">_inited</span><span class="op">,</span> <span class="nam">_nvjitlink_input_types</span><span class="op">,</span> <span class="nam">_driver_input_types</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">    <span class="key">if</span> <span class="nam">_inited</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">20 ctx</label></span><span class="ctxs">1acbOrNsmQRPdefghijkl</span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">        <span class="key">return</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">20 ctx</label></span><span class="ctxs">1acbOrNsmQRPdefghijkl</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">    <span class="key">if</span> <span class="nam">_inited</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">19 ctx</label></span><span class="ctxs">1acbOrNsmQPdefghijkl</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">        <span class="key">return</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">19 ctx</label></span><span class="ctxs">1acbOrNsmQPdefghijkl</span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">    <span class="nam">_decide_nvjitlink_or_driver</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">    <span class="key">if</span> <span class="nam">_nvjitlink</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs84" class="ctx">(empty)</label></span></p>
@@ -224,13 +223,13 @@
     <p class="run run2"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">            <span class="str">"library"</span><span class="op">:</span> <span class="nam">_nvjitlink</span><span class="op">.</span><span class="nam">InputType</span><span class="op">.</span><span class="nam">LIBRARY</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">        <span class="nam">_driver_input_types</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"><label for="ctxs97" class="ctx">(empty)</label></span></p>
-    <p class="run run2"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">            <span class="str">"ptx"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_PTX</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">            <span class="str">"cubin"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_CUBIN</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">            <span class="str">"fatbin"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_FATBINARY</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">            <span class="str">"object"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_OBJECT</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="str">"library"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_LIBRARY</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">        <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">        <span class="nam">_driver_input_types</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">            <span class="str">"ptx"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_PTX</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">            <span class="str">"cubin"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_CUBIN</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">            <span class="str">"fatbin"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_FATBINARY</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">            <span class="str">"object"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_OBJECT</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="str">"library"</span><span class="op">:</span> <span class="nam">_driver</span><span class="op">.</span><span class="nam">CUjitInputType</span><span class="op">.</span><span class="nam">CU_JIT_INPUT_LIBRARY</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">        <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="nam">_inited</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"><label for="ctxs104" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -330,8 +329,8 @@
     <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">    <span class="nam">no_cache</span><span class="op">:</span> <span class="nam">bool</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"><label for="ctxs200" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">    <span class="key">def</span> <span class="nam">__post_init__</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs202" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">        <span class="nam">_lazy_init</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs203"><span class="r"><label for="ctxs203" class="ctx">20 ctx</label></span><span class="ctxs">1acbOrNsmQRPdefghijkl</span></p>
-    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_name</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">name</span><span class="op">.</span><span class="nam">encode</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">20 ctx</label></span><span class="ctxs">1acbOrNsmQRPdefghijkl</span></p>
+    <p class="run"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">        <span class="nam">_lazy_init</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs203"><span class="r"><label for="ctxs203" class="ctx">19 ctx</label></span><span class="ctxs">1acbOrNsmQPdefghijkl</span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_name</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">name</span><span class="op">.</span><span class="nam">encode</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">19 ctx</label></span><span class="ctxs">1acbOrNsmQPdefghijkl</span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t">    <span class="key">def</span> <span class="nam">_prepare_nvjitlink_options</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">as_bytes</span><span class="op">:</span> <span class="nam">bool</span> <span class="op">=</span> <span class="key">False</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">bytes</span><span class="op">]</span> <span class="op">|</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs206" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t">        <span class="nam">options</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">41 ctx</label></span><span class="ctxs">1cbMyzABCDEtnoFGHIJKupvwqxLOrNsmPdefghijkl</span></p>
@@ -484,9 +483,9 @@
     <p class="pln"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="str">        RuntimeError</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="str">            If nvJitLink backend is not available.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">        <span class="nam">backend</span> <span class="op">=</span> <span class="nam">backend</span><span class="op">.</span><span class="nam">lower</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">3 ctx</label></span><span class="ctxs">1QRP</span></p>
-    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">        <span class="key">if</span> <span class="nam">backend</span> <span class="op">!=</span> <span class="str">"nvjitlink"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs358"><span class="r"><label for="ctxs358" class="ctx">3 ctx</label></span><span class="ctxs">1QRP</span></p>
-    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">as_bytes() only supports 'nvjitlink' backend, got '</span><span class="op">{</span><span class="nam">backend</span><span class="op">}</span><span class="fst">'</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs359"><span class="r"><label for="ctxs359" class="ctx">2 ctx</label></span><span class="ctxs">1QR</span></p>
+    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">        <span class="nam">backend</span> <span class="op">=</span> <span class="nam">backend</span><span class="op">.</span><span class="nam">lower</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">2 ctx</label></span><span class="ctxs">1QP</span></p>
+    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">        <span class="key">if</span> <span class="nam">backend</span> <span class="op">!=</span> <span class="str">"nvjitlink"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs358"><span class="r"><label for="ctxs358" class="ctx">2 ctx</label></span><span class="ctxs">1QP</span></p>
+    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">as_bytes() only supports 'nvjitlink' backend, got '</span><span class="op">{</span><span class="nam">backend</span><span class="op">}</span><span class="fst">'</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs359"><span class="r"><label for="ctxs359" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
     <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">_nvjitlink</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs360"><span class="r"><label for="ctxs360" class="ctx">1 ctx</label></span><span class="ctxs">1P</span></p>
     <p class="mis show_mis"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">            <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="str">"nvJitLink backend is not available"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_prepare_nvjitlink_options</span><span class="op">(</span><span class="nam">as_bytes</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">1 ctx</label></span><span class="ctxs">1P</span></p>
@@ -734,7 +733,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

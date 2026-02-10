@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_binaries/find_nvidia_binary_utility.py: 86.49%</title>
+    <title>Coverage for cuda/pathfinder/_binaries/find_nvidia_binary_utility.py: 91.89%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
@@ -34,7 +34,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_binaries&#8201;/&#8201;find_nvidia_binary_utility.py</b>:
-            <span class="pc_cov">86.49%</span>
+            <span class="pc_cov">91.89%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -77,8 +77,8 @@
         </aside>
         <h2>
             <span class="text">37 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">32<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">5<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">34<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -87,7 +87,7 @@
             <a id="nextFileLink" class="nav" href="z_43b9fc2813ae0b7b_supported_nvidia_binaries_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -203,8 +203,8 @@
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="com"># 3. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">    <span class="key">if</span> <span class="op">(</span><span class="nam">cuda_home</span> <span class="op">:=</span> <span class="nam">get_cuda_home_or_path</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">16 ctx</label></span><span class="ctxs">1abcdefghijklmnop</span></p>
     <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">        <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">16 ctx</label></span><span class="ctxs">1abcdefghijklmnop</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="nam">dirs</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="str">"bin"</span><span class="op">,</span> <span class="str">"x64"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">            <span class="nam">dirs</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="str">"bin"</span><span class="op">,</span> <span class="str">"x86_64"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="nam">dirs</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="str">"bin"</span><span class="op">,</span> <span class="str">"x64"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">16 ctx</label></span><span class="ctxs">1abcdefghijklmnop</span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">            <span class="nam">dirs</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="str">"bin"</span><span class="op">,</span> <span class="str">"x86_64"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">16 ctx</label></span><span class="ctxs">1abcdefghijklmnop</span></p>
     <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">        <span class="nam">dirs</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="str">"bin"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">16 ctx</label></span><span class="ctxs">1abcdefghijklmnop</span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">    <span class="nam">normalized_name</span> <span class="op">=</span> <span class="nam">_normalize_utility_name</span><span class="op">(</span><span class="nam">utility_name</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">16 ctx</label></span><span class="ctxs">1abcdefghijklmnop</span></p>
@@ -218,7 +218,7 @@
             <a class="nav" href="z_43b9fc2813ae0b7b_supported_nvidia_binaries_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>

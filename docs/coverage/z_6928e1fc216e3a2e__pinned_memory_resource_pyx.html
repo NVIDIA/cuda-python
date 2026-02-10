@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
+  "a": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
   "b": "(empty)",
   "c": "tests/test_memory.py::test_pinned_mempool_ipc_basic|run",
   "d": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
@@ -21,7 +21,7 @@
   "l": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
   "m": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
   "n": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
-  "o": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
+  "o": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
   "p": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
   "q": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-True]|run",
   "r": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-True]|run",
@@ -121,7 +121,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -171,7 +171,7 @@
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">def _check_numa_nodes():</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    """Check if system has multiple NUMA nodes and warn if so."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    global _numa_warning_shown</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    if _numa_warning_shown:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">23 ctx</label></span><span class="ctxs">1defghijklmnaopqrstuvwxc</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    if _numa_warning_shown:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">23 ctx</label></span><span class="ctxs">1defghijklmnoapqrstuvwxc</span></p>
     <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">22 ctx</label></span><span class="ctxs">1defghijklmnopqrstuvwxc</span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    with _lock:</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
@@ -281,30 +281,30 @@
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    def __init__(self, options=None):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        cdef PinnedMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        cdef PinnedMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">            PinnedMemoryResourceOptions, options, "PinnedMemoryResource options",</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">            keep_none=True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        cdef _MemPoolOptions opts_base = _MemPoolOptions()</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        cdef _MemPoolOptions opts_base = _MemPoolOptions()</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
     <p class="pln"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        cdef bint ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        if opts:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
-    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">            ipc_enabled = opts.ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnaopAqBrCsDtEuFvGwHxIJycz</span></p>
-    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">            if ipc_enabled and not _ipc.is_supported():</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnaopAqBrCsDtEuFvGwHxIJycz</span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        cdef bint ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        if opts:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">            ipc_enabled = opts.ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnoapAqBrCsDtEuFvGwHxIJycz</span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">            if ipc_enabled and not _ipc.is_supported():</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnoapAqBrCsDtEuFvGwHxIJycz</span></p>
     <p class="mis show_mis"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">                raise RuntimeError(f"IPC is not available on {platform.system()}")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">            if ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnaopAqBrCsDtEuFvGwHxIJycz</span></p>
+    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">            if ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnoapAqBrCsDtEuFvGwHxIJycz</span></p>
     <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">                # Check for multiple NUMA nodes on Linux</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">                _check_numa_nodes()</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">23 ctx</label></span><span class="ctxs">1defghijklmnaopqrstuvwxc</span></p>
-    <p class="run"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">            opts_base._max_size = opts.max_size</span>&nbsp;</span><input type="checkbox" id="ctxs160"><span class="r"><label for="ctxs160" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnaopAqBrCsDtEuFvGwHxIJycz</span></p>
-    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">            opts_base._use_current = False</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnaopAqBrCsDtEuFvGwHxIJycz</span></p>
-    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">        opts_base._ipc_enabled = ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
-    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        if ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
-    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">23 ctx</label></span><span class="ctxs">1defghijklmnaopqrstuvwxc</span></p>
+    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">                _check_numa_nodes()</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">23 ctx</label></span><span class="ctxs">1defghijklmnoapqrstuvwxc</span></p>
+    <p class="run"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">            opts_base._max_size = opts.max_size</span>&nbsp;</span><input type="checkbox" id="ctxs160"><span class="r"><label for="ctxs160" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnoapAqBrCsDtEuFvGwHxIJycz</span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">            opts_base._use_current = False</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">35 ctx</label></span><span class="ctxs">1defghijklmnoapAqBrCsDtEuFvGwHxIJycz</span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">        opts_base._ipc_enabled = ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        if ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">23 ctx</label></span><span class="ctxs">1defghijklmnoapqrstuvwxc</span></p>
     <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST</span>&nbsp;</span><input type="checkbox" id="ctxs166"><span class="r"><label for="ctxs166" class="ctx">14 ctx</label></span><span class="ctxs">1LABCDEFGHIJKyz</span></p>
-    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">        opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">        opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
     <p class="pln"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        super().__init__(0 if ipc_enabled else -1, opts_base)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnaopLAqBrCsDtEuFvGwHxIJKycz</span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        super().__init__(0 if ipc_enabled else -1, opts_base)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">37 ctx</label></span><span class="ctxs">1defghijklmnoapLAqBrCsDtEuFvGwHxIJKycz</span></p>
     <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs171" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">        return PinnedMemoryResource.from_registry, (self.uuid,)</span>&nbsp;</span><span class="r"></span></p>
@@ -404,7 +404,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 13:25 +0000
+            created at 2026-02-10 14:26 +0000
         </p>
     </div>
 </footer>
