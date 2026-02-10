@@ -152,6 +152,57 @@ def _find_dll_using_lib_dir(
     return None
 
 
+def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
+    """Derive the CTK installation root from a resolved library path on Linux.
+
+    Standard system CTK layout: ``$CTK_ROOT/lib64/libfoo.so.XX``
+    (some installs use ``lib`` instead of ``lib64``).
+
+    Returns None if the path doesn't match a recognized layout.
+    """
+    lib_dir = os.path.dirname(resolved_lib_path)
+    basename = os.path.basename(lib_dir)
+    if basename in ("lib64", "lib"):
+        return os.path.dirname(lib_dir)
+    return None
+
+
+def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
+    """Derive the CTK installation root from a resolved library path on Windows.
+
+    Handles two CTK layouts:
+    - CTK 13: ``$CTK_ROOT/bin/x64/foo.dll``
+    - CTK 12: ``$CTK_ROOT/bin/foo.dll``
+
+    Returns None if the path doesn't match a recognized layout.
+
+    Uses ``ntpath`` explicitly so the function is testable on any platform.
+    """
+    import ntpath
+
+    lib_dir = ntpath.dirname(resolved_lib_path)
+    basename = ntpath.basename(lib_dir).lower()
+    if basename == "x64":
+        parent = ntpath.dirname(lib_dir)
+        if ntpath.basename(parent).lower() == "bin":
+            return ntpath.dirname(parent)
+    elif basename == "bin":
+        return ntpath.dirname(lib_dir)
+    return None
+
+
+def derive_ctk_root(resolved_lib_path: str) -> str | None:
+    """Derive the CTK installation root from a resolved library path.
+
+    Given the absolute path of a loaded CTK shared library, walk up the
+    directory tree to find the CTK root.  Returns None if the path doesn't
+    match any recognized CTK directory layout.
+    """
+    if IS_WINDOWS:
+        return _derive_ctk_root_windows(resolved_lib_path)
+    return _derive_ctk_root_linux(resolved_lib_path)
+
+
 class _FindNvidiaDynamicLib:
     def __init__(self, libname: str):
         self.libname = libname
@@ -184,6 +235,16 @@ class _FindNvidiaDynamicLib:
 
     def try_with_cuda_home(self) -> str | None:
         return self._find_using_lib_dir(_find_lib_dir_using_cuda_home(self.libname))
+
+    def try_via_ctk_root(self, ctk_root: str) -> str | None:
+        """Find the library under a derived CTK root directory.
+
+        Uses :func:`_find_lib_dir_using_anchor_point` which already knows
+        about non-standard sub-paths (e.g. ``nvvm/lib64`` for nvvm).
+        """
+        return self._find_using_lib_dir(
+            _find_lib_dir_using_anchor_point(self.libname, anchor_point=ctk_root, linux_lib_dir="lib64")
+        )
 
     def _find_using_lib_dir(self, lib_dir: str | None) -> str | None:
         if lib_dir is None:
