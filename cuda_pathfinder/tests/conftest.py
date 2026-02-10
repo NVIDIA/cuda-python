@@ -19,7 +19,7 @@ def _info_summary_handler(request):
 
     logger = logging.getLogger(_LOGGER_NAME)
     logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     logger.propagate = False
 
     yield handler
