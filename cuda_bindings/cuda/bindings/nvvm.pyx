@@ -17,7 +17,11 @@ from cuda.bindings.utils._fast_enum import FastEnum as _IntEnum
 ###############################################################################
 
 class Result(_IntEnum):
-    """NVVM API call result code."""
+    """
+    NVVM API call result code.
+
+    See `nvvmResult`.
+    """
     SUCCESS = NVVM_SUCCESS
     ERROR_OUT_OF_MEMORY = NVVM_ERROR_OUT_OF_MEMORY
     ERROR_PROGRAM_CREATION_FAILURE = NVVM_ERROR_PROGRAM_CREATION_FAILURE

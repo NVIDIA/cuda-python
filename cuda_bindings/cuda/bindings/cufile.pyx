@@ -2501,7 +2501,9 @@ cdef class StatsLevel3:
 ###############################################################################
 
 class OpError(_FastEnum):
-    """See `CUfileOpError`."""
+    """
+    See `CUfileOpError`.
+    """
     SUCCESS = CU_FILE_SUCCESS
     DRIVER_NOT_INITIALIZED = CU_FILE_DRIVER_NOT_INITIALIZED
     DRIVER_INVALID_PROPS = CU_FILE_DRIVER_INVALID_PROPS
@@ -2553,7 +2555,9 @@ class OpError(_FastEnum):
     IO_MAX_ERROR = CU_FILE_IO_MAX_ERROR
 
 class DriverStatusFlags(_FastEnum):
-    """See `CUfileDriverStatusFlags_t`."""
+    """
+    See `CUfileDriverStatusFlags_t`.
+    """
     LUSTRE_SUPPORTED = (CU_FILE_LUSTRE_SUPPORTED, 'Support for DDN LUSTRE')
     WEKAFS_SUPPORTED = (CU_FILE_WEKAFS_SUPPORTED, 'Support for WEKAFS')
     NFS_SUPPORTED = (CU_FILE_NFS_SUPPORTED, 'Support for NFS')
@@ -2570,12 +2574,16 @@ class DriverStatusFlags(_FastEnum):
     MAX_TARGET_TYPES = (CU_FILE_MAX_TARGET_TYPES, 'Maximum FS supported')
 
 class DriverControlFlags(_FastEnum):
-    """See `CUfileDriverControlFlags_t`."""
+    """
+    See `CUfileDriverControlFlags_t`.
+    """
     USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
     ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
 
 class FeatureFlags(_FastEnum):
-    """See `CUfileFeatureFlags_t`."""
+    """
+    See `CUfileFeatureFlags_t`.
+    """
     DYN_ROUTING_SUPPORTED = (CU_FILE_DYN_ROUTING_SUPPORTED, 'Support for Dynamic routing to handle devices across the PCIe bridges')
     BATCH_IO_SUPPORTED = (CU_FILE_BATCH_IO_SUPPORTED, 'Supported')
     STREAMS_SUPPORTED = (CU_FILE_STREAMS_SUPPORTED, 'Supported')
@@ -2583,18 +2591,24 @@ class FeatureFlags(_FastEnum):
     P2P_SUPPORTED = (CU_FILE_P2P_SUPPORTED, 'Support for PCI P2PDMA')
 
 class FileHandleType(_FastEnum):
-    """See `CUfileFileHandleType`."""
+    """
+    See `CUfileFileHandleType`.
+    """
     OPAQUE_FD = (CU_FILE_HANDLE_TYPE_OPAQUE_FD, 'Linux based fd')
     OPAQUE_WIN32 = (CU_FILE_HANDLE_TYPE_OPAQUE_WIN32, 'Windows based handle (unsupported)')
     USERSPACE_FS = CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
 class Opcode(_FastEnum):
-    """See `CUfileOpcode_t`."""
+    """
+    See `CUfileOpcode_t`.
+    """
     READ = CUFILE_READ
     WRITE = CUFILE_WRITE
 
 class Status(_FastEnum):
-    """See `CUfileStatus_t`."""
+    """
+    See `CUfileStatus_t`.
+    """
     WAITING = CUFILE_WAITING
     PENDING = CUFILE_PENDING
     INVALID = CUFILE_INVALID
@@ -2604,11 +2618,15 @@ class Status(_FastEnum):
     FAILED = CUFILE_FAILED
 
 class BatchMode(_FastEnum):
-    """See `CUfileBatchMode_t`."""
+    """
+    See `CUfileBatchMode_t`.
+    """
     BATCH = CUFILE_BATCH
 
 class SizeTConfigParameter(_FastEnum):
-    """See `CUFileSizeTConfigParameter_t`."""
+    """
+    See `CUFileSizeTConfigParameter_t`.
+    """
     PROFILE_STATS = CUFILE_PARAM_PROFILE_STATS
     EXECUTION_MAX_IO_QUEUE_DEPTH = CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
     EXECUTION_MAX_IO_THREADS = CUFILE_PARAM_EXECUTION_MAX_IO_THREADS
@@ -2623,7 +2641,9 @@ class SizeTConfigParameter(_FastEnum):
     PROPERTIES_BATCH_IO_TIMEOUT_MS = CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
 class BoolConfigParameter(_FastEnum):
-    """See `CUFileBoolConfigParameter_t`."""
+    """
+    See `CUFileBoolConfigParameter_t`.
+    """
     PROPERTIES_USE_POLL_MODE = CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
     PROPERTIES_ALLOW_COMPAT_MODE = CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
     FORCE_COMPAT_MODE = CUFILE_PARAM_FORCE_COMPAT_MODE
@@ -2638,18 +2658,24 @@ class BoolConfigParameter(_FastEnum):
     STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
 class StringConfigParameter(_FastEnum):
-    """See `CUFileStringConfigParameter_t`."""
+    """
+    See `CUFileStringConfigParameter_t`.
+    """
     LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
 
 class ArrayConfigParameter(_FastEnum):
-    """See `CUFileArrayConfigParameter_t`."""
+    """
+    See `CUFileArrayConfigParameter_t`.
+    """
     POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
     POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
 
 class P2PFlags(_FastEnum):
-    """See `CUfileP2PFlags_t`."""
+    """
+    See `CUfileP2PFlags_t`.
+    """
     P2PDMA = (CUFILE_P2PDMA, 'Support for PCI P2PDMA')
     NVFS = (CUFILE_NVFS, 'Support for nvidia-fs')
     DMABUF = (CUFILE_DMABUF, 'Support for DMA Buffer')

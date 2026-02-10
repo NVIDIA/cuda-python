@@ -18,7 +18,12 @@ from libcpp.vector cimport vector
 ###############################################################################
 
 class Result(_IntEnum):
-    """The enumerated type nvFatbinResult defines API call result codes. nvFatbin APIs return nvFatbinResult codes to indicate the result."""
+    """
+    The enumerated type nvFatbinResult defines API call result codes.
+    nvFatbin APIs return nvFatbinResult codes to indicate the result.
+
+    See `nvFatbinResult`.
+    """
     SUCCESS = NVFATBIN_SUCCESS
     ERROR_INTERNAL = NVFATBIN_ERROR_INTERNAL
     ERROR_ELF_ARCH_MISMATCH = NVFATBIN_ERROR_ELF_ARCH_MISMATCH

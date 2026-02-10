@@ -46,12 +46,20 @@ cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsi
 ###############################################################################
 
 class BridgeChipType(_FastEnum):
-    """Enum to represent type of bridge chip"""
+    """
+    Enum to represent type of bridge chip
+
+    See `nvmlBridgeChipType_t`.
+    """
     BRIDGE_CHIP_PLX = NVML_BRIDGE_CHIP_PLX
     BRIDGE_CHIP_BRO4 = NVML_BRIDGE_CHIP_BRO4
 
 class NvLinkUtilizationCountUnits(_FastEnum):
-    """Enum to represent the NvLink utilization counter packet units"""
+    """
+    Enum to represent the NvLink utilization counter packet units
+
+    See `nvmlNvLinkUtilizationCountUnits_t`.
+    """
     NVLINK_COUNTER_UNIT_CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
     NVLINK_COUNTER_UNIT_PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
     NVLINK_COUNTER_UNIT_BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
@@ -59,7 +67,14 @@ class NvLinkUtilizationCountUnits(_FastEnum):
     NVLINK_COUNTER_UNIT_COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
 
 class NvLinkUtilizationCountPktTypes(_FastEnum):
-    """Enum to represent the NvLink utilization counter packet types to count ** this is ONLY applicable with the units as packets or bytes ** as specified in `nvmlNvLinkUtilizationCountUnits_t` ** all packet filter descriptions are target GPU centric ** these can be "OR'd" together"""
+    """
+    Enum to represent the NvLink utilization counter packet types to count
+    ** this is ONLY applicable with the units as packets or bytes ** as
+    specified in `nvmlNvLinkUtilizationCountUnits_t` ** all packet filter
+    descriptions are target GPU centric ** these can be "OR'd" together
+
+    See `nvmlNvLinkUtilizationCountPktTypes_t`.
+    """
     NVLINK_COUNTER_PKTFILTER_NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
     NVLINK_COUNTER_PKTFILTER_READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
     NVLINK_COUNTER_PKTFILTER_WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
@@ -71,7 +86,11 @@ class NvLinkUtilizationCountPktTypes(_FastEnum):
     NVLINK_COUNTER_PKTFILTER_ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
 
 class NvLinkCapability(_FastEnum):
-    """Enum to represent NvLink queryable capabilities"""
+    """
+    Enum to represent NvLink queryable capabilities
+
+    See `nvmlNvLinkCapability_t`.
+    """
     NVLINK_CAP_P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
     NVLINK_CAP_SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
     NVLINK_CAP_P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
@@ -81,7 +100,11 @@ class NvLinkCapability(_FastEnum):
     NVLINK_CAP_COUNT = NVML_NVLINK_CAP_COUNT
 
 class NvLinkErrorCounter(_FastEnum):
-    """Enum to represent NvLink queryable error counters"""
+    """
+    Enum to represent NvLink queryable error counters
+
+    See `nvmlNvLinkErrorCounter_t`.
+    """
     NVLINK_ERROR_DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
     NVLINK_ERROR_DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
     NVLINK_ERROR_DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
@@ -90,14 +113,23 @@ class NvLinkErrorCounter(_FastEnum):
     NVLINK_ERROR_COUNT = NVML_NVLINK_ERROR_COUNT
 
 class IntNvLinkDeviceType(_FastEnum):
-    """Enum to represent NvLink's remote device type"""
+    """
+    Enum to represent NvLink's remote device type
+
+    See `nvmlIntNvLinkDeviceType_t`.
+    """
     NVLINK_DEVICE_TYPE_GPU = NVML_NVLINK_DEVICE_TYPE_GPU
     NVLINK_DEVICE_TYPE_IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
     NVLINK_DEVICE_TYPE_SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
     NVLINK_DEVICE_TYPE_UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
 
 class GpuTopologyLevel(_FastEnum):
-    """Represents level relationships within a system between two GPUs The enums are spaced to allow for future relationships"""
+    """
+    Represents level relationships within a system between two GPUs The
+    enums are spaced to allow for future relationships
+
+    See `nvmlGpuTopologyLevel_t`.
+    """
     TOPOLOGY_INTERNAL = NVML_TOPOLOGY_INTERNAL
     TOPOLOGY_SINGLE = NVML_TOPOLOGY_SINGLE
     TOPOLOGY_MULTIPLE = NVML_TOPOLOGY_MULTIPLE
@@ -106,7 +138,9 @@ class GpuTopologyLevel(_FastEnum):
     TOPOLOGY_SYSTEM = NVML_TOPOLOGY_SYSTEM
 
 class GpuP2PStatus(_FastEnum):
-    """See `nvmlGpuP2PStatus_t`."""
+    """
+    See `nvmlGpuP2PStatus_t`.
+    """
     P2P_STATUS_OK = NVML_P2P_STATUS_OK
     P2P_STATUS_CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
     P2P_STATUS_CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
@@ -117,7 +151,9 @@ class GpuP2PStatus(_FastEnum):
     P2P_STATUS_UNKNOWN = NVML_P2P_STATUS_UNKNOWN
 
 class GpuP2PCapsIndex(_FastEnum):
-    """See `nvmlGpuP2PCapsIndex_t`."""
+    """
+    See `nvmlGpuP2PCapsIndex_t`.
+    """
     P2P_CAPS_INDEX_READ = NVML_P2P_CAPS_INDEX_READ
     P2P_CAPS_INDEX_WRITE = NVML_P2P_CAPS_INDEX_WRITE
     P2P_CAPS_INDEX_NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
@@ -127,7 +163,11 @@ class GpuP2PCapsIndex(_FastEnum):
     P2P_CAPS_INDEX_UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
 
 class SamplingType(_FastEnum):
-    """Represents Type of Sampling Event"""
+    """
+    Represents Type of Sampling Event
+
+    See `nvmlSamplingType_t`.
+    """
     TOTAL_POWER_SAMPLES = (NVML_TOTAL_POWER_SAMPLES, 'To represent total power drawn by GPU.')
     GPU_UTILIZATION_SAMPLES = (NVML_GPU_UTILIZATION_SAMPLES, 'To represent percent of time during which one or more kernels was executing on the GPU.')
     MEMORY_UTILIZATION_SAMPLES = (NVML_MEMORY_UTILIZATION_SAMPLES, 'To represent percent of time during which global (device) memory was being read or written.')
@@ -141,13 +181,21 @@ class SamplingType(_FastEnum):
     SAMPLINGTYPE_COUNT = NVML_SAMPLINGTYPE_COUNT
 
 class PcieUtilCounter(_FastEnum):
-    """Represents the queryable PCIe utilization counters"""
+    """
+    Represents the queryable PCIe utilization counters
+
+    See `nvmlPcieUtilCounter_t`.
+    """
     PCIE_UTIL_TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
     PCIE_UTIL_RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
     PCIE_UTIL_COUNT = NVML_PCIE_UTIL_COUNT
 
 class ValueType(_FastEnum):
-    """Represents the type for sample value returned"""
+    """
+    Represents the type for sample value returned
+
+    See `nvmlValueType_t`.
+    """
     DOUBLE = NVML_VALUE_TYPE_DOUBLE
     UNSIGNED_INT = NVML_VALUE_TYPE_UNSIGNED_INT
     UNSIGNED_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG
@@ -158,7 +206,11 @@ class ValueType(_FastEnum):
     COUNT = NVML_VALUE_TYPE_COUNT
 
 class PerfPolicyType(_FastEnum):
-    """Represents type of perf policy for which violation times can be queried"""
+    """
+    Represents type of perf policy for which violation times can be queried
+
+    See `nvmlPerfPolicyType_t`.
+    """
     PERF_POLICY_POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
     PERF_POLICY_THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
     PERF_POLICY_SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
@@ -170,7 +222,11 @@ class PerfPolicyType(_FastEnum):
     PERF_POLICY_COUNT = NVML_PERF_POLICY_COUNT
 
 class ThermalTarget(_FastEnum):
-    """Represents the thermal sensor targets"""
+    """
+    Represents the thermal sensor targets
+
+    See `nvmlThermalTarget_t`.
+    """
     NONE = NVML_THERMAL_TARGET_NONE
     GPU = (NVML_THERMAL_TARGET_GPU, 'GPU core temperature requires NvPhysicalGpuHandle.')
     MEMORY = (NVML_THERMAL_TARGET_MEMORY, 'GPU memory temperature requires NvPhysicalGpuHandle.')
@@ -183,7 +239,11 @@ class ThermalTarget(_FastEnum):
     UNKNOWN = NVML_THERMAL_TARGET_UNKNOWN
 
 class ThermalController(_FastEnum):
-    """Represents the thermal sensor controllers"""
+    """
+    Represents the thermal sensor controllers
+
+    See `nvmlThermalController_t`.
+    """
     NONE = NVML_THERMAL_CONTROLLER_NONE
     GPU_INTERNAL = NVML_THERMAL_CONTROLLER_GPU_INTERNAL
     ADM1032 = NVML_THERMAL_CONTROLLER_ADM1032
@@ -205,14 +265,22 @@ class ThermalController(_FastEnum):
     UNKNOWN = NVML_THERMAL_CONTROLLER_UNKNOWN
 
 class CoolerControl(_FastEnum):
-    """Cooler control type"""
+    """
+    Cooler control type
+
+    See `nvmlCoolerControl_t`.
+    """
     THERMAL_COOLER_SIGNAL_NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
     THERMAL_COOLER_SIGNAL_TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
     THERMAL_COOLER_SIGNAL_VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
     THERMAL_COOLER_SIGNAL_COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
 
 class CoolerTarget(_FastEnum):
-    """Cooler's target"""
+    """
+    Cooler's target
+
+    See `nvmlCoolerTarget_t`.
+    """
     THERMAL_NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
     THERMAL_GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
     THERMAL_MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
@@ -220,18 +288,30 @@ class CoolerTarget(_FastEnum):
     THERMAL_GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
 
 class UUIDType(_FastEnum):
-    """Enum to represent different UUID types"""
+    """
+    Enum to represent different UUID types
+
+    See `nvmlUUIDType_t`.
+    """
     NONE = (NVML_UUID_TYPE_NONE, 'Undefined type.')
     ASCII = (NVML_UUID_TYPE_ASCII, 'ASCII format type.')
     BINARY = (NVML_UUID_TYPE_BINARY, 'Binary format type.')
 
 class EnableState(_FastEnum):
-    """Generic enable/disable enum."""
+    """
+    Generic enable/disable enum.
+
+    See `nvmlEnableState_t`.
+    """
     FEATURE_DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
     FEATURE_ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
 
 class BrandType(_FastEnum):
-    """- The Brand of the GPU"""
+    """
+    - The Brand of the GPU
+
+    See `nvmlBrandType_t`.
+    """
     BRAND_UNKNOWN = NVML_BRAND_UNKNOWN
     BRAND_QUADRO = NVML_BRAND_QUADRO
     BRAND_TESLA = NVML_BRAND_TESLA
@@ -253,7 +333,11 @@ class BrandType(_FastEnum):
     BRAND_COUNT = NVML_BRAND_COUNT
 
 class TemperatureThresholds(_FastEnum):
-    """Temperature thresholds."""
+    """
+    Temperature thresholds.
+
+    See `nvmlTemperatureThresholds_t`.
+    """
     TEMPERATURE_THRESHOLD_SHUTDOWN = NVML_TEMPERATURE_THRESHOLD_SHUTDOWN
     TEMPERATURE_THRESHOLD_SLOWDOWN = NVML_TEMPERATURE_THRESHOLD_SLOWDOWN
     TEMPERATURE_THRESHOLD_MEM_MAX = NVML_TEMPERATURE_THRESHOLD_MEM_MAX
@@ -265,12 +349,22 @@ class TemperatureThresholds(_FastEnum):
     TEMPERATURE_THRESHOLD_COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
 
 class TemperatureSensors(_FastEnum):
-    """Temperature sensors."""
+    """
+    Temperature sensors.
+
+    See `nvmlTemperatureSensors_t`.
+    """
     TEMPERATURE_GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
     TEMPERATURE_COUNT = NVML_TEMPERATURE_COUNT
 
 class ComputeMode(_FastEnum):
-    """Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA 4.0. Earlier CUDA versions supported a single exclusive mode, which is equivalent to NVML_COMPUTEMODE_EXCLUSIVE_THREAD in CUDA 4.0 and beyond."""
+    """
+    Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA
+    4.0. Earlier CUDA versions supported a single exclusive mode, which is
+    equivalent to NVML_COMPUTEMODE_EXCLUSIVE_THREAD in CUDA 4.0 and beyond.
+
+    See `nvmlComputeMode_t`.
+    """
     COMPUTEMODE_DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
     COMPUTEMODE_EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
     COMPUTEMODE_PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
@@ -278,13 +372,21 @@ class ComputeMode(_FastEnum):
     COMPUTEMODE_COUNT = NVML_COMPUTEMODE_COUNT
 
 class MemoryErrorType(_FastEnum):
-    """Memory error types"""
+    """
+    Memory error types
+
+    See `nvmlMemoryErrorType_t`.
+    """
     CORRECTED = (NVML_MEMORY_ERROR_TYPE_CORRECTED, 'A memory error that was corrected  For ECC errors, these are single bit errors For Texture memory, these are errors fixed by resend')
     UNCORRECTED = (NVML_MEMORY_ERROR_TYPE_UNCORRECTED, 'A memory error that was not corrected  For ECC errors, these are double bit errors For Texture memory, these are errors where the resend fails')
     COUNT = (NVML_MEMORY_ERROR_TYPE_COUNT, 'Count of memory error types.')
 
 class NvlinkVersion(_FastEnum):
-    """Represents Nvlink Version"""
+    """
+    Represents Nvlink Version
+
+    See `nvmlNvlinkVersion_t`.
+    """
     VERSION_INVALID = (NVML_NVLINK_VERSION_INVALID, 'NVLink version is invalid.')
     VERSION_1_0 = (NVML_NVLINK_VERSION_1_0, 'NVLink Version 1.0.')
     VERSION_2_0 = (NVML_NVLINK_VERSION_2_0, 'NVLink Version 2.0.')
@@ -295,13 +397,26 @@ class NvlinkVersion(_FastEnum):
     VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
 
 class EccCounterType(_FastEnum):
-    """ECC counter types.  Note: Volatile counts are reset each time the driver loads. On Windows this is once per boot. On Linux this can be more frequent. On Linux the driver unloads when no active clients exist. If persistence mode is enabled or there is always a driver client active (e.g. X11), then Linux also sees per-boot behavior. If not, volatile counts are reset each time a compute app is run."""
+    """
+    ECC counter types.  Note: Volatile counts are reset each time the
+    driver loads. On Windows this is once per boot. On Linux this can be
+    more frequent. On Linux the driver unloads when no active clients
+    exist. If persistence mode is enabled or there is always a driver
+    client active (e.g. X11), then Linux also sees per-boot behavior. If
+    not, volatile counts are reset each time a compute app is run.
+
+    See `nvmlEccCounterType_t`.
+    """
     VOLATILE_ECC = (NVML_VOLATILE_ECC, 'Volatile counts are reset each time the driver loads.')
     AGGREGATE_ECC = (NVML_AGGREGATE_ECC, 'Aggregate counts persist across reboots (i.e. for the lifetime of the device)')
     COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
 
 class ClockType(_FastEnum):
-    """Clock types.  All speeds are in Mhz."""
+    """
+    Clock types.  All speeds are in Mhz.
+
+    See `nvmlClockType_t`.
+    """
     CLOCK_GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
     CLOCK_SM = (NVML_CLOCK_SM, 'SM clock domain.')
     CLOCK_MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
@@ -309,7 +424,12 @@ class ClockType(_FastEnum):
     CLOCK_COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
 
 class ClockId(_FastEnum):
-    """Clock Ids. These are used in combination with nvmlClockType_t to specify a single clock value."""
+    """
+    Clock Ids. These are used in combination with nvmlClockType_t to
+    specify a single clock value.
+
+    See `nvmlClockId_t`.
+    """
     CURRENT = (NVML_CLOCK_ID_CURRENT, 'Current actual clock value.')
     APP_CLOCK_TARGET = (NVML_CLOCK_ID_APP_CLOCK_TARGET, 'Target application clock. Deprecated, do not use.')
     APP_CLOCK_DEFAULT = (NVML_CLOCK_ID_APP_CLOCK_DEFAULT, 'Default application clock target Deprecated, do not use.')
@@ -317,13 +437,21 @@ class ClockId(_FastEnum):
     COUNT = (NVML_CLOCK_ID_COUNT, 'Count of Clock Ids.')
 
 class DriverModel(_FastEnum):
-    """Driver models.  Windows only."""
+    """
+    Driver models.  Windows only.
+
+    See `nvmlDriverModel_t`.
+    """
     DRIVER_WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
     DRIVER_WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
     DRIVER_MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
 
 class Pstates(_FastEnum):
-    """Allowed PStates."""
+    """
+    Allowed PStates.
+
+    See `nvmlPstates_t`.
+    """
     PSTATE_0 = (NVML_PSTATE_0, 'Performance state 0 -- Maximum Performance.')
     PSTATE_1 = (NVML_PSTATE_1, 'Performance state 1.')
     PSTATE_2 = (NVML_PSTATE_2, 'Performance state 2.')
@@ -343,13 +471,23 @@ class Pstates(_FastEnum):
     PSTATE_UNKNOWN = (NVML_PSTATE_UNKNOWN, 'Unknown performance state.')
 
 class GpuOperationMode(_FastEnum):
-    """GPU Operation Mode  GOM allows to reduce power usage and optimize GPU throughput by disabling GPU features.  Each GOM is designed to meet specific user needs."""
+    """
+    GPU Operation Mode  GOM allows to reduce power usage and optimize GPU
+    throughput by disabling GPU features.  Each GOM is designed to meet
+    specific user needs.
+
+    See `nvmlGpuOperationMode_t`.
+    """
     GOM_ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
     GOM_COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
     GOM_LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
 
 class InforomObject(_FastEnum):
-    """Available infoROM objects."""
+    """
+    Available infoROM objects.
+
+    See `nvmlInforomObject_t`.
+    """
     INFOROM_OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
     INFOROM_ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
     INFOROM_POWER = (NVML_INFOROM_POWER, 'The power management object.')
@@ -357,7 +495,11 @@ class InforomObject(_FastEnum):
     INFOROM_COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
 
 class Return(_FastEnum):
-    """Return values for NVML API calls."""
+    """
+    Return values for NVML API calls.
+
+    See `nvmlReturn_t`.
+    """
     SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
     ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
     ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
@@ -392,7 +534,11 @@ class Return(_FastEnum):
     ERROR_UNKNOWN = (NVML_ERROR_UNKNOWN, 'An internal driver error occurred.')
 
 class MemoryLocation(_FastEnum):
-    """See `nvmlDeviceGetMemoryErrorCounter`"""
+    """
+    See `nvmlDeviceGetMemoryErrorCounter`
+
+    See `nvmlMemoryLocation_t`.
+    """
     L1_CACHE = (NVML_MEMORY_LOCATION_L1_CACHE, 'GPU L1 Cache.')
     L2_CACHE = (NVML_MEMORY_LOCATION_L2_CACHE, 'GPU L2 Cache.')
     DRAM = (NVML_MEMORY_LOCATION_DRAM, 'Turing+ DRAM.')
@@ -405,26 +551,42 @@ class MemoryLocation(_FastEnum):
     COUNT = (NVML_MEMORY_LOCATION_COUNT, 'This counts the number of memory locations the driver knows about.')
 
 class PageRetirementCause(_FastEnum):
-    """Causes for page retirement"""
+    """
+    Causes for page retirement
+
+    See `nvmlPageRetirementCause_t`.
+    """
     MULTIPLE_SINGLE_BIT_ECC_ERRORS = (NVML_PAGE_RETIREMENT_CAUSE_MULTIPLE_SINGLE_BIT_ECC_ERRORS, 'Page was retired due to multiple single bit ECC error.')
     DOUBLE_BIT_ECC_ERROR = (NVML_PAGE_RETIREMENT_CAUSE_DOUBLE_BIT_ECC_ERROR, 'Page was retired due to double bit ECC error.')
     COUNT = NVML_PAGE_RETIREMENT_CAUSE_COUNT
 
 class RestrictedAPI(_FastEnum):
-    """API types that allow changes to default permission restrictions"""
+    """
+    API types that allow changes to default permission restrictions
+
+    See `nvmlRestrictedAPI_t`.
+    """
     SET_APPLICATION_CLOCKS = (NVML_RESTRICTED_API_SET_APPLICATION_CLOCKS, 'APIs that change application clocks, see nvmlDeviceSetApplicationsClocks and see nvmlDeviceResetApplicationsClocks. Deprecated, keeping definition for backward compatibility.')
     SET_AUTO_BOOSTED_CLOCKS = (NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS, 'APIs that enable/disable Auto Boosted clocks see nvmlDeviceSetAutoBoostedClocksEnabled')
     COUNT = NVML_RESTRICTED_API_COUNT
 
 class GpuUtilizationDomainId(_FastEnum):
-    """Represents the GPU utilization domains"""
+    """
+    Represents the GPU utilization domains
+
+    See `nvmlGpuUtilizationDomainId_t`.
+    """
     GPU_UTILIZATION_DOMAIN_GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
     GPU_UTILIZATION_DOMAIN_FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
     GPU_UTILIZATION_DOMAIN_VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
     GPU_UTILIZATION_DOMAIN_BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
 
 class GpuVirtualizationMode(_FastEnum):
-    """GPU virtualization mode types."""
+    """
+    GPU virtualization mode types.
+
+    See `nvmlGpuVirtualizationMode_t`.
+    """
     NONE = (NVML_GPU_VIRTUALIZATION_MODE_NONE, 'Represents Bare Metal GPU.')
     PASSTHROUGH = (NVML_GPU_VIRTUALIZATION_MODE_PASSTHROUGH, 'Device is associated with GPU-Passthorugh.')
     VGPU = (NVML_GPU_VIRTUALIZATION_MODE_VGPU, 'Device is associated with vGPU inside virtual machine.')
@@ -432,22 +594,38 @@ class GpuVirtualizationMode(_FastEnum):
     HOST_VSGA = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VSGA, 'Device is associated with VGX hypervisor in vSGA mode.')
 
 class HostVgpuMode(_FastEnum):
-    """Host vGPU modes"""
+    """
+    Host vGPU modes
+
+    See `nvmlHostVgpuMode_t`.
+    """
     NON_SRIOV = (NVML_HOST_VGPU_MODE_NON_SRIOV, 'Non SR-IOV mode.')
     SRIOV = (NVML_HOST_VGPU_MODE_SRIOV, 'SR-IOV mode.')
 
 class VgpuVmIdType(_FastEnum):
-    """Types of VM identifiers"""
+    """
+    Types of VM identifiers
+
+    See `nvmlVgpuVmIdType_t`.
+    """
     VGPU_VM_ID_DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
     VGPU_VM_ID_UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
 
 class VgpuGuestInfoState(_FastEnum):
-    """vGPU GUEST info state"""
+    """
+    vGPU GUEST info state
+
+    See `nvmlVgpuGuestInfoState_t`.
+    """
     VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
     VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
 
 class GridLicenseFeatureCode(_FastEnum):
-    """vGPU software licensable features"""
+    """
+    vGPU software licensable features
+
+    See `nvmlGridLicenseFeatureCode_t`.
+    """
     UNKNOWN = (NVML_GRID_LICENSE_FEATURE_CODE_UNKNOWN, 'Unknown.')
     VGPU = (NVML_GRID_LICENSE_FEATURE_CODE_VGPU, 'Virtual GPU.')
     NVIDIA_RTX = (NVML_GRID_LICENSE_FEATURE_CODE_NVIDIA_RTX, 'Nvidia RTX.')
@@ -456,7 +634,11 @@ class GridLicenseFeatureCode(_FastEnum):
     COMPUTE = (NVML_GRID_LICENSE_FEATURE_CODE_COMPUTE, 'Compute.')
 
 class VgpuCapability(_FastEnum):
-    """vGPU queryable capabilities"""
+    """
+    vGPU queryable capabilities
+
+    See `nvmlVgpuCapability_t`.
+    """
     VGPU_CAP_NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
     VGPU_CAP_GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
     VGPU_CAP_MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
@@ -465,13 +647,21 @@ class VgpuCapability(_FastEnum):
     VGPU_CAP_COUNT = NVML_VGPU_CAP_COUNT
 
 class VgpuDriverCapability(_FastEnum):
-    """vGPU driver queryable capabilities"""
+    """
+    vGPU driver queryable capabilities
+
+    See `nvmlVgpuDriverCapability_t`.
+    """
     VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
     VGPU_DRIVER_CAP_WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
     VGPU_DRIVER_CAP_COUNT = NVML_VGPU_DRIVER_CAP_COUNT
 
 class DeviceVgpuCapability(_FastEnum):
-    """Device vGPU queryable capabilities"""
+    """
+    Device vGPU queryable capabilities
+
+    See `nvmlDeviceVgpuCapability_t`.
+    """
     DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
     DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
     DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
@@ -487,7 +677,11 @@ class DeviceVgpuCapability(_FastEnum):
     DEVICE_VGPU_CAP_COUNT = NVML_DEVICE_VGPU_CAP_COUNT
 
 class DeviceGpuRecoveryAction(_FastEnum):
-    """Enum describing the GPU Recovery Action"""
+    """
+    Enum describing the GPU Recovery Action
+
+    See `nvmlDeviceGpuRecoveryAction_t`.
+    """
     GPU_RECOVERY_ACTION_NONE = NVML_GPU_RECOVERY_ACTION_NONE
     GPU_RECOVERY_ACTION_GPU_RESET = NVML_GPU_RECOVERY_ACTION_GPU_RESET
     GPU_RECOVERY_ACTION_NODE_REBOOT = NVML_GPU_RECOVERY_ACTION_NODE_REBOOT
@@ -495,24 +689,40 @@ class DeviceGpuRecoveryAction(_FastEnum):
     GPU_RECOVERY_ACTION_DRAIN_AND_RESET = NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET
 
 class FanState(_FastEnum):
-    """Fan state enum."""
+    """
+    Fan state enum.
+
+    See `nvmlFanState_t`.
+    """
     FAN_NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
     FAN_FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
 
 class LedColor(_FastEnum):
-    """Led color enum."""
+    """
+    Led color enum.
+
+    See `nvmlLedColor_t`.
+    """
     GREEN = (NVML_LED_COLOR_GREEN, 'GREEN, indicates good health.')
     AMBER = (NVML_LED_COLOR_AMBER, 'AMBER, indicates problem.')
 
 class EncoderType(_FastEnum):
-    """Represents type of encoder for capacity can be queried"""
+    """
+    Represents type of encoder for capacity can be queried
+
+    See `nvmlEncoderType_t`.
+    """
     ENCODER_QUERY_H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
     ENCODER_QUERY_HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
     ENCODER_QUERY_AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
     ENCODER_QUERY_UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
 
 class FBCSessionType(_FastEnum):
-    """Represents frame buffer capture session type"""
+    """
+    Represents frame buffer capture session type
+
+    See `nvmlFBCSessionType_t`.
+    """
     UNKNOWN = (NVML_FBC_SESSION_TYPE_UNKNOWN, 'Unknown.')
     TOSYS = (NVML_FBC_SESSION_TYPE_TOSYS, 'ToSys.')
     CUDA = (NVML_FBC_SESSION_TYPE_CUDA, 'Cuda.')
@@ -520,23 +730,38 @@ class FBCSessionType(_FastEnum):
     HWENC = (NVML_FBC_SESSION_TYPE_HWENC, 'HEnc.')
 
 class DetachGpuState(_FastEnum):
-    """Is the GPU device to be removed from the kernel by nvmlDeviceRemoveGpu()"""
+    """
+    Is the GPU device to be removed from the kernel by
+    nvmlDeviceRemoveGpu()
+
+    See `nvmlDetachGpuState_t`.
+    """
     DETACH_GPU_KEEP = NVML_DETACH_GPU_KEEP
     DETACH_GPU_REMOVE = NVML_DETACH_GPU_REMOVE
 
 class PcieLinkState(_FastEnum):
-    """Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()"""
+    """
+    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+
+    See `nvmlPcieLinkState_t`.
+    """
     PCIE_LINK_KEEP = NVML_PCIE_LINK_KEEP
     PCIE_LINK_SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
 
 class ClockLimitId(_FastEnum):
-    """See `nvmlClockLimitId_t`."""
+    """
+    See `nvmlClockLimitId_t`.
+    """
     RANGE_START = NVML_CLOCK_LIMIT_ID_RANGE_START
     TDP = NVML_CLOCK_LIMIT_ID_TDP
     UNLIMITED = NVML_CLOCK_LIMIT_ID_UNLIMITED
 
 class VgpuVmCompatibility(_FastEnum):
-    """vGPU VM compatibility codes"""
+    """
+    vGPU VM compatibility codes
+
+    See `nvmlVgpuVmCompatibility_t`.
+    """
     NONE = (NVML_VGPU_VM_COMPATIBILITY_NONE, 'vGPU is not runnable')
     COLD = (NVML_VGPU_VM_COMPATIBILITY_COLD, 'vGPU is runnable from a cold / powered-off state (ACPI S5)')
     HIBERNATE = (NVML_VGPU_VM_COMPATIBILITY_HIBERNATE, 'vGPU is runnable from a hibernated state (ACPI S4)')
@@ -544,7 +769,11 @@ class VgpuVmCompatibility(_FastEnum):
     LIVE = (NVML_VGPU_VM_COMPATIBILITY_LIVE, 'vGPU is runnable from a live/paused (ACPI S0)')
 
 class VgpuPgpuCompatibilityLimitCode(_FastEnum):
-    """vGPU-pGPU compatibility limit codes"""
+    """
+    vGPU-pGPU compatibility limit codes
+
+    See `nvmlVgpuPgpuCompatibilityLimitCode_t`.
+    """
     VGPU_COMPATIBILITY_LIMIT_NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
     VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
     VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
@@ -552,7 +781,11 @@ class VgpuPgpuCompatibilityLimitCode(_FastEnum):
     VGPU_COMPATIBILITY_LIMIT_OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
 
 class GpmMetricId(_FastEnum):
-    """GPM Metric Identifiers"""
+    """
+    GPM Metric Identifiers
+
+    See `nvmlGpmMetricId_t`.
+    """
     GPM_METRIC_GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
     GPM_METRIC_SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
     GPM_METRIC_SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
@@ -736,7 +969,9 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1. Note that changing this should also change NVML_GPM_METRICS_GET_VERSION due to struct size change.')
 
 class PowerProfileType(_FastEnum):
-    """See `nvmlPowerProfileType_t`."""
+    """
+    See `nvmlPowerProfileType_t`.
+    """
     POWER_PROFILE_MAX_P = NVML_POWER_PROFILE_MAX_P
     POWER_PROFILE_MAX_Q = NVML_POWER_PROFILE_MAX_Q
     POWER_PROFILE_COMPUTE = NVML_POWER_PROFILE_COMPUTE
@@ -755,13 +990,21 @@ class PowerProfileType(_FastEnum):
     POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
 
 class DeviceAddressingModeType(_FastEnum):
-    """Enum to represent device addressing mode values"""
+    """
+    Enum to represent device addressing mode values
+
+    See `nvmlDeviceAddressingModeType_t`.
+    """
     DEVICE_ADDRESSING_MODE_NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
     DEVICE_ADDRESSING_MODE_HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
     DEVICE_ADDRESSING_MODE_ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
 
 class PRMCounterId(_FastEnum):
-    """PRM Counter IDs"""
+    """
+    PRM Counter IDs
+
+    See `nvmlPRMCounterId_t`.
+    """
     NONE = NVML_PRM_COUNTER_ID_NONE
     PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS
     PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS
@@ -779,7 +1022,11 @@ class PRMCounterId(_FastEnum):
     PPRM_OPER_RECOVERY = NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY
 
 class PowerProfileOperation(_FastEnum):
-    """Enum for operation to perform on the requested profiles"""
+    """
+    Enum for operation to perform on the requested profiles
+
+    See `nvmlPowerProfileOperation_t`.
+    """
     CLEAR = (NVML_POWER_PROFILE_OPERATION_CLEAR, 'Remove the requested profiles from the existing list of requested profiles.')
     SET = (NVML_POWER_PROFILE_OPERATION_SET, 'Add the requested profiles to the existing list of requested profiles.')
     SET_AND_OVERWRITE = (NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE, 'Overwrite the existing list of requested profiles with just the requested profiles.')

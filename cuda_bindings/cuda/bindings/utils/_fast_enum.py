@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+# This code was automatically generated across versions from 12.0.1 to 13.1.1. Do not modify it directly.
+
+
 """
 This is a replacement for the stdlib enum.IntEnum.
 
-Notably, it has much better import time performance, since it doesn't need to
-generate and evaluate Python code.
+Notably, it has much better import time performance, since it doesn't generate
+and evaluate Python code at startup time.
 
 It supports the most important subset of the IntEnum API.  See `test_enum` in
 `cuda_bindings/tests/test_basics.py` for details.
