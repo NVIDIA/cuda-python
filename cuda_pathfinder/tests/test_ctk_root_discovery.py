@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 
 import pytest
 
@@ -220,9 +219,7 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     _create_cudart_in_ctk(canary_root)
     _create_nvvm_in_ctk(canary_root)
 
-    canary_mock = mocker.MagicMock(
-        return_value=_make_loaded_dl(_fake_canary_path(canary_root), "system-search")
-    )
+    canary_mock = mocker.MagicMock(return_value=_make_loaded_dl(_fake_canary_path(canary_root), "system-search"))
 
     # System search finds nothing for nvvm; canary would find cudart
     mocker.patch(
