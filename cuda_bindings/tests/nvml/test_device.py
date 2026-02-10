@@ -71,7 +71,7 @@ def test_get_nv_link_supported_bw_modes(all_devices):
     for device in all_devices:
         with unsupported_before(device, None):
             modes = nvml.device_get_nvlink_supported_bw_modes(device)
-        assert isinstance(modes, nvml.NvLinkSupportedBWModes)
+        assert isinstance(modes, nvml.NvLinkSupportedBWModes_v1)
         # #define NVML_NVLINK_TOTAL_SUPPORTED_BW_MODES 23
         assert len(modes.bw_modes) <= 23
         assert not hasattr(modes, "total_bw_modes")
