@@ -88,7 +88,7 @@ def _try_ctk_root_canary(finder: _FindNvidiaDynamicLib) -> str | None:
         ctk_root = derive_ctk_root(canary.abs_path)
         if ctk_root is None:
             continue
-        abs_path = finder.try_via_ctk_root(ctk_root)
+        abs_path: str | None = finder.try_via_ctk_root(ctk_root)
         if abs_path is not None:
             return abs_path
     return None
