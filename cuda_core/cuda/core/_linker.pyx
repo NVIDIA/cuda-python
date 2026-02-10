@@ -386,7 +386,25 @@ nvJitLinkHandleT = int
 LinkerHandleT = Union[nvJitLinkHandleT, "cuda.bindings.driver.CUlinkState"]
 
 
-class Linker:
+class _LinkerMembersNeededForFinalize:
+    __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive", "formatted_options", "option_keys")
+
+    def __init__(self, program_obj, handle, use_nvjitlink):
+        self.handle = handle
+        self.use_nvjitlink = use_nvjitlink
+        self.const_char_keep_alive = []
+        weakref.finalize(program_obj, self.close)
+
+    def close(self):
+        if self.handle is not None:
+            if self.use_nvjitlink:
+                _nvjitlink.destroy(self.handle)
+            else:
+                handle_return(_driver.cuLinkDestroy(self.handle))
+            self.handle = None
+
+
+cdef class Linker:
     """Represent a linking machinery to link one or multiple object codes into
     :obj:`~cuda.core._module.ObjectCode` with the specified options.
 
@@ -400,25 +418,6 @@ class Linker:
     options : LinkerOptions, optional
         Options for the linker. If not provided, default options will be used.
     """
-
-    class _MembersNeededForFinalize:
-        __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive", "formatted_options", "option_keys")
-
-        def __init__(self, program_obj, handle, use_nvjitlink):
-            self.handle = handle
-            self.use_nvjitlink = use_nvjitlink
-            self.const_char_keep_alive = []
-            weakref.finalize(program_obj, self.close)
-
-        def close(self):
-            if self.handle is not None:
-                if self.use_nvjitlink:
-                    _nvjitlink.destroy(self.handle)
-                else:
-                    handle_return(_driver.cuLinkDestroy(self.handle))
-                self.handle = None
-
-    __slots__ = ("__weakref__", "_mnff", "_options")
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
         if len(object_codes) == 0:
@@ -434,7 +433,7 @@ class Linker:
                 formatted_options, option_keys = options._prepare_driver_options()
                 handle = handle_return(_driver.cuLinkCreate(len(formatted_options), option_keys, formatted_options))
                 use_nvjitlink = False
-        self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
+        self._mnff = _LinkerMembersNeededForFinalize(self, handle, use_nvjitlink)
         self._mnff.formatted_options = formatted_options  # Store for log access
         if not _nvjitlink:
             self._mnff.option_keys = option_keys
