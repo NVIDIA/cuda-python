@@ -1,0 +1,21 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.3.4 Release notes
+=======================================
+
+Released on Feb 11, 2026
+
+Highlights
+----------
+
+* Add support for locating CUDA binary utilities (e.g. ``nvcc``, ``nvdisasm``, etc.).
+  (`PR #1528 <https://github.com/NVIDIA/cuda-python/pull/1528>`_)
+
+* Introduce ``locate_nvidia_header_directory()`` and ``LocatedHeaderDir`` to
+  report the header discovery method. This is an alternative API to
+  the existing ``find_nvidia_header_directory()`` API that only returns the
+  absolute path to the discovered header directory.
+  (`PR #1536 <https://github.com/NVIDIA/cuda-python/pull/1536>`_)
