@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 import pytest
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
@@ -14,9 +16,50 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
     _try_ctk_root_canary,
 )
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _FIND_MODULE = "cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib"
+
+
+# ---------------------------------------------------------------------------
+# Platform-aware test helpers
+# ---------------------------------------------------------------------------
+
+
+def _create_nvvm_in_ctk(ctk_root):
+    """Create a fake nvvm lib in the platform-appropriate CTK subdirectory."""
+    if IS_WINDOWS:
+        nvvm_dir = ctk_root / "nvvm" / "bin"
+        nvvm_dir.mkdir(parents=True)
+        nvvm_lib = nvvm_dir / "nvvm64.dll"
+    else:
+        nvvm_dir = ctk_root / "nvvm" / "lib64"
+        nvvm_dir.mkdir(parents=True)
+        nvvm_lib = nvvm_dir / "libnvvm.so"
+    nvvm_lib.write_bytes(b"fake")
+    return nvvm_lib
+
+
+def _create_cudart_in_ctk(ctk_root):
+    """Create a fake cudart lib in the platform-appropriate CTK subdirectory."""
+    if IS_WINDOWS:
+        lib_dir = ctk_root / "bin"
+        lib_dir.mkdir(parents=True)
+        lib_file = lib_dir / "cudart64_12.dll"
+    else:
+        lib_dir = ctk_root / "lib64"
+        lib_dir.mkdir(parents=True)
+        lib_file = lib_dir / "libcudart.so"
+    lib_file.write_bytes(b"fake")
+    return lib_file
+
+
+def _fake_canary_path(ctk_root):
+    """Return the path a system-loaded canary lib would resolve to."""
+    if IS_WINDOWS:
+        return str(ctk_root / "bin" / "cudart64_13.dll")
+    return str(ctk_root / "lib64" / "libcudart.so.13")
 
 
 # ---------------------------------------------------------------------------
@@ -79,12 +122,9 @@ def test_derive_ctk_root_dispatches_to_windows(mocker):
 
 def test_try_via_ctk_root_finds_nvvm(tmp_path):
     ctk_root = tmp_path / "cuda-13"
-    nvvm_dir = ctk_root / "nvvm" / "lib64"
-    nvvm_dir.mkdir(parents=True)
-    nvvm_so = nvvm_dir / "libnvvm.so"
-    nvvm_so.write_bytes(b"fake")
+    nvvm_lib = _create_nvvm_in_ctk(ctk_root)
 
-    assert _FindNvidiaDynamicLib("nvvm").try_via_ctk_root(str(ctk_root)) == str(nvvm_so)
+    assert _FindNvidiaDynamicLib("nvvm").try_via_ctk_root(str(ctk_root)) == str(nvvm_lib)
 
 
 def test_try_via_ctk_root_returns_none_when_dir_missing(tmp_path):
@@ -96,12 +136,9 @@ def test_try_via_ctk_root_returns_none_when_dir_missing(tmp_path):
 
 def test_try_via_ctk_root_regular_lib(tmp_path):
     ctk_root = tmp_path / "cuda-13"
-    lib_dir = ctk_root / "lib64"
-    lib_dir.mkdir(parents=True)
-    cudart_so = lib_dir / "libcudart.so"
-    cudart_so.write_bytes(b"fake")
+    cudart_lib = _create_cudart_in_ctk(ctk_root)
 
-    assert _FindNvidiaDynamicLib("cudart").try_via_ctk_root(str(ctk_root)) == str(cudart_so)
+    assert _FindNvidiaDynamicLib("cudart").try_via_ctk_root(str(ctk_root)) == str(cudart_lib)
 
 
 # ---------------------------------------------------------------------------
@@ -115,16 +152,13 @@ def _make_loaded_dl(path, found_via):
 
 def test_canary_finds_nvvm(tmp_path, mocker):
     ctk_root = tmp_path / "cuda-13"
-    (ctk_root / "lib64").mkdir(parents=True)
-    nvvm_dir = ctk_root / "nvvm" / "lib64"
-    nvvm_dir.mkdir(parents=True)
-    nvvm_so = nvvm_dir / "libnvvm.so"
-    nvvm_so.write_bytes(b"fake")
+    _create_cudart_in_ctk(ctk_root)
+    nvvm_lib = _create_nvvm_in_ctk(ctk_root)
 
-    canary = _make_loaded_dl(str(ctk_root / "lib64" / "libcudart.so.13"), "system-search")
+    canary = _make_loaded_dl(_fake_canary_path(ctk_root), "system-search")
     mocker.patch(f"{_MODULE}.load_with_system_search", return_value=canary)
 
-    assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) == str(nvvm_so)
+    assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) == str(nvvm_lib)
 
 
 def test_canary_returns_none_when_system_search_fails(mocker):
@@ -140,9 +174,10 @@ def test_canary_returns_none_when_ctk_root_unrecognized(mocker):
 
 def test_canary_returns_none_when_nvvm_not_in_ctk_root(tmp_path, mocker):
     ctk_root = tmp_path / "cuda-13"
-    (ctk_root / "lib64").mkdir(parents=True)
+    # Create only the canary lib dir, not nvvm
+    _create_cudart_in_ctk(ctk_root)
 
-    canary = _make_loaded_dl(str(ctk_root / "lib64" / "libcudart.so.13"), "system-search")
+    canary = _make_loaded_dl(_fake_canary_path(ctk_root), "system-search")
     mocker.patch(f"{_MODULE}.load_with_system_search", return_value=canary)
     assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) is None
 
@@ -179,19 +214,14 @@ def _isolate_load_cascade(mocker):
 def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     # Two competing CTK roots: one from CUDA_HOME, one the canary would find.
     cuda_home_root = tmp_path / "cuda-home"
-    nvvm_home = cuda_home_root / "nvvm" / "lib64"
-    nvvm_home.mkdir(parents=True)
-    nvvm_home_so = nvvm_home / "libnvvm.so"
-    nvvm_home_so.write_bytes(b"home")
+    nvvm_home_lib = _create_nvvm_in_ctk(cuda_home_root)
 
     canary_root = tmp_path / "cuda-system"
-    (canary_root / "lib64").mkdir(parents=True)
-    nvvm_canary = canary_root / "nvvm" / "lib64"
-    nvvm_canary.mkdir(parents=True)
-    (nvvm_canary / "libnvvm.so").write_bytes(b"canary")
+    _create_cudart_in_ctk(canary_root)
+    _create_nvvm_in_ctk(canary_root)
 
     canary_mock = mocker.MagicMock(
-        return_value=_make_loaded_dl(str(canary_root / "lib64" / "libcudart.so.13"), "system-search")
+        return_value=_make_loaded_dl(_fake_canary_path(canary_root), "system-search")
     )
 
     # System search finds nothing for nvvm; canary would find cudart
@@ -211,20 +241,17 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
 
     # CUDA_HOME must win; the canary should never have been consulted
     assert result.found_via == "CUDA_HOME"
-    assert result.abs_path == str(nvvm_home_so)
+    assert result.abs_path == str(nvvm_home_lib)
     canary_mock.assert_not_called()
 
 
 @pytest.mark.usefixtures("_isolate_load_cascade")
 def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
     canary_root = tmp_path / "cuda-system"
-    (canary_root / "lib64").mkdir(parents=True)
-    nvvm_dir = canary_root / "nvvm" / "lib64"
-    nvvm_dir.mkdir(parents=True)
-    nvvm_so = nvvm_dir / "libnvvm.so"
-    nvvm_so.write_bytes(b"canary")
+    _create_cudart_in_ctk(canary_root)
+    nvvm_lib = _create_nvvm_in_ctk(canary_root)
 
-    canary_result = _make_loaded_dl(str(canary_root / "lib64" / "libcudart.so.13"), "system-search")
+    canary_result = _make_loaded_dl(_fake_canary_path(canary_root), "system-search")
 
     # System search: nvvm not on linker path, but cudart (canary) is
     mocker.patch(
@@ -242,4 +269,4 @@ def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
     result = _load_lib_no_cache("nvvm")
 
     assert result.found_via == "system-ctk-root"
-    assert result.abs_path == str(nvvm_so)
+    assert result.abs_path == str(nvvm_lib)
