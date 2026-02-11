@@ -16,7 +16,7 @@ to query per library.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Literal
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
@@ -72,16 +72,18 @@ def _classify_lib(name: str) -> Strategy:
     """Determine the search strategy for a library based on which dicts it appears in."""
     from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
         SUPPORTED_LIBNAMES,
+        SUPPORTED_LINUX_SONAMES_DRIVER,
         SUPPORTED_LINUX_SONAMES_OTHER,
+        SUPPORTED_WINDOWS_DLLS_DRIVER,
         SUPPORTED_WINDOWS_DLLS_OTHER,
     )
 
     if name in SUPPORTED_LIBNAMES:
         return "ctk"
+    if name in SUPPORTED_LINUX_SONAMES_DRIVER or name in SUPPORTED_WINDOWS_DLLS_DRIVER:
+        return "driver"
     if name in SUPPORTED_LINUX_SONAMES_OTHER or name in SUPPORTED_WINDOWS_DLLS_OTHER:
         return "other"
-    # Anything in the merged dicts that isn't CTK or OTHER is assumed to be a
-    # future category; default to "other" so the full search cascade runs.
     return "other"
 
 
