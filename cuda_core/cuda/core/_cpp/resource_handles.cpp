@@ -56,11 +56,17 @@ decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
 decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
+// Linker
+decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
+
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
 
 // NVVM function pointers (may be null if NVVM is not available)
 NvvmDestroyProgramFn p_nvvmDestroyProgram = nullptr;
+
+// nvJitLink function pointers (may be null if nvJitLink is not available)
+NvJitLinkDestroyFn p_nvJitLinkDestroy = nullptr;
 
 // ============================================================================
 // GIL management helpers
@@ -805,19 +811,19 @@ NvrtcProgramHandle create_nvrtc_program_handle_ref(nvrtcProgram prog) {
 
 namespace {
 struct NvvmProgramBox {
-    nvvmProgram resource;
+    NvvmProgramValue resource;
 };
 }  // namespace
 
 NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog) {
     auto box = std::shared_ptr<NvvmProgramBox>(
-        new NvvmProgramBox{prog},
+        new NvvmProgramBox{{prog}},
         [](NvvmProgramBox* b) {
             // Note: nvvmDestroyProgram takes nvvmProgram* and nulls it,
             // but we're deleting the box anyway so nulling is harmless.
             // If NVVM is not available, the function pointer is null.
             if (p_nvvmDestroyProgram) {
-                p_nvvmDestroyProgram(&b->resource);
+                p_nvvmDestroyProgram(&b->resource.raw);
             }
             delete b;
         }
@@ -826,8 +832,69 @@ NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog) {
 }
 
 NvvmProgramHandle create_nvvm_program_handle_ref(nvvmProgram prog) {
-    auto box = std::make_shared<NvvmProgramBox>(NvvmProgramBox{prog});
+    auto box = std::make_shared<NvvmProgramBox>(NvvmProgramBox{{prog}});
     return NvvmProgramHandle(box, &box->resource);
+}
+
+// ============================================================================
+// nvJitLink Handles
+// ============================================================================
+
+namespace {
+struct NvJitLinkBox {
+    NvJitLinkValue resource;
+};
+}  // namespace
+
+NvJitLinkHandle create_nvjitlink_handle(nvJitLink_t handle) {
+    auto box = std::shared_ptr<NvJitLinkBox>(
+        new NvJitLinkBox{{handle}},
+        [](NvJitLinkBox* b) {
+            // Note: nvJitLinkDestroy takes nvJitLinkHandle* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            // If nvJitLink is not available, the function pointer is null.
+            if (p_nvJitLinkDestroy) {
+                p_nvJitLinkDestroy(&b->resource.raw);
+            }
+            delete b;
+        }
+    );
+    return NvJitLinkHandle(box, &box->resource);
+}
+
+NvJitLinkHandle create_nvjitlink_handle_ref(nvJitLink_t handle) {
+    auto box = std::make_shared<NvJitLinkBox>(NvJitLinkBox{{handle}});
+    return NvJitLinkHandle(box, &box->resource);
+}
+
+// ============================================================================
+// cuLink Handles
+// ============================================================================
+
+namespace {
+struct CuLinkBox {
+    CUlinkState resource;
+};
+}  // namespace
+
+CuLinkHandle create_culink_handle(CUlinkState state) {
+    auto box = std::shared_ptr<CuLinkBox>(
+        new CuLinkBox{state},
+        [](CuLinkBox* b) {
+            // cuLinkDestroy takes CUlinkState by value (not pointer).
+            // Errors are ignored (standard destructor practice).
+            if (p_cuLinkDestroy) {
+                p_cuLinkDestroy(b->resource);
+            }
+            delete b;
+        }
+    );
+    return CuLinkHandle(box, &box->resource);
+}
+
+CuLinkHandle create_culink_handle_ref(CUlinkState state) {
+    auto box = std::make_shared<CuLinkBox>(CuLinkBox{state});
+    return CuLinkHandle(box, &box->resource);
 }
 
 }  // namespace cuda_core
