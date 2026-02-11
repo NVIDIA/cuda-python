@@ -15,6 +15,9 @@ on:
     branches:
       - "pull-request/[0-9]+"
       - "main"
+  schedule:
+    # every 24 hours at midnight UTC
+    - cron: "0 0 * * *"
 
 jobs:
   ci-vars:
@@ -149,6 +152,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
@@ -171,6 +175,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-windows:
@@ -193,6 +198,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
   doc:
     name: Docs
