@@ -540,6 +540,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         assert_type(code, str)
         if options.extra_sources is not None:
             raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
+
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
         code_ptr = <const char*>code_bytes
@@ -636,7 +637,6 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     return 0
 
 
-
 cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
     """Compile using NVRTC backend and return ObjectCode."""
     cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
@@ -717,7 +717,7 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
     cdef bytes libdevice_bytes
     cdef const char* libdevice_ptr
     cdef size_t libdevice_len
-
+    # Build options array
     options_list = self._options.as_bytes("nvvm", target_type)
     options_vec.resize(len(options_list))
     for i in range(len(options_list)):
@@ -752,6 +752,7 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
     with nogil:
         HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResult(prog, data_ptr))
 
+    # Get compilation log if requested
     if logs is not None:
         HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLogSize(prog, &logsize))
         if logsize > 1:
