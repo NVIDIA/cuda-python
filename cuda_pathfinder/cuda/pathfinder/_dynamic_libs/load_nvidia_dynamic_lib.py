@@ -81,22 +81,22 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     # Phase 2: Cross-cutting — already-loaded check and dependency loading.
     # The already-loaded check on Windows uses the "have we found a path?"
     # flag to decide whether to apply AddDllDirectory side-effects.
-    loaded = check_if_already_loaded_from_elsewhere(libname, find is not None)
-    load_dependencies(libname, load_nvidia_dynamic_lib)
+    loaded = check_if_already_loaded_from_elsewhere(desc, find is not None)
+    load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
 
     # Phase 3: Load from found path, or fall back to system search + late find.
     if find is not None:
-        return load_with_abs_path(libname, find.abs_path, find.found_via)
+        return load_with_abs_path(desc, find.abs_path, find.found_via)
 
-    loaded = load_with_system_search(libname)
+    loaded = load_with_system_search(desc)
     if loaded is not None:
         return loaded
 
     find = run_find_steps(ctx, LATE_FIND_STEPS)
     if find is not None:
-        return load_with_abs_path(libname, find.abs_path, find.found_via)
+        return load_with_abs_path(desc, find.abs_path, find.found_via)
 
     ctx.raise_not_found()
 
