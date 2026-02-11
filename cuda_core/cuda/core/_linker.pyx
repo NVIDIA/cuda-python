@@ -1,124 +1,189 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+"""Linking machinery for combining object codes.
+
+This module provides :class:`Linker` for linking one or more
+:class:`~cuda.core.ObjectCode` objects, with :class:`LinkerOptions` for
+configuration.
+"""
 
 from __future__ import annotations
+
+from cpython.bytearray cimport PyByteArray_AS_STRING
+from libc.stdint cimport intptr_t, uint32_t
+from libcpp.vector cimport vector
+from cuda.bindings cimport cydriver
+from cuda.bindings cimport cynvjitlink
+
+from ._resource_handles cimport (
+    CuLinkHandle,
+    NvJitLinkHandle,
+    as_cu,
+    as_py,
+    create_culink_handle,
+    create_nvjitlink_handle,
+)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, HANDLE_RETURN_NVJITLINK
 
 import sys
 from dataclasses import dataclass
 from typing import Union
 from warnings import warn
 
-from libc.stdint cimport intptr_t, uint32_t
-from libcpp.vector cimport vector
-from cpython.bytearray cimport PyByteArray_AS_STRING
+from cuda.core._device import Device
+from cuda.core._module import ObjectCode
+from cuda.core._utils.clear_error_support import assert_type
+from cuda.core._utils.cuda_utils import (
+    CUDAError,
+    check_or_create_options,
+    driver,
+    handle_return,
+    is_sequence,
+)
 
 ctypedef const char* const_char_ptr
 ctypedef void* void_ptr
 
-from cuda.bindings cimport cydriver
-from cuda.bindings cimport cynvjitlink
+__all__ = ["Linker", "LinkerOptions"]
 
-from ._resource_handles cimport (
-    NvJitLinkHandle, CuLinkHandle,
-    create_nvjitlink_handle, create_culink_handle,
-    as_cu, as_py,
-)
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, HANDLE_RETURN_NVJITLINK
-
-from cuda.core._device import Device
-from cuda.core._module import ObjectCode
-from cuda.core._utils.clear_error_support import assert_type
-from cuda.core._utils.cuda_utils import CUDAError, check_or_create_options, driver, handle_return, is_sequence
-
-# TODO: revisit this treatment for py313t builds
-_driver = None  # populated if nvJitLink cannot be used
-_driver_ver = None
-_inited = False
-_use_nvjitlink_backend = False  # set by _decide_nvjitlink_or_driver()
-
-# Input type mappings populated by _lazy_init() with C-level enum ints.
-_nvjitlink_input_types = None
-_driver_input_types = None
+LinkerHandleT = Union["cuda.bindings.nvjitlink.nvJitLinkHandle", "cuda.bindings.driver.CUlinkState"]
 
 
-def _nvjitlink_has_version_symbol(inner_nvjitlink) -> bool:
-    # This condition is equivalent to testing for version >= 12.3
-    return bool(inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"))
+# =============================================================================
+# Principal class
+# =============================================================================
 
+cdef class Linker:
+    """Represent a linking machinery to link one or more object codes into
+    :class:`~cuda.core.ObjectCode`.
 
-# Note: this function is reused in the tests
-def _decide_nvjitlink_or_driver() -> bool:
-    """Returns True if falling back to the cuLink* driver APIs."""
-    global _driver_ver, _driver, _use_nvjitlink_backend
-    if _driver_ver is not None:
-        return not _use_nvjitlink_backend
+    This object provides a unified interface to multiple underlying
+    linker libraries (such as nvJitLink or cuLink* from the CUDA driver).
 
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
+    Parameters
+    ----------
+    object_codes : :class:`~cuda.core.ObjectCode`
+        One or more ObjectCode objects to be linked.
+    options : :class:`LinkerOptions`, optional
+        Options for the linker. If not provided, default options will be used.
+    """
 
-    warn_txt_common = (
-        "the driver APIs will be used instead, which do not support"
-        " minor version compatibility or linking LTO IRs."
-        " For best results, consider upgrading to a recent version of"
-    )
+    def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
+        Linker_init(self, object_codes, options)
 
-    try:
-        import cuda.bindings.nvjitlink  # noqa: F401 (availability check)
-    except ModuleNotFoundError:
-        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
-    else:
-        from cuda.bindings._internal import nvjitlink
+    def link(self, target_type) -> ObjectCode:
+        """Link the provided object codes into a single output of the specified target type.
 
-        try:
-            if _nvjitlink_has_version_symbol(nvjitlink):
-                _use_nvjitlink_backend = True
-                return False  # Use nvjitlink
-        except RuntimeError:
-            warn_detail = "not available"
+        Parameters
+        ----------
+        target_type : str
+            The type of the target output. Must be either "cubin" or "ptx".
+
+        Returns
+        -------
+        :class:`~cuda.core.ObjectCode`
+            The linked object code of the specified target type.
+
+        .. note::
+
+            Ensure that input object codes were compiled with appropriate
+            flags for linking (e.g., relocatable device code enabled).
+        """
+        return Linker_link(self, target_type)
+
+    def get_error_log(self) -> str:
+        """Get the error log generated by the linker.
+
+        Returns
+        -------
+        str
+            The error log.
+        """
+        # After link(), the decoded log is cached here.
+        if self._error_log is not None:
+            return self._error_log
+        cdef cynvjitlink.nvJitLinkHandle c_h
+        cdef size_t c_log_size = 0
+        cdef char* c_log_ptr
+        if self._use_nvjitlink:
+            c_h = as_cu(self._nvjitlink_handle)
+            cynvjitlink.nvJitLinkGetErrorLogSize(c_h, &c_log_size)
+            log = bytearray(c_log_size)
+            if c_log_size > 0:
+                c_log_ptr = <char*>(<bytearray>log)
+                cynvjitlink.nvJitLinkGetErrorLog(c_h, c_log_ptr)
+            return log.decode("utf-8", errors="backslashreplace")
         else:
-            warn_detail = "too old (<12.3)"
-        warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
-            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
-        )
+            return (<bytearray>self._drv_log_bufs[2]).decode(
+                "utf-8", errors="backslashreplace").rstrip('\x00')
 
-    warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _driver = driver
-    return True
+    def get_info_log(self) -> str:
+        """Get the info log generated by the linker.
+
+        Returns
+        -------
+        str
+            The info log.
+        """
+        # After link(), the decoded log is cached here.
+        if self._info_log is not None:
+            return self._info_log
+        cdef cynvjitlink.nvJitLinkHandle c_h
+        cdef size_t c_log_size = 0
+        cdef char* c_log_ptr
+        if self._use_nvjitlink:
+            c_h = as_cu(self._nvjitlink_handle)
+            cynvjitlink.nvJitLinkGetInfoLogSize(c_h, &c_log_size)
+            log = bytearray(c_log_size)
+            if c_log_size > 0:
+                c_log_ptr = <char*>(<bytearray>log)
+                cynvjitlink.nvJitLinkGetInfoLog(c_h, c_log_ptr)
+            return log.decode("utf-8", errors="backslashreplace")
+        else:
+            return (<bytearray>self._drv_log_bufs[0]).decode(
+                "utf-8", errors="backslashreplace").rstrip('\x00')
+
+    def close(self):
+        """Destroy this linker."""
+        if self._use_nvjitlink:
+            self._nvjitlink_handle.reset()
+        else:
+            self._culink_handle.reset()
+
+    @property
+    def handle(self) -> LinkerHandleT:
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Linker.handle)``.
+        """
+        if self._use_nvjitlink:
+            return as_py(self._nvjitlink_handle)
+        else:
+            return as_py(self._culink_handle)
+
+    @property
+    def backend(self) -> str:
+        """Return this Linker instance's underlying backend."""
+        return "nvJitLink" if self._use_nvjitlink else "driver"
 
 
-def _lazy_init():
-    global _inited, _nvjitlink_input_types, _driver_input_types
-    if _inited:
-        return
-
-    _decide_nvjitlink_or_driver()
-    if _use_nvjitlink_backend:
-        _nvjitlink_input_types = {
-            "ptx": <int>cynvjitlink.NVJITLINK_INPUT_PTX,
-            "cubin": <int>cynvjitlink.NVJITLINK_INPUT_CUBIN,
-            "fatbin": <int>cynvjitlink.NVJITLINK_INPUT_FATBIN,
-            "ltoir": <int>cynvjitlink.NVJITLINK_INPUT_LTOIR,
-            "object": <int>cynvjitlink.NVJITLINK_INPUT_OBJECT,
-            "library": <int>cynvjitlink.NVJITLINK_INPUT_LIBRARY,
-        }
-    else:
-        _driver_input_types = {
-            "ptx": <int>cydriver.CU_JIT_INPUT_PTX,
-            "cubin": <int>cydriver.CU_JIT_INPUT_CUBIN,
-            "fatbin": <int>cydriver.CU_JIT_INPUT_FATBINARY,
-            "object": <int>cydriver.CU_JIT_INPUT_OBJECT,
-            "library": <int>cydriver.CU_JIT_INPUT_LIBRARY,
-        }
-    _inited = True
-
+# =============================================================================
+# Supporting classes
+# =============================================================================
 
 @dataclass
 class LinkerOptions:
-    """Customizable :obj:`Linker` options.
+    """Customizable options for configuring :class:`Linker`.
 
-    Since the linker would choose to use nvJitLink or the driver APIs as the linking backed,
+    Since the linker may choose to use nvJitLink or the driver APIs as the linking backend,
     not all options are applicable. When the system's installed nvJitLink is too old (<12.3),
     or not installed, the driver APIs (cuLink) will be used instead.
 
@@ -164,14 +229,14 @@ class LinkerOptions:
     fma : bool, optional
         Use fast multiply-add.
         Default: True.
-    kernels_used : [Union[str, tuple[str], list[str]]], optional
+    kernels_used : [str | tuple[str] | list[str]], optional
         Pass a kernel or sequence of kernels that are used; any not in the list can be removed.
-    variables_used : [Union[str, tuple[str], list[str]]], optional
+    variables_used : [str | tuple[str] | list[str]], optional
         Pass a variable or sequence of variables that are used; any not in the list can be removed.
     optimize_unused_variables : bool, optional
         Assume that if a variable is not referenced in device code, it can be removed.
         Default: False.
-    ptxas_options : [Union[str, tuple[str], list[str]]], optional
+    ptxas_options : [str | tuple[str] | list[str]], optional
         Pass options to PTXAS.
     split_compile : int, optional
         Split compilation maximum thread count. Use 0 to use all available processors. Value of 1 disables split
@@ -372,273 +437,266 @@ class LinkerOptions:
         return self._prepare_nvjitlink_options(as_bytes=True)
 
 
+# =============================================================================
+# Private implementation: cdef inline helpers
+# =============================================================================
 
-LinkerHandleT = Union["cuda.bindings.nvjitlink.nvJitLinkHandle", "cuda.bindings.driver.CUlinkState"]
+cdef inline int Linker_init(Linker self, tuple object_codes, object options) except -1:
+    """Initialize a Linker instance."""
+    if len(object_codes) == 0:
+        raise ValueError("At least one ObjectCode object must be provided")
 
+    cdef cynvjitlink.nvJitLinkHandle c_raw_nvjitlink
+    cdef cydriver.CUlinkState c_raw_culink
+    cdef Py_ssize_t c_num_opts, i
+    cdef vector[const_char_ptr] c_str_opts
+    cdef vector[cydriver.CUjit_option] c_jit_keys
+    cdef vector[void_ptr] c_jit_values
 
-cdef class Linker:
-    """Represent a linking machinery to link one or multiple object codes into
-    :obj:`~cuda.core._module.ObjectCode` with the specified options.
+    self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
 
-    This object provides a unified interface to multiple underlying
-    linker libraries (such as nvJitLink or cuLink* from CUDA driver).
-
-    Parameters
-    ----------
-    object_codes : ObjectCode
-        One or more ObjectCode objects to be linked.
-    options : LinkerOptions, optional
-        Options for the linker. If not provided, default options will be used.
-    """
-
-    def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
-        if len(object_codes) == 0:
-            raise ValueError("At least one ObjectCode object must be provided")
-
-        cdef cynvjitlink.nvJitLinkHandle raw_nvjitlink
-        cdef cydriver.CUlinkState raw_culink
-        cdef Py_ssize_t num_opts, i
-        cdef vector[const_char_ptr] c_str_opts
-        cdef vector[cydriver.CUjit_option] c_jit_keys
-        cdef vector[void_ptr] c_jit_values
-
-        self._option_keys = None
-        self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
-
-        if _use_nvjitlink_backend:
-            self._use_nvjitlink = True
-            options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
-            num_opts = len(options_bytes)
-            c_str_opts.resize(num_opts)
-            for i in range(num_opts):
-                c_str_opts[i] = <const char*>(<bytes>options_bytes[i])
+    if _use_nvjitlink_backend:
+        self._use_nvjitlink = True
+        options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
+        c_num_opts = len(options_bytes)
+        c_str_opts.resize(c_num_opts)
+        for i in range(c_num_opts):
+            c_str_opts[i] = <const char*>(<bytes>options_bytes[i])
+        with nogil:
+            HANDLE_RETURN_NVJITLINK(NULL, cynvjitlink.nvJitLinkCreate(
+                &c_raw_nvjitlink, <uint32_t>c_num_opts, c_str_opts.data()))
+        self._nvjitlink_handle = create_nvjitlink_handle(c_raw_nvjitlink)
+    else:
+        self._use_nvjitlink = False
+        formatted_options, option_keys = options._prepare_driver_options()
+        # Keep the formatted_options list alive: it contains bytearrays that
+        # the driver writes into via raw pointers during linking operations.
+        self._drv_log_bufs = formatted_options
+        c_num_opts = len(option_keys)
+        c_jit_keys.resize(c_num_opts)
+        c_jit_values.resize(c_num_opts)
+        for i in range(c_num_opts):
+            c_jit_keys[i] = <cydriver.CUjit_option><int>option_keys[i]
+            val = formatted_options[i]
+            if isinstance(val, bytearray):
+                c_jit_values[i] = <void*>PyByteArray_AS_STRING(val)
+            else:
+                c_jit_values[i] = <void*><intptr_t>int(val)
+        try:
             with nogil:
-                HANDLE_RETURN_NVJITLINK(NULL, cynvjitlink.nvJitLinkCreate(
-                    &raw_nvjitlink, <uint32_t>num_opts, c_str_opts.data()))
-            self._nvjitlink_handle = create_nvjitlink_handle(raw_nvjitlink)
+                HANDLE_RETURN(cydriver.cuLinkCreate(
+                    <unsigned int>c_num_opts, c_jit_keys.data(), c_jit_values.data(), &c_raw_culink))
+        except CUDAError as e:
+            Linker_annotate_error_log(self, e)
+            raise
+        self._culink_handle = create_culink_handle(c_raw_culink)
+
+    for code in object_codes:
+        assert_type(code, ObjectCode)
+        Linker_add_code_object(self, code)
+    return 0
+
+
+cdef inline void Linker_add_code_object(Linker self, object object_code) except *:
+    """Add a single ObjectCode to the linker."""
+    data = object_code.code
+    cdef cynvjitlink.nvJitLinkHandle c_nvjitlink_h
+    cdef cydriver.CUlinkState c_culink_state
+    cdef cynvjitlink.nvJitLinkInputType c_nv_input_type
+    cdef cydriver.CUjitInputType c_drv_input_type
+    cdef const char* c_data_ptr
+    cdef size_t c_data_size
+    cdef const char* c_name_ptr
+    cdef const char* c_file_ptr
+
+    name_bytes = f"{object_code.name}".encode()
+    c_name_ptr = <const char*>name_bytes
+
+    input_types = _nvjitlink_input_types if self._use_nvjitlink else _driver_input_types
+    py_input_type = input_types.get(object_code.code_type)
+    if py_input_type is None:
+        raise ValueError(f"Unknown code_type associated with ObjectCode: {object_code.code_type}")
+
+    if self._use_nvjitlink:
+        c_nvjitlink_h = as_cu(self._nvjitlink_handle)
+        c_nv_input_type = <cynvjitlink.nvJitLinkInputType><int>py_input_type
+        if isinstance(data, bytes):
+            c_data_ptr = <const char*>(<bytes>data)
+            c_data_size = len(data)
+            with nogil:
+                HANDLE_RETURN_NVJITLINK(c_nvjitlink_h, cynvjitlink.nvJitLinkAddData(
+                    c_nvjitlink_h, c_nv_input_type, <const void*>c_data_ptr, c_data_size, c_name_ptr))
+        elif isinstance(data, str):
+            file_bytes = data.encode()
+            c_file_ptr = <const char*>file_bytes
+            with nogil:
+                HANDLE_RETURN_NVJITLINK(c_nvjitlink_h, cynvjitlink.nvJitLinkAddFile(
+                    c_nvjitlink_h, c_nv_input_type, c_file_ptr))
         else:
-            self._use_nvjitlink = False
-            self._formatted_options, self._option_keys = options._prepare_driver_options()
-            num_opts = len(self._option_keys)
-            c_jit_keys.resize(num_opts)
-            c_jit_values.resize(num_opts)
-            for i in range(num_opts):
-                c_jit_keys[i] = <cydriver.CUjit_option><int>self._option_keys[i]
-                val = self._formatted_options[i]
-                if isinstance(val, bytearray):
-                    c_jit_values[i] = <void*>PyByteArray_AS_STRING(val)
-                else:
-                    c_jit_values[i] = <void*><intptr_t>int(val)
-            try:
-                with nogil:
-                    HANDLE_RETURN(cydriver.cuLinkCreate(
-                        <unsigned int>num_opts, c_jit_keys.data(), c_jit_values.data(), &raw_culink))
-            except CUDAError as e:
-                self._annotate_error_log(e)
-                raise
-            self._culink_handle = create_culink_handle(raw_culink)
-
-        for code in object_codes:
-            assert_type(code, ObjectCode)
-            self._add_code_object(code)
-
-    def _annotate_error_log(self, e):
-        """Annotate a CUDAError with the driver linker error log."""
-        error_log = self.get_error_log()
-        if error_log:
-            e.args = (e.args[0] + f"\nLinker error log: {error_log}", *e.args[1:])
-
-    def _add_code_object(self, object_code: ObjectCode):
-        data = object_code.code
-        cdef cynvjitlink.nvJitLinkHandle nvjitlink_h
-        cdef cydriver.CUlinkState culink_state
-        cdef cynvjitlink.nvJitLinkInputType c_nv_input_type
-        cdef cydriver.CUjitInputType c_drv_input_type
-        cdef const char* data_ptr
-        cdef size_t data_size
-        cdef const char* name_ptr
-        cdef const char* file_ptr
-
-        name_bytes = f"{object_code.name}".encode()
-        name_ptr = <const char*>name_bytes
-
-        input_types = _nvjitlink_input_types if self._use_nvjitlink else _driver_input_types
-        py_input_type = input_types.get(object_code.code_type)
-        if py_input_type is None:
-            raise ValueError(f"Unknown code_type associated with ObjectCode: {object_code.code_type}")
-
-        if self._use_nvjitlink:
-            nvjitlink_h = as_cu(self._nvjitlink_handle)
-            c_nv_input_type = <cynvjitlink.nvJitLinkInputType><int>py_input_type
+            raise TypeError(f"Expected bytes or str, but got {type(data).__name__}")
+    else:
+        c_culink_state = as_cu(self._culink_handle)
+        c_drv_input_type = <cydriver.CUjitInputType><int>py_input_type
+        try:
             if isinstance(data, bytes):
-                data_ptr = <const char*>(<bytes>data)
-                data_size = len(data)
+                c_data_ptr = <const char*>(<bytes>data)
+                c_data_size = len(data)
                 with nogil:
-                    HANDLE_RETURN_NVJITLINK(nvjitlink_h, cynvjitlink.nvJitLinkAddData(
-                        nvjitlink_h, c_nv_input_type, <const void*>data_ptr, data_size, name_ptr))
+                    HANDLE_RETURN(cydriver.cuLinkAddData(
+                        c_culink_state, c_drv_input_type, <void*>c_data_ptr, c_data_size, c_name_ptr,
+                        0, NULL, NULL))
             elif isinstance(data, str):
                 file_bytes = data.encode()
-                file_ptr = <const char*>file_bytes
+                c_file_ptr = <const char*>file_bytes
                 with nogil:
-                    HANDLE_RETURN_NVJITLINK(nvjitlink_h, cynvjitlink.nvJitLinkAddFile(
-                        nvjitlink_h, c_nv_input_type, file_ptr))
+                    HANDLE_RETURN(cydriver.cuLinkAddFile(
+                        c_culink_state, c_drv_input_type, c_file_ptr, 0, NULL, NULL))
             else:
                 raise TypeError(f"Expected bytes or str, but got {type(data).__name__}")
-        else:
-            culink_state = as_cu(self._culink_handle)
-            c_drv_input_type = <cydriver.CUjitInputType><int>py_input_type
-            try:
-                if isinstance(data, bytes):
-                    data_ptr = <const char*>(<bytes>data)
-                    data_size = len(data)
-                    with nogil:
-                        HANDLE_RETURN(cydriver.cuLinkAddData(
-                            culink_state, c_drv_input_type, <void*>data_ptr, data_size, name_ptr,
-                            0, NULL, NULL))
-                elif isinstance(data, str):
-                    file_bytes = data.encode()
-                    file_ptr = <const char*>file_bytes
-                    with nogil:
-                        HANDLE_RETURN(cydriver.cuLinkAddFile(
-                            culink_state, c_drv_input_type, file_ptr, 0, NULL, NULL))
-                else:
-                    raise TypeError(f"Expected bytes or str, but got {type(data).__name__}")
-            except CUDAError as e:
-                self._annotate_error_log(e)
-                raise
+        except CUDAError as e:
+            Linker_annotate_error_log(self, e)
+            raise
 
-    def link(self, target_type) -> ObjectCode:
-        """
-        Links the provided object codes into a single output of the specified target type.
 
-        Parameters
-        ----------
-        target_type : str
-            The type of the target output. Must be either "cubin" or "ptx".
+cdef inline object Linker_link(Linker self, str target_type):
+    """Complete linking and return the result as ObjectCode."""
+    if target_type not in ("cubin", "ptx"):
+        raise ValueError(f"Unsupported target type: {target_type}")
 
-        Returns
-        -------
-        ObjectCode
-            The linked object code of the specified target type.
+    cdef cynvjitlink.nvJitLinkHandle c_nvjitlink_h
+    cdef cydriver.CUlinkState c_culink_state
+    cdef size_t c_output_size = 0
+    cdef char* c_code_ptr
+    cdef void* c_cubin_out = NULL
 
-        Note
-        ------
-        See nvrtc compiler options documnetation to ensure the input object codes are
-        correctly compiled for linking.
-        """
-        if target_type not in ("cubin", "ptx"):
-            raise ValueError(f"Unsupported target type: {target_type}")
-
-        cdef cynvjitlink.nvJitLinkHandle nvjitlink_h
-        cdef cydriver.CUlinkState culink_state
-        cdef size_t output_size = 0
-        cdef char* code_ptr
-        cdef void* cubin_out = NULL
-
-        if self._use_nvjitlink:
-            nvjitlink_h = as_cu(self._nvjitlink_handle)
+    if self._use_nvjitlink:
+        c_nvjitlink_h = as_cu(self._nvjitlink_handle)
+        with nogil:
+            HANDLE_RETURN_NVJITLINK(c_nvjitlink_h, cynvjitlink.nvJitLinkComplete(c_nvjitlink_h))
+        if target_type == "cubin":
+            HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                cynvjitlink.nvJitLinkGetLinkedCubinSize(c_nvjitlink_h, &c_output_size))
+            code = bytearray(c_output_size)
+            c_code_ptr = <char*>(<bytearray>code)
             with nogil:
-                HANDLE_RETURN_NVJITLINK(nvjitlink_h, cynvjitlink.nvJitLinkComplete(nvjitlink_h))
-            if target_type == "cubin":
-                HANDLE_RETURN_NVJITLINK(nvjitlink_h,
-                    cynvjitlink.nvJitLinkGetLinkedCubinSize(nvjitlink_h, &output_size))
-                code = bytearray(output_size)
-                code_ptr = <char*>(<bytearray>code)
-                with nogil:
-                    HANDLE_RETURN_NVJITLINK(nvjitlink_h,
-                        cynvjitlink.nvJitLinkGetLinkedCubin(nvjitlink_h, code_ptr))
-            else:
-                HANDLE_RETURN_NVJITLINK(nvjitlink_h,
-                    cynvjitlink.nvJitLinkGetLinkedPtxSize(nvjitlink_h, &output_size))
-                code = bytearray(output_size)
-                code_ptr = <char*>(<bytearray>code)
-                with nogil:
-                    HANDLE_RETURN_NVJITLINK(nvjitlink_h,
-                        cynvjitlink.nvJitLinkGetLinkedPtx(nvjitlink_h, code_ptr))
+                HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                    cynvjitlink.nvJitLinkGetLinkedCubin(c_nvjitlink_h, c_code_ptr))
         else:
-            culink_state = as_cu(self._culink_handle)
-            try:
-                with nogil:
-                    HANDLE_RETURN(cydriver.cuLinkComplete(culink_state, &cubin_out, &output_size))
-            except CUDAError as e:
-                self._annotate_error_log(e)
-                raise
-            code = (<char*>cubin_out)[:output_size]
+            HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                cynvjitlink.nvJitLinkGetLinkedPtxSize(c_nvjitlink_h, &c_output_size))
+            code = bytearray(c_output_size)
+            c_code_ptr = <char*>(<bytearray>code)
+            with nogil:
+                HANDLE_RETURN_NVJITLINK(c_nvjitlink_h,
+                    cynvjitlink.nvJitLinkGetLinkedPtx(c_nvjitlink_h, c_code_ptr))
+    else:
+        c_culink_state = as_cu(self._culink_handle)
+        try:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuLinkComplete(c_culink_state, &c_cubin_out, &c_output_size))
+        except CUDAError as e:
+            Linker_annotate_error_log(self, e)
+            raise
+        code = (<char*>c_cubin_out)[:c_output_size]
 
-        return ObjectCode._init(bytes(code), target_type, name=self._options.name)
+    # Linking is complete; cache the decoded log strings and release
+    # the driver's raw bytearray buffers (no longer written to).
+    self._info_log = self.get_info_log()
+    self._error_log = self.get_error_log()
+    self._drv_log_bufs = None
 
-    def get_error_log(self) -> str:
-        """Get the error log generated by the linker.
+    return ObjectCode._init(bytes(code), target_type, name=self._options.name)
 
-        Returns
-        -------
-        str
-            The error log.
-        """
-        cdef cynvjitlink.nvJitLinkHandle h
-        cdef size_t log_size = 0
-        cdef char* log_ptr
-        if self._use_nvjitlink:
-            h = as_cu(self._nvjitlink_handle)
-            cynvjitlink.nvJitLinkGetErrorLogSize(h, &log_size)
-            log = bytearray(log_size)
-            if log_size > 0:
-                log_ptr = <char*>(<bytearray>log)
-                cynvjitlink.nvJitLinkGetErrorLog(h, log_ptr)
-            return log.decode("utf-8", errors="backslashreplace")
+
+cdef inline void Linker_annotate_error_log(Linker self, object e):
+    """Annotate a CUDAError with the driver linker error log."""
+    error_log = self.get_error_log()
+    if error_log:
+        e.args = (e.args[0] + f"\nLinker error log: {error_log}", *e.args[1:])
+
+
+# =============================================================================
+# Private implementation: module-level state and initialization
+# =============================================================================
+
+# TODO: revisit this treatment for py313t builds
+_driver = None  # populated if nvJitLink cannot be used
+_driver_ver = None
+_inited = False
+_use_nvjitlink_backend = False  # set by _decide_nvjitlink_or_driver()
+
+# Input type mappings populated by _lazy_init() with C-level enum ints.
+_nvjitlink_input_types = None
+_driver_input_types = None
+
+
+def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
+    # This condition is equivalent to testing for version >= 12.3
+    return bool(nvjitlink._inspect_function_pointer("__nvJitLinkVersion"))
+
+
+# Note: this function is reused in the tests
+def _decide_nvjitlink_or_driver() -> bool:
+    """Return True if falling back to the cuLink* driver APIs."""
+    global _driver_ver, _driver, _use_nvjitlink_backend
+    if _driver_ver is not None:
+        return not _use_nvjitlink_backend
+
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
+    _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
+
+    warn_txt_common = (
+        "the driver APIs will be used instead, which do not support"
+        " minor version compatibility or linking LTO IRs."
+        " For best results, consider upgrading to a recent version of"
+    )
+
+    try:
+        import cuda.bindings.nvjitlink  # noqa: F401 (availability check)
+    except ModuleNotFoundError:
+        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
+    else:
+        from cuda.bindings._internal import nvjitlink
+
+        try:
+            if _nvjitlink_has_version_symbol(nvjitlink):
+                _use_nvjitlink_backend = True
+                return False  # Use nvjitlink
+        except RuntimeError:
+            warn_detail = "not available"
         else:
-            log = self._formatted_options[2]
-            return log.decode("utf-8", errors="backslashreplace").rstrip('\x00')
+            warn_detail = "too old (<12.3)"
+        warn_txt = (
+            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
+            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+        )
 
-    def get_info_log(self) -> str:
-        """Get the info log generated by the linker.
+    warn(warn_txt, stacklevel=2, category=RuntimeWarning)
+    _driver = driver
+    return True
 
-        Returns
-        -------
-        str
-            The info log.
-        """
-        cdef cynvjitlink.nvJitLinkHandle h
-        cdef size_t log_size = 0
-        cdef char* log_ptr
-        if self._use_nvjitlink:
-            h = as_cu(self._nvjitlink_handle)
-            cynvjitlink.nvJitLinkGetInfoLogSize(h, &log_size)
-            log = bytearray(log_size)
-            if log_size > 0:
-                log_ptr = <char*>(<bytearray>log)
-                cynvjitlink.nvJitLinkGetInfoLog(h, log_ptr)
-            return log.decode("utf-8", errors="backslashreplace")
-        else:
-            log = self._formatted_options[0]
-            return log.decode("utf-8", errors="backslashreplace").rstrip('\x00')
 
-    @property
-    def handle(self) -> LinkerHandleT:
-        """Return the underlying handle object.
+def _lazy_init():
+    global _inited, _nvjitlink_input_types, _driver_input_types
+    if _inited:
+        return
 
-        .. note::
-
-           The type of the returned object depends on the backend.
-
-        .. caution::
-
-            This handle is a Python object. To get the memory address of the underlying C
-            handle, call ``int(Linker.handle)``.
-        """
-        if self._use_nvjitlink:
-            return as_py(self._nvjitlink_handle)
-        else:
-            return as_py(self._culink_handle)
-
-    @property
-    def backend(self) -> str:
-        """Return this Linker instance's underlying backend."""
-        return "nvJitLink" if self._use_nvjitlink else "driver"
-
-    def close(self):
-        """Destroy this linker."""
-        if self._use_nvjitlink:
-            self._nvjitlink_handle.reset()
-        else:
-            self._culink_handle.reset()
+    _decide_nvjitlink_or_driver()
+    if _use_nvjitlink_backend:
+        _nvjitlink_input_types = {
+            "ptx": <int>cynvjitlink.NVJITLINK_INPUT_PTX,
+            "cubin": <int>cynvjitlink.NVJITLINK_INPUT_CUBIN,
+            "fatbin": <int>cynvjitlink.NVJITLINK_INPUT_FATBIN,
+            "ltoir": <int>cynvjitlink.NVJITLINK_INPUT_LTOIR,
+            "object": <int>cynvjitlink.NVJITLINK_INPUT_OBJECT,
+            "library": <int>cynvjitlink.NVJITLINK_INPUT_LIBRARY,
+        }
+    else:
+        _driver_input_types = {
+            "ptx": <int>cydriver.CU_JIT_INPUT_PTX,
+            "cubin": <int>cydriver.CU_JIT_INPUT_CUBIN,
+            "fatbin": <int>cydriver.CU_JIT_INPUT_FATBINARY,
+            "object": <int>cydriver.CU_JIT_INPUT_OBJECT,
+            "library": <int>cydriver.CU_JIT_INPUT_LIBRARY,
+        }
+    _inited = True

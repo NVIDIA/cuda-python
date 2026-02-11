@@ -10,7 +10,8 @@ cdef class Linker:
         NvJitLinkHandle _nvjitlink_handle
         CuLinkHandle _culink_handle
         bint _use_nvjitlink
-        object _formatted_options  # list (both backends); driver path uses indices 0,2 for logs
-        object _option_keys  # list (driver only) or None
-        object _options  # LinkerOptions
+        object _drv_log_bufs  # formatted_options list (driver); None for nvjitlink; cleared in link()
+        str _info_log         # decoded log; None until link() or pre-link get_*_log()
+        str _error_log        # decoded log; None until link() or pre-link get_*_log()
+        object _options       # LinkerOptions
         object __weakref__
