@@ -50,4 +50,9 @@ def find_sub_dirs_sys_path(sub_dirs: Sequence[str]) -> list[str]:
 
 
 def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
-    return find_sub_dirs((site.getusersitepackages(), *site.getsitepackages()), sub_dirs)
+    parent_dirs = list(site.getsitepackages())
+    if site.ENABLE_USER_SITE:
+        user_site = site.getusersitepackages()
+        if user_site:
+            parent_dirs.insert(0, user_site)
+    return find_sub_dirs(parent_dirs, sub_dirs)
