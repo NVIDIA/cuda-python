@@ -563,8 +563,8 @@ on the system <code class="docutils literal notranslate"><span class="pre">PATH<
 <li><p>For libraries whose shared object doesn’t reside on the standard
 linker path (e.g. <code class="docutils literal notranslate"><span class="pre">libnvvm.so</span></code> lives under <code class="docutils literal notranslate"><span class="pre">$CTK_ROOT/nvvm/lib64</span></code>),
 attempt to discover the CTK installation root by system-loading a
-well-known CTK library (<code class="docutils literal notranslate"><span class="pre">cudart</span></code>) that <em>is</em> on the linker path, then
-derive the root from its resolved absolute path.</p></li>
+well-known CTK library (<code class="docutils literal notranslate"><span class="pre">cudart</span></code>) in a subprocess, then derive
+the root from its resolved absolute path.</p></li>
 </ul>
 </li>
 </ol>
