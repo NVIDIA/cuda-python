@@ -4,7 +4,6 @@
 import json
 import os
 import platform
-from unittest.mock import patch
 
 import pytest
 import spawned_process_runner
@@ -62,12 +61,16 @@ def test_supported_libnames_windows_libnames_requiring_os_add_dll_directory_cons
     )
 
 
-def test_runtime_error_on_non_64bit_python():
-    with (
-        patch("struct.calcsize", return_value=3),  # fake 24-bit pointer
-        pytest.raises(RuntimeError, match=r"requires 64-bit Python\. Currently running: 24-bit Python"),
-    ):
-        load_nvidia_dynamic_lib("not_used")
+def test_runtime_error_on_non_64bit_python(mocker):
+    mocker.patch("struct.calcsize", return_value=3)  # fake 24-bit pointer
+    with pytest.raises(RuntimeError, match=r"requires 64-bit Python\. Currently running: 24-bit Python"):
+        load_nvidia_dynamic_lib("cudart")
+
+
+@pytest.mark.parametrize("libname", ["bogus", "not_a_real_lib", "cupti"])
+def test_unsupported_libname_raises_value_error(libname):
+    with pytest.raises(ValueError, match=rf"Unsupported library name: '{libname}'.*cudart"):
+        load_nvidia_dynamic_lib(libname)
 
 
 IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
