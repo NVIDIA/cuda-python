@@ -56,8 +56,13 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 [tool.setuptools.packages.find]
 include = ["cuda*"]
 
-[tool.setuptools.exclude-package-data]
-"*" = ["*.cpp"]
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"*" = ["*.pxd", "*.pxi"]
+"cuda.bindings._bindings" = ["*.h"]
+"cuda.bindings._lib" = ["*.h"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
