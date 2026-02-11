@@ -83,34 +83,6 @@ def _find_dll_in_rel_dirs(
     return None
 
 
-def _find_in_lib_dir_so(
-    lib_dir: str, so_basename: str, error_messages: list[str], attachments: list[str]
-) -> str | None:
-    so_name = os.path.join(lib_dir, so_basename)
-    if os.path.isfile(so_name):
-        return so_name
-    error_messages.append(f"No such file: {so_name}")
-    attachments.append(f'  listdir("{lib_dir}"):')
-    if not os.path.isdir(lib_dir):
-        attachments.append("    DIRECTORY DOES NOT EXIST")
-    else:
-        for node in sorted(os.listdir(lib_dir)):
-            attachments.append(f"    {node}")
-    return None
-
-
-def _find_in_lib_dir_dll(lib_dir: str, libname: str, error_messages: list[str], attachments: list[str]) -> str | None:
-    file_wild = libname + "*.dll"
-    dll_name = _find_dll_under_dir(lib_dir, file_wild)
-    if dll_name is not None:
-        return dll_name
-    error_messages.append(f"No such file: {file_wild}")
-    attachments.append(f'  listdir("{lib_dir}"):')
-    for node in sorted(os.listdir(lib_dir)):
-        attachments.append(f"    {node}")
-    return None
-
-
 class SearchPlatform(Protocol):
     def lib_searched_for(self, libname: str) -> str: ...
 
@@ -169,7 +141,17 @@ class LinuxSearchPlatform:
         error_messages: list[str],
         attachments: list[str],
     ) -> str | None:
-        return _find_in_lib_dir_so(lib_dir, lib_searched_for, error_messages, attachments)
+        so_name = os.path.join(lib_dir, lib_searched_for)
+        if os.path.isfile(so_name):
+            return so_name
+        error_messages.append(f"No such file: {so_name}")
+        attachments.append(f'  listdir("{lib_dir}"):')
+        if not os.path.isdir(lib_dir):
+            attachments.append("    DIRECTORY DOES NOT EXIST")
+        else:
+            for node in sorted(os.listdir(lib_dir)):
+                attachments.append(f"    {node}")
+        return None
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,7 +185,15 @@ class WindowsSearchPlatform:
         error_messages: list[str],
         attachments: list[str],
     ) -> str | None:
-        return _find_in_lib_dir_dll(lib_dir, libname, error_messages, attachments)
+        file_wild = libname + "*.dll"
+        dll_name = _find_dll_under_dir(lib_dir, file_wild)
+        if dll_name is not None:
+            return dll_name
+        error_messages.append(f"No such file: {file_wild}")
+        attachments.append(f'  listdir("{lib_dir}"):')
+        for node in sorted(os.listdir(lib_dir)):
+            attachments.append(f"    {node}")
+        return None
 
 
 PLATFORM: SearchPlatform = WindowsSearchPlatform() if IS_WINDOWS else LinuxSearchPlatform()
