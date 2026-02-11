@@ -24,7 +24,7 @@ on:
         required: true
         type: string
       run-id:
-        description: "The GHA run ID that generated validated artifacts (optional - will be auto-detected from git tag if not provided)"
+        description: "The GHA run ID that generated validated artifacts (optional - auto-detects successful tag-triggered CI run for git-tag)"
         required: false
         type: string
         default: ""
@@ -64,7 +64,7 @@ jobs:
             echo "Using provided run ID: ${{ inputs.run-id }}"
             echo "run-id=${{ inputs.run-id }}" >> $GITHUB_OUTPUT
           else
-            echo "Auto-detecting run ID for tag: ${{ inputs.git-tag }}"
+            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
             RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
             echo "Auto-detected run ID: $RUN_ID"
             echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
@@ -164,6 +164,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./ci/tools/download-wheels "${{ needs.determine-run-id.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
+
+      - name: Validate wheel versions for release tag
+        run: |
+          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
 
       - name: Publish package distributions to PyPI
         if: ${{ inputs.wheel-dst == 'pypi' }}
