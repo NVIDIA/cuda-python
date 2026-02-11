@@ -17,8 +17,6 @@ from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvjitlink
 
 from ._resource_handles cimport (
-    CuLinkHandle,
-    NvJitLinkHandle,
     as_cu,
     as_py,
     create_culink_handle,
@@ -652,7 +650,7 @@ def _decide_nvjitlink_or_driver() -> bool:
     )
 
     try:
-        import cuda.bindings.nvjitlink  # noqa: F401 (availability check)
+        __import__("cuda.bindings.nvjitlink")  # availability check
     except ModuleNotFoundError:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
