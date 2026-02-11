@@ -5,6 +5,7 @@
 import json
 import sys
 
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -14,10 +15,13 @@ else:
 
 
 def _probe_canary_abs_path(libname: str) -> str | None:
-    loaded = load_with_system_search(libname)
+    loaded: LoadedDL | None = load_with_system_search(libname)
     if loaded is None:
         return None
-    return loaded.abs_path
+    abs_path = loaded.abs_path
+    if not isinstance(abs_path, str):
+        return None
+    return abs_path
 
 
 def main(argv: list[str] | None = None) -> int:
