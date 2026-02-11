@@ -3,8 +3,8 @@
 
 import functools
 import json
-import subprocess
 import struct
+import subprocess
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
