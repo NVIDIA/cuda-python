@@ -15,13 +15,7 @@ from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
-try:
-    from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir
 
-    _test_helpers_available = True
-except ImportError:
-    _test_helpers_available = False
-    
 def _is_nvvm_available():
     """Check if NVVM is available."""
     try:
@@ -658,7 +652,6 @@ entry:
 
 
 @nvvm_available
-@pytest.mark.skipif(not _test_helpers_available, reason="cuda_python_test_helpers not accessible")
 def test_bitcode_format(minimal_nvvmir):
     if len(minimal_nvvmir) < 4:
         pytest.skip("Bitcode file is not valid or empty")
@@ -690,7 +683,8 @@ def test_cpp_program_with_extra_sources():
     options = ProgramOptions(extra_sources=helper)
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
-        
+
+
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
