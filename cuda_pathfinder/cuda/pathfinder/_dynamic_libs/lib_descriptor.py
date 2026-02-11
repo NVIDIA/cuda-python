@@ -51,6 +51,11 @@ class LibDescriptor:
     # Libraries that must be loaded first.
     dependencies: tuple[str, ...] = ()
 
+    # Relative directories to search under an anchor point (CUDA_HOME, conda).
+    # The function tries each in order; first existing directory wins.
+    anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
+    anchor_rel_dirs_windows: tuple[str, ...] = ("bin/x64", "bin")
+
     # Platform-specific loader quirks.
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
@@ -66,6 +71,11 @@ class LibDescriptor:
     def site_packages_dirs(self) -> tuple[str, ...]:
         """Platform-appropriate site-packages relative directories."""
         return self.site_packages_windows if IS_WINDOWS else self.site_packages_linux
+
+    @property
+    def anchor_rel_dirs(self) -> tuple[str, ...]:
+        """Platform-appropriate relative dirs under an anchor point."""
+        return self.anchor_rel_dirs_windows if IS_WINDOWS else self.anchor_rel_dirs_linux
 
 
 def _classify_lib(name: str) -> Strategy:
@@ -95,6 +105,9 @@ def _build_registry() -> dict[str, LibDescriptor]:
 
     registry: dict[str, LibDescriptor] = {}
     for name in sorted(all_names):
+        # nvvm lives in a non-standard subdirectory under the CTK root.
+        anchor_linux = ("nvvm/lib64",) if name == "nvvm" else ("lib64", "lib")
+        anchor_windows = ("nvvm/bin/*", "nvvm/bin") if name == "nvvm" else ("bin/x64", "bin")
         registry[name] = LibDescriptor(
             name=name,
             strategy=_classify_lib(name),
@@ -103,6 +116,8 @@ def _build_registry() -> dict[str, LibDescriptor]:
             site_packages_linux=SITE_PACKAGES_LIBDIRS_LINUX.get(name, ()),
             site_packages_windows=SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ()),
             dependencies=DIRECT_DEPENDENCIES.get(name, ()),
+            anchor_rel_dirs_linux=anchor_linux,
+            anchor_rel_dirs_windows=anchor_windows,
             requires_add_dll_directory=name in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
             requires_rtld_deepbind=name in LIBNAMES_REQUIRING_RTLD_DEEPBIND,
         )

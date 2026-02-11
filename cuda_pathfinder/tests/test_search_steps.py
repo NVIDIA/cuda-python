@@ -9,13 +9,14 @@ import os
 
 import pytest
 
-from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
     FindResult,
     SearchContext,
+    _find_lib_dir_using_anchor,
     find_in_conda,
     find_in_cuda_home,
     find_in_site_packages,
@@ -31,14 +32,14 @@ _MOD = "cuda.pathfinder._dynamic_libs.search_steps"
 
 
 def _make_desc(name: str = "cudart", **overrides) -> LibDescriptor:
-    defaults = dict(
-        name=name,
-        strategy="ctk",
-        linux_sonames=("libcudart.so",),
-        windows_dlls=("cudart64_12.dll",),
-        site_packages_linux=(os.path.join("nvidia", "cuda_runtime", "lib"),),
-        site_packages_windows=(os.path.join("nvidia", "cuda_runtime", "bin"),),
-    )
+    defaults = {
+        "name": name,
+        "strategy": "ctk",
+        "linux_sonames": ("libcudart.so",),
+        "windows_dlls": ("cudart64_12.dll",),
+        "site_packages_linux": (os.path.join("nvidia", "cuda_runtime", "lib"),),
+        "site_packages_windows": (os.path.join("nvidia", "cuda_runtime", "bin"),),
+    }
     defaults.update(overrides)
     return LibDescriptor(**defaults)
 
@@ -242,17 +243,17 @@ class TestRunFindSteps:
     def test_returns_first_hit(self):
         hit = FindResult("/path/to/lib.so", "step-a")
 
-        def step_a(ctx):
+        def step_a(_ctx):
             return hit
 
-        def step_b(ctx):
+        def step_b(_ctx):
             raise AssertionError("step_b should not be called")
 
         result = run_find_steps(_ctx(), (step_a, step_b))
         assert result is hit
 
     def test_returns_none_when_all_miss(self):
-        result = run_find_steps(_ctx(), (lambda ctx: None, lambda ctx: None))
+        result = run_find_steps(_ctx(), (lambda _: None, lambda _: None))
         assert result is None
 
     def test_empty_steps(self):
@@ -260,7 +261,7 @@ class TestRunFindSteps:
 
     def test_skips_nones_returns_later_hit(self):
         hit = FindResult("/later/lib.so", "step-c")
-        result = run_find_steps(_ctx(), (lambda ctx: None, lambda ctx: hit))
+        result = run_find_steps(_ctx(), (lambda _: None, lambda _: hit))
         assert result is hit
 
 
@@ -279,3 +280,69 @@ class TestStepTuples:
 
     def test_early_and_late_are_disjoint(self):
         assert not set(EARLY_FIND_STEPS) & set(LATE_FIND_STEPS)
+
+
+# ---------------------------------------------------------------------------
+# Data-driven anchor paths
+# ---------------------------------------------------------------------------
+
+
+class TestAnchorRelDirs:
+    """Verify that descriptor anchor paths drive directory resolution."""
+
+    def test_nvvm_has_custom_linux_paths(self):
+        desc = LIB_DESCRIPTORS["nvvm"]
+        assert desc.anchor_rel_dirs_linux == ("nvvm/lib64",)
+
+    def test_nvvm_has_custom_windows_paths(self):
+        desc = LIB_DESCRIPTORS["nvvm"]
+        assert desc.anchor_rel_dirs_windows == ("nvvm/bin/*", "nvvm/bin")
+
+    @pytest.mark.parametrize("libname", ["cudart", "cublas", "nvrtc"])
+    def test_regular_ctk_libs_use_defaults(self, libname):
+        desc = LIB_DESCRIPTORS[libname]
+        assert desc.anchor_rel_dirs_linux == ("lib64", "lib")
+        assert desc.anchor_rel_dirs_windows == ("bin/x64", "bin")
+
+    def test_find_lib_dir_uses_descriptor_linux(self, mocker, tmp_path):
+        mocker.patch(f"{_MOD}.IS_WINDOWS", False)
+        (tmp_path / "nvvm" / "lib64").mkdir(parents=True)
+
+        desc = _make_desc(name="nvvm", anchor_rel_dirs_linux=("nvvm/lib64",))
+        result = _find_lib_dir_using_anchor(desc, str(tmp_path))
+        assert result is not None
+        assert result.endswith(os.path.join("nvvm", "lib64"))
+
+    def test_find_lib_dir_uses_descriptor_windows(self, mocker, tmp_path):
+        mocker.patch(f"{_MOD}.IS_WINDOWS", True)
+        (tmp_path / "nvvm" / "bin").mkdir(parents=True)
+
+        desc = _make_desc(name="nvvm", anchor_rel_dirs_windows=("nvvm/bin/*", "nvvm/bin"))
+        result = _find_lib_dir_using_anchor(desc, str(tmp_path))
+        assert result is not None
+        assert result.endswith(os.path.join("nvvm", "bin"))
+
+    def test_find_lib_dir_returns_none_when_no_match(self, mocker, tmp_path):
+        mocker.patch(f"{_MOD}.IS_WINDOWS", False)
+        desc = _make_desc(anchor_rel_dirs_linux=("nonexistent",))
+        assert _find_lib_dir_using_anchor(desc, str(tmp_path)) is None
+
+    def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
+        """End-to-end: find_in_cuda_home resolves nvvm under its custom subdir."""
+        mocker.patch(f"{_MOD}.IS_WINDOWS", False)
+        mocker.patch(f"{_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+
+        nvvm_dir = tmp_path / "nvvm" / "lib64"
+        nvvm_dir.mkdir(parents=True)
+        so_file = nvvm_dir / "libnvvm.so"
+        so_file.touch()
+
+        desc = _make_desc(
+            name="nvvm",
+            linux_sonames=("libnvvm.so",),
+            anchor_rel_dirs_linux=("nvvm/lib64",),
+        )
+        result = find_in_cuda_home(_ctx(desc))
+        assert result is not None
+        assert result.abs_path == str(so_file)
+        assert result.found_via == "CUDA_HOME"

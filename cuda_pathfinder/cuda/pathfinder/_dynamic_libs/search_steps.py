@@ -162,19 +162,10 @@ def _find_in_lib_dir_dll(lib_dir: str, libname: str, error_messages: list[str], 
     return None
 
 
-def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_dir: str) -> str | None:
-    if IS_WINDOWS:
-        if libname == "nvvm":  # noqa: SIM108
-            rel_paths = ["nvvm/bin/*", "nvvm/bin"]
-        else:
-            rel_paths = ["bin/x64", "bin"]
-    else:
-        if libname == "nvvm":  # noqa: SIM108
-            rel_paths = ["nvvm/lib64"]
-        else:
-            rel_paths = [linux_lib_dir]
-
-    for rel_path in rel_paths:
+def _find_lib_dir_using_anchor(desc: LibDescriptor, anchor_point: str) -> str | None:
+    """Find the library directory under *anchor_point* using the descriptor's relative paths."""
+    rel_dirs = desc.anchor_rel_dirs_windows if IS_WINDOWS else desc.anchor_rel_dirs_linux
+    for rel_path in rel_dirs:
         for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
             if os.path.isdir(dirname):
                 return dirname
@@ -215,7 +206,7 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     if not conda_prefix:
         return None
     anchor = os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix
-    lib_dir = _find_lib_dir_using_anchor_point(ctx.libname, anchor_point=anchor, linux_lib_dir="lib")
+    lib_dir = _find_lib_dir_using_anchor(ctx.desc, anchor)
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is not None:
         return FindResult(abs_path, "conda")
@@ -227,7 +218,7 @@ def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
     cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
-    lib_dir = _find_lib_dir_using_anchor_point(ctx.libname, anchor_point=cuda_home, linux_lib_dir="lib64")
+    lib_dir = _find_lib_dir_using_anchor(ctx.desc, cuda_home)
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is not None:
         return FindResult(abs_path, "CUDA_HOME")
