@@ -33,11 +33,13 @@ from cuda.core._utils.cuda_utils import CUDAError, check_or_create_options, driv
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
-_driver_input_types = None  # populated if nvJitLink cannot be used
 _driver_ver = None
 _inited = False
-_nvjitlink = None  # populated if nvJitLink can be used
-_nvjitlink_input_types = None  # populated if nvJitLink cannot be used
+_use_nvjitlink_backend = False  # set by _decide_nvjitlink_or_driver()
+
+# Input type mappings populated by _lazy_init() with C-level enum ints.
+_nvjitlink_input_types = None
+_driver_input_types = None
 
 
 def _nvjitlink_has_version_symbol(inner_nvjitlink) -> bool:
@@ -48,9 +50,9 @@ def _nvjitlink_has_version_symbol(inner_nvjitlink) -> bool:
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Returns True if falling back to the cuLink* driver APIs."""
-    global _driver_ver, _driver, _nvjitlink
-    if _driver or _nvjitlink:
-        return _driver is not None
+    global _driver_ver, _driver, _use_nvjitlink_backend
+    if _driver_ver is not None:
+        return not _use_nvjitlink_backend
 
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
@@ -62,14 +64,15 @@ def _decide_nvjitlink_or_driver() -> bool:
     )
 
     try:
-        import cuda.bindings.nvjitlink as _nvjitlink
+        import cuda.bindings.nvjitlink  # noqa: F401 (availability check)
     except ModuleNotFoundError:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
-        from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+        from cuda.bindings._internal import nvjitlink
 
         try:
-            if _nvjitlink_has_version_symbol(inner_nvjitlink):
+            if _nvjitlink_has_version_symbol(nvjitlink):
+                _use_nvjitlink_backend = True
                 return False  # Use nvjitlink
         except RuntimeError:
             warn_detail = "not available"
@@ -79,7 +82,6 @@ def _decide_nvjitlink_or_driver() -> bool:
             f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
             f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
         )
-        _nvjitlink = None
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
     _driver = driver
@@ -92,25 +94,22 @@ def _lazy_init():
         return
 
     _decide_nvjitlink_or_driver()
-    if _nvjitlink:
-        if _driver_ver > _nvjitlink.version():
-            # TODO: nvJitLink is not new enough, warn?
-            pass
+    if _use_nvjitlink_backend:
         _nvjitlink_input_types = {
-            "ptx": _nvjitlink.InputType.PTX,
-            "cubin": _nvjitlink.InputType.CUBIN,
-            "fatbin": _nvjitlink.InputType.FATBIN,
-            "ltoir": _nvjitlink.InputType.LTOIR,
-            "object": _nvjitlink.InputType.OBJECT,
-            "library": _nvjitlink.InputType.LIBRARY,
+            "ptx": <int>cynvjitlink.NVJITLINK_INPUT_PTX,
+            "cubin": <int>cynvjitlink.NVJITLINK_INPUT_CUBIN,
+            "fatbin": <int>cynvjitlink.NVJITLINK_INPUT_FATBIN,
+            "ltoir": <int>cynvjitlink.NVJITLINK_INPUT_LTOIR,
+            "object": <int>cynvjitlink.NVJITLINK_INPUT_OBJECT,
+            "library": <int>cynvjitlink.NVJITLINK_INPUT_LIBRARY,
         }
     else:
         _driver_input_types = {
-            "ptx": _driver.CUjitInputType.CU_JIT_INPUT_PTX,
-            "cubin": _driver.CUjitInputType.CU_JIT_INPUT_CUBIN,
-            "fatbin": _driver.CUjitInputType.CU_JIT_INPUT_FATBINARY,
-            "object": _driver.CUjitInputType.CU_JIT_INPUT_OBJECT,
-            "library": _driver.CUjitInputType.CU_JIT_INPUT_LIBRARY,
+            "ptx": <int>cydriver.CU_JIT_INPUT_PTX,
+            "cubin": <int>cydriver.CU_JIT_INPUT_CUBIN,
+            "fatbin": <int>cydriver.CU_JIT_INPUT_FATBINARY,
+            "object": <int>cydriver.CU_JIT_INPUT_OBJECT,
+            "library": <int>cydriver.CU_JIT_INPUT_LIBRARY,
         }
     _inited = True
 
@@ -368,7 +367,7 @@ class LinkerOptions:
         backend = backend.lower()
         if backend != "nvjitlink":
             raise ValueError(f"as_bytes() only supports 'nvjitlink' backend, got '{backend}'")
-        if not _nvjitlink:
+        if not _use_nvjitlink_backend:
             raise RuntimeError("nvJitLink backend is not available")
         return self._prepare_nvjitlink_options(as_bytes=True)
 
@@ -406,7 +405,7 @@ cdef class Linker:
         self._option_keys = None
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
 
-        if _nvjitlink:
+        if _use_nvjitlink_backend:
             self._use_nvjitlink = True
             options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
             num_opts = len(options_bytes)
