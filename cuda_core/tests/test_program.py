@@ -530,7 +530,7 @@ def test_nvvm_program_options_ltoir(init_cuda, nvvm_ir, options):
 @nvvm_available
 def test_nvvm_program_with_single_extra_source(nvvm_ir):
     """Test NVVM program with a single extra source"""
-    from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
@@ -568,7 +568,7 @@ entry:
 @nvvm_available
 def test_nvvm_program_with_multiple_extra_sources():
     """Test NVVM program with multiple extra sources"""
-    from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
