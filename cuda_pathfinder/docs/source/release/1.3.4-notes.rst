@@ -19,3 +19,7 @@ Highlights
   the existing ``find_nvidia_header_directory()`` API that only returns the
   absolute path to the discovered header directory.
   (`PR #1536 <https://github.com/NVIDIA/cuda-python/pull/1536>`_)
+
+* Honor ``site.ENABLE_USER_SITE`` before adding the user site-packages path
+  to search locations.
+  (`PR #1596 <https://github.com/NVIDIA/cuda-python/pull/1596>`_)
