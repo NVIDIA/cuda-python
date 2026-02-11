@@ -154,20 +154,27 @@ def test_canary_finds_nvvm(tmp_path, mocker):
     _create_cudart_in_ctk(ctk_root)
     nvvm_lib = _create_nvvm_in_ctk(ctk_root)
 
-    canary = _make_loaded_dl(_fake_canary_path(ctk_root), "system-search")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=canary)
+    probe = mocker.patch(
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value=_fake_canary_path(ctk_root),
+    )
+    parent_system_loader = mocker.patch(f"{_MODULE}.load_with_system_search")
 
     assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) == str(nvvm_lib)
+    probe.assert_called_once_with("cudart")
+    parent_system_loader.assert_not_called()
 
 
-def test_canary_returns_none_when_system_search_fails(mocker):
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
+def test_canary_returns_none_when_subprocess_probe_fails(mocker):
+    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) is None
 
 
 def test_canary_returns_none_when_ctk_root_unrecognized(mocker):
-    canary = _make_loaded_dl("/weird/path/libcudart.so.13", "system-search")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=canary)
+    mocker.patch(
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value="/weird/path/libcudart.so.13",
+    )
     assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) is None
 
 
@@ -176,14 +183,15 @@ def test_canary_returns_none_when_nvvm_not_in_ctk_root(tmp_path, mocker):
     # Create only the canary lib dir, not nvvm
     _create_cudart_in_ctk(ctk_root)
 
-    canary = _make_loaded_dl(_fake_canary_path(ctk_root), "system-search")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=canary)
+    mocker.patch(
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value=_fake_canary_path(ctk_root),
+    )
     assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) is None
 
 
 def test_canary_skips_when_abs_path_none(mocker):
-    canary = _make_loaded_dl(None, "system-search")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=canary)
+    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert _try_ctk_root_canary(_FindNvidiaDynamicLib("nvvm")) is None
 
 
@@ -219,13 +227,12 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     _create_cudart_in_ctk(canary_root)
     _create_nvvm_in_ctk(canary_root)
 
-    canary_mock = mocker.MagicMock(return_value=_make_loaded_dl(_fake_canary_path(canary_root), "system-search"))
+    canary_mock = mocker.MagicMock(return_value=_fake_canary_path(canary_root))
 
-    # System search finds nothing for nvvm; canary would find cudart
-    mocker.patch(
-        f"{_MODULE}.load_with_system_search",
-        side_effect=lambda name: None if name == "nvvm" else canary_mock(name),
-    )
+    # System search finds nothing for nvvm.
+    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
+    # Canary subprocess probe would find cudart if consulted.
+    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", side_effect=canary_mock)
     # CUDA_HOME points to a separate root that also has nvvm
     mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=str(cuda_home_root))
     # Capture the final load call
@@ -248,12 +255,12 @@ def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
     _create_cudart_in_ctk(canary_root)
     nvvm_lib = _create_nvvm_in_ctk(canary_root)
 
-    canary_result = _make_loaded_dl(_fake_canary_path(canary_root), "system-search")
-
-    # System search: nvvm not on linker path, but cudart (canary) is
+    # System search: nvvm not on linker path.
+    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
+    # Canary subprocess probe finds cudart under a system CTK root.
     mocker.patch(
-        f"{_MODULE}.load_with_system_search",
-        side_effect=lambda name: canary_result if name == "cudart" else None,
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value=_fake_canary_path(canary_root),
     )
     # No CUDA_HOME set
     mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
