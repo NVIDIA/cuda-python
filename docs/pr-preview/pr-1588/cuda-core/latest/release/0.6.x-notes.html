@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1010b84e"></script>
+    <script src="../_static/documentation_options.js?v=11a9beb4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev99';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev103';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -644,7 +644,11 @@
 </section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<ul class="simple">
+<li><p>Building <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> from source now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.0, due to Cython-level
+dependencies on the NVVM bindings (<code class="docutils literal notranslate"><span class="pre">cynvvm</span></code>). Pre-built wheels are unaffected. The previous
+minimum was 12.8.0.</p></li>
+</ul>
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
