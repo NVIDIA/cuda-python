@@ -28,7 +28,6 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SUPPORTED_LINUX_SONAMES,
     SUPPORTED_WINDOWS_DLLS,
 )
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 Strategy = Literal["ctk", "other", "driver"]
 
@@ -59,23 +58,6 @@ class LibDescriptor:
     # Platform-specific loader quirks.
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
-
-    # --- Derived helpers (not stored, computed on access) ---
-
-    @property
-    def sonames(self) -> tuple[str, ...]:
-        """Platform-appropriate loader names."""
-        return self.windows_dlls if IS_WINDOWS else self.linux_sonames
-
-    @property
-    def site_packages_dirs(self) -> tuple[str, ...]:
-        """Platform-appropriate site-packages relative directories."""
-        return self.site_packages_windows if IS_WINDOWS else self.site_packages_linux
-
-    @property
-    def anchor_rel_dirs(self) -> tuple[str, ...]:
-        """Platform-appropriate relative dirs under an anchor point."""
-        return self.anchor_rel_dirs_windows if IS_WINDOWS else self.anchor_rel_dirs_linux
 
 
 def _classify_lib(name: str) -> Strategy:
