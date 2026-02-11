@@ -6,7 +6,7 @@ import os
 import pytest
 
 from cuda.pathfinder import find_libdevice
-from cuda.pathfinder._dynamic_libs import find_libdevice as find_libdevice_module
+from cuda.pathfinder._static_libs import find_libdevice as find_libdevice_module
 
 FILENAME = "libdevice.10.bc"
 
