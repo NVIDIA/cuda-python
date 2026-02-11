@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 .. module:: cuda.bindings
@@ -21,6 +21,13 @@ Bugfixes
   retrieved as an unsigned int, rather than a signed int.
   (`PR #1336 <https://github.com/NVIDIA/cuda-python/pull/1336>`_)
 * Fixed ABI incompatibility bugs in cuFILE bindings introduced in v13.1.0.
+
+Miscellaneous
+-------------
+
+* Wheel and installed package sizes significantly reduced (e.g., on a typical Linux x86_64
+  build, wheel from ~16.6 MB to ~5.7 MB and installed from ~152 MB to ~23 MB) by excluding
+  Cython source files, generated C++ files, and template files from distribution packages.
 
 Known issues
 ------------
