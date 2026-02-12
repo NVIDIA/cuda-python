@@ -23,6 +23,7 @@ from ._resource_handles cimport (
     DevicePtrHandle,
     LibraryHandle,
     KernelHandle,
+    GraphicsResourceHandle,
 )
 
 import cuda.bindings.cydriver as cydriver
@@ -107,6 +108,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
         cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
 
+    # Graphics resource handles
+    GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
+        cydriver.CUgraphicsResource resource) except+ nogil
+
 
 # =============================================================================
 # CUDA Driver API capsule
@@ -174,6 +179,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuLibraryUnload "reinterpret_cast<void*&>(cuda_core::p_cuLibraryUnload)"
     void* p_cuLibraryGetKernel "reinterpret_cast<void*&>(cuda_core::p_cuLibraryGetKernel)"
 
+    # Graphics interop
+    void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
+
 
 # Initialize driver function pointers from cydriver.__pyx_capi__ at module load
 cdef void* _get_driver_fn(str name):
@@ -223,3 +231,6 @@ p_cuLibraryLoadFromFile = _get_driver_fn("cuLibraryLoadFromFile")
 p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
 p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
 p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
+
+# Graphics interop
+p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")

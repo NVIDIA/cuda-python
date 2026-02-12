@@ -23,6 +23,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
     ctypedef shared_ptr[const cydriver.CUlibrary] LibraryHandle
     ctypedef shared_ptr[const cydriver.CUkernel] KernelHandle
+    ctypedef shared_ptr[const cydriver.CUgraphicsResource] GraphicsResourceHandle
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
@@ -32,6 +33,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
+    cydriver.CUgraphicsResource as_cu(GraphicsResourceHandle h) noexcept nogil
 
     # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
     intptr_t as_intptr(ContextHandle h) noexcept nogil
@@ -41,6 +43,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
     intptr_t as_intptr(LibraryHandle h) noexcept nogil
     intptr_t as_intptr(KernelHandle h) noexcept nogil
+    intptr_t as_intptr(GraphicsResourceHandle h) noexcept nogil
 
     # as_py() - convert handle to Python driver wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -50,6 +53,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(DevicePtrHandle h)
     object as_py(LibraryHandle h)
     object as_py(KernelHandle h)
+    object as_py(GraphicsResourceHandle h)
 
 
 # =============================================================================
@@ -112,3 +116,7 @@ cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) except+
 cdef KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) except+ nogil
 cdef KernelHandle create_kernel_handle_ref(
     cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+
+# Graphics resource handles
+cdef GraphicsResourceHandle create_graphics_resource_handle(
+    cydriver.CUgraphicsResource resource) except+ nogil
