@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8229b0c7"></script>
+    <script src="../_static/documentation_options.js?v=b5d13aad"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev101';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev102';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -645,21 +645,195 @@
 <h1>cuda.core.system.ThermalTarget<a class="headerlink" href="#cuda-core-system-thermaltarget" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.system.ThermalTarget">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">ThermalTarget</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">ThermalTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget" title="Link to this definition">#</a></dt>
+<dd><p>Represents the thermal sensor targets</p>
+<p>See <cite>nvmlThermalTarget_t</cite>.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.as_integer_ratio">
+<span class="sig-name descname"><span class="pre">as_integer_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.as_integer_ratio" title="Link to this definition">#</a></dt>
+<dd><p>Return a pair of integers, whose ratio is equal to the original int.</p>
+<p>The ratio is in lowest terms and has a positive denominator.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(10, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(-10, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(0, 1)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.bit_count">
+<span class="sig-name descname"><span class="pre">bit_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.bit_count" title="Link to this definition">#</a></dt>
+<dd><p>Number of ones in the binary representation of the absolute value of self.</p>
+<p>Also known as the population count.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+<span class="go">&#39;0b1101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.bit_length">
+<span class="sig-name descname"><span class="pre">bit_length</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.bit_length" title="Link to this definition">#</a></dt>
+<dd><p>Number of bits necessary to represent self in binary.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="mi">37</span><span class="p">)</span>
+<span class="go">&#39;0b100101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">37</span><span class="p">)</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.conjugate">
+<span class="sig-name descname"><span class="pre">conjugate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.conjugate" title="Link to this definition">#</a></dt>
+<dd><p>Returns self, the complex conjugate of any int.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.from_bytes">
+<span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">byteorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'big'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.from_bytes" title="Link to this definition">#</a></dt>
+<dd><p>Return the integer represented by the given array of bytes.</p>
+<dl class="simple">
+<dt>bytes</dt><dd><p>Holds the array of bytes to convert.  The argument must either
+support the buffer protocol or be an iterable object producing bytes.
+Bytes and bytearray are examples of built-in objects that support the
+buffer protocol.</p>
+</dd>
+<dt>byteorder</dt><dd><p>The byte order used to represent the integer.  If byteorder is ‘big’,
+the most significant byte is at the beginning of the byte array.  If
+byteorder is ‘little’, the most significant byte is at the end of the
+byte array.  To request the native byte order of the host system, use
+<a href="#id1"><span class="problematic" id="id2">`</span></a>sys.byteorder’ as the byte order value.  Default is to use ‘big’.</p>
+</dd>
+<dt>signed</dt><dd><p>Indicates whether two’s complement is used to represent the integer.</p>
+</dd>
 </dl>
+</dd></dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget" title="Link to this definition">#</a></dt>
-<dd><p>See <cite>nvmlThermalTarget_t</cite>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.is_integer">
+<span class="sig-name descname"><span class="pre">is_integer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.is_integer" title="Link to this definition">#</a></dt>
+<dd><p>Returns True. Exists for duck type compatibility with float.is_integer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">byteorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'big'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.ThermalTarget.to_bytes" title="Link to this definition">#</a></dt>
+<dd><p>Return an array of bytes representing an integer.</p>
+<dl class="simple">
+<dt>length</dt><dd><p>Length of bytes object to use.  An OverflowError is raised if the
+integer is not representable with the given number of bytes.  Default
+is length 1.</p>
+</dd>
+<dt>byteorder</dt><dd><p>The byte order used to represent the integer.  If byteorder is ‘big’,
+the most significant byte is at the beginning of the byte array.  If
+byteorder is ‘little’, the most significant byte is at the end of the
+byte array.  To request the native byte order of the host system, use
+<a href="#id3"><span class="problematic" id="id4">`</span></a>sys.byteorder’ as the byte order value.  Default is to use ‘big’.</p>
+</dd>
+<dt>signed</dt><dd><p>Determines whether two’s complement is used to represent the integer.
+If signed is False and a negative integer is given, an OverflowError
+is raised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.ALL">
+<span class="sig-name descname"><span class="pre">ALL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.ALL:</span> <span class="pre">15&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.ALL" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.BOARD">
+<span class="sig-name descname"><span class="pre">BOARD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.BOARD:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.BOARD" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.GPU">
+<span class="sig-name descname"><span class="pre">GPU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.GPU:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.GPU" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.MEMORY">
+<span class="sig-name descname"><span class="pre">MEMORY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.MEMORY:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.MEMORY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.NONE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.NONE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.POWER_SUPPLY">
+<span class="sig-name descname"><span class="pre">POWER_SUPPLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.POWER_SUPPLY:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.POWER_SUPPLY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.UNKNOWN">
+<span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.UNKNOWN:</span> <span class="pre">-1&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.UNKNOWN" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.VCD_BOARD">
+<span class="sig-name descname"><span class="pre">VCD_BOARD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.VCD_BOARD:</span> <span class="pre">9&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.VCD_BOARD" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.VCD_INLET">
+<span class="sig-name descname"><span class="pre">VCD_INLET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.VCD_INLET:</span> <span class="pre">10&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.VCD_INLET" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.VCD_OUTLET">
+<span class="sig-name descname"><span class="pre">VCD_OUTLET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ThermalTarget.VCD_OUTLET:</span> <span class="pre">11&gt;</span></em><a class="headerlink" href="#cuda.core.system.ThermalTarget.VCD_OUTLET" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.denominator">
+<span class="sig-name descname"><span class="pre">denominator</span></span><a class="headerlink" href="#cuda.core.system.ThermalTarget.denominator" title="Link to this definition">#</a></dt>
+<dd><p>the denominator of a rational number in lowest terms</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.imag">
+<span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#cuda.core.system.ThermalTarget.imag" title="Link to this definition">#</a></dt>
+<dd><p>the imaginary part of a complex number</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.system.ThermalTarget.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.numerator">
+<span class="sig-name descname"><span class="pre">numerator</span></span><a class="headerlink" href="#cuda.core.system.ThermalTarget.numerator" title="Link to this definition">#</a></dt>
+<dd><p>the numerator of a rational number in lowest terms</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.real">
+<span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#cuda.core.system.ThermalTarget.real" title="Link to this definition">#</a></dt>
+<dd><p>the real part of a complex number</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.ThermalTarget.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#cuda.core.system.ThermalTarget.value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -713,7 +887,33 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget"><code class="docutils literal notranslate"><span class="pre">ThermalTarget</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget"><code class="docutils literal notranslate"><span class="pre">ThermalTarget</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.__init__"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.as_integer_ratio"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.as_integer_ratio()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.bit_count"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.bit_count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.bit_length"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.bit_length()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.conjugate"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.conjugate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.from_bytes"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.from_bytes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.is_integer"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.is_integer()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.to_bytes"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.to_bytes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.ALL"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.ALL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.BOARD"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.BOARD</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.GPU"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.GPU</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.MEMORY"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.MEMORY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.NONE"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.NONE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.POWER_SUPPLY"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.POWER_SUPPLY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.UNKNOWN"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.UNKNOWN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.VCD_BOARD"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.VCD_BOARD</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.VCD_INLET"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.VCD_INLET</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.VCD_OUTLET"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.VCD_OUTLET</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.denominator"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.denominator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.imag"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.imag</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.name"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.numerator"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.numerator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.real"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.real</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.ThermalTarget.value"><code class="docutils literal notranslate"><span class="pre">ThermalTarget.value</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
