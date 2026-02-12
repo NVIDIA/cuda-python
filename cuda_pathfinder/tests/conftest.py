@@ -10,10 +10,21 @@ import pytest
 _LOGGER_NAME = "cuda_pathfinder.test_info"
 
 
+def _log_filename():
+    strictness = os.environ.get(
+        "CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works"
+    )
+    return f"pathfinder-test-info-summary-{strictness}.txt"
+
+
+def pytest_configure(config):
+    log_path = config.rootpath / _log_filename()
+    log_path.unlink(missing_ok=True)
+
+
 @pytest.fixture(scope="session")
 def _info_summary_handler(request):
-    strictness = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "default")
-    log_path = request.config.rootpath / f"test-info-summary-{strictness}.log"
+    log_path = request.config.rootpath / _log_filename()
     handler = logging.FileHandler(log_path, mode="w")
     handler.setFormatter(logging.Formatter("%(test_node)s: %(message)s"))
 
