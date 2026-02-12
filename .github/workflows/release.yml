@@ -40,7 +40,7 @@ on:
           - pypi
 
 env:
-  TAG: ${{ fromJSON('{"cuda_bindings":"v","cuda_core":"cuda-core-v","cuda_pathfinder":"cuda-pathfinder-v","cuda_python":"cuda-python-v","all":"all-v"}')[inputs.component] }}${{ inputs.version }}
+  TAG: ${{ fromJSON('{"cuda_bindings":"v","cuda_core":"cuda-core-v","cuda_pathfinder":"cuda-pathfinder-v","cuda_python":"v","all":"v"}')[inputs.component] }}${{ inputs.version }}
 
 defaults:
   run:
