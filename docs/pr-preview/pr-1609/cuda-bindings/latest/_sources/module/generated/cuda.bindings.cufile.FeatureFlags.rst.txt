@@ -1,0 +1,45 @@
+﻿cuda.bindings.cufile.FeatureFlags
+=================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: FeatureFlags
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FeatureFlags.__init__
+      ~FeatureFlags.as_integer_ratio
+      ~FeatureFlags.bit_count
+      ~FeatureFlags.bit_length
+      ~FeatureFlags.conjugate
+      ~FeatureFlags.from_bytes
+      ~FeatureFlags.is_integer
+      ~FeatureFlags.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FeatureFlags.BATCH_IO_SUPPORTED
+      ~FeatureFlags.DYN_ROUTING_SUPPORTED
+      ~FeatureFlags.P2P_SUPPORTED
+      ~FeatureFlags.PARALLEL_IO_SUPPORTED
+      ~FeatureFlags.STREAMS_SUPPORTED
+      ~FeatureFlags.denominator
+      ~FeatureFlags.imag
+      ~FeatureFlags.name
+      ~FeatureFlags.numerator
+      ~FeatureFlags.real
+      ~FeatureFlags.value
+   
+   
