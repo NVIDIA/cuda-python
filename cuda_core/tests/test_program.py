@@ -11,7 +11,7 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
-from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir  # noqa: F401
+from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir  # noqa: F401, F811
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
@@ -650,7 +650,7 @@ entry:
 
 
 @nvvm_available
-def test_bitcode_format(minimal_nvvmir):
+def test_bitcode_format(minimal_nvvmir):  # noqa: F811
     if len(minimal_nvvmir) < 4:
         pytest.skip("Bitcode file is not valid or empty")
 
