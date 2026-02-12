@@ -3,108 +3,25 @@
 
 """Per-library descriptor and registry.
 
-Each NVIDIA library known to pathfinder is described by a single
-:class:`LibDescriptor` instance.  The :data:`LIB_DESCRIPTORS` dict is the
-canonical registry, keyed by short library name (e.g. ``"cudart"``).
-
-This module is intentionally **read-only at runtime** — it assembles
-descriptors from the existing data tables in
-:mod:`~cuda.pathfinder._dynamic_libs.supported_nvidia_libs` so that all
-behavioural contracts are preserved while giving consumers a single object
-to query per library.
+The canonical authored data lives in :mod:`descriptor_catalog`. This module
+provides a name-keyed registry consumed by the runtime search/load path.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Literal
+from typing import TypeAlias
 
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    DIRECT_DEPENDENCIES,
-    LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
-    LIBNAMES_REQUIRING_RTLD_DEEPBIND,
-    SITE_PACKAGES_LIBDIRS_LINUX,
-    SITE_PACKAGES_LIBDIRS_WINDOWS,
-    SUPPORTED_LINUX_SONAMES,
-    SUPPORTED_WINDOWS_DLLS,
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import (
+    DESCRIPTOR_CATALOG,
+    DescriptorSpec,
+)
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import (
+    Strategy as Strategy,
 )
 
-Strategy = Literal["ctk", "other", "driver"]
-
-
-@dataclass(frozen=True, slots=True)
-class LibDescriptor:
-    """Immutable description of an NVIDIA library known to pathfinder."""
-
-    name: str
-    strategy: Strategy
-
-    # Platform-specific file names used by the system loader.
-    linux_sonames: tuple[str, ...] = ()
-    windows_dlls: tuple[str, ...] = ()
-
-    # Relative directories under site-packages where pip wheels place the lib.
-    site_packages_linux: tuple[str, ...] = ()
-    site_packages_windows: tuple[str, ...] = ()
-
-    # Libraries that must be loaded first.
-    dependencies: tuple[str, ...] = ()
-
-    # Relative directories to search under an anchor point (CUDA_HOME, conda).
-    # The function tries each in order; first existing directory wins.
-    anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
-    anchor_rel_dirs_windows: tuple[str, ...] = ("bin/x64", "bin")
-
-    # Platform-specific loader quirks.
-    requires_add_dll_directory: bool = False
-    requires_rtld_deepbind: bool = False
-
-
-def _classify_lib(name: str) -> Strategy:
-    """Determine the search strategy for a library based on which dicts it appears in."""
-    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-        SUPPORTED_LIBNAMES,
-        SUPPORTED_LINUX_SONAMES_DRIVER,
-        SUPPORTED_LINUX_SONAMES_OTHER,
-        SUPPORTED_WINDOWS_DLLS_DRIVER,
-        SUPPORTED_WINDOWS_DLLS_OTHER,
-    )
-
-    if name in SUPPORTED_LIBNAMES:
-        return "ctk"
-    if name in SUPPORTED_LINUX_SONAMES_DRIVER or name in SUPPORTED_WINDOWS_DLLS_DRIVER:
-        return "driver"
-    if name in SUPPORTED_LINUX_SONAMES_OTHER or name in SUPPORTED_WINDOWS_DLLS_OTHER:
-        return "other"
-    return "other"
-
-
-def _build_registry() -> dict[str, LibDescriptor]:
-    """Assemble one LibDescriptor per library from the existing data tables."""
-    all_names: set[str] = set()
-    all_names.update(SUPPORTED_LINUX_SONAMES)
-    all_names.update(SUPPORTED_WINDOWS_DLLS)
-
-    registry: dict[str, LibDescriptor] = {}
-    for name in sorted(all_names):
-        # nvvm lives in a non-standard subdirectory under the CTK root.
-        anchor_linux = ("nvvm/lib64",) if name == "nvvm" else ("lib64", "lib")
-        anchor_windows = ("nvvm/bin/*", "nvvm/bin") if name == "nvvm" else ("bin/x64", "bin")
-        registry[name] = LibDescriptor(
-            name=name,
-            strategy=_classify_lib(name),
-            linux_sonames=SUPPORTED_LINUX_SONAMES.get(name, ()),
-            windows_dlls=SUPPORTED_WINDOWS_DLLS.get(name, ()),
-            site_packages_linux=SITE_PACKAGES_LIBDIRS_LINUX.get(name, ()),
-            site_packages_windows=SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ()),
-            dependencies=DIRECT_DEPENDENCIES.get(name, ()),
-            anchor_rel_dirs_linux=anchor_linux,
-            anchor_rel_dirs_windows=anchor_windows,
-            requires_add_dll_directory=name in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
-            requires_rtld_deepbind=name in LIBNAMES_REQUIRING_RTLD_DEEPBIND,
-        )
-    return registry
+# Keep the historical type name for downstream imports.
+LibDescriptor: TypeAlias = DescriptorSpec
 
 
 #: Canonical registry of all known libraries.
-LIB_DESCRIPTORS: dict[str, LibDescriptor] = _build_registry()
+LIB_DESCRIPTORS: dict[str, LibDescriptor] = {desc.name: desc for desc in DESCRIPTOR_CATALOG}

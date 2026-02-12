@@ -508,4 +508,16 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         requires_add_dll_directory=False,
         requires_rtld_deepbind=False,
     ),
+    DescriptorSpec(
+        name="cuda",
+        strategy="driver",
+        linux_sonames=("libcuda.so.1",),
+        windows_dlls=("nvcuda.dll",),
+    ),
+    DescriptorSpec(
+        name="nvml",
+        strategy="driver",
+        linux_sonames=("libnvidia-ml.so.1",),
+        windows_dlls=("nvml.dll",),
+    ),
 )
