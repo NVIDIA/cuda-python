@@ -33,6 +33,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
   pytest -ra -s -v --durations=0 tests/
+  echo "Number of \"INFO test_\" lines: $(cat pathfinder-test-info-summary-*.txt | wc -l)"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"

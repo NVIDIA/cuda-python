@@ -281,5 +281,5 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-pathfinder-test-info-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cuda${{ matrix.CUDA_VER }}-${{ matrix.LOCAL_CTK == '1' && 'local' || 'wheels' }}-${{ matrix.GPU }}
-          path: cuda_pathfinder/test-info-summary-*.log
+          path: cuda_pathfinder/pathfinder-test-info-summary-*.txt
           if-no-files-found: error

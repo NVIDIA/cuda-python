@@ -193,5 +193,8 @@ cython_debug/
 .pixi/*
 !.pixi/config.toml
 
+# Pathfinder test info log
+pathfinder-test-info-summary-*.txt
+
 # Cursor
 .cursorrules
