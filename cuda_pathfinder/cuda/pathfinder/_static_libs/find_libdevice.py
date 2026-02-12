@@ -4,10 +4,10 @@ import functools
 import glob
 import os
 
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError as DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError as DynamicLibNotFoundError
 
 # Site-package paths for libdevice (following SITE_PACKAGES_LIBDIRS pattern)
 SITE_PACKAGES_LIBDEVICE_DIRS = (
@@ -20,6 +20,7 @@ if IS_WINDOWS:
     bases = [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
 else:
     bases = ["/usr/local/cuda", "/opt/cuda"]
+
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
     error_messages.append(f"No such file: {os.path.join(dir_path, filename)}")
