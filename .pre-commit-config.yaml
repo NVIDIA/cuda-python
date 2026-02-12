@@ -29,7 +29,7 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '.*pixi\.lock'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)'
         args: ["--fix"]
 
       - id: no-markdown-in-docs-source
