@@ -11,6 +11,7 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir  # noqa: F401
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
