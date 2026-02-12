@@ -148,6 +148,10 @@ cdef class _HelperInputVoidPtr:
         if self._pyobj_acquired is True:
             PyBuffer_Release(&self._pybuffer)
 
+    @property
+    def cptr(self):
+        return <void_ptr>self._cptr 
+
 
 cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):
     helper[0]._pybuffer.buf = NULL
