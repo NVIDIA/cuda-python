@@ -67,7 +67,11 @@ include-package-data = false
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
+[tool.uv.sources]
+cuda-pathfinder = { workspace = true }
+
 [tool.cibuildwheel]
+build-frontend = "build[uv]"
 skip = "*-musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1

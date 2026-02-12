@@ -14,6 +14,7 @@ cuda_core/cuda/core/_cpp/*.hpp -binary text diff
 *.svg binary
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
+uv.lock merge=binary linguist-language=TOML linguist-generated=true
 
 # "export-subst" specifies that this file will get filled in with the current
 # commit and tag information when running `git archive`.  This allows

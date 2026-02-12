@@ -6,7 +6,11 @@
 requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8",
-    "Cython>=3.2,<3.3"
+    "Cython>=3.2,<3.3",
+    # cuda-pathfinder is a transitive build dependency via cuda-bindings (which
+    # is dynamically added by the build backend).  Listing it here as a direct
+    # requirement lets uv's workspace resolver see it during lock.
+    "cuda-pathfinder",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -90,7 +94,15 @@ version_file = "cuda/core/_version.py"
 tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
+[tool.uv]
+conflicts = [[{ extra = "cu12" }, { extra = "cu13" }]]
+
+[tool.uv.sources]
+cuda-bindings = { workspace = true }
+cuda-pathfinder = { workspace = true }
+
 [tool.cibuildwheel]
+build-frontend = "build[uv]"
 skip = "*-musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1
