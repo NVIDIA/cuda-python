@@ -62,6 +62,8 @@ def test_supported_libnames_windows_libnames_requiring_os_add_dll_directory_cons
 
 
 def test_runtime_error_on_non_64bit_python(mocker):
+    # Ensure this test is not affected by any prior cached calls.
+    load_nvidia_dynamic_lib.cache_clear()
     mocker.patch("struct.calcsize", return_value=3)  # fake 24-bit pointer
     with pytest.raises(RuntimeError, match=r"requires 64-bit Python\. Currently running: 24-bit Python"):
         load_nvidia_dynamic_lib("cudart")
