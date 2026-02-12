@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -76,6 +76,9 @@ jobs:
           conda list
           conda config --show-sources
           conda config --show
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
       # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
@@ -181,18 +184,18 @@ jobs:
       - name: Install all packages
         run: |
           pushd cuda_pathfinder
-          pip install *.whl
+          uv pip install *.whl
           popd
 
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          pip install *.whl
+          uv pip install *.whl
           popd
 
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install *.whl
+          uv pip install *.whl
           popd
 
-          pip install cuda_python*.whl
+          uv pip install cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number

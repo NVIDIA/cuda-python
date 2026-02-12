@@ -106,15 +106,18 @@ jobs:
         run: |
           env
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Install twine
         run: |
-          pip install twine
+          uv pip install twine
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
         run: |
           pushd cuda_pathfinder
-          pip wheel -v --no-deps .
+          uv build --wheel
           popd
 
       - name: List the cuda.pathfinder artifacts directory
@@ -124,22 +127,22 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) cuda_pathfinder/*.whl
-          ls -lahR cuda_pathfinder
+          $CHOWN -R $(whoami) cuda_pathfinder/dist/*.whl
+          ls -lahR cuda_pathfinder/dist
 
       # We only need/want a single pure python wheel, pick linux-64 index 0.
       # This is what we will use for testing & releasing.
       - name: Check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          twine check --strict cuda_pathfinder/*.whl
+          twine check --strict cuda_pathfinder/dist/*.whl
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-pathfinder-wheel
-          path: cuda_pathfinder/*.whl
+          path: cuda_pathfinder/dist/*.whl
           if-no-files-found: error
 
       - name: Set up mini CTK
@@ -267,8 +270,8 @@ jobs:
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           pushd cuda_python
-          pip wheel -v --no-deps .
-          twine check --strict *.whl
+          uv build --wheel
+          twine check --strict dist/*.whl
           popd
 
       - name: List the cuda-python artifacts directory
@@ -279,15 +282,15 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) cuda_python/*.whl
-          ls -lahR cuda_python
+          $CHOWN -R $(whoami) cuda_python/dist/*.whl
+          ls -lahR cuda_python/dist
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-python-wheel
-          path: cuda_python/*.whl
+          path: cuda_python/dist/*.whl
           if-no-files-found: error
 
       - name: Set up Python
@@ -312,11 +315,12 @@ jobs:
 
       - name: Install cuda.pathfinder (required for next step)
         run: |
-          pip install cuda_pathfinder/*.whl
+          uv pip install cuda_pathfinder/dist/*.whl
 
       - name: Build cuda.bindings Cython tests
         run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
+          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          uv pip install "pytest>=6.2.4" "pytest-benchmark>=3.4.1" pytest-randomly pytest-repeat "pyglet>=2.1.9" "numpy>=1.21.1" "cython>=3.2,<3.3" "setuptools>=77.0.0"
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -330,7 +334,8 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl --group ./cuda_core/pyproject.toml:test
+          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
+          uv pip install "pytest>=6.2.4" pytest-randomly pytest-repeat "cython>=3.2,<3.3" setuptools
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -444,7 +449,7 @@ jobs:
 
       - name: Merge cuda.core wheels
         run: |
-          pip install wheel
+          uv pip install wheel
           python ci/tools/merge_cuda_core_wheels.py \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \

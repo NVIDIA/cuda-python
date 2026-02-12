@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -82,6 +82,9 @@ jobs:
           # we use self-hosted runners on which setup-python behaves weirdly...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
@@ -92,29 +95,29 @@ jobs:
 
       - name: Create venv
         run: |
-          python -m venv .venv
+          uv venv .venv
 
       - name: Build cuda-pathfinder
         run: |
-          .venv/bin/pip install -v ./cuda_pathfinder
+          uv pip install --python .venv/bin/python -v ./cuda_pathfinder
 
       - name: Build cuda-python-test-helpers
         run: |
-          .venv/bin/pip install -v ./cuda_python_test_helpers
+          uv pip install --python .venv/bin/python -v ./cuda_python_test_helpers
 
       - name: Build cuda-bindings
         run: |
-          cd cuda_bindings
-          ../.venv/bin/pip install -v . --group test
+          uv pip install --python .venv/bin/python -v ./cuda_bindings
+          cd cuda_bindings && uv sync --python ../.venv/bin/python --package cuda-bindings --only-group test --no-install-project && cd ..
 
       - name: Build cuda-core
         run: |
-          cd cuda_core
-          ../.venv/bin/pip install -v . --group test
+          uv pip install --python .venv/bin/python -v ./cuda_core
+          cd cuda_core && uv sync --python ../.venv/bin/python --package cuda-core --only-group "test-cu$(cut -d. -f1 <<< $CUDA_VER)" --no-install-project && cd ..
 
       - name: Install coverage tools
         run: |
-          .venv/bin/pip install coverage pytest-cov
+          uv pip install --python .venv/bin/python coverage pytest-cov
 
       - name: Set cuda package install root
         run: |

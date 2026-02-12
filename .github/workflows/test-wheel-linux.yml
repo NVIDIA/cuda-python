@@ -224,6 +224,9 @@ jobs:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
@@ -279,17 +282,18 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install --only-binary=:all: cuda_python*.whl
+            uv pip install cuda_python*.whl
           else
-            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
+            uv pip install $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
-          pip list
+          uv pip install -v ./*.whl
+          uv sync --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-install-project
+          uv pip list
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work

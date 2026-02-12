@@ -1,0 +1,124 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Virtual workspace root for uv. Not an installable package.
+# Enables uv lock, uv add --package <name>, and uv build across the monorepo.
+
+[project]
+name = "cuda-python-workspace"
+version = "0.0.0"
+requires-python = ">=3.10"
+
+[tool.uv]
+package = false
+# cuda-pathfinder must appear as a direct constraint so that the resolver
+# recognises it as a workspace member when it surfaces as a *transitive*
+# build-dependency (cuda-core build -> cuda-bindings -> cuda-pathfinder).
+constraint-dependencies = ["cuda-pathfinder"]
+
+# Workspace-level conflicts: cuda-toolkit can only be one major version at a
+# time, so every cu12 extra/group is incompatible with every cu13 one.
+conflicts = [
+    # cuda-core dependency-group conflicts (within package)
+    # All cu12 test groups conflict with all cu13 test groups.
+    [
+        { package = "cuda-core", group = "test-cu12" },
+        { package = "cuda-core", group = "test-cu13" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu12-ft" },
+        { package = "cuda-core", group = "test-cu13-ft" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu12" },
+        { package = "cuda-core", group = "test-cu13-ft" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu12-ft" },
+        { package = "cuda-core", group = "test-cu13" },
+    ],
+    # cuda-pathfinder dependency-group conflicts (within package)
+    # All cu12 groups conflict with all cu13 groups.
+    [
+        { package = "cuda-pathfinder", group = "test-cu12" },
+        { package = "cuda-pathfinder", group = "test-cu13" },
+    ],
+    [
+        { package = "cuda-pathfinder", group = "cu12" },
+        { package = "cuda-pathfinder", group = "cu13" },
+    ],
+    [
+        { package = "cuda-pathfinder", group = "cu12" },
+        { package = "cuda-pathfinder", group = "test-cu13" },
+    ],
+    [
+        { package = "cuda-pathfinder", group = "test-cu12" },
+        { package = "cuda-pathfinder", group = "cu13" },
+    ],
+    # cuda-bindings[all] pins cuda-toolkit==13.* which conflicts with cu12 groups
+    [
+        { package = "cuda-bindings", extra = "all" },
+        { package = "cuda-core", group = "test-cu12" },
+    ],
+    [
+        { package = "cuda-bindings", extra = "all" },
+        { package = "cuda-core", group = "test-cu12-ft" },
+    ],
+    [
+        { package = "cuda-bindings", extra = "all" },
+        { package = "cuda-pathfinder", group = "test-cu12" },
+    ],
+    [
+        { package = "cuda-bindings", extra = "all" },
+        { package = "cuda-pathfinder", group = "cu12" },
+    ],
+    # Cross-package cu12/cu13 group conflicts
+    [
+        { package = "cuda-core", group = "test-cu12" },
+        { package = "cuda-pathfinder", group = "cu13" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu12" },
+        { package = "cuda-pathfinder", group = "test-cu13" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu13" },
+        { package = "cuda-pathfinder", group = "cu12" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu13" },
+        { package = "cuda-pathfinder", group = "test-cu12" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu12-ft" },
+        { package = "cuda-pathfinder", group = "cu13" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu12-ft" },
+        { package = "cuda-pathfinder", group = "test-cu13" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu13-ft" },
+        { package = "cuda-pathfinder", group = "cu12" },
+    ],
+    [
+        { package = "cuda-core", group = "test-cu13-ft" },
+        { package = "cuda-pathfinder", group = "test-cu12" },
+    ],
+]
+
+[tool.uv.workspace]
+members = [
+    "cuda_bindings",
+    "cuda_core",
+    "cuda_pathfinder",
+    "cuda_python",
+    "cuda_python_test_helpers",
+]
+
+[tool.uv.sources]
+cuda-bindings = { workspace = true }
+cuda-core = { workspace = true }
+cuda-pathfinder = { workspace = true }
+cuda-python = { workspace = true }
