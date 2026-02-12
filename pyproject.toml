@@ -56,7 +56,9 @@ conflicts = [
         { package = "cuda-pathfinder", group = "test-cu12" },
         { package = "cuda-pathfinder", group = "cu13" },
     ],
-    # cuda-bindings[all] pins cuda-toolkit==13.* which conflicts with cu12 groups
+    # cuda-bindings[all] in this workspace requires cuda-toolkit==13.*.
+    # Any group that requires cuda-toolkit==12.* is unsatisfiable alongside
+    # it, regardless of which cuda-bindings major version pathfinder supports.
     [
         { package = "cuda-bindings", extra = "all" },
         { package = "cuda-core", group = "test-cu12" },
