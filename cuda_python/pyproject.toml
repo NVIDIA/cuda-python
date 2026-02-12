@@ -32,13 +32,8 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA :: 12",
     "Environment :: GPU :: NVIDIA CUDA :: 13",
 ]
-dynamic = ["version"]
+dynamic = ["version", "dependencies", "optional-dependencies"]
 requires-python = ">=3.10"
-dependencies = [
-    "cuda-bindings",
-    "cuda-pathfinder~=1.1",
-]
-optional-dependencies = { all = ["cuda-bindings[all]"] }
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
