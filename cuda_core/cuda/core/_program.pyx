@@ -625,7 +625,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         # Store use_libdevice flag
         if options.use_libdevice:
             self._use_libdevice = True
-        
+
         self._backend = "NVVM"
         self._linker = None
 

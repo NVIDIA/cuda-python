@@ -14,4 +14,4 @@ cdef class Program:
         object _options  # ProgramOptions
         object __weakref__
         bint _use_libdevice      # Flag for libdevice loading
-        int _module_count  
+        int _module_count
