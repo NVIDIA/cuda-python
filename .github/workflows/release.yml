@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,8 +19,8 @@ on:
           - cuda-pathfinder
           - cuda-python
           - all
-      git-tag:
-        description: "The release git tag"
+      version:
+        description: "Version to release (e.g. 1.2.3)"
         required: true
         type: string
       run-id:
@@ -38,6 +38,9 @@ on:
         options:
           - testpypi
           - pypi
+
+env:
+  TAG: ${{ fromJSON('{"cuda_bindings":"v","cuda_core":"cuda-core-v","cuda_pathfinder":"cuda-pathfinder-v","cuda_python":"cuda-python-v","all":"all-v"}')[inputs.component] }}${{ inputs.version }}
 
 defaults:
   run:
@@ -64,8 +67,8 @@ jobs:
             echo "Using provided run ID: ${{ inputs.run-id }}"
             echo "run-id=${{ inputs.run-id }}" >> $GITHUB_OUTPUT
           else
-            echo "Auto-detecting run ID for tag: ${{ inputs.git-tag }}"
-            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detecting run ID for tag: ${{ env.TAG }}"
+            RUN_ID=$(./ci/tools/lookup-run-id "${{ env.TAG }}" "${{ github.repository }}")
             echo "Auto-detected run ID: $RUN_ID"
             echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
           fi
@@ -93,8 +96,8 @@ jobs:
 
           found=0
           for idx in ${!tags[@]}; do
-            if [[ "${tags[$idx]}" == "${{ inputs.git-tag }}" ]]; then
-              echo "found existing release for ${{ inputs.git-tag }}"
+            if [[ "${tags[$idx]}" == "${{ env.TAG }}" ]]; then
+              echo "found existing release for ${{ env.TAG }}"
               found=1
               if [[ "${is_draft[$idx]}" != "true" ]]; then
                 echo "the release note is not in draft state"
@@ -104,8 +107,8 @@ jobs:
             fi
           done
           if [[ "$found" == 0 ]]; then
-            echo "no release found for ${{ inputs.git-tag }}, creating draft release"
-            gh release create "${{ inputs.git-tag }}" --draft --repo "${{ github.repository }}" --title "Release ${{ inputs.git-tag }}" --notes "Release ${{ inputs.git-tag }}"
+            echo "no release found for ${{ env.TAG }}, creating draft release"
+            gh release create "${{ env.TAG }}" --draft --repo "${{ github.repository }}" --title "Release ${{ env.TAG }}" --notes "Release ${{ env.TAG }}"
           fi
 
   doc:
@@ -124,7 +127,7 @@ jobs:
     with:
       build-ctk-ver: ${{ inputs.build-ctk-ver }}
       component: ${{ inputs.component }}
-      git-tag: ${{ inputs.git-tag }}
+      git-tag: ${{ vars.TAG }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       is-release: true
 
@@ -139,7 +142,7 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
-      git-tag: ${{ inputs.git-tag }}
+      git-tag: ${{ vars.TAG }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       component: ${{ inputs.component }}
 
