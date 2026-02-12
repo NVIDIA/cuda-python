@@ -21439,7 +21439,7 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
         pcallbackFunc = int(cudaAsyncCallback(callbackFunc))
     cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>pcallbackFunc
     cdef _HelperInputVoidPtrStruct cyuserDataHelper
-    cdef void* cyuserData = _helper_input_void_ptr(userData, &userDataHelper)
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cudaAsyncCallbackData *cbData = NULL
     cbData = <cudaAsyncCallbackData *>malloc(sizeof(cbData[0]))
@@ -21455,7 +21455,7 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
         free(cbData)
     else:
         m_global._allocated[int(callback)] = cbData
-    _helper_input_void_ptr_free(&userDataHelper)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
 
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
@@ -23204,7 +23204,7 @@ def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
         err = cyruntime.cudaStreamAddCallback(cystream, <cyruntime.cudaStreamCallback_t>cudaStreamRtCallbackWrapper, <void *>cbData, flags)
     if err != cyruntime.cudaSuccess:
         free(cbData)
-    _helper_input_void_ptr_free(&userDataHelper)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
 
     return (cudaError_t(err),)
 {{endif}}
@@ -25452,7 +25452,7 @@ def cudaLaunchHostFunc(stream, fn, userData):
         err = cyruntime.cudaLaunchHostFunc(cystream, <cyruntime.cudaHostFn_t>cudaStreamRtHostCallbackWrapper, <void *>cbData)
     if err != cyruntime.cudaSuccess:
         free(cbData)
-    _helper_input_void_ptr_free(&userDataHelper)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
 
     return (cudaError_t(err),)
 {{endif}}
