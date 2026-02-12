@@ -19,7 +19,6 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory,
 )
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
-
 from cuda.pathfinder._static_libs.find_libdevice import (
     find_libdevice as find_libdevice,
 )
