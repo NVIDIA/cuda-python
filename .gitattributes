@@ -15,4 +15,8 @@ cuda_core/cuda/core/_cpp/*.hpp -binary text diff
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
 
+# "export-subst" specifies that this file will get filled in with the current
+# commit and tag information when running `git archive`.  This allows
+# `setuptools-scm` to correctly determine the version when building from a git
+# archive.  See #1609.
 .git_archival.txt export-subst
