@@ -445,11 +445,23 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
 
 
 @nvvm_available
+@pytest.mark.parametrize("target_type", ["ptx", "ltoir"])
 @pytest.mark.parametrize(
     "options",
     [
         ProgramOptions(name="test1", arch="sm_90", device_code_optimize=False),
         ProgramOptions(name="test2", arch="sm_100", device_code_optimize=False),
+        ProgramOptions(name="test3", arch="sm_100", link_time_optimization=True),
+        ProgramOptions(
+            name="test4",
+            arch="sm_90",
+            ftz=True,
+            prec_sqrt=False,
+            prec_div=False,
+            fma=True,
+            device_code_optimize=True,
+            link_time_optimization=True,
+        ),
         pytest.param(
             ProgramOptions(name="test_sm110_1", arch="sm_110", device_code_optimize=False),
             marks=pytest.mark.skipif(
@@ -481,50 +493,22 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
         ),
     ],
 )
-def test_nvvm_program_options(init_cuda, nvvm_ir, options):
-    """Test NVVM programs with different options"""
+def test_nvvm_program_options(init_cuda, nvvm_ir, options, target_type):
+    """Test NVVM programs with different options and target types (ptx/ltoir)"""
     program = Program(nvvm_ir, "nvvm", options)
     assert program.backend == "NVVM"
 
-    ptx_code = program.compile("ptx")
-    assert isinstance(ptx_code, ObjectCode)
-    assert ptx_code.name == options.name
+    result = program.compile(target_type)
+    assert isinstance(result, ObjectCode)
+    assert result.name == options.name
 
-    code_content = ptx_code.code
-    ptx_text = code_content.decode() if isinstance(code_content, bytes) else str(code_content)
-    assert ".visible .entry simple(" in ptx_text
-
-    program.close()
-
-
-@nvvm_available
-@pytest.mark.parametrize(
-    "options",
-    [
-        ProgramOptions(name="ltoir_test1", arch="sm_90", device_code_optimize=False),
-        ProgramOptions(name="ltoir_test2", arch="sm_100", link_time_optimization=True),
-        ProgramOptions(
-            name="ltoir_test3",
-            arch="sm_90",
-            ftz=True,
-            prec_sqrt=False,
-            prec_div=False,
-            fma=True,
-            device_code_optimize=True,
-            link_time_optimization=True,
-        ),
-    ],
-)
-def test_nvvm_program_options_ltoir(init_cuda, nvvm_ir, options):
-    """Test NVVM programs for LTOIR with different options"""
-    program = Program(nvvm_ir, "nvvm", options)
-    assert program.backend == "NVVM"
-
-    ltoir_code = program.compile("ltoir")
-    assert isinstance(ltoir_code, ObjectCode)
-    assert ltoir_code.name == options.name
-    code_content = ltoir_code.code
+    code_content = result.code
     assert len(code_content) > 0
+
+    if target_type == "ptx":
+        ptx_text = code_content.decode() if isinstance(code_content, bytes) else str(code_content)
+        assert ".visible .entry simple(" in ptx_text
+
     program.close()
 
 
