@@ -11,7 +11,7 @@ from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 # Site-package paths for libdevice (following SITE_PACKAGES_LIBDIRS pattern)
 SITE_PACKAGES_LIBDEVICE_DIRS = (
-    "nvidia/cu13/nvvm/libdevice",       # CTK 13+
+    "nvidia/cu13/nvvm/libdevice",  # CTK 13+
     "nvidia/cuda_nvcc/nvvm/libdevice",  # CTK <13
 )
 
