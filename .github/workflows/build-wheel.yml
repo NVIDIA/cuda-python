@@ -109,6 +109,10 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
 
+      - name: Install twine
+        run: |
+          uv pip install twine
+
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
         run: |
@@ -128,6 +132,11 @@ jobs:
 
       # We only need/want a single pure python wheel, pick linux-64 index 0.
       # This is what we will use for testing & releasing.
+      - name: Check cuda.pathfinder wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          twine check --strict cuda_pathfinder/dist/*.whl
+
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
@@ -186,6 +195,10 @@ jobs:
           $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
+
+      - name: Check cuda.bindings wheel
+        run: |
+          twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
@@ -271,6 +284,11 @@ jobs:
           fi
           $CHOWN -R $(whoami) cuda_python/dist/*.whl
           ls -lahR cuda_python/dist
+
+      - name: Check cuda-python wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          twine check --strict cuda_python/dist/*.whl
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
@@ -442,6 +460,9 @@ jobs:
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
             --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
 
+      - name: Check cuda.core wheel
+        run: |
+          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
