@@ -11,9 +11,7 @@ _LOGGER_NAME = "cuda_pathfinder.test_info"
 
 
 def _log_filename():
-    strictness = os.environ.get(
-        "CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works"
-    )
+    strictness = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
     return f"pathfinder-test-info-summary-{strictness}.txt"
 
 
