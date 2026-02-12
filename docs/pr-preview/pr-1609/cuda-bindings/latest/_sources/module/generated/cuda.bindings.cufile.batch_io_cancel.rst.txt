@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.batch\_io\_cancel
-======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: batch_io_cancel
