@@ -309,7 +309,7 @@ def main():
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
             frame_us = 1_000_000.0 / fps if fps > 0 else 0
-            window.set_caption(f"GraphicsResource Example - CUDA Plasma ({fps:.0f} FPS, {frame_us:.0f} \u00b5s frame)")
+            window.set_caption(f"GraphicsResource Example - CUDA Plasma ({WIDTH}x{HEIGHT}, {fps:.0f} FPS, {frame_us:.0f} \u00b5s frame)")
             frame_count = 0
             fps_time = now
 
