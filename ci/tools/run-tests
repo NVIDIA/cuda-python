@@ -32,10 +32,8 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   echo "Running pathfinder tests with " \
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
-  pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
-  # Fail if no "INFO test_" lines are found; capture line count otherwise
-  line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
-  echo "Number of \"INFO test_\" lines: $line_count"
+  pytest -ra -s -v --durations=0 tests/
+  echo "Number of \"INFO test_\" lines: $(cat pathfinder-test-info-summary-*.txt | wc -l)"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
