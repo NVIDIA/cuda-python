@@ -15,8 +15,6 @@ from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 class BitcodeLibNotFoundError(DynamicLibNotFoundError):
     """Raised when a bitcode library cannot be found."""
 
-    pass
-
 
 @dataclass(frozen=True)
 class LocatedBitcodeLib:
