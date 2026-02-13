@@ -260,18 +260,18 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            uv pip install cuda_python*.whl
+            uv pip install --system cuda_python*.whl
           else
-            uv pip install $(ls cuda_python*.whl)[all]
+            uv pip install --system $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          uv pip install -v ./*.whl
+          uv pip install --system -v ./*.whl
           uv sync --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-install-project
-          uv pip list
+          uv pip list --system
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work

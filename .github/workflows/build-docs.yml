@@ -184,18 +184,18 @@ jobs:
       - name: Install all packages
         run: |
           pushd cuda_pathfinder
-          uv pip install *.whl
+          uv pip install --system *.whl
           popd
 
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          uv pip install *.whl
+          uv pip install --system *.whl
           popd
 
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          uv pip install *.whl
+          uv pip install --system *.whl
           popd
 
-          uv pip install cuda_python*.whl
+          uv pip install --system cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
