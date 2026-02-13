@@ -330,15 +330,13 @@ jobs:
       - name: Create venv
         run: uv venv
 
-      - name: Install cuda.pathfinder (required for next step)
-        run: |
-          uv pip install cuda_pathfinder/dist/*.whl
-
       - name: Build cuda.bindings Cython tests
         run: |
-          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          # Install the "test" dependency group from cuda_bindings/pyproject.toml.
+          # Install test deps first, then wheels (uv sync manages the env
+          # and would remove previously-installed wheels).
           uv sync --frozen --package cuda-bindings --only-group test --no-install-project
+          uv pip install cuda_pathfinder/dist/*.whl
+          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           # Activate venv so cythonize is on PATH for build_tests.sh
           export PATH="${GITHUB_WORKSPACE}/.venv/bin:${GITHUB_WORKSPACE}/.venv/Scripts:${PATH}"
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -354,9 +352,9 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
-          # Install the "test" dependency group from cuda_core/pyproject.toml.
+          # Install test deps first, then the wheel.
           uv sync --frozen --package cuda-core --only-group test --no-install-project
+          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
           # Activate venv so cythonize is on PATH for build_tests.sh
           export PATH="${GITHUB_WORKSPACE}/.venv/bin:${GITHUB_WORKSPACE}/.venv/Scripts:${PATH}"
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
