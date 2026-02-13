@@ -34,8 +34,10 @@ if [[ "${test_module}" == "pathfinder" ]]; then
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
   pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
   # Fail if no "INFO test_" lines are found; capture line count otherwise
-  line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
-  echo "Number of \"INFO test_\" lines: $line_count"
+  if [ -z "${PYTEST_ADDOPTS}" ]; then
+    line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
+    echo "Number of \"INFO test_\" lines: $line_count"
+  fi
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
