@@ -8,7 +8,12 @@ They use a simplified system-search-only path, skipping site-packages,
 conda, CUDA_HOME, and the canary probe.
 """
 
+import json
+import os
+
 import pytest
+import spawned_process_runner
+from child_load_nvidia_dynamic_lib_helper import build_child_process_failed_for_libname_message, child_process_func
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -16,6 +21,10 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_driver_lib_no_cache,
     _load_lib_no_cache,
 )
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
+
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
+assert STRICTNESS in ("see_what_works", "all_must_work")
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 
@@ -110,3 +119,34 @@ def test_load_lib_no_cache_does_not_dispatch_ctk_lib_to_driver_path(mocker):
     _load_lib_no_cache("cudart")
 
     mock_driver.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Real loading tests (spawned child process for isolation)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("libname", sorted(_DRIVER_ONLY_LIBNAMES))
+def test_real_load_driver_lib(info_summary_append, libname):
+    """Load a real driver library in a child process.
+
+    This complements the mock tests above: it exercises the actual OS
+    loader path and logs results via INFO for CI/QA inspection.
+    """
+    timeout = 120 if IS_WINDOWS else 30
+    result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
+
+    def raise_child_process_failed():
+        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+
+    if result.returncode != 0:
+        raise_child_process_failed()
+    assert not result.stderr
+    if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
+        if STRICTNESS == "all_must_work":
+            raise_child_process_failed()
+        info_summary_append(f"Not found: {libname=!r}")
+    else:
+        abs_path = json.loads(result.stdout.rstrip())
+        info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
+        assert os.path.isfile(abs_path)
