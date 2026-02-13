@@ -111,7 +111,7 @@ jobs:
 
       - name: Install twine
         run: |
-          uv pip install twine
+          uv pip install --system twine
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
@@ -320,11 +320,11 @@ jobs:
 
       - name: Install cuda.pathfinder (required for next step)
         run: |
-          uv pip install cuda_pathfinder/dist/*.whl
+          uv pip install --system cuda_pathfinder/dist/*.whl
 
       - name: Build cuda.bindings Cython tests
         run: |
-          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          uv pip install --system ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           uv sync --package cuda-bindings --only-group test --no-install-project
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
@@ -339,7 +339,7 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
+          uv pip install --system ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
           uv sync --package cuda-core --only-group test --no-install-project
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
@@ -454,7 +454,7 @@ jobs:
 
       - name: Merge cuda.core wheels
         run: |
-          uv pip install wheel
+          uv pip install --system wheel
           python ci/tools/merge_cuda_core_wheels.py \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \

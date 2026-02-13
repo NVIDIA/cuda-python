@@ -55,9 +55,12 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
+      exclude: *gen_exclude
 
+  # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: "3a6eb0fadf60b3cccfd80bad9dbb6fae7e47b316"  # frozen: v1.10.0
     hooks:
@@ -66,22 +69,27 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "3fa3bf0572b3af5e0b2fba0b6e76a1e0c4e1fdee"  # frozen: v1.16.1
+    rev: a66e98df7b4aeeb3724184b332785976d062b92e  # frozen: v1.19.1
     hooks:
-    - id: mypy
-      name: mypy-pathfinder
-      args: ["--config-file=cuda_pathfinder/pyproject.toml"]
-      files: "^cuda_pathfinder/"
-      exclude: "^cuda_pathfinder/tests/"
+      - id: mypy
+        name: mypy-pathfinder
+        files: ^cuda_pathfinder/cuda/.*\.py$  # Exclude tests directory
+        args: [--config-file=cuda_pathfinder/pyproject.toml]
 
   - repo: https://github.com/rhysd/actionlint
-    rev: "a1bcb27e3e8727e0b92d7d36c5a6f4b076b32b34"  # frozen: v1.7.7
+    rev: "0933c147c9d6587653d45fdcb4c497c57a65f9af"  # frozen: v1.7.10
     hooks:
       - id: actionlint
-        name: Lint GitHub Actions workflow files
+        args: ["-shellcheck="]
+        exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "48ca7bf3eb3d0bba6c3e76ba43b0a9e0a1f9bcc9"  # frozen: v0.16.6
+    rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0
     hooks:
-    - id: cython-lint
-      args: ['--max-line-length=320']
+      - id: cython-lint
+        args: [--no-pycodestyle]
+        exclude: ^cuda_bindings/
+
+
+default_language_version:
+      python: python3
