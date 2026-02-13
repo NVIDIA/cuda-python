@@ -126,7 +126,8 @@ def create_window():
 
     window = pyglet.window.Window(
         WIDTH, HEIGHT,
-        caption="CUDA Plasma - GraphicsResource Demo",
+        caption="GraphicsResource Example - CUDA Plasma",
+        vsync=False,
     )
     return window, _gl, pyglet
 
@@ -307,7 +308,8 @@ def main():
         now = time.monotonic()
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
-            window.set_caption(f"CUDA Plasma - GraphicsResource Demo  ({fps:.0f} FPS)")
+            frame_us = 1_000_000.0 / fps if fps > 0 else 0
+            window.set_caption(f"GraphicsResource Example - CUDA Plasma ({fps:.0f} FPS, {frame_us:.0f} \u00b5s frame)")
             frame_count = 0
             fps_time = now
 
@@ -315,7 +317,7 @@ def main():
     def on_close():
         resource.close()
 
-    pyglet.app.run()
+    pyglet.app.run(interval=0)
     print("done!")
 
 
