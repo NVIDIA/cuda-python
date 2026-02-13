@@ -97,8 +97,8 @@ jobs:
           # Patch cuda_bindings setup.py
           sed -i 's/build_dir=\"build\/cython\",/build_dir=\".\",/' cuda_bindings/setup.py
 
-          # Patch cuda_bindings pyproject.toml
-          sed -i 's/exclude-package-data/package-data/' cuda_bindings/pyproject.toml
+          # Patch cuda_bindings pyproject.toml - add *.cpp and *.pyx to package-data
+          sed -i 's/"\*" = \["\*\.pxd", "\*\.pxi"\]/"*" = ["*.pxd", "*.pxi", "*.cpp", "*.pyx"]/' cuda_bindings/pyproject.toml
 
           echo "Applied coverage patches to cuda_bindings"
 
@@ -107,8 +107,8 @@ jobs:
           # Patch cuda_core build_hooks.py
           sed -i 's/build_dir=\"build\/cython\",/build_dir=\".\",/' cuda_core/build_hooks.py
 
-          # Patch cuda_core pyproject.toml - add after cuda.core._cpp line
-          sed -i '/\"cuda\.core\._cpp\" = \[\".*\"\]/a \"*\" = [\"*.cpp\"]' cuda_core/pyproject.toml
+          # Patch cuda_core pyproject.toml - add *.pxi, *.cpp, *.pyx to the "*" pattern
+          sed -i 's/"\*" = \["\*\.pxd"\]/"*" = ["*.pxd", "*.pxi", "*.cpp", "*.pyx"]/' cuda_core/pyproject.toml
 
           echo "Applied coverage patches to cuda_core"
 
@@ -224,7 +224,8 @@ jobs:
           (Get-Content $setupPath -Raw) -replace 'build_dir="build/cython",', 'build_dir=".",' | Set-Content $setupPath -NoNewline
 
           $pyprojectPath = "cuda_bindings\pyproject.toml"
-          (Get-Content $pyprojectPath -Raw) -replace 'exclude-package-data', 'package-data' | Set-Content $pyprojectPath -NoNewline
+          # Add *.cpp and *.pyx to package-data (using capture groups)
+          (Get-Content $pyprojectPath -Raw) -replace '"\*" = \["(\*\.pxd)", "(\*\.pxi)"\]', '"*" = ["$1", "$2", "*.cpp", "*.pyx"]' | Set-Content $pyprojectPath -NoNewline
 
           echo "Applied coverage patches to cuda_bindings"
 
@@ -235,7 +236,8 @@ jobs:
           (Get-Content $buildHooksPath -Raw) -replace 'build_dir="build/cython",', 'build_dir=".",' | Set-Content $buildHooksPath -NoNewline
 
           $pyprojectPath = "cuda_core\pyproject.toml"
-          (Get-Content $pyprojectPath -Raw) -replace '(\[tool\.setuptools\.package-data\])', "`$1`r`n`"*`" = [`"*.cpp`"]" | Set-Content $pyprojectPath -NoNewline
+          # Add *.pxi, *.cpp, *.pyx to the "*" pattern (using capture groups)
+          (Get-Content $pyprojectPath -Raw) -replace '"\*" = \["(\*\.pxd)"\]', '"*" = ["$1", "*.pxi", "*.cpp", "*.pyx"]' | Set-Content $pyprojectPath -NoNewline
 
           echo "Applied coverage patches to cuda_core"
 
