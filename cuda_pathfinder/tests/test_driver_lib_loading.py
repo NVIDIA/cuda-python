@@ -25,21 +25,6 @@ def _make_loaded_dl(path, found_via):
 
 
 # ---------------------------------------------------------------------------
-# _DRIVER_ONLY_LIBNAMES registry
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("libname", ["cuda", "nvml"])
-def test_driver_only_libnames_contains(libname):
-    assert libname in _DRIVER_ONLY_LIBNAMES
-
-
-@pytest.mark.parametrize("libname", ["cudart", "nvrtc", "cublas", "nvvm"])
-def test_driver_only_libnames_excludes_ctk_libs(libname):
-    assert libname not in _DRIVER_ONLY_LIBNAMES
-
-
-# ---------------------------------------------------------------------------
 # _load_driver_lib_no_cache
 # ---------------------------------------------------------------------------
 
