@@ -291,9 +291,10 @@ def main():
                 np.float32(t),        # animation time
             )
         # (c) Unmap happens automatically when the `with` block exits.
-        #     The PBO now belongs to OpenGL again.
-
-        stream.sync()
+        #     The PBO now belongs to OpenGL again.  No stream.sync() is
+        #     needed here -- cuGraphicsUnmapResources guarantees that all
+        #     CUDA work on the stream completes before OpenGL can use the
+        #     buffer.
 
         # (d) Tell OpenGL to copy the PBO contents into our texture (GPU-to-GPU).
         copy_pbo_to_texture(gl, pbo_id, tex_id, WIDTH, HEIGHT)
