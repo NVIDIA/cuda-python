@@ -43,10 +43,11 @@ SUPPORTED_BITCODE_LIBS: dict[str, _BitcodeLibConfig] = {
     },
 }
 
-if IS_WINDOWS:
-    _COMMON_BASES: list[str] = [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
-else:
-    _COMMON_BASES: list[str] = ["/usr/local/cuda", "/opt/cuda"]
+_COMMON_BASES: list[str] = (
+    [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
+    if IS_WINDOWS
+    else ["/usr/local/cuda", "/opt/cuda"]
+)
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
