@@ -14,6 +14,8 @@ from cpython.pycapsule cimport PyCapsule_GetName, PyCapsule_GetPointer
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
+from cuda.bindings cimport cynvrtc
+from cuda.bindings cimport cynvvm
 
 from ._resource_handles cimport (
     ContextHandle,
@@ -24,9 +26,13 @@ from ._resource_handles cimport (
     LibraryHandle,
     KernelHandle,
     GraphicsResourceHandle,
+    NvrtcProgramHandle,
+    NvvmProgramHandle,
 )
 
 import cuda.bindings.cydriver as cydriver
+import cuda.bindings.cynvrtc as cynvrtc
+import cuda.bindings.cynvvm as cynvvm
 
 # =============================================================================
 # C++ function declarations (non-inline, implemented in resource_handles.cpp)
@@ -112,6 +118,18 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
         cydriver.CUgraphicsResource resource) except+ nogil
 
+    # NVRTC Program handles
+    NvrtcProgramHandle create_nvrtc_program_handle "cuda_core::create_nvrtc_program_handle" (
+        cynvrtc.nvrtcProgram prog) except+ nogil
+    NvrtcProgramHandle create_nvrtc_program_handle_ref "cuda_core::create_nvrtc_program_handle_ref" (
+        cynvrtc.nvrtcProgram prog) except+ nogil
+
+    # NVVM Program handles
+    NvvmProgramHandle create_nvvm_program_handle "cuda_core::create_nvvm_program_handle" (
+        cynvvm.nvvmProgram prog) except+ nogil
+    NvvmProgramHandle create_nvvm_program_handle_ref "cuda_core::create_nvvm_program_handle_ref" (
+        cynvvm.nvvmProgram prog) except+ nogil
+
 
 # =============================================================================
 # CUDA Driver API capsule
@@ -182,6 +200,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Graphics interop
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
 
+    # NVRTC
+    void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
+
+    # NVVM
+    void* p_nvvmDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvvmDestroyProgram)"
+
 
 # Initialize driver function pointers from cydriver.__pyx_capi__ at module load
 cdef void* _get_driver_fn(str name):
@@ -234,3 +258,26 @@ p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 
 # Graphics interop
 p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
+
+# =============================================================================
+# NVRTC function pointer initialization
+# =============================================================================
+
+cdef void* _get_nvrtc_fn(str name):
+    capsule = cynvrtc.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_nvrtcDestroyProgram = _get_nvrtc_fn("nvrtcDestroyProgram")
+
+# =============================================================================
+# NVVM function pointer initialization
+#
+# NVVM may not be available at runtime, so we handle missing function pointers
+# gracefully. The C++ deleter checks for null before calling.
+# =============================================================================
+
+cdef void* _get_nvvm_fn(str name):
+    capsule = cynvvm.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_nvvmDestroyProgram = _get_nvvm_fn("nvvmDestroyProgram")
