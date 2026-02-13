@@ -108,12 +108,12 @@ jobs:
       - name: Build cuda-bindings
         run: |
           uv pip install --python .venv/bin/python -v ./cuda_bindings
-          cd cuda_bindings && uv sync --python ../.venv/bin/python --package cuda-bindings --only-group test --no-install-project && cd ..
+          uv export --frozen --package cuda-bindings --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --python .venv/bin/python -r -
 
       - name: Build cuda-core
         run: |
           uv pip install --python .venv/bin/python -v ./cuda_core
-          cd cuda_core && uv sync --python ../.venv/bin/python --package cuda-core --only-group "test-cu$(cut -d. -f1 <<< $CUDA_VER)" --no-install-project && cd ..
+          uv export --frozen --package cuda-core --only-group "test-cu$(cut -d. -f1 <<< $CUDA_VER)" --no-emit-project --no-emit-workspace --no-hashes | uv pip install --python .venv/bin/python -r -
 
       - name: Install coverage tools
         run: |
