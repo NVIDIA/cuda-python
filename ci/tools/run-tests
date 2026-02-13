@@ -25,7 +25,7 @@ test_module=${1}
 pushd ./cuda_pathfinder
 echo "Installing pathfinder wheel"
 uv pip install --system ./*.whl
-uv sync --package cuda-pathfinder --only-group test --no-install-project
+uv export --package cuda-pathfinder --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
 popd
 
 if [[ "${test_module}" == "pathfinder" ]]; then
@@ -47,7 +47,7 @@ elif [[ "${test_module}" == "bindings" ]]; then
   else
     uv pip install --system $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
   fi
-  uv sync --package cuda-bindings --only-group test --no-install-project
+  uv export --package cuda-bindings --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
@@ -81,7 +81,7 @@ elif [[ "${test_module}" == "core" ]]; then
   else
     uv pip install --system $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"]
   fi
-  uv sync --package cuda-core --only-group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" --no-install-project
+  uv export --package cuda-core --only-group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
   echo "Running core tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   # Currently our CI always installs the latest bindings (from either major version).

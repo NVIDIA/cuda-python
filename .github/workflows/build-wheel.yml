@@ -325,7 +325,7 @@ jobs:
       - name: Build cuda.bindings Cython tests
         run: |
           uv pip install --system ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          uv sync --package cuda-bindings --only-group test --no-install-project
+          uv export --package cuda-bindings --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -340,7 +340,7 @@ jobs:
       - name: Build cuda.core Cython tests
         run: |
           uv pip install --system ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
-          uv sync --package cuda-core --only-group test --no-install-project
+          uv export --package cuda-core --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd

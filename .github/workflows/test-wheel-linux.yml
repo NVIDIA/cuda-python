@@ -292,7 +292,7 @@ jobs:
           set -euo pipefail
           pushd cuda_pathfinder
           uv pip install --system -v ./*.whl
-          uv sync --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-install-project
+          uv export --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
           uv pip list --system
           popd
 
