@@ -12,6 +12,10 @@ try:
     from numba import cuda as numba_cuda
 except ImportError:
     numba_cuda = None
+try:
+    import torch
+except ImportError:
+    torch = None
 import cuda.core
 import ml_dtypes
 import numpy as np
@@ -583,6 +587,36 @@ def test_ml_dtypes_bfloat16_from_any_interface_prefers_dlpack(init_cuda):
     assert smv.device_id == init_cuda.device_id
     assert smv.is_device_accessible is True
     assert smv.exporting_obj is wrapped
+
+
+@pytest.mark.parametrize(
+    "slices",
+    [
+        param((slice(None), slice(None)), id="contiguous"),
+        param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
+    ],
+)
+@pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
+def test_ml_dtypes_bfloat16_torch_dlpack(init_cuda, slices):
+    a = torch.tensor([1, 2, 3, 4, 5, 6], dtype=torch.bfloat16, device="cuda").reshape(2, 3)[slices]
+    smv = StridedMemoryView.from_dlpack(a, stream_ptr=0)
+
+    assert smv.size == a.numel()
+    assert smv.dtype == np.dtype("bfloat16")
+    assert smv.dtype == np.dtype(ml_dtypes.bfloat16)
+    assert smv.shape == tuple(a.shape)
+    assert smv.ptr == a.data_ptr()
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+    assert smv.exporting_obj is a
+
+    # PyTorch stride() returns strides in elements, convert to bytes first
+    strides_in_bytes = tuple(s * a.element_size() for s in a.stride())
+    strides_in_counts = convert_strides_to_counts(strides_in_bytes, a.element_size())
+    if a.is_contiguous():
+        assert smv.strides in (None, strides_in_counts)
+    else:
+        assert smv.strides == strides_in_counts
 
 
 @pytest.fixture
