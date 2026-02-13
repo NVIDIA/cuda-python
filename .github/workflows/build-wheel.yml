@@ -117,7 +117,7 @@ jobs:
       - name: Build and check cuda.pathfinder wheel
         run: |
           pushd cuda_pathfinder
-          uv build --wheel
+          uv build --wheel --out-dir dist
           popd
 
       - name: List the cuda.pathfinder artifacts directory
@@ -271,7 +271,7 @@ jobs:
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           pushd cuda_python
-          uv build --wheel
+          uv build --wheel --out-dir dist
           popd
 
       - name: List the cuda-python artifacts directory
