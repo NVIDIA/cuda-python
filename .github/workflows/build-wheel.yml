@@ -108,8 +108,6 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
-        with:
-          activate-environment: true
 
       # Shorten TEMP on Windows so cibuildwheel's build isolation paths
       # stay within cmd.exe's ~8KB environment limit (needed for py3.14t).
@@ -326,6 +324,11 @@ jobs:
           fi
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
+
+      # Create a fresh venv for the matrix Python (differs from the 3.12 used
+      # during the build phase above).
+      - name: Create venv
+        run: uv venv
 
       - name: Install cuda.pathfinder (required for next step)
         run: |
