@@ -20,10 +20,10 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
 )
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
 from cuda.pathfinder._static_libs.find_libdevice import (
-    find_libdevice as find_libdevice,
-)
-from cuda.pathfinder._static_libs.find_libdevice import (
-    get_libdevice_path as get_libdevice_path,
+    BitcodeLibNotFoundError as BitcodeLibNotFoundError,
+    LocatedBitcodeLib as LocatedBitcodeLib,
+    find_bitcode_lib as find_bitcode_lib,
+    locate_bitcode_lib as locate_bitcode_lib,
 )
 
 from cuda.pathfinder._version import __version__  # isort: skip  # noqa: F401
