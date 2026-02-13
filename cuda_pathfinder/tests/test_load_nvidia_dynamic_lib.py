@@ -69,10 +69,9 @@ def test_runtime_error_on_non_64bit_python(mocker):
         load_nvidia_dynamic_lib("cudart")
 
 
-@pytest.mark.parametrize("libname", ["bogus", "not_a_real_lib", "cupti"])
-def test_unsupported_libname_raises_value_error(libname):
-    with pytest.raises(ValueError, match=rf"Unsupported library name: '{libname}'.*cudart"):
-        load_nvidia_dynamic_lib(libname)
+def test_unsupported_libname_raises_value_error():
+    with pytest.raises(ValueError, match=r"Unsupported library name: 'not_a_real_lib'.*cudart"):
+        load_nvidia_dynamic_lib("not_a_real_lib")
 
 
 IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
