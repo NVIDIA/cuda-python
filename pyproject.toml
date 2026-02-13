@@ -19,6 +19,12 @@ constraint-dependencies = ["cuda-pathfinder"]
 
 # Workspace-level conflicts: cuda-toolkit can only be one major version at a
 # time, so every cu12 extra/group is incompatible with every cu13 one.
+#
+# uv does not automatically propagate per-member [tool.uv] conflicts to the
+# workspace root, nor does it infer cross-package conflicts.  All conflict
+# pairs must be enumerated here for `uv lock` to resolve correctly.
+# See https://github.com/astral-sh/uv/issues/11232 (only covers include-group,
+# not workspace-level propagation — no upstream issue exists yet for that).
 conflicts = [
     # cuda-core dependency-group conflicts (within package)
     # All cu12 test groups conflict with all cu13 test groups.

@@ -292,6 +292,7 @@ jobs:
           set -euo pipefail
           pushd cuda_pathfinder
           uv pip install --system -v ./*.whl
+          # Install the "test-cu${TEST_CUDA_MAJOR}" dependency group from cuda_pathfinder/pyproject.toml.
           uv export --frozen --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
           uv pip list --system
           popd
