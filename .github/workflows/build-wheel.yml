@@ -340,7 +340,7 @@ jobs:
           # Install the "test" dependency group from cuda_bindings/pyproject.toml.
           uv sync --frozen --package cuda-bindings --only-group test --no-install-project
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
+          uv run bash build_tests.sh
           popd
 
       - name: Upload cuda.bindings Cython tests
@@ -356,7 +356,7 @@ jobs:
           # Install the "test" dependency group from cuda_core/pyproject.toml.
           uv sync --frozen --package cuda-core --only-group test --no-install-project
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
+          uv run bash build_tests.sh
           popd
 
       - name: Upload cuda.core Cython tests
