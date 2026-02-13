@@ -83,7 +83,9 @@ jobs:
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
+        with:
+          activate-environment: true
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
@@ -93,57 +95,53 @@ jobs:
           host-platform: ${{ env.HOST_PLATFORM }}
           cuda-version: ${{ env.CUDA_VER }}
 
-      - name: Create venv
-        run: |
-          uv venv .venv
-
       - name: Build cuda-pathfinder
         run: |
-          uv pip install --python .venv/bin/python -v ./cuda_pathfinder
+          uv pip install -v ./cuda_pathfinder
 
       - name: Build cuda-python-test-helpers
         run: |
-          uv pip install --python .venv/bin/python -v ./cuda_python_test_helpers
+          uv pip install -v ./cuda_python_test_helpers
 
       - name: Build cuda-bindings
         run: |
-          uv pip install --python .venv/bin/python -v ./cuda_bindings
+          uv pip install -v ./cuda_bindings
           uv sync --frozen --package cuda-bindings --only-group test --no-install-project
 
       - name: Build cuda-core
         run: |
-          uv pip install --python .venv/bin/python -v ./cuda_core
+          uv pip install -v ./cuda_core
           uv sync --frozen --package cuda-core --only-group "test-cu$(cut -d. -f1 <<< $CUDA_VER)" --no-install-project
 
       - name: Install coverage tools
         run: |
-          uv pip install --python .venv/bin/python coverage pytest-cov
+          uv pip install coverage pytest-cov
 
       - name: Set cuda package install root
         run: |
-          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
+          echo "INSTALL_ROOT=$(python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
           echo "REPO_ROOT=$(pwd)" >> $GITHUB_ENV
 
       - name: Run cuda.pathfinder tests
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
+          pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
 
       - name: Run cuda.bindings tests
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+          pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
 
       - name: Run cuda.core tests
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
+          pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
 
       - name: Generate coverage report
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/coverage html --rcfile=$REPO_ROOT/.coveragerc
-          $REPO_ROOT/.venv/bin/coverage xml --rcfile=$REPO_ROOT/.coveragerc -o htmlcov/coverage.xml
+          coverage html --rcfile=$REPO_ROOT/.coveragerc
+          coverage xml --rcfile=$REPO_ROOT/.coveragerc -o htmlcov/coverage.xml
           mkdir $REPO_ROOT/docs
           mv htmlcov $REPO_ROOT/docs/coverage
 
