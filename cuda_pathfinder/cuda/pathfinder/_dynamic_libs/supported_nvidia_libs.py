@@ -216,8 +216,7 @@ SUPPORTED_LINUX_SONAMES_OTHER = {
 }
 # Driver libraries: shipped with the NVIDIA driver, always on the system
 # linker path.  Only system search is needed (no site-packages / conda /
-# CUDA_HOME).  Note the non-standard naming: "cuda" → libcuda.so.1,
-# "nvml" → libnvidia-ml.so.1.
+# CUDA_HOME).
 SUPPORTED_LINUX_SONAMES_DRIVER = {
     "cuda": ("libcuda.so.1",),
     "nvml": ("libnvidia-ml.so.1",),
