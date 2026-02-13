@@ -794,8 +794,9 @@ GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resour
         }
     );
     return GraphicsResourceHandle(box, &box->resource);
+}
 
-=======
+// ============================================================================
 // NVRTC Program Handles
 // ============================================================================
 

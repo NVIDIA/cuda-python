@@ -303,7 +303,7 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_li
 // Use for CUgraphicsResource handles obtained from cuGraphicsGLRegisterBuffer etc.
 GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource);
 
-=======
+// ============================================================================
 // NVRTC Program handle functions
 // ============================================================================
 
@@ -363,16 +363,15 @@ inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-<<<<<<< HEAD
 inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
-||||||| 80463f666
-=======
+    return h ? *h : nullptr;
+}
+
 inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
 inline nvvmProgram as_cu(const NvvmProgramHandle& h) noexcept {
->>>>>>> main
     return h ? *h : nullptr;
 }
 
@@ -410,10 +409,6 @@ inline std::intptr_t as_intptr(const GraphicsResourceHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-// as_py() - convert handle to Python driver wrapper object (returns new reference)
-
-// as_py() - convert handle to Python driver wrapper object (returns new reference)
-=======
 inline std::intptr_t as_intptr(const NvrtcProgramHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
@@ -475,7 +470,7 @@ inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
 }
 
 inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
-    return detail::make_py("CUgraphicsResource", as_intptr(h));
+    return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
 }
 
 }  // namespace cuda_core
