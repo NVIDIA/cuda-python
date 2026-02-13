@@ -13,6 +13,13 @@ from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
+_COMMON_BASES: list[str] = (
+    [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
+    if IS_WINDOWS
+    else ["/usr/local/cuda", "/opt/cuda"]
+)
+
+
 class BitcodeLibNotFoundError(DynamicLibNotFoundError):
     """Raised when a bitcode library cannot be found."""
 
@@ -42,12 +49,6 @@ SUPPORTED_BITCODE_LIBS: dict[str, _BitcodeLibConfig] = {
         ),
     },
 }
-
-_COMMON_BASES: list[str] = (
-    [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
-    if IS_WINDOWS
-    else ["/usr/local/cuda", "/opt/cuda"]
-)
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
