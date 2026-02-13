@@ -120,9 +120,8 @@ jobs:
           "TEMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
           "TMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Install twine
-        run: |
-          uv pip install --system twine
+      - name: Create venv
+        run: uv venv
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
@@ -146,7 +145,7 @@ jobs:
       - name: Check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          twine check --strict cuda_pathfinder/dist/*.whl
+          uv tool run twine check --strict cuda_pathfinder/dist/*.whl
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
@@ -209,7 +208,7 @@ jobs:
 
       - name: Check cuda.bindings wheel
         run: |
-          twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          uv tool run twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
@@ -299,7 +298,7 @@ jobs:
       - name: Check cuda-python wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          twine check --strict cuda_python/dist/*.whl
+          uv tool run twine check --strict cuda_python/dist/*.whl
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
@@ -331,14 +330,13 @@ jobs:
 
       - name: Install cuda.pathfinder (required for next step)
         run: |
-          uv pip install --system cuda_pathfinder/dist/*.whl
+          uv pip install cuda_pathfinder/dist/*.whl
 
       - name: Build cuda.bindings Cython tests
         run: |
-          uv pip install --system ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          # Install the "test" dependency group from cuda_bindings/pyproject.toml into the system Python.
-          # uv export resolves the group from the lockfile; uv pip install reads the result as requirements.
-          uv export --frozen --package cuda-bindings --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
+          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          # Install the "test" dependency group from cuda_bindings/pyproject.toml.
+          uv sync --frozen --package cuda-bindings --only-group test --no-install-project
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -352,9 +350,9 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          uv pip install --system ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
-          # Install the "test" dependency group from cuda_core/pyproject.toml into the system Python.
-          uv export --frozen --package cuda-core --only-group test --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
+          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
+          # Install the "test" dependency group from cuda_core/pyproject.toml.
+          uv sync --frozen --package cuda-core --only-group test --no-install-project
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -468,7 +466,7 @@ jobs:
 
       - name: Merge cuda.core wheels
         run: |
-          uv pip install --system wheel
+          uv pip install wheel
           python ci/tools/merge_cuda_core_wheels.py \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
@@ -476,7 +474,7 @@ jobs:
 
       - name: Check cuda.core wheel
         run: |
-          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          uv tool run twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0

@@ -211,6 +211,9 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
 
+      - name: Create venv
+        run: uv venv
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
@@ -260,19 +263,19 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            uv pip install --system cuda_python*.whl
+            uv pip install cuda_python*.whl
           else
-            uv pip install --system $(ls cuda_python*.whl)[all]
+            uv pip install $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          uv pip install --system -v ./*.whl
+          uv pip install -v ./*.whl
           # Install the "test-cu${TEST_CUDA_MAJOR}" dependency group from cuda_pathfinder/pyproject.toml.
-          uv export --frozen --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-emit-project --no-emit-workspace --no-hashes | uv pip install --system -r -
-          uv pip list --system
+          uv sync --frozen --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-install-project
+          uv pip list
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
