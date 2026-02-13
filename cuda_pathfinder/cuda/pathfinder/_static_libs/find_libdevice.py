@@ -5,6 +5,7 @@ import functools
 import glob
 import os
 from dataclasses import dataclass
+from typing import TypedDict
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
@@ -25,21 +26,27 @@ class LocatedBitcodeLib:
     filename: str
 
 
-SUPPORTED_BITCODE_LIBS = {
+class _BitcodeLibConfig(TypedDict):
+    filename: str
+    rel_path: str
+    site_packages_dirs: tuple[str, ...]
+
+
+SUPPORTED_BITCODE_LIBS: dict[str, _BitcodeLibConfig] = {
     "device": {
         "filename": "libdevice.10.bc",
         "rel_path": os.path.join("nvvm", "libdevice"),
         "site_packages_dirs": (
-            "nvidia/cu13/nvvm/libdevice",  # CTK 13+
-            "nvidia/cuda_nvcc/nvvm/libdevice",  # CTK <13
+            "nvidia/cu13/nvvm/libdevice",
+            "nvidia/cuda_nvcc/nvvm/libdevice",
         ),
     },
 }
 
 if IS_WINDOWS:
-    _COMMON_BASES = [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
+    _COMMON_BASES: list[str] = [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
 else:
-    _COMMON_BASES = ["/usr/local/cuda", "/opt/cuda"]
+    _COMMON_BASES: list[str] = ["/usr/local/cuda", "/opt/cuda"]
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -58,11 +65,11 @@ class _FindBitcodeLib:
             raise ValueError(
                 f"Unknown bitcode library: '{name}'. Supported: {', '.join(sorted(SUPPORTED_BITCODE_LIBS.keys()))}"
             )
-        self.name = name
-        self.config = SUPPORTED_BITCODE_LIBS[name]
-        self.filename = self.config["filename"]
-        self.rel_path = self.config["rel_path"]
-        self.site_packages_dirs = self.config["site_packages_dirs"]
+        self.name: str = name
+        self.config: _BitcodeLibConfig = SUPPORTED_BITCODE_LIBS[name]
+        self.filename: str = self.config["filename"]
+        self.rel_path: str = self.config["rel_path"]
+        self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
 
@@ -149,7 +156,7 @@ def find_bitcode_lib(name: str) -> str:
     """Find the absolute path to a bitcode library."""
     result = locate_bitcode_lib(name)
     if result is None:
-        config = SUPPORTED_BITCODE_LIBS.get(name, {})
-        filename = config.get("filename", name)
+        config = SUPPORTED_BITCODE_LIBS.get(name)
+        filename = config["filename"] if config else name
         raise BitcodeLibNotFoundError(f"{filename} not found")
     return result.abs_path
