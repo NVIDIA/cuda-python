@@ -12,6 +12,7 @@ FILENAME = "libdevice.10.bc"
 SITE_PACKAGES_REL_DIR_CUDA12 = "nvidia/cuda_nvcc/nvvm/libdevice"
 SITE_PACKAGES_REL_DIR_CUDA13 = "nvidia/cuda_nvvm/nvvm/libdevice"
 
+
 @pytest.fixture
 def clear_find_libdevice_cache():
     find_libdevice_module.find_bitcode_lib.cache_clear()
@@ -74,6 +75,7 @@ def test_find_libdevice_via_conda(monkeypatch, mocker, tmp_path):
     assert result.abs_path == expected_path
     assert os.path.isfile(result.abs_path)
 
+
 @pytest.mark.usefixtures("clear_find_libdevice_cache")
 def test_find_libdevice_via_cuda_home(monkeypatch, mocker, tmp_path):
     rel_path = os.path.join("nvvm", "libdevice")
@@ -94,7 +96,8 @@ def test_find_libdevice_via_cuda_home(monkeypatch, mocker, tmp_path):
     assert result is not None
     assert result.abs_path == expected_path
     assert os.path.isfile(result.abs_path)
-    
+
+
 @pytest.mark.usefixtures("clear_find_libdevice_cache")
 def test_find_bitcode_lib_returns_path(monkeypatch, mocker, tmp_path):
     rel_path = os.path.join("nvvm", "libdevice")

@@ -14,13 +14,14 @@ from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 class BitcodeLibNotFoundError(DynamicLibNotFoundError):
     """Raised when a bitcode library cannot be found."""
+
     pass
 
 
 @dataclass(frozen=True)
 class LocatedBitcodeLib:
-    """Information about a located bitcode library.
-    """
+    """Information about a located bitcode library."""
+
     name: str
     abs_path: str
     filename: str
@@ -31,7 +32,7 @@ SUPPORTED_BITCODE_LIBS = {
         "filename": "libdevice.10.bc",
         "rel_path": os.path.join("nvvm", "libdevice"),
         "site_packages_dirs": (
-            "nvidia/cu13/nvvm/libdevice",       # CTK 13+
+            "nvidia/cu13/nvvm/libdevice",  # CTK 13+
             "nvidia/cuda_nvcc/nvvm/libdevice",  # CTK <13
         ),
     },
@@ -57,8 +58,7 @@ class _FindBitcodeLib:
     def __init__(self, name: str) -> None:
         if name not in SUPPORTED_BITCODE_LIBS:
             raise ValueError(
-                f"Unknown bitcode library: '{name}'. "
-                f"Supported: {', '.join(sorted(SUPPORTED_BITCODE_LIBS.keys()))}"
+                f"Unknown bitcode library: '{name}'. Supported: {', '.join(sorted(SUPPORTED_BITCODE_LIBS.keys()))}"
             )
         self.name = name
         self.config = SUPPORTED_BITCODE_LIBS[name]
