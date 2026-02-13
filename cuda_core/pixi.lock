@@ -2104,6 +2104,7 @@ packages:
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
+  - cuda-nvrtc >=13.1.115,<14.0a0
   - cuda-cudart >=13.1.80,<14.0a0
   - python_abi 3.14.* *_cp314
   license: Apache-2.0
@@ -2125,6 +2126,7 @@ packages:
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
+  - cuda-nvrtc >=13.1.115,<14.0a0
   - cuda-cudart >=13.1.80,<14.0a0
   - python_abi 3.14.* *_cp314
   license: Apache-2.0
@@ -2148,6 +2150,7 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   - ucrt >=10.0.20348.0
+  - cuda-nvrtc >=13.1.115,<14.0a0
   - python_abi 3.14.* *_cp314
   license: Apache-2.0
   sources:
