@@ -107,7 +107,9 @@ jobs:
           env
 
       - name: Install uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
+        with:
+          activate-environment: true
 
       # Shorten TEMP on Windows so cibuildwheel's build isolation paths
       # stay within cmd.exe's ~8KB environment limit (needed for py3.14t).
@@ -119,9 +121,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path $short | Out-Null
           "TEMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
           "TMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Create venv
-        run: uv venv
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
