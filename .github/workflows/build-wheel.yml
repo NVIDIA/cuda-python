@@ -109,6 +109,17 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
 
+      # Shorten TEMP on Windows so cibuildwheel's build isolation paths
+      # stay within cmd.exe's ~8KB environment limit (needed for py3.14t).
+      - name: Shorten TEMP path (Windows)
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        shell: pwsh
+        run: |
+          $short = "C:\t"
+          New-Item -ItemType Directory -Force -Path $short | Out-Null
+          "TEMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "TMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Install twine
         run: |
           uv pip install --system twine
@@ -176,7 +187,6 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            UV_CACHE_DIR=C:\\uvc
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-stats
@@ -236,7 +246,6 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
-            UV_CACHE_DIR=C:\\uvc
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
@@ -422,7 +431,6 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
-            UV_CACHE_DIR=C:\\uvc
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
