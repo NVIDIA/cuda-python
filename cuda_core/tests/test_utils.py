@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -13,6 +13,7 @@ try:
 except ImportError:
     numba_cuda = None
 import cuda.core
+import ml_dtypes
 import numpy as np
 import pytest
 from cuda.core import Device
@@ -524,3 +525,81 @@ def test_from_array_interface_unsupported_strides(init_cuda):
     with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
         # TODO: ideally this would raise on construction
         smv.strides  # noqa: B018
+
+
+class _DLPackOnlyArray:
+    def __init__(self, array):
+        self.array = array
+
+    def __dlpack__(self, stream=None, max_version=None):
+        if max_version is None:
+            return self.array.__dlpack__(stream=stream)
+        return self.array.__dlpack__(stream=stream, max_version=max_version)
+
+    def __dlpack_device__(self):
+        return self.array.__dlpack_device__()
+
+    @property
+    def __cuda_array_interface__(self):
+        raise AssertionError("from_any_interface should prefer DLPack when available")
+
+
+@pytest.mark.parametrize(
+    "slices",
+    [
+        param((slice(None), slice(None)), id="contiguous"),
+        param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
+    ],
+)
+def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
+    a = cp.array([1, 2, 3, 4, 5, 6], dtype=ml_dtypes.bfloat16).reshape(2, 3)[slices]
+    smv = StridedMemoryView.from_dlpack(a, stream_ptr=0)
+
+    assert smv.size == a.size
+    assert smv.dtype == np.dtype("bfloat16")
+    assert smv.dtype == np.dtype(ml_dtypes.bfloat16)
+    assert smv.shape == a.shape
+    assert smv.ptr == a.data.ptr
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+    assert smv.exporting_obj is a
+    assert smv.readonly is a.__cuda_array_interface__["data"][1]
+
+    strides_in_counts = convert_strides_to_counts(a.strides, a.dtype.itemsize)
+    if a.flags["C_CONTIGUOUS"]:
+        assert smv.strides in (None, strides_in_counts)
+    else:
+        assert smv.strides == strides_in_counts
+
+
+def test_ml_dtypes_bfloat16_from_any_interface_prefers_dlpack(init_cuda):
+    a = cp.array([1, 2, 3, 4, 5, 6], dtype="bfloat16")
+    wrapped = _DLPackOnlyArray(a)
+    smv = StridedMemoryView.from_any_interface(wrapped, stream_ptr=0)
+
+    assert smv.dtype == np.dtype("bfloat16")
+    assert smv.shape == a.shape
+    assert smv.ptr == a.data.ptr
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+    assert smv.exporting_obj is wrapped
+
+
+@pytest.fixture
+def no_ml_dtypes(monkeypatch):
+    monkeypatch.setattr("cuda.core._memoryview.bfloat16", None)
+    yield
+
+
+@pytest.mark.parametrize(
+    "api",
+    [
+        param(StridedMemoryView.from_dlpack, id="from_dlpack"),
+        param(StridedMemoryView.from_any_interface, id="from_any_interface"),
+    ],
+)
+def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, api):
+    a = cp.array([1, 2, 3], dtype="bfloat16")
+    smv = api(a, stream_ptr=0)
+    with pytest.raises(NotImplementedError, match=r"requires `ml_dtypes`"):
+        smv.dtype  # noqa: B018

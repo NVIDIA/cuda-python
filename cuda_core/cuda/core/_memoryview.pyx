@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -26,6 +26,12 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
+
+
+try:
+    from ml_dtypes import bfloat16
+except ImportError:
+    bfloat16 = None
 
 # TODO(leofang): support NumPy structured dtypes
 
@@ -555,8 +561,13 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
         else:
             raise TypeError(f'{bits}-bit bool is not supported')
     elif dtype.code == kDLBfloat:
-        # TODO(leofang): use ml_dtype.bfloat16?
-        raise NotImplementedError('bfloat is not supported yet')
+        if bfloat16 is not None:
+            np_dtype = numpy.dtype("bfloat16")
+        else:
+            raise NotImplementedError(
+                'Support for bfloat16 within cuda-core requires `ml_dtypes`'
+                'to be installed.'
+            )
     else:
         raise TypeError('Unsupported dtype. dtype code: {}'.format(dtype.code))
 
