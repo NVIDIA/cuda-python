@@ -15,6 +15,12 @@ on:
     branches:
       - "pull-request/[0-9]+"
       - "main"
+    tags:
+      # Build release artifacts from tag refs so setuptools-scm resolves exact
+      # release versions instead of .dev+local variants.
+      - "v*"
+      - "cuda-core-v*"
+      - "cuda-pathfinder-v*"
   schedule:
     # every 24 hours at midnight UTC
     - cron: "0 0 * * *"
