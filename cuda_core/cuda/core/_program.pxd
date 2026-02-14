@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from ._linker cimport Linker
 from ._resource_handles cimport NvrtcProgramHandle, NvvmProgramHandle
 
 
@@ -10,6 +11,6 @@ cdef class Program:
         NvrtcProgramHandle _h_nvrtc
         NvvmProgramHandle _h_nvvm
         str _backend
-        object _linker  # Linker
+        Linker _linker
         object _options  # ProgramOptions
         object __weakref__
