@@ -6260,7 +6260,7 @@ class cudaGLMapFlags(_FastEnum):
 {{endif}}
 {{if 'cudaLaunchAttributeID' in found_types}}
 
-class cudaLaunchAttributeID(_FastEnum):
+class cudaStreamAttrID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.cudaLaunchAttribute`
@@ -6491,7 +6491,7 @@ class cudaLaunchAttributeID(_FastEnum):
 {{endif}}
 {{if 'cudaLaunchAttributeID' in found_types}}
 
-class cudaLaunchAttributeID(_FastEnum):
+class cudaKernelNodeAttrID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.cudaLaunchAttribute`
