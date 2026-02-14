@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """cuda.pathfinder public APIs"""
@@ -19,6 +19,18 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory,
 )
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+from cuda.pathfinder._static_libs.find_libdevice import (
+    BitcodeLibNotFoundError as BitcodeLibNotFoundError,
+)
+from cuda.pathfinder._static_libs.find_libdevice import (
+    LocatedBitcodeLib as LocatedBitcodeLib,
+)
+from cuda.pathfinder._static_libs.find_libdevice import (
+    find_bitcode_lib as find_bitcode_lib,
+)
+from cuda.pathfinder._static_libs.find_libdevice import (
+    locate_bitcode_lib as locate_bitcode_lib,
+)
 
 from cuda.pathfinder._version import __version__  # isort: skip  # noqa: F401
 

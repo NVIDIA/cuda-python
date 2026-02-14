@@ -356,6 +356,8 @@ class ProgramOptions:
     pch_verbose: bool | None = None
     pch_messages: bool | None = None
     instantiate_templates_in_pch: bool | None = None
+    extra_sources: list[tuple[str, str | bytes | bytearray]] | tuple[tuple[str, str | bytes | bytearray], ...] | None = None
+    use_libdevice: bool | None = None  # For libdevice execution
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self):
@@ -458,6 +460,11 @@ def _get_nvvm_module():
         _nvvm_module = None
         raise e
 
+def _find_libdevice_path():
+    """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
+    from cuda.pathfinder import get_libdevice_path
+    return get_libdevice_path()
+
 
 cdef inline bint _process_define_macro_inner(list options, object macro) except? -1:
     """Process a single define macro, returning True if successful."""
@@ -520,12 +527,20 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     cdef const char* code_ptr
     cdef const char* name_ptr
     cdef size_t code_len
+    cdef bytes module_bytes
+    cdef const char* module_ptr
+    cdef size_t module_len
 
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
+    self._module_count = 0
+    self._use_libdevice = False
 
     if code_type == "c++":
         assert_type(code, str)
+        if options.extra_sources is not None:
+            raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
+
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
         code_ptr = <const char*>code_bytes
@@ -540,6 +555,8 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
     elif code_type == "ptx":
         assert_type(code, str)
+        if options.extra_sources is not None:
+            raise ValueError("extra_sources is not supported by the PTX backend.")
         self._linker = Linker(
             ObjectCode._init(code.encode(), code_type), options=_translate_program_options(options)
         )
@@ -561,6 +578,54 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._h_nvvm = create_nvvm_program_handle(nvvm_prog)  # RAII from here
         with nogil:
             HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(nvvm_prog, code_ptr, code_len, name_ptr))
+        self._module_count = 1
+
+        # Add extra modules if provided
+        if options.extra_sources is not None:
+            if not is_sequence(options.extra_sources):
+                raise TypeError(
+                    "extra_sources must be a sequence of 2-tuples: ((name1, source1), (name2, source2), ...)"
+                )
+            for i, module in enumerate(options.extra_sources):
+                if not isinstance(module, tuple) or len(module) != 2:
+                    raise TypeError(
+                        f"Each extra module must be a 2-tuple (name, source)"
+                        f", got {type(module).__name__} at index {i}"
+                    )
+
+                module_name, module_source = module
+
+                if not isinstance(module_name, str):
+                    raise TypeError(f"Module name at index {i} must be a string, got {type(module_name).__name__}")
+
+                if isinstance(module_source, str):
+                    # Textual LLVM IR - encode to UTF-8 bytes
+                    module_source = module_source.encode("utf-8")
+                elif not isinstance(module_source, (bytes, bytearray)):
+                    raise TypeError(
+                        f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
+                        f"or bytearray, got {type(module_source).__name__}"
+                    )
+
+                if len(module_source) == 0:
+                    raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
+
+                # Add the module using NVVM API
+                module_bytes = module_source if isinstance(module_source, bytes) else bytes(module_source)
+                module_ptr = <const char*>module_bytes
+                module_len = len(module_bytes)
+                module_name_bytes = module_name.encode()
+                module_name_ptr = <const char*>module_name_bytes
+
+                with nogil:
+                    HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
+                        nvvm_prog, module_ptr, module_len, module_name_ptr))
+                self._module_count += 1
+
+        # Store use_libdevice flag
+        if options.use_libdevice:
+            self._use_libdevice = True
+
         self._backend = "NVVM"
         self._linker = None
 
@@ -649,19 +714,38 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
     cdef size_t logsize = 0
     cdef vector[const char*] options_vec
     cdef char* data_ptr = NULL
-
+    cdef bytes libdevice_bytes
+    cdef const char* libdevice_ptr
+    cdef size_t libdevice_len
     # Build options array
     options_list = self._options.as_bytes("nvvm", target_type)
     options_vec.resize(len(options_list))
     for i in range(len(options_list)):
         options_vec[i] = <const char*>(<bytes>options_list[i])
 
-    # Compile
     with nogil:
         HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
+
+    # Load libdevice if requested  - following numba-cuda
+    if self._use_libdevice:
+        libdevice_path = _find_libdevice_path()
+        if libdevice_path is None:
+            raise RuntimeError(
+                "use_libdevice=True but could not find libdevice.10.bc. "
+                "Ensure CUDA toolkit is installed."
+            )
+        with open(libdevice_path, "rb") as f:
+            libdevice_bytes = f.read()
+        libdevice_ptr = <const char*>libdevice_bytes
+        libdevice_len = len(libdevice_bytes)
+        # Use lazy_add_module
+        with nogil:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmLazyAddModuleToProgram(
+                prog, libdevice_ptr, libdevice_len, NULL))
+
+    with nogil:
         HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
 
-    # Get compiled result
     HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResultSize(prog, &output_size))
     data = bytearray(output_size)
     data_ptr = <char*>(<bytearray>data)
