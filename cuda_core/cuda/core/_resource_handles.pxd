@@ -108,6 +108,15 @@ cdef DevicePtrHandle deviceptr_alloc(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_alloc_host(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) except+ nogil
+cdef DevicePtrHandle deviceptr_create_with_mr(
+    cydriver.CUdeviceptr ptr, size_t size, object mr) except+ nogil
+
+# MR deallocation callback type and registration
+ctypedef void (*MRDeallocCallback)(
+    object mr, cydriver.CUdeviceptr ptr, size_t size,
+    const StreamHandle& stream) noexcept
+cdef void register_mr_dealloc_callback(MRDeallocCallback cb) noexcept
+
 cdef DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil

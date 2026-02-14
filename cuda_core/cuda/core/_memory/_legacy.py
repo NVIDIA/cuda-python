@@ -51,7 +51,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
             raise_if_driver_error(err)
         else:
             ptr = 0
-        return Buffer._init(ptr, size, self, stream)
+        return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size, stream):
         """Deallocate a buffer previously allocated by this resource.
@@ -106,7 +106,7 @@ class _SynchronousMemoryResource(MemoryResource):
             raise_if_driver_error(err)
         else:
             ptr = 0
-        return Buffer._init(ptr, size, self, stream)
+        return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr, size, stream):
         if stream is not None:
