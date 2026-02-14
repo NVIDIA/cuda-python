@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -1187,6 +1187,49 @@ class Device:
 
     def __reduce__(self):
         return Device, (self.device_id,)
+
+    def __enter__(self):
+        """Set this device as current for the duration of the ``with`` block.
+
+        On exit, the previously current device is restored automatically.
+        Nested ``with`` blocks are supported and restore correctly at each
+        level.
+
+        Returns
+        -------
+        Device
+            This device instance.
+
+        Examples
+        --------
+        >>> from cuda.core import Device
+        >>> with Device(0) as dev0:
+        ...     buf = dev0.allocate(1024)
+
+        See Also
+        --------
+        set_current : Non-context-manager entry point.
+        """
+        cdef cydriver.CUcontext prev_ctx
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&prev_ctx))
+        if not hasattr(_tls, '_ctx_stack'):
+            _tls._ctx_stack = []
+        _tls._ctx_stack.append(<uintptr_t><void*>prev_ctx)
+        self.set_current()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Restore the previously current device upon exiting the ``with`` block.
+
+        Exceptions are not suppressed.
+        """
+        cdef uintptr_t prev_ctx_ptr = _tls._ctx_stack[-1]
+        cdef cydriver.CUcontext prev_ctx = <cydriver.CUcontext><void*>prev_ctx_ptr
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxSetCurrent(prev_ctx))
+        _tls._ctx_stack.pop()
+        return False
 
     def set_current(self, ctx: Context = None) -> Context | None:
         """Set device to be used for GPU executions.

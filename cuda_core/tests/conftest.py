@@ -192,13 +192,15 @@ def _mempool_device_impl(num):
 @pytest.fixture
 def mempool_device_x2():
     """Fixture that provides two devices if available, otherwise skips test."""
-    return _mempool_device_impl(2)
+    yield _mempool_device_impl(2)
+    _device_unset_current()
 
 
 @pytest.fixture
 def mempool_device_x3():
     """Fixture that provides three devices if available, otherwise skips test."""
-    return _mempool_device_impl(3)
+    yield _mempool_device_impl(3)
+    _device_unset_current()
 
 
 @pytest.fixture(
