@@ -1,9 +1,24 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-[report]
-show_missing = true
+[paths]
+source =
+    cuda\
+    cuda/
 
 [run]
 plugins = Cython.Coverage
 core = ctrace
+branch = False
+relative_files = True
+# Omit Windows-specific definition file that causes plugin errors
+omit =
+    */windll.pxd
+    */_lib/windll.pxd
+
+[report]
+show_missing = true
+precision = 2
+
+[html]
+show_contexts = True
