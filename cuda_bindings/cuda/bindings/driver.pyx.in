@@ -26209,10 +26209,11 @@ def cuDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, dev, int flags):
     else:
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
-    cynvSciSyncAttrList = _HelperInputVoidPtr(nvSciSyncAttrList)
-    cdef void* cynvSciSyncAttrList_ptr = <void*><void_ptr>cynvSciSyncAttrList.cptr
+    cdef _HelperInputVoidPtrStruct cynvSciSyncAttrListHelper
+    cdef void* cynvSciSyncAttrList = _helper_input_void_ptr(nvSciSyncAttrList, &cynvSciSyncAttrListHelper)
     with nogil:
-        err = cydriver.cuDeviceGetNvSciSyncAttributes(cynvSciSyncAttrList_ptr, cydev, flags)
+        err = cydriver.cuDeviceGetNvSciSyncAttributes(cynvSciSyncAttrList, cydev, flags)
+    _helper_input_void_ptr_free(&cynvSciSyncAttrListHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -28315,10 +28316,11 @@ def cuModuleLoadData(image):
     :py:obj:`~.cuModuleGetFunction`, :py:obj:`~.cuModuleGetGlobal`, :py:obj:`~.cuModuleGetTexRef`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadDataEx`, :py:obj:`~.cuModuleLoadFatBinary`, :py:obj:`~.cuModuleUnload`
     """
     cdef CUmodule module = CUmodule()
-    cyimage = _HelperInputVoidPtr(image)
-    cdef void* cyimage_ptr = <void*><void_ptr>cyimage.cptr
+    cdef _HelperInputVoidPtrStruct cyimageHelper
+    cdef void* cyimage = _helper_input_void_ptr(image, &cyimageHelper)
     with nogil:
-        err = cydriver.cuModuleLoadData(<cydriver.CUmodule*>module._pvt_ptr, cyimage_ptr)
+        err = cydriver.cuModuleLoadData(<cydriver.CUmodule*>module._pvt_ptr, cyimage)
+    _helper_input_void_ptr_free(&cyimageHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), module)
@@ -28362,8 +28364,8 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     cdef CUmodule module = CUmodule()
-    cyimage = _HelperInputVoidPtr(image)
-    cdef void* cyimage_ptr = <void*><void_ptr>cyimage.cptr
+    cdef _HelperInputVoidPtrStruct cyimageHelper
+    cdef void* cyimage = _helper_input_void_ptr(image, &cyimageHelper)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
     cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
@@ -28371,7 +28373,8 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
     with nogil:
-        err = cydriver.cuModuleLoadDataEx(<cydriver.CUmodule*>module._pvt_ptr, cyimage_ptr, numOptions, cyoptions.data(), cyoptionValues_ptr)
+        err = cydriver.cuModuleLoadDataEx(<cydriver.CUmodule*>module._pvt_ptr, cyimage, numOptions, cyoptions.data(), cyoptionValues_ptr)
+    _helper_input_void_ptr_free(&cyimageHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), module)
@@ -28411,10 +28414,11 @@ def cuModuleLoadFatBinary(fatCubin):
     :py:obj:`~.cuModuleGetFunction`, :py:obj:`~.cuModuleGetGlobal`, :py:obj:`~.cuModuleGetTexRef`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadData`, :py:obj:`~.cuModuleLoadDataEx`, :py:obj:`~.cuModuleUnload`
     """
     cdef CUmodule module = CUmodule()
-    cyfatCubin = _HelperInputVoidPtr(fatCubin)
-    cdef void* cyfatCubin_ptr = <void*><void_ptr>cyfatCubin.cptr
+    cdef _HelperInputVoidPtrStruct cyfatCubinHelper
+    cdef void* cyfatCubin = _helper_input_void_ptr(fatCubin, &cyfatCubinHelper)
     with nogil:
-        err = cydriver.cuModuleLoadFatBinary(<cydriver.CUmodule*>module._pvt_ptr, cyfatCubin_ptr)
+        err = cydriver.cuModuleLoadFatBinary(<cydriver.CUmodule*>module._pvt_ptr, cyfatCubin)
+    _helper_input_void_ptr_free(&cyfatCubinHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), module)
@@ -28810,8 +28814,8 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
         pstate = int(CUlinkState(state))
     cystate = <cydriver.CUlinkState><void_ptr>pstate
     cdef cydriver.CUjitInputType cytypename = int(typename)
-    cydata = _HelperInputVoidPtr(data)
-    cdef void* cydata_ptr = <void*><void_ptr>cydata.cptr
+    cdef _HelperInputVoidPtrStruct cydataHelper
+    cdef void* cydata = _helper_input_void_ptr(data, &cydataHelper)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
     cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
@@ -28819,7 +28823,8 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
     with nogil:
-        err = cydriver.cuLinkAddData(cystate, cytypename, cydata_ptr, size, name, numOptions, cyoptions.data(), cyoptionValues_ptr)
+        err = cydriver.cuLinkAddData(cystate, cytypename, cydata, size, name, numOptions, cyoptions.data(), cyoptionValues_ptr)
+    _helper_input_void_ptr_free(&cydataHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -29147,8 +29152,8 @@ def cuLibraryLoadData(code, jitOptions : Optional[tuple[CUjit_option] | list[CUj
     if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     cdef CUlibrary library = CUlibrary()
-    cycode = _HelperInputVoidPtr(code)
-    cdef void* cycode_ptr = <void*><void_ptr>cycode.cptr
+    cdef _HelperInputVoidPtrStruct cycodeHelper
+    cdef void* cycode = _helper_input_void_ptr(code, &cycodeHelper)
     cdef vector[cydriver.CUjit_option] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
@@ -29162,7 +29167,8 @@ def cuLibraryLoadData(code, jitOptions : Optional[tuple[CUjit_option] | list[CUj
     if numLibraryOptions > len(libraryOptions): raise RuntimeError("List is too small: " + str(len(libraryOptions)) + " < " + str(numLibraryOptions))
     if numLibraryOptions > len(libraryOptionValues): raise RuntimeError("List is too small: " + str(len(libraryOptionValues)) + " < " + str(numLibraryOptions))
     with nogil:
-        err = cydriver.cuLibraryLoadData(<cydriver.CUlibrary*>library._pvt_ptr, cycode_ptr, cyjitOptions.data(), cyjitOptionsValues_ptr, numJitOptions, cylibraryOptions.data(), cylibraryOptionValues_ptr, numLibraryOptions)
+        err = cydriver.cuLibraryLoadData(<cydriver.CUlibrary*>library._pvt_ptr, cycode, cyjitOptions.data(), cyjitOptionsValues_ptr, numJitOptions, cylibraryOptions.data(), cylibraryOptionValues_ptr, numLibraryOptions)
+    _helper_input_void_ptr_free(&cycodeHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), library)
@@ -30460,10 +30466,11 @@ def cuMemFreeHost(p):
     --------
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaFreeHost`
     """
-    cyp = _HelperInputVoidPtr(p)
-    cdef void* cyp_ptr = <void*><void_ptr>cyp.cptr
+    cdef _HelperInputVoidPtrStruct cypHelper
+    cdef void* cyp = _helper_input_void_ptr(p, &cypHelper)
     with nogil:
-        err = cydriver.cuMemFreeHost(cyp_ptr)
+        err = cydriver.cuMemFreeHost(cyp)
+    _helper_input_void_ptr_free(&cypHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -30614,10 +30621,11 @@ def cuMemHostGetDevicePointer(p, unsigned int Flags):
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaHostGetDevicePointer`
     """
     cdef CUdeviceptr pdptr = CUdeviceptr()
-    cyp = _HelperInputVoidPtr(p)
-    cdef void* cyp_ptr = <void*><void_ptr>cyp.cptr
+    cdef _HelperInputVoidPtrStruct cypHelper
+    cdef void* cyp = _helper_input_void_ptr(p, &cypHelper)
     with nogil:
-        err = cydriver.cuMemHostGetDevicePointer(<cydriver.CUdeviceptr*>pdptr._pvt_ptr, cyp_ptr, Flags)
+        err = cydriver.cuMemHostGetDevicePointer(<cydriver.CUdeviceptr*>pdptr._pvt_ptr, cyp, Flags)
+    _helper_input_void_ptr_free(&cypHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), pdptr)
@@ -30653,10 +30661,11 @@ def cuMemHostGetFlags(p):
     :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cudaHostGetFlags`
     """
     cdef unsigned int pFlags = 0
-    cyp = _HelperInputVoidPtr(p)
-    cdef void* cyp_ptr = <void*><void_ptr>cyp.cptr
+    cdef _HelperInputVoidPtrStruct cypHelper
+    cdef void* cyp = _helper_input_void_ptr(p, &cypHelper)
     with nogil:
-        err = cydriver.cuMemHostGetFlags(&pFlags, cyp_ptr)
+        err = cydriver.cuMemHostGetFlags(&pFlags, cyp)
+    _helper_input_void_ptr_free(&cypHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), pFlags)
@@ -30872,15 +30881,15 @@ def cuDeviceRegisterAsyncNotification(device, callbackFunc, userData):
     else:
         pdevice = int(CUdevice(device))
     cydevice = <cydriver.CUdevice>pdevice
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cuAsyncCallbackData *cbData = NULL
     cbData = <cuAsyncCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (CUresult.CUDA_ERROR_OUT_OF_MEMORY, None)
     cbData.callback = cycallbackFunc
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     cdef CUasyncCallbackHandle callback = CUasyncCallbackHandle()
     with nogil:
@@ -30889,6 +30898,7 @@ def cuDeviceRegisterAsyncNotification(device, callbackFunc, userData):
         free(cbData)
     else:
         m_global._allocated[int(callback)] = cbData
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), callback)
@@ -31408,10 +31418,11 @@ def cuMemHostRegister(p, size_t bytesize, unsigned int Flags):
     --------
     :py:obj:`~.cuMemHostUnregister`, :py:obj:`~.cuMemHostGetFlags`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cudaHostRegister`
     """
-    cyp = _HelperInputVoidPtr(p)
-    cdef void* cyp_ptr = <void*><void_ptr>cyp.cptr
+    cdef _HelperInputVoidPtrStruct cypHelper
+    cdef void* cyp = _helper_input_void_ptr(p, &cypHelper)
     with nogil:
-        err = cydriver.cuMemHostRegister(cyp_ptr, bytesize, Flags)
+        err = cydriver.cuMemHostRegister(cyp, bytesize, Flags)
+    _helper_input_void_ptr_free(&cypHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -31441,10 +31452,11 @@ def cuMemHostUnregister(p):
     --------
     :py:obj:`~.cuMemHostRegister`, :py:obj:`~.cudaHostUnregister`
     """
-    cyp = _HelperInputVoidPtr(p)
-    cdef void* cyp_ptr = <void*><void_ptr>cyp.cptr
+    cdef _HelperInputVoidPtrStruct cypHelper
+    cdef void* cyp = _helper_input_void_ptr(p, &cypHelper)
     with nogil:
-        err = cydriver.cuMemHostUnregister(cyp_ptr)
+        err = cydriver.cuMemHostUnregister(cyp)
+    _helper_input_void_ptr_free(&cypHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -31607,10 +31619,11 @@ def cuMemcpyHtoD(dstDevice, srcHost, size_t ByteCount):
     else:
         pdstDevice = int(CUdeviceptr(dstDevice))
     cydstDevice = <cydriver.CUdeviceptr><void_ptr>pdstDevice
-    cysrcHost = _HelperInputVoidPtr(srcHost)
-    cdef void* cysrcHost_ptr = <void*><void_ptr>cysrcHost.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHostHelper
+    cdef void* cysrcHost = _helper_input_void_ptr(srcHost, &cysrcHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyHtoD(cydstDevice, cysrcHost_ptr, ByteCount)
+        err = cydriver.cuMemcpyHtoD(cydstDevice, cysrcHost, ByteCount)
+    _helper_input_void_ptr_free(&cysrcHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -31650,10 +31663,11 @@ def cuMemcpyDtoH(dstHost, srcDevice, size_t ByteCount):
     else:
         psrcDevice = int(CUdeviceptr(srcDevice))
     cysrcDevice = <cydriver.CUdeviceptr><void_ptr>psrcDevice
-    cydstHost = _HelperInputVoidPtr(dstHost)
-    cdef void* cydstHost_ptr = <void*><void_ptr>cydstHost.cptr
+    cdef _HelperInputVoidPtrStruct cydstHostHelper
+    cdef void* cydstHost = _helper_input_void_ptr(dstHost, &cydstHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyDtoH(cydstHost_ptr, cysrcDevice, ByteCount)
+        err = cydriver.cuMemcpyDtoH(cydstHost, cysrcDevice, ByteCount)
+    _helper_input_void_ptr_free(&cydstHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -31851,10 +31865,11 @@ def cuMemcpyHtoA(dstArray, size_t dstOffset, srcHost, size_t ByteCount):
     else:
         pdstArray = int(CUarray(dstArray))
     cydstArray = <cydriver.CUarray><void_ptr>pdstArray
-    cysrcHost = _HelperInputVoidPtr(srcHost)
-    cdef void* cysrcHost_ptr = <void*><void_ptr>cysrcHost.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHostHelper
+    cdef void* cysrcHost = _helper_input_void_ptr(srcHost, &cysrcHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyHtoA(cydstArray, dstOffset, cysrcHost_ptr, ByteCount)
+        err = cydriver.cuMemcpyHtoA(cydstArray, dstOffset, cysrcHost, ByteCount)
+    _helper_input_void_ptr_free(&cysrcHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -31897,10 +31912,11 @@ def cuMemcpyAtoH(dstHost, srcArray, size_t srcOffset, size_t ByteCount):
     else:
         psrcArray = int(CUarray(srcArray))
     cysrcArray = <cydriver.CUarray><void_ptr>psrcArray
-    cydstHost = _HelperInputVoidPtr(dstHost)
-    cdef void* cydstHost_ptr = <void*><void_ptr>cydstHost.cptr
+    cdef _HelperInputVoidPtrStruct cydstHostHelper
+    cdef void* cydstHost = _helper_input_void_ptr(dstHost, &cydstHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyAtoH(cydstHost_ptr, cysrcArray, srcOffset, ByteCount)
+        err = cydriver.cuMemcpyAtoH(cydstHost, cysrcArray, srcOffset, ByteCount)
+    _helper_input_void_ptr_free(&cydstHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -32564,10 +32580,11 @@ def cuMemcpyHtoDAsync(dstDevice, srcHost, size_t ByteCount, hStream):
     else:
         pdstDevice = int(CUdeviceptr(dstDevice))
     cydstDevice = <cydriver.CUdeviceptr><void_ptr>pdstDevice
-    cysrcHost = _HelperInputVoidPtr(srcHost)
-    cdef void* cysrcHost_ptr = <void*><void_ptr>cysrcHost.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHostHelper
+    cdef void* cysrcHost = _helper_input_void_ptr(srcHost, &cysrcHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyHtoDAsync(cydstDevice, cysrcHost_ptr, ByteCount, cyhStream)
+        err = cydriver.cuMemcpyHtoDAsync(cydstDevice, cysrcHost, ByteCount, cyhStream)
+    _helper_input_void_ptr_free(&cysrcHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -32617,10 +32634,11 @@ def cuMemcpyDtoHAsync(dstHost, srcDevice, size_t ByteCount, hStream):
     else:
         psrcDevice = int(CUdeviceptr(srcDevice))
     cysrcDevice = <cydriver.CUdeviceptr><void_ptr>psrcDevice
-    cydstHost = _HelperInputVoidPtr(dstHost)
-    cdef void* cydstHost_ptr = <void*><void_ptr>cydstHost.cptr
+    cdef _HelperInputVoidPtrStruct cydstHostHelper
+    cdef void* cydstHost = _helper_input_void_ptr(dstHost, &cydstHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyDtoHAsync(cydstHost_ptr, cysrcDevice, ByteCount, cyhStream)
+        err = cydriver.cuMemcpyDtoHAsync(cydstHost, cysrcDevice, ByteCount, cyhStream)
+    _helper_input_void_ptr_free(&cydstHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -32732,10 +32750,11 @@ def cuMemcpyHtoAAsync(dstArray, size_t dstOffset, srcHost, size_t ByteCount, hSt
     else:
         pdstArray = int(CUarray(dstArray))
     cydstArray = <cydriver.CUarray><void_ptr>pdstArray
-    cysrcHost = _HelperInputVoidPtr(srcHost)
-    cdef void* cysrcHost_ptr = <void*><void_ptr>cysrcHost.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHostHelper
+    cdef void* cysrcHost = _helper_input_void_ptr(srcHost, &cysrcHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyHtoAAsync(cydstArray, dstOffset, cysrcHost_ptr, ByteCount, cyhStream)
+        err = cydriver.cuMemcpyHtoAAsync(cydstArray, dstOffset, cysrcHost, ByteCount, cyhStream)
+    _helper_input_void_ptr_free(&cysrcHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -32788,10 +32807,11 @@ def cuMemcpyAtoHAsync(dstHost, srcArray, size_t srcOffset, size_t ByteCount, hSt
     else:
         psrcArray = int(CUarray(srcArray))
     cysrcArray = <cydriver.CUarray><void_ptr>psrcArray
-    cydstHost = _HelperInputVoidPtr(dstHost)
-    cdef void* cydstHost_ptr = <void*><void_ptr>cydstHost.cptr
+    cdef _HelperInputVoidPtrStruct cydstHostHelper
+    cdef void* cydstHost = _helper_input_void_ptr(dstHost, &cydstHostHelper)
     with nogil:
-        err = cydriver.cuMemcpyAtoHAsync(cydstHost_ptr, cysrcArray, srcOffset, ByteCount, cyhStream)
+        err = cydriver.cuMemcpyAtoHAsync(cydstHost, cysrcArray, srcOffset, ByteCount, cyhStream)
+    _helper_input_void_ptr_free(&cydstHostHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -35743,11 +35763,12 @@ def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAlloca
     Importing shareable handles exported from some graphics APIs(VUlkan, OpenGL, etc) created on devices under an SLI group may not be supported, and thus this API will return CUDA_ERROR_NOT_SUPPORTED. There is no guarantee that the contents of `handle` will be the same CUDA memory handle for the same given OS shareable handle, or the same underlying allocation.
     """
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
-    cyosHandle = _HelperInputVoidPtr(osHandle)
-    cdef void* cyosHandle_ptr = <void*><void_ptr>cyosHandle.cptr
+    cdef _HelperInputVoidPtrStruct cyosHandleHelper
+    cdef void* cyosHandle = _helper_input_void_ptr(osHandle, &cyosHandleHelper)
     cdef cydriver.CUmemAllocationHandleType cyshHandleType = int(shHandleType)
     with nogil:
-        err = cydriver.cuMemImportFromShareableHandle(<cydriver.CUmemGenericAllocationHandle*>handle._pvt_ptr, cyosHandle_ptr, cyshHandleType)
+        err = cydriver.cuMemImportFromShareableHandle(<cydriver.CUmemGenericAllocationHandle*>handle._pvt_ptr, cyosHandle, cyshHandleType)
+    _helper_input_void_ptr_free(&cyosHandleHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), handle)
@@ -35863,10 +35884,11 @@ def cuMemRetainAllocationHandle(addr):
     The address `addr`, can be any address in a range previously mapped by :py:obj:`~.cuMemMap`, and not necessarily the start address.
     """
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
-    cyaddr = _HelperInputVoidPtr(addr)
-    cdef void* cyaddr_ptr = <void*><void_ptr>cyaddr.cptr
+    cdef _HelperInputVoidPtrStruct cyaddrHelper
+    cdef void* cyaddr = _helper_input_void_ptr(addr, &cyaddrHelper)
     with nogil:
-        err = cydriver.cuMemRetainAllocationHandle(<cydriver.CUmemGenericAllocationHandle*>handle._pvt_ptr, cyaddr_ptr)
+        err = cydriver.cuMemRetainAllocationHandle(<cydriver.CUmemGenericAllocationHandle*>handle._pvt_ptr, cyaddr)
+    _helper_input_void_ptr_free(&cyaddrHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), handle)
@@ -36744,11 +36766,12 @@ def cuMemPoolImportFromShareableHandle(handle, handleType not None : CUmemAlloca
     Imported memory pools do not support creating new allocations. As such imported memory pools may not be used in cuDeviceSetMemPool or :py:obj:`~.cuMemAllocFromPoolAsync` calls.
     """
     cdef CUmemoryPool pool_out = CUmemoryPool()
-    cyhandle = _HelperInputVoidPtr(handle)
-    cdef void* cyhandle_ptr = <void*><void_ptr>cyhandle.cptr
+    cdef _HelperInputVoidPtrStruct cyhandleHelper
+    cdef void* cyhandle = _helper_input_void_ptr(handle, &cyhandleHelper)
     cdef cydriver.CUmemAllocationHandleType cyhandleType = int(handleType)
     with nogil:
-        err = cydriver.cuMemPoolImportFromShareableHandle(<cydriver.CUmemoryPool*>pool_out._pvt_ptr, cyhandle_ptr, cyhandleType, flags)
+        err = cydriver.cuMemPoolImportFromShareableHandle(<cydriver.CUmemoryPool*>pool_out._pvt_ptr, cyhandle, cyhandleType, flags)
+    _helper_input_void_ptr_free(&cyhandleHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), pool_out)
@@ -39286,20 +39309,21 @@ def cuStreamAddCallback(hStream, callback, userData, unsigned int flags):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cuStreamCallbackData *cbData = NULL
     cbData = <cuStreamCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (CUresult.CUDA_ERROR_OUT_OF_MEMORY,)
     cbData.callback = cycallback
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     with nogil:
         err = cydriver.cuStreamAddCallback(cyhStream, <cydriver.CUstreamCallback>cuStreamCallbackWrapper, <void *>cbData, flags)
     if err != cydriver.CUDA_SUCCESS:
         free(cbData)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -43021,20 +43045,21 @@ def cuLaunchHostFunc(hStream, fn, userData):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cuHostCallbackData *cbData = NULL
     cbData = <cuHostCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (CUresult.CUDA_ERROR_OUT_OF_MEMORY,)
     cbData.callback = cyfn
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     with nogil:
         err = cydriver.cuLaunchHostFunc(cyhStream, <cydriver.CUhostFn>cuHostCallbackWrapper, <void *>cbData)
     if err != cydriver.CUDA_SUCCESS:
         free(cbData)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -43289,10 +43314,11 @@ def cuParamSetv(hfunc, int offset, ptr, unsigned int numbytes):
     else:
         phfunc = int(CUfunction(hfunc))
     cyhfunc = <cydriver.CUfunction><void_ptr>phfunc
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cydriver.cuParamSetv(cyhfunc, offset, cyptr_ptr, numbytes)
+        err = cydriver.cuParamSetv(cyhfunc, offset, cyptr, numbytes)
+    _helper_input_void_ptr_free(&cyptrHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -48378,10 +48404,11 @@ def cuUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned int 
         pdestroy = int(CUhostFn(destroy))
     cydestroy = <cydriver.CUhostFn><void_ptr>pdestroy
     cdef CUuserObject object_out = CUuserObject()
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cydriver.cuUserObjectCreate(<cydriver.CUuserObject*>object_out._pvt_ptr, cyptr_ptr, cydestroy, initialRefcount, flags)
+        err = cydriver.cuUserObjectCreate(<cydriver.CUuserObject*>object_out._pvt_ptr, cyptr, cydestroy, initialRefcount, flags)
+    _helper_input_void_ptr_free(&cyptrHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), object_out)
@@ -51515,14 +51542,15 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
     cdef CUtensorMap tensorMap = CUtensorMap()
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
-    cyglobalAddress = _HelperInputVoidPtr(globalAddress)
-    cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
+    cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
+    cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
     cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
     cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
     cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
     cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
-        err = cydriver.cuTensorMapEncodeTiled(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cyboxDim, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
+        err = cydriver.cuTensorMapEncodeTiled(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress, cyglobalDim, cyglobalStrides, cyboxDim, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
+    _helper_input_void_ptr_free(&cyglobalAddressHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), tensorMap)
@@ -51857,8 +51885,8 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
     cdef CUtensorMap tensorMap = CUtensorMap()
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
-    cyglobalAddress = _HelperInputVoidPtr(globalAddress)
-    cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
+    cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
+    cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
     cdef vector[int] cypixelBoxLowerCorner = pixelBoxLowerCorner
     cdef vector[int] cypixelBoxUpperCorner = pixelBoxUpperCorner
     cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
@@ -51866,7 +51894,8 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
     cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
-        err = cydriver.cuTensorMapEncodeIm2col(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cypixelBoxLowerCorner.data(), cypixelBoxUpperCorner.data(), cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
+        err = cydriver.cuTensorMapEncodeIm2col(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress, cyglobalDim, cyglobalStrides, cypixelBoxLowerCorner.data(), cypixelBoxUpperCorner.data(), cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
+    _helper_input_void_ptr_free(&cyglobalAddressHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), tensorMap)
@@ -52182,15 +52211,16 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
     cdef CUtensorMap tensorMap = CUtensorMap()
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
-    cyglobalAddress = _HelperInputVoidPtr(globalAddress)
-    cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
+    cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
+    cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
     cdef cydriver.CUtensorMapInterleave cyinterleave = int(interleave)
     cdef cydriver.CUtensorMapIm2ColWideMode cymode = int(mode)
     cdef cydriver.CUtensorMapSwizzle cyswizzle = int(swizzle)
     cdef cydriver.CUtensorMapL2promotion cyl2Promotion = int(l2Promotion)
     cdef cydriver.CUtensorMapFloatOOBfill cyoobFill = int(oobFill)
     with nogil:
-        err = cydriver.cuTensorMapEncodeIm2colWide(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cymode, cyswizzle, cyl2Promotion, cyoobFill)
+        err = cydriver.cuTensorMapEncodeIm2colWide(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress, cyglobalDim, cyglobalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cymode, cyswizzle, cyl2Promotion, cyoobFill)
+    _helper_input_void_ptr_free(&cyglobalAddressHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), tensorMap)
@@ -52227,10 +52257,11 @@ def cuTensorMapReplaceAddress(tensorMap : Optional[CUtensorMap], globalAddress):
     :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapEncodeIm2colWide`
     """
     cdef cydriver.CUtensorMap* cytensorMap_ptr = tensorMap._pvt_ptr if tensorMap is not None else NULL
-    cyglobalAddress = _HelperInputVoidPtr(globalAddress)
-    cdef void* cyglobalAddress_ptr = <void*><void_ptr>cyglobalAddress.cptr
+    cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
+    cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
     with nogil:
-        err = cydriver.cuTensorMapReplaceAddress(cytensorMap_ptr, cyglobalAddress_ptr)
+        err = cydriver.cuTensorMapReplaceAddress(cytensorMap_ptr, cyglobalAddress)
+    _helper_input_void_ptr_free(&cyglobalAddressHelper)
     return (CUresult(err),)
 {{endif}}
 
@@ -54594,15 +54625,15 @@ def cuLogsRegisterCallback(callbackFunc, userData):
     else:
         pcallbackFunc = int(CUlogsCallback(callbackFunc))
     cycallbackFunc = <cydriver.CUlogsCallback><void_ptr>pcallbackFunc
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cuLogsCallbackData *cbData = NULL
     cbData = <cuLogsCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (CUresult.CUDA_ERROR_OUT_OF_MEMORY, None)
     cbData.callback = cycallbackFunc
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     cdef CUlogsCallbackHandle callback_out = CUlogsCallbackHandle()
     with nogil:
@@ -54611,6 +54642,7 @@ def cuLogsRegisterCallback(callbackFunc, userData):
         free(cbData)
     else:
         m_global._allocated[int(callback_out)] = cbData
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (CUresult(err), None)
     return (CUresult(err), callback_out)
