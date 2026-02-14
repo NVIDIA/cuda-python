@@ -1,16 +1,20 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
+
 from cuda.core._memory._memory_pool cimport _MemPool, _MemPoolOptions
 from cuda.core._utils.cuda_utils cimport (
+    HANDLE_RETURN,
     check_or_create_options,
 )
 
 from dataclasses import dataclass
+import threading
+import warnings
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -91,6 +95,7 @@ cdef class ManagedMemoryResource(_MemPool):
             opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
 
             super().__init__(device_id, opts_base)
+            _check_concurrent_managed_access()
         ELSE:
             raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
 
@@ -103,3 +108,47 @@ cdef class ManagedMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
+
+
+cdef bint _concurrent_access_warned = False
+cdef object _concurrent_access_lock = threading.Lock()
+
+
+cdef inline _check_concurrent_managed_access():
+    """Warn once if the platform lacks concurrent managed memory access."""
+    global _concurrent_access_warned
+    if _concurrent_access_warned:
+        return
+
+    cdef int c_concurrent = 0
+    with _concurrent_access_lock:
+        if _concurrent_access_warned:
+            return
+
+        # concurrent_managed_access is a system-level attribute for sm_60 and
+        # later, so any device will do.
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceGetAttribute(
+                &c_concurrent,
+                cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS,
+                0))
+        if not c_concurrent:
+            warnings.warn(
+                "This platform does not support concurrent managed memory access "
+                "(Device.properties.concurrent_managed_access is False). Host access to any managed "
+                "allocation is forbidden while any GPU kernel is in flight, even "
+                "if the kernel does not touch that allocation. Failing to "
+                "synchronize before host access will cause a segfault. "
+                "See: https://docs.nvidia.com/cuda/cuda-c-programming-guide/"
+                "index.html#gpu-exclusive-access-to-managed-memory",
+                UserWarning,
+                stacklevel=3
+            )
+
+        _concurrent_access_warned = True
+
+
+def reset_concurrent_access_warning():
+    """Reset the concurrent access warning flag for testing purposes."""
+    global _concurrent_access_warned
+    _concurrent_access_warned = False
