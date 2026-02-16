@@ -20,6 +20,7 @@ SITE_PACKAGES_REL_DIR_CUDA13 = "nvidia/cuda_nvvm/nvvm/libdevice"
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
+
 @pytest.fixture
 def clear_find_bitcode_lib_cache():
     find_bitcode_lib_module.find_bitcode_lib.cache_clear()
