@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import binascii
 import re
 from contextlib import contextmanager
 
