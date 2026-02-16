@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import glob
 import os
 from dataclasses import dataclass
 from typing import TypedDict
@@ -42,12 +41,6 @@ SUPPORTED_BITCODE_LIBS: dict[str, _BitcodeLibConfig] = {
         ),
     },
 }
-
-_COMMON_BASES: list[str] = (
-    [r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA", r"C:\CUDA"]
-    if IS_WINDOWS
-    else ["/usr/local/cuda", "/opt/cuda"]
-)
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -112,18 +105,6 @@ class _FindBitcodeLib:
         )
         return None
 
-    def try_common_paths(self) -> str | None:
-        for base in _COMMON_BASES:
-            file_path = os.path.join(base, self.rel_path, self.filename)
-            if os.path.isfile(file_path):
-                return file_path
-            for versioned in sorted(glob.glob(base + "*"), reverse=True):
-                if os.path.isdir(versioned):
-                    file_path = os.path.join(versioned, self.rel_path, self.filename)
-                    if os.path.isfile(file_path):
-                        return file_path
-        return None
-
     def raise_not_found_error(self) -> None:
         err = ", ".join(self.error_messages) if self.error_messages else "No search paths available"
         att = "\n".join(self.attachments) if self.attachments else ""
@@ -139,8 +120,6 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib | None:
         abs_path = finder.try_with_conda_prefix()
     if abs_path is None:
         abs_path = finder.try_with_cuda_home()
-    if abs_path is None:
-        abs_path = finder.try_common_paths()
 
     if abs_path is None:
         return None
