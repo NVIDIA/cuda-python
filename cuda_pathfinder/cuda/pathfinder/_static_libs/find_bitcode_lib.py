@@ -58,9 +58,7 @@ def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str]
 class _FindBitcodeLib:
     def __init__(self, name: str) -> None:
         if name not in _SUPPORTED_BITCODE_LIBS_INFO:  # Updated reference
-            raise ValueError(
-                f"Unknown bitcode library: '{name}'. Supported: {', '.join(SUPPORTED_BITCODE_LIBS)}"
-            )
+            raise ValueError(f"Unknown bitcode library: '{name}'. Supported: {', '.join(SUPPORTED_BITCODE_LIBS)}")
         self.name: str = name
         self.config: _BitcodeLibInfo = _SUPPORTED_BITCODE_LIBS_INFO[name]  # Updated reference
         self.filename: str = self.config["filename"]
