@@ -6,11 +6,18 @@ import os
 import pytest
 
 import cuda.pathfinder._static_libs.find_bitcode_lib as find_bitcode_lib_module
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    SUPPORTED_BITCODE_LIBS,
+    find_bitcode_lib,
+    locate_bitcode_lib,
+)
 
 FILENAME = "libdevice.10.bc"
 
 SITE_PACKAGES_REL_DIR_CUDA12 = "nvidia/cuda_nvcc/nvvm/libdevice"
 SITE_PACKAGES_REL_DIR_CUDA13 = "nvidia/cuda_nvvm/nvvm/libdevice"
+
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS", "")
 
 
 @pytest.fixture
@@ -26,6 +33,31 @@ def _make_bitcode_lib_file(dir_path: str) -> str:
     with open(file_path, "wb"):
         pass
     return file_path
+
+
+def _located_bitcode_lib_asserts(located_bitcode_lib):
+    """Common assertions for a located bitcode library."""
+    assert located_bitcode_lib is not None
+    assert isinstance(located_bitcode_lib.name, str)
+    assert isinstance(located_bitcode_lib.abs_path, str)
+    assert isinstance(located_bitcode_lib.filename, str)
+    assert os.path.isfile(located_bitcode_lib.abs_path)
+
+
+@pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS.keys())
+def test_locate_bitcode_lib(info_summary_append, libname):
+    lib_path = find_bitcode_lib(libname) if locate_bitcode_lib(libname) else None
+    located_lib = locate_bitcode_lib(libname)
+    assert lib_path is None if not located_lib else lib_path == located_lib.abs_path
+
+    info_summary_append(f"{lib_path=!r}")
+    if lib_path:
+        _located_bitcode_lib_asserts(located_lib)
+        assert os.path.isfile(lib_path)
+        expected_filename = SUPPORTED_BITCODE_LIBS[libname]["filename"]
+        assert os.path.basename(lib_path) == expected_filename
+    if STRICTNESS == "all_must_work":
+        assert lib_path is not None
 
 
 @pytest.mark.parametrize("rel_dir", [SITE_PACKAGES_REL_DIR_CUDA12, SITE_PACKAGES_REL_DIR_CUDA13])
@@ -52,7 +84,6 @@ def test_find_bitcode_lib_via_site_packages(monkeypatch, mocker, tmp_path, rel_d
     assert os.path.isfile(result.abs_path)
 
 
-# same for cu12/cu13
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 def test_find_bitcode_lib_via_conda(monkeypatch, mocker, tmp_path):
     rel_path = os.path.join("nvvm", "libdevice")
