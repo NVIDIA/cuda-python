@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-import cuda.pathfinder._static_libs.find_libdevice as find_libdevice_module
+import cuda.pathfinder._static_libs.find_bitcode_lib as find_bitcode_lib_module
 
 FILENAME = "libdevice.10.bc"
 
@@ -14,13 +14,13 @@ SITE_PACKAGES_REL_DIR_CUDA13 = "nvidia/cuda_nvvm/nvvm/libdevice"
 
 
 @pytest.fixture
-def clear_find_libdevice_cache():
-    find_libdevice_module.find_bitcode_lib.cache_clear()
+def clear_find_bitcode_lib_cache():
+    find_bitcode_lib_module.find_bitcode_lib.cache_clear()
     yield
-    find_libdevice_module.find_bitcode_lib.cache_clear()
+    find_bitcode_lib_module.find_bitcode_lib.cache_clear()
 
 
-def _make_libdevice_file(dir_path: str) -> str:
+def _make_bitcode_lib_file(dir_path: str) -> str:
     os.makedirs(dir_path, exist_ok=True)
     file_path = os.path.join(dir_path, FILENAME)
     with open(file_path, "wb"):
@@ -29,21 +29,21 @@ def _make_libdevice_file(dir_path: str) -> str:
 
 
 @pytest.mark.parametrize("rel_dir", [SITE_PACKAGES_REL_DIR_CUDA12, SITE_PACKAGES_REL_DIR_CUDA13])
-@pytest.mark.usefixtures("clear_find_libdevice_cache")
-def test_find_libdevice_via_site_packages(monkeypatch, mocker, tmp_path, rel_dir):
-    libdevice_dir = tmp_path.joinpath(*rel_dir.split("/"))
-    expected_path = str(_make_libdevice_file(str(libdevice_dir)))
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+def test_find_bitcode_lib_via_site_packages(monkeypatch, mocker, tmp_path, rel_dir):
+    bitcode_lib_dir = tmp_path.joinpath(*rel_dir.split("/"))
+    expected_path = str(_make_bitcode_lib_file(str(bitcode_lib_dir)))
 
     mocker.patch.object(
-        find_libdevice_module,
+        find_bitcode_lib_module,
         "find_sub_dirs_all_sitepackages",
-        return_value=[str(libdevice_dir)],
+        return_value=[str(bitcode_lib_dir)],
     )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_HOME", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
-    result = find_libdevice_module.locate_bitcode_lib("device")
+    result = find_bitcode_lib_module.locate_bitcode_lib("device")
 
     assert result is not None
     assert result.abs_path == expected_path
@@ -53,15 +53,15 @@ def test_find_libdevice_via_site_packages(monkeypatch, mocker, tmp_path, rel_dir
 
 
 # same for cu12/cu13
-@pytest.mark.usefixtures("clear_find_libdevice_cache")
-def test_find_libdevice_via_conda(monkeypatch, mocker, tmp_path):
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+def test_find_bitcode_lib_via_conda(monkeypatch, mocker, tmp_path):
     rel_path = os.path.join("nvvm", "libdevice")
-    libdevice_dir = tmp_path / rel_path
-    expected_path = str(_make_libdevice_file(str(libdevice_dir)))
+    bitcode_lib_dir = tmp_path / rel_path
+    expected_path = str(_make_bitcode_lib_file(str(bitcode_lib_dir)))
 
-    mocker.patch.object(find_libdevice_module, "IS_WINDOWS", False)
+    mocker.patch.object(find_bitcode_lib_module, "IS_WINDOWS", False)
     mocker.patch.object(
-        find_libdevice_module,
+        find_bitcode_lib_module,
         "find_sub_dirs_all_sitepackages",
         return_value=[],
     )
@@ -69,21 +69,21 @@ def test_find_libdevice_via_conda(monkeypatch, mocker, tmp_path):
     monkeypatch.delenv("CUDA_HOME", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
-    result = find_libdevice_module.locate_bitcode_lib("device")
+    result = find_bitcode_lib_module.locate_bitcode_lib("device")
 
     assert result is not None
     assert result.abs_path == expected_path
     assert os.path.isfile(result.abs_path)
 
 
-@pytest.mark.usefixtures("clear_find_libdevice_cache")
-def test_find_libdevice_via_cuda_home(monkeypatch, mocker, tmp_path):
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+def test_find_bitcode_lib_via_cuda_home(monkeypatch, mocker, tmp_path):
     rel_path = os.path.join("nvvm", "libdevice")
-    libdevice_dir = tmp_path / rel_path
-    expected_path = str(_make_libdevice_file(str(libdevice_dir)))
+    bitcode_lib_dir = tmp_path / rel_path
+    expected_path = str(_make_bitcode_lib_file(str(bitcode_lib_dir)))
 
     mocker.patch.object(
-        find_libdevice_module,
+        find_bitcode_lib_module,
         "find_sub_dirs_all_sitepackages",
         return_value=[],
     )
@@ -91,29 +91,29 @@ def test_find_libdevice_via_cuda_home(monkeypatch, mocker, tmp_path):
     monkeypatch.setenv("CUDA_HOME", str(tmp_path))
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
-    result = find_libdevice_module.locate_bitcode_lib("device")
+    result = find_bitcode_lib_module.locate_bitcode_lib("device")
 
     assert result is not None
     assert result.abs_path == expected_path
     assert os.path.isfile(result.abs_path)
 
 
-@pytest.mark.usefixtures("clear_find_libdevice_cache")
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 def test_find_bitcode_lib_returns_path(monkeypatch, mocker, tmp_path):
     rel_path = os.path.join("nvvm", "libdevice")
-    libdevice_dir = tmp_path / rel_path
-    expected_path = str(_make_libdevice_file(str(libdevice_dir)))
+    bitcode_lib_dir = tmp_path / rel_path
+    expected_path = str(_make_bitcode_lib_file(str(bitcode_lib_dir)))
 
     mocker.patch.object(
-        find_libdevice_module,
+        find_bitcode_lib_module,
         "find_sub_dirs_all_sitepackages",
-        return_value=[str(libdevice_dir)],
+        return_value=[str(bitcode_lib_dir)],
     )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_HOME", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
-    result = find_libdevice_module.find_bitcode_lib("device")
+    result = find_bitcode_lib_module.find_bitcode_lib("device")
 
     assert result == expected_path
     assert isinstance(result, str)
@@ -121,4 +121,4 @@ def test_find_bitcode_lib_returns_path(monkeypatch, mocker, tmp_path):
 
 def test_find_bitcode_lib_invalid_name():
     with pytest.raises(ValueError, match="Unknown bitcode library"):
-        find_libdevice_module.locate_bitcode_lib("invalid")
+        find_bitcode_lib_module.locate_bitcode_lib("invalid")
