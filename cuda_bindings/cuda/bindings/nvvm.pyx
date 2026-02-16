@@ -12,7 +12,6 @@ from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
 from enum import IntEnum as _IntEnum
 
 
-
 ###############################################################################
 # Enum
 ###############################################################################
