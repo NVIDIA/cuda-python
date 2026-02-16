@@ -24,13 +24,13 @@ class LocatedBitcodeLib:
     filename: str
 
 
-class _BitcodeLibConfig(TypedDict):
+class _BitcodeLibInfo(TypedDict):  # Renamed: Config -> Info
     filename: str
     rel_path: str
     site_packages_dirs: tuple[str, ...]
 
 
-SUPPORTED_BITCODE_LIBS: dict[str, _BitcodeLibConfig] = {
+_SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {  # Renamed: added underscore prefix
     "device": {
         "filename": "libdevice.10.bc",
         "rel_path": os.path.join("nvvm", "libdevice"),
@@ -40,6 +40,9 @@ SUPPORTED_BITCODE_LIBS: dict[str, _BitcodeLibConfig] = {
         ),
     },
 }
+
+# Public API: just the supported library names
+SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_BITCODE_LIBS_INFO.keys()))
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -54,12 +57,12 @@ def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str]
 
 class _FindBitcodeLib:
     def __init__(self, name: str) -> None:
-        if name not in SUPPORTED_BITCODE_LIBS:
+        if name not in _SUPPORTED_BITCODE_LIBS_INFO:  # Updated reference
             raise ValueError(
-                f"Unknown bitcode library: '{name}'. Supported: {', '.join(sorted(SUPPORTED_BITCODE_LIBS.keys()))}"
+                f"Unknown bitcode library: '{name}'. Supported: {', '.join(SUPPORTED_BITCODE_LIBS)}"
             )
         self.name: str = name
-        self.config: _BitcodeLibConfig = SUPPORTED_BITCODE_LIBS[name]
+        self.config: _BitcodeLibInfo = _SUPPORTED_BITCODE_LIBS_INFO[name]  # Updated reference
         self.filename: str = self.config["filename"]
         self.rel_path: str = self.config["rel_path"]
         self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
@@ -135,7 +138,7 @@ def find_bitcode_lib(name: str) -> str:
     """Find the absolute path to a bitcode library."""
     result = locate_bitcode_lib(name)
     if result is None:
-        config = SUPPORTED_BITCODE_LIBS.get(name)
-        filename = config["filename"] if config else name
+        info = _SUPPORTED_BITCODE_LIBS_INFO.get(name)  # Updated reference
+        filename = info["filename"] if info else name
         raise BitcodeLibNotFoundError(f"{filename} not found")
     return result.abs_path
