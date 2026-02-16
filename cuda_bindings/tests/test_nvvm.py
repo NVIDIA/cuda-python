@@ -91,7 +91,7 @@ def test_c_or_v_program_fail_invalid_ir(compile_or_verify):
         assert get_program_log(prog) == "FileNameHere.ll (1, 0): parse expected top-level entity\x00"
 
 
-def test_c_or_v_program_fail_bad_option(minimal_nvvmir, compile_or_verify):
+def test_c_or_v_program_fail_bad_option(minimal_nvvmir, compile_or_verify):  # noqa: F401, F811
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=match_exact("ERROR_INVALID_OPTION (7)")):
@@ -116,7 +116,7 @@ def test_get_buffer_empty(get_size, get_buffer):
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
-def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
+def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):  # noqa: F401, F811
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         try:
@@ -136,7 +136,7 @@ def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
-def test_verify_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
+def test_verify_program_with_minimal_nvvm_ir(minimal_nvvmir, options):  # noqa: F401, F811
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         nvvm.verify_program(prog, len(options), options)
