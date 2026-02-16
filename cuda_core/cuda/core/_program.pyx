@@ -462,8 +462,8 @@ def _get_nvvm_module():
 
 def _find_libdevice_path():
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
-    from cuda.pathfinder import get_libdevice_path
-    return get_libdevice_path()
+    from cuda.pathfinder import find_bitcode_lib
+    return find_bitcode_lib("device")
 
 
 cdef inline bint _process_define_macro_inner(list options, object macro) except? -1:
