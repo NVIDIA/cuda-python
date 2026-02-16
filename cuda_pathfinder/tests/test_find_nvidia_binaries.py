@@ -17,6 +17,7 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import (
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
+
 def test_unknown_utility_name():
     with pytest.raises(UnsupportedBinaryError, match=r"'unknown-utility' is not supported"):
         find_nvidia_binary_utility("unknown-utility")
