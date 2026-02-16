@@ -12,7 +12,7 @@ from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
-class BitcodeLibNotFoundError(DynamicLibNotFoundError):
+class BitcodeLibNotFoundError(RuntimeError):
     """Raised when a bitcode library cannot be found."""
 
 
