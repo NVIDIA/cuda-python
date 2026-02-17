@@ -11501,8 +11501,8 @@ cdef class CUaccessPolicyWindow_st:
         return <void_ptr>self._pvt_ptr[0].base_ptr
     @base_ptr.setter
     def base_ptr(self, base_ptr):
-        _cbase_ptr = _HelperInputVoidPtr(base_ptr)
-        self._pvt_ptr[0].base_ptr = <void*><void_ptr>_cbase_ptr.cptr
+        self._cybase_ptr = _HelperInputVoidPtr(base_ptr)
+        self._pvt_ptr[0].base_ptr = <void*><void_ptr>self._cybase_ptr.cptr
     {{endif}}
     {{if 'CUaccessPolicyWindow_st.num_bytes' in found_struct}}
     @property
@@ -12749,8 +12749,8 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
         return <void_ptr>self._pvt_ptr[0].userData
     @userData.setter
     def userData(self, userData):
-        _cuserData = _HelperInputVoidPtr(userData)
-        self._pvt_ptr[0].userData = <void*><void_ptr>_cuserData.cptr
+        self._cyuserData = _HelperInputVoidPtr(userData)
+        self._pvt_ptr[0].userData = <void*><void_ptr>self._cyuserData.cptr
     {{endif}}
 {{endif}}
 {{if 'CUDA_HOST_NODE_PARAMS_v2_st' in found_struct}}
@@ -12830,8 +12830,8 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
         return <void_ptr>self._pvt_ptr[0].userData
     @userData.setter
     def userData(self, userData):
-        _cuserData = _HelperInputVoidPtr(userData)
-        self._pvt_ptr[0].userData = <void*><void_ptr>_cuserData.cptr
+        self._cyuserData = _HelperInputVoidPtr(userData)
+        self._pvt_ptr[0].userData = <void*><void_ptr>self._cyuserData.cptr
     {{endif}}
 {{endif}}
 {{if 'CUDA_CONDITIONAL_NODE_PARAMS' in found_struct}}
@@ -14693,8 +14693,8 @@ cdef class CUctxCigParam_st:
         return <void_ptr>self._pvt_ptr[0].sharedData
     @sharedData.setter
     def sharedData(self, sharedData):
-        _csharedData = _HelperInputVoidPtr(sharedData)
-        self._pvt_ptr[0].sharedData = <void*><void_ptr>_csharedData.cptr
+        self._cysharedData = _HelperInputVoidPtr(sharedData)
+        self._pvt_ptr[0].sharedData = <void*><void_ptr>self._cysharedData.cptr
     {{endif}}
 {{endif}}
 {{if 'CUctxCreateParams_st' in found_struct}}
@@ -14897,8 +14897,8 @@ cdef class CUlibraryHostUniversalFunctionAndDataTable_st:
         return <void_ptr>self._pvt_ptr[0].functionTable
     @functionTable.setter
     def functionTable(self, functionTable):
-        _cfunctionTable = _HelperInputVoidPtr(functionTable)
-        self._pvt_ptr[0].functionTable = <void*><void_ptr>_cfunctionTable.cptr
+        self._cyfunctionTable = _HelperInputVoidPtr(functionTable)
+        self._pvt_ptr[0].functionTable = <void*><void_ptr>self._cyfunctionTable.cptr
     {{endif}}
     {{if 'CUlibraryHostUniversalFunctionAndDataTable_st.functionWindowSize' in found_struct}}
     @property
@@ -14914,8 +14914,8 @@ cdef class CUlibraryHostUniversalFunctionAndDataTable_st:
         return <void_ptr>self._pvt_ptr[0].dataTable
     @dataTable.setter
     def dataTable(self, dataTable):
-        _cdataTable = _HelperInputVoidPtr(dataTable)
-        self._pvt_ptr[0].dataTable = <void*><void_ptr>_cdataTable.cptr
+        self._cydataTable = _HelperInputVoidPtr(dataTable)
+        self._pvt_ptr[0].dataTable = <void*><void_ptr>self._cydataTable.cptr
     {{endif}}
     {{if 'CUlibraryHostUniversalFunctionAndDataTable_st.dataWindowSize' in found_struct}}
     @property
@@ -15159,8 +15159,8 @@ cdef class CUDA_MEMCPY2D_st:
         return <void_ptr>self._pvt_ptr[0].srcHost
     @srcHost.setter
     def srcHost(self, srcHost):
-        _csrcHost = _HelperInputVoidPtr(srcHost)
-        self._pvt_ptr[0].srcHost = <void*><void_ptr>_csrcHost.cptr
+        self._cysrcHost = _HelperInputVoidPtr(srcHost)
+        self._pvt_ptr[0].srcHost = <void*><void_ptr>self._cysrcHost.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY2D_st.srcDevice' in found_struct}}
     @property
@@ -15235,8 +15235,8 @@ cdef class CUDA_MEMCPY2D_st:
         return <void_ptr>self._pvt_ptr[0].dstHost
     @dstHost.setter
     def dstHost(self, dstHost):
-        _cdstHost = _HelperInputVoidPtr(dstHost)
-        self._pvt_ptr[0].dstHost = <void*><void_ptr>_cdstHost.cptr
+        self._cydstHost = _HelperInputVoidPtr(dstHost)
+        self._pvt_ptr[0].dstHost = <void*><void_ptr>self._cydstHost.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY2D_st.dstDevice' in found_struct}}
     @property
@@ -15638,8 +15638,8 @@ cdef class CUDA_MEMCPY3D_st:
         return <void_ptr>self._pvt_ptr[0].srcHost
     @srcHost.setter
     def srcHost(self, srcHost):
-        _csrcHost = _HelperInputVoidPtr(srcHost)
-        self._pvt_ptr[0].srcHost = <void*><void_ptr>_csrcHost.cptr
+        self._cysrcHost = _HelperInputVoidPtr(srcHost)
+        self._pvt_ptr[0].srcHost = <void*><void_ptr>self._cysrcHost.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.srcDevice' in found_struct}}
     @property
@@ -15682,8 +15682,8 @@ cdef class CUDA_MEMCPY3D_st:
         return <void_ptr>self._pvt_ptr[0].reserved0
     @reserved0.setter
     def reserved0(self, reserved0):
-        _creserved0 = _HelperInputVoidPtr(reserved0)
-        self._pvt_ptr[0].reserved0 = <void*><void_ptr>_creserved0.cptr
+        self._cyreserved0 = _HelperInputVoidPtr(reserved0)
+        self._pvt_ptr[0].reserved0 = <void*><void_ptr>self._cyreserved0.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.srcPitch' in found_struct}}
     @property
@@ -15747,8 +15747,8 @@ cdef class CUDA_MEMCPY3D_st:
         return <void_ptr>self._pvt_ptr[0].dstHost
     @dstHost.setter
     def dstHost(self, dstHost):
-        _cdstHost = _HelperInputVoidPtr(dstHost)
-        self._pvt_ptr[0].dstHost = <void*><void_ptr>_cdstHost.cptr
+        self._cydstHost = _HelperInputVoidPtr(dstHost)
+        self._pvt_ptr[0].dstHost = <void*><void_ptr>self._cydstHost.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.dstDevice' in found_struct}}
     @property
@@ -15791,8 +15791,8 @@ cdef class CUDA_MEMCPY3D_st:
         return <void_ptr>self._pvt_ptr[0].reserved1
     @reserved1.setter
     def reserved1(self, reserved1):
-        _creserved1 = _HelperInputVoidPtr(reserved1)
-        self._pvt_ptr[0].reserved1 = <void*><void_ptr>_creserved1.cptr
+        self._cyreserved1 = _HelperInputVoidPtr(reserved1)
+        self._pvt_ptr[0].reserved1 = <void*><void_ptr>self._cyreserved1.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.dstPitch' in found_struct}}
     @property
@@ -16182,8 +16182,8 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         return <void_ptr>self._pvt_ptr[0].srcHost
     @srcHost.setter
     def srcHost(self, srcHost):
-        _csrcHost = _HelperInputVoidPtr(srcHost)
-        self._pvt_ptr[0].srcHost = <void*><void_ptr>_csrcHost.cptr
+        self._cysrcHost = _HelperInputVoidPtr(srcHost)
+        self._pvt_ptr[0].srcHost = <void*><void_ptr>self._cysrcHost.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.srcDevice' in found_struct}}
     @property
@@ -16299,8 +16299,8 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         return <void_ptr>self._pvt_ptr[0].dstHost
     @dstHost.setter
     def dstHost(self, dstHost):
-        _cdstHost = _HelperInputVoidPtr(dstHost)
-        self._pvt_ptr[0].dstHost = <void*><void_ptr>_cdstHost.cptr
+        self._cydstHost = _HelperInputVoidPtr(dstHost)
+        self._pvt_ptr[0].dstHost = <void*><void_ptr>self._cydstHost.cptr
     {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.dstDevice' in found_struct}}
     @property
@@ -18516,8 +18516,8 @@ cdef class anon_struct12:
         return <void_ptr>self._pvt_ptr[0].handle.win32.handle
     @handle.setter
     def handle(self, handle):
-        _chandle = _HelperInputVoidPtr(handle)
-        self._pvt_ptr[0].handle.win32.handle = <void*><void_ptr>_chandle.cptr
+        self._cyhandle = _HelperInputVoidPtr(handle)
+        self._pvt_ptr[0].handle.win32.handle = <void*><void_ptr>self._cyhandle.cptr
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.win32.name' in found_struct}}
     @property
@@ -18525,8 +18525,8 @@ cdef class anon_struct12:
         return <void_ptr>self._pvt_ptr[0].handle.win32.name
     @name.setter
     def name(self, name):
-        _cname = _HelperInputVoidPtr(name)
-        self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>_cname.cptr
+        self._cyname = _HelperInputVoidPtr(name)
+        self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle' in found_struct}}
@@ -18611,8 +18611,8 @@ cdef class anon_union5:
         return <void_ptr>self._pvt_ptr[0].handle.nvSciBufObject
     @nvSciBufObject.setter
     def nvSciBufObject(self, nvSciBufObject):
-        _cnvSciBufObject = _HelperInputVoidPtr(nvSciBufObject)
-        self._pvt_ptr[0].handle.nvSciBufObject = <void*><void_ptr>_cnvSciBufObject.cptr
+        self._cynvSciBufObject = _HelperInputVoidPtr(nvSciBufObject)
+        self._pvt_ptr[0].handle.nvSciBufObject = <void*><void_ptr>self._cynvSciBufObject.cptr
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_struct}}
@@ -19007,8 +19007,8 @@ cdef class anon_struct13:
         return <void_ptr>self._pvt_ptr[0].handle.win32.handle
     @handle.setter
     def handle(self, handle):
-        _chandle = _HelperInputVoidPtr(handle)
-        self._pvt_ptr[0].handle.win32.handle = <void*><void_ptr>_chandle.cptr
+        self._cyhandle = _HelperInputVoidPtr(handle)
+        self._pvt_ptr[0].handle.win32.handle = <void*><void_ptr>self._cyhandle.cptr
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle.win32.name' in found_struct}}
     @property
@@ -19016,8 +19016,8 @@ cdef class anon_struct13:
         return <void_ptr>self._pvt_ptr[0].handle.win32.name
     @name.setter
     def name(self, name):
-        _cname = _HelperInputVoidPtr(name)
-        self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>_cname.cptr
+        self._cyname = _HelperInputVoidPtr(name)
+        self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle' in found_struct}}
@@ -19102,8 +19102,8 @@ cdef class anon_union6:
         return <void_ptr>self._pvt_ptr[0].handle.nvSciSyncObj
     @nvSciSyncObj.setter
     def nvSciSyncObj(self, nvSciSyncObj):
-        _cnvSciSyncObj = _HelperInputVoidPtr(nvSciSyncObj)
-        self._pvt_ptr[0].handle.nvSciSyncObj = <void*><void_ptr>_cnvSciSyncObj.cptr
+        self._cynvSciSyncObj = _HelperInputVoidPtr(nvSciSyncObj)
+        self._pvt_ptr[0].handle.nvSciSyncObj = <void*><void_ptr>self._cynvSciSyncObj.cptr
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_struct}}
@@ -19314,8 +19314,8 @@ cdef class anon_union7:
         return <void_ptr>self._pvt_ptr[0].params.nvSciSync.fence
     @fence.setter
     def fence(self, fence):
-        _cfence = _HelperInputVoidPtr(fence)
-        self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>_cfence.cptr
+        self._cyfence = _HelperInputVoidPtr(fence)
+        self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.params.nvSciSync.reserved' in found_struct}}
     @property
@@ -19676,8 +19676,8 @@ cdef class anon_union8:
         return <void_ptr>self._pvt_ptr[0].params.nvSciSync.fence
     @fence.setter
     def fence(self, fence):
-        _cfence = _HelperInputVoidPtr(fence)
-        self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>_cfence.cptr
+        self._cyfence = _HelperInputVoidPtr(fence)
+        self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.params.nvSciSync.reserved' in found_struct}}
     @property
@@ -21462,8 +21462,8 @@ cdef class CUmemAllocationProp_st:
         return <void_ptr>self._pvt_ptr[0].win32HandleMetaData
     @win32HandleMetaData.setter
     def win32HandleMetaData(self, win32HandleMetaData):
-        _cwin32HandleMetaData = _HelperInputVoidPtr(win32HandleMetaData)
-        self._pvt_ptr[0].win32HandleMetaData = <void*><void_ptr>_cwin32HandleMetaData.cptr
+        self._cywin32HandleMetaData = _HelperInputVoidPtr(win32HandleMetaData)
+        self._pvt_ptr[0].win32HandleMetaData = <void*><void_ptr>self._cywin32HandleMetaData.cptr
     {{endif}}
     {{if 'CUmemAllocationProp_st.allocFlags' in found_struct}}
     @property
@@ -21905,8 +21905,8 @@ cdef class CUmemPoolProps_st:
         return <void_ptr>self._pvt_ptr[0].win32SecurityAttributes
     @win32SecurityAttributes.setter
     def win32SecurityAttributes(self, win32SecurityAttributes):
-        _cwin32SecurityAttributes = _HelperInputVoidPtr(win32SecurityAttributes)
-        self._pvt_ptr[0].win32SecurityAttributes = <void*><void_ptr>_cwin32SecurityAttributes.cptr
+        self._cywin32SecurityAttributes = _HelperInputVoidPtr(win32SecurityAttributes)
+        self._pvt_ptr[0].win32SecurityAttributes = <void*><void_ptr>self._cywin32SecurityAttributes.cptr
     {{endif}}
     {{if 'CUmemPoolProps_st.maxSize' in found_struct}}
     @property
@@ -24265,8 +24265,8 @@ cdef class CUmemDecompressParams_st:
         return <void_ptr>self._pvt_ptr[0].src
     @src.setter
     def src(self, src):
-        _csrc = _HelperInputVoidPtr(src)
-        self._pvt_ptr[0].src = <void*><void_ptr>_csrc.cptr
+        self._cysrc = _HelperInputVoidPtr(src)
+        self._pvt_ptr[0].src = <void*><void_ptr>self._cysrc.cptr
     {{endif}}
     {{if 'CUmemDecompressParams_st.dst' in found_struct}}
     @property
@@ -24274,8 +24274,8 @@ cdef class CUmemDecompressParams_st:
         return <void_ptr>self._pvt_ptr[0].dst
     @dst.setter
     def dst(self, dst):
-        _cdst = _HelperInputVoidPtr(dst)
-        self._pvt_ptr[0].dst = <void*><void_ptr>_cdst.cptr
+        self._cydst = _HelperInputVoidPtr(dst)
+        self._pvt_ptr[0].dst = <void*><void_ptr>self._cydst.cptr
     {{endif}}
     {{if 'CUmemDecompressParams_st.algo' in found_struct}}
     @property
