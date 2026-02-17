@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0d24f4f. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -475,6 +475,9 @@ cdef class cudaPitchedPtr:
     """
     cdef cyruntime.cudaPitchedPtr _pvt_val
     cdef cyruntime.cudaPitchedPtr* _pvt_ptr
+    {{if 'cudaPitchedPtr.ptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cyptr
+    {{endif}}
 {{endif}}
 {{if 'cudaExtent' in found_struct}}
 
@@ -751,6 +754,9 @@ cdef class cudaMemsetParams:
     """
     cdef cyruntime.cudaMemsetParams _pvt_val
     cdef cyruntime.cudaMemsetParams* _pvt_ptr
+    {{if 'cudaMemsetParams.dst' in found_struct}}
+    cdef _HelperInputVoidPtr _cydst
+    {{endif}}
 {{endif}}
 {{if 'cudaMemsetParamsV2' in found_struct}}
 
@@ -792,6 +798,9 @@ cdef class cudaMemsetParamsV2:
     """
     cdef cyruntime.cudaMemsetParamsV2 _pvt_val
     cdef cyruntime.cudaMemsetParamsV2* _pvt_ptr
+    {{if 'cudaMemsetParamsV2.dst' in found_struct}}
+    cdef _HelperInputVoidPtr _cydst
+    {{endif}}
 {{endif}}
 {{if 'cudaAccessPolicyWindow' in found_struct}}
 
@@ -840,6 +849,9 @@ cdef class cudaAccessPolicyWindow:
     """
     cdef cyruntime.cudaAccessPolicyWindow _pvt_val
     cdef cyruntime.cudaAccessPolicyWindow* _pvt_ptr
+    {{if 'cudaAccessPolicyWindow.base_ptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cybase_ptr
+    {{endif}}
 {{endif}}
 {{if 'cudaHostNodeParams' in found_struct}}
 
@@ -868,6 +880,9 @@ cdef class cudaHostNodeParams:
     {{if 'cudaHostNodeParams.fn' in found_struct}}
     cdef cudaHostFn_t _fn
     {{endif}}
+    {{if 'cudaHostNodeParams.userData' in found_struct}}
+    cdef _HelperInputVoidPtr _cyuserData
+    {{endif}}
 {{endif}}
 {{if 'cudaHostNodeParamsV2' in found_struct}}
 
@@ -895,6 +910,9 @@ cdef class cudaHostNodeParamsV2:
     cdef cyruntime.cudaHostNodeParamsV2* _pvt_ptr
     {{if 'cudaHostNodeParamsV2.fn' in found_struct}}
     cdef cudaHostFn_t _fn
+    {{endif}}
+    {{if 'cudaHostNodeParamsV2.userData' in found_struct}}
+    cdef _HelperInputVoidPtr _cyuserData
     {{endif}}
 {{endif}}
 {{if 'cudaResourceDesc.res.array' in found_struct}}
@@ -964,6 +982,9 @@ cdef class anon_struct3:
         Get memory address of class instance
     """
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
+    {{if 'cudaResourceDesc.res.linear.devPtr' in found_struct}}
+    cdef _HelperInputVoidPtr _cydevPtr
+    {{endif}}
     {{if 'cudaResourceDesc.res.linear.desc' in found_struct}}
     cdef cudaChannelFormatDesc _desc
     {{endif}}
@@ -1001,6 +1022,9 @@ cdef class anon_struct4:
         Get memory address of class instance
     """
     cdef cyruntime.cudaResourceDesc* _pvt_ptr
+    {{if 'cudaResourceDesc.res.pitch2D.devPtr' in found_struct}}
+    cdef _HelperInputVoidPtr _cydevPtr
+    {{endif}}
     {{if 'cudaResourceDesc.res.pitch2D.desc' in found_struct}}
     cdef cudaChannelFormatDesc _desc
     {{endif}}
@@ -1167,6 +1191,12 @@ cdef class cudaPointerAttributes:
     """
     cdef cyruntime.cudaPointerAttributes _pvt_val
     cdef cyruntime.cudaPointerAttributes* _pvt_ptr
+    {{if 'cudaPointerAttributes.devicePointer' in found_struct}}
+    cdef _HelperInputVoidPtr _cydevicePointer
+    {{endif}}
+    {{if 'cudaPointerAttributes.hostPointer' in found_struct}}
+    cdef _HelperInputVoidPtr _cyhostPointer
+    {{endif}}
 {{endif}}
 {{if 'cudaFuncAttributes' in found_struct}}
 
@@ -1399,6 +1429,9 @@ cdef class cudaMemPoolProps:
     {{if 'cudaMemPoolProps.location' in found_struct}}
     cdef cudaMemLocation _location
     {{endif}}
+    {{if 'cudaMemPoolProps.win32SecurityAttributes' in found_struct}}
+    cdef _HelperInputVoidPtr _cywin32SecurityAttributes
+    {{endif}}
 {{endif}}
 {{if 'cudaMemPoolPtrExportData' in found_struct}}
 
@@ -1468,6 +1501,9 @@ cdef class cudaMemAllocNodeParams:
     cdef size_t _accessDescs_length
     cdef cyruntime.cudaMemAccessDesc* _accessDescs
     {{endif}}
+    {{if 'cudaMemAllocNodeParams.dptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cydptr
+    {{endif}}
 {{endif}}
 {{if 'cudaMemAllocNodeParamsV2' in found_struct}}
 
@@ -1516,6 +1552,9 @@ cdef class cudaMemAllocNodeParamsV2:
     cdef size_t _accessDescs_length
     cdef cyruntime.cudaMemAccessDesc* _accessDescs
     {{endif}}
+    {{if 'cudaMemAllocNodeParamsV2.dptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cydptr
+    {{endif}}
 {{endif}}
 {{if 'cudaMemFreeNodeParams' in found_struct}}
 
@@ -1537,6 +1576,9 @@ cdef class cudaMemFreeNodeParams:
     """
     cdef cyruntime.cudaMemFreeNodeParams _pvt_val
     cdef cyruntime.cudaMemFreeNodeParams* _pvt_ptr
+    {{if 'cudaMemFreeNodeParams.dptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cydptr
+    {{endif}}
 {{endif}}
 {{if 'cudaMemcpyAttributes' in found_struct}}
 
@@ -1640,6 +1682,9 @@ cdef class anon_struct5:
         Get memory address of class instance
     """
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
+    {{if 'cudaMemcpy3DOperand.op.ptr.ptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cyptr
+    {{endif}}
     {{if 'cudaMemcpy3DOperand.op.ptr.locHint' in found_struct}}
     cdef cudaMemLocation _locHint
     {{endif}}
@@ -2292,6 +2337,12 @@ cdef class anon_struct7:
         Get memory address of class instance
     """
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
+    {{if 'cudaExternalMemoryHandleDesc.handle.win32.handle' in found_struct}}
+    cdef _HelperInputVoidPtr _cyhandle
+    {{endif}}
+    {{if 'cudaExternalMemoryHandleDesc.handle.win32.name' in found_struct}}
+    cdef _HelperInputVoidPtr _cyname
+    {{endif}}
 {{endif}}
 {{if 'cudaExternalMemoryHandleDesc.handle' in found_struct}}
 
@@ -2320,6 +2371,9 @@ cdef class anon_union2:
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
     {{if 'cudaExternalMemoryHandleDesc.handle.win32' in found_struct}}
     cdef anon_struct7 _win32
+    {{endif}}
+    {{if 'cudaExternalMemoryHandleDesc.handle.nvSciBufObject' in found_struct}}
+    cdef _HelperInputVoidPtr _cynvSciBufObject
     {{endif}}
 {{endif}}
 {{if 'cudaExternalMemoryHandleDesc' in found_struct}}
@@ -2453,6 +2507,12 @@ cdef class anon_struct8:
         Get memory address of class instance
     """
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
+    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.handle' in found_struct}}
+    cdef _HelperInputVoidPtr _cyhandle
+    {{endif}}
+    {{if 'cudaExternalSemaphoreHandleDesc.handle.win32.name' in found_struct}}
+    cdef _HelperInputVoidPtr _cyname
+    {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreHandleDesc.handle' in found_struct}}
 
@@ -2481,6 +2541,9 @@ cdef class anon_union3:
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
     {{if 'cudaExternalSemaphoreHandleDesc.handle.win32' in found_struct}}
     cdef anon_struct8 _win32
+    {{endif}}
+    {{if 'cudaExternalSemaphoreHandleDesc.handle.nvSciSyncObj' in found_struct}}
+    cdef _HelperInputVoidPtr _cynvSciSyncObj
     {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreHandleDesc' in found_struct}}
@@ -2554,6 +2617,9 @@ cdef class anon_union6:
         Get memory address of class instance
     """
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
+    {{if 'cudaExternalSemaphoreSignalParams.params.nvSciSync.fence' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfence
+    {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreSignalParams.params.keyedMutex' in found_struct}}
 
@@ -2690,6 +2756,9 @@ cdef class anon_union7:
         Get memory address of class instance
     """
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
+    {{if 'cudaExternalSemaphoreWaitParams.params.nvSciSync.fence' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfence
+    {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreWaitParams.params.keyedMutex' in found_struct}}
 
@@ -2821,6 +2890,12 @@ cdef class cudalibraryHostUniversalFunctionAndDataTable:
     """
     cdef cyruntime.cudalibraryHostUniversalFunctionAndDataTable _pvt_val
     cdef cyruntime.cudalibraryHostUniversalFunctionAndDataTable* _pvt_ptr
+    {{if 'cudalibraryHostUniversalFunctionAndDataTable.functionTable' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfunctionTable
+    {{endif}}
+    {{if 'cudalibraryHostUniversalFunctionAndDataTable.dataTable' in found_struct}}
+    cdef _HelperInputVoidPtr _cydataTable
+    {{endif}}
 {{endif}}
 {{if 'cudaKernelNodeParams' in found_struct}}
 
@@ -2862,6 +2937,9 @@ cdef class cudaKernelNodeParams:
     """
     cdef cyruntime.cudaKernelNodeParams _pvt_val
     cdef cyruntime.cudaKernelNodeParams* _pvt_ptr
+    {{if 'cudaKernelNodeParams.func' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfunc
+    {{endif}}
     {{if 'cudaKernelNodeParams.gridDim' in found_struct}}
     cdef dim3 _gridDim
     {{endif}}
@@ -2912,6 +2990,9 @@ cdef class cudaKernelNodeParamsV2:
     """
     cdef cyruntime.cudaKernelNodeParamsV2 _pvt_val
     cdef cyruntime.cudaKernelNodeParamsV2* _pvt_ptr
+    {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfunc
+    {{endif}}
     {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
     cdef dim3 _gridDim
     {{endif}}
@@ -3483,6 +3564,9 @@ cdef class anon_struct21:
         Get memory address of class instance
     """
     cdef cyruntime.cudaGraphKernelNodeUpdate* _pvt_ptr
+    {{if 'cudaGraphKernelNodeUpdate.updateData.param.pValue' in found_struct}}
+    cdef _HelperInputVoidPtr _cypValue
+    {{endif}}
 {{endif}}
 {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
 
