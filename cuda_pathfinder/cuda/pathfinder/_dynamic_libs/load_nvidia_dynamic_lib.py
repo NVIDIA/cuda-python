@@ -6,7 +6,11 @@ import struct
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
+    SUPPORTED_LINUX_SONAMES,
+    SUPPORTED_WINDOWS_DLLS,
+)
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -22,8 +26,44 @@ else:
         load_with_system_search,
     )
 
+# All libnames recognized by load_nvidia_dynamic_lib, across all categories
+# (CTK, third-party, driver).  Built from the platform-appropriate soname/DLL
+# registry so that platform-specific libs (e.g. cufile on Linux) are included
+# only where they apply.
+_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
+    (SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else SUPPORTED_LINUX_SONAMES).keys()
+)
+
+# Driver libraries: shipped with the NVIDIA display driver, always on the
+# system linker path.  These skip all CTK search steps (site-packages,
+# conda, CUDA_HOME, canary) and go straight to system search.
+_DRIVER_ONLY_LIBNAMES = frozenset(("cuda", "nvml"))
+
+
+def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
+    """Load an NVIDIA driver library (system-search only).
+
+    Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
+    the CUDA Toolkit.  They are always on the system linker path, so the
+    full CTK search cascade (site-packages, conda, CUDA_HOME, canary) is
+    unnecessary.
+    """
+    loaded = check_if_already_loaded_from_elsewhere(libname, False)
+    if loaded is not None:
+        return loaded
+    loaded = load_with_system_search(libname)
+    if loaded is not None:
+        return loaded
+    raise DynamicLibNotFoundError(
+        f'"{libname}" is an NVIDIA driver library and can only be found via'
+        f" system search. Ensure the NVIDIA display driver is installed."
+    )
+
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
+    if libname in _DRIVER_ONLY_LIBNAMES:
+        return _load_driver_lib_no_cache(libname)
+
     finder = _FindNvidiaDynamicLib(libname)
     abs_path = finder.try_site_packages()
     if abs_path is not None:
@@ -83,6 +123,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         https://github.com/NVIDIA/cuda-python/issues/1011
 
     Raises:
+        ValueError: If ``libname`` is not a recognized library name.
         DynamicLibNotFoundError: If the library cannot be found or loaded.
         RuntimeError: If Python is not 64-bit.
 
@@ -123,6 +164,18 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
            - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
 
+    **Driver libraries** (``"cuda"``, ``"nvml"``):
+
+        These are part of the NVIDIA display driver (not the CUDA Toolkit) and
+        are always on the system linker path.  For these libraries the search
+        is simplified to:
+
+        0. Already loaded in the current process
+        1. OS default mechanisms (``dlopen`` / ``LoadLibraryW``)
+
+        The CTK-specific steps (site-packages, conda, ``CUDA_HOME``, canary
+        probe) are skipped entirely.
+
     Notes:
         The search is performed **per library**. There is currently no mechanism to
         guarantee that multiple libraries are all resolved from the same location.
@@ -135,4 +188,6 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f" Currently running: {pointer_size_bits}-bit Python"
             f" {sys.version_info.major}.{sys.version_info.minor}"
         )
+    if libname not in _ALL_SUPPORTED_LIBNAMES:
+        raise ValueError(f"Unsupported library name: {libname!r}. Supported names: {sorted(_ALL_SUPPORTED_LIBNAMES)}")
     return _load_lib_no_cache(libname)

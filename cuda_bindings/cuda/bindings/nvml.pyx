@@ -9,7 +9,7 @@ cimport cython  # NOQA
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from enum import IntEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
 from cuda.bindings.cydriver cimport CUDA_VERSION
 
@@ -45,21 +45,36 @@ cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsi
 # Enum
 ###############################################################################
 
-class BridgeChipType(_IntEnum):
-    """See `nvmlBridgeChipType_t`."""
+class BridgeChipType(_FastEnum):
+    """
+    Enum to represent type of bridge chip
+
+    See `nvmlBridgeChipType_t`.
+    """
     BRIDGE_CHIP_PLX = NVML_BRIDGE_CHIP_PLX
     BRIDGE_CHIP_BRO4 = NVML_BRIDGE_CHIP_BRO4
 
-class NvLinkUtilizationCountUnits(_IntEnum):
-    """See `nvmlNvLinkUtilizationCountUnits_t`."""
+class NvLinkUtilizationCountUnits(_FastEnum):
+    """
+    Enum to represent the NvLink utilization counter packet units
+
+    See `nvmlNvLinkUtilizationCountUnits_t`.
+    """
     NVLINK_COUNTER_UNIT_CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
     NVLINK_COUNTER_UNIT_PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
     NVLINK_COUNTER_UNIT_BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
     NVLINK_COUNTER_UNIT_RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
     NVLINK_COUNTER_UNIT_COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
 
-class NvLinkUtilizationCountPktTypes(_IntEnum):
-    """See `nvmlNvLinkUtilizationCountPktTypes_t`."""
+class NvLinkUtilizationCountPktTypes(_FastEnum):
+    """
+    Enum to represent the NvLink utilization counter packet types to count
+    ** this is ONLY applicable with the units as packets or bytes ** as
+    specified in `nvmlNvLinkUtilizationCountUnits_t` ** all packet filter
+    descriptions are target GPU centric ** these can be "OR'd" together
+
+    See `nvmlNvLinkUtilizationCountPktTypes_t`.
+    """
     NVLINK_COUNTER_PKTFILTER_NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
     NVLINK_COUNTER_PKTFILTER_READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
     NVLINK_COUNTER_PKTFILTER_WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
@@ -70,8 +85,12 @@ class NvLinkUtilizationCountPktTypes(_IntEnum):
     NVLINK_COUNTER_PKTFILTER_RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
     NVLINK_COUNTER_PKTFILTER_ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
 
-class NvLinkCapability(_IntEnum):
-    """See `nvmlNvLinkCapability_t`."""
+class NvLinkCapability(_FastEnum):
+    """
+    Enum to represent NvLink queryable capabilities
+
+    See `nvmlNvLinkCapability_t`.
+    """
     NVLINK_CAP_P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
     NVLINK_CAP_SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
     NVLINK_CAP_P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
@@ -80,8 +99,12 @@ class NvLinkCapability(_IntEnum):
     NVLINK_CAP_VALID = NVML_NVLINK_CAP_VALID
     NVLINK_CAP_COUNT = NVML_NVLINK_CAP_COUNT
 
-class NvLinkErrorCounter(_IntEnum):
-    """See `nvmlNvLinkErrorCounter_t`."""
+class NvLinkErrorCounter(_FastEnum):
+    """
+    Enum to represent NvLink queryable error counters
+
+    See `nvmlNvLinkErrorCounter_t`.
+    """
     NVLINK_ERROR_DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
     NVLINK_ERROR_DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
     NVLINK_ERROR_DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
@@ -89,15 +112,24 @@ class NvLinkErrorCounter(_IntEnum):
     NVLINK_ERROR_DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
     NVLINK_ERROR_COUNT = NVML_NVLINK_ERROR_COUNT
 
-class IntNvLinkDeviceType(_IntEnum):
-    """See `nvmlIntNvLinkDeviceType_t`."""
+class IntNvLinkDeviceType(_FastEnum):
+    """
+    Enum to represent NvLink's remote device type
+
+    See `nvmlIntNvLinkDeviceType_t`.
+    """
     NVLINK_DEVICE_TYPE_GPU = NVML_NVLINK_DEVICE_TYPE_GPU
     NVLINK_DEVICE_TYPE_IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
     NVLINK_DEVICE_TYPE_SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
     NVLINK_DEVICE_TYPE_UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
 
-class GpuTopologyLevel(_IntEnum):
-    """See `nvmlGpuTopologyLevel_t`."""
+class GpuTopologyLevel(_FastEnum):
+    """
+    Represents level relationships within a system between two GPUs The
+    enums are spaced to allow for future relationships
+
+    See `nvmlGpuTopologyLevel_t`.
+    """
     TOPOLOGY_INTERNAL = NVML_TOPOLOGY_INTERNAL
     TOPOLOGY_SINGLE = NVML_TOPOLOGY_SINGLE
     TOPOLOGY_MULTIPLE = NVML_TOPOLOGY_MULTIPLE
@@ -105,8 +137,10 @@ class GpuTopologyLevel(_IntEnum):
     TOPOLOGY_NODE = NVML_TOPOLOGY_NODE
     TOPOLOGY_SYSTEM = NVML_TOPOLOGY_SYSTEM
 
-class GpuP2PStatus(_IntEnum):
-    """See `nvmlGpuP2PStatus_t`."""
+class GpuP2PStatus(_FastEnum):
+    """
+    See `nvmlGpuP2PStatus_t`.
+    """
     P2P_STATUS_OK = NVML_P2P_STATUS_OK
     P2P_STATUS_CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
     P2P_STATUS_CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
@@ -116,8 +150,10 @@ class GpuP2PStatus(_IntEnum):
     P2P_STATUS_NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
     P2P_STATUS_UNKNOWN = NVML_P2P_STATUS_UNKNOWN
 
-class GpuP2PCapsIndex(_IntEnum):
-    """See `nvmlGpuP2PCapsIndex_t`."""
+class GpuP2PCapsIndex(_FastEnum):
+    """
+    See `nvmlGpuP2PCapsIndex_t`.
+    """
     P2P_CAPS_INDEX_READ = NVML_P2P_CAPS_INDEX_READ
     P2P_CAPS_INDEX_WRITE = NVML_P2P_CAPS_INDEX_WRITE
     P2P_CAPS_INDEX_NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
@@ -126,28 +162,40 @@ class GpuP2PCapsIndex(_IntEnum):
     P2P_CAPS_INDEX_PROP = NVML_P2P_CAPS_INDEX_PROP
     P2P_CAPS_INDEX_UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
 
-class SamplingType(_IntEnum):
-    """See `nvmlSamplingType_t`."""
-    TOTAL_POWER_SAMPLES = NVML_TOTAL_POWER_SAMPLES
-    GPU_UTILIZATION_SAMPLES = NVML_GPU_UTILIZATION_SAMPLES
-    MEMORY_UTILIZATION_SAMPLES = NVML_MEMORY_UTILIZATION_SAMPLES
-    ENC_UTILIZATION_SAMPLES = NVML_ENC_UTILIZATION_SAMPLES
-    DEC_UTILIZATION_SAMPLES = NVML_DEC_UTILIZATION_SAMPLES
-    PROCESSOR_CLK_SAMPLES = NVML_PROCESSOR_CLK_SAMPLES
-    MEMORY_CLK_SAMPLES = NVML_MEMORY_CLK_SAMPLES
-    MODULE_POWER_SAMPLES = NVML_MODULE_POWER_SAMPLES
-    JPG_UTILIZATION_SAMPLES = NVML_JPG_UTILIZATION_SAMPLES
-    OFA_UTILIZATION_SAMPLES = NVML_OFA_UTILIZATION_SAMPLES
+class SamplingType(_FastEnum):
+    """
+    Represents Type of Sampling Event
+
+    See `nvmlSamplingType_t`.
+    """
+    TOTAL_POWER_SAMPLES = (NVML_TOTAL_POWER_SAMPLES, 'To represent total power drawn by GPU.')
+    GPU_UTILIZATION_SAMPLES = (NVML_GPU_UTILIZATION_SAMPLES, 'To represent percent of time during which one or more kernels was executing on the GPU.')
+    MEMORY_UTILIZATION_SAMPLES = (NVML_MEMORY_UTILIZATION_SAMPLES, 'To represent percent of time during which global (device) memory was being read or written.')
+    ENC_UTILIZATION_SAMPLES = (NVML_ENC_UTILIZATION_SAMPLES, 'To represent percent of time during which NVENC remains busy.')
+    DEC_UTILIZATION_SAMPLES = (NVML_DEC_UTILIZATION_SAMPLES, 'To represent percent of time during which NVDEC remains busy.')
+    PROCESSOR_CLK_SAMPLES = (NVML_PROCESSOR_CLK_SAMPLES, 'To represent processor clock samples.')
+    MEMORY_CLK_SAMPLES = (NVML_MEMORY_CLK_SAMPLES, 'To represent memory clock samples.')
+    MODULE_POWER_SAMPLES = (NVML_MODULE_POWER_SAMPLES, 'To represent module power samples for total module starting Grace Hopper.')
+    JPG_UTILIZATION_SAMPLES = (NVML_JPG_UTILIZATION_SAMPLES, 'To represent percent of time during which NVJPG remains busy.')
+    OFA_UTILIZATION_SAMPLES = (NVML_OFA_UTILIZATION_SAMPLES, 'To represent percent of time during which NVOFA remains busy.')
     SAMPLINGTYPE_COUNT = NVML_SAMPLINGTYPE_COUNT
 
-class PcieUtilCounter(_IntEnum):
-    """See `nvmlPcieUtilCounter_t`."""
+class PcieUtilCounter(_FastEnum):
+    """
+    Represents the queryable PCIe utilization counters
+
+    See `nvmlPcieUtilCounter_t`.
+    """
     PCIE_UTIL_TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
     PCIE_UTIL_RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
     PCIE_UTIL_COUNT = NVML_PCIE_UTIL_COUNT
 
-class ValueType(_IntEnum):
-    """See `nvmlValueType_t`."""
+class ValueType(_FastEnum):
+    """
+    Represents the type for sample value returned
+
+    See `nvmlValueType_t`.
+    """
     DOUBLE = NVML_VALUE_TYPE_DOUBLE
     UNSIGNED_INT = NVML_VALUE_TYPE_UNSIGNED_INT
     UNSIGNED_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG
@@ -157,33 +205,45 @@ class ValueType(_IntEnum):
     UNSIGNED_SHORT = NVML_VALUE_TYPE_UNSIGNED_SHORT
     COUNT = NVML_VALUE_TYPE_COUNT
 
-class PerfPolicyType(_IntEnum):
-    """See `nvmlPerfPolicyType_t`."""
-    PERF_POLICY_POWER = NVML_PERF_POLICY_POWER
-    PERF_POLICY_THERMAL = NVML_PERF_POLICY_THERMAL
-    PERF_POLICY_SYNC_BOOST = NVML_PERF_POLICY_SYNC_BOOST
-    PERF_POLICY_BOARD_LIMIT = NVML_PERF_POLICY_BOARD_LIMIT
-    PERF_POLICY_LOW_UTILIZATION = NVML_PERF_POLICY_LOW_UTILIZATION
-    PERF_POLICY_RELIABILITY = NVML_PERF_POLICY_RELIABILITY
-    PERF_POLICY_TOTAL_APP_CLOCKS = NVML_PERF_POLICY_TOTAL_APP_CLOCKS
-    PERF_POLICY_TOTAL_BASE_CLOCKS = NVML_PERF_POLICY_TOTAL_BASE_CLOCKS
+class PerfPolicyType(_FastEnum):
+    """
+    Represents type of perf policy for which violation times can be queried
+
+    See `nvmlPerfPolicyType_t`.
+    """
+    PERF_POLICY_POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
+    PERF_POLICY_THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
+    PERF_POLICY_SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
+    PERF_POLICY_BOARD_LIMIT = (NVML_PERF_POLICY_BOARD_LIMIT, 'How long did the board limit cause the GPU to be below application clocks.')
+    PERF_POLICY_LOW_UTILIZATION = (NVML_PERF_POLICY_LOW_UTILIZATION, 'How long did low utilization cause the GPU to be below application clocks.')
+    PERF_POLICY_RELIABILITY = (NVML_PERF_POLICY_RELIABILITY, 'How long did the board reliability limit cause the GPU to be below application clocks.')
+    PERF_POLICY_TOTAL_APP_CLOCKS = (NVML_PERF_POLICY_TOTAL_APP_CLOCKS, 'Total time the GPU was held below application clocks by any limiter (0 - 5 above)')
+    PERF_POLICY_TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
     PERF_POLICY_COUNT = NVML_PERF_POLICY_COUNT
 
-class ThermalTarget(_IntEnum):
-    """See `nvmlThermalTarget_t`."""
+class ThermalTarget(_FastEnum):
+    """
+    Represents the thermal sensor targets
+
+    See `nvmlThermalTarget_t`.
+    """
     NONE = NVML_THERMAL_TARGET_NONE
-    GPU = NVML_THERMAL_TARGET_GPU
-    MEMORY = NVML_THERMAL_TARGET_MEMORY
-    POWER_SUPPLY = NVML_THERMAL_TARGET_POWER_SUPPLY
-    BOARD = NVML_THERMAL_TARGET_BOARD
-    VCD_BOARD = NVML_THERMAL_TARGET_VCD_BOARD
-    VCD_INLET = NVML_THERMAL_TARGET_VCD_INLET
-    VCD_OUTLET = NVML_THERMAL_TARGET_VCD_OUTLET
+    GPU = (NVML_THERMAL_TARGET_GPU, 'GPU core temperature requires NvPhysicalGpuHandle.')
+    MEMORY = (NVML_THERMAL_TARGET_MEMORY, 'GPU memory temperature requires NvPhysicalGpuHandle.')
+    POWER_SUPPLY = (NVML_THERMAL_TARGET_POWER_SUPPLY, 'GPU power supply temperature requires NvPhysicalGpuHandle.')
+    BOARD = (NVML_THERMAL_TARGET_BOARD, 'GPU board ambient temperature requires NvPhysicalGpuHandle.')
+    VCD_BOARD = (NVML_THERMAL_TARGET_VCD_BOARD, 'Visual Computing Device Board temperature requires NvVisualComputingDeviceHandle.')
+    VCD_INLET = (NVML_THERMAL_TARGET_VCD_INLET, 'Visual Computing Device Inlet temperature requires NvVisualComputingDeviceHandle.')
+    VCD_OUTLET = (NVML_THERMAL_TARGET_VCD_OUTLET, 'Visual Computing Device Outlet temperature requires NvVisualComputingDeviceHandle.')
     ALL = NVML_THERMAL_TARGET_ALL
     UNKNOWN = NVML_THERMAL_TARGET_UNKNOWN
 
-class ThermalController(_IntEnum):
-    """See `nvmlThermalController_t`."""
+class ThermalController(_FastEnum):
+    """
+    Represents the thermal sensor controllers
+
+    See `nvmlThermalController_t`.
+    """
     NONE = NVML_THERMAL_CONTROLLER_NONE
     GPU_INTERNAL = NVML_THERMAL_CONTROLLER_GPU_INTERNAL
     ADM1032 = NVML_THERMAL_CONTROLLER_ADM1032
@@ -204,34 +264,54 @@ class ThermalController(_IntEnum):
     ADT7473S = NVML_THERMAL_CONTROLLER_ADT7473S
     UNKNOWN = NVML_THERMAL_CONTROLLER_UNKNOWN
 
-class CoolerControl(_IntEnum):
-    """See `nvmlCoolerControl_t`."""
-    THERMAL_COOLER_SIGNAL_NONE = NVML_THERMAL_COOLER_SIGNAL_NONE
-    THERMAL_COOLER_SIGNAL_TOGGLE = NVML_THERMAL_COOLER_SIGNAL_TOGGLE
-    THERMAL_COOLER_SIGNAL_VARIABLE = NVML_THERMAL_COOLER_SIGNAL_VARIABLE
+class CoolerControl(_FastEnum):
+    """
+    Cooler control type
+
+    See `nvmlCoolerControl_t`.
+    """
+    THERMAL_COOLER_SIGNAL_NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
+    THERMAL_COOLER_SIGNAL_TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
+    THERMAL_COOLER_SIGNAL_VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
     THERMAL_COOLER_SIGNAL_COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
 
-class CoolerTarget(_IntEnum):
-    """See `nvmlCoolerTarget_t`."""
-    THERMAL_NONE = NVML_THERMAL_COOLER_TARGET_NONE
-    THERMAL_GPU = NVML_THERMAL_COOLER_TARGET_GPU
-    THERMAL_MEMORY = NVML_THERMAL_COOLER_TARGET_MEMORY
-    THERMAL_POWER_SUPPLY = NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY
-    THERMAL_GPU_RELATED = NVML_THERMAL_COOLER_TARGET_GPU_RELATED
+class CoolerTarget(_FastEnum):
+    """
+    Cooler's target
 
-class UUIDType(_IntEnum):
-    """See `nvmlUUIDType_t`."""
-    NONE = NVML_UUID_TYPE_NONE
-    ASCII = NVML_UUID_TYPE_ASCII
-    BINARY = NVML_UUID_TYPE_BINARY
+    See `nvmlCoolerTarget_t`.
+    """
+    THERMAL_NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
+    THERMAL_GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
+    THERMAL_MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
+    THERMAL_POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
+    THERMAL_GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
 
-class EnableState(_IntEnum):
-    """See `nvmlEnableState_t`."""
-    FEATURE_DISABLED = NVML_FEATURE_DISABLED
-    FEATURE_ENABLED = NVML_FEATURE_ENABLED
+class UUIDType(_FastEnum):
+    """
+    Enum to represent different UUID types
 
-class BrandType(_IntEnum):
-    """See `nvmlBrandType_t`."""
+    See `nvmlUUIDType_t`.
+    """
+    NONE = (NVML_UUID_TYPE_NONE, 'Undefined type.')
+    ASCII = (NVML_UUID_TYPE_ASCII, 'ASCII format type.')
+    BINARY = (NVML_UUID_TYPE_BINARY, 'Binary format type.')
+
+class EnableState(_FastEnum):
+    """
+    Generic enable/disable enum.
+
+    See `nvmlEnableState_t`.
+    """
+    FEATURE_DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
+    FEATURE_ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
+
+class BrandType(_FastEnum):
+    """
+    - The Brand of the GPU
+
+    See `nvmlBrandType_t`.
+    """
     BRAND_UNKNOWN = NVML_BRAND_UNKNOWN
     BRAND_QUADRO = NVML_BRAND_QUADRO
     BRAND_TESLA = NVML_BRAND_TESLA
@@ -252,8 +332,12 @@ class BrandType(_IntEnum):
     BRAND_TITAN_RTX = NVML_BRAND_TITAN_RTX
     BRAND_COUNT = NVML_BRAND_COUNT
 
-class TemperatureThresholds(_IntEnum):
-    """See `nvmlTemperatureThresholds_t`."""
+class TemperatureThresholds(_FastEnum):
+    """
+    Temperature thresholds.
+
+    See `nvmlTemperatureThresholds_t`.
+    """
     TEMPERATURE_THRESHOLD_SHUTDOWN = NVML_TEMPERATURE_THRESHOLD_SHUTDOWN
     TEMPERATURE_THRESHOLD_SLOWDOWN = NVML_TEMPERATURE_THRESHOLD_SLOWDOWN
     TEMPERATURE_THRESHOLD_MEM_MAX = NVML_TEMPERATURE_THRESHOLD_MEM_MAX
@@ -264,365 +348,514 @@ class TemperatureThresholds(_IntEnum):
     TEMPERATURE_THRESHOLD_GPS_CURR = NVML_TEMPERATURE_THRESHOLD_GPS_CURR
     TEMPERATURE_THRESHOLD_COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
 
-class TemperatureSensors(_IntEnum):
-    """See `nvmlTemperatureSensors_t`."""
-    TEMPERATURE_GPU = NVML_TEMPERATURE_GPU
+class TemperatureSensors(_FastEnum):
+    """
+    Temperature sensors.
+
+    See `nvmlTemperatureSensors_t`.
+    """
+    TEMPERATURE_GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
     TEMPERATURE_COUNT = NVML_TEMPERATURE_COUNT
 
-class ComputeMode(_IntEnum):
-    """See `nvmlComputeMode_t`."""
-    COMPUTEMODE_DEFAULT = NVML_COMPUTEMODE_DEFAULT
-    COMPUTEMODE_EXCLUSIVE_THREAD = NVML_COMPUTEMODE_EXCLUSIVE_THREAD
-    COMPUTEMODE_PROHIBITED = NVML_COMPUTEMODE_PROHIBITED
-    COMPUTEMODE_EXCLUSIVE_PROCESS = NVML_COMPUTEMODE_EXCLUSIVE_PROCESS
+class ComputeMode(_FastEnum):
+    """
+    Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA
+    4.0. Earlier CUDA versions supported a single exclusive mode, which is
+    equivalent to NVML_COMPUTEMODE_EXCLUSIVE_THREAD in CUDA 4.0 and beyond.
+
+    See `nvmlComputeMode_t`.
+    """
+    COMPUTEMODE_DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
+    COMPUTEMODE_EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
+    COMPUTEMODE_PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
+    COMPUTEMODE_EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
     COMPUTEMODE_COUNT = NVML_COMPUTEMODE_COUNT
 
-class MemoryErrorType(_IntEnum):
-    """See `nvmlMemoryErrorType_t`."""
-    CORRECTED = NVML_MEMORY_ERROR_TYPE_CORRECTED
-    UNCORRECTED = NVML_MEMORY_ERROR_TYPE_UNCORRECTED
-    COUNT = NVML_MEMORY_ERROR_TYPE_COUNT
+class MemoryErrorType(_FastEnum):
+    """
+    Memory error types
 
-class NvlinkVersion(_IntEnum):
-    """See `nvmlNvlinkVersion_t`."""
-    VERSION_INVALID = NVML_NVLINK_VERSION_INVALID
-    VERSION_1_0 = NVML_NVLINK_VERSION_1_0
-    VERSION_2_0 = NVML_NVLINK_VERSION_2_0
-    VERSION_2_2 = NVML_NVLINK_VERSION_2_2
-    VERSION_3_0 = NVML_NVLINK_VERSION_3_0
-    VERSION_3_1 = NVML_NVLINK_VERSION_3_1
-    VERSION_4_0 = NVML_NVLINK_VERSION_4_0
-    VERSION_5_0 = NVML_NVLINK_VERSION_5_0
+    See `nvmlMemoryErrorType_t`.
+    """
+    CORRECTED = (NVML_MEMORY_ERROR_TYPE_CORRECTED, 'A memory error that was corrected  For ECC errors, these are single bit errors For Texture memory, these are errors fixed by resend')
+    UNCORRECTED = (NVML_MEMORY_ERROR_TYPE_UNCORRECTED, 'A memory error that was not corrected  For ECC errors, these are double bit errors For Texture memory, these are errors where the resend fails')
+    COUNT = (NVML_MEMORY_ERROR_TYPE_COUNT, 'Count of memory error types.')
 
-class EccCounterType(_IntEnum):
-    """See `nvmlEccCounterType_t`."""
-    VOLATILE_ECC = NVML_VOLATILE_ECC
-    AGGREGATE_ECC = NVML_AGGREGATE_ECC
-    COUNT = NVML_ECC_COUNTER_TYPE_COUNT
+class NvlinkVersion(_FastEnum):
+    """
+    Represents Nvlink Version
 
-class ClockType(_IntEnum):
-    """See `nvmlClockType_t`."""
-    CLOCK_GRAPHICS = NVML_CLOCK_GRAPHICS
-    CLOCK_SM = NVML_CLOCK_SM
-    CLOCK_MEM = NVML_CLOCK_MEM
-    CLOCK_VIDEO = NVML_CLOCK_VIDEO
-    CLOCK_COUNT = NVML_CLOCK_COUNT
+    See `nvmlNvlinkVersion_t`.
+    """
+    VERSION_INVALID = (NVML_NVLINK_VERSION_INVALID, 'NVLink version is invalid.')
+    VERSION_1_0 = (NVML_NVLINK_VERSION_1_0, 'NVLink Version 1.0.')
+    VERSION_2_0 = (NVML_NVLINK_VERSION_2_0, 'NVLink Version 2.0.')
+    VERSION_2_2 = (NVML_NVLINK_VERSION_2_2, 'NVLink Version 2.2.')
+    VERSION_3_0 = (NVML_NVLINK_VERSION_3_0, 'NVLink Version 3.0.')
+    VERSION_3_1 = (NVML_NVLINK_VERSION_3_1, 'NVLink Version 3.1.')
+    VERSION_4_0 = (NVML_NVLINK_VERSION_4_0, 'NVLink Version 4.0.')
+    VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
 
-class ClockId(_IntEnum):
-    """See `nvmlClockId_t`."""
-    CURRENT = NVML_CLOCK_ID_CURRENT
-    APP_CLOCK_TARGET = NVML_CLOCK_ID_APP_CLOCK_TARGET
-    APP_CLOCK_DEFAULT = NVML_CLOCK_ID_APP_CLOCK_DEFAULT
-    CUSTOMER_BOOST_MAX = NVML_CLOCK_ID_CUSTOMER_BOOST_MAX
-    COUNT = NVML_CLOCK_ID_COUNT
+class EccCounterType(_FastEnum):
+    """
+    ECC counter types.  Note: Volatile counts are reset each time the
+    driver loads. On Windows this is once per boot. On Linux this can be
+    more frequent. On Linux the driver unloads when no active clients
+    exist. If persistence mode is enabled or there is always a driver
+    client active (e.g. X11), then Linux also sees per-boot behavior. If
+    not, volatile counts are reset each time a compute app is run.
 
-class DriverModel(_IntEnum):
-    """See `nvmlDriverModel_t`."""
-    DRIVER_WDDM = NVML_DRIVER_WDDM
-    DRIVER_WDM = NVML_DRIVER_WDM
-    DRIVER_MCDM = NVML_DRIVER_MCDM
+    See `nvmlEccCounterType_t`.
+    """
+    VOLATILE_ECC = (NVML_VOLATILE_ECC, 'Volatile counts are reset each time the driver loads.')
+    AGGREGATE_ECC = (NVML_AGGREGATE_ECC, 'Aggregate counts persist across reboots (i.e. for the lifetime of the device)')
+    COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
 
-class Pstates(_IntEnum):
-    """See `nvmlPstates_t`."""
-    PSTATE_0 = NVML_PSTATE_0
-    PSTATE_1 = NVML_PSTATE_1
-    PSTATE_2 = NVML_PSTATE_2
-    PSTATE_3 = NVML_PSTATE_3
-    PSTATE_4 = NVML_PSTATE_4
-    PSTATE_5 = NVML_PSTATE_5
-    PSTATE_6 = NVML_PSTATE_6
-    PSTATE_7 = NVML_PSTATE_7
-    PSTATE_8 = NVML_PSTATE_8
-    PSTATE_9 = NVML_PSTATE_9
-    PSTATE_10 = NVML_PSTATE_10
-    PSTATE_11 = NVML_PSTATE_11
-    PSTATE_12 = NVML_PSTATE_12
-    PSTATE_13 = NVML_PSTATE_13
-    PSTATE_14 = NVML_PSTATE_14
-    PSTATE_15 = NVML_PSTATE_15
-    PSTATE_UNKNOWN = NVML_PSTATE_UNKNOWN
+class ClockType(_FastEnum):
+    """
+    Clock types.  All speeds are in Mhz.
 
-class GpuOperationMode(_IntEnum):
-    """See `nvmlGpuOperationMode_t`."""
-    GOM_ALL_ON = NVML_GOM_ALL_ON
-    GOM_COMPUTE = NVML_GOM_COMPUTE
-    GOM_LOW_DP = NVML_GOM_LOW_DP
+    See `nvmlClockType_t`.
+    """
+    CLOCK_GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
+    CLOCK_SM = (NVML_CLOCK_SM, 'SM clock domain.')
+    CLOCK_MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
+    CLOCK_VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
+    CLOCK_COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
 
-class InforomObject(_IntEnum):
-    """See `nvmlInforomObject_t`."""
-    INFOROM_OEM = NVML_INFOROM_OEM
-    INFOROM_ECC = NVML_INFOROM_ECC
-    INFOROM_POWER = NVML_INFOROM_POWER
-    INFOROM_DEN = NVML_INFOROM_DEN
-    INFOROM_COUNT = NVML_INFOROM_COUNT
+class ClockId(_FastEnum):
+    """
+    Clock Ids. These are used in combination with nvmlClockType_t to
+    specify a single clock value.
 
-class Return(_IntEnum):
-    """See `nvmlReturn_t`."""
-    SUCCESS = NVML_SUCCESS
-    ERROR_UNINITIALIZED = NVML_ERROR_UNINITIALIZED
-    ERROR_INVALID_ARGUMENT = NVML_ERROR_INVALID_ARGUMENT
-    ERROR_NOT_SUPPORTED = NVML_ERROR_NOT_SUPPORTED
-    ERROR_NO_PERMISSION = NVML_ERROR_NO_PERMISSION
-    ERROR_ALREADY_INITIALIZED = NVML_ERROR_ALREADY_INITIALIZED
-    ERROR_NOT_FOUND = NVML_ERROR_NOT_FOUND
-    ERROR_INSUFFICIENT_SIZE = NVML_ERROR_INSUFFICIENT_SIZE
-    ERROR_INSUFFICIENT_POWER = NVML_ERROR_INSUFFICIENT_POWER
-    ERROR_DRIVER_NOT_LOADED = NVML_ERROR_DRIVER_NOT_LOADED
-    ERROR_TIMEOUT = NVML_ERROR_TIMEOUT
-    ERROR_IRQ_ISSUE = NVML_ERROR_IRQ_ISSUE
-    ERROR_LIBRARY_NOT_FOUND = NVML_ERROR_LIBRARY_NOT_FOUND
-    ERROR_FUNCTION_NOT_FOUND = NVML_ERROR_FUNCTION_NOT_FOUND
-    ERROR_CORRUPTED_INFOROM = NVML_ERROR_CORRUPTED_INFOROM
-    ERROR_GPU_IS_LOST = NVML_ERROR_GPU_IS_LOST
-    ERROR_RESET_REQUIRED = NVML_ERROR_RESET_REQUIRED
-    ERROR_OPERATING_SYSTEM = NVML_ERROR_OPERATING_SYSTEM
-    ERROR_LIB_RM_VERSION_MISMATCH = NVML_ERROR_LIB_RM_VERSION_MISMATCH
-    ERROR_IN_USE = NVML_ERROR_IN_USE
-    ERROR_MEMORY = NVML_ERROR_MEMORY
-    ERROR_NO_DATA = NVML_ERROR_NO_DATA
-    ERROR_VGPU_ECC_NOT_SUPPORTED = NVML_ERROR_VGPU_ECC_NOT_SUPPORTED
-    ERROR_INSUFFICIENT_RESOURCES = NVML_ERROR_INSUFFICIENT_RESOURCES
-    ERROR_FREQ_NOT_SUPPORTED = NVML_ERROR_FREQ_NOT_SUPPORTED
-    ERROR_ARGUMENT_VERSION_MISMATCH = NVML_ERROR_ARGUMENT_VERSION_MISMATCH
-    ERROR_DEPRECATED = NVML_ERROR_DEPRECATED
-    ERROR_NOT_READY = NVML_ERROR_NOT_READY
-    ERROR_GPU_NOT_FOUND = NVML_ERROR_GPU_NOT_FOUND
-    ERROR_INVALID_STATE = NVML_ERROR_INVALID_STATE
-    ERROR_RESET_TYPE_NOT_SUPPORTED = NVML_ERROR_RESET_TYPE_NOT_SUPPORTED
-    ERROR_UNKNOWN = NVML_ERROR_UNKNOWN
+    See `nvmlClockId_t`.
+    """
+    CURRENT = (NVML_CLOCK_ID_CURRENT, 'Current actual clock value.')
+    APP_CLOCK_TARGET = (NVML_CLOCK_ID_APP_CLOCK_TARGET, 'Target application clock. Deprecated, do not use.')
+    APP_CLOCK_DEFAULT = (NVML_CLOCK_ID_APP_CLOCK_DEFAULT, 'Default application clock target Deprecated, do not use.')
+    CUSTOMER_BOOST_MAX = (NVML_CLOCK_ID_CUSTOMER_BOOST_MAX, 'OEM-defined maximum clock rate.')
+    COUNT = (NVML_CLOCK_ID_COUNT, 'Count of Clock Ids.')
 
-class MemoryLocation(_IntEnum):
-    """See `nvmlMemoryLocation_t`."""
-    L1_CACHE = NVML_MEMORY_LOCATION_L1_CACHE
-    L2_CACHE = NVML_MEMORY_LOCATION_L2_CACHE
-    DRAM = NVML_MEMORY_LOCATION_DRAM
-    DEVICE_MEMORY = NVML_MEMORY_LOCATION_DEVICE_MEMORY
-    REGISTER_FILE = NVML_MEMORY_LOCATION_REGISTER_FILE
-    TEXTURE_MEMORY = NVML_MEMORY_LOCATION_TEXTURE_MEMORY
-    TEXTURE_SHM = NVML_MEMORY_LOCATION_TEXTURE_SHM
-    CBU = NVML_MEMORY_LOCATION_CBU
-    SRAM = NVML_MEMORY_LOCATION_SRAM
-    COUNT = NVML_MEMORY_LOCATION_COUNT
+class DriverModel(_FastEnum):
+    """
+    Driver models.  Windows only.
 
-class PageRetirementCause(_IntEnum):
-    """See `nvmlPageRetirementCause_t`."""
-    MULTIPLE_SINGLE_BIT_ECC_ERRORS = NVML_PAGE_RETIREMENT_CAUSE_MULTIPLE_SINGLE_BIT_ECC_ERRORS
-    DOUBLE_BIT_ECC_ERROR = NVML_PAGE_RETIREMENT_CAUSE_DOUBLE_BIT_ECC_ERROR
+    See `nvmlDriverModel_t`.
+    """
+    DRIVER_WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
+    DRIVER_WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
+    DRIVER_MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
+
+class Pstates(_FastEnum):
+    """
+    Allowed PStates.
+
+    See `nvmlPstates_t`.
+    """
+    PSTATE_0 = (NVML_PSTATE_0, 'Performance state 0 -- Maximum Performance.')
+    PSTATE_1 = (NVML_PSTATE_1, 'Performance state 1.')
+    PSTATE_2 = (NVML_PSTATE_2, 'Performance state 2.')
+    PSTATE_3 = (NVML_PSTATE_3, 'Performance state 3.')
+    PSTATE_4 = (NVML_PSTATE_4, 'Performance state 4.')
+    PSTATE_5 = (NVML_PSTATE_5, 'Performance state 5.')
+    PSTATE_6 = (NVML_PSTATE_6, 'Performance state 6.')
+    PSTATE_7 = (NVML_PSTATE_7, 'Performance state 7.')
+    PSTATE_8 = (NVML_PSTATE_8, 'Performance state 8.')
+    PSTATE_9 = (NVML_PSTATE_9, 'Performance state 9.')
+    PSTATE_10 = (NVML_PSTATE_10, 'Performance state 10.')
+    PSTATE_11 = (NVML_PSTATE_11, 'Performance state 11.')
+    PSTATE_12 = (NVML_PSTATE_12, 'Performance state 12.')
+    PSTATE_13 = (NVML_PSTATE_13, 'Performance state 13.')
+    PSTATE_14 = (NVML_PSTATE_14, 'Performance state 14.')
+    PSTATE_15 = (NVML_PSTATE_15, 'Performance state 15 -- Minimum Performance.')
+    PSTATE_UNKNOWN = (NVML_PSTATE_UNKNOWN, 'Unknown performance state.')
+
+class GpuOperationMode(_FastEnum):
+    """
+    GPU Operation Mode  GOM allows to reduce power usage and optimize GPU
+    throughput by disabling GPU features.  Each GOM is designed to meet
+    specific user needs.
+
+    See `nvmlGpuOperationMode_t`.
+    """
+    GOM_ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
+    GOM_COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
+    GOM_LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
+
+class InforomObject(_FastEnum):
+    """
+    Available infoROM objects.
+
+    See `nvmlInforomObject_t`.
+    """
+    INFOROM_OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
+    INFOROM_ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
+    INFOROM_POWER = (NVML_INFOROM_POWER, 'The power management object.')
+    INFOROM_DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
+    INFOROM_COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
+
+class Return(_FastEnum):
+    """
+    Return values for NVML API calls.
+
+    See `nvmlReturn_t`.
+    """
+    SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
+    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
+    ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
+    ERROR_NOT_SUPPORTED = (NVML_ERROR_NOT_SUPPORTED, 'The requested operation is not available on target device.')
+    ERROR_NO_PERMISSION = (NVML_ERROR_NO_PERMISSION, 'The current user does not have permission for operation.')
+    ERROR_ALREADY_INITIALIZED = (NVML_ERROR_ALREADY_INITIALIZED, 'Deprecated: Multiple initializations are now allowed through ref counting.')
+    ERROR_NOT_FOUND = (NVML_ERROR_NOT_FOUND, 'A query to find an object was unsuccessful.')
+    ERROR_INSUFFICIENT_SIZE = (NVML_ERROR_INSUFFICIENT_SIZE, 'An input argument is not large enough.')
+    ERROR_INSUFFICIENT_POWER = (NVML_ERROR_INSUFFICIENT_POWER, "A device's external power cables are not properly attached.")
+    ERROR_DRIVER_NOT_LOADED = (NVML_ERROR_DRIVER_NOT_LOADED, 'NVIDIA driver is not loaded.')
+    ERROR_TIMEOUT = (NVML_ERROR_TIMEOUT, 'User provided timeout passed.')
+    ERROR_IRQ_ISSUE = (NVML_ERROR_IRQ_ISSUE, 'NVIDIA Kernel detected an interrupt issue with a GPU.')
+    ERROR_LIBRARY_NOT_FOUND = (NVML_ERROR_LIBRARY_NOT_FOUND, "NVML Shared Library couldn't be found or loaded.")
+    ERROR_FUNCTION_NOT_FOUND = (NVML_ERROR_FUNCTION_NOT_FOUND, "Local version of NVML doesn't implement this function.")
+    ERROR_CORRUPTED_INFOROM = (NVML_ERROR_CORRUPTED_INFOROM, 'infoROM is corrupted')
+    ERROR_GPU_IS_LOST = (NVML_ERROR_GPU_IS_LOST, 'The GPU has fallen off the bus or has otherwise become inaccessible.')
+    ERROR_RESET_REQUIRED = (NVML_ERROR_RESET_REQUIRED, 'The GPU requires a reset before it can be used again.')
+    ERROR_OPERATING_SYSTEM = (NVML_ERROR_OPERATING_SYSTEM, 'The GPU control device has been blocked by the operating system/cgroups.')
+    ERROR_LIB_RM_VERSION_MISMATCH = (NVML_ERROR_LIB_RM_VERSION_MISMATCH, 'RM detects a driver/library version mismatch.')
+    ERROR_IN_USE = (NVML_ERROR_IN_USE, 'An operation cannot be performed because the GPU is currently in use.')
+    ERROR_MEMORY = (NVML_ERROR_MEMORY, 'Insufficient memory.')
+    ERROR_NO_DATA = (NVML_ERROR_NO_DATA, 'No data.')
+    ERROR_VGPU_ECC_NOT_SUPPORTED = (NVML_ERROR_VGPU_ECC_NOT_SUPPORTED, 'The requested vgpu operation is not available on target device, becasue ECC is enabled.')
+    ERROR_INSUFFICIENT_RESOURCES = (NVML_ERROR_INSUFFICIENT_RESOURCES, 'Ran out of critical resources, other than memory.')
+    ERROR_FREQ_NOT_SUPPORTED = (NVML_ERROR_FREQ_NOT_SUPPORTED, 'Ran out of critical resources, other than memory.')
+    ERROR_ARGUMENT_VERSION_MISMATCH = (NVML_ERROR_ARGUMENT_VERSION_MISMATCH, 'The provided version is invalid/unsupported.')
+    ERROR_DEPRECATED = (NVML_ERROR_DEPRECATED, 'The requested functionality has been deprecated.')
+    ERROR_NOT_READY = (NVML_ERROR_NOT_READY, 'The system is not ready for the request.')
+    ERROR_GPU_NOT_FOUND = (NVML_ERROR_GPU_NOT_FOUND, 'No GPUs were found.')
+    ERROR_INVALID_STATE = (NVML_ERROR_INVALID_STATE, 'Resource not in correct state to perform requested operation.')
+    ERROR_RESET_TYPE_NOT_SUPPORTED = (NVML_ERROR_RESET_TYPE_NOT_SUPPORTED, 'Reset not supported for given device/parameters.')
+    ERROR_UNKNOWN = (NVML_ERROR_UNKNOWN, 'An internal driver error occurred.')
+
+class MemoryLocation(_FastEnum):
+    """
+    See `nvmlDeviceGetMemoryErrorCounter`
+
+    See `nvmlMemoryLocation_t`.
+    """
+    L1_CACHE = (NVML_MEMORY_LOCATION_L1_CACHE, 'GPU L1 Cache.')
+    L2_CACHE = (NVML_MEMORY_LOCATION_L2_CACHE, 'GPU L2 Cache.')
+    DRAM = (NVML_MEMORY_LOCATION_DRAM, 'Turing+ DRAM.')
+    DEVICE_MEMORY = (NVML_MEMORY_LOCATION_DEVICE_MEMORY, 'GPU Device Memory.')
+    REGISTER_FILE = (NVML_MEMORY_LOCATION_REGISTER_FILE, 'GPU Register File.')
+    TEXTURE_MEMORY = (NVML_MEMORY_LOCATION_TEXTURE_MEMORY, 'GPU Texture Memory.')
+    TEXTURE_SHM = (NVML_MEMORY_LOCATION_TEXTURE_SHM, 'Shared memory.')
+    CBU = (NVML_MEMORY_LOCATION_CBU, 'CBU.')
+    SRAM = (NVML_MEMORY_LOCATION_SRAM, 'Turing+ SRAM.')
+    COUNT = (NVML_MEMORY_LOCATION_COUNT, 'This counts the number of memory locations the driver knows about.')
+
+class PageRetirementCause(_FastEnum):
+    """
+    Causes for page retirement
+
+    See `nvmlPageRetirementCause_t`.
+    """
+    MULTIPLE_SINGLE_BIT_ECC_ERRORS = (NVML_PAGE_RETIREMENT_CAUSE_MULTIPLE_SINGLE_BIT_ECC_ERRORS, 'Page was retired due to multiple single bit ECC error.')
+    DOUBLE_BIT_ECC_ERROR = (NVML_PAGE_RETIREMENT_CAUSE_DOUBLE_BIT_ECC_ERROR, 'Page was retired due to double bit ECC error.')
     COUNT = NVML_PAGE_RETIREMENT_CAUSE_COUNT
 
-class RestrictedAPI(_IntEnum):
-    """See `nvmlRestrictedAPI_t`."""
-    SET_APPLICATION_CLOCKS = NVML_RESTRICTED_API_SET_APPLICATION_CLOCKS
-    SET_AUTO_BOOSTED_CLOCKS = NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS
+class RestrictedAPI(_FastEnum):
+    """
+    API types that allow changes to default permission restrictions
+
+    See `nvmlRestrictedAPI_t`.
+    """
+    SET_APPLICATION_CLOCKS = (NVML_RESTRICTED_API_SET_APPLICATION_CLOCKS, 'APIs that change application clocks, see nvmlDeviceSetApplicationsClocks and see nvmlDeviceResetApplicationsClocks. Deprecated, keeping definition for backward compatibility.')
+    SET_AUTO_BOOSTED_CLOCKS = (NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS, 'APIs that enable/disable Auto Boosted clocks see nvmlDeviceSetAutoBoostedClocksEnabled')
     COUNT = NVML_RESTRICTED_API_COUNT
 
-class GpuUtilizationDomainId(_IntEnum):
-    """See `nvmlGpuUtilizationDomainId_t`."""
-    GPU_UTILIZATION_DOMAIN_GPU = NVML_GPU_UTILIZATION_DOMAIN_GPU
-    GPU_UTILIZATION_DOMAIN_FB = NVML_GPU_UTILIZATION_DOMAIN_FB
-    GPU_UTILIZATION_DOMAIN_VID = NVML_GPU_UTILIZATION_DOMAIN_VID
-    GPU_UTILIZATION_DOMAIN_BUS = NVML_GPU_UTILIZATION_DOMAIN_BUS
+class GpuUtilizationDomainId(_FastEnum):
+    """
+    Represents the GPU utilization domains
 
-class GpuVirtualizationMode(_IntEnum):
-    """See `nvmlGpuVirtualizationMode_t`."""
-    NONE = NVML_GPU_VIRTUALIZATION_MODE_NONE
-    PASSTHROUGH = NVML_GPU_VIRTUALIZATION_MODE_PASSTHROUGH
-    VGPU = NVML_GPU_VIRTUALIZATION_MODE_VGPU
-    HOST_VGPU = NVML_GPU_VIRTUALIZATION_MODE_HOST_VGPU
-    HOST_VSGA = NVML_GPU_VIRTUALIZATION_MODE_HOST_VSGA
+    See `nvmlGpuUtilizationDomainId_t`.
+    """
+    GPU_UTILIZATION_DOMAIN_GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
+    GPU_UTILIZATION_DOMAIN_FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
+    GPU_UTILIZATION_DOMAIN_VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
+    GPU_UTILIZATION_DOMAIN_BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
 
-class HostVgpuMode(_IntEnum):
-    """See `nvmlHostVgpuMode_t`."""
-    NON_SRIOV = NVML_HOST_VGPU_MODE_NON_SRIOV
-    SRIOV = NVML_HOST_VGPU_MODE_SRIOV
+class GpuVirtualizationMode(_FastEnum):
+    """
+    GPU virtualization mode types.
 
-class VgpuVmIdType(_IntEnum):
-    """See `nvmlVgpuVmIdType_t`."""
-    VGPU_VM_ID_DOMAIN_ID = NVML_VGPU_VM_ID_DOMAIN_ID
-    VGPU_VM_ID_UUID = NVML_VGPU_VM_ID_UUID
+    See `nvmlGpuVirtualizationMode_t`.
+    """
+    NONE = (NVML_GPU_VIRTUALIZATION_MODE_NONE, 'Represents Bare Metal GPU.')
+    PASSTHROUGH = (NVML_GPU_VIRTUALIZATION_MODE_PASSTHROUGH, 'Device is associated with GPU-Passthorugh.')
+    VGPU = (NVML_GPU_VIRTUALIZATION_MODE_VGPU, 'Device is associated with vGPU inside virtual machine.')
+    HOST_VGPU = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VGPU, 'Device is associated with VGX hypervisor in vGPU mode.')
+    HOST_VSGA = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VSGA, 'Device is associated with VGX hypervisor in vSGA mode.')
 
-class VgpuGuestInfoState(_IntEnum):
-    """See `nvmlVgpuGuestInfoState_t`."""
-    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED
-    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED
+class HostVgpuMode(_FastEnum):
+    """
+    Host vGPU modes
 
-class GridLicenseFeatureCode(_IntEnum):
-    """See `nvmlGridLicenseFeatureCode_t`."""
-    UNKNOWN = NVML_GRID_LICENSE_FEATURE_CODE_UNKNOWN
-    VGPU = NVML_GRID_LICENSE_FEATURE_CODE_VGPU
-    NVIDIA_RTX = NVML_GRID_LICENSE_FEATURE_CODE_NVIDIA_RTX
-    VWORKSTATION = NVML_GRID_LICENSE_FEATURE_CODE_VWORKSTATION
-    GAMING = NVML_GRID_LICENSE_FEATURE_CODE_GAMING
-    COMPUTE = NVML_GRID_LICENSE_FEATURE_CODE_COMPUTE
+    See `nvmlHostVgpuMode_t`.
+    """
+    NON_SRIOV = (NVML_HOST_VGPU_MODE_NON_SRIOV, 'Non SR-IOV mode.')
+    SRIOV = (NVML_HOST_VGPU_MODE_SRIOV, 'SR-IOV mode.')
 
-class VgpuCapability(_IntEnum):
-    """See `nvmlVgpuCapability_t`."""
-    VGPU_CAP_NVLINK_P2P = NVML_VGPU_CAP_NVLINK_P2P
-    VGPU_CAP_GPUDIRECT = NVML_VGPU_CAP_GPUDIRECT
-    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE
-    VGPU_CAP_EXCLUSIVE_TYPE = NVML_VGPU_CAP_EXCLUSIVE_TYPE
-    VGPU_CAP_EXCLUSIVE_SIZE = NVML_VGPU_CAP_EXCLUSIVE_SIZE
+class VgpuVmIdType(_FastEnum):
+    """
+    Types of VM identifiers
+
+    See `nvmlVgpuVmIdType_t`.
+    """
+    VGPU_VM_ID_DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
+    VGPU_VM_ID_UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
+
+class VgpuGuestInfoState(_FastEnum):
+    """
+    vGPU GUEST info state
+
+    See `nvmlVgpuGuestInfoState_t`.
+    """
+    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
+    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
+
+class GridLicenseFeatureCode(_FastEnum):
+    """
+    vGPU software licensable features
+
+    See `nvmlGridLicenseFeatureCode_t`.
+    """
+    UNKNOWN = (NVML_GRID_LICENSE_FEATURE_CODE_UNKNOWN, 'Unknown.')
+    VGPU = (NVML_GRID_LICENSE_FEATURE_CODE_VGPU, 'Virtual GPU.')
+    NVIDIA_RTX = (NVML_GRID_LICENSE_FEATURE_CODE_NVIDIA_RTX, 'Nvidia RTX.')
+    VWORKSTATION = (NVML_GRID_LICENSE_FEATURE_CODE_VWORKSTATION, 'Deprecated, do not use.')
+    GAMING = (NVML_GRID_LICENSE_FEATURE_CODE_GAMING, 'Gaming.')
+    COMPUTE = (NVML_GRID_LICENSE_FEATURE_CODE_COMPUTE, 'Compute.')
+
+class VgpuCapability(_FastEnum):
+    """
+    vGPU queryable capabilities
+
+    See `nvmlVgpuCapability_t`.
+    """
+    VGPU_CAP_NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
+    VGPU_CAP_GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
+    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
+    VGPU_CAP_EXCLUSIVE_TYPE = (NVML_VGPU_CAP_EXCLUSIVE_TYPE, 'vGPU profile cannot run on a GPU alongside other profiles of different type')
+    VGPU_CAP_EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
     VGPU_CAP_COUNT = NVML_VGPU_CAP_COUNT
 
-class VgpuDriverCapability(_IntEnum):
-    """See `nvmlVgpuDriverCapability_t`."""
-    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU
-    VGPU_DRIVER_CAP_WARM_UPDATE = NVML_VGPU_DRIVER_CAP_WARM_UPDATE
+class VgpuDriverCapability(_FastEnum):
+    """
+    vGPU driver queryable capabilities
+
+    See `nvmlVgpuDriverCapability_t`.
+    """
+    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
+    VGPU_DRIVER_CAP_WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
     VGPU_DRIVER_CAP_COUNT = NVML_VGPU_DRIVER_CAP_COUNT
 
-class DeviceVgpuCapability(_IntEnum):
-    """See `nvmlDeviceVgpuCapability_t`."""
-    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES
-    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW
-    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW
-    DEVICE_VGPU_CAP_DEVICE_STREAMING = NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING
-    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU
-    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU
-    DEVICE_VGPU_CAP_WARM_UPDATE = NVML_DEVICE_VGPU_CAP_WARM_UPDATE
-    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED
+class DeviceVgpuCapability(_FastEnum):
+    """
+    Device vGPU queryable capabilities
+
+    See `nvmlDeviceVgpuCapability_t`.
+    """
+    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
+    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW, "Query the GPU's read_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW, "Query the GPU's write_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_DEVICE_STREAMING = (NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING, 'Query whether the vGPU profiles on the GPU supports migration data streaming.')
+    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = (NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU, 'Set/Get support for mini-quarter vGPU profiles.')
+    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = (NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU, 'Set/Get support for compute media engine vGPU profiles.')
+    DEVICE_VGPU_CAP_WARM_UPDATE = (NVML_DEVICE_VGPU_CAP_WARM_UPDATE, 'Query whether the GPU supports FSR and warm update.')
+    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = (NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS, 'Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED, 'Query whether the GPU supports timesliced vGPU on MIG.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
     DEVICE_VGPU_CAP_COUNT = NVML_DEVICE_VGPU_CAP_COUNT
 
-class DeviceGpuRecoveryAction(_IntEnum):
-    """See `nvmlDeviceGpuRecoveryAction_t`."""
+class DeviceGpuRecoveryAction(_FastEnum):
+    """
+    Enum describing the GPU Recovery Action
+
+    See `nvmlDeviceGpuRecoveryAction_t`.
+    """
     GPU_RECOVERY_ACTION_NONE = NVML_GPU_RECOVERY_ACTION_NONE
     GPU_RECOVERY_ACTION_GPU_RESET = NVML_GPU_RECOVERY_ACTION_GPU_RESET
     GPU_RECOVERY_ACTION_NODE_REBOOT = NVML_GPU_RECOVERY_ACTION_NODE_REBOOT
     GPU_RECOVERY_ACTION_DRAIN_P2P = NVML_GPU_RECOVERY_ACTION_DRAIN_P2P
     GPU_RECOVERY_ACTION_DRAIN_AND_RESET = NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET
 
-class FanState(_IntEnum):
-    """See `nvmlFanState_t`."""
-    FAN_NORMAL = NVML_FAN_NORMAL
-    FAN_FAILED = NVML_FAN_FAILED
+class FanState(_FastEnum):
+    """
+    Fan state enum.
 
-class LedColor(_IntEnum):
-    """See `nvmlLedColor_t`."""
-    GREEN = NVML_LED_COLOR_GREEN
-    AMBER = NVML_LED_COLOR_AMBER
+    See `nvmlFanState_t`.
+    """
+    FAN_NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
+    FAN_FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
 
-class EncoderType(_IntEnum):
-    """See `nvmlEncoderType_t`."""
-    ENCODER_QUERY_H264 = NVML_ENCODER_QUERY_H264
-    ENCODER_QUERY_HEVC = NVML_ENCODER_QUERY_HEVC
-    ENCODER_QUERY_AV1 = NVML_ENCODER_QUERY_AV1
-    ENCODER_QUERY_UNKNOWN = NVML_ENCODER_QUERY_UNKNOWN
+class LedColor(_FastEnum):
+    """
+    Led color enum.
 
-class FBCSessionType(_IntEnum):
-    """See `nvmlFBCSessionType_t`."""
-    UNKNOWN = NVML_FBC_SESSION_TYPE_UNKNOWN
-    TOSYS = NVML_FBC_SESSION_TYPE_TOSYS
-    CUDA = NVML_FBC_SESSION_TYPE_CUDA
-    VID = NVML_FBC_SESSION_TYPE_VID
-    HWENC = NVML_FBC_SESSION_TYPE_HWENC
+    See `nvmlLedColor_t`.
+    """
+    GREEN = (NVML_LED_COLOR_GREEN, 'GREEN, indicates good health.')
+    AMBER = (NVML_LED_COLOR_AMBER, 'AMBER, indicates problem.')
 
-class DetachGpuState(_IntEnum):
-    """See `nvmlDetachGpuState_t`."""
+class EncoderType(_FastEnum):
+    """
+    Represents type of encoder for capacity can be queried
+
+    See `nvmlEncoderType_t`.
+    """
+    ENCODER_QUERY_H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
+    ENCODER_QUERY_HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
+    ENCODER_QUERY_AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
+    ENCODER_QUERY_UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
+
+class FBCSessionType(_FastEnum):
+    """
+    Represents frame buffer capture session type
+
+    See `nvmlFBCSessionType_t`.
+    """
+    UNKNOWN = (NVML_FBC_SESSION_TYPE_UNKNOWN, 'Unknown.')
+    TOSYS = (NVML_FBC_SESSION_TYPE_TOSYS, 'ToSys.')
+    CUDA = (NVML_FBC_SESSION_TYPE_CUDA, 'Cuda.')
+    VID = (NVML_FBC_SESSION_TYPE_VID, 'Vid.')
+    HWENC = (NVML_FBC_SESSION_TYPE_HWENC, 'HEnc.')
+
+class DetachGpuState(_FastEnum):
+    """
+    Is the GPU device to be removed from the kernel by
+    nvmlDeviceRemoveGpu()
+
+    See `nvmlDetachGpuState_t`.
+    """
     DETACH_GPU_KEEP = NVML_DETACH_GPU_KEEP
     DETACH_GPU_REMOVE = NVML_DETACH_GPU_REMOVE
 
-class PcieLinkState(_IntEnum):
-    """See `nvmlPcieLinkState_t`."""
+class PcieLinkState(_FastEnum):
+    """
+    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+
+    See `nvmlPcieLinkState_t`.
+    """
     PCIE_LINK_KEEP = NVML_PCIE_LINK_KEEP
     PCIE_LINK_SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
 
-class ClockLimitId(_IntEnum):
-    """See `nvmlClockLimitId_t`."""
+class ClockLimitId(_FastEnum):
+    """
+    See `nvmlClockLimitId_t`.
+    """
     RANGE_START = NVML_CLOCK_LIMIT_ID_RANGE_START
     TDP = NVML_CLOCK_LIMIT_ID_TDP
     UNLIMITED = NVML_CLOCK_LIMIT_ID_UNLIMITED
 
-class VgpuVmCompatibility(_IntEnum):
-    """See `nvmlVgpuVmCompatibility_t`."""
-    NONE = NVML_VGPU_VM_COMPATIBILITY_NONE
-    COLD = NVML_VGPU_VM_COMPATIBILITY_COLD
-    HIBERNATE = NVML_VGPU_VM_COMPATIBILITY_HIBERNATE
-    SLEEP = NVML_VGPU_VM_COMPATIBILITY_SLEEP
-    LIVE = NVML_VGPU_VM_COMPATIBILITY_LIVE
+class VgpuVmCompatibility(_FastEnum):
+    """
+    vGPU VM compatibility codes
 
-class VgpuPgpuCompatibilityLimitCode(_IntEnum):
-    """See `nvmlVgpuPgpuCompatibilityLimitCode_t`."""
-    VGPU_COMPATIBILITY_LIMIT_NONE = NVML_VGPU_COMPATIBILITY_LIMIT_NONE
-    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER
-    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER
-    VGPU_COMPATIBILITY_LIMIT_GPU = NVML_VGPU_COMPATIBILITY_LIMIT_GPU
-    VGPU_COMPATIBILITY_LIMIT_OTHER = NVML_VGPU_COMPATIBILITY_LIMIT_OTHER
+    See `nvmlVgpuVmCompatibility_t`.
+    """
+    NONE = (NVML_VGPU_VM_COMPATIBILITY_NONE, 'vGPU is not runnable')
+    COLD = (NVML_VGPU_VM_COMPATIBILITY_COLD, 'vGPU is runnable from a cold / powered-off state (ACPI S5)')
+    HIBERNATE = (NVML_VGPU_VM_COMPATIBILITY_HIBERNATE, 'vGPU is runnable from a hibernated state (ACPI S4)')
+    SLEEP = (NVML_VGPU_VM_COMPATIBILITY_SLEEP, 'vGPU is runnable from a sleeped state (ACPI S3)')
+    LIVE = (NVML_VGPU_VM_COMPATIBILITY_LIVE, 'vGPU is runnable from a live/paused (ACPI S0)')
 
-class GpmMetricId(_IntEnum):
-    """See `nvmlGpmMetricId_t`."""
-    GPM_METRIC_GRAPHICS_UTIL = NVML_GPM_METRIC_GRAPHICS_UTIL
-    GPM_METRIC_SM_UTIL = NVML_GPM_METRIC_SM_UTIL
-    GPM_METRIC_SM_OCCUPANCY = NVML_GPM_METRIC_SM_OCCUPANCY
-    GPM_METRIC_INTEGER_UTIL = NVML_GPM_METRIC_INTEGER_UTIL
-    GPM_METRIC_ANY_TENSOR_UTIL = NVML_GPM_METRIC_ANY_TENSOR_UTIL
-    GPM_METRIC_DFMA_TENSOR_UTIL = NVML_GPM_METRIC_DFMA_TENSOR_UTIL
-    GPM_METRIC_HMMA_TENSOR_UTIL = NVML_GPM_METRIC_HMMA_TENSOR_UTIL
-    GPM_METRIC_IMMA_TENSOR_UTIL = NVML_GPM_METRIC_IMMA_TENSOR_UTIL
-    GPM_METRIC_DRAM_BW_UTIL = NVML_GPM_METRIC_DRAM_BW_UTIL
-    GPM_METRIC_FP64_UTIL = NVML_GPM_METRIC_FP64_UTIL
-    GPM_METRIC_FP32_UTIL = NVML_GPM_METRIC_FP32_UTIL
-    GPM_METRIC_FP16_UTIL = NVML_GPM_METRIC_FP16_UTIL
-    GPM_METRIC_PCIE_TX_PER_SEC = NVML_GPM_METRIC_PCIE_TX_PER_SEC
-    GPM_METRIC_PCIE_RX_PER_SEC = NVML_GPM_METRIC_PCIE_RX_PER_SEC
-    GPM_METRIC_NVDEC_0_UTIL = NVML_GPM_METRIC_NVDEC_0_UTIL
-    GPM_METRIC_NVDEC_1_UTIL = NVML_GPM_METRIC_NVDEC_1_UTIL
-    GPM_METRIC_NVDEC_2_UTIL = NVML_GPM_METRIC_NVDEC_2_UTIL
-    GPM_METRIC_NVDEC_3_UTIL = NVML_GPM_METRIC_NVDEC_3_UTIL
-    GPM_METRIC_NVDEC_4_UTIL = NVML_GPM_METRIC_NVDEC_4_UTIL
-    GPM_METRIC_NVDEC_5_UTIL = NVML_GPM_METRIC_NVDEC_5_UTIL
-    GPM_METRIC_NVDEC_6_UTIL = NVML_GPM_METRIC_NVDEC_6_UTIL
-    GPM_METRIC_NVDEC_7_UTIL = NVML_GPM_METRIC_NVDEC_7_UTIL
-    GPM_METRIC_NVJPG_0_UTIL = NVML_GPM_METRIC_NVJPG_0_UTIL
-    GPM_METRIC_NVJPG_1_UTIL = NVML_GPM_METRIC_NVJPG_1_UTIL
-    GPM_METRIC_NVJPG_2_UTIL = NVML_GPM_METRIC_NVJPG_2_UTIL
-    GPM_METRIC_NVJPG_3_UTIL = NVML_GPM_METRIC_NVJPG_3_UTIL
-    GPM_METRIC_NVJPG_4_UTIL = NVML_GPM_METRIC_NVJPG_4_UTIL
-    GPM_METRIC_NVJPG_5_UTIL = NVML_GPM_METRIC_NVJPG_5_UTIL
-    GPM_METRIC_NVJPG_6_UTIL = NVML_GPM_METRIC_NVJPG_6_UTIL
-    GPM_METRIC_NVJPG_7_UTIL = NVML_GPM_METRIC_NVJPG_7_UTIL
-    GPM_METRIC_NVOFA_0_UTIL = NVML_GPM_METRIC_NVOFA_0_UTIL
-    GPM_METRIC_NVOFA_1_UTIL = NVML_GPM_METRIC_NVOFA_1_UTIL
-    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC
-    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC
-    GPM_METRIC_NVLINK_L0_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC
-    GPM_METRIC_NVLINK_L0_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC
-    GPM_METRIC_NVLINK_L1_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC
-    GPM_METRIC_NVLINK_L1_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC
-    GPM_METRIC_NVLINK_L2_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC
-    GPM_METRIC_NVLINK_L2_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC
-    GPM_METRIC_NVLINK_L3_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC
-    GPM_METRIC_NVLINK_L3_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC
-    GPM_METRIC_NVLINK_L4_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC
-    GPM_METRIC_NVLINK_L4_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC
-    GPM_METRIC_NVLINK_L5_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC
-    GPM_METRIC_NVLINK_L5_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC
-    GPM_METRIC_NVLINK_L6_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC
-    GPM_METRIC_NVLINK_L6_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC
-    GPM_METRIC_NVLINK_L7_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC
-    GPM_METRIC_NVLINK_L7_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC
-    GPM_METRIC_NVLINK_L8_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC
-    GPM_METRIC_NVLINK_L8_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC
-    GPM_METRIC_NVLINK_L9_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC
-    GPM_METRIC_NVLINK_L9_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC
-    GPM_METRIC_NVLINK_L10_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC
-    GPM_METRIC_NVLINK_L10_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC
-    GPM_METRIC_NVLINK_L11_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC
-    GPM_METRIC_NVLINK_L11_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC
-    GPM_METRIC_NVLINK_L12_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC
-    GPM_METRIC_NVLINK_L12_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC
-    GPM_METRIC_NVLINK_L13_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC
-    GPM_METRIC_NVLINK_L13_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC
-    GPM_METRIC_NVLINK_L14_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC
-    GPM_METRIC_NVLINK_L14_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC
-    GPM_METRIC_NVLINK_L15_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC
-    GPM_METRIC_NVLINK_L15_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC
-    GPM_METRIC_NVLINK_L16_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC
-    GPM_METRIC_NVLINK_L16_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC
-    GPM_METRIC_NVLINK_L17_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC
-    GPM_METRIC_NVLINK_L17_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC
+class VgpuPgpuCompatibilityLimitCode(_FastEnum):
+    """
+    vGPU-pGPU compatibility limit codes
+
+    See `nvmlVgpuPgpuCompatibilityLimitCode_t`.
+    """
+    VGPU_COMPATIBILITY_LIMIT_NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
+    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
+    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
+    VGPU_COMPATIBILITY_LIMIT_GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
+    VGPU_COMPATIBILITY_LIMIT_OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
+
+class GpmMetricId(_FastEnum):
+    """
+    GPM Metric Identifiers
+
+    See `nvmlGpmMetricId_t`.
+    """
+    GPM_METRIC_GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
+    GPM_METRIC_SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
+    GPM_METRIC_SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
+    GPM_METRIC_INTEGER_UTIL = (NVML_GPM_METRIC_INTEGER_UTIL, "Percentage of time the GPU's SMs were doing integer operations. 0.0 - 100.0.")
+    GPM_METRIC_ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
+    GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
+    GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
+    GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
+    GPM_METRIC_PCIE_TX_PER_SEC = (NVML_GPM_METRIC_PCIE_TX_PER_SEC, 'PCIe traffic from this GPU in MiB/sec.')
+    GPM_METRIC_PCIE_RX_PER_SEC = (NVML_GPM_METRIC_PCIE_RX_PER_SEC, 'PCIe traffic to this GPU in MiB/sec.')
+    GPM_METRIC_NVDEC_0_UTIL = (NVML_GPM_METRIC_NVDEC_0_UTIL, 'Percent utilization of NVDEC 0. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_1_UTIL = (NVML_GPM_METRIC_NVDEC_1_UTIL, 'Percent utilization of NVDEC 1. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_2_UTIL = (NVML_GPM_METRIC_NVDEC_2_UTIL, 'Percent utilization of NVDEC 2. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_3_UTIL = (NVML_GPM_METRIC_NVDEC_3_UTIL, 'Percent utilization of NVDEC 3. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_4_UTIL = (NVML_GPM_METRIC_NVDEC_4_UTIL, 'Percent utilization of NVDEC 4. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_5_UTIL = (NVML_GPM_METRIC_NVDEC_5_UTIL, 'Percent utilization of NVDEC 5. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_6_UTIL = (NVML_GPM_METRIC_NVDEC_6_UTIL, 'Percent utilization of NVDEC 6. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_7_UTIL = (NVML_GPM_METRIC_NVDEC_7_UTIL, 'Percent utilization of NVDEC 7. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_0_UTIL = (NVML_GPM_METRIC_NVJPG_0_UTIL, 'Percent utilization of NVJPG 0. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_1_UTIL = (NVML_GPM_METRIC_NVJPG_1_UTIL, 'Percent utilization of NVJPG 1. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_2_UTIL = (NVML_GPM_METRIC_NVJPG_2_UTIL, 'Percent utilization of NVJPG 2. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_3_UTIL = (NVML_GPM_METRIC_NVJPG_3_UTIL, 'Percent utilization of NVJPG 3. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_4_UTIL = (NVML_GPM_METRIC_NVJPG_4_UTIL, 'Percent utilization of NVJPG 4. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_5_UTIL = (NVML_GPM_METRIC_NVJPG_5_UTIL, 'Percent utilization of NVJPG 5. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_6_UTIL = (NVML_GPM_METRIC_NVJPG_6_UTIL, 'Percent utilization of NVJPG 6. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_7_UTIL = (NVML_GPM_METRIC_NVJPG_7_UTIL, 'Percent utilization of NVJPG 7. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_0_UTIL = (NVML_GPM_METRIC_NVOFA_0_UTIL, 'Percent utilization of NVOFA 0. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_1_UTIL = (NVML_GPM_METRIC_NVOFA_1_UTIL, 'Percent utilization of NVOFA 1. 0.0 - 100.0.')
+    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC, 'NvLink read bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC, 'NvLink write bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC, 'NvLink read bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC, 'NvLink write bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC, 'NvLink read bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC, 'NvLink write bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC, 'NvLink read bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC, 'NvLink write bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC, 'NvLink read bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC, 'NvLink write bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC, 'NvLink read bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC, 'NvLink write bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC, 'NvLink read bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC, 'NvLink write bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC, 'NvLink read bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC, 'NvLink write bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC, 'NvLink read bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC, 'NvLink write bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC, 'NvLink read bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC, 'NvLink write bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC, 'NvLink read bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC, 'NvLink write bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC, 'NvLink read bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC, 'NvLink write bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC, 'NvLink read bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC, 'NvLink write bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC, 'NvLink read bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC, 'NvLink write bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC, 'NvLink read bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC, 'NvLink write bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC, 'NvLink read bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC, 'NvLink write bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC, 'NvLink read bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC, 'NvLink write bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC, 'NvLink read bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
     GPM_METRIC_C2C_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC
     GPM_METRIC_C2C_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC
     GPM_METRIC_C2C_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC
@@ -733,10 +966,12 @@ class GpmMetricId(_IntEnum):
     GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
     GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
     GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
-    GPM_METRIC_MAX = NVML_GPM_METRIC_MAX
+    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1. Note that changing this should also change NVML_GPM_METRICS_GET_VERSION due to struct size change.')
 
-class PowerProfileType(_IntEnum):
-    """See `nvmlPowerProfileType_t`."""
+class PowerProfileType(_FastEnum):
+    """
+    See `nvmlPowerProfileType_t`.
+    """
     POWER_PROFILE_MAX_P = NVML_POWER_PROFILE_MAX_P
     POWER_PROFILE_MAX_Q = NVML_POWER_PROFILE_MAX_Q
     POWER_PROFILE_COMPUTE = NVML_POWER_PROFILE_COMPUTE
@@ -754,14 +989,22 @@ class PowerProfileType(_IntEnum):
     POWER_PROFILE_MIG = NVML_POWER_PROFILE_MIG
     POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
 
-class DeviceAddressingModeType(_IntEnum):
-    """See `nvmlDeviceAddressingModeType_t`."""
-    DEVICE_ADDRESSING_MODE_NONE = NVML_DEVICE_ADDRESSING_MODE_NONE
-    DEVICE_ADDRESSING_MODE_HMM = NVML_DEVICE_ADDRESSING_MODE_HMM
-    DEVICE_ADDRESSING_MODE_ATS = NVML_DEVICE_ADDRESSING_MODE_ATS
+class DeviceAddressingModeType(_FastEnum):
+    """
+    Enum to represent device addressing mode values
 
-class PRMCounterId(_IntEnum):
-    """See `nvmlPRMCounterId_t`."""
+    See `nvmlDeviceAddressingModeType_t`.
+    """
+    DEVICE_ADDRESSING_MODE_NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
+    DEVICE_ADDRESSING_MODE_HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
+    DEVICE_ADDRESSING_MODE_ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
+
+class PRMCounterId(_FastEnum):
+    """
+    PRM Counter IDs
+
+    See `nvmlPRMCounterId_t`.
+    """
     NONE = NVML_PRM_COUNTER_ID_NONE
     PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS
     PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS
@@ -778,430 +1021,430 @@ class PRMCounterId(_IntEnum):
     PPCNT_PLR_SYNC_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PLR_SYNC_EVENTS
     PPRM_OPER_RECOVERY = NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY
 
-class PowerProfileOperation(_IntEnum):
-    """See `nvmlPowerProfileOperation_t`."""
-    CLEAR = NVML_POWER_PROFILE_OPERATION_CLEAR
-    SET = NVML_POWER_PROFILE_OPERATION_SET
-    SET_AND_OVERWRITE = NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE
-    MAX = NVML_POWER_PROFILE_OPERATION_MAX
+class PowerProfileOperation(_FastEnum):
+    """
+    Enum for operation to perform on the requested profiles
+
+    See `nvmlPowerProfileOperation_t`.
+    """
+    CLEAR = (NVML_POWER_PROFILE_OPERATION_CLEAR, 'Remove the requested profiles from the existing list of requested profiles.')
+    SET = (NVML_POWER_PROFILE_OPERATION_SET, 'Add the requested profiles to the existing list of requested profiles.')
+    SET_AND_OVERWRITE = (NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE, 'Overwrite the existing list of requested profiles with just the requested profiles.')
+    MAX = (NVML_POWER_PROFILE_OPERATION_MAX, 'Max value above +1.')
 
 
-class AffinityScope(_IntEnum):
-    NODE = 0     # Scope of NUMA node for affinity queries
-    SOCKET = 1   # Scope of processor socket for affinity queries
+class AffinityScope(_FastEnum):
+    NODE = (0, "Scope of NUMA node for affinity queries")
+    SOCKET = (1, "Scope of processor socket for affinity queries")
 
 
-class FieldId(_IntEnum):
-    DEV_ECC_CURRENT =          1   # Current ECC mode. 1=Active. 0=Inactive
-    DEV_ECC_PENDING =          2   # Pending ECC mode. 1=Active. 0=Inactive
+class FieldId(_FastEnum):
+    DEV_ECC_CURRENT = (1, "Current ECC mode. 1=Active. 0=Inactive")
+    DEV_ECC_PENDING = (2, "Pending ECC mode. 1=Active. 0=Inactive")
     # ECC Count Totals
-    DEV_ECC_SBE_VOL_TOTAL =    3   # Total single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_TOTAL =    4   # Total double bit volatile ECC errors
-    DEV_ECC_SBE_AGG_TOTAL =    5   # Total single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_TOTAL =    6   # Total double bit aggregate (persistent) ECC errors
+    DEV_ECC_SBE_VOL_TOTAL = (3, "Total single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_TOTAL = (4, "Total double bit volatile ECC errors")
+    DEV_ECC_SBE_AGG_TOTAL = (5, "Total single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_TOTAL = (6, "Total double bit aggregate (persistent) ECC errors")
     # Individual ECC locations
-    DEV_ECC_SBE_VOL_L1 =       7   # L1 cache single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_L1 =       8   # L1 cache double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_L2 =       9   # L2 cache single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_L2 =       10  # L2 cache double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_DEV =      11  # Device memory single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_DEV =      12  # Device memory double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_REG =      13  # Register file single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_REG =      14  # Register file double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_TEX =      15  # Texture memory single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_TEX =      16  # Texture memory double bit volatile ECC errors
-    DEV_ECC_DBE_VOL_CBU =      17  # CBU double bit volatile ECC errors
-    DEV_ECC_SBE_AGG_L1 =       18  # L1 cache single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_L1 =       19  # L1 cache double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_L2 =       20  # L2 cache single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_L2 =       21  # L2 cache double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_DEV =      22  # Device memory single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_DEV =      23  # Device memory double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_REG =      24  # Register File single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_REG =      25  # Register File double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_TEX =      26  # Texture memory single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_TEX =      27  # Texture memory double bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_CBU =      28  # CBU double bit aggregate ECC errors
+    DEV_ECC_SBE_VOL_L1 = (7, "L1 cache single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_L1 = (8, "L1 cache double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_L2 = (9, "L2 cache single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_L2 = (10, "L2 cache double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_DEV = (11, "Device memory single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_DEV = (12, "Device memory double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_REG = (13, "Register file single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_REG = (14, "Register file double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_TEX = (15, "Texture memory single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_TEX = (16, "Texture memory double bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_CBU = (17, "CBU double bit volatile ECC errors")
+    DEV_ECC_SBE_AGG_L1 = (18, "L1 cache single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_L1 = (19, "L1 cache double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_L2 = (20, "L2 cache single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_L2 = (21, "L2 cache double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_DEV = (22, "Device memory single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_DEV = (23, "Device memory double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_REG = (24, "Register File single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_REG = (25, "Register File double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_TEX = (26, "Texture memory single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_TEX = (27, "Texture memory double bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_CBU = (28, "CBU double bit aggregate ECC errors")
 
     # Page Retirement
-    DEV_RETIRED_SBE =          29  # Number of retired pages because of single bit errors
-    DEV_RETIRED_DBE =          30  # Number of retired pages because of double bit errors
-    DEV_RETIRED_PENDING =      31  # If any pages are pending retirement. 1=yes. 0=no.
-
+    DEV_RETIRED_SBE = (29, "Number of retired pages because of single bit errors")
+    DEV_RETIRED_DBE = (30, "Number of retired pages because of double bit errors")
+    DEV_RETIRED_PENDING = (31, "If any pages are pending retirement. 1=yes. 0=no.")
 
     # NVLink Flit Error Counters
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L0 =   32 # NVLink flow control CRC  Error Counter for Lane 0
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L1 =   33 # NVLink flow control CRC  Error Counter for Lane 1
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L2 =   34 # NVLink flow control CRC  Error Counter for Lane 2
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L3 =   35 # NVLink flow control CRC  Error Counter for Lane 3
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L4 =   36 # NVLink flow control CRC  Error Counter for Lane 4
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L5 =   37 # NVLink flow control CRC  Error Counter for Lane 5
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL =38 # NVLink flow control CRC  Error Counter total for all Lanes
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L0 = (32, "NVLink flow control CRC  Error Counter for Lane 0")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L1 = (33, "NVLink flow control CRC  Error Counter for Lane 1")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L2 = (34, "NVLink flow control CRC  Error Counter for Lane 2")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L3 = (35, "NVLink flow control CRC  Error Counter for Lane 3")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L4 = (36, "NVLink flow control CRC  Error Counter for Lane 4")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L5 = (37, "NVLink flow control CRC  Error Counter for Lane 5")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL = (38, "NVLink flow control CRC  Error Counter total for all Lanes")
 
     # NVLink CRC Data Error Counters
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L0 =   39 # NVLink data CRC Error Counter for Lane 0
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L1 =   40 # NVLink data CRC Error Counter for Lane 1
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L2 =   41 # NVLink data CRC Error Counter for Lane 2
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L3 =   42 # NVLink data CRC Error Counter for Lane 3
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L4 =   43 # NVLink data CRC Error Counter for Lane 4
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L5 =   44 # NVLink data CRC Error Counter for Lane 5
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL =45 # NvLink data CRC Error Counter total for all Lanes
-
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L0 = (39, "NVLink data CRC Error Counter for Lane 0")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L1 = (40, "NVLink data CRC Error Counter for Lane 1")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L2 = (41, "NVLink data CRC Error Counter for Lane 2")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L3 = (42, "NVLink data CRC Error Counter for Lane 3")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L4 = (43, "NVLink data CRC Error Counter for Lane 4")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L5 = (44, "NVLink data CRC Error Counter for Lane 5")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL = (45, "NvLink data CRC Error Counter total for all Lanes")
 
     # NVLink Replay Error Counters
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L0 =     46 # NVLink Replay Error Counter for Lane 0
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L1 =     47 # NVLink Replay Error Counter for Lane 1
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L2 =     48 # NVLink Replay Error Counter for Lane 2
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L3 =     49 # NVLink Replay Error Counter for Lane 3
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L4 =     50 # NVLink Replay Error Counter for Lane 4
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L5 =     51 # NVLink Replay Error Counter for Lane 5
-    DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL =  52 # NVLink Replay Error Counter total for all Lanes
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L0 = (46, "NVLink Replay Error Counter for Lane 0")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L1 = (47, "NVLink Replay Error Counter for Lane 1")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L2 = (48, "NVLink Replay Error Counter for Lane 2")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L3 = (49, "NVLink Replay Error Counter for Lane 3")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L4 = (50, "NVLink Replay Error Counter for Lane 4")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L5 = (51, "NVLink Replay Error Counter for Lane 5")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL = (52, "NVLink Replay Error Counter total for all Lanes")
 
     # NVLink Recovery Error Counters
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L0 =   53 # NVLink Recovery Error Counter for Lane 0
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L1 =   54 # NVLink Recovery Error Counter for Lane 1
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L2 =   55 # NVLink Recovery Error Counter for Lane 2
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L3 =   56 # NVLink Recovery Error Counter for Lane 3
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L4 =   57 # NVLink Recovery Error Counter for Lane 4
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L5 =   58 # NVLink Recovery Error Counter for Lane 5
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL =59 # NVLink Recovery Error Counter total for all Lanes
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L0 = (53, "NVLink Recovery Error Counter for Lane 0")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L1 = (54, "NVLink Recovery Error Counter for Lane 1")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L2 = (55, "NVLink Recovery Error Counter for Lane 2")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L3 = (56, "NVLink Recovery Error Counter for Lane 3")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L4 = (57, "NVLink Recovery Error Counter for Lane 4")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L5 = (58, "NVLink Recovery Error Counter for Lane 5")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL = (59, "NVLink Recovery Error Counter total for all Lanes")
 
     # NvLink Bandwidth Counters
-    DEV_NVLINK_BANDWIDTH_C0_L0 =    60 # NVLink Bandwidth Counter for Counter Set 0, Lane 0
-    DEV_NVLINK_BANDWIDTH_C0_L1 =    61 # NVLink Bandwidth Counter for Counter Set 0, Lane 1
-    DEV_NVLINK_BANDWIDTH_C0_L2 =    62 # NVLink Bandwidth Counter for Counter Set 0, Lane 2
-    DEV_NVLINK_BANDWIDTH_C0_L3 =    63 # NVLink Bandwidth Counter for Counter Set 0, Lane 3
-    DEV_NVLINK_BANDWIDTH_C0_L4 =    64 # NVLink Bandwidth Counter for Counter Set 0, Lane 4
-    DEV_NVLINK_BANDWIDTH_C0_L5 =    65 # NVLink Bandwidth Counter for Counter Set 0, Lane 5
-    DEV_NVLINK_BANDWIDTH_C0_TOTAL = 66 # NVLink Bandwidth Counter Total for Counter Set 0, All Lanes
+    DEV_NVLINK_BANDWIDTH_C0_L0 = (60, "NVLink Bandwidth Counter for Counter Set 0, Lane 0")
+    DEV_NVLINK_BANDWIDTH_C0_L1 = (61, "NVLink Bandwidth Counter for Counter Set 0, Lane 1")
+    DEV_NVLINK_BANDWIDTH_C0_L2 = (62, "NVLink Bandwidth Counter for Counter Set 0, Lane 2")
+    DEV_NVLINK_BANDWIDTH_C0_L3 = (63, "NVLink Bandwidth Counter for Counter Set 0, Lane 3")
+    DEV_NVLINK_BANDWIDTH_C0_L4 = (64, "NVLink Bandwidth Counter for Counter Set 0, Lane 4")
+    DEV_NVLINK_BANDWIDTH_C0_L5 = (65, "NVLink Bandwidth Counter for Counter Set 0, Lane 5")
+    DEV_NVLINK_BANDWIDTH_C0_TOTAL = (66, "NVLink Bandwidth Counter Total for Counter Set 0, All Lanes")
 
     # NvLink Bandwidth Counters
-    DEV_NVLINK_BANDWIDTH_C1_L0 =    67 # NVLink Bandwidth Counter for Counter Set 1, Lane 0
-    DEV_NVLINK_BANDWIDTH_C1_L1 =    68 # NVLink Bandwidth Counter for Counter Set 1, Lane 1
-    DEV_NVLINK_BANDWIDTH_C1_L2 =    69 # NVLink Bandwidth Counter for Counter Set 1, Lane 2
-    DEV_NVLINK_BANDWIDTH_C1_L3 =    70 # NVLink Bandwidth Counter for Counter Set 1, Lane 3
-    DEV_NVLINK_BANDWIDTH_C1_L4 =    71 # NVLink Bandwidth Counter for Counter Set 1, Lane 4
-    DEV_NVLINK_BANDWIDTH_C1_L5 =    72 # NVLink Bandwidth Counter for Counter Set 1, Lane 5
-    DEV_NVLINK_BANDWIDTH_C1_TOTAL = 73 # NVLink Bandwidth Counter Total for Counter Set 1, All Lanes
+    DEV_NVLINK_BANDWIDTH_C1_L0 = (67, "NVLink Bandwidth Counter for Counter Set 1, Lane 0")
+    DEV_NVLINK_BANDWIDTH_C1_L1 = (68, "NVLink Bandwidth Counter for Counter Set 1, Lane 1")
+    DEV_NVLINK_BANDWIDTH_C1_L2 = (69, "NVLink Bandwidth Counter for Counter Set 1, Lane 2")
+    DEV_NVLINK_BANDWIDTH_C1_L3 = (70, "NVLink Bandwidth Counter for Counter Set 1, Lane 3")
+    DEV_NVLINK_BANDWIDTH_C1_L4 = (71, "NVLink Bandwidth Counter for Counter Set 1, Lane 4")
+    DEV_NVLINK_BANDWIDTH_C1_L5 = (72, "NVLink Bandwidth Counter for Counter Set 1, Lane 5")
+    DEV_NVLINK_BANDWIDTH_C1_TOTAL = (73, "NVLink Bandwidth Counter Total for Counter Set 1, All Lanes")
 
     # NVML Perf Policy Counters
-    DEV_PERF_POLICY_POWER =             74   # Perf Policy Counter for Power Policy
-    DEV_PERF_POLICY_THERMAL =           75   # Perf Policy Counter for Thermal Policy
-    DEV_PERF_POLICY_SYNC_BOOST =        76   # Perf Policy Counter for Sync boost Policy
-    DEV_PERF_POLICY_BOARD_LIMIT =       77   # Perf Policy Counter for Board Limit
-    DEV_PERF_POLICY_LOW_UTILIZATION =   78   # Perf Policy Counter for Low GPU Utilization Policy
-    DEV_PERF_POLICY_RELIABILITY =       79   # Perf Policy Counter for Reliability Policy
-    DEV_PERF_POLICY_TOTAL_APP_CLOCKS =  80   # Perf Policy Counter for Total App Clock Policy
-    DEV_PERF_POLICY_TOTAL_BASE_CLOCKS = 81   # Perf Policy Counter for Total Base Clocks Policy
+    DEV_PERF_POLICY_POWER = (74, "Perf Policy Counter for Power Policy")
+    DEV_PERF_POLICY_THERMAL = (75, "Perf Policy Counter for Thermal Policy")
+    DEV_PERF_POLICY_SYNC_BOOST = (76, "Perf Policy Counter for Sync boost Policy")
+    DEV_PERF_POLICY_BOARD_LIMIT = (77, "Perf Policy Counter for Board Limit")
+    DEV_PERF_POLICY_LOW_UTILIZATION = (78, "Perf Policy Counter for Low GPU Utilization Policy")
+    DEV_PERF_POLICY_RELIABILITY = (79, "Perf Policy Counter for Reliability Policy")
+    DEV_PERF_POLICY_TOTAL_APP_CLOCKS = (80, "Perf Policy Counter for Total App Clock Policy")
+    DEV_PERF_POLICY_TOTAL_BASE_CLOCKS = (81, "Perf Policy Counter for Total Base Clocks Policy")
 
     # Memory temperatures
-    DEV_MEMORY_TEMP = 82 # Memory temperature for the device
+    DEV_MEMORY_TEMP = (82, "Memory temperature for the device")
 
     # Energy Counter
-    DEV_TOTAL_ENERGY_CONSUMPTION =83 # Total energy consumption for the GPU in mJ since the driver was last reloaded
+    DEV_TOTAL_ENERGY_CONSUMPTION = (83, "Total energy consumption for the GPU in mJ since the driver was last reloaded")
 
     # NVLink Speed
-    DEV_NVLINK_SPEED_MBPS_L0 =    84  # NVLink Speed in MBps for Link 0
-    DEV_NVLINK_SPEED_MBPS_L1 =    85  # NVLink Speed in MBps for Link 1
-    DEV_NVLINK_SPEED_MBPS_L2 =    86  # NVLink Speed in MBps for Link 2
-    DEV_NVLINK_SPEED_MBPS_L3 =    87  # NVLink Speed in MBps for Link 3
-    DEV_NVLINK_SPEED_MBPS_L4 =    88  # NVLink Speed in MBps for Link 4
-    DEV_NVLINK_SPEED_MBPS_L5 =    89  # NVLink Speed in MBps for Link 5
-    DEV_NVLINK_SPEED_MBPS_COMMON =90  # Common NVLink Speed in MBps for active links
+    DEV_NVLINK_SPEED_MBPS_L0 = (84, "NVLink Speed in MBps for Link 0")
+    DEV_NVLINK_SPEED_MBPS_L1 = (85, "NVLink Speed in MBps for Link 1")
+    DEV_NVLINK_SPEED_MBPS_L2 = (86, "NVLink Speed in MBps for Link 2")
+    DEV_NVLINK_SPEED_MBPS_L3 = (87, "NVLink Speed in MBps for Link 3")
+    DEV_NVLINK_SPEED_MBPS_L4 = (88, "NVLink Speed in MBps for Link 4")
+    DEV_NVLINK_SPEED_MBPS_L5 = (89, "NVLink Speed in MBps for Link 5")
+    DEV_NVLINK_SPEED_MBPS_COMMON = (90, "Common NVLink Speed in MBps for active links")
 
-    DEV_NVLINK_LINK_COUNT =       91  # Number of NVLinks present on the device
+    DEV_NVLINK_LINK_COUNT = (91, "Number of NVLinks present on the device")
 
-    DEV_RETIRED_PENDING_SBE =     92  # If any pages are pending retirement due to SBE. 1=yes. 0=no.
-    DEV_RETIRED_PENDING_DBE =     93  # If any pages are pending retirement due to DBE. 1=yes. 0=no.
+    DEV_RETIRED_PENDING_SBE = (92, "If any pages are pending retirement due to SBE. 1=yes. 0=no.")
+    DEV_RETIRED_PENDING_DBE = (93, "If any pages are pending retirement due to DBE. 1=yes. 0=no.")
 
-    DEV_PCIE_REPLAY_COUNTER =            94  # PCIe replay counter
-    DEV_PCIE_REPLAY_ROLLOVER_COUNTER =   95  # PCIe replay rollover counter
+    DEV_PCIE_REPLAY_COUNTER = (94, "PCIe replay counter")
+    DEV_PCIE_REPLAY_ROLLOVER_COUNTER = (95, "PCIe replay rollover counter")
 
     # NVLink Flit Error Counters
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L6 =    96 # NVLink flow control CRC  Error Counter for Lane 6
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L7 =    97 # NVLink flow control CRC  Error Counter for Lane 7
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L8 =    98 # NVLink flow control CRC  Error Counter for Lane 8
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L9 =    99 # NVLink flow control CRC  Error Counter for Lane 9
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L10 =  100 # NVLink flow control CRC  Error Counter for Lane 10
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L11 =  101 # NVLink flow control CRC  Error Counter for Lane 11
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L6 = (96, "NVLink flow control CRC  Error Counter for Lane 6")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L7 = (97, "NVLink flow control CRC  Error Counter for Lane 7")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L8 = (98, "NVLink flow control CRC  Error Counter for Lane 8")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L9 = (99, "NVLink flow control CRC  Error Counter for Lane 9")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L10 = (100, "NVLink flow control CRC  Error Counter for Lane 10")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L11 = (101, "NVLink flow control CRC  Error Counter for Lane 11")
 
     # NVLink CRC Data Error Counters
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L6 =   102 # NVLink data CRC Error Counter for Lane 6
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L7 =   103 # NVLink data CRC Error Counter for Lane 7
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L8 =   104 # NVLink data CRC Error Counter for Lane 8
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L9 =   105 # NVLink data CRC Error Counter for Lane 9
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L10 =  106 # NVLink data CRC Error Counter for Lane 10
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L11 =  107 # NVLink data CRC Error Counter for Lane 11
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L6 = (102, "NVLink data CRC Error Counter for Lane 6")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L7 = (103, "NVLink data CRC Error Counter for Lane 7")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L8 = (104, "NVLink data CRC Error Counter for Lane 8")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L9 = (105, "NVLink data CRC Error Counter for Lane 9")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L10 = (106, "NVLink data CRC Error Counter for Lane 10")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L11 = (107, "NVLink data CRC Error Counter for Lane 11")
 
     # NVLink Replay Error Counters
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L6 =     108 # NVLink Replay Error Counter for Lane 6
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L7 =     109 # NVLink Replay Error Counter for Lane 7
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L8 =     110 # NVLink Replay Error Counter for Lane 8
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L9 =     111 # NVLink Replay Error Counter for Lane 9
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L10 =    112 # NVLink Replay Error Counter for Lane 10
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L11 =    113 # NVLink Replay Error Counter for Lane 11
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L6 = (108, "NVLink Replay Error Counter for Lane 6")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L7 = (109, "NVLink Replay Error Counter for Lane 7")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L8 = (110, "NVLink Replay Error Counter for Lane 8")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L9 = (111, "NVLink Replay Error Counter for Lane 9")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L10 = (112, "NVLink Replay Error Counter for Lane 10")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L11 = (113, "NVLink Replay Error Counter for Lane 11")
 
     # NVLink Recovery Error Counters
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L6 =   114 # NVLink Recovery Error Counter for Lane 6
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L7 =   115 # NVLink Recovery Error Counter for Lane 7
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L8 =   116 # NVLink Recovery Error Counter for Lane 8
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L9 =   117 # NVLink Recovery Error Counter for Lane 9
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L10 =  118 # NVLink Recovery Error Counter for Lane 10
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L11 =  119 # NVLink Recovery Error Counter for Lane 11
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L6 = (114, "NVLink Recovery Error Counter for Lane 6")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L7 = (115, "NVLink Recovery Error Counter for Lane 7")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L8 = (116, "NVLink Recovery Error Counter for Lane 8")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L9 = (117, "NVLink Recovery Error Counter for Lane 9")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L10 = (118, "NVLink Recovery Error Counter for Lane 10")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L11 = (119, "NVLink Recovery Error Counter for Lane 11")
 
     # NvLink Bandwidth Counters */
-    DEV_NVLINK_BANDWIDTH_C0_L6 =    120 # NVLink Bandwidth Counter for Counter Set 0, Lane 6
-    DEV_NVLINK_BANDWIDTH_C0_L7 =    121 # NVLink Bandwidth Counter for Counter Set 0, Lane 7
-    DEV_NVLINK_BANDWIDTH_C0_L8 =    122 # NVLink Bandwidth Counter for Counter Set 0, Lane 8
-    DEV_NVLINK_BANDWIDTH_C0_L9 =    123 # NVLink Bandwidth Counter for Counter Set 0, Lane 9
-    DEV_NVLINK_BANDWIDTH_C0_L10 =   124 # NVLink Bandwidth Counter for Counter Set 0, Lane 10
-    DEV_NVLINK_BANDWIDTH_C0_L11 =   125 # NVLink Bandwidth Counter for Counter Set 0, Lane 11
+    DEV_NVLINK_BANDWIDTH_C0_L6 = (120, "NVLink Bandwidth Counter for Counter Set 0, Lane 6")
+    DEV_NVLINK_BANDWIDTH_C0_L7 = (121, "NVLink Bandwidth Counter for Counter Set 0, Lane 7")
+    DEV_NVLINK_BANDWIDTH_C0_L8 = (122, "NVLink Bandwidth Counter for Counter Set 0, Lane 8")
+    DEV_NVLINK_BANDWIDTH_C0_L9 = (123, "NVLink Bandwidth Counter for Counter Set 0, Lane 9")
+    DEV_NVLINK_BANDWIDTH_C0_L10 = (124, "NVLink Bandwidth Counter for Counter Set 0, Lane 10")
+    DEV_NVLINK_BANDWIDTH_C0_L11 = (125, "NVLink Bandwidth Counter for Counter Set 0, Lane 11")
 
     # NvLink Bandwidth Counters
-    DEV_NVLINK_BANDWIDTH_C1_L6 =    126 # NVLink Bandwidth Counter for Counter Set 1, Lane 6
-    DEV_NVLINK_BANDWIDTH_C1_L7 =    127 # NVLink Bandwidth Counter for Counter Set 1, Lane 7
-    DEV_NVLINK_BANDWIDTH_C1_L8 =    128 # NVLink Bandwidth Counter for Counter Set 1, Lane 8
-    DEV_NVLINK_BANDWIDTH_C1_L9 =    129 # NVLink Bandwidth Counter for Counter Set 1, Lane 9
-    DEV_NVLINK_BANDWIDTH_C1_L10 =   130 # NVLink Bandwidth Counter for Counter Set 1, Lane 10
-    DEV_NVLINK_BANDWIDTH_C1_L11 =   131 # NVLink Bandwidth Counter for Counter Set 1, Lane 11
+    DEV_NVLINK_BANDWIDTH_C1_L6 = (126, "NVLink Bandwidth Counter for Counter Set 1, Lane 6")
+    DEV_NVLINK_BANDWIDTH_C1_L7 = (127, "NVLink Bandwidth Counter for Counter Set 1, Lane 7")
+    DEV_NVLINK_BANDWIDTH_C1_L8 = (128, "NVLink Bandwidth Counter for Counter Set 1, Lane 8")
+    DEV_NVLINK_BANDWIDTH_C1_L9 = (129, "NVLink Bandwidth Counter for Counter Set 1, Lane 9")
+    DEV_NVLINK_BANDWIDTH_C1_L10 = (130, "NVLink Bandwidth Counter for Counter Set 1, Lane 10")
+    DEV_NVLINK_BANDWIDTH_C1_L11 = (131, "NVLink Bandwidth Counter for Counter Set 1, Lane 11")
 
     # NVLink Speed
-    DEV_NVLINK_SPEED_MBPS_L6 =    132  # NVLink Speed in MBps for Link 6
-    DEV_NVLINK_SPEED_MBPS_L7 =    133  # NVLink Speed in MBps for Link 7
-    DEV_NVLINK_SPEED_MBPS_L8 =    134  # NVLink Speed in MBps for Link 8
-    DEV_NVLINK_SPEED_MBPS_L9 =    135  # NVLink Speed in MBps for Link 9
-    DEV_NVLINK_SPEED_MBPS_L10 =   136  # NVLink Speed in MBps for Link 10
-    DEV_NVLINK_SPEED_MBPS_L11 =   137  # NVLink Speed in MBps for Link 11
+    DEV_NVLINK_SPEED_MBPS_L6 = (132, "NVLink Speed in MBps for Link 6")
+    DEV_NVLINK_SPEED_MBPS_L7 = (133, "NVLink Speed in MBps for Link 7")
+    DEV_NVLINK_SPEED_MBPS_L8 = (134, "NVLink Speed in MBps for Link 8")
+    DEV_NVLINK_SPEED_MBPS_L9 = (135, "NVLink Speed in MBps for Link 9")
+    DEV_NVLINK_SPEED_MBPS_L10 = (136, "NVLink Speed in MBps for Link 10")
+    DEV_NVLINK_SPEED_MBPS_L11 = (137, "NVLink Speed in MBps for Link 11")
 
     # NVLink throughput counters field values
-    DEV_NVLINK_THROUGHPUT_DATA_TX =     138 # NVLink TX Data throughput in KiB
-    DEV_NVLINK_THROUGHPUT_DATA_RX =     139 # NVLink RX Data throughput in KiB
-    DEV_NVLINK_THROUGHPUT_RAW_TX =      140 # NVLink TX Data + protocol overhead in KiB
-    DEV_NVLINK_THROUGHPUT_RAW_RX =      141 # NVLink RX Data + protocol overhead in KiB
+    DEV_NVLINK_THROUGHPUT_DATA_TX = (138, "NVLink TX Data throughput in KiB")
+    DEV_NVLINK_THROUGHPUT_DATA_RX = (139, "NVLink RX Data throughput in KiB")
+    DEV_NVLINK_THROUGHPUT_RAW_TX = (140, "NVLink TX Data + protocol overhead in KiB")
+    DEV_NVLINK_THROUGHPUT_RAW_RX = (141, "NVLink RX Data + protocol overhead in KiB")
 
     # Row Remapper
-    DEV_REMAPPED_COR =       142 # Number of remapped rows due to correctable errors
-    DEV_REMAPPED_UNC =       143 # Number of remapped rows due to uncorrectable errors
-    DEV_REMAPPED_PENDING =   144 # If any rows are pending remapping. 1=yes 0=no
-    DEV_REMAPPED_FAILURE =   145 # If any rows failed to be remapped 1=yes 0=no
+    DEV_REMAPPED_COR = (142, "Number of remapped rows due to correctable errors")
+    DEV_REMAPPED_UNC = (143, "Number of remapped rows due to uncorrectable errors")
+    DEV_REMAPPED_PENDING = (144, "If any rows are pending remapping. 1=yes 0=no")
+    DEV_REMAPPED_FAILURE = (145, "If any rows failed to be remapped 1=yes 0=no")
 
     # Remote device NVLink ID
-    DEV_NVLINK_REMOTE_NVLINK_ID =    146 # Remote device NVLink ID
+    DEV_NVLINK_REMOTE_NVLINK_ID = (146, "Remote device NVLink ID")
 
     # NVSwitch: connected NVLink count
-    DEV_NVSWITCH_CONNECTED_LINK_COUNT =  147  # Number of NVLinks connected to NVSwitch
+    DEV_NVSWITCH_CONNECTED_LINK_COUNT = (147, "Number of NVLinks connected to NVSwitch")
 
     # NvLink ECC Data Error Counters
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L0 =   148 # NVLink data ECC Error Counter for Link 0
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L1 =   149 # NVLink data ECC Error Counter for Link 1
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L2 =   150 # NVLink data ECC Error Counter for Link 2
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L3 =   151 # NVLink data ECC Error Counter for Link 3
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L4 =   152 # NVLink data ECC Error Counter for Link 4
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L5 =   153 # NVLink data ECC Error Counter for Link 5
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L6 =   154 # NVLink data ECC Error Counter for Link 6
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L7 =   155 # NVLink data ECC Error Counter for Link 7
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L8 =   156 # NVLink data ECC Error Counter for Link 8
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L9 =   157 # NVLink data ECC Error Counter for Link 9
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L10 =  158 # NVLink data ECC Error Counter for Link 10
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L11 =  159 # NVLink data ECC Error Counter for Link 11
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_TOTAL =160 # NVLink data ECC Error Counter total for all Links
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L0 = (148, "NVLink data ECC Error Counter for Link 0")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L1 = (149, "NVLink data ECC Error Counter for Link 1")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L2 = (150, "NVLink data ECC Error Counter for Link 2")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L3 = (151, "NVLink data ECC Error Counter for Link 3")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L4 = (152, "NVLink data ECC Error Counter for Link 4")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L5 = (153, "NVLink data ECC Error Counter for Link 5")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L6 = (154, "NVLink data ECC Error Counter for Link 6")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L7 = (155, "NVLink data ECC Error Counter for Link 7")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L8 = (156, "NVLink data ECC Error Counter for Link 8")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L9 = (157, "NVLink data ECC Error Counter for Link 9")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L10 = (158, "NVLink data ECC Error Counter for Link 10")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L11 = (159, "NVLink data ECC Error Counter for Link 11")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_TOTAL = (160, "NVLink data ECC Error Counter total for all Links")
 
     # NVLink Error Replay
-    DEV_NVLINK_ERROR_DL_REPLAY =           161 # NVLink Replay Error Counter
+    DEV_NVLINK_ERROR_DL_REPLAY = (161, "NVLink Replay Error Counter")
 
     # NVLink Recovery Error Counter
-    DEV_NVLINK_ERROR_DL_RECOVERY =         162 # NVLink Recovery Error Counter
+    DEV_NVLINK_ERROR_DL_RECOVERY = (162, "NVLink Recovery Error Counter")
 
     # NVLink Recovery Error CRC Counter
-    DEV_NVLINK_ERROR_DL_CRC =              163 # NVLink CRC Error Counter
+    DEV_NVLINK_ERROR_DL_CRC = (163, "NVLink CRC Error Counter")
 
 
     # NVLink Speed, State and Version field id 164, 165, and 166
-    DEV_NVLINK_GET_SPEED =                 164 # NVLink Speed in MBps
-    DEV_NVLINK_GET_STATE =                 165 # NVLink State - Active,Inactive
-    DEV_NVLINK_GET_VERSION =               166 # NVLink Version
+    DEV_NVLINK_GET_SPEED = (164, "NVLink Speed in MBps")
+    DEV_NVLINK_GET_STATE = (165, "NVLink State - Active,Inactive")
+    DEV_NVLINK_GET_VERSION = (166, "NVLink Version")
 
-    DEV_NVLINK_GET_POWER_STATE =           167 # NVLink Power state. 0=HIGH_SPEED 1=LOW_SPEED
-    DEV_NVLINK_GET_POWER_THRESHOLD =       168 # NVLink length of idle period (units can be found from
-                                                       # DEV_NVLINK_GET_POWER_THRESHOLD_UNITS) before
-                                                       # transitioning links to sleep state
+    DEV_NVLINK_GET_POWER_STATE = (167, "NVLink Power state. 0=HIGH_SPEED 1=LOW_SPEED")
+    DEV_NVLINK_GET_POWER_THRESHOLD = (168, "NVLink length of idle period (units can be found from DEV_NVLINK_GET_POWER_THRESHOLD_UNITS) before transitioning links to sleep state")
 
-    DEV_PCIE_L0_TO_RECOVERY_COUNTER =      169 # Device PEX error recovery counter
+    DEV_PCIE_L0_TO_RECOVERY_COUNTER = (169, "Device PEX error recovery counter")
 
-    DEV_C2C_LINK_COUNT =                   170 # Number of C2C Links present on the device
-    DEV_C2C_LINK_GET_STATUS =              171 # C2C Link Status 0=INACTIVE 1=ACTIVE
-    DEV_C2C_LINK_GET_MAX_BW =              172 # C2C Link Speed in MBps for active links
+    DEV_C2C_LINK_COUNT = (170, "Number of C2C Links present on the device")
+    DEV_C2C_LINK_GET_STATUS = (171, "C2C Link Status 0=INACTIVE 1=ACTIVE")
+    DEV_C2C_LINK_GET_MAX_BW = (172, "C2C Link Speed in MBps for active links")
 
-    DEV_PCIE_COUNT_CORRECTABLE_ERRORS =    173 # PCIe Correctable Errors Counter
-    DEV_PCIE_COUNT_NAKS_RECEIVED =         174 # PCIe NAK Receive Counter
-    DEV_PCIE_COUNT_RECEIVER_ERROR =        175 # PCIe Receiver Error Counter
-    DEV_PCIE_COUNT_BAD_TLP =               176 # PCIe Bad TLP Counter
-    DEV_PCIE_COUNT_NAKS_SENT =             177 # PCIe NAK Send Counter
-    DEV_PCIE_COUNT_BAD_DLLP =              178 # PCIe Bad DLLP Counter
-    DEV_PCIE_COUNT_NON_FATAL_ERROR =       179 # PCIe Non Fatal Error Counter
-    DEV_PCIE_COUNT_FATAL_ERROR =           180 # PCIe Fatal Error Counter
-    DEV_PCIE_COUNT_UNSUPPORTED_REQ =       181 # PCIe Unsupported Request Counter
-    DEV_PCIE_COUNT_LCRC_ERROR =            182 # PCIe LCRC Error Counter
-    DEV_PCIE_COUNT_LANE_ERROR =            183 # PCIe Per Lane Error Counter.
+    DEV_PCIE_COUNT_CORRECTABLE_ERRORS = (173, "PCIe Correctable Errors Counter")
+    DEV_PCIE_COUNT_NAKS_RECEIVED = (174, "PCIe NAK Receive Counter")
+    DEV_PCIE_COUNT_RECEIVER_ERROR = (175, "PCIe Receiver Error Counter")
+    DEV_PCIE_COUNT_BAD_TLP = (176, "PCIe Bad TLP Counter")
+    DEV_PCIE_COUNT_NAKS_SENT = (177, "PCIe NAK Send Counter")
+    DEV_PCIE_COUNT_BAD_DLLP = (178, "PCIe Bad DLLP Counter")
+    DEV_PCIE_COUNT_NON_FATAL_ERROR = (179, "PCIe Non Fatal Error Counter")
+    DEV_PCIE_COUNT_FATAL_ERROR = (180, "PCIe Fatal Error Counter")
+    DEV_PCIE_COUNT_UNSUPPORTED_REQ = (181, "PCIe Unsupported Request Counter")
+    DEV_PCIE_COUNT_LCRC_ERROR = (182, "PCIe LCRC Error Counter")
+    DEV_PCIE_COUNT_LANE_ERROR = (183, "PCIe Per Lane Error Counter.")
 
-    DEV_IS_RESETLESS_MIG_SUPPORTED =       184 # Device's Restless MIG Capability
+    DEV_IS_RESETLESS_MIG_SUPPORTED = (184, "Device's Restless MIG Capability")
 
-    DEV_POWER_AVERAGE =                    185 # GPU power averaged over 1 sec interval, supported on Ampere (except GA100) or newer architectures.
-    DEV_POWER_INSTANT =                    186 # Current GPU power, supported on all architectures.
-    DEV_POWER_MIN_LIMIT =                  187 # Minimum power limit in milliwatts.
-    DEV_POWER_MAX_LIMIT =                  188 # Maximum power limit in milliwatts.
-    DEV_POWER_DEFAULT_LIMIT =              189 # Default power limit in milliwatts (limit which device boots with).
-    DEV_POWER_CURRENT_LIMIT =              190 # Limit currently enforced in milliwatts (This includes other limits set elsewhere. E.g. Out-of-band).
-    DEV_ENERGY =                           191 # Total energy consumption (in mJ) since the driver was last reloaded. Same as \ref DEV_TOTAL_ENERGY_CONSUMPTION for the GPU.
-    DEV_POWER_REQUESTED_LIMIT =            192 # Power limit requested by NVML or any other userspace client.
+    DEV_POWER_AVERAGE = (185, "GPU power averaged over 1 sec interval, supported on Ampere (except GA100) or newer architectures.")
+    DEV_POWER_INSTANT = (186, "Current GPU power, supported on all architectures.")
+    DEV_POWER_MIN_LIMIT = (187, "Minimum power limit in milliwatts.")
+    DEV_POWER_MAX_LIMIT = (188, "Maximum power limit in milliwatts.")
+    DEV_POWER_DEFAULT_LIMIT = (189, "Default power limit in milliwatts (limit which device boots with).")
+    DEV_POWER_CURRENT_LIMIT = (190, "Limit currently enforced in milliwatts (This includes other limits set elsewhere. E.g. Out-of-band).")
+    DEV_ENERGY = (191, "Total energy consumption (in mJ) since the driver was last reloaded. Same as \ref DEV_TOTAL_ENERGY_CONSUMPTION for the GPU.")
+    DEV_POWER_REQUESTED_LIMIT = (192, "Power limit requested by NVML or any other userspace client.")
 
     # GPU T.Limit temperature thresholds in degree Celsius
-    DEV_TEMPERATURE_SHUTDOWN_TLIMIT =      193 # T.Limit temperature after which GPU may shut down for HW protection
-    DEV_TEMPERATURE_SLOWDOWN_TLIMIT =      194 # T.Limit temperature after which GPU may begin HW slowdown
-    DEV_TEMPERATURE_MEM_MAX_TLIMIT =       195 # T.Limit temperature after which GPU may begin SW slowdown due to memory temperature
-    DEV_TEMPERATURE_GPU_MAX_TLIMIT =       196 # T.Limit temperature after which GPU may be throttled below base clock
+    DEV_TEMPERATURE_SHUTDOWN_TLIMIT = (193, "T.Limit temperature after which GPU may shut down for HW protection")
+    DEV_TEMPERATURE_SLOWDOWN_TLIMIT = (194, "T.Limit temperature after which GPU may begin HW slowdown")
+    DEV_TEMPERATURE_MEM_MAX_TLIMIT = (195, "T.Limit temperature after which GPU may begin SW slowdown due to memory temperature")
+    DEV_TEMPERATURE_GPU_MAX_TLIMIT = (196, "T.Limit temperature after which GPU may be throttled below base clock")
 
-    DEV_PCIE_COUNT_TX_BYTES =              197 # PCIe transmit bytes. Value can be wrapped.
-    DEV_PCIE_COUNT_RX_BYTES =              198 # PCIe receive bytes. Value can be wrapped.
+    DEV_PCIE_COUNT_TX_BYTES = (197, "PCIe transmit bytes. Value can be wrapped.")
+    DEV_PCIE_COUNT_RX_BYTES = (198, "PCIe receive bytes. Value can be wrapped.")
 
-    DEV_IS_MIG_MODE_INDEPENDENT_MIG_QUERY_CAPABLE =  199 # MIG mode independent, MIG query capable device. 1=yes. 0=no.
+    DEV_IS_MIG_MODE_INDEPENDENT_MIG_QUERY_CAPABLE = (199, "MIG mode independent, MIG query capable device. 1=yes. 0=no.")
 
-    DEV_NVLINK_GET_POWER_THRESHOLD_MAX =             200 # Max Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD
+    DEV_NVLINK_GET_POWER_THRESHOLD_MAX = (200, "Max Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD")
 
 
     # NVLink counter field id 201-225
-    DEV_NVLINK_COUNT_XMIT_PACKETS =                   201 # Total Tx packets on the link in NVLink5
-    DEV_NVLINK_COUNT_XMIT_BYTES =                     202 # Total Tx bytes on the link in NVLink5
-    DEV_NVLINK_COUNT_RCV_PACKETS =                    203 # Total Rx packets on the link in NVLink5
-    DEV_NVLINK_COUNT_RCV_BYTES =                      204 # Total Rx bytes on the link in NVLink5
-    DEV_NVLINK_COUNT_VL15_DROPPED =                   205 # Deprecated, do not use
-    DEV_NVLINK_COUNT_MALFORMED_PACKET_ERRORS =        206 # Number of packets Rx on a link where packets are malformed
-    DEV_NVLINK_COUNT_BUFFER_OVERRUN_ERRORS =          207 # Number of packets that were discarded on Rx due to buffer overrun
-    DEV_NVLINK_COUNT_RCV_ERRORS =                     208 # Total number of packets with errors Rx on a link
-    DEV_NVLINK_COUNT_RCV_REMOTE_ERRORS =              209 # Total number of packets Rx - stomp/EBP marker
-    DEV_NVLINK_COUNT_RCV_GENERAL_ERRORS =             210 # Total number of packets Rx with header mismatch
-    DEV_NVLINK_COUNT_LOCAL_LINK_INTEGRITY_ERRORS =    211 # Total number of times that the count of local errors exceeded a threshold
-    DEV_NVLINK_COUNT_XMIT_DISCARDS =                  212 # Total number of tx error packets that were discarded
+    DEV_NVLINK_COUNT_XMIT_PACKETS = (201, "Total Tx packets on the link in NVLink5")
+    DEV_NVLINK_COUNT_XMIT_BYTES = (202, "Total Tx bytes on the link in NVLink5")
+    DEV_NVLINK_COUNT_RCV_PACKETS = (203, "Total Rx packets on the link in NVLink5")
+    DEV_NVLINK_COUNT_RCV_BYTES = (204, "Total Rx bytes on the link in NVLink5")
+    DEV_NVLINK_COUNT_VL15_DROPPED = (205, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_MALFORMED_PACKET_ERRORS = (206, "Number of packets Rx on a link where packets are malformed")
+    DEV_NVLINK_COUNT_BUFFER_OVERRUN_ERRORS = (207, "Number of packets that were discarded on Rx due to buffer overrun")
+    DEV_NVLINK_COUNT_RCV_ERRORS = (208, "Total number of packets with errors Rx on a link")
+    DEV_NVLINK_COUNT_RCV_REMOTE_ERRORS = (209, "Total number of packets Rx - stomp/EBP marker")
+    DEV_NVLINK_COUNT_RCV_GENERAL_ERRORS = (210, "Total number of packets Rx with header mismatch")
+    DEV_NVLINK_COUNT_LOCAL_LINK_INTEGRITY_ERRORS = (211, "Total number of times that the count of local errors exceeded a threshold")
+    DEV_NVLINK_COUNT_XMIT_DISCARDS = (212, "Total number of tx error packets that were discarded")
 
-    DEV_NVLINK_COUNT_LINK_RECOVERY_SUCCESSFUL_EVENTS =213 # Number of times link went from Up to recovery, succeeded and link came back up
-    DEV_NVLINK_COUNT_LINK_RECOVERY_FAILED_EVENTS =    214 # Number of times link went from Up to recovery, failed and link was declared down
-    DEV_NVLINK_COUNT_LINK_RECOVERY_EVENTS =           215 # Number of times link went from Up to recovery, irrespective of the result
+    DEV_NVLINK_COUNT_LINK_RECOVERY_SUCCESSFUL_EVENTS =(213, "Number of times link went from Up to recovery, succeeded and link came back up")
+    DEV_NVLINK_COUNT_LINK_RECOVERY_FAILED_EVENTS = (214, "Number of times link went from Up to recovery, failed and link was declared down")
+    DEV_NVLINK_COUNT_LINK_RECOVERY_EVENTS = (215, "Number of times link went from Up to recovery, irrespective of the result")
 
-    DEV_NVLINK_COUNT_RAW_BER_LANE0 =                  216 # Deprecated, do not use
-    DEV_NVLINK_COUNT_RAW_BER_LANE1 =                  217 # Deprecated, do not use
-    DEV_NVLINK_COUNT_RAW_BER =                        218 # Deprecated, do not use
-    DEV_NVLINK_COUNT_EFFECTIVE_ERRORS =               219 # Sum of the number of errors in each Nvlink packet
+    DEV_NVLINK_COUNT_RAW_BER_LANE0 = (216, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_RAW_BER_LANE1 = (217, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_RAW_BER = (218, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_EFFECTIVE_ERRORS = (219, "Sum of the number of errors in each Nvlink packet")
 
     # NVLink Effective BER
-    DEV_NVLINK_COUNT_EFFECTIVE_BER =                  220 # Effective BER for effective errors
-    DEV_NVLINK_COUNT_SYMBOL_ERRORS =                  221 # Number of errors in rx symbols
+    DEV_NVLINK_COUNT_EFFECTIVE_BER = (220, "Effective BER for effective errors")
+    DEV_NVLINK_COUNT_SYMBOL_ERRORS = (221, "Number of errors in rx symbols")
 
     # NVLink Symbol BER
-    DEV_NVLINK_COUNT_SYMBOL_BER =                     222 # BER for symbol errors
+    DEV_NVLINK_COUNT_SYMBOL_BER = (222, "BER for symbol errors")
 
-    DEV_NVLINK_GET_POWER_THRESHOLD_MIN =              223 # Min Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD
-    DEV_NVLINK_GET_POWER_THRESHOLD_UNITS =            224 # Values are in the form NVML_NVLINK_LOW_POWER_THRESHOLD_UNIT_*
-    DEV_NVLINK_GET_POWER_THRESHOLD_SUPPORTED =        225 # Determine if Nvlink Power Threshold feature is supported
+    DEV_NVLINK_GET_POWER_THRESHOLD_MIN = (223, "Min Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD")
+    DEV_NVLINK_GET_POWER_THRESHOLD_UNITS = (224, "Values are in the form NVML_NVLINK_LOW_POWER_THRESHOLD_UNIT_*")
+    DEV_NVLINK_GET_POWER_THRESHOLD_SUPPORTED = (225, "Determine if Nvlink Power Threshold feature is supported")
 
-    DEV_RESET_STATUS =                                226 # Depracated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)
-    DEV_DRAIN_AND_RESET_STATUS =                      227 # Deprecated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)
-    DEV_PCIE_OUTBOUND_ATOMICS_MASK =                  228
-    DEV_PCIE_INBOUND_ATOMICS_MASK =                   229
-    DEV_GET_GPU_RECOVERY_ACTION =                     230 # GPU Recovery action - None/Reset/Reboot/Drain P2P/Drain and Reset
-    DEV_C2C_LINK_ERROR_INTR =                         231 # C2C Link CRC Error Counter
-    DEV_C2C_LINK_ERROR_REPLAY =                       232 # C2C Link Replay Error Counter
-    DEV_C2C_LINK_ERROR_REPLAY_B2B =                   233 # C2C Link Back to Back Replay Error Counter
-    DEV_C2C_LINK_POWER_STATE =                        234 # C2C Link Power state. See NVML_C2C_POWER_STATE_*
+    DEV_RESET_STATUS = (226, "Depracated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)")
+    DEV_DRAIN_AND_RESET_STATUS = (227, "Deprecated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)")
+    DEV_PCIE_OUTBOUND_ATOMICS_MASK = 228
+    DEV_PCIE_INBOUND_ATOMICS_MASK = 229
+    DEV_GET_GPU_RECOVERY_ACTION = (230, "GPU Recovery action - None/Reset/Reboot/Drain P2P/Drain and Reset")
+    DEV_C2C_LINK_ERROR_INTR = (231, "C2C Link CRC Error Counter")
+    DEV_C2C_LINK_ERROR_REPLAY = (232, "C2C Link Replay Error Counter")
+    DEV_C2C_LINK_ERROR_REPLAY_B2B = (233, "C2C Link Back to Back Replay Error Counter")
+    DEV_C2C_LINK_POWER_STATE = (234, "C2C Link Power state. See NVML_C2C_POWER_STATE_*")
 
     # NVLink counter field id 235-250
-    DEV_NVLINK_COUNT_FEC_HISTORY_0 =                  235 # Count of symbol errors that are corrected - bin 0
-    DEV_NVLINK_COUNT_FEC_HISTORY_1 =                  236 # Count of symbol errors that are corrected - bin 1
-    DEV_NVLINK_COUNT_FEC_HISTORY_2 =                  237 # Count of symbol errors that are corrected - bin 2
-    DEV_NVLINK_COUNT_FEC_HISTORY_3 =                  238 # Count of symbol errors that are corrected - bin 3
-    DEV_NVLINK_COUNT_FEC_HISTORY_4 =                  239 # Count of symbol errors that are corrected - bin 4
-    DEV_NVLINK_COUNT_FEC_HISTORY_5 =                  240 # Count of symbol errors that are corrected - bin 5
-    DEV_NVLINK_COUNT_FEC_HISTORY_6 =                  241 # Count of symbol errors that are corrected - bin 6
-    DEV_NVLINK_COUNT_FEC_HISTORY_7 =                  242 # Count of symbol errors that are corrected - bin 7
-    DEV_NVLINK_COUNT_FEC_HISTORY_8 =                  243 # Count of symbol errors that are corrected - bin 8
-    DEV_NVLINK_COUNT_FEC_HISTORY_9 =                  244 # Count of symbol errors that are corrected - bin 9
-    DEV_NVLINK_COUNT_FEC_HISTORY_10 =                 245 # Count of symbol errors that are corrected - bin 10
-    DEV_NVLINK_COUNT_FEC_HISTORY_11 =                 246 # Count of symbol errors that are corrected - bin 11
-    DEV_NVLINK_COUNT_FEC_HISTORY_12 =                 247 # Count of symbol errors that are corrected - bin 12
-    DEV_NVLINK_COUNT_FEC_HISTORY_13 =                 248 # Count of symbol errors that are corrected - bin 13
-    DEV_NVLINK_COUNT_FEC_HISTORY_14 =                 249 # Count of symbol errors that are corrected - bin 14
-    DEV_NVLINK_COUNT_FEC_HISTORY_15 =                 250 # Count of symbol errors that are corrected - bin 15
+    DEV_NVLINK_COUNT_FEC_HISTORY_0 = (235, "Count of symbol errors that are corrected - bin 0")
+    DEV_NVLINK_COUNT_FEC_HISTORY_1 = (236, "Count of symbol errors that are corrected - bin 1")
+    DEV_NVLINK_COUNT_FEC_HISTORY_2 = (237, "Count of symbol errors that are corrected - bin 2")
+    DEV_NVLINK_COUNT_FEC_HISTORY_3 = (238, "Count of symbol errors that are corrected - bin 3")
+    DEV_NVLINK_COUNT_FEC_HISTORY_4 = (239, "Count of symbol errors that are corrected - bin 4")
+    DEV_NVLINK_COUNT_FEC_HISTORY_5 = (240, "Count of symbol errors that are corrected - bin 5")
+    DEV_NVLINK_COUNT_FEC_HISTORY_6 = (241, "Count of symbol errors that are corrected - bin 6")
+    DEV_NVLINK_COUNT_FEC_HISTORY_7 = (242, "Count of symbol errors that are corrected - bin 7")
+    DEV_NVLINK_COUNT_FEC_HISTORY_8 = (243, "Count of symbol errors that are corrected - bin 8")
+    DEV_NVLINK_COUNT_FEC_HISTORY_9 = (244, "Count of symbol errors that are corrected - bin 9")
+    DEV_NVLINK_COUNT_FEC_HISTORY_10 = (245, "Count of symbol errors that are corrected - bin 10")
+    DEV_NVLINK_COUNT_FEC_HISTORY_11 = (246, "Count of symbol errors that are corrected - bin 11")
+    DEV_NVLINK_COUNT_FEC_HISTORY_12 = (247, "Count of symbol errors that are corrected - bin 12")
+    DEV_NVLINK_COUNT_FEC_HISTORY_13 = (248, "Count of symbol errors that are corrected - bin 13")
+    DEV_NVLINK_COUNT_FEC_HISTORY_14 = (249, "Count of symbol errors that are corrected - bin 14")
+    DEV_NVLINK_COUNT_FEC_HISTORY_15 = (250, "Count of symbol errors that are corrected - bin 15")
 
     # Power Smoothing
-    PWR_SMOOTHING_ENABLED =                                  251 # Enablement (0/DISABLED or 1/ENABLED)
-    PWR_SMOOTHING_PRIV_LVL =                                 252 # Current privilege level
-    PWR_SMOOTHING_IMM_RAMP_DOWN_ENABLED =                    253 # Immediate ramp down enablement (0/DISABLED or 1/ENABLED)
-    PWR_SMOOTHING_APPLIED_TMP_CEIL =                         254 # Applied TMP ceiling value in Watts
-    PWR_SMOOTHING_APPLIED_TMP_FLOOR =                        255 # Applied TMP floor value in Watts
-    PWR_SMOOTHING_MAX_PERCENT_TMP_FLOOR_SETTING =            256 # Max % TMP Floor value
-    PWR_SMOOTHING_MIN_PERCENT_TMP_FLOOR_SETTING =            257 # Min % TMP Floor value
-    PWR_SMOOTHING_HW_CIRCUITRY_PERCENT_LIFETIME_REMAINING =  258 # HW Circuitry % lifetime remaining
-    PWR_SMOOTHING_MAX_NUM_PRESET_PROFILES =                  259 # Max number of preset profiles
-    PWR_SMOOTHING_PROFILE_PERCENT_TMP_FLOOR =                260 # % TMP floor for a given profile
-    PWR_SMOOTHING_PROFILE_RAMP_UP_RATE =                     261 # Ramp up rate in mW/s for a given profile
-    PWR_SMOOTHING_PROFILE_RAMP_DOWN_RATE =                   262 # Ramp down rate in mW/s for a given profile
-    PWR_SMOOTHING_PROFILE_RAMP_DOWN_HYST_VAL =               263 # Ramp down hysteresis value in ms for a given profile
-    PWR_SMOOTHING_ACTIVE_PRESET_PROFILE =                    264 # Active preset profile number
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PERCENT_TMP_FLOOR =         265 # % TMP floor for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_UP_RATE =              266 # Ramp up rate in mW/s for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_RATE =            267 # Ramp down rate in mW/s for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_HYST_VAL =        268 # Ramp down hysteresis value in ms for a given profile
+    PWR_SMOOTHING_ENABLED = (251, "Enablement (0/DISABLED or 1/ENABLED)")
+    PWR_SMOOTHING_PRIV_LVL = (252, "Current privilege level")
+    PWR_SMOOTHING_IMM_RAMP_DOWN_ENABLED = (253, "Immediate ramp down enablement (0/DISABLED or 1/ENABLED)")
+    PWR_SMOOTHING_APPLIED_TMP_CEIL = (254, "Applied TMP ceiling value in Watts")
+    PWR_SMOOTHING_APPLIED_TMP_FLOOR = (255, "Applied TMP floor value in Watts")
+    PWR_SMOOTHING_MAX_PERCENT_TMP_FLOOR_SETTING = (256, "Max % TMP Floor value")
+    PWR_SMOOTHING_MIN_PERCENT_TMP_FLOOR_SETTING = (257, "Min % TMP Floor value")
+    PWR_SMOOTHING_HW_CIRCUITRY_PERCENT_LIFETIME_REMAINING = (258, "HW Circuitry % lifetime remaining")
+    PWR_SMOOTHING_MAX_NUM_PRESET_PROFILES = (259, "Max number of preset profiles")
+    PWR_SMOOTHING_PROFILE_PERCENT_TMP_FLOOR = (260, "% TMP floor for a given profile")
+    PWR_SMOOTHING_PROFILE_RAMP_UP_RATE = (261, "Ramp up rate in mW/s for a given profile")
+    PWR_SMOOTHING_PROFILE_RAMP_DOWN_RATE = (262, "Ramp down rate in mW/s for a given profile")
+    PWR_SMOOTHING_PROFILE_RAMP_DOWN_HYST_VAL = (263, "Ramp down hysteresis value in ms for a given profile")
+    PWR_SMOOTHING_ACTIVE_PRESET_PROFILE = (264, "Active preset profile number")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PERCENT_TMP_FLOOR = (265, "% TMP floor for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_UP_RATE = (266, "Ramp up rate in mW/s for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_RATE = (267, "Ramp down rate in mW/s for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_HYST_VAL = (268, "Ramp down hysteresis value in ms for a given profile")
 
     # Field values for Clock Throttle Reason Counters
-    DEV_CLOCKS_EVENT_REASON_SW_POWER_CAP =            DEV_PERF_POLICY_POWER      # Throttling to not exceed currently set power limits in ns
-    DEV_CLOCKS_EVENT_REASON_SYNC_BOOST =              DEV_PERF_POLICY_SYNC_BOOST # Throttling to match minimum possible clock across Sync Boost Group in ns
-    DEV_CLOCKS_EVENT_REASON_SW_THERM_SLOWDOWN =       269 # Throttling to ensure ((GPU temp < GPU Max Operating Temp) && (Memory Temp < Memory Max Operating Temp)) in ns
-    DEV_CLOCKS_EVENT_REASON_HW_THERM_SLOWDOWN =       270 # Throttling due to temperature being too high (reducing core clocks by a factor of 2 or more) in ns
-    DEV_CLOCKS_EVENT_REASON_HW_POWER_BRAKE_SLOWDOWN = 271 # Throttling due to external power brake assertion trigger (reducing core clocks by a factor of 2 or more) in ns
-    DEV_POWER_SYNC_BALANCING_FREQ =                   272 # Accumulated frequency of the GPU to be used for averaging
-    DEV_POWER_SYNC_BALANCING_AF =                     273 # Accumulated activity factor of the GPU to be used for averaging
-    DEV_EDPP_MULTIPLIER =                             274 # EDPp multiplier expressed as a percentage
+    DEV_CLOCKS_EVENT_REASON_SW_POWER_CAP = (74, "Throttling to not exceed currently set power limits in ns")
+    DEV_CLOCKS_EVENT_REASON_SYNC_BOOST = (76, "Throttling to match minimum possible clock across Sync Boost Group in ns")
+    DEV_CLOCKS_EVENT_REASON_SW_THERM_SLOWDOWN = (269, "Throttling to ensure ((GPU temp < GPU Max Operating Temp) && (Memory Temp < Memory Max Operating Temp)) in ns")
+    DEV_CLOCKS_EVENT_REASON_HW_THERM_SLOWDOWN = (270, "Throttling due to temperature being too high (reducing core clocks by a factor of 2 or more) in ns")
+    DEV_CLOCKS_EVENT_REASON_HW_POWER_BRAKE_SLOWDOWN = (271, "Throttling due to external power brake assertion trigger (reducing core clocks by a factor of 2 or more) in ns")
+    DEV_POWER_SYNC_BALANCING_FREQ = (272, "Accumulated frequency of the GPU to be used for averaging")
+    DEV_POWER_SYNC_BALANCING_AF = (273, "Accumulated activity factor of the GPU to be used for averaging")
+    DEV_EDPP_MULTIPLIER = (274, "EDPp multiplier expressed as a percentage")
 
-    PWR_SMOOTHING_PRIMARY_POWER_FLOOR =               275 # Current primary power floor value in Watts
-    PWR_SMOOTHING_SECONDARY_POWER_FLOOR =             276 # Current secondary power floor value in Watts
-    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_OFFSET =        277 # Minimum primary floor activation offset value in Watts
-    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_POINT =         278 # Minimum primary floor activation point value in Watts
-    PWR_SMOOTHING_WINDOW_MULTIPLIER =                 279 # Window Multiplier value in ms
-    PWR_SMOOTHING_DELAYED_PWR_SMOOTHING_SUPPORTED =   280 # Support (0/Not Supported or 1/Supported) for delayed power smoothing
-    PWR_SMOOTHING_PROFILE_SECONDARY_POWER_FLOOR =     281 # Current secondary power floor value in Watts for a given profile
-    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_WIN_MULT = 282 # Current primary floor activation window multiplier value for a given profile
-    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_TAR_WIN_MULT = 283 # Current primary floor target window multiplier value for a given profile
-    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_OFFSET =   284 # Current primary floor activation offset value in Watts for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_SECONDARY_POWER_FLOOR =  285 # Current secondary power floor value in Watts for admin override
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_WIN_MULT = 286 # Current primary floor activation window multiplier value for admin override
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_TAR_WIN_MULT = 287 # Current primary floor target window multiplier value for admin override
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_OFFSET = 288 # Current primary floor activation offset value in Watts for admin override
+    PWR_SMOOTHING_PRIMARY_POWER_FLOOR = (275, "Current primary power floor value in Watts")
+    PWR_SMOOTHING_SECONDARY_POWER_FLOOR = (276, "Current secondary power floor value in Watts")
+    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_OFFSET = (277, "Minimum primary floor activation offset value in Watts")
+    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_POINT = (278, "Minimum primary floor activation point value in Watts")
+    PWR_SMOOTHING_WINDOW_MULTIPLIER = (279, "Window Multiplier value in ms")
+    PWR_SMOOTHING_DELAYED_PWR_SMOOTHING_SUPPORTED = (280, "Support (0/Not Supported or 1/Supported) for delayed power smoothing")
+    PWR_SMOOTHING_PROFILE_SECONDARY_POWER_FLOOR = (281, "Current secondary power floor value in Watts for a given profile")
+    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_WIN_MULT = (282, "Current primary floor activation window multiplier value for a given profile")
+    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_TAR_WIN_MULT = (283, "Current primary floor target window multiplier value for a given profile")
+    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_OFFSET = (284, "Current primary floor activation offset value in Watts for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_SECONDARY_POWER_FLOOR = (285, "Current secondary power floor value in Watts for admin override")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_WIN_MULT = (286, "Current primary floor activation window multiplier value for admin override")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_TAR_WIN_MULT = (287, "Current primary floor target window multiplier value for admin override")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_OFFSET = (288, "Current primary floor activation offset value in Watts for admin override")
 
     MAX = 289
 
 NVLINK_MAX_LINKS = 18
 
 
-class RUSD(_IntEnum):
-    POLL_NONE = 0x0        # Disable RUSD polling on all metric groups
-    POLL_CLOCK = 0x1       # Enable RUSD polling on clock group
-    POLL_PERF = 0x2        # Enable RUSD polling on performance group
-    POLL_MEMORY = 0x4      # Enable RUSD polling on memory group
-    POLL_POWER = 0x8       # Enable RUSD polling on power group
-    POLL_THERMAL = 0x10    # Enable RUSD polling on thermal group
-    POLL_PCI = 0x20        # Enable RUSD polling on pci group
-    POLL_FAN = 0x40        # Enable RUSD polling on fan group
-    POLL_PROC_UTIL = 0x80  # Enable RUSD polling on process utilization group
-    POLL_ALL = 0xFFFFFFFFFFFFFFFF  # Enable RUSD polling on all groups
+class RUSD(_FastEnum):
+    POLL_NONE = (0x0, "Disable RUSD polling on all metric groups")
+    POLL_CLOCK = (0x1, "Enable RUSD polling on clock group")
+    POLL_PERF = (0x2, "Enable RUSD polling on performance group")
+    POLL_MEMORY = (0x4, "Enable RUSD polling on memory group")
+    POLL_POWER = (0x8, "Enable RUSD polling on power group")
+    POLL_THERMAL = (0x10, "Enable RUSD polling on thermal group")
+    POLL_PCI = (0x20, "Enable RUSD polling on pci group")
+    POLL_FAN = (0x40, "Enable RUSD polling on fan group")
+    POLL_PROC_UTIL = (0x80, "Enable RUSD polling on process utilization group")
+    POLL_ALL = (0xFFFFFFFFFFFFFFFF, "Enable RUSD polling on all groups")
 
 
-class PowerMizerMode(_IntEnum):
-    ADAPTIVE = 0  # Adjust GPU clocks based on GPU utilization
-    PREFER_MAXIMUM_PERFORMANCE = 1  # Raise GPU clocks to favor maximum performance, to the extent that thermal and other constraints allow
-    AUTO = 2  # PowerMizer mode is driver controlled
-    PREFER_CONSISTENT_PERFORMANCE = 3  # lock to GPU base clocks
+class PowerMizerMode(_FastEnum):
+    ADAPTIVE = (0, "Adjust GPU clocks based on GPU utilization")
+    PREFER_MAXIMUM_PERFORMANCE = (1, "Raise GPU clocks to favor maximum performance, to the extent that thermal and other constraints allow")
+    AUTO = (2, "PowerMizer mode is driver controlled")
+    PREFER_CONSISTENT_PERFORMANCE = (3, "lock to GPU base clocks")
 
 
-class DeviceArch(_IntEnum):
+class DeviceArch(_FastEnum):
     KEPLER = 2
     MAXWELL = 3
     PASCAL = 4
@@ -1214,26 +1457,26 @@ class DeviceArch(_IntEnum):
     UNKNOWN = 0xFFFFFFFF
 
 
-class BusType(_IntEnum):
-    UNKNOWN = 0
-    PCI = 1
-    PCIE = 2
-    FPCI = 3
-    AGP = 4
+class BusType(_FastEnum):
+    UNKNOWN = (0, "Unknown bus type")
+    PCI = (1, "PCI bus")
+    PCIE = (2, "PXI-Express bus")
+    FPCI = (3, "FPCI bus")
+    AGP = (4, "AGP bus")
 
 
-class FanControlPolicy(_IntEnum):
-    TEMPERATURE_CONTINUOUS_SW = 0  # Temperature-controlled fan policy
-    MANUAL = 1  # Manual fan control policy
+class FanControlPolicy(_FastEnum):
+    TEMPERATURE_CONTINUOUS_SW = (0, "Temperature-controlled fan policy")
+    MANUAL = (1, "Manual fan control policy")
 
 
-class PowerSource(_IntEnum):
+class PowerSource(_FastEnum):
     AC = 0x00000000
     BATTERY = 0x00000001
     UNDERSIZED = 0x00000002
 
 
-class PcieLinkMaxSpeed(_IntEnum):
+class PcieLinkMaxSpeed(_FastEnum):
     SPEED_INVALID = 0x00000000
     SPEED_2500MBPS = 0x00000001
     SPEED_5000MBPS = 0x00000002
@@ -1243,7 +1486,7 @@ class PcieLinkMaxSpeed(_IntEnum):
     SPEED_64000MBPS = 0x00000006
 
 
-class AdaptiveClockingInfoStatus(_IntEnum):
+class AdaptiveClockingInfoStatus(_FastEnum):
     DISABLED = 0x00000000
     ENABLED = 0x00000001
 
@@ -1251,64 +1494,64 @@ class AdaptiveClockingInfoStatus(_IntEnum):
 MAX_GPU_UTILIZATIONS = 8
 
 
-class PcieAtomicsCap(_IntEnum):
-    FETCHADD32 = 0x01
-    FETCHADD64 = 0x02
-    SWAP32 = 0x04
-    SWAP64 = 0x08
-    CAS32 = 0x10
-    CAS64 = 0x20
-    CAS128 = 0x40
+class PcieAtomicsCap(_FastEnum):
+    FETCHADD32 = (0x01, "32-bit fetch and add")
+    FETCHADD64 = (0x02, "64-bit fetch and add")
+    SWAP32 = (0x04, "32-bit swap")
+    SWAP64 = (0x08, "64-bit swap")
+    CAS32 = (0x10, "32-bit compare and swap")
+    CAS64 = (0x20, "64-bit compare and swap")
+    CAS128 = (0x40, "128-bit compare and swap")
     MAX = 7
 
 
-class PowerScope(_IntEnum):
-    GPU = 0
-    MODULE = 1
-    MEMORY = 2
+class PowerScope(_FastEnum):
+    GPU = (0, "Targets only GPU")
+    MODULE = (1, "Targets the whole module")
+    MEMORY = (2, "Targets the GPU memory")
 
 
 # Need "Enum" suffix to disambiguate from nvmlGridLicenseExpiry_t
-class GridLicenseExpiryEnum(_IntEnum):
-    NOT_AVAILABLE = 0
-    INVALID = 1
-    VALID = 2
-    NOT_APPLICABLE = 3
-    PERMANENT = 4
+class GridLicenseExpiryEnum(_FastEnum):
+    NOT_AVAILABLE = (0, "Expiry information not available")
+    INVALID = (1, "Invalid expiry or error fetching expiry")
+    VALID = (2, "Valid expiry")
+    NOT_APPLICABLE = (3, "Expiry not applicable")
+    PERMANENT = (4, "Permanent expiry")
 
 
 GRID_LICENSE_FEATURE_MAX_COUNT = 3
 
 
-class VgpuVirtualizationCapMigration(_IntEnum):
+class VgpuVirtualizationCapMigration(_FastEnum):
     NO = 0x0
     YES = 0x1
 
 
-class VgpuPgpuVirtualizationCapMigration(_IntEnum):
+class VgpuPgpuVirtualizationCapMigration(_FastEnum):
     NO = 0x0
     YES = 0x1
 
 
-class VgpuSchedulerPolicy(_IntEnum):
+class VgpuSchedulerPolicy(_FastEnum):
     UNKNOWN = 0
     BEST_EFFORT = 1
     EQUAL_SHARE = 2
     FIXED_SHARE = 3
 
 
-class VgpuSchedulerArr(_IntEnum):
+class VgpuSchedulerArr(_FastEnum):
     DEFAULT = 0
     DISABLE = 1
     ENABLE = 2
 
 
-class VgpuSchedulerEngineType(_IntEnum):
+class VgpuSchedulerEngineType(_FastEnum):
     GRAPHICS = 1
     NVENC1 = 2
 
 
-class GridLicenseState(_IntEnum):
+class GridLicenseState(_FastEnum):
     UNKNOWN = 0
     UNINITIALIZED = 1
     UNLICENSED_UNRESTRICTED = 2
@@ -1317,29 +1560,29 @@ class GridLicenseState(_IntEnum):
     LICENSED = 5
 
 
-class NvlinkLowPowerThresholdUnit(_IntEnum):
+class NvlinkLowPowerThresholdUnit(_FastEnum):
     UNIT_100US = 0x0
     UNIT_50US = 0x1
 
 
-class NvlinkPowerState(_IntEnum):
+class NvlinkPowerState(_FastEnum):
     HIGH_SPEED = 0x0
     LOW_SPEED = 0x1
 
 
-class NvlinkLowPowerThreshold(_IntEnum):
+class NvlinkLowPowerThreshold(_FastEnum):
     MIN = 0x1
     MAX = 0x1FFF
     RESET = 0xFFFFFFFF
     DEFAULT = 0xFFFFFFFF
 
 
-class C2CPowerState(_IntEnum):
+class C2CPowerState(_FastEnum):
     FULL_POWER = 0
     LOW_POWER = 1
 
 
-class EventType(_IntEnum):
+class EventType(_FastEnum):
     NONE = 0x0000000000000000
     SINGLE_BIT_ECC_ERROR = 0x0000000000000001
     DOUBLE_BIT_ECC_ERROR = 0x0000000000000002
@@ -1357,12 +1600,12 @@ class EventType(_IntEnum):
     GPU_RECOVERY_ACTION = 0x0000000000008000
 
 
-class SystemEventType(_IntEnum):
+class SystemEventType(_FastEnum):
     GPU_DRIVER_UNBIND = 0x0000000000000001
     GPU_DRIVER_BIND = 0x0000000000000002
 
 
-class ClocksEventReasons(_IntEnum):
+class ClocksEventReasons(_FastEnum):
     EVENT_REASON_GPU_IDLE = 0x0000000000000001
     EVENT_REASON_APPLICATIONS_CLOCKS_SETTING = 0x0000000000000002
     EVENT_REASON_SW_POWER_CAP = 0x0000000000000004
@@ -1375,14 +1618,14 @@ class ClocksEventReasons(_IntEnum):
     EVENT_REASON_NONE = 0x0000000000000000
 
 
-class EncoderQuery(_IntEnum):
+class EncoderQuery(_FastEnum):
     H264 = 0x00
     HEVC = 0x01
     AV1 = 0x02
     UNKNOWN = 0xFF
 
 
-class NvFBCSessionFlag(_IntEnum):
+class NvFBCSessionFlag(_FastEnum):
     DIFFMAP_ENABLED = 0x00000001
     CLASSIFICATIONMAP_ENABLED = 0x00000002
     CAPTURE_WITH_WAIT_NO_WAIT = 0x00000004
@@ -1390,7 +1633,7 @@ class NvFBCSessionFlag(_IntEnum):
     CAPTURE_WITH_WAIT_TIMEOUT = 0x00000010
 
 
-class CCSystemCpuCaps(_IntEnum):
+class CCSystemCpuCaps(_FastEnum):
     NONE = 0
     AMD_SEV = 1
     INTEL_TDX = 2
@@ -1398,70 +1641,70 @@ class CCSystemCpuCaps(_IntEnum):
     AMD_SNP_VTOM = 4
 
 
-class CCSystemGpus(_IntEnum):
+class CCSystemGpus(_FastEnum):
     CC_NOT_CAPABLE = 0
     CC_CAPABLE = 1
 
 
-class CCSystemDevtoolsMode(_IntEnum):
+class CCSystemDevtoolsMode(_FastEnum):
     OFF = 0
     ON = 1
 
 
-class CCSystemEnvironment(_IntEnum):
+class CCSystemEnvironment(_FastEnum):
     UNAVAILABLE = 0
     SIM = 1
     PROD = 2
 
 
-class CCSystemFeature(_IntEnum):
+class CCSystemFeature(_FastEnum):
     DISABLED = 0
     ENABLED = 1
 
 
-class CCSystemMultiGpu(_IntEnum):
+class CCSystemMultiGpu(_FastEnum):
     NONE = 0
     PROTECTED_PCIE = 1
     NVLE = 2
 
 
-class CCAcceptingClientRequests(_IntEnum):
+class CCAcceptingClientRequests(_FastEnum):
     FALSE = 0
     TRUE = 1
 
 
-class GpuFabricState(_IntEnum):
+class GpuFabricState(_FastEnum):
     NOT_SUPPORTED = 0
     NOT_STARTED = 1
     IN_PROGRESS = 2
     COMPLETED = 3
 
 
-class GpuFabricHealthMaskDegradedBw(_IntEnum):
+class GpuFabricHealthMaskDegradedBw(_FastEnum):
     NOT_SUPPORTED = 0
     TRUE = 1
     FALSE = 2
 
 
-class GpuFabricHealthMaskRouteRecovery(_IntEnum):
+class GpuFabricHealthMaskRouteRecovery(_FastEnum):
     NOT_SUPPORTED = 0
     TRUE = 1
     FALSE = 2
 
 
-class GpuFabricHealthMaskRouteUnhealthy(_IntEnum):
+class GpuFabricHealthMaskRouteUnhealthy(_FastEnum):
     NOT_SUPPORTED = 0
     TRUE = 1
     FALSE = 2
 
 
-class GpuFabricHealthMaskAccessTimeout(_IntEnum):
+class GpuFabricHealthMaskAccessTimeout(_FastEnum):
     NOT_SUPPORTED = 0
     TRUE = 1
     FALSE = 2
 
 
-class GpuFabricHealthMaskIncorrectConfiguration(_IntEnum):
+class GpuFabricHealthMaskIncorrectConfiguration(_FastEnum):
     NOT_SUPPORTED = 0
     NONE = 1
     INCORRECT_SYSGUID = 2
@@ -1472,25 +1715,25 @@ class GpuFabricHealthMaskIncorrectConfiguration(_IntEnum):
     INVALID_LOCATION = 7
 
 
-class GpuFabricHealthSummary(_IntEnum):
+class GpuFabricHealthSummary(_FastEnum):
     NOT_SUPPORTED = 0
     HEALTHY = 1
     UNHEALTHY = 2
     LIMITED_CAPACITY = 3
 
 
-class InitFlag(_IntEnum):
+class InitFlag(_FastEnum):
     NO_GPUS = 1
     NO_ATTACH = 2
 
 
-class NvlinkState(_IntEnum):
+class NvlinkState(_FastEnum):
     INACTIVE = 0x0
     ACTIVE = 0x1
     SLEEP = 0x2
 
 
-class NvlinkFirmwareUcodeType(_IntEnum):
+class NvlinkFirmwareUcodeType(_FastEnum):
     MSE = 0x1
     NETIR = 0x2
     NETIR_UPHY = 0x3
@@ -1498,12 +1741,12 @@ class NvlinkFirmwareUcodeType(_IntEnum):
     NETIR_DLN = 0x5
 
 
-class DeviceMig(_IntEnum):
+class DeviceMig(_FastEnum):
     DISABLE = 0
     ENABLE = 1
 
 
-class GpuInstanceProfile(_IntEnum):
+class GpuInstanceProfile(_FastEnum):
     PROFILE_1_SLICE = 0x0
     PROFILE_2_SLICE = 0x1
     PROFILE_3_SLICE = 0x2
@@ -1524,16 +1767,16 @@ class GpuInstanceProfile(_IntEnum):
     PROFILE_COUNT = 0x11
 
 
-class GpuInstanceProfileCaps(_IntEnum):
+class GpuInstanceProfileCaps(_FastEnum):
     P2P = 0x1
     GFX = 0x2
 
 
-class ComputeInstanceProfileCaps(_IntEnum):
+class ComputeInstanceProfileCaps(_FastEnum):
     GFX = 0x1
 
 
-class ComputeInstanceProfile(_IntEnum):
+class ComputeInstanceProfile(_FastEnum):
     PROFILE_1_SLICE = 0x0
     PROFILE_2_SLICE = 0x1
     PROFILE_3_SLICE = 0x2
@@ -1545,12 +1788,12 @@ class ComputeInstanceProfile(_IntEnum):
     PROFILE_COUNT = 0x8
 
 
-class ComputeInstanceEngineProfile(_IntEnum):
+class ComputeInstanceEngineProfile(_FastEnum):
     SHARED = 0x0
     COUNT = 0x1
 
 
-class PowerSmoothingProfileParam(_IntEnum):
+class PowerSmoothingProfileParam(_FastEnum):
     PERCENT_TMP_FLOOR = 0
     RAMP_UP_RATE = 1
     RAMP_DOWN_RATE = 2
@@ -1561,7 +1804,7 @@ class PowerSmoothingProfileParam(_IntEnum):
     PRIMARY_FLOOR_ACT_OFFSET = 7
 
 
-class VgpuPgpu(_IntEnum):
+class VgpuPgpu(_FastEnum):
     HETEROGENEOUS_MODE = 0  # Heterogeneous vGPU mode.
     HOMOGENEOUS_MODE = 1  # Homogeneous vGPU mode.
 
