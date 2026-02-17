@@ -214,7 +214,14 @@ SUPPORTED_LINUX_SONAMES_OTHER = {
     "nvpl_fftw": ("libnvpl_fftw.so.0",),
     "nvshmem_host": ("libnvshmem_host.so.3",),
 }
-SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_OTHER
+# Driver libraries: shipped with the NVIDIA driver, always on the system
+# linker path.  Only system search is needed (no site-packages / conda /
+# CUDA_HOME).
+SUPPORTED_LINUX_SONAMES_DRIVER = {
+    "cuda": ("libcuda.so.1",),
+    "nvml": ("libnvidia-ml.so.1",),
+}
+SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_OTHER | SUPPORTED_LINUX_SONAMES_DRIVER
 
 # Based on these files:
 #   cuda_12.0.1_528.33_windows.exe
@@ -338,7 +345,11 @@ SUPPORTED_WINDOWS_DLLS_OTHER = {
     "cutensor": ("cutensor.dll",),
     "cutensorMg": ("cutensorMg.dll",),
 }
-SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER
+SUPPORTED_WINDOWS_DLLS_DRIVER = {
+    "cuda": ("nvcuda.dll",),
+    "nvml": ("nvml.dll",),
+}
+SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER | SUPPORTED_WINDOWS_DLLS_DRIVER
 
 LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
     "cufft",

@@ -33,8 +33,9 @@ if [[ "${test_module}" == "pathfinder" ]]; then
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
   pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
-  # Fail if no "INFO test_" lines are found; capture line count otherwise
-  line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
+  # Report the number of "INFO test_" lines (including zero)
+  # to support quick validations based on GHA log archives.
+  line_count=$(awk '/^INFO test_/ {count++} END {print count+0}' /tmp/pathfinder_test_log.txt)
   echo "Number of \"INFO test_\" lines: $line_count"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
