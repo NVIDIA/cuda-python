@@ -8,6 +8,7 @@ import pytest
 import cuda.pathfinder._static_libs.find_bitcode_lib as find_bitcode_lib_module
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     SUPPORTED_BITCODE_LIBS,
+    BitcodeLibNotFoundError,
     find_bitcode_lib,
     locate_bitcode_lib,
 )
@@ -47,18 +48,21 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
 
 @pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS)
 def test_locate_bitcode_lib(info_summary_append, libname):
-    lib_path = find_bitcode_lib(libname) if locate_bitcode_lib(libname) else None
-    located_lib = locate_bitcode_lib(libname)
-    assert lib_path is None if not located_lib else lib_path == located_lib.abs_path
+    try:
+        located_lib = locate_bitcode_lib(libname)
+        lib_path = find_bitcode_lib(libname)
+    except BitcodeLibNotFoundError:
+        lib_path = None
+        if STRICTNESS == "all_must_work":
+            raise
+        return
 
     info_summary_append(f"{lib_path=!r}")
-    if lib_path:
-        _located_bitcode_lib_asserts(located_lib)
-        assert os.path.isfile(lib_path)
-        expected_filename = located_lib.filename
-        assert os.path.basename(lib_path) == expected_filename
-    if STRICTNESS == "all_must_work":
-        assert lib_path is not None
+    _located_bitcode_lib_asserts(located_lib)
+    assert os.path.isfile(lib_path)
+    assert lib_path == located_lib.abs_path
+    expected_filename = located_lib.filename
+    assert os.path.basename(lib_path) == expected_filename
 
 
 @pytest.mark.parametrize("rel_dir", [SITE_PACKAGES_REL_DIR_CUDA12, SITE_PACKAGES_REL_DIR_CUDA13])

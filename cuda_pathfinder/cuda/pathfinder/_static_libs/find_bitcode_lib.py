@@ -4,7 +4,7 @@
 import functools
 import os
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import NoReturn, TypedDict
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
@@ -105,14 +105,19 @@ class _FindBitcodeLib:
         )
         return None
 
-    def raise_not_found_error(self) -> None:
+    def raise_not_found_error(self) -> NoReturn:
         err = ", ".join(self.error_messages) if self.error_messages else "No search paths available"
         att = "\n".join(self.attachments) if self.attachments else ""
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
-def locate_bitcode_lib(name: str) -> LocatedBitcodeLib | None:
-    """Locate a bitcode library by name."""
+def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
+    """Locate a bitcode library by name.
+
+    Raises:
+        ValueError: If ``name`` is not a supported bitcode library.
+        BitcodeLibNotFoundError: If the bitcode library cannot be found.
+    """
     finder = _FindBitcodeLib(name)
 
     abs_path = finder.try_site_packages()
@@ -122,7 +127,7 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib | None:
         abs_path = finder.try_with_cuda_home()
 
     if abs_path is None:
-        return None
+        finder.raise_not_found_error()
 
     return LocatedBitcodeLib(
         name=name,
@@ -133,10 +138,10 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib | None:
 
 @functools.cache
 def find_bitcode_lib(name: str) -> str:
-    """Find the absolute path to a bitcode library."""
-    result = locate_bitcode_lib(name)
-    if result is None:
-        info = _SUPPORTED_BITCODE_LIBS_INFO.get(name)  # Updated reference
-        filename = info["filename"] if info else name
-        raise BitcodeLibNotFoundError(f"{filename} not found")
-    return result.abs_path
+    """Find the absolute path to a bitcode library.
+
+    Raises:
+        ValueError: If ``name`` is not a supported bitcode library.
+        BitcodeLibNotFoundError: If the bitcode library cannot be found.
+    """
+    return locate_bitcode_lib(name).abs_path
