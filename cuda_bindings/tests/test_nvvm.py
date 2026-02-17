@@ -7,7 +7,8 @@ from contextlib import contextmanager
 
 import pytest
 from cuda.bindings import nvvm
-from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir  # noqa: F401, F811
+
+pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
 
 @pytest.fixture(params=[nvvm.compile_program, nvvm.verify_program])
