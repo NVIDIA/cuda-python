@@ -510,6 +510,7 @@ it, leading to crashes or subtle failures.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">libname</span></code> is not a recognized library name.</p></li>
 <li><p><a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html#cuda.pathfinder.DynamicLibNotFoundError" title="cuda.pathfinder.DynamicLibNotFoundError"><strong>DynamicLibNotFoundError</strong></a> – If the library cannot be found or loaded.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If Python is not 64-bit.</p></li>
 </ul>
@@ -562,6 +563,18 @@ on the system <code class="docutils literal notranslate"><span class="pre">PATH<
 </ol>
 </dd>
 </dl>
+<p><strong>Driver libraries</strong> (<code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;nvml&quot;</span></code>):</p>
+<blockquote>
+<div><p>These are part of the NVIDIA display driver (not the CUDA Toolkit) and
+are always on the system linker path.  For these libraries the search
+is simplified to:</p>
+<ol class="arabic simple" start="0">
+<li><p>Already loaded in the current process</p></li>
+<li><p>OS default mechanisms (<code class="docutils literal notranslate"><span class="pre">dlopen</span></code> / <code class="docutils literal notranslate"><span class="pre">LoadLibraryW</span></code>)</p></li>
+</ol>
+<p>The CTK-specific steps (site-packages, conda, <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, canary
+probe) are skipped entirely.</p>
+</div></blockquote>
 <p class="rubric">Notes</p>
 <p>The search is performed <strong>per library</strong>. There is currently no mechanism to
 guarantee that multiple libraries are all resolved from the same location.</p>
