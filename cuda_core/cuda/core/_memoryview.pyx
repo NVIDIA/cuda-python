@@ -302,6 +302,38 @@ cdef class StridedMemoryView:
         """
         raise NotImplementedError("Sorry, not supported: copy_to")
 
+    def __dlpack__(
+        self,
+        *,
+        stream: int | None = None,
+        max_version: tuple[int, int] | None = None,
+        dl_device: tuple[int, int] | None = None,
+        copy: bool | None = None,
+    ):
+        # Similar to Buffer.__dlpack__: no implicit synchronization is performed.
+        if dl_device is not None:
+            raise BufferError("Sorry, not supported: dl_device other than None")
+        if copy is True:
+            raise BufferError("Sorry, not supported: copy=True")
+
+        cdef bint versioned
+        if max_version is None:
+            versioned = False
+        else:
+            if not isinstance(max_version, tuple) or len(max_version) != 2:
+                raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
+            versioned = max_version >= (1, 0)
+
+        # NOTE: stream is accepted for protocol compatibility but not used.
+        cdef object capsule = _smv_make_py_capsule(self, versioned)
+        return capsule
+
+    def __dlpack_device__(self) -> tuple[int, int]:
+        cdef _DLDeviceType device_type
+        cdef int32_t device_id
+        _smv_get_dl_device(self, &device_type, &device_id)
+        return (<int>device_type, int(device_id))
+
     @property
     def _layout(self) -> _StridedLayout:
         """
@@ -376,6 +408,251 @@ cdef class StridedMemoryView:
             elif self.metadata is not None:
                 self._dtype = _typestr2dtype(self.metadata["typestr"])
         return self._dtype
+
+
+cdef void _smv_pycapsule_deleter(object capsule) noexcept:
+    cdef DLManagedTensor* dlm_tensor
+    cdef DLManagedTensorVersioned* dlm_tensor_ver
+    # Do not invoke the deleter on a used capsule.
+    if cpython.PyCapsule_IsValid(capsule, DLPACK_TENSOR_UNUSED_NAME):
+        dlm_tensor = <DLManagedTensor*>(
+            cpython.PyCapsule_GetPointer(capsule, DLPACK_TENSOR_UNUSED_NAME)
+        )
+        if dlm_tensor.deleter:
+            dlm_tensor.deleter(dlm_tensor)
+    elif cpython.PyCapsule_IsValid(capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
+        dlm_tensor_ver = <DLManagedTensorVersioned*>(
+            cpython.PyCapsule_GetPointer(capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME)
+        )
+        if dlm_tensor_ver.deleter:
+            dlm_tensor_ver.deleter(dlm_tensor_ver)
+
+
+cdef inline void _smv_release_export_resources(void* manager_ctx, int64_t* shape_ptr) noexcept with gil:
+    if shape_ptr:
+        stdlib.free(shape_ptr)
+    if manager_ctx:
+        cpython.Py_DECREF(<object>manager_ctx)
+
+
+cdef void _smv_deleter(DLManagedTensor* tensor) noexcept with gil:
+    if tensor:
+        _smv_release_export_resources(tensor.manager_ctx, tensor.dl_tensor.shape)
+        tensor.manager_ctx = NULL
+        stdlib.free(tensor)
+
+
+cdef void _smv_versioned_deleter(DLManagedTensorVersioned* tensor) noexcept with gil:
+    if tensor:
+        _smv_release_export_resources(tensor.manager_ctx, tensor.dl_tensor.shape)
+        tensor.manager_ctx = NULL
+        stdlib.free(tensor)
+
+
+cdef inline DLManagedTensorVersioned* _smv_allocate_dlm_tensor_versioned() except? NULL:
+    cdef DLManagedTensorVersioned* dlm_tensor_ver = NULL
+    dlm_tensor_ver = <DLManagedTensorVersioned*>stdlib.malloc(sizeof(DLManagedTensorVersioned))
+    if dlm_tensor_ver == NULL:
+        raise MemoryError()
+    dlm_tensor_ver.dl_tensor.shape = NULL
+    dlm_tensor_ver.manager_ctx = NULL
+    return dlm_tensor_ver
+
+
+cdef inline DLManagedTensor* _smv_allocate_dlm_tensor() except? NULL:
+    cdef DLManagedTensor* dlm_tensor = NULL
+    dlm_tensor = <DLManagedTensor*>stdlib.malloc(sizeof(DLManagedTensor))
+    if dlm_tensor == NULL:
+        raise MemoryError()
+    dlm_tensor.dl_tensor.shape = NULL
+    dlm_tensor.manager_ctx = NULL
+    return dlm_tensor
+
+
+cdef inline int _smv_dtype_numpy_to_dlpack(object dtype_obj, DLDataType* out_dtype) except -1:
+    cdef object np_dtype = numpy.dtype(dtype_obj)
+    if np_dtype.fields is not None:
+        raise BufferError("Structured dtypes are not supported for DLPack export")
+    if not np_dtype.isnative and np_dtype.byteorder not in ("=", "|"):
+        raise BufferError("Non-native-endian dtypes are not supported for DLPack export")
+
+    cdef str kind = np_dtype.kind
+    cdef int bits = np_dtype.itemsize * 8
+    cdef uint8_t code
+    if kind == "b":
+        if bits != 8:
+            raise BufferError(f"Unsupported bool dtype itemsize: {np_dtype.itemsize}")
+        code = <uint8_t>kDLBool
+    elif kind == "i":
+        if bits not in (8, 16, 32, 64):
+            raise BufferError(f"Unsupported signed integer dtype: {np_dtype}")
+        code = <uint8_t>kDLInt
+    elif kind == "u":
+        if bits not in (8, 16, 32, 64):
+            raise BufferError(f"Unsupported unsigned integer dtype: {np_dtype}")
+        code = <uint8_t>kDLUInt
+    elif kind == "f":
+        if bits not in (16, 32, 64):
+            raise BufferError(f"Unsupported floating dtype: {np_dtype}")
+        code = <uint8_t>kDLFloat
+    elif kind == "c":
+        if bits not in (64, 128):
+            raise BufferError(f"Unsupported complex dtype: {np_dtype}")
+        code = <uint8_t>kDLComplex
+    else:
+        raise BufferError(f"Unsupported dtype for DLPack export: {np_dtype}")
+
+    out_dtype.code = code
+    out_dtype.bits = <uint8_t>bits
+    out_dtype.lanes = <uint16_t>1
+    return 0
+
+
+cdef inline int _smv_get_dl_device(
+    StridedMemoryView view,
+    _DLDeviceType* out_device_type,
+    int32_t* out_device_id,
+) except -1:
+    cdef _DLDeviceType device_type
+    cdef int32_t device_id
+    cdef object buf
+    cdef bint d
+    cdef bint h
+    if view.dl_tensor != NULL:
+        device_type = view.dl_tensor.device.device_type
+        if device_type == _kDLCUDA:
+            device_id = view.dl_tensor.device.device_id
+        else:
+            # CPU, CUDAHost, and CUDAManaged use device_id=0 in DLPack.
+            device_id = 0
+    elif view.is_device_accessible:
+        buf = view.get_buffer()
+        d = buf.is_device_accessible
+        h = buf.is_host_accessible
+        if d and (not h):
+            device_type = _kDLCUDA
+            device_id = buf.device_id
+        elif d and h:
+            # We do not currently differentiate pinned vs managed here.
+            device_type = _kDLCUDAHost
+            device_id = 0
+        elif (not d) and h:
+            device_type = _kDLCPU
+            device_id = 0
+        else:
+            raise BufferError("buffer is neither device-accessible nor host-accessible")
+    else:
+        device_type = _kDLCPU
+        device_id = 0
+
+    out_device_type[0] = device_type
+    out_device_id[0] = device_id
+    return 0
+
+
+cdef inline int _smv_setup_dl_tensor_common(
+    DLTensor* dl_tensor,
+    StridedMemoryView view,
+    _StridedLayout layout,
+) except -1:
+    cdef object dtype_obj = view.get_dtype()
+    if dtype_obj is None:
+        raise BufferError(
+            "Cannot export StridedMemoryView via DLPack without dtype information; "
+            "create the view with dtype specified."
+        )
+    _smv_dtype_numpy_to_dlpack(dtype_obj, &dl_tensor.dtype)
+    _smv_get_dl_device(view, &dl_tensor.device.device_type, &dl_tensor.device.device_id)
+
+    cdef int ndim = layout.base.ndim
+    dl_tensor.ndim = ndim
+    if layout.get_volume() == 0:
+        dl_tensor.data = NULL
+    else:
+        dl_tensor.data = <void*><intptr_t>view.ptr
+    dl_tensor.byte_offset = 0
+    return 0
+
+
+cdef inline int _smv_setup_dl_tensor(DLTensor* dl_tensor, StridedMemoryView view) except -1:
+    cdef _StridedLayout layout = view.get_layout()
+    _smv_setup_dl_tensor_common(dl_tensor, view, layout)
+
+    cdef int i
+    cdef int64_t* shape_strides = NULL
+    cdef int ndim = dl_tensor.ndim
+    if ndim == 0:
+        dl_tensor.shape = NULL
+        dl_tensor.strides = NULL
+    elif layout.base.strides == NULL:
+        shape_strides = <int64_t*>stdlib.malloc(sizeof(int64_t) * ndim)
+        if shape_strides == NULL:
+            raise MemoryError()
+        for i in range(ndim):
+            shape_strides[i] = layout.base.shape[i]
+        dl_tensor.shape = shape_strides
+        dl_tensor.strides = NULL
+    else:
+        shape_strides = <int64_t*>stdlib.malloc(sizeof(int64_t) * 2 * ndim)
+        if shape_strides == NULL:
+            raise MemoryError()
+        for i in range(ndim):
+            shape_strides[i] = layout.base.shape[i]
+            shape_strides[i + ndim] = layout.base.strides[i]
+        dl_tensor.shape = shape_strides
+        dl_tensor.strides = shape_strides + ndim
+    return 0
+
+
+cdef inline int _smv_fill_managed_tensor_versioned(
+    DLManagedTensorVersioned* dlm_tensor_ver,
+    StridedMemoryView view,
+) except -1:
+    cpython.Py_INCREF(view)
+    dlm_tensor_ver.manager_ctx = <void*>view
+    dlm_tensor_ver.deleter = _smv_versioned_deleter
+    dlm_tensor_ver.version.major = DLPACK_MAJOR_VERSION
+    dlm_tensor_ver.version.minor = DLPACK_MINOR_VERSION
+    dlm_tensor_ver.flags = DLPACK_FLAG_BITMASK_READ_ONLY if view.readonly else 0
+    _smv_setup_dl_tensor(&dlm_tensor_ver.dl_tensor, view)
+    return 0
+
+
+cdef inline int _smv_fill_managed_tensor(
+    DLManagedTensor* dlm_tensor,
+    StridedMemoryView view,
+) except -1:
+    cpython.Py_INCREF(view)
+    dlm_tensor.manager_ctx = <void*>view
+    dlm_tensor.deleter = _smv_deleter
+    _smv_setup_dl_tensor(&dlm_tensor.dl_tensor, view)
+    return 0
+
+
+cdef object _smv_make_py_capsule(StridedMemoryView view, bint versioned):
+    cdef DLManagedTensor* dlm_tensor = NULL
+    cdef DLManagedTensorVersioned* dlm_tensor_ver = NULL
+    cdef object capsule = None
+    cdef void* tensor_ptr = NULL
+    cdef const char* capsule_name
+    try:
+        if versioned:
+            dlm_tensor_ver = _smv_allocate_dlm_tensor_versioned()
+            _smv_fill_managed_tensor_versioned(dlm_tensor_ver, view)
+            tensor_ptr = <void*>dlm_tensor_ver
+            capsule_name = DLPACK_VERSIONED_TENSOR_UNUSED_NAME
+        else:
+            dlm_tensor = _smv_allocate_dlm_tensor()
+            _smv_fill_managed_tensor(dlm_tensor, view)
+            tensor_ptr = <void*>dlm_tensor
+            capsule_name = DLPACK_TENSOR_UNUSED_NAME
+        capsule = cpython.PyCapsule_New(tensor_ptr, capsule_name, _smv_pycapsule_deleter)
+    except Exception:
+        if capsule is None:
+            _smv_deleter(dlm_tensor)
+            _smv_versioned_deleter(dlm_tensor_ver)
+        raise
+    return capsule
 
 
 cdef str get_simple_repr(obj):
