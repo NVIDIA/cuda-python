@@ -5,6 +5,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
@@ -27,8 +28,16 @@ from cuda.core import (
 from cuda.core._utils.cuda_utils import handle_return
 
 # Import shared test helpers for tests across subprojects.
+# PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
 _test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
-if _test_helpers_root.is_dir():
+try:
+    distribution("cuda-python-test-helpers")
+except PackageNotFoundError as exc:
+    if not _test_helpers_root.is_dir():
+        raise RuntimeError(
+            f"cuda-python-test-helpers not installed; expected checkout path {_test_helpers_root}"
+        ) from exc
+
     test_helpers_root = str(_test_helpers_root)
     if test_helpers_root not in sys.path:
         sys.path.insert(0, test_helpers_root)
