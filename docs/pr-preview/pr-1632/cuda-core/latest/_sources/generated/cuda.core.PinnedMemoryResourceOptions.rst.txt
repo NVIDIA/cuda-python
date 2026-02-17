@@ -1,0 +1,6 @@
+﻿cuda.core.PinnedMemoryResourceOptions
+=====================================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: PinnedMemoryResourceOptions
