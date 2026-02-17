@@ -24,13 +24,13 @@ class LocatedBitcodeLib:
     filename: str
 
 
-class _BitcodeLibInfo(TypedDict):  # Renamed: Config -> Info
+class _BitcodeLibInfo(TypedDict):
     filename: str
     rel_path: str
     site_packages_dirs: tuple[str, ...]
 
 
-_SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {  # Renamed: added underscore prefix
+_SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
     "device": {
         "filename": "libdevice.10.bc",
         "rel_path": os.path.join("nvvm", "libdevice"),
