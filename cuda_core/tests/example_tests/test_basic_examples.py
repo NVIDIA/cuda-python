@@ -10,7 +10,7 @@ import pytest
 from .utils import run_example
 
 # not dividing, but navigating into the "examples" directory.
-EXAMPLES_DIR = Path(__file__).resolve().parent.parent.parent / "examples"
+EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "examples"
 
 # recursively glob for test files in examples directory, sort for deterministic
 # test runs. Relative paths offer cleaner output when tests fail.
