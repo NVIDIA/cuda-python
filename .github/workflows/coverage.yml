@@ -98,10 +98,6 @@ jobs:
         run: |
           .venv/bin/pip install -v ./cuda_pathfinder
 
-      - name: Build cuda-python-test-helpers
-        run: |
-          .venv/bin/pip install -v ./cuda_python_test_helpers
-
       - name: Build cuda-bindings
         run: |
           cd cuda_bindings
