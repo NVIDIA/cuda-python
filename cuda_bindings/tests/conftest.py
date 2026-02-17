@@ -1,8 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import pathlib
+import sys
+
 import cuda.bindings.driver as cuda
 import pytest
+
+# Import shared test helpers for tests across subprojects.
+_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
+if _test_helpers_root.is_dir():
+    test_helpers_root = str(_test_helpers_root)
+    if test_helpers_root not in sys.path:
+        sys.path.insert(0, test_helpers_root)
 
 
 @pytest.fixture(scope="module")

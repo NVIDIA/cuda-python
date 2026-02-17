@@ -3,8 +3,6 @@
 
 import functools
 import os
-import pathlib
-import sys
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
@@ -22,12 +20,7 @@ if CUDA_PATH is not None:
             CCCL_INCLUDE_PATHS = (path,) + CCCL_INCLUDE_PATHS
 
 
-try:
-    from cuda_python_test_helpers import *  # noqa: F403
-except ImportError:
-    # Import shared platform helpers for tests across repos
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
-    from cuda_python_test_helpers import *  # noqa: F403
+from cuda_python_test_helpers import *  # noqa: F403
 
 
 @functools.cache
