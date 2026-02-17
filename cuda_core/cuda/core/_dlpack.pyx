@@ -79,6 +79,7 @@ cdef inline int setup_dl_tensor_layout(DLTensor* dl_tensor, object buf) except -
         <int64_t*>stdlib.malloc(sizeof(int64_t) * 2)
     if shape_strides == NULL:
         raise MemoryError()
+    # DLPack v1.2+ requires non-NULL strides for ndim != 0.
     shape_strides[0] = <int64_t>buf.size
     shape_strides[1] = 1
     dl_tensor.shape = shape_strides
