@@ -7,6 +7,8 @@ from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
 
+from cuda_python_test_helpers import *  # noqa: F403
+
 CUDA_PATH = os.environ.get("CUDA_PATH")
 CUDA_INCLUDE_PATH = None
 CCCL_INCLUDE_PATHS = None
@@ -18,9 +20,6 @@ if CUDA_PATH is not None:
         path = os.path.join(path, "cccl")
         if os.path.isdir(path):
             CCCL_INCLUDE_PATHS = (path,) + CCCL_INCLUDE_PATHS
-
-
-from cuda_python_test_helpers import *  # noqa: F403
 
 
 @functools.cache

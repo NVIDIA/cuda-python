@@ -6,14 +6,6 @@ import os
 import pathlib
 import sys
 
-# Import shared test helpers for tests across subprojects.
-_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
-if _test_helpers_root.is_dir():
-    test_helpers_root = str(_test_helpers_root)
-    if test_helpers_root not in sys.path:
-        sys.path.insert(0, test_helpers_root)
-
-import helpers
 import pytest
 
 try:
@@ -33,6 +25,13 @@ from cuda.core import (
     _device,
 )
 from cuda.core._utils.cuda_utils import handle_return
+
+# Import shared test helpers for tests across subprojects.
+_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
+if _test_helpers_root.is_dir():
+    test_helpers_root = str(_test_helpers_root)
+    if test_helpers_root not in sys.path:
+        sys.path.insert(0, test_helpers_root)
 
 
 def skip_if_pinned_memory_unsupported(device):
@@ -139,7 +138,9 @@ def ipc_device():
         pytest.skip("Device does not support IPC")
 
     # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
-    if helpers.IS_WSL or not helpers.supports_ipc_mempool(device):
+    from helpers import IS_WSL, supports_ipc_mempool
+
+    if IS_WSL or not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     return device
@@ -236,4 +237,7 @@ def memory_resource_factory(request, init_cuda):
     return request.param
 
 
-skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")
+skipif_need_cuda_headers = pytest.mark.skipif(
+    not os.path.isdir(os.path.join(os.environ.get("CUDA_PATH", ""), "include")),
+    reason="need CUDA header",
+)
