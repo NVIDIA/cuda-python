@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import math
 import ctypes
+import math
 
 try:
     import cupy as cp
@@ -21,7 +21,6 @@ from cuda.core._dlpack import DLDeviceType
 from cuda.core._layout import _StridedLayout
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 from pytest import param
-
 
 _PyCapsule_IsValid = ctypes.pythonapi.PyCapsule_IsValid
 _PyCapsule_IsValid.argtypes = (ctypes.py_object, ctypes.c_char_p)
