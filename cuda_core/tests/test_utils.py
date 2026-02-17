@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import math
+import ctypes
 
 try:
     import cupy as cp
@@ -16,9 +17,15 @@ import cuda.core
 import numpy as np
 import pytest
 from cuda.core import Device
+from cuda.core._dlpack import DLDeviceType
 from cuda.core._layout import _StridedLayout
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 from pytest import param
+
+
+_PyCapsule_IsValid = ctypes.pythonapi.PyCapsule_IsValid
+_PyCapsule_IsValid.argtypes = (ctypes.py_object, ctypes.c_char_p)
+_PyCapsule_IsValid.restype = ctypes.c_int
 
 
 def test_cast_to_3_tuple_success():
@@ -183,6 +190,44 @@ class TestViewGPU:
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
         # can't test view.readonly with CuPy or Numba...
+
+
+def test_strided_memory_view_dlpack_export_numpy_roundtrip():
+    src = np.arange(24, dtype=np.int32).reshape(4, 6)[:, ::2]
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    out = np.from_dlpack(view)
+    assert out.shape == src.shape
+    assert out.dtype == src.dtype
+    assert np.array_equal(out, src)
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCPU), 0)
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_strided_memory_view_dlpack_export_cupy_roundtrip(init_cuda):
+    src = cp.arange(24, dtype=cp.float32).reshape(4, 6)[:, ::2]
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    out = cp.from_dlpack(view)
+    cp.testing.assert_array_equal(out, src)
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDA), init_cuda.device_id)
+
+
+def test_strided_memory_view_dlpack_export_requires_dtype(init_cuda):
+    buffer = init_cuda.memory_resource.allocate(16)
+    view = StridedMemoryView.from_buffer(
+        buffer,
+        shape=(16,),
+        itemsize=1,
+        dtype=None,
+    )
+    with pytest.raises(BufferError, match="dtype"):
+        view.__dlpack__()
+
+
+def test_strided_memory_view_exposes_dlpack_c_exchange_api_capsule():
+    capsule = StridedMemoryView.__dlpack_c_exchange_api__
+    assert _PyCapsule_IsValid(capsule, b"dlpack_exchange_api") == 1
+    # Backward-compatible alias.
+    assert StridedMemoryView.__c_dlpack_exchange_api__ is capsule
 
 
 @pytest.mark.skipif(cp is None, reason="CuPy is not installed")
