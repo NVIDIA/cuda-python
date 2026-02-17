@@ -45,7 +45,7 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
     assert os.path.isfile(located_bitcode_lib.abs_path)
 
 
-@pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS.keys())
+@pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS)
 def test_locate_bitcode_lib(info_summary_append, libname):
     lib_path = find_bitcode_lib(libname) if locate_bitcode_lib(libname) else None
     located_lib = locate_bitcode_lib(libname)
@@ -55,7 +55,7 @@ def test_locate_bitcode_lib(info_summary_append, libname):
     if lib_path:
         _located_bitcode_lib_asserts(located_lib)
         assert os.path.isfile(lib_path)
-        expected_filename = SUPPORTED_BITCODE_LIBS[libname]["filename"]
+        expected_filename = located_lib.filename
         assert os.path.basename(lib_path) == expected_filename
     if STRICTNESS == "all_must_work":
         assert lib_path is not None
