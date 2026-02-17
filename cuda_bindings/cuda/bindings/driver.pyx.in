@@ -7952,7 +7952,7 @@ cdef class CUgraphConditionalHandle:
 
 {{if 'CUlaunchAttributeID_enum' in found_types}}
 
-class CUlaunchAttributeID(_FastEnum):
+class CUkernelNodeAttrID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.CUlaunchAttribute`
@@ -8184,7 +8184,7 @@ class CUlaunchAttributeID(_FastEnum):
 {{endif}}
 {{if 'CUlaunchAttributeID_enum' in found_types}}
 
-class CUlaunchAttributeID(_FastEnum):
+class CUstreamAttrID(_FastEnum):
     """
     Launch attributes enum; used as id field of
     :py:obj:`~.CUlaunchAttribute`
