@@ -48,9 +48,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
@@ -81,11 +81,11 @@ elif [[ "${test_module}" == "core" ]]; then
     pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi
   echo "Running core tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   # Currently our CI always installs the latest bindings (from either major version).
   # This is not compatible with the test requirements.
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
 fi
