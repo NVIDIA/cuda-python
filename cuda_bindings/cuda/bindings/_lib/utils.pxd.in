@@ -15,13 +15,12 @@ cdef class _HelperKernelParams:
     cdef int _length
     cdef bint _malloc_list_created
 
-cdef class _HelperInputVoidPtr:
-    cdef Py_buffer _pybuffer
-    cdef void* _cptr
-    cdef bint _pyobj_acquired
-
 cdef struct _HelperInputVoidPtrStruct:
     Py_buffer _pybuffer
+
+cdef class _HelperInputVoidPtr:
+    cdef _HelperInputVoidPtrStruct _helper 
+    cdef void* _cptr
 
 cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *buffer)
 

@@ -128,25 +128,10 @@ cdef class _HelperKernelParams:
 
 cdef class _HelperInputVoidPtr:
     def __cinit__(self, ptr):
-        self._pyobj_acquired = False
-        try:
-            self._cptr = <void*><void_ptr>ptr
-        except:            
-            if ptr is None:
-                self._cptr = NULL
-            elif PyObject_CheckBuffer(ptr):
-                # Easy run, get address from Python Buffer Protocol
-                err_buffer = PyObject_GetBuffer(ptr, &self._pybuffer, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
-                if err_buffer == -1:
-                    raise RuntimeError("Failed to retrieve buffer through Buffer Protocol")
-                self._pyobj_acquired = True
-                self._cptr = <void*><void_ptr>self._pybuffer.buf
-            else:
-                raise TypeError("Provided argument is of type {} but expected Type {}, {} or object with Buffer Protocol".format(type(ptr), type(None), type(int)))
+        self._cptr = _helper_input_void_ptr(ptr, &self._helper)
 
     def __dealloc__(self):
-        if self._pyobj_acquired is True:
-            PyBuffer_Release(&self._pybuffer)
+        _helper_input_void_ptr_free(&self._helper)
 
     @property
     def cptr(self):
