@@ -599,7 +599,7 @@ cdef class _InputVoidPtrPtrHelper:
         self._references = lst
         self._cptr = <void**>_callocWrapper(len(lst), sizeof(void*))
         for idx in range(len(lst)):
-            self._cptr[idx] = <void*><void_ptr>lst[idx]._cptr
+            self._cptr[idx] = <void*><void_ptr>lst[idx].cptr
 
     def __dealloc__(self):
         free(self._cptr)
