@@ -596,6 +596,8 @@ cdef class _HelperCUmemAllocationHandleType:
 
 cdef class _InputVoidPtrPtrHelper:
     def __cinit__(self, lst):
+        # Hold onto references to the original buffers so they
+        # won't be free'd behind our back
         self._references = lst
         self._cptr = <void**>_callocWrapper(len(lst), sizeof(void*))
         for idx in range(len(lst)):
