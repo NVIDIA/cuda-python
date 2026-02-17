@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from ._dlpack cimport *
 from libc.stdint cimport intptr_t
-from cuda.core._layout cimport _StridedLayout
+from cuda.core._layout cimport _StridedLayout, get_strides_ptr
 from cuda.core._stream import Stream
 
 import functools
@@ -28,6 +28,21 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._memory import Buffer
 
 # TODO(leofang): support NumPy structured dtypes
+
+
+cdef extern from "Python.h":
+    ctypedef struct PyTypeObject:
+        void* tp_dict
+    void PyType_Modified(PyTypeObject*)
+
+
+cdef DLPackExchangeAPI _SMV_DLPACK_EXCHANGE_API
+cdef bint _SMV_DLPACK_EXCHANGE_API_INITED = False
+_SMV_DLPACK_EXCHANGE_API_CAPSULE = cpython.PyCapsule_New(
+    <void*>&_SMV_DLPACK_EXCHANGE_API,
+    b"dlpack_exchange_api",
+    NULL,
+)
 
 
 cdef class StridedMemoryView:
@@ -580,27 +595,40 @@ cdef inline int _smv_setup_dl_tensor(DLTensor* dl_tensor, StridedMemoryView view
 
     cdef int i
     cdef int64_t* shape_strides = NULL
+    cdef int64_t* strides_src = NULL
     cdef int ndim = dl_tensor.ndim
     if ndim == 0:
         dl_tensor.shape = NULL
         dl_tensor.strides = NULL
-    elif layout.base.strides == NULL:
-        shape_strides = <int64_t*>stdlib.malloc(sizeof(int64_t) * ndim)
-        if shape_strides == NULL:
-            raise MemoryError()
-        for i in range(ndim):
-            shape_strides[i] = layout.base.shape[i]
-        dl_tensor.shape = shape_strides
-        dl_tensor.strides = NULL
     else:
+        # DLPack v1.2+ requires non-NULL strides for ndim != 0.
         shape_strides = <int64_t*>stdlib.malloc(sizeof(int64_t) * 2 * ndim)
         if shape_strides == NULL:
             raise MemoryError()
-        for i in range(ndim):
-            shape_strides[i] = layout.base.shape[i]
-            shape_strides[i + ndim] = layout.base.strides[i]
+        try:
+            strides_src = get_strides_ptr(layout.base)
+            for i in range(ndim):
+                shape_strides[i] = layout.base.shape[i]
+                shape_strides[i + ndim] = strides_src[i]
+        except Exception:
+            stdlib.free(shape_strides)
+            raise
         dl_tensor.shape = shape_strides
         dl_tensor.strides = shape_strides + ndim
+    return 0
+
+
+cdef inline int _smv_setup_dltensor_borrowed(DLTensor* dl_tensor, StridedMemoryView view) except -1:
+    cdef _StridedLayout layout = view.get_layout()
+    _smv_setup_dl_tensor_common(dl_tensor, view, layout)
+
+    if dl_tensor.ndim == 0:
+        dl_tensor.shape = NULL
+        dl_tensor.strides = NULL
+    else:
+        dl_tensor.shape = layout.base.shape
+        # For temporary/non-owning exchange we provide explicit strides.
+        dl_tensor.strides = get_strides_ptr(layout.base)
     return 0
 
 
@@ -653,6 +681,165 @@ cdef object _smv_make_py_capsule(StridedMemoryView view, bint versioned):
             _smv_versioned_deleter(dlm_tensor_ver)
         raise
     return capsule
+
+
+cdef inline StridedMemoryView _smv_from_dlpack_capsule(object capsule, object exporting_obj):
+    cdef void* data = NULL
+    cdef DLTensor* dl_tensor = NULL
+    cdef DLManagedTensorVersioned* dlm_tensor_ver = NULL
+    cdef DLManagedTensor* dlm_tensor = NULL
+    cdef bint is_readonly = False
+    cdef const char* used_name = NULL
+    if cpython.PyCapsule_IsValid(capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
+        data = cpython.PyCapsule_GetPointer(capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME)
+        dlm_tensor_ver = <DLManagedTensorVersioned*>data
+        dl_tensor = &dlm_tensor_ver.dl_tensor
+        is_readonly = bool((dlm_tensor_ver.flags & DLPACK_FLAG_BITMASK_READ_ONLY) != 0)
+        used_name = DLPACK_VERSIONED_TENSOR_USED_NAME
+    elif cpython.PyCapsule_IsValid(capsule, DLPACK_TENSOR_UNUSED_NAME):
+        data = cpython.PyCapsule_GetPointer(capsule, DLPACK_TENSOR_UNUSED_NAME)
+        dlm_tensor = <DLManagedTensor*>data
+        dl_tensor = &dlm_tensor.dl_tensor
+        is_readonly = False
+        used_name = DLPACK_TENSOR_USED_NAME
+    else:
+        raise BufferError("Invalid DLPack capsule")
+
+    cpython.PyCapsule_SetName(capsule, used_name)
+
+    cdef StridedMemoryView view = StridedMemoryView.__new__(StridedMemoryView)
+    view.dl_tensor = dl_tensor
+    view.metadata = capsule
+    view.ptr = <intptr_t>(dl_tensor.data) + <intptr_t>(dl_tensor.byte_offset)
+    view.readonly = is_readonly
+    view.exporting_obj = exporting_obj
+    if dl_tensor.device.device_type == _kDLCPU:
+        view.device_id = -1
+        view.is_device_accessible = False
+    elif dl_tensor.device.device_type in (_kDLCUDA, _kDLCUDAHost, _kDLCUDAManaged):
+        view.device_id = dl_tensor.device.device_id
+        view.is_device_accessible = True
+    else:
+        raise BufferError("device not supported")
+    return view
+
+
+cdef int _smv_managed_tensor_allocator(
+    DLTensor* prototype,
+    DLManagedTensorVersioned** out,
+    void* error_ctx,
+    void (*SetError)(void* error_ctx, const char* kind, const char* message) noexcept,
+) noexcept with gil:
+    if out != NULL:
+        out[0] = NULL
+    if SetError != NULL:
+        SetError(error_ctx, b"NotImplementedError", b"managed_tensor_allocator is not supported by StridedMemoryView")
+    cpython.PyErr_SetString(NotImplementedError, b"managed_tensor_allocator is not supported by StridedMemoryView")
+    return -1
+
+
+cdef int _smv_managed_tensor_from_py_object_no_sync(
+    void* py_object,
+    DLManagedTensorVersioned** out,
+) noexcept with gil:
+    cdef DLManagedTensorVersioned* dlm_tensor_ver = NULL
+    if out == NULL:
+        cpython.PyErr_SetString(RuntimeError, b"out cannot be NULL")
+        return -1
+    out[0] = NULL
+    cdef object obj = <object>py_object
+    if not isinstance(obj, StridedMemoryView):
+        cpython.PyErr_SetString(TypeError, b"py_object must be a StridedMemoryView")
+        return -1
+    try:
+        dlm_tensor_ver = _smv_allocate_dlm_tensor_versioned()
+        _smv_fill_managed_tensor_versioned(dlm_tensor_ver, <StridedMemoryView>obj)
+    except Exception:
+        _smv_versioned_deleter(dlm_tensor_ver)
+        return -1
+    out[0] = dlm_tensor_ver
+    return 0
+
+
+cdef int _smv_managed_tensor_to_py_object_no_sync(
+    DLManagedTensorVersioned* tensor,
+    void** out_py_object,
+) noexcept with gil:
+    cdef object capsule
+    cdef object py_view
+    if out_py_object == NULL:
+        cpython.PyErr_SetString(RuntimeError, b"out_py_object cannot be NULL")
+        return -1
+    out_py_object[0] = NULL
+    if tensor == NULL:
+        cpython.PyErr_SetString(RuntimeError, b"tensor cannot be NULL")
+        return -1
+    try:
+        capsule = cpython.PyCapsule_New(
+            <void*>tensor,
+            DLPACK_VERSIONED_TENSOR_UNUSED_NAME,
+            _smv_pycapsule_deleter,
+        )
+        py_view = _smv_from_dlpack_capsule(capsule, capsule)
+        cpython.Py_INCREF(py_view)
+        out_py_object[0] = <void*>py_view
+    except Exception:
+        return -1
+    return 0
+
+
+cdef int _smv_dltensor_from_py_object_no_sync(
+    void* py_object,
+    DLTensor* out,
+) noexcept with gil:
+    if out == NULL:
+        cpython.PyErr_SetString(RuntimeError, b"out cannot be NULL")
+        return -1
+    cdef object obj = <object>py_object
+    if not isinstance(obj, StridedMemoryView):
+        cpython.PyErr_SetString(TypeError, b"py_object must be a StridedMemoryView")
+        return -1
+    try:
+        _smv_setup_dltensor_borrowed(out, <StridedMemoryView>obj)
+    except Exception:
+        return -1
+    return 0
+
+
+cdef int _smv_current_work_stream(
+    _DLDeviceType device_type,
+    int32_t device_id,
+    void** out_current_stream,
+) noexcept with gil:
+    if out_current_stream == NULL:
+        cpython.PyErr_SetString(RuntimeError, b"out_current_stream cannot be NULL")
+        return -1
+    # cuda.core has no global/current stream state today.
+    out_current_stream[0] = NULL
+    return 0
+
+
+cdef void _init_smv_dlpack_exchange_api():
+    global _SMV_DLPACK_EXCHANGE_API_INITED
+    if _SMV_DLPACK_EXCHANGE_API_INITED:
+        return
+    _SMV_DLPACK_EXCHANGE_API.header.version.major = DLPACK_MAJOR_VERSION
+    _SMV_DLPACK_EXCHANGE_API.header.version.minor = DLPACK_MINOR_VERSION
+    _SMV_DLPACK_EXCHANGE_API.header.prev_api = NULL
+    _SMV_DLPACK_EXCHANGE_API.managed_tensor_allocator = _smv_managed_tensor_allocator
+    _SMV_DLPACK_EXCHANGE_API.managed_tensor_from_py_object_no_sync = _smv_managed_tensor_from_py_object_no_sync
+    _SMV_DLPACK_EXCHANGE_API.managed_tensor_to_py_object_no_sync = _smv_managed_tensor_to_py_object_no_sync
+    _SMV_DLPACK_EXCHANGE_API.dltensor_from_py_object_no_sync = _smv_dltensor_from_py_object_no_sync
+    _SMV_DLPACK_EXCHANGE_API.current_work_stream = _smv_current_work_stream
+    _SMV_DLPACK_EXCHANGE_API_INITED = True
+
+
+_init_smv_dlpack_exchange_api()
+# cdef classes are immutable types in Cython 3, so inject these attributes
+# directly into the type dict.
+(<dict>(<PyTypeObject*>StridedMemoryView).tp_dict)["__dlpack_c_exchange_api__"] = _SMV_DLPACK_EXCHANGE_API_CAPSULE
+(<dict>(<PyTypeObject*>StridedMemoryView).tp_dict)["__c_dlpack_exchange_api__"] = _SMV_DLPACK_EXCHANGE_API_CAPSULE
+PyType_Modified(<PyTypeObject*>StridedMemoryView)
 
 
 cdef str get_simple_repr(obj):
