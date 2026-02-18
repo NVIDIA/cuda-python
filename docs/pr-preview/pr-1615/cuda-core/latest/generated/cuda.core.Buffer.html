@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b7c70ae8"></script>
+    <script src="../_static/documentation_options.js?v=d308daac"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev135';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -574,6 +574,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
@@ -775,7 +776,9 @@ asynchronous copy</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – Allocated buffer handle object</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Memory size of the buffer</p></li>
-<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>, optional) – Memory resource associated with the buffer</p></li>
+<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>, optional) – Memory resource associated with the buffer.  When provided,
+<a class="reference internal" href="cuda.core.MemoryResource.html#cuda.core.MemoryResource.deallocate" title="cuda.core.MemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a> is called when the buffer is
+closed or garbage collected.</p></li>
 <li><p><strong>owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – An object holding external allocation that the <code class="docutils literal notranslate"><span class="pre">ptr</span></code> points to.
 The reference is kept as long as the buffer is alive.
 The <code class="docutils literal notranslate"><span class="pre">owner</span></code> and <code class="docutils literal notranslate"><span class="pre">mr</span></code> cannot be specified together.</p></li>
@@ -784,8 +787,9 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
 </dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This creates a non-owning reference. The pointer will NOT be freed
-when the Buffer is closed or garbage collected.</p>
+<p>When neither <code class="docutils literal notranslate"><span class="pre">mr</span></code> nor <code class="docutils literal notranslate"><span class="pre">owner</span></code> is specified, this creates a
+non-owning reference.  The pointer will NOT be freed when the
+<a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed or garbage collected.</p>
 </div>
 </dd></dl>
 
