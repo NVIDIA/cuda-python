@@ -20,6 +20,9 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
 )
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    SUPPORTED_BITCODE_LIBS as _SUPPORTED_BITCODE_LIBS,
+)
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
     BitcodeLibNotFoundError as BitcodeLibNotFoundError,
 )
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
@@ -46,6 +49,11 @@ SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 #: utilities may be available only on Linux or Windows).
 #: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.
 SUPPORTED_BINARY_UTILITIES = _SUPPORTED_BINARIES
+
+#: Tuple of supported bitcode library names that can be resolved
+#: via ``locate_bitcode_lib()`` and ``find_bitcode_lib()``.
+#: Example value: ``"device"``.
+SUPPORTED_BITCODE_LIBS = _SUPPORTED_BITCODE_LIBS
 
 # Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.
 # It will be removed in release 1.2.4.
