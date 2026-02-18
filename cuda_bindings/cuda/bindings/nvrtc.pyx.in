@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 0d24f4f. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version fd3f910. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -1035,12 +1035,14 @@ def nvrtcSetFlowCallback(prog, callback, payload):
     else:
         pprog = int(nvrtcProgram(prog))
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
-    cycallback = _HelperInputVoidPtr(callback)
-    cdef void* cycallback_ptr = <void*><void_ptr>cycallback.cptr
-    cypayload = _HelperInputVoidPtr(payload)
-    cdef void* cypayload_ptr = <void*><void_ptr>cypayload.cptr
+    cdef _HelperInputVoidPtrStruct cycallbackHelper
+    cdef void* cycallback = _helper_input_void_ptr(callback, &cycallbackHelper)
+    cdef _HelperInputVoidPtrStruct cypayloadHelper
+    cdef void* cypayload = _helper_input_void_ptr(payload, &cypayloadHelper)
     with nogil:
-        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback_ptr, cypayload_ptr)
+        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback, cypayload)
+    _helper_input_void_ptr_free(&cycallbackHelper)
+    _helper_input_void_ptr_free(&cypayloadHelper)
     return (_nvrtcResult(err),)
 {{endif}}
 
