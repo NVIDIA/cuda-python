@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1a977a24"></script>
+    <script src="../_static/documentation_options.js?v=89177457"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev115';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev117';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -698,6 +698,18 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
 </dl>
 </dd></dl>
 
+<p class="rubric">Attributes</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.Graph.handle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphExec" title="(in cuda.bindings)"><span class="pre">CUgraphExec</span></a></em><a class="headerlink" href="#cuda.core.Graph.handle" title="Link to this definition">#</a></dt>
+<dd><p>Return the underlying <code class="docutils literal notranslate"><span class="pre">CUgraphExec</span></code> object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int()</span></code> on the returned object.</p>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -757,6 +769,7 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.launch"><code class="docutils literal notranslate"><span class="pre">Graph.launch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.update"><code class="docutils literal notranslate"><span class="pre">Graph.update()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.upload"><code class="docutils literal notranslate"><span class="pre">Graph.upload()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.handle"><code class="docutils literal notranslate"><span class="pre">Graph.handle</span></code></a></li>
 </ul>
 </li>
 </ul>
