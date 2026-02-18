@@ -162,4 +162,3 @@ class DLDeviceType(IntEnum):
     kDLCUDA = _kDLCUDA
     kDLCUDAHost = _kDLCUDAHost
     kDLCUDAManaged = _kDLCUDAManaged
-    kDLTrn = _kDLTrn
