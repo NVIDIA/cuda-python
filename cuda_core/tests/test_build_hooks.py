@@ -24,8 +24,9 @@ from unittest import mock
 
 import pytest
 
-# build_hooks.py imports Cython at the top level, so skip if not available
+# build_hooks.py imports Cython and setuptools at the top level, so skip if not available
 pytest.importorskip("Cython")
+pytest.importorskip("setuptools")
 
 
 def _load_build_hooks():

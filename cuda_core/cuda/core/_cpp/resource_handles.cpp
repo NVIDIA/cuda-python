@@ -566,6 +566,42 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 }
 
 // ============================================================================
+// MemoryResource-owned Device Pointer Handles
+// ============================================================================
+
+static MRDeallocCallback mr_dealloc_cb = nullptr;
+
+void register_mr_dealloc_callback(MRDeallocCallback cb) {
+    mr_dealloc_cb = cb;
+}
+
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
+    if (!mr) {
+        return deviceptr_create_ref(ptr);
+    }
+    // GIL required when mr is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        return deviceptr_create_ref(ptr);
+    }
+    Py_INCREF(mr);
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, StreamHandle{}},
+        [mr, size](DevicePtrBox* b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                if (mr_dealloc_cb) {
+                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                }
+                Py_DECREF(mr);
+            }
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+// ============================================================================
 // IPC Pointer Cache
 // ============================================================================
 // This cache handles duplicate IPC imports, which behave differently depending

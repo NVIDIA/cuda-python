@@ -11,8 +11,8 @@ from setuptools_scm import get_version
 version = get_version(
     root="..",
     relative_to=__file__,
-    # We deliberately do not want to include the version suffixes (a/b/rc) in cuda-python versioning
-    tag_regex="^(?P<version>v\\d+\\.\\d+\\.\\d+)",
+    # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
+    tag_regex="^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)",
     git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"],
 )
 
