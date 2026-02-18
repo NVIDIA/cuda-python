@@ -611,6 +611,8 @@ def no_ml_dtypes(monkeypatch):
         param(StridedMemoryView.from_any_interface, id="from_any_interface"),
     ],
 )
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+@pytest.mark.skipif(cp is not None and _get_cupy_version_major() < 14, reason="CuPy version is less than 14.0.0")
 def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, api):
     a = cp.array([1, 2, 3], dtype="bfloat16")
     smv = api(a, stream_ptr=0)
