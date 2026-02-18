@@ -74,55 +74,54 @@ For example:
 
    $ conda install -c conda-forge cuda-python cuda-version=13
 
-Installing with uv
-------------------
+Development environment
+-----------------------
 
-`uv`_ is a fast Python package and project manager. To install ``cuda-python`` using ``uv``:
+The sections above cover end-user installation. The section below describes a
+repeatable setup for *developing* in this repository (editable installs and
+running tests). It intentionally does not duplicate the canonical install
+instructions.
 
-.. code-block:: console
+Development with uv
+~~~~~~~~~~~~~~~~~~~
 
-   $ uv pip install cuda-python
-
-To install with all optional dependencies:
-
-.. code-block:: console
-
-   $ uv pip install "cuda-python[all]"
-
-``uv`` can also manage virtual environments automatically:
+`uv`_ is a fast Python package and project manager.
 
 .. code-block:: console
 
+   $ git clone https://github.com/NVIDIA/cuda-python
+   $ cd cuda-python/cuda_bindings
    $ uv venv
-   $ uv pip install cuda-python
+   $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+   $ uv pip install -e . --group test
+
+Run the test suite:
+
+.. code-block:: console
+
+   $ python -m pytest tests
 
 .. _uv: https://docs.astral.sh/uv/
 
-Installing with pixi
---------------------
+Development with pixi
+~~~~~~~~~~~~~~~~~~~~~
 
-`pixi`_ is a cross-platform package manager built on top of the conda ecosystem. To install ``cuda-python`` in a pixi project:
-
-.. code-block:: console
-
-   $ pixi init my-cuda-project
-   $ cd my-cuda-project
-   $ pixi add cuda-python --channel conda-forge --channel nvidia
-
-Or add it to an existing ``pixi.toml``:
-
-.. code-block:: toml
-
-   [dependencies]
-   cuda-python = ">=12.8.0"
-
-.. note::
-
-   Use the ``cuda-version`` package to pin the CUDA Toolkit version in your pixi environment:
+`pixi`_ provides a reproducible development environment via the workspace
+``pixi.toml`` in the repository root.
 
 .. code-block:: console
 
-   $ pixi add cuda-version=13 --channel conda-forge
+   $ git clone https://github.com/NVIDIA/cuda-python
+   $ cd cuda-python
+   $ pixi run -e cu13 test-bindings
+
+To run the full repository test matrix (pathfinder → bindings → core):
+
+.. code-block:: console
+
+   $ pixi run -e cu13 test
+
+Use ``-e cu12`` to test against CUDA 12 instead.
 
 .. _pixi: https://pixi.sh/
 
