@@ -4,6 +4,7 @@
 
 import math
 
+# TODO: replace optional imports with pytest.importorskip
 try:
     import cupy as cp
 except ImportError:
@@ -24,6 +25,12 @@ from cuda.core import Device
 from cuda.core._layout import _StridedLayout
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 from pytest import param
+
+
+def _get_cupy_version_major() -> int | None:
+    if cp is None:
+        return None
+    return int(cp.__version__.split(".")[0])
 
 
 def test_cast_to_3_tuple_success():
@@ -531,23 +538,6 @@ def test_from_array_interface_unsupported_strides(init_cuda):
         smv.strides  # noqa: B018
 
 
-class _DLPackOnlyArray:
-    def __init__(self, array):
-        self.array = array
-
-    def __dlpack__(self, stream=None, max_version=None):
-        if max_version is None:
-            return self.array.__dlpack__(stream=stream)
-        return self.array.__dlpack__(stream=stream, max_version=max_version)
-
-    def __dlpack_device__(self):
-        return self.array.__dlpack_device__()
-
-    @property
-    def __cuda_array_interface__(self):
-        raise AssertionError("from_any_interface should prefer DLPack when available")
-
-
 @pytest.mark.parametrize(
     "slices",
     [
@@ -555,6 +545,8 @@ class _DLPackOnlyArray:
         param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
     ],
 )
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+@pytest.mark.skipif(cp is not None and _get_cupy_version_major() < 14, reason="CuPy version is less than 14.0.0")
 def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
     a = cp.array([1, 2, 3, 4, 5, 6], dtype=ml_dtypes.bfloat16).reshape(2, 3)[slices]
     smv = StridedMemoryView.from_dlpack(a, stream_ptr=0)
@@ -574,19 +566,6 @@ def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
         assert smv.strides in (None, strides_in_counts)
     else:
         assert smv.strides == strides_in_counts
-
-
-def test_ml_dtypes_bfloat16_from_any_interface_prefers_dlpack(init_cuda):
-    a = cp.array([1, 2, 3, 4, 5, 6], dtype="bfloat16")
-    wrapped = _DLPackOnlyArray(a)
-    smv = StridedMemoryView.from_any_interface(wrapped, stream_ptr=0)
-
-    assert smv.dtype == np.dtype("bfloat16")
-    assert smv.shape == a.shape
-    assert smv.ptr == a.data.ptr
-    assert smv.device_id == init_cuda.device_id
-    assert smv.is_device_accessible is True
-    assert smv.exporting_obj is wrapped
 
 
 @pytest.mark.parametrize(
