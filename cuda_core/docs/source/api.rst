@@ -142,6 +142,7 @@ Utility functions
    :toctree: generated/
 
    args_viewable_as_strided_memory
+   make_aligned_dtype
 
    :template: autosummary/cyclass.rst
 
