@@ -469,8 +469,7 @@ jobs:
 
       - name: Merge cuda.core wheels
         run: |
-          uv pip install --system wheel
-          python ci/tools/merge_cuda_core_wheels.py \
+          uv run --no-project --with wheel python ci/tools/merge_cuda_core_wheels.py \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
             --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
