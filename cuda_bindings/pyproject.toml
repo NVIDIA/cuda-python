@@ -56,8 +56,13 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 [tool.setuptools.packages.find]
 include = ["cuda*"]
 
-[tool.setuptools.exclude-package-data]
-"*" = ["*.cpp"]
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"*" = ["*.pxd", "*.pxi"]
+"cuda.bindings._bindings" = ["*.h"]
+"cuda.bindings._lib" = ["*.h"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
@@ -84,6 +89,6 @@ xfail_strict = true
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
+# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]

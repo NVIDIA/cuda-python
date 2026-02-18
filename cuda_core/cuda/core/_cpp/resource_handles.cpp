@@ -56,6 +56,12 @@ decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
 decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
+// NVRTC function pointers
+decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
+
+// NVVM function pointers (may be null if NVVM is not available)
+NvvmDestroyProgramFn p_nvvmDestroyProgram = nullptr;
+
 // ============================================================================
 // GIL management helpers
 // ============================================================================
@@ -560,6 +566,42 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 }
 
 // ============================================================================
+// MemoryResource-owned Device Pointer Handles
+// ============================================================================
+
+static MRDeallocCallback mr_dealloc_cb = nullptr;
+
+void register_mr_dealloc_callback(MRDeallocCallback cb) {
+    mr_dealloc_cb = cb;
+}
+
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
+    if (!mr) {
+        return deviceptr_create_ref(ptr);
+    }
+    // GIL required when mr is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        return deviceptr_create_ref(ptr);
+    }
+    Py_INCREF(mr);
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, StreamHandle{}},
+        [mr, size](DevicePtrBox* b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                if (mr_dealloc_cb) {
+                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                }
+                Py_DECREF(mr);
+            }
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+// ============================================================================
 // IPC Pointer Cache
 // ============================================================================
 // This cache handles duplicate IPC imports, which behave differently depending
@@ -762,6 +804,66 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
     auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
     return KernelHandle(box, &box->resource);
+}
+
+// ============================================================================
+// NVRTC Program Handles
+// ============================================================================
+
+namespace {
+struct NvrtcProgramBox {
+    nvrtcProgram resource;
+};
+}  // namespace
+
+NvrtcProgramHandle create_nvrtc_program_handle(nvrtcProgram prog) {
+    auto box = std::shared_ptr<NvrtcProgramBox>(
+        new NvrtcProgramBox{prog},
+        [](NvrtcProgramBox* b) {
+            // Note: nvrtcDestroyProgram takes nvrtcProgram* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            // Errors are ignored (standard destructor practice).
+            p_nvrtcDestroyProgram(&b->resource);
+            delete b;
+        }
+    );
+    return NvrtcProgramHandle(box, &box->resource);
+}
+
+NvrtcProgramHandle create_nvrtc_program_handle_ref(nvrtcProgram prog) {
+    auto box = std::make_shared<NvrtcProgramBox>(NvrtcProgramBox{prog});
+    return NvrtcProgramHandle(box, &box->resource);
+}
+
+// ============================================================================
+// NVVM Program Handles
+// ============================================================================
+
+namespace {
+struct NvvmProgramBox {
+    nvvmProgram resource;
+};
+}  // namespace
+
+NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog) {
+    auto box = std::shared_ptr<NvvmProgramBox>(
+        new NvvmProgramBox{prog},
+        [](NvvmProgramBox* b) {
+            // Note: nvvmDestroyProgram takes nvvmProgram* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            // If NVVM is not available, the function pointer is null.
+            if (p_nvvmDestroyProgram) {
+                p_nvvmDestroyProgram(&b->resource);
+            }
+            delete b;
+        }
+    );
+    return NvvmProgramHandle(box, &box->resource);
+}
+
+NvvmProgramHandle create_nvvm_program_handle_ref(nvvmProgram prog) {
+    auto box = std::make_shared<NvvmProgramBox>(NvvmProgramBox{prog});
+    return NvvmProgramHandle(box, &box->resource);
 }
 
 }  // namespace cuda_core

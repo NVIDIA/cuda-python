@@ -72,9 +72,13 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 [tool.setuptools.packages.find]
 include = ["cuda.core*"]
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.package-data]
-"cuda.core._include" = ["*.h", "*.hpp", "*.cuh"]
-"cuda.core._cpp" = ["*.cpp", "*.hpp"]
+"*" = ["*.pxd"]
+"cuda.core._include" = ["*.h", "*.hpp"]
+"cuda.core._cpp" = ["*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
@@ -82,8 +86,8 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/core/_version.py"
-# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-core versioning
-tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+)"
+# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
+tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
 [tool.cibuildwheel]

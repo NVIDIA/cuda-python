@@ -14,6 +14,7 @@ cuda-pathfinder = { path = "." }
 pytest = ">=6.2.4"
 pytest-mock = "*"
 pytest-repeat = "*"
+pytest-randomly = "*"
 
 [feature.cu12.system-requirements]
 cuda = "12"
