@@ -21203,10 +21203,11 @@ def cudaIpcGetMemHandle(devPtr):
     :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaIpcGetEventHandle`, :py:obj:`~.cudaIpcOpenEventHandle`, :py:obj:`~.cudaIpcOpenMemHandle`, :py:obj:`~.cudaIpcCloseMemHandle`, :py:obj:`~.cuIpcGetMemHandle`
     """
     cdef cudaIpcMemHandle_t handle = cudaIpcMemHandle_t()
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaIpcGetMemHandle(<cyruntime.cudaIpcMemHandle_t*>handle._pvt_ptr, cydevPtr_ptr)
+        err = cyruntime.cudaIpcGetMemHandle(<cyruntime.cudaIpcMemHandle_t*>handle._pvt_ptr, cydevPtr)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), handle)
@@ -21321,10 +21322,11 @@ def cudaIpcCloseMemHandle(devPtr):
     --------
     :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaIpcGetEventHandle`, :py:obj:`~.cudaIpcOpenEventHandle`, :py:obj:`~.cudaIpcGetMemHandle`, :py:obj:`~.cudaIpcOpenMemHandle`, :py:obj:`~.cuIpcCloseMemHandle`
     """
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaIpcCloseMemHandle(cydevPtr_ptr)
+        err = cyruntime.cudaIpcCloseMemHandle(cydevPtr)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -21436,15 +21438,15 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     else:
         pcallbackFunc = int(cudaAsyncCallback(callbackFunc))
     cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>pcallbackFunc
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cudaAsyncCallbackData *cbData = NULL
     cbData = <cudaAsyncCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (cudaError_t.cudaErrorMemoryAllocation, None)
     cbData.callback = cycallbackFunc
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     cdef cudaAsyncCallbackHandle_t callback = cudaAsyncCallbackHandle_t()
     with nogil:
@@ -21453,6 +21455,8 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
         free(cbData)
     else:
         m_global._allocated[int(callback)] = cbData
+    _helper_input_void_ptr_free(&cyuserDataHelper)
+
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), callback)
@@ -22075,10 +22079,11 @@ def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
     --------
     :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaDestroyExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
-    cynvSciSyncAttrList = _HelperInputVoidPtr(nvSciSyncAttrList)
-    cdef void* cynvSciSyncAttrList_ptr = <void*><void_ptr>cynvSciSyncAttrList.cptr
+    cdef _HelperInputVoidPtrStruct cynvSciSyncAttrListHelper
+    cdef void* cynvSciSyncAttrList = _helper_input_void_ptr(nvSciSyncAttrList, &cynvSciSyncAttrListHelper)
     with nogil:
-        err = cyruntime.cudaDeviceGetNvSciSyncAttributes(cynvSciSyncAttrList_ptr, device, flags)
+        err = cyruntime.cudaDeviceGetNvSciSyncAttributes(cynvSciSyncAttrList, device, flags)
+    _helper_input_void_ptr_free(&cynvSciSyncAttrListHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -23185,20 +23190,22 @@ def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cudaStreamCallbackData *cbData = NULL
     cbData = <cudaStreamCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (cudaError_t.cudaErrorMemoryAllocation,)
     cbData.callback = cycallback
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     with nogil:
         err = cyruntime.cudaStreamAddCallback(cystream, <cyruntime.cudaStreamCallback_t>cudaStreamRtCallbackWrapper, <void *>cbData, flags)
     if err != cyruntime.cudaSuccess:
         free(cbData)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
+
     return (cudaError_t(err),)
 {{endif}}
 
@@ -23384,10 +23391,11 @@ def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaStreamAttachMemAsync(cystream, cydevPtr_ptr, length, flags)
+        err = cyruntime.cudaStreamAttachMemAsync(cystream, cydevPtr, length, flags)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -25196,11 +25204,12 @@ def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
     -----
     This API does not accept a :py:obj:`~.cudaKernel_t` casted as void*. If cache config modification is required for a :py:obj:`~.cudaKernel_t` (or a global function), it can be replaced with a call to :py:obj:`~.cudaFuncSetAttributes` with the attribute :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout` to specify a more granular L1 cache and shared memory split configuration.
     """
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     cdef cyruntime.cudaFuncCache cycacheConfig = int(cacheConfig)
     with nogil:
-        err = cyruntime.cudaFuncSetCacheConfig(cyfunc_ptr, cycacheConfig)
+        err = cyruntime.cudaFuncSetCacheConfig(cyfunc, cycacheConfig)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -25239,10 +25248,11 @@ def cudaFuncGetAttributes(func):
     :py:obj:`~.cudaFuncSetCacheConfig (C API)`, cudaFuncGetAttributes (C++ API), :py:obj:`~.cudaLaunchKernel (C API)`, :py:obj:`~.cuFuncGetAttribute`
     """
     cdef cudaFuncAttributes attr = cudaFuncAttributes()
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     with nogil:
-        err = cyruntime.cudaFuncGetAttributes(<cyruntime.cudaFuncAttributes*>attr._pvt_ptr, cyfunc_ptr)
+        err = cyruntime.cudaFuncGetAttributes(<cyruntime.cudaFuncAttributes*>attr._pvt_ptr, cyfunc)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), attr)
@@ -25326,11 +25336,12 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDeviceFunction`, :py:obj:`~.cudaErrorInvalidValue`
     """
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     cdef cyruntime.cudaFuncAttribute cyattr = int(attr)
     with nogil:
-        err = cyruntime.cudaFuncSetAttribute(cyfunc_ptr, cyattr, value)
+        err = cyruntime.cudaFuncSetAttribute(cyfunc, cyattr, value)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -25427,20 +25438,22 @@ def cudaLaunchHostFunc(stream, fn, userData):
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
 
     cdef cudaStreamHostCallbackData *cbData = NULL
     cbData = <cudaStreamHostCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
         return (cudaError_t.cudaErrorMemoryAllocation,)
     cbData.callback = cyfn
-    cbData.userData = cyuserData_ptr
+    cbData.userData = cyuserData
 
     with nogil:
         err = cyruntime.cudaLaunchHostFunc(cystream, <cyruntime.cudaHostFn_t>cudaStreamRtHostCallbackWrapper, <void *>cbData)
     if err != cyruntime.cudaSuccess:
         free(cbData)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
+
     return (cudaError_t(err),)
 {{endif}}
 
@@ -25504,11 +25517,12 @@ def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
     --------
     :py:obj:`~.cudaDeviceSetSharedMemConfig`, :py:obj:`~.cudaDeviceGetSharedMemConfig`, :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuFuncSetSharedMemConfig`
     """
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     cdef cyruntime.cudaSharedMemConfig cyconfig = int(config)
     with nogil:
-        err = cyruntime.cudaFuncSetSharedMemConfig(cyfunc_ptr, cyconfig)
+        err = cyruntime.cudaFuncSetSharedMemConfig(cyfunc, cyconfig)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -25542,10 +25556,11 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessor(func, int blockSize, size_t dy
     :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags`, cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeWithFlags (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMemWithFlags (C++ API), cudaOccupancyAvailableDynamicSMemPerBlock (C++ API), :py:obj:`~.cuOccupancyMaxActiveBlocksPerMultiprocessor`
     """
     cdef int numBlocks = 0
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     with nogil:
-        err = cyruntime.cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocks, cyfunc_ptr, blockSize, dynamicSMemSize)
+        err = cyruntime.cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocks, cyfunc, blockSize, dynamicSMemSize)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), numBlocks)
@@ -25581,10 +25596,11 @@ def cudaOccupancyAvailableDynamicSMemPerBlock(func, int numBlocks, int blockSize
     :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags`, cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeWithFlags (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMemWithFlags (C++ API), :py:obj:`~.cudaOccupancyAvailableDynamicSMemPerBlock`
     """
     cdef size_t dynamicSmemSize = 0
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     with nogil:
-        err = cyruntime.cudaOccupancyAvailableDynamicSMemPerBlock(&dynamicSmemSize, cyfunc_ptr, numBlocks, blockSize)
+        err = cyruntime.cudaOccupancyAvailableDynamicSMemPerBlock(&dynamicSmemSize, cyfunc, numBlocks, blockSize)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), dynamicSmemSize)
@@ -25637,10 +25653,11 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func, int blockSize, 
     :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessor`, cudaOccupancyMaxPotentialBlockSize (C++ API), cudaOccupancyMaxPotentialBlockSizeWithFlags (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMem (C++ API), cudaOccupancyMaxPotentialBlockSizeVariableSMemWithFlags (C++ API), cudaOccupancyAvailableDynamicSMemPerBlock (C++ API), :py:obj:`~.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags`
     """
     cdef int numBlocks = 0
-    cyfunc = _HelperInputVoidPtr(func)
-    cdef void* cyfunc_ptr = <void*><void_ptr>cyfunc.cptr
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     with nogil:
-        err = cyruntime.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(&numBlocks, cyfunc_ptr, blockSize, dynamicSMemSize, flags)
+        err = cyruntime.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(&numBlocks, cyfunc, blockSize, dynamicSMemSize, flags)
+    _helper_input_void_ptr_free(&cyfuncHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), numBlocks)
@@ -26043,10 +26060,11 @@ def cudaFree(devPtr):
     --------
     :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaMallocManaged`, :py:obj:`~.cudaMallocArray`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaMallocFromPoolAsync` :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaFreeAsync` :py:obj:`~.cudaHostAlloc`, :py:obj:`~.cuMemFree`
     """
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaFree(cydevPtr_ptr)
+        err = cyruntime.cudaFree(cydevPtr)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -26074,10 +26092,11 @@ def cudaFreeHost(ptr):
     --------
     :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaMallocArray`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.cuMemFreeHost`
     """
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cyruntime.cudaFreeHost(cyptr_ptr)
+        err = cyruntime.cudaFreeHost(cyptr)
+    _helper_input_void_ptr_free(&cyptrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -26350,10 +26369,11 @@ def cudaHostRegister(ptr, size_t size, unsigned int flags):
     --------
     :py:obj:`~.cudaHostUnregister`, :py:obj:`~.cudaHostGetFlags`, :py:obj:`~.cudaHostGetDevicePointer`, :py:obj:`~.cuMemHostRegister`
     """
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cyruntime.cudaHostRegister(cyptr_ptr, size, flags)
+        err = cyruntime.cudaHostRegister(cyptr, size, flags)
+    _helper_input_void_ptr_free(&cyptrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -26383,10 +26403,11 @@ def cudaHostUnregister(ptr):
     --------
     :py:obj:`~.cudaHostUnregister`, :py:obj:`~.cuMemHostUnregister`
     """
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cyruntime.cudaHostUnregister(cyptr_ptr)
+        err = cyruntime.cudaHostUnregister(cyptr)
+    _helper_input_void_ptr_free(&cyptrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -26443,10 +26464,11 @@ def cudaHostGetDevicePointer(pHost, unsigned int flags):
     :py:obj:`~.cudaSetDeviceFlags`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`
     """
     cdef void_ptr pDevice = 0
-    cypHost = _HelperInputVoidPtr(pHost)
-    cdef void* cypHost_ptr = <void*><void_ptr>cypHost.cptr
+    cdef _HelperInputVoidPtrStruct cypHostHelper
+    cdef void* cypHost = _helper_input_void_ptr(pHost, &cypHostHelper)
     with nogil:
-        err = cyruntime.cudaHostGetDevicePointer(<void**>&pDevice, cypHost_ptr, flags)
+        err = cyruntime.cudaHostGetDevicePointer(<void**>&pDevice, cypHost, flags)
+    _helper_input_void_ptr_free(&cypHostHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), pDevice)
@@ -26478,10 +26500,11 @@ def cudaHostGetFlags(pHost):
     :py:obj:`~.cudaHostAlloc`, :py:obj:`~.cuMemHostGetFlags`
     """
     cdef unsigned int pFlags = 0
-    cypHost = _HelperInputVoidPtr(pHost)
-    cdef void* cypHost_ptr = <void*><void_ptr>cypHost.cptr
+    cdef _HelperInputVoidPtrStruct cypHostHelper
+    cdef void* cypHost = _helper_input_void_ptr(pHost, &cypHostHelper)
     with nogil:
-        err = cyruntime.cudaHostGetFlags(&pFlags, cypHost_ptr)
+        err = cyruntime.cudaHostGetFlags(&pFlags, cypHost)
+    _helper_input_void_ptr_free(&cypHostHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), pFlags)
@@ -27502,13 +27525,15 @@ def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
     --------
     :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpy`
     """
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy(cydst_ptr, cysrc_ptr, count, cykind)
+        err = cyruntime.cudaMemcpy(cydst, cysrc, count, cykind)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27551,12 +27576,14 @@ def cudaMemcpyPeer(dst, int dstDevice, src, int srcDevice, size_t count):
     --------
     :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpyPeerAsync`, :py:obj:`~.cudaMemcpy3DPeerAsync`, :py:obj:`~.cuMemcpyPeer`
     """
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     with nogil:
-        err = cyruntime.cudaMemcpyPeer(cydst_ptr, dstDevice, cysrc_ptr, srcDevice, count)
+        err = cyruntime.cudaMemcpyPeer(cydst, dstDevice, cysrc, srcDevice, count)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27610,13 +27637,15 @@ def cudaMemcpy2D(dst, size_t dpitch, src, size_t spitch, size_t width, size_t he
     --------
     :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DUnaligned`
     """
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy2D(cydst_ptr, dpitch, cysrc_ptr, spitch, width, height, cykind)
+        err = cyruntime.cudaMemcpy2D(cydst, dpitch, cysrc, spitch, width, height, cykind)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27679,11 +27708,12 @@ def cudaMemcpy2DToArray(dst, size_t wOffset, size_t hOffset, src, size_t spitch,
     else:
         pdst = int(cudaArray_t(dst))
     cydst = <cyruntime.cudaArray_t><void_ptr>pdst
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy2DToArray(cydst, wOffset, hOffset, cysrc_ptr, spitch, width, height, cykind)
+        err = cyruntime.cudaMemcpy2DToArray(cydst, wOffset, hOffset, cysrc, spitch, width, height, cykind)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27746,11 +27776,12 @@ def cudaMemcpy2DFromArray(dst, size_t dpitch, src, size_t wOffset, size_t hOffse
     else:
         psrc = int(cudaArray_const_t(src))
     cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy2DFromArray(cydst_ptr, dpitch, cysrc, wOffset, hOffset, width, height, cykind)
+        err = cyruntime.cudaMemcpy2DFromArray(cydst, dpitch, cysrc, wOffset, hOffset, width, height, cykind)
+    _helper_input_void_ptr_free(&cydstHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27887,13 +27918,15 @@ def cudaMemcpyAsync(dst, src, size_t count, kind not None : cudaMemcpyKind, stre
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpyAsync(cydst_ptr, cysrc_ptr, count, cykind, cystream)
+        err = cyruntime.cudaMemcpyAsync(cydst, cysrc, count, cykind, cystream)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27944,12 +27977,14 @@ def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, st
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     with nogil:
-        err = cyruntime.cudaMemcpyPeerAsync(cydst_ptr, dstDevice, cysrc_ptr, srcDevice, count, cystream)
+        err = cyruntime.cudaMemcpyPeerAsync(cydst, dstDevice, cysrc, srcDevice, count, cystream)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28304,13 +28339,15 @@ def cudaMemcpy2DAsync(dst, size_t dpitch, src, size_t spitch, size_t width, size
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy2DAsync(cydst_ptr, dpitch, cysrc_ptr, spitch, width, height, cykind, cystream)
+        err = cyruntime.cudaMemcpy2DAsync(cydst, dpitch, cysrc, spitch, width, height, cykind, cystream)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28394,11 +28431,12 @@ def cudaMemcpy2DToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t sp
     else:
         pdst = int(cudaArray_t(dst))
     cydst = <cyruntime.cudaArray_t><void_ptr>pdst
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy2DToArrayAsync(cydst, wOffset, hOffset, cysrc_ptr, spitch, width, height, cykind, cystream)
+        err = cyruntime.cudaMemcpy2DToArrayAsync(cydst, wOffset, hOffset, cysrc, spitch, width, height, cykind, cystream)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28481,11 +28519,12 @@ def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src, size_t wOffset, size_t h
     else:
         psrc = int(cudaArray_const_t(src))
     cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpy2DFromArrayAsync(cydst_ptr, dpitch, cysrc, wOffset, hOffset, width, height, cykind, cystream)
+        err = cyruntime.cudaMemcpy2DFromArrayAsync(cydst, dpitch, cysrc, wOffset, hOffset, width, height, cykind, cystream)
+    _helper_input_void_ptr_free(&cydstHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28519,10 +28558,11 @@ def cudaMemset(devPtr, int value, size_t count):
     --------
     :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`
     """
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemset(cydevPtr_ptr, value, count)
+        err = cyruntime.cudaMemset(cydevPtr, value, count)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28563,10 +28603,11 @@ def cudaMemset2D(devPtr, size_t pitch, int value, size_t width, size_t height):
     --------
     :py:obj:`~.cudaMemset`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemsetAsync`, :py:obj:`~.cudaMemset2DAsync`, :py:obj:`~.cudaMemset3DAsync`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`
     """
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemset2D(cydevPtr_ptr, pitch, value, width, height)
+        err = cyruntime.cudaMemset2D(cydevPtr, pitch, value, width, height)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28670,10 +28711,11 @@ def cudaMemsetAsync(devPtr, int value, size_t count, stream):
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemsetAsync(cydevPtr_ptr, value, count, cystream)
+        err = cyruntime.cudaMemsetAsync(cydevPtr, value, count, cystream)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28730,10 +28772,11 @@ def cudaMemset2DAsync(devPtr, size_t pitch, int value, size_t width, size_t heig
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemset2DAsync(cydevPtr_ptr, pitch, value, width, height, cystream)
+        err = cyruntime.cudaMemset2DAsync(cydevPtr, pitch, value, width, height, cystream)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -28918,10 +28961,11 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemPrefetchAsync(cydevPtr_ptr, count, location._pvt_ptr[0], flags, cystream)
+        err = cyruntime.cudaMemPrefetchAsync(cydevPtr, count, location._pvt_ptr[0], flags, cystream)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -29414,11 +29458,12 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, loca
     --------
     :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpyPeer`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy3DPeerAsync`, :py:obj:`~.cudaMemPrefetchAsync`, :py:obj:`~.cuMemAdvise`
     """
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     cdef cyruntime.cudaMemoryAdvise cyadvice = int(advice)
     with nogil:
-        err = cyruntime.cudaMemAdvise(cydevPtr_ptr, count, cyadvice, location._pvt_ptr[0])
+        err = cyruntime.cudaMemAdvise(cydevPtr, count, cyadvice, location._pvt_ptr[0])
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -29563,10 +29608,11 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
     cdef _HelperCUmem_range_attribute cydata = _HelperCUmem_range_attribute(attribute, dataSize)
     cdef void* cydata_ptr = <void*><void_ptr>cydata.cptr
     cdef cyruntime.cudaMemRangeAttribute cyattribute = int(attribute)
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemRangeGetAttribute(cydata_ptr, dataSize, cyattribute, cydevPtr_ptr, count)
+        err = cyruntime.cudaMemRangeGetAttribute(cydata_ptr, dataSize, cyattribute, cydevPtr, count)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), cydata.pyObj())
@@ -29644,10 +29690,11 @@ def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : O
     cdef vector[cyruntime.cudaMemRangeAttribute] cyattributes = [int(pyattributes) for pyattributes in (attributes)]
     if numAttributes > <size_t>len(dataSizes): raise RuntimeError("List is too small: " + str(len(dataSizes)) + " < " + str(numAttributes))
     if numAttributes > <size_t>len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaMemRangeGetAttributes(cyvoidStarHelper_ptr, cydataSizes.data(), cyattributes.data(), numAttributes, cydevPtr_ptr, count)
+        err = cyruntime.cudaMemRangeGetAttributes(cyvoidStarHelper_ptr, cydataSizes.data(), cyattributes.data(), numAttributes, cydevPtr, count)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), [obj.pyObj() for obj in pylist])
@@ -29704,11 +29751,12 @@ def cudaMemcpyToArray(dst, size_t wOffset, size_t hOffset, src, size_t count, ki
     else:
         pdst = int(cudaArray_t(dst))
     cydst = <cyruntime.cudaArray_t><void_ptr>pdst
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpyToArray(cydst, wOffset, hOffset, cysrc_ptr, count, cykind)
+        err = cyruntime.cudaMemcpyToArray(cydst, wOffset, hOffset, cysrc, count, cykind)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -29763,11 +29811,12 @@ def cudaMemcpyFromArray(dst, src, size_t wOffset, size_t hOffset, size_t count, 
     else:
         psrc = int(cudaArray_const_t(src))
     cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpyFromArray(cydst_ptr, cysrc, wOffset, hOffset, count, cykind)
+        err = cyruntime.cudaMemcpyFromArray(cydst, cysrc, wOffset, hOffset, count, cykind)
+    _helper_input_void_ptr_free(&cydstHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -29909,11 +29958,12 @@ def cudaMemcpyToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t coun
     else:
         pdst = int(cudaArray_t(dst))
     cydst = <cyruntime.cudaArray_t><void_ptr>pdst
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpyToArrayAsync(cydst, wOffset, hOffset, cysrc_ptr, count, cykind, cystream)
+        err = cyruntime.cudaMemcpyToArrayAsync(cydst, wOffset, hOffset, cysrc, count, cykind, cystream)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -29985,11 +30035,12 @@ def cudaMemcpyFromArrayAsync(dst, src, size_t wOffset, size_t hOffset, size_t co
     else:
         psrc = int(cudaArray_const_t(src))
     cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaMemcpyFromArrayAsync(cydst_ptr, cysrc, wOffset, hOffset, count, cykind, cystream)
+        err = cyruntime.cudaMemcpyFromArrayAsync(cydst, cysrc, wOffset, hOffset, count, cykind, cystream)
+    _helper_input_void_ptr_free(&cydstHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -30087,10 +30138,11 @@ def cudaFreeAsync(devPtr, hStream):
     else:
         phStream = int(cudaStream_t(hStream))
     cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
-    cydevPtr = _HelperInputVoidPtr(devPtr)
-    cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
-        err = cyruntime.cudaFreeAsync(cydevPtr_ptr, cyhStream)
+        err = cyruntime.cudaFreeAsync(cydevPtr, cyhStream)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -30863,11 +30915,12 @@ def cudaMemPoolImportFromShareableHandle(shareableHandle, handleType not None : 
     Imported memory pools do not support creating new allocations. As such imported memory pools may not be used in :py:obj:`~.cudaDeviceSetMemPool` or :py:obj:`~.cudaMallocFromPoolAsync` calls.
     """
     cdef cudaMemPool_t memPool = cudaMemPool_t()
-    cyshareableHandle = _HelperInputVoidPtr(shareableHandle)
-    cdef void* cyshareableHandle_ptr = <void*><void_ptr>cyshareableHandle.cptr
+    cdef _HelperInputVoidPtrStruct cyshareableHandleHelper
+    cdef void* cyshareableHandle = _helper_input_void_ptr(shareableHandle, &cyshareableHandleHelper)
     cdef cyruntime.cudaMemAllocationHandleType cyhandleType = int(handleType)
     with nogil:
-        err = cyruntime.cudaMemPoolImportFromShareableHandle(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cyshareableHandle_ptr, cyhandleType, flags)
+        err = cyruntime.cudaMemPoolImportFromShareableHandle(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cyshareableHandle, cyhandleType, flags)
+    _helper_input_void_ptr_free(&cyshareableHandleHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), memPool)
@@ -30901,10 +30954,11 @@ def cudaMemPoolExportPointer(ptr):
     :py:obj:`~.cuMemPoolExportPointer`, :py:obj:`~.cudaMemPoolExportToShareableHandle`, :py:obj:`~.cudaMemPoolImportFromShareableHandle`, :py:obj:`~.cudaMemPoolImportPointer`
     """
     cdef cudaMemPoolPtrExportData exportData = cudaMemPoolPtrExportData()
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cyruntime.cudaMemPoolExportPointer(<cyruntime.cudaMemPoolPtrExportData*>exportData._pvt_ptr, cyptr_ptr)
+        err = cyruntime.cudaMemPoolExportPointer(<cyruntime.cudaMemPoolPtrExportData*>exportData._pvt_ptr, cyptr)
+    _helper_input_void_ptr_free(&cyptrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), exportData)
@@ -31026,10 +31080,11 @@ def cudaPointerGetAttributes(ptr):
     In CUDA 11.0 forward passing host pointer will return :py:obj:`~.cudaMemoryTypeUnregistered` in :py:obj:`~.cudaPointerAttributes.type` and call will return :py:obj:`~.cudaSuccess`.
     """
     cdef cudaPointerAttributes attributes = cudaPointerAttributes()
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cyruntime.cudaPointerGetAttributes(<cyruntime.cudaPointerAttributes*>attributes._pvt_ptr, cyptr_ptr)
+        err = cyruntime.cudaPointerGetAttributes(<cyruntime.cudaPointerAttributes*>attributes._pvt_ptr, cyptr)
+    _helper_input_void_ptr_free(&cyptrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), attributes)
@@ -32229,11 +32284,12 @@ def cudaLogsRegisterCallback(callbackFunc, userData):
     else:
         pcallbackFunc = int(cudaLogsCallback_t(callbackFunc))
     cycallbackFunc = <cyruntime.cudaLogsCallback_t><void_ptr>pcallbackFunc
-    cyuserData = _HelperInputVoidPtr(userData)
-    cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
     cdef cudaLogsCallbackHandle callback_out = cudaLogsCallbackHandle()
     with nogil:
-        err = cyruntime.cudaLogsRegisterCallback(cycallbackFunc, cyuserData_ptr, <cyruntime.cudaLogsCallbackHandle*>callback_out._pvt_ptr)
+        err = cyruntime.cudaLogsRegisterCallback(cycallbackFunc, cyuserData, <cyruntime.cudaLogsCallbackHandle*>callback_out._pvt_ptr)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), callback_out)
@@ -32927,15 +32983,17 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode
                 cypDependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._pvt_ptr[0]
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaGraphAddMemcpyNode1D(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydst_ptr, cysrc_ptr, count, cykind)
+        err = cyruntime.cudaGraphAddMemcpyNode1D(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydst, cysrc, count, cykind)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), pGraphNode)
@@ -33071,13 +33129,15 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaGraphMemcpyNodeSetParams1D(cynode, cydst_ptr, cysrc_ptr, count, cykind)
+        err = cyruntime.cudaGraphMemcpyNodeSetParams1D(cynode, cydst, cysrc, count, cykind)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -34455,12 +34515,13 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cydptr = _HelperInputVoidPtr(dptr)
-    cdef void* cydptr_ptr = <void*><void_ptr>cydptr.cptr
+    cdef _HelperInputVoidPtrStruct cydptrHelper
+    cdef void* cydptr = _helper_input_void_ptr(dptr, &cydptrHelper)
     with nogil:
-        err = cyruntime.cudaGraphAddMemFreeNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydptr_ptr)
+        err = cyruntime.cudaGraphAddMemFreeNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
+    _helper_input_void_ptr_free(&cydptrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), pGraphNode)
@@ -36179,13 +36240,15 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cydst = _HelperInputVoidPtr(dst)
-    cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
-    cysrc = _HelperInputVoidPtr(src)
-    cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
-        err = cyruntime.cudaGraphExecMemcpyNodeSetParams1D(cyhGraphExec, cynode, cydst_ptr, cysrc_ptr, count, cykind)
+        err = cyruntime.cudaGraphExecMemcpyNodeSetParams1D(cyhGraphExec, cynode, cydst, cysrc, count, cykind)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -37194,10 +37257,11 @@ def cudaUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned in
         pdestroy = int(cudaHostFn_t(destroy))
     cydestroy = <cyruntime.cudaHostFn_t><void_ptr>pdestroy
     cdef cudaUserObject_t object_out = cudaUserObject_t()
-    cyptr = _HelperInputVoidPtr(ptr)
-    cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
+    cdef _HelperInputVoidPtrStruct cyptrHelper
+    cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
-        err = cyruntime.cudaUserObjectCreate(<cyruntime.cudaUserObject_t*>object_out._pvt_ptr, cyptr_ptr, cydestroy, initialRefcount, flags)
+        err = cyruntime.cudaUserObjectCreate(<cyruntime.cudaUserObject_t*>object_out._pvt_ptr, cyptr, cydestroy, initialRefcount, flags)
+    _helper_input_void_ptr_free(&cyptrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), object_out)
@@ -38002,8 +38066,8 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     if not all(isinstance(_x, (cudaJitOption)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cyruntime.cudaJitOption] or list[cyruntime.cudaJitOption]")
     cdef cudaLibrary_t library = cudaLibrary_t()
-    cycode = _HelperInputVoidPtr(code)
-    cdef void* cycode_ptr = <void*><void_ptr>cycode.cptr
+    cdef _HelperInputVoidPtrStruct cycodeHelper
+    cdef void* cycode = _helper_input_void_ptr(code, &cycodeHelper)
     cdef vector[cyruntime.cudaJitOption] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
     pylist = [_HelperCudaJitOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
@@ -38017,7 +38081,8 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     if numLibraryOptions > len(libraryOptions): raise RuntimeError("List is too small: " + str(len(libraryOptions)) + " < " + str(numLibraryOptions))
     if numLibraryOptions > len(libraryOptionValues): raise RuntimeError("List is too small: " + str(len(libraryOptionValues)) + " < " + str(numLibraryOptions))
     with nogil:
-        err = cyruntime.cudaLibraryLoadData(<cyruntime.cudaLibrary_t*>library._pvt_ptr, cycode_ptr, cyjitOptions.data(), cyjitOptionsValues_ptr, numJitOptions, cylibraryOptions.data(), cylibraryOptionValues_ptr, numLibraryOptions)
+        err = cyruntime.cudaLibraryLoadData(<cyruntime.cudaLibrary_t*>library._pvt_ptr, cycode, cyjitOptions.data(), cyjitOptionsValues_ptr, numJitOptions, cylibraryOptions.data(), cylibraryOptionValues_ptr, numLibraryOptions)
+    _helper_input_void_ptr_free(&cycodeHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), library)
@@ -39560,10 +39625,11 @@ def cudaGetKernel(entryFuncAddr):
     cudaGetKernel (C++ API)
     """
     cdef cudaKernel_t kernelPtr = cudaKernel_t()
-    cyentryFuncAddr = _HelperInputVoidPtr(entryFuncAddr)
-    cdef void* cyentryFuncAddr_ptr = <void*><void_ptr>cyentryFuncAddr.cptr
+    cdef _HelperInputVoidPtrStruct cyentryFuncAddrHelper
+    cdef void* cyentryFuncAddr = _helper_input_void_ptr(entryFuncAddr, &cyentryFuncAddrHelper)
     with nogil:
-        err = cyruntime.cudaGetKernel(<cyruntime.cudaKernel_t*>kernelPtr._pvt_ptr, cyentryFuncAddr_ptr)
+        err = cyruntime.cudaGetKernel(<cyruntime.cudaKernel_t*>kernelPtr._pvt_ptr, cyentryFuncAddr)
+    _helper_input_void_ptr_free(&cyentryFuncAddrHelper)
     if err != cyruntime.cudaSuccess:
         return (cudaError_t(err), None)
     return (cudaError_t(err), kernelPtr)
@@ -39600,10 +39666,11 @@ def make_cudaPitchedPtr(d, size_t p, size_t xsz, size_t ysz):
     --------
     make_cudaExtent, make_cudaPos
     """
-    cyd = _HelperInputVoidPtr(d)
-    cdef void* cyd_ptr = <void*><void_ptr>cyd.cptr
+    cdef _HelperInputVoidPtrStruct cydHelper
+    cdef void* cyd = _helper_input_void_ptr(d, &cydHelper)
     with nogil:
-        err = cyruntime.make_cudaPitchedPtr(cyd_ptr, p, xsz, ysz)
+        err = cyruntime.make_cudaPitchedPtr(cyd, p, xsz, ysz)
+    _helper_input_void_ptr_free(&cydHelper)
     cdef cudaPitchedPtr wrapper = cudaPitchedPtr()
     wrapper._pvt_ptr[0] = err
     return wrapper

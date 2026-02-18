@@ -1029,12 +1029,14 @@ def nvrtcSetFlowCallback(prog, callback, payload):
     else:
         pprog = int(nvrtcProgram(prog))
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
-    cycallback = _HelperInputVoidPtr(callback)
-    cdef void* cycallback_ptr = <void*><void_ptr>cycallback.cptr
-    cypayload = _HelperInputVoidPtr(payload)
-    cdef void* cypayload_ptr = <void*><void_ptr>cypayload.cptr
+    cdef _HelperInputVoidPtrStruct cycallbackHelper
+    cdef void* cycallback = _helper_input_void_ptr(callback, &cycallbackHelper)
+    cdef _HelperInputVoidPtrStruct cypayloadHelper
+    cdef void* cypayload = _helper_input_void_ptr(payload, &cypayloadHelper)
     with nogil:
-        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback_ptr, cypayload_ptr)
+        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback, cypayload)
+    _helper_input_void_ptr_free(&cycallbackHelper)
+    _helper_input_void_ptr_free(&cypayloadHelper)
     return (nvrtcResult(err),)
 {{endif}}
 
