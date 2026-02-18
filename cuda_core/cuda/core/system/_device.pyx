@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,637 +8,34 @@ from libc.math cimport ceil
 from multiprocessing import cpu_count
 from typing import Iterable
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
 
-include "_device_utils.pxi"
-include "_inforom.pxi"
-
 
 AddressingMode = nvml.DeviceAddressingModeType
+AffinityScope = nvml.AffinityScope
 BrandType = nvml.BrandType
-EventType = nvml.EventType
-FieldId = nvml.FieldId
+DeviceArch = nvml.DeviceArch
 GpuP2PCapsIndex = nvml.GpuP2PCapsIndex
 GpuP2PStatus = nvml.GpuP2PStatus
 GpuTopologyLevel = nvml.GpuTopologyLevel
-InforomObject = nvml.InforomObject
-PcieUtilCounter = nvml.PcieUtilCounter
-
-
-class DeviceArchitecture:
-    """
-    Device architecture enumeration.
-    """
-
-    def __init__(self, architecture: int):
-        try:
-            self._architecture = nvml.DeviceArch(architecture)
-        except ValueError:
-            self._architecture = None
-
-    @property
-    def id(self) -> int:
-        """
-        The numeric id of the device architecture.
-
-        Returns -1 if the device is unknown.
-        """
-        if self._architecture is None:
-            return -1
-        return int(self._architecture)
-
-    @property
-    def name(self) -> str:
-        """
-        The name of the device architecture.
-
-        Returns "Unlisted" if the device is unknown.
-        """
-        if self._architecture is None:
-            return "Unlisted"
-        name = self._architecture.name
-        return name[name.rfind("_") + 1 :].title()
-
-
-cdef class MemoryInfo:
-    """
-    Memory allocation information for a device.
-    """
-    cdef object _memory_info
-
-    def __init__(self, memory_info: nvml.Memory_v2):
-        self._memory_info = memory_info
-
-    @property
-    def free(self) -> int:
-        """
-        Unallocated device memory (in bytes)
-        """
-        return self._memory_info.free
-
-    @property
-    def total(self) -> int:
-        """
-        Total physical device memory (in bytes)
-        """
-        return self._memory_info.total
-
-    @property
-    def used(self) -> int:
-        """
-        Allocated device memory (in bytes)
-        """
-        return self._memory_info.used
-
-    @property
-    def reserved(self) -> int:
-        """
-        Device memory (in bytes) reserved for system use (driver or firmware)
-        """
-        return self._memory_info.reserved
-
-
-cdef class BAR1MemoryInfo(MemoryInfo):
-    """
-    BAR1 Memory allocation information for a device.
-    """
-    cdef object _memory_info
-
-    def __init__(self, memory_info: nvml.BAR1Memory):
-        self._memory_info = memory_info
-
-    @property
-    def free(self) -> int:
-        """
-        Unallocated BAR1 memory (in bytes)
-        """
-        return self._memory_info.bar1_free
-
-    @property
-    def total(self) -> int:
-        """
-        Total BAR1 memory (in bytes)
-        """
-        return self._memory_info.bar1_total
-
-    @property
-    def used(self) -> int:
-        """
-        Allocated used memory (in bytes)
-        """
-        return self._memory_info.bar1_used
-
-
-cdef class PciInfo:
-    """
-    PCI information about a GPU device.
-    """
-
-    cdef object _pci_info_ext
-    cdef intptr_t _handle
-
-    def __init__(self, pci_info_ext: nvml.PciInfoExt_v1, handle: int):
-        self._pci_info_ext = pci_info_ext
-        self._handle = handle
-
-    @property
-    def bus(self) -> int:
-        """
-        The bus on which the device resides, 0 to 255
-        """
-        return self._pci_info_ext.bus
-
-    @property
-    def bus_id(self) -> str:
-        """
-        The tuple domain:bus:device.function PCI identifier string
-        """
-        return self._pci_info_ext.bus_id
-
-    @property
-    def device(self) -> int:
-        """
-        The device's id on the bus, 0 to 31
-        """
-        return self._pci_info_ext.device_
-
-    @property
-    def domain(self) -> int:
-        """
-        The PCI domain on which the device's bus resides, 0 to 0xffffffff
-        """
-        return self._pci_info_ext.domain
-
-    @property
-    def vendor_id(self) -> int:
-        """
-        The PCI vendor id of the device
-        """
-        return self._pci_info_ext.pci_device_id & 0xFFFF
-
-    @property
-    def device_id(self) -> int:
-        """
-        The PCI device id of the device
-        """
-        return self._pci_info_ext.pci_device_id >> 16
-
-    @property
-    def subsystem_id(self) -> int:
-        """
-        The subsystem device ID
-        """
-        return self._pci_info_ext.pci_sub_system_id
-
-    @property
-    def base_class(self) -> int:
-        """
-        The 8-bit PCI base class code
-        """
-        return self._pci_info_ext.base_class
-
-    @property
-    def sub_class(self) -> int:
-        """
-        The 8-bit PCI sub class code
-        """
-        return self._pci_info_ext.sub_class
-
-    def get_max_pcie_link_generation(self) -> int:
-        """
-        Retrieve the maximum PCIe link generation possible with this device and system.
-
-        For Fermi™ or newer fully supported devices.
-
-        For example, for a generation 2 PCIe device attached to a generation 1
-        PCIe bus, the max link generation this function will report is
-        generation 1.
-        """
-        return nvml.device_get_max_pcie_link_generation(self._handle)
-
-    def get_gpu_max_pcie_link_generation(self) -> int:
-        """
-        Retrieve the maximum PCIe link generation supported by this GPU device.
-
-        For Fermi™ or newer fully supported devices.
-        """
-        return nvml.device_get_gpu_max_pcie_link_generation(self._handle)
-
-    def get_max_pcie_link_width(self) -> int:
-        """
-        Retrieve the maximum PCIe link width possible with this device and system.
-
-        For Fermi™ or newer fully supported devices.
-
-        For example, for a device with a 16x PCIe bus width attached to a 8x
-        PCIe system bus this function will report
-        a max link width of 8.
-        """
-        return nvml.device_get_max_pcie_link_width(self._handle)
-
-    def get_current_pcie_link_generation(self) -> int:
-        """
-        Retrieve the current PCIe link generation.
-
-        For Fermi™ or newer fully supported devices.
-        """
-        return nvml.device_get_curr_pcie_link_generation(self._handle)
-
-    def get_current_pcie_link_width(self) -> int:
-        """
-        Retrieve the current PCIe link width.
-
-        For Fermi™ or newer fully supported devices.
-        """
-        return nvml.device_get_curr_pcie_link_width(self._handle)
-
-    def get_pcie_throughput(self, counter: PcieUtilCounter) -> int:
-        """
-        Retrieve PCIe utilization information, in KB/s.
-
-        This function is querying a byte counter over a 20ms interval, and thus
-        is the PCIe throughput over that interval.
-
-        For Maxwell™ or newer fully supported devices.
-
-        This method is not supported in virtual machines running virtual GPU
-        (vGPU).
-        """
-        return nvml.device_get_pcie_throughput(self._handle, counter)
-
-    def get_pcie_replay_counter(self) -> int:
-        """
-        Retrieve the PCIe replay counter.
-
-        For Kepler™ or newer fully supported devices.
-        """
-        return nvml.device_get_pcie_replay_counter(self._handle)
-
-
-cdef class EventData:
-    """
-    Data about a single event.
-    """
-    def __init__(self, event_data: nvml.EventData):
-        self._event_data = event_data
-
-    @property
-    def device(self) -> Device:
-        """
-        The device on which the event occurred.
-        """
-        device = Device.__new__()
-        device._handle = self._event_data.device
-        return device
-
-    @property
-    def event_type(self) -> EventType:
-        """
-        The type of event that was triggered.
-        """
-        return EventType(self._event_data.event_type)
-
-    @property
-    def event_data(self) -> int:
-        """
-        Returns Xid error for the device in the event of
-        :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
-
-        Raises :class:`ValueError` for other event types.
-        """
-        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
-            raise ValueError("event_data is only available for Xid critical error events.")
-        return self._event_data.event_data
-
-    @property
-    def gpu_instance_id(self) -> int:
-        """
-        The GPU instance ID for MIG devices.
-
-        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
-
-        Raises :class:`ValueError` for other event types.
-        """
-        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
-            raise ValueError("gpu_instance_id is only available for Xid critical error events.")
-        return self._event_data.gpu_instance_id
-
-    @property
-    def compute_instance_id(self) -> int:
-        """
-        The Compute instance ID for MIG devices.
-
-        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
-
-        Raises :class:`ValueError` for other event types.
-        """
-        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
-            raise ValueError("compute_instance_id is only available for Xid critical error events.")
-        return self._event_data.compute_instance_id
-
-
-cdef class DeviceEvents:
-    """
-    Represents a set of events that can be waited on for a specific device.
-    """
-    cdef intptr_t _event_set
-    cdef intptr_t _device_handle
-
-    def __init__(self, device_handle: intptr_t, events: EventType | int | list[EventType | int]):
-        cdef unsigned long long event_bitmask
-        if isinstance(events, (int, EventType)):
-            event_bitmask = <unsigned long long>int(events)
-        elif isinstance(events, list):
-            event_bitmask = 0
-            for ev in events:
-                event_bitmask |= <unsigned long long>int(ev)
-        else:
-            raise TypeError("events must be an EventType, int, or list of EventType or int")
-
-        self._device_handle = device_handle
-        self._event_set = nvml.event_set_create()
-        # If this raises, the event needs to be freed and this is handled by
-        # this class's __dealloc__ method.
-        nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
-
-    def __dealloc__(self):
-        nvml.event_set_free(self._event_set)
-
-    def wait(self, timeout_ms: int = 0) -> EventData:
-        """
-        Wait for events in the event set.
-
-        For Fermi™ or newer fully supported devices.
-
-        If some events are ready to be delivered at the time of the call,
-        function returns immediately.  If there are no events ready to be
-        delivered, function sleeps until event arrives but not longer than
-        specified timeout. If timeout passes, a
-        :class:`cuda.core.system.TimeoutError` is raised. This function in
-        certain conditions can return before specified timeout passes (e.g. when
-        interrupt arrives).
-
-        On Windows, in case of Xid error, the function returns the most recent
-        Xid error type seen by the system.  If there are multiple Xid errors
-        generated before ``wait`` is invoked, then the last seen Xid
-        error type is returned for all Xid error events.
-
-        On Linux, every Xid error event would return the associated event data
-        and other information if applicable.
-
-        In MIG mode, if device handle is provided, the API reports all the
-        events for the available instances, only if the caller has appropriate
-        privileges. In absence of required privileges, only the events which
-        affect all the instances (i.e. whole device) are reported.
-
-        This API does not currently support per-instance event reporting using
-        MIG device handles.
-
-        Parameters
-        ----------
-        timeout_ms: int
-            The timeout in milliseconds. A value of 0 means to wait indefinitely.
-
-        Raises
-        ------
-        :class:`cuda.core.system.TimeoutError`
-            If the timeout expires before an event is received.
-        :class:`cuda.core.system.GpuIsLostError`
-            If the GPU has fallen off the bus or is otherwise inaccessible.
-        """
-        return EventData(nvml.event_set_wait_v2(self._event_set, timeout_ms))
-
-
-cdef class DeviceAttributes:
-    """
-    Various device attributes.
-    """
-    def __init__(self, attributes: nvml.DeviceAttributes):
-        self._attributes = attributes
-
-    @property
-    def multiprocessor_count(self) -> int:
-        """
-        The streaming multiprocessor count
-        """
-        return self._attributes.multiprocessor_count
-
-    @property
-    def shared_copy_engine_count(self) -> int:
-        """
-        The shared copy engine count
-        """
-        return self._attributes.shared_copy_engine_count
-
-    @property
-    def shared_decoder_count(self) -> int:
-        """
-        The shared decoder engine count
-        """
-        return self._attributes.shared_decoder_count
-
-    @property
-    def shared_encoder_count(self) -> int:
-        """
-        The shared encoder engine count
-        """
-        return self._attributes.shared_encoder_count
-
-    @property
-    def shared_jpeg_count(self) -> int:
-        """
-        The shared JPEG engine count
-        """
-        return self._attributes.shared_jpeg_count
-
-    @property
-    def shared_ofa_count(self) -> int:
-        """
-        The shared optical flow accelerator (OFA) engine count
-        """
-        return self._attributes.shared_ofa_count
-
-    @property
-    def gpu_instance_slice_count(self) -> int:
-        """
-        The GPU instance slice count
-        """
-        return self._attributes.gpu_instance_slice_count
-
-    @property
-    def compute_instance_slice_count(self) -> int:
-        """
-        The compute instance slice count
-        """
-        return self._attributes.compute_instance_slice_count
-
-    @property
-    def memory_size_mb(self) -> int:
-        """
-        Device memory size in MiB
-        """
-        return self._attributes.memory_size_mb
-
-
-cdef class FieldValue:
-    """
-    Represents the data from a single field value.
-
-    Use :meth:`Device.get_field_values` to get multiple field values at once.
-    """
-    cdef object _field_value
-
-    def __init__(self, field_value: nvml.FieldValue):
-        assert len(field_value) == 1
-        self._field_value = field_value
-
-    @property
-    def field_id(self) -> FieldId:
-        """
-        The field ID.
-        """
-        return FieldId(self._field_value.field_id)
-
-    @property
-    def scope_id(self) -> int:
-        """
-        The scope ID.
-        """
-        # Explicit int() cast required because this is a Numpy type
-        return int(self._field_value.scope_id)
-
-    @property
-    def timestamp(self) -> int:
-        """
-        The CPU timestamp (in microseconds since 1970) at which the value was
-        sampled.
-        """
-        # Explicit int() cast required because this is a Numpy type
-        return int(self._field_value.timestamp)
-
-    @property
-    def latency_usec(self) -> int:
-        """
-        How long this field value took to update (in usec) within NVML. This may
-        be averaged across several fields that are serviced by the same driver
-        call.
-        """
-        # Explicit int() cast required because this is a Numpy type
-        return int(self._field_value.latency_usec)
-
-    @property
-    def value(self) -> int | float:
-        """
-        The field value.
-
-        Raises
-        ------
-        :class:`cuda.core.system.NvmlError`
-            If there was an error retrieving the field value.
-        """
-        nvml.check_status(self._field_value.nvml_return)
-
-        cdef int value_type = self._field_value.value_type
-        value = self._field_value.value
-
-        ValueType = nvml.ValueType
-
-        if value_type == ValueType.DOUBLE:
-            return float(value.d_val[0])
-        elif value_type == ValueType.UNSIGNED_INT:
-            return int(value.ui_val[0])
-        elif value_type == ValueType.UNSIGNED_LONG:
-            return int(value.ul_val[0])
-        elif value_type == ValueType.UNSIGNED_LONG_LONG:
-            return int(value.ull_val[0])
-        elif value_type == ValueType.SIGNED_LONG_LONG:
-            return int(value.ll_val[0])
-        elif value_type == ValueType.SIGNED_INT:
-            return int(value.si_val[0])
-        elif value_type == ValueType.UNSIGNED_SHORT:
-            return int(value.us_val[0])
-        else:
-            raise AssertionError("Unexpected value type")
-
-
-cdef class FieldValues:
-    """
-    Container of multiple field values.
-    """
-    cdef object _field_values
-
-    def __init__(self, field_values: nvml.FieldValue):
-        self._field_values = field_values
-
-    def __getitem__(self, idx: int) -> FieldValue:
-        return FieldValue(self._field_values[idx])
-
-    def __len__(self) -> int:
-        return len(self._field_values)
-
-    def validate(self) -> None:
-        """
-        Validate that there are no issues in any of the contained field values.
-
-        Raises an exception for the first issue found, if any.
-
-        Raises
-        ------
-        :class:`cuda.core.system.NvmlError`
-            If any of the contained field values has an associated exception.
-        """
-        # TODO: This is a classic use case for an `ExceptionGroup`, but those
-        # are only available in Python 3.11+.
-        return_values = self._field_values.nvml_return
-        if len(self._field_values) == 1:
-            return_values = [return_values]
-        for return_value in return_values:
-            nvml.check_status(return_value)
-
-    def get_all_values(self) -> list[int | float]:
-        """
-        Get all field values as a list.
-
-        This will validate each of the values and include just the core value in
-        the list.
-
-        Returns
-        -------
-        list[int | float]
-            List of all field values.
-
-        Raises
-        ------
-        :class:`cuda.core.system.NvmlError`
-            If any of the contained field values has an associated exception.
-        """
-        return [x.value for x in self]
-
-
-cdef class RepairStatus:
-    """
-    Repair status for TPC/Channel repair.
-    """
-    cdef object _repair_status
-
-    def __init__(self, handle: int):
-        self._repair_status = nvml.device_get_repair_status(handle)
-
-    @property
-    def channel_repair_pending(self) -> bool:
-        """
-        `True` if a channel repair is pending.
-        """
-        return bool(self._repair_status.b_channel_repair_pending)
-
-    @property
-    def tpc_repair_pending(self) -> bool:
-        """
-        `True` if a TPC repair is pending.
-        """
-        return bool(self._repair_status.b_tpc_repair_pending)
+Pstates = nvml.Pstates
+
+
+include "_clock.pxi"
+include "_cooler.pxi"
+include "_device_attributes.pxi"
+include "_device_utils.pxi"
+include "_event.pxi"
+include "_fan.pxi"
+include "_field_values.pxi"
+include "_inforom.pxi"
+include "_memory.pxi"
+include "_pci_info.pxi"
+include "_performance.pxi"
+include "_repair_status.pxi"
+include "_temperature.pxi"
 
 
 cdef class Device:
@@ -674,7 +71,8 @@ cdef class Device:
         If anything other than a single `index`, `uuid` or `pci_bus_id` are specified.
     """
 
-    cdef intptr_t _handle
+    # This is made public for testing purposes only
+    cdef public intptr_t _handle
 
     def __init__(
         self,
@@ -704,6 +102,174 @@ cdef class Device:
                 pci_bus_id = pci_bus_id.decode("ascii")
             self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
 
+    #########################################################################
+    # BASIC PROPERTIES
+
+    @property
+    def index(self) -> int:
+        """
+        The NVML index of this device.
+
+        Valid indices are derived from the count returned by
+        :meth:`Device.get_device_count`.  For example, if ``get_device_count()``
+        returns 2, the valid indices are 0 and 1, corresponding to GPU 0 and GPU
+        1.
+
+        The order in which NVML enumerates devices has no guarantees of
+        consistency between reboots. For that reason, it is recommended that
+        devices be looked up by their PCI ids or GPU UUID.
+
+        Note: The NVML index may not correlate with other APIs, such as the CUDA
+        device index.
+        """
+        return nvml.device_get_index(self._handle)
+
+    @property
+    def uuid(self) -> str:
+        """
+        Retrieves the globally unique immutable UUID associated with this
+        device, as a 5 part hexadecimal string, that augments the immutable,
+        board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  That is not included in ``cuda.core.system``.
+        """
+        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+
+        # TODO: If the user cares about the prefix, we will expose that in the
+        # future using the MIG-related APIs in NVML.
+        return nvml.device_get_uuid(self._handle)[4:]
+
+    @property
+    def pci_bus_id(self) -> str:
+        """
+        Retrieves the PCI bus ID of this device.
+        """
+        return self.pci_info.bus_id
+
+    @property
+    def numa_node_id(self) -> int:
+        """
+        The NUMA node of the given GPU device.
+
+        This only applies to platforms where the GPUs are NUMA nodes.
+        """
+        return nvml.device_get_numa_node_id(self._handle)
+
+    @property
+    def arch(self) -> DeviceArch:
+        """
+        Device architecture.
+
+        For example, a Tesla V100 will report ``DeviceArchitecture.name ==
+        "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==
+        "AMPERE"``.
+        """
+        return DeviceArch(nvml.device_get_architecture(self._handle))
+
+    @property
+    def name(self) -> str:
+        """
+        Name of the device, e.g.: `"Tesla V100-SXM2-32GB"`
+        """
+        return nvml.device_get_name(self._handle)
+
+    @property
+    def brand(self) -> BrandType:
+        """
+        Brand of the device
+        """
+        return BrandType(nvml.device_get_brand(self._handle))
+
+    @property
+    def serial(self) -> str:
+        """
+        Retrieves the globally unique board serial number associated with this
+        device's board.
+
+        For all products with an InfoROM.
+        """
+        return nvml.device_get_serial(self._handle)
+
+    @property
+    def module_id(self) -> int:
+        """
+        Get a unique identifier for the device module on the baseboard.
+
+        This API retrieves a unique identifier for each GPU module that exists
+        on a given baseboard.  For non-baseboard products, this ID would always
+        be 0.
+        """
+        return nvml.device_get_module_id(self._handle)
+
+    @property
+    def minor_number(self) -> int:
+        """
+        The minor number of this device.
+
+        For Linux only.
+
+        The minor number is used by the Linux device driver to identify the
+        device node in ``/dev/nvidiaX``.
+        """
+        return nvml.device_get_minor_number(self._handle)
+
+    @property
+    def is_c2c_mode_enabled(self) -> bool:
+        """
+        Whether the C2C (Chip-to-Chip) mode is enabled for this device.
+        """
+        return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
+
+    @property
+    def persistence_mode_enabled(self) -> bool:
+        """
+        Whether persistence mode is enabled for this device.
+
+        For Linux only.
+        """
+        return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
+
+    @persistence_mode_enabled.setter
+    def persistence_mode_enabled(self, enabled: bool) -> None:
+        nvml.device_set_persistence_mode(
+            self._handle,
+            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
+        )
+
+    @property
+    def cuda_compute_capability(self) -> tuple[int, int]:
+        """
+        CUDA compute capability of the device, e.g.: `(7, 0)` for a Tesla V100.
+
+        Returns a tuple `(major, minor)`.
+        """
+        return nvml.device_get_cuda_compute_capability(self._handle)
+
+    def to_cuda_device(self) -> "cuda.core.Device":
+        """
+        Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
+        access) for this :class:`cuda.core.system.Device` (which is used for
+        NVIDIA machine library (NVML) access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.Device
+            The corresponding CUDA device.
+        """
+        from cuda.core import Device as CudaDevice
+
+        # CUDA does not have an API to get a device by its UUID, so we just
+        # search all the devices for one with a matching UUID.
+
+        for cuda_device in CudaDevice.get_all_devices():
+            if cuda_device.uuid == self.uuid:
+                return cuda_device
+
+        raise RuntimeError("No corresponding CUDA device found for this NVML device.")
+
     @classmethod
     def get_device_count(cls) -> int:
         """
@@ -729,6 +295,31 @@ cdef class Device:
         for device_id in range(nvml.device_get_count_v2()):
             yield cls(index=device_id)
 
+    #########################################################################
+    # ADDRESSING MODE
+
+    @property
+    def addressing_mode(self) -> AddressingMode:
+        """
+        Get the addressing mode of the device.
+
+        Addressing modes can be one of:
+
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
+          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
+          software-based mirroring of the CPU's page tables, on the GPU.
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_ATS`: System allocated
+          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
+          Address Translation Services. This means that there is (effectively) a
+          single set of page tables, and the CPU and GPU both use them.
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
+          is active.
+        """
+        return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+
+    #########################################################################
+    # AFFINITY
+
     @classmethod
     def get_all_devices_with_cpu_affinity(cls, cpu_index: int) -> Iterable[Device]:
         """
@@ -752,109 +343,180 @@ cdef class Device:
             device._handle = handle
             yield device
 
-    @property
-    def architecture(self) -> DeviceArchitecture:
+    def get_memory_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
         """
-        Device architecture. For example, a Tesla V100 will report
-        ``DeviceArchitecture.name == "Volta"``, and RTX A6000 will report
-        ``DeviceArchitecture.name == "Ampere"``. If the device returns an
-        architecture that is unknown to NVML then ``DeviceArchitecture.name ==
-        "Unknown"`` is reported, whereas an architecture that is unknown to
-        cuda.core.system is reported as ``DeviceArchitecture.name == "Unlisted"``.
+        Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
+        memory affinity for the device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+
+        If requested scope is not applicable to the target topology, the API
+        will fall back to reporting the memory affinity for the immediate non-I/O
+        ancestor of the device.
         """
-        return DeviceArchitecture(nvml.device_get_architecture(self._handle))
+        return _unpack_bitmask(
+            nvml.device_get_memory_affinity(
+                self._handle,
+                <unsigned int>ceil(cpu_count() / 64),
+                scope
+            )
+        )
+
+    def get_cpu_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+        """
+        Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
+        CPU affinity for the device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+
+        If requested scope is not applicable to the target topology, the API
+        will fall back to reporting the memory affinity for the immediate non-I/O
+        ancestor of the device.
+        """
+        return _unpack_bitmask(
+            nvml.device_get_cpu_affinity_within_scope(
+                self._handle,
+                <unsigned int>ceil(cpu_count() / 64),
+                scope,
+            )
+        )
+
+    def set_cpu_affinity(self):
+        """
+        Sets the ideal affinity for the calling thread and device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+        """
+        nvml.device_set_cpu_affinity(self._handle)
+
+    def clear_cpu_affinity(self):
+        """
+        Clear all affinity bindings for the calling thread.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+        """
+        nvml.device_clear_cpu_affinity(self._handle)
+
+    #########################################################################
+    # CLOCK
+    # See external class definitions in _clock.pxi
+
+    def clock(self, clock_type: ClockType) -> ClockInfo:
+        """
+        Get information about and manage a specific clock on a device.
+        """
+        return ClockInfo(self._handle, clock_type)
+
+    def get_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
+        """
+        Retrieve the current state of auto boosted clocks on a device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Auto Boosted clocks are enabled by default on some hardware, allowing
+        the GPU to run at higher clock rates to maximize performance as thermal
+        limits allow.
+
+        On Pascal™ and newer hardware, Auto Boosted clocks are controlled
+        through application clocks. Use :meth:`set_application_clocks` and
+        :meth:`reset_application_clocks` to control Auto Boost behavior.
+
+        Returns
+        -------
+        bool
+            The current state of Auto Boosted clocks
+        bool
+            The default Auto Boosted clocks behavior
+
+        """
+        current, default = nvml.device_get_auto_boosted_clocks_enabled(self._handle)
+        return current == nvml.EnableState.FEATURE_ENABLED, default == nvml.EnableState.FEATURE_ENABLED
+
+    def get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
+        """
+        Retrieves the current clocks event reasons.
+
+        For all fully supported products.
+        """
+        cdef uint64_t[1] reasons
+        reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)
+        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+
+    def get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
+        """
+        Retrieves supported clocks event reasons that can be returned by
+        :meth:`get_current_clock_event_reasons`.
+
+        For all fully supported products.
+
+        This method is not supported in virtual machines running virtual GPU (vGPU).
+        """
+        cdef uint64_t[1] reasons
+        reasons[0] = nvml.device_get_supported_clocks_event_reasons(self._handle)
+        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+
+    ##########################################################################
+    # COOLER
+    # See external class definitions in _cooler.pxi
 
     @property
-    def bar1_memory_info(self) -> BAR1MemoryInfo:
+    def cooler(self) -> CoolerInfo:
         """
-        Get information about BAR1 memory.
+        Get information about cooler on a device.
+        """
+        return CoolerInfo(nvml.device_get_cooler_info(self._handle))
 
-        BAR1 is used to map the FB (device memory) so that it can be directly
-        accessed by the CPU or by 3rd party devices (peer-to-peer on the PCIE
-        bus).
-        """
-        return BAR1MemoryInfo(nvml.device_get_bar1_memory_info(self._handle))
-
-    @property
-    def cpu_affinity(self) -> list[int]:
-        """
-        Get a list containing the CPU indices to which the GPU is directly connected.
-
-        Examples
-        --------
-        >>> Device(index=0).cpu_affinity
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-         40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-        """
-        return _unpack_bitmask(nvml.device_get_cpu_affinity(
-            self._handle,
-            <unsigned int>ceil(cpu_count() / 64),
-        ))
+    ##########################################################################
+    # DEVICE ATTRIBUTES
+    # See external class definitions in _device_attributes.pxi
 
     @property
-    def cuda_compute_capability(self) -> tuple[int, int]:
+    def attributes(self) -> DeviceAttributes:
         """
-        CUDA compute capability of the device, e.g.: `(7, 0)` for a Tesla V100.
+        Get various device attributes.
 
-        Returns a tuple `(major, minor)`.
+        For Ampere™ or newer fully supported devices.  Only available on Linux
+        systems.
         """
-        return nvml.device_get_cuda_compute_capability(self._handle)
+        return DeviceAttributes(nvml.device_get_attributes_v2(self._handle))
 
-    @property
-    def memory_info(self) -> MemoryInfo:
-        """
-        Object with memory information.
-        """
-        return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))
+    #########################################################################
+    # DISPLAY
 
     @property
-    def name(self) -> str:
+    def display_mode(self) -> bool:
         """
-        Name of the device, e.g.: `"Tesla V100-SXM2-32GB"`
+        The display mode for this device.
+
+        Indicates whether a physical display (e.g. monitor) is currently connected to
+        any of the device's connectors.
         """
-        return nvml.device_get_name(self._handle)
+        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
 
     @property
-    def brand(self) -> BrandType:
+    def display_active(self) -> bool:
         """
-        Brand of the device
-        """
-        return BrandType(nvml.device_get_brand(self._handle))
+        The display active status for this device.
 
-    @property
-    def index(self) -> int:
-        """
-        The NVML index of this device.
+        Indicates whether a display is initialized on the device.  For example,
+        whether X Server is attached to this device and has allocated memory for
+        the screen.
 
-        The order in which NVML enumerates devices has no guarantees of
-        consistency between reboots. For that reason it is recommended that
-        devices be looked up by their PCI ids or GPU UUID.
+        Display can be active even when no monitor is physically attached.
         """
-        return nvml.device_get_index(self._handle)
+        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
 
-    @property
-    def pci_info(self) -> PciInfo:
-        """
-        The PCI attributes of this device.
-        """
-        return PciInfo(nvml.device_get_pci_info_ext(self._handle), self._handle)
-
-    @property
-    def serial(self) -> str:
-        """
-        Retrieves the globally unique board serial number associated with this
-        device's board.
-        """
-        return nvml.device_get_serial(self._handle)
-
-    @property
-    def uuid(self) -> str:
-        """
-        Retrieves the globally unique immutable UUID associated with this
-        device, as a 5 part hexadecimal string, that augments the immutable,
-        board serial identifier.
-        """
-        return nvml.device_get_uuid(self._handle)
+    ##########################################################################
+    # EVENTS
+    # See external class definitions in _event.pxi
 
     def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
         """
@@ -914,162 +576,28 @@ cdef class Device:
         bitmask[0] = nvml.device_get_supported_event_types(self._handle)
         return [EventType(1 << ev) for ev in _unpack_bitmask(bitmask)]
 
-    @property
-    def index(self) -> int:
+    ##########################################################################
+    # FAN
+    # See external class definitions in _fan.pxi
+
+    def fan(self, fan: int = 0) -> FanInfo:
         """
-        The NVML index of this device.
-
-        Valid indices are derived from the count returned by
-        :meth:`Device.get_device_count`.  For example, if ``get_device_count()``
-        returns 2, the valid indices are 0 and 1, corresponding to GPU 0 and GPU
-        1.
-
-        The order in which NVML enumerates devices has no guarantees of
-        consistency between reboots. For that reason, it is recommended that
-        devices be looked up by their PCI ids or GPU UUID.
-
-        Note: The NVML index may not correlate with other APIs, such as the CUDA
-        device index.
+        Get information and manage a specific fan on a device.
         """
-        return nvml.device_get_index(self._handle)
+        if fan < 0 or fan >= self.num_fans:
+            raise ValueError(f"Fan index {fan} is out of range [0, {self.num_fans})")
+        return FanInfo(self._handle, fan)
 
     @property
-    def module_id(self) -> int:
+    def num_fans(self) -> int:
         """
-        Get a unique identifier for the device module on the baseboard.
-
-        This API retrieves a unique identifier for each GPU module that exists
-        on a given baseboard.  For non-baseboard products, this ID would always
-        be 0.
+        The number of fans on the device.
         """
-        return nvml.device_get_module_id(self._handle)
+        return nvml.device_get_num_fans(self._handle)
 
-    @property
-    def minor_number(self) -> int:
-        """
-        The minor number of this device.
-
-        For Linux only.
-
-        The minor number is used by the Linux device driver to identify the
-        device node in ``/dev/nvidiaX``.
-        """
-        return nvml.device_get_minor_number(self._handle)
-
-    @property
-    def addressing_mode(self) -> AddressingMode:
-        """
-        Get the addressing mode of the device.
-
-        Addressing modes can be one of:
-
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
-          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
-          software-based mirroring of the CPU's page tables, on the GPU.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_ATS`: System allocated
-          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
-          Address Translation Services. This means that there is (effectively) a
-          single set of page tables, and the CPU and GPU both use them.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
-          is active.
-        """
-        return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
-
-    @property
-    def display_mode(self) -> bool:
-        """
-        The display mode for this device.
-
-        Indicates whether a physical display (e.g. monitor) is currently connected to
-        any of the device's connectors.
-        """
-        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
-
-    @property
-    def display_active(self) -> bool:
-        """
-        The display active status for this device.
-
-        Indicates whether a display is initialized on the device.  For example,
-        whether X Server is attached to this device and has allocated memory for
-        the screen.
-
-        Display can be active even when no monitor is physically attached.
-        """
-        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
-
-    @property
-    def repair_status(self) -> RepairStatus:
-        """
-        Get the repair status for TPC/Channel repair.
-
-        For Ampere™ or newer fully supported devices.
-        """
-        return RepairStatus(self._handle)
-
-    @property
-    def inforom(self) -> InforomInfo:
-        """
-        Accessor for InfoROM information.
-
-        For all products with an InfoROM.
-        """
-        return InforomInfo(self)
-
-    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:
-        """
-        Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.
-
-        Supported on Linux only.
-
-        Parameters
-        ----------
-        level: :class:`GpuTopologyLevel`
-            The topology level.
-
-        Returns
-        -------
-        Iterable of :class:`Device`
-            The nearest devices at the given topology level.
-        """
-        cdef Device device
-        for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
-            device = Device.__new__(Device)
-            device._handle = handle
-            yield device
-
-    @property
-    def attributes(self) -> DeviceAttributes:
-        """
-        Get various device attributes.
-
-        For Ampere™ or newer fully supported devices.  Only available on Linux
-        systems.
-        """
-        return DeviceAttributes(nvml.device_get_attributes_v2(self._handle))
-
-    @property
-    def is_c2c_mode_enabled(self) -> bool:
-        """
-        Whether the C2C (Chip-to-Chip) mode is enabled for this device.
-        """
-        return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
-
-    @property
-    def persistence_mode_enabled(self) -> bool:
-        """
-        Whether persistence mode is enabled for this device.
-
-        For Linux only.
-        """
-        return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
-
-    @persistence_mode_enabled.setter
-    def persistence_mode_enabled(self, enabled: bool) -> None:
-        nvml.device_set_persistence_mode(
-            self._handle,
-            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
-        )
+    ##########################################################################
+    # FIELD VALUES
+    # See external class definitions in _field_values.pxi
 
     def get_field_values(self, field_ids: list[int | tuple[int, int]]) -> FieldValues:
         """
@@ -1110,6 +638,132 @@ cdef class Device:
             enum, or a pair of (:class:`FieldId`, scope ID).
         """
         nvml.device_clear_field_values(self._handle, field_ids)
+
+    ##########################################################################
+    # INFOROM
+    # See external class definitions in _inforom.pxi
+
+    @property
+    def inforom(self) -> InforomInfo:
+        """
+        Accessor for InfoROM information.
+
+        For all products with an InfoROM.
+        """
+        return InforomInfo(self)
+
+    ##########################################################################
+    # MEMORY
+    # See external class definitions in _memory.pxi
+
+    @property
+    def bar1_memory_info(self) -> BAR1MemoryInfo:
+        """
+        Get information about BAR1 memory.
+
+        BAR1 is used to map the FB (device memory) so that it can be directly
+        accessed by the CPU or by 3rd party devices (peer-to-peer on the PCIE
+        bus).
+        """
+        return BAR1MemoryInfo(nvml.device_get_bar1_memory_info(self._handle))
+
+    @property
+    def memory_info(self) -> MemoryInfo:
+        """
+        Object with memory information.
+        """
+        return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))
+
+    ##########################################################################
+    # PCI INFO
+    # See external class definitions in _pci_info.pxi
+
+    @property
+    def pci_info(self) -> PciInfo:
+        """
+        The PCI attributes of this device.
+        """
+        return PciInfo(nvml.device_get_pci_info_ext(self._handle), self._handle)
+
+    ##########################################################################
+    # PERFORMANCE
+    # See external class definitions in _performance.pxi
+
+    @property
+    def performance_state(self) -> Pstates:
+        """
+        The current performance state of the device.
+
+        For Fermi™ or newer fully supported devices.
+
+        See :class:`Pstates` for possible performance states.
+        """
+        return Pstates(nvml.device_get_performance_state(self._handle))
+
+    @property
+    def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:
+        """
+        Retrieve performance monitor samples from the associated subdevice.
+        """
+        return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
+
+    def get_supported_pstates(self) -> list[Pstates]:
+        """
+        Get all supported Performance States (P-States) for the device.
+
+        The returned list contains a contiguous list of valid P-States supported by
+        the device.
+        """
+        return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
+
+    ##########################################################################
+    # REPAIR STATUS
+    # See external class definitions in _repair_status.pxi
+
+    @property
+    def repair_status(self) -> RepairStatus:
+        """
+        Get the repair status for TPC/Channel repair.
+
+        For Ampere™ or newer fully supported devices.
+        """
+        return RepairStatus(self._handle)
+
+    ##########################################################################
+    # TEMPERATURE
+    # See external class definitions in _temperature.pxi
+
+    @property
+    def temperature(self) -> Temperature:
+        """
+        Get information about temperatures on a device.
+        """
+        return Temperature(self._handle)
+
+    #######################################################################
+    # TOPOLOGY
+
+    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:
+        """
+        Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.
+
+        Supported on Linux only.
+
+        Parameters
+        ----------
+        level: :class:`GpuTopologyLevel`
+            The topology level.
+
+        Returns
+        -------
+        Iterable of :class:`Device`
+            The nearest devices at the given topology level.
+        """
+        cdef Device device
+        for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
+            device = Device.__new__(Device)
+            device._handle = handle
+            yield device
 
 
 def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
@@ -1167,17 +821,32 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
 
 __all__ = [
     "AddressingMode",
+    "AffinityScope",
     "BAR1MemoryInfo",
     "BrandType",
+    "ClockId",
+    "ClockInfo",
+    "ClockOffsets",
+    "ClocksEventReasons",
+    "ClockType",
+    "CoolerControl",
+    "CoolerInfo",
+    "CoolerTarget",
     "Device",
-    "DeviceArchitecture",
+    "DeviceArch",
     "DeviceAttributes",
     "DeviceEvents",
     "EventData",
     "EventType",
+    "FanControlPolicy",
+    "FanInfo",
     "FieldId",
     "FieldValue",
     "FieldValues",
+    "get_p2p_status",
+    "get_topology_common_ancestor",
+    "GpuDynamicPstatesInfo",
+    "GpuDynamicPstatesUtilization",
     "GpuP2PCapsIndex",
     "GpuP2PStatus",
     "GpuTopologyLevel",
@@ -1186,7 +855,13 @@ __all__ = [
     "MemoryInfo",
     "PcieUtilCounter",
     "PciInfo",
+    "Pstates",
     "RepairStatus",
-    "get_p2p_status",
-    "get_topology_common_ancestor",
+    "Temperature",
+    "TemperatureSensors",
+    "TemperatureThresholds",
+    "ThermalController",
+    "ThermalSensor",
+    "ThermalSettings",
+    "ThermalTarget",
 ]

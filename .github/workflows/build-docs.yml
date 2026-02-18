@@ -54,7 +54,7 @@ jobs:
             exit 1
           fi
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
           ref: ${{ inputs.git-tag }}
@@ -62,7 +62,7 @@ jobs:
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
       - name: Set up miniforge
-        uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f  # v3.2.0
+        uses: conda-incubator/setup-miniconda@fc2d68f6413eb2d87b895e92f8584b5b94a10167  # v3.3.0
         with:
           activate-environment: cuda-python-docs
           environment-file: ./cuda_python/docs/environment-docs.yml
@@ -259,7 +259,7 @@ jobs:
 
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' || inputs.is-release }}
-        uses: JamesIves/github-pages-deploy-action@9d877eea73427180ae43cf98e8914934fe157a1a  # v4.7.6
+        uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com

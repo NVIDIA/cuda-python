@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -13,6 +13,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
+from cuda.core._utils.cuda_utils import CUDAError
 from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
@@ -166,7 +167,12 @@ def test_graph_alloc_with_output(mempool_device, mode):
     out.copy_from(in_, stream=gb)
     launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
     options = GraphCompleteOptions(auto_free_on_launch=True)
-    graph = gb.end_building().complete(options)
+    try:
+        graph = gb.end_building().complete(options)
+    except CUDAError as exc:
+        if "CUDA_ERROR_INVALID_VALUE" in str(exc):
+            pytest.skip("auto_free_on_launch not supported on this platform")
+        raise
 
     # Launch the graph. The output buffer is allocated and set to one.
     graph.upload(stream)
@@ -180,6 +186,23 @@ def test_graph_alloc_with_output(mempool_device, mode):
     graph.launch(stream)
     stream.sync()
     assert compare_buffer_to_constant(out, 6)
+
+
+@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+def test_graph_mem_alloc_zero(mempool_device, mode):
+    device = mempool_device
+    gb = device.create_graph_builder().begin_building(mode)
+    stream = device.create_stream()
+    gmr = GraphMemoryResource(device)
+    buffer = gmr.allocate(0, stream=gb)
+    graph = gb.end_building().complete()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert buffer.handle >= 0
+    assert buffer.size == 0
+    assert buffer.device_id == int(device)
 
 
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])

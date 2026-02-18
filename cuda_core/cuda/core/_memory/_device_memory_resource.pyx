@@ -15,15 +15,11 @@ from cuda.core._utils.cuda_utils cimport (
 
 from dataclasses import dataclass
 import multiprocessing
-from typing import TYPE_CHECKING
 import platform  # no-cython-lint
 import uuid
 
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 from cuda.core._resource_handles cimport as_cu
-
-if TYPE_CHECKING:
-    from .._device import Device
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 

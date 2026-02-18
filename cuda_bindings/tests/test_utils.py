@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import importlib
@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 from cuda.bindings import driver, runtime
+from cuda.bindings._internal.utils import get_c_compiler
 from cuda.bindings.utils import get_cuda_native_handle, get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
 
 have_cufile = importlib.util.find_spec("cuda.bindings.cufile") is not None
@@ -110,3 +111,9 @@ def test_cyclical_imports(module):
     subprocess.check_call(  # noqa: S603
         [sys.executable, Path(__file__).parent / "utils" / "check_cyclical_import.py", f"cuda.bindings.{module}"],
     )
+
+
+def test_get_c_compiler():
+    c_compiler = get_c_compiler()
+    prefix = ("GCC", "Clang", "MSVC", "Unknown")
+    assert sum(c_compiler.startswith(p) for p in prefix) == 1

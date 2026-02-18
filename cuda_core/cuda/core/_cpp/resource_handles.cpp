@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -50,6 +50,17 @@ decltype(&cuMemFree) p_cuMemFree = nullptr;
 decltype(&cuMemFreeHost) p_cuMemFreeHost = nullptr;
 
 decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer = nullptr;
+
+decltype(&cuLibraryLoadFromFile) p_cuLibraryLoadFromFile = nullptr;
+decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
+decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
+decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
+
+// NVRTC function pointers
+decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
+
+// NVVM function pointers (may be null if NVVM is not available)
+NvvmDestroyProgramFn p_nvvmDestroyProgram = nullptr;
 
 // ============================================================================
 // GIL management helpers
@@ -234,7 +245,7 @@ struct StreamBox {
 };
 }  // namespace
 
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
+StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
     GILReleaseGuard gil;
     CUstream stream;
     if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
@@ -301,7 +312,7 @@ struct EventBox {
 };
 }  // namespace
 
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -449,11 +460,11 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept {
-    get_box(h)->h_stream = std::move(h_stream);
+void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+    get_box(h)->h_stream = h_stream;
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -471,7 +482,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -555,6 +566,42 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 }
 
 // ============================================================================
+// MemoryResource-owned Device Pointer Handles
+// ============================================================================
+
+static MRDeallocCallback mr_dealloc_cb = nullptr;
+
+void register_mr_dealloc_callback(MRDeallocCallback cb) {
+    mr_dealloc_cb = cb;
+}
+
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
+    if (!mr) {
+        return deviceptr_create_ref(ptr);
+    }
+    // GIL required when mr is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        return deviceptr_create_ref(ptr);
+    }
+    Py_INCREF(mr);
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, StreamHandle{}},
+        [mr, size](DevicePtrBox* b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                if (mr_dealloc_cb) {
+                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                }
+                Py_DECREF(mr);
+            }
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+// ============================================================================
 // IPC Pointer Cache
 // ============================================================================
 // This cache handles duplicate IPC imports, which behave differently depending
@@ -612,7 +659,7 @@ struct ExportDataKeyHash {
 static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
-DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
@@ -680,6 +727,143 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
         );
         return DevicePtrHandle(box, &box->resource);
     }
+}
+
+// ============================================================================
+// Library Handles
+// ============================================================================
+
+namespace {
+struct LibraryBox {
+    CUlibrary resource;
+};
+}  // namespace
+
+LibraryHandle create_library_handle_from_file(const char* path) {
+    GILReleaseGuard gil;
+    CUlibrary library;
+    if (CUDA_SUCCESS != (err = p_cuLibraryLoadFromFile(&library, path, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
+        return {};
+    }
+
+    auto box = std::shared_ptr<const LibraryBox>(
+        new LibraryBox{library},
+        [](const LibraryBox* b) {
+            GILReleaseGuard gil;
+            p_cuLibraryUnload(b->resource);
+            delete b;
+        }
+    );
+    return LibraryHandle(box, &box->resource);
+}
+
+LibraryHandle create_library_handle_from_data(const void* data) {
+    GILReleaseGuard gil;
+    CUlibrary library;
+    if (CUDA_SUCCESS != (err = p_cuLibraryLoadData(&library, data, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
+        return {};
+    }
+
+    auto box = std::shared_ptr<const LibraryBox>(
+        new LibraryBox{library},
+        [](const LibraryBox* b) {
+            GILReleaseGuard gil;
+            p_cuLibraryUnload(b->resource);
+            delete b;
+        }
+    );
+    return LibraryHandle(box, &box->resource);
+}
+
+LibraryHandle create_library_handle_ref(CUlibrary library) {
+    auto box = std::make_shared<const LibraryBox>(LibraryBox{library});
+    return LibraryHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Kernel Handles
+// ============================================================================
+
+namespace {
+struct KernelBox {
+    CUkernel resource;
+    LibraryHandle h_library;  // Keeps library alive
+};
+}  // namespace
+
+KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
+    GILReleaseGuard gil;
+    CUkernel kernel;
+    if (CUDA_SUCCESS != (err = p_cuLibraryGetKernel(&kernel, *h_library, name))) {
+        return {};
+    }
+
+    return create_kernel_handle_ref(kernel, h_library);
+}
+
+KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
+    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
+    return KernelHandle(box, &box->resource);
+}
+
+// ============================================================================
+// NVRTC Program Handles
+// ============================================================================
+
+namespace {
+struct NvrtcProgramBox {
+    nvrtcProgram resource;
+};
+}  // namespace
+
+NvrtcProgramHandle create_nvrtc_program_handle(nvrtcProgram prog) {
+    auto box = std::shared_ptr<NvrtcProgramBox>(
+        new NvrtcProgramBox{prog},
+        [](NvrtcProgramBox* b) {
+            // Note: nvrtcDestroyProgram takes nvrtcProgram* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            // Errors are ignored (standard destructor practice).
+            p_nvrtcDestroyProgram(&b->resource);
+            delete b;
+        }
+    );
+    return NvrtcProgramHandle(box, &box->resource);
+}
+
+NvrtcProgramHandle create_nvrtc_program_handle_ref(nvrtcProgram prog) {
+    auto box = std::make_shared<NvrtcProgramBox>(NvrtcProgramBox{prog});
+    return NvrtcProgramHandle(box, &box->resource);
+}
+
+// ============================================================================
+// NVVM Program Handles
+// ============================================================================
+
+namespace {
+struct NvvmProgramBox {
+    nvvmProgram resource;
+};
+}  // namespace
+
+NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog) {
+    auto box = std::shared_ptr<NvvmProgramBox>(
+        new NvvmProgramBox{prog},
+        [](NvvmProgramBox* b) {
+            // Note: nvvmDestroyProgram takes nvvmProgram* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            // If NVVM is not available, the function pointer is null.
+            if (p_nvvmDestroyProgram) {
+                p_nvvmDestroyProgram(&b->resource);
+            }
+            delete b;
+        }
+    );
+    return NvvmProgramHandle(box, &box->resource);
+}
+
+NvvmProgramHandle create_nvvm_program_handle_ref(nvvmProgram prog) {
+    auto box = std::make_shared<NvvmProgramBox>(NvvmProgramBox{prog});
+    return NvvmProgramHandle(box, &box->resource);
 }
 
 }  // namespace cuda_core

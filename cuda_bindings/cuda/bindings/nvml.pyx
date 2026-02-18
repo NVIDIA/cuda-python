@@ -1,17 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
-from cython cimport view
-cimport cpython
 
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from enum import IntEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
 from cuda.bindings.cydriver cimport CUDA_VERSION
 
@@ -20,6 +18,7 @@ from libc.stdlib cimport calloc, free, malloc
 from cython cimport view
 cimport cpython.buffer
 cimport cpython.memoryview
+cimport cpython
 from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
@@ -37,25 +36,45 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
 
+
+cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsigned int ver) nogil:
+    return (size | (ver << 24))
+
+
 ###############################################################################
 # Enum
 ###############################################################################
 
-class BridgeChipType(_IntEnum):
-    """See `nvmlBridgeChipType_t`."""
+class BridgeChipType(_FastEnum):
+    """
+    Enum to represent type of bridge chip
+
+    See `nvmlBridgeChipType_t`.
+    """
     BRIDGE_CHIP_PLX = NVML_BRIDGE_CHIP_PLX
     BRIDGE_CHIP_BRO4 = NVML_BRIDGE_CHIP_BRO4
 
-class NvLinkUtilizationCountUnits(_IntEnum):
-    """See `nvmlNvLinkUtilizationCountUnits_t`."""
+class NvLinkUtilizationCountUnits(_FastEnum):
+    """
+    Enum to represent the NvLink utilization counter packet units
+
+    See `nvmlNvLinkUtilizationCountUnits_t`.
+    """
     NVLINK_COUNTER_UNIT_CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
     NVLINK_COUNTER_UNIT_PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
     NVLINK_COUNTER_UNIT_BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
     NVLINK_COUNTER_UNIT_RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
     NVLINK_COUNTER_UNIT_COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
 
-class NvLinkUtilizationCountPktTypes(_IntEnum):
-    """See `nvmlNvLinkUtilizationCountPktTypes_t`."""
+class NvLinkUtilizationCountPktTypes(_FastEnum):
+    """
+    Enum to represent the NvLink utilization counter packet types to count
+    ** this is ONLY applicable with the units as packets or bytes ** as
+    specified in `nvmlNvLinkUtilizationCountUnits_t` ** all packet filter
+    descriptions are target GPU centric ** these can be "OR'd" together
+
+    See `nvmlNvLinkUtilizationCountPktTypes_t`.
+    """
     NVLINK_COUNTER_PKTFILTER_NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
     NVLINK_COUNTER_PKTFILTER_READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
     NVLINK_COUNTER_PKTFILTER_WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
@@ -66,8 +85,12 @@ class NvLinkUtilizationCountPktTypes(_IntEnum):
     NVLINK_COUNTER_PKTFILTER_RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
     NVLINK_COUNTER_PKTFILTER_ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
 
-class NvLinkCapability(_IntEnum):
-    """See `nvmlNvLinkCapability_t`."""
+class NvLinkCapability(_FastEnum):
+    """
+    Enum to represent NvLink queryable capabilities
+
+    See `nvmlNvLinkCapability_t`.
+    """
     NVLINK_CAP_P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
     NVLINK_CAP_SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
     NVLINK_CAP_P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
@@ -76,8 +99,12 @@ class NvLinkCapability(_IntEnum):
     NVLINK_CAP_VALID = NVML_NVLINK_CAP_VALID
     NVLINK_CAP_COUNT = NVML_NVLINK_CAP_COUNT
 
-class NvLinkErrorCounter(_IntEnum):
-    """See `nvmlNvLinkErrorCounter_t`."""
+class NvLinkErrorCounter(_FastEnum):
+    """
+    Enum to represent NvLink queryable error counters
+
+    See `nvmlNvLinkErrorCounter_t`.
+    """
     NVLINK_ERROR_DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
     NVLINK_ERROR_DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
     NVLINK_ERROR_DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
@@ -85,15 +112,24 @@ class NvLinkErrorCounter(_IntEnum):
     NVLINK_ERROR_DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
     NVLINK_ERROR_COUNT = NVML_NVLINK_ERROR_COUNT
 
-class IntNvLinkDeviceType(_IntEnum):
-    """See `nvmlIntNvLinkDeviceType_t`."""
+class IntNvLinkDeviceType(_FastEnum):
+    """
+    Enum to represent NvLink's remote device type
+
+    See `nvmlIntNvLinkDeviceType_t`.
+    """
     NVLINK_DEVICE_TYPE_GPU = NVML_NVLINK_DEVICE_TYPE_GPU
     NVLINK_DEVICE_TYPE_IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
     NVLINK_DEVICE_TYPE_SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
     NVLINK_DEVICE_TYPE_UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
 
-class GpuTopologyLevel(_IntEnum):
-    """See `nvmlGpuTopologyLevel_t`."""
+class GpuTopologyLevel(_FastEnum):
+    """
+    Represents level relationships within a system between two GPUs The
+    enums are spaced to allow for future relationships
+
+    See `nvmlGpuTopologyLevel_t`.
+    """
     TOPOLOGY_INTERNAL = NVML_TOPOLOGY_INTERNAL
     TOPOLOGY_SINGLE = NVML_TOPOLOGY_SINGLE
     TOPOLOGY_MULTIPLE = NVML_TOPOLOGY_MULTIPLE
@@ -101,8 +137,10 @@ class GpuTopologyLevel(_IntEnum):
     TOPOLOGY_NODE = NVML_TOPOLOGY_NODE
     TOPOLOGY_SYSTEM = NVML_TOPOLOGY_SYSTEM
 
-class GpuP2PStatus(_IntEnum):
-    """See `nvmlGpuP2PStatus_t`."""
+class GpuP2PStatus(_FastEnum):
+    """
+    See `nvmlGpuP2PStatus_t`.
+    """
     P2P_STATUS_OK = NVML_P2P_STATUS_OK
     P2P_STATUS_CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
     P2P_STATUS_CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
@@ -112,8 +150,10 @@ class GpuP2PStatus(_IntEnum):
     P2P_STATUS_NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
     P2P_STATUS_UNKNOWN = NVML_P2P_STATUS_UNKNOWN
 
-class GpuP2PCapsIndex(_IntEnum):
-    """See `nvmlGpuP2PCapsIndex_t`."""
+class GpuP2PCapsIndex(_FastEnum):
+    """
+    See `nvmlGpuP2PCapsIndex_t`.
+    """
     P2P_CAPS_INDEX_READ = NVML_P2P_CAPS_INDEX_READ
     P2P_CAPS_INDEX_WRITE = NVML_P2P_CAPS_INDEX_WRITE
     P2P_CAPS_INDEX_NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
@@ -122,28 +162,40 @@ class GpuP2PCapsIndex(_IntEnum):
     P2P_CAPS_INDEX_PROP = NVML_P2P_CAPS_INDEX_PROP
     P2P_CAPS_INDEX_UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
 
-class SamplingType(_IntEnum):
-    """See `nvmlSamplingType_t`."""
-    TOTAL_POWER_SAMPLES = NVML_TOTAL_POWER_SAMPLES
-    GPU_UTILIZATION_SAMPLES = NVML_GPU_UTILIZATION_SAMPLES
-    MEMORY_UTILIZATION_SAMPLES = NVML_MEMORY_UTILIZATION_SAMPLES
-    ENC_UTILIZATION_SAMPLES = NVML_ENC_UTILIZATION_SAMPLES
-    DEC_UTILIZATION_SAMPLES = NVML_DEC_UTILIZATION_SAMPLES
-    PROCESSOR_CLK_SAMPLES = NVML_PROCESSOR_CLK_SAMPLES
-    MEMORY_CLK_SAMPLES = NVML_MEMORY_CLK_SAMPLES
-    MODULE_POWER_SAMPLES = NVML_MODULE_POWER_SAMPLES
-    JPG_UTILIZATION_SAMPLES = NVML_JPG_UTILIZATION_SAMPLES
-    OFA_UTILIZATION_SAMPLES = NVML_OFA_UTILIZATION_SAMPLES
+class SamplingType(_FastEnum):
+    """
+    Represents Type of Sampling Event
+
+    See `nvmlSamplingType_t`.
+    """
+    TOTAL_POWER_SAMPLES = (NVML_TOTAL_POWER_SAMPLES, 'To represent total power drawn by GPU.')
+    GPU_UTILIZATION_SAMPLES = (NVML_GPU_UTILIZATION_SAMPLES, 'To represent percent of time during which one or more kernels was executing on the GPU.')
+    MEMORY_UTILIZATION_SAMPLES = (NVML_MEMORY_UTILIZATION_SAMPLES, 'To represent percent of time during which global (device) memory was being read or written.')
+    ENC_UTILIZATION_SAMPLES = (NVML_ENC_UTILIZATION_SAMPLES, 'To represent percent of time during which NVENC remains busy.')
+    DEC_UTILIZATION_SAMPLES = (NVML_DEC_UTILIZATION_SAMPLES, 'To represent percent of time during which NVDEC remains busy.')
+    PROCESSOR_CLK_SAMPLES = (NVML_PROCESSOR_CLK_SAMPLES, 'To represent processor clock samples.')
+    MEMORY_CLK_SAMPLES = (NVML_MEMORY_CLK_SAMPLES, 'To represent memory clock samples.')
+    MODULE_POWER_SAMPLES = (NVML_MODULE_POWER_SAMPLES, 'To represent module power samples for total module starting Grace Hopper.')
+    JPG_UTILIZATION_SAMPLES = (NVML_JPG_UTILIZATION_SAMPLES, 'To represent percent of time during which NVJPG remains busy.')
+    OFA_UTILIZATION_SAMPLES = (NVML_OFA_UTILIZATION_SAMPLES, 'To represent percent of time during which NVOFA remains busy.')
     SAMPLINGTYPE_COUNT = NVML_SAMPLINGTYPE_COUNT
 
-class PcieUtilCounter(_IntEnum):
-    """See `nvmlPcieUtilCounter_t`."""
+class PcieUtilCounter(_FastEnum):
+    """
+    Represents the queryable PCIe utilization counters
+
+    See `nvmlPcieUtilCounter_t`.
+    """
     PCIE_UTIL_TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
     PCIE_UTIL_RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
     PCIE_UTIL_COUNT = NVML_PCIE_UTIL_COUNT
 
-class ValueType(_IntEnum):
-    """See `nvmlValueType_t`."""
+class ValueType(_FastEnum):
+    """
+    Represents the type for sample value returned
+
+    See `nvmlValueType_t`.
+    """
     DOUBLE = NVML_VALUE_TYPE_DOUBLE
     UNSIGNED_INT = NVML_VALUE_TYPE_UNSIGNED_INT
     UNSIGNED_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG
@@ -153,33 +205,45 @@ class ValueType(_IntEnum):
     UNSIGNED_SHORT = NVML_VALUE_TYPE_UNSIGNED_SHORT
     COUNT = NVML_VALUE_TYPE_COUNT
 
-class PerfPolicyType(_IntEnum):
-    """See `nvmlPerfPolicyType_t`."""
-    PERF_POLICY_POWER = NVML_PERF_POLICY_POWER
-    PERF_POLICY_THERMAL = NVML_PERF_POLICY_THERMAL
-    PERF_POLICY_SYNC_BOOST = NVML_PERF_POLICY_SYNC_BOOST
-    PERF_POLICY_BOARD_LIMIT = NVML_PERF_POLICY_BOARD_LIMIT
-    PERF_POLICY_LOW_UTILIZATION = NVML_PERF_POLICY_LOW_UTILIZATION
-    PERF_POLICY_RELIABILITY = NVML_PERF_POLICY_RELIABILITY
-    PERF_POLICY_TOTAL_APP_CLOCKS = NVML_PERF_POLICY_TOTAL_APP_CLOCKS
-    PERF_POLICY_TOTAL_BASE_CLOCKS = NVML_PERF_POLICY_TOTAL_BASE_CLOCKS
+class PerfPolicyType(_FastEnum):
+    """
+    Represents type of perf policy for which violation times can be queried
+
+    See `nvmlPerfPolicyType_t`.
+    """
+    PERF_POLICY_POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
+    PERF_POLICY_THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
+    PERF_POLICY_SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
+    PERF_POLICY_BOARD_LIMIT = (NVML_PERF_POLICY_BOARD_LIMIT, 'How long did the board limit cause the GPU to be below application clocks.')
+    PERF_POLICY_LOW_UTILIZATION = (NVML_PERF_POLICY_LOW_UTILIZATION, 'How long did low utilization cause the GPU to be below application clocks.')
+    PERF_POLICY_RELIABILITY = (NVML_PERF_POLICY_RELIABILITY, 'How long did the board reliability limit cause the GPU to be below application clocks.')
+    PERF_POLICY_TOTAL_APP_CLOCKS = (NVML_PERF_POLICY_TOTAL_APP_CLOCKS, 'Total time the GPU was held below application clocks by any limiter (0 - 5 above)')
+    PERF_POLICY_TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
     PERF_POLICY_COUNT = NVML_PERF_POLICY_COUNT
 
-class ThermalTarget(_IntEnum):
-    """See `nvmlThermalTarget_t`."""
+class ThermalTarget(_FastEnum):
+    """
+    Represents the thermal sensor targets
+
+    See `nvmlThermalTarget_t`.
+    """
     NONE = NVML_THERMAL_TARGET_NONE
-    GPU = NVML_THERMAL_TARGET_GPU
-    MEMORY = NVML_THERMAL_TARGET_MEMORY
-    POWER_SUPPLY = NVML_THERMAL_TARGET_POWER_SUPPLY
-    BOARD = NVML_THERMAL_TARGET_BOARD
-    VCD_BOARD = NVML_THERMAL_TARGET_VCD_BOARD
-    VCD_INLET = NVML_THERMAL_TARGET_VCD_INLET
-    VCD_OUTLET = NVML_THERMAL_TARGET_VCD_OUTLET
+    GPU = (NVML_THERMAL_TARGET_GPU, 'GPU core temperature requires NvPhysicalGpuHandle.')
+    MEMORY = (NVML_THERMAL_TARGET_MEMORY, 'GPU memory temperature requires NvPhysicalGpuHandle.')
+    POWER_SUPPLY = (NVML_THERMAL_TARGET_POWER_SUPPLY, 'GPU power supply temperature requires NvPhysicalGpuHandle.')
+    BOARD = (NVML_THERMAL_TARGET_BOARD, 'GPU board ambient temperature requires NvPhysicalGpuHandle.')
+    VCD_BOARD = (NVML_THERMAL_TARGET_VCD_BOARD, 'Visual Computing Device Board temperature requires NvVisualComputingDeviceHandle.')
+    VCD_INLET = (NVML_THERMAL_TARGET_VCD_INLET, 'Visual Computing Device Inlet temperature requires NvVisualComputingDeviceHandle.')
+    VCD_OUTLET = (NVML_THERMAL_TARGET_VCD_OUTLET, 'Visual Computing Device Outlet temperature requires NvVisualComputingDeviceHandle.')
     ALL = NVML_THERMAL_TARGET_ALL
     UNKNOWN = NVML_THERMAL_TARGET_UNKNOWN
 
-class ThermalController(_IntEnum):
-    """See `nvmlThermalController_t`."""
+class ThermalController(_FastEnum):
+    """
+    Represents the thermal sensor controllers
+
+    See `nvmlThermalController_t`.
+    """
     NONE = NVML_THERMAL_CONTROLLER_NONE
     GPU_INTERNAL = NVML_THERMAL_CONTROLLER_GPU_INTERNAL
     ADM1032 = NVML_THERMAL_CONTROLLER_ADM1032
@@ -200,34 +264,54 @@ class ThermalController(_IntEnum):
     ADT7473S = NVML_THERMAL_CONTROLLER_ADT7473S
     UNKNOWN = NVML_THERMAL_CONTROLLER_UNKNOWN
 
-class CoolerControl(_IntEnum):
-    """See `nvmlCoolerControl_t`."""
-    THERMAL_COOLER_SIGNAL_NONE = NVML_THERMAL_COOLER_SIGNAL_NONE
-    THERMAL_COOLER_SIGNAL_TOGGLE = NVML_THERMAL_COOLER_SIGNAL_TOGGLE
-    THERMAL_COOLER_SIGNAL_VARIABLE = NVML_THERMAL_COOLER_SIGNAL_VARIABLE
+class CoolerControl(_FastEnum):
+    """
+    Cooler control type
+
+    See `nvmlCoolerControl_t`.
+    """
+    THERMAL_COOLER_SIGNAL_NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
+    THERMAL_COOLER_SIGNAL_TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
+    THERMAL_COOLER_SIGNAL_VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
     THERMAL_COOLER_SIGNAL_COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
 
-class CoolerTarget(_IntEnum):
-    """See `nvmlCoolerTarget_t`."""
-    THERMAL_NONE = NVML_THERMAL_COOLER_TARGET_NONE
-    THERMAL_GPU = NVML_THERMAL_COOLER_TARGET_GPU
-    THERMAL_MEMORY = NVML_THERMAL_COOLER_TARGET_MEMORY
-    THERMAL_POWER_SUPPLY = NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY
-    THERMAL_GPU_RELATED = NVML_THERMAL_COOLER_TARGET_GPU_RELATED
+class CoolerTarget(_FastEnum):
+    """
+    Cooler's target
 
-class UUIDType(_IntEnum):
-    """See `nvmlUUIDType_t`."""
-    NONE = NVML_UUID_TYPE_NONE
-    ASCII = NVML_UUID_TYPE_ASCII
-    BINARY = NVML_UUID_TYPE_BINARY
+    See `nvmlCoolerTarget_t`.
+    """
+    THERMAL_NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
+    THERMAL_GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
+    THERMAL_MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
+    THERMAL_POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
+    THERMAL_GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
 
-class EnableState(_IntEnum):
-    """See `nvmlEnableState_t`."""
-    FEATURE_DISABLED = NVML_FEATURE_DISABLED
-    FEATURE_ENABLED = NVML_FEATURE_ENABLED
+class UUIDType(_FastEnum):
+    """
+    Enum to represent different UUID types
 
-class BrandType(_IntEnum):
-    """See `nvmlBrandType_t`."""
+    See `nvmlUUIDType_t`.
+    """
+    NONE = (NVML_UUID_TYPE_NONE, 'Undefined type.')
+    ASCII = (NVML_UUID_TYPE_ASCII, 'ASCII format type.')
+    BINARY = (NVML_UUID_TYPE_BINARY, 'Binary format type.')
+
+class EnableState(_FastEnum):
+    """
+    Generic enable/disable enum.
+
+    See `nvmlEnableState_t`.
+    """
+    FEATURE_DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
+    FEATURE_ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
+
+class BrandType(_FastEnum):
+    """
+    - The Brand of the GPU
+
+    See `nvmlBrandType_t`.
+    """
     BRAND_UNKNOWN = NVML_BRAND_UNKNOWN
     BRAND_QUADRO = NVML_BRAND_QUADRO
     BRAND_TESLA = NVML_BRAND_TESLA
@@ -248,8 +332,12 @@ class BrandType(_IntEnum):
     BRAND_TITAN_RTX = NVML_BRAND_TITAN_RTX
     BRAND_COUNT = NVML_BRAND_COUNT
 
-class TemperatureThresholds(_IntEnum):
-    """See `nvmlTemperatureThresholds_t`."""
+class TemperatureThresholds(_FastEnum):
+    """
+    Temperature thresholds.
+
+    See `nvmlTemperatureThresholds_t`.
+    """
     TEMPERATURE_THRESHOLD_SHUTDOWN = NVML_TEMPERATURE_THRESHOLD_SHUTDOWN
     TEMPERATURE_THRESHOLD_SLOWDOWN = NVML_TEMPERATURE_THRESHOLD_SLOWDOWN
     TEMPERATURE_THRESHOLD_MEM_MAX = NVML_TEMPERATURE_THRESHOLD_MEM_MAX
@@ -260,365 +348,514 @@ class TemperatureThresholds(_IntEnum):
     TEMPERATURE_THRESHOLD_GPS_CURR = NVML_TEMPERATURE_THRESHOLD_GPS_CURR
     TEMPERATURE_THRESHOLD_COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
 
-class TemperatureSensors(_IntEnum):
-    """See `nvmlTemperatureSensors_t`."""
-    TEMPERATURE_GPU = NVML_TEMPERATURE_GPU
+class TemperatureSensors(_FastEnum):
+    """
+    Temperature sensors.
+
+    See `nvmlTemperatureSensors_t`.
+    """
+    TEMPERATURE_GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
     TEMPERATURE_COUNT = NVML_TEMPERATURE_COUNT
 
-class ComputeMode(_IntEnum):
-    """See `nvmlComputeMode_t`."""
-    COMPUTEMODE_DEFAULT = NVML_COMPUTEMODE_DEFAULT
-    COMPUTEMODE_EXCLUSIVE_THREAD = NVML_COMPUTEMODE_EXCLUSIVE_THREAD
-    COMPUTEMODE_PROHIBITED = NVML_COMPUTEMODE_PROHIBITED
-    COMPUTEMODE_EXCLUSIVE_PROCESS = NVML_COMPUTEMODE_EXCLUSIVE_PROCESS
+class ComputeMode(_FastEnum):
+    """
+    Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA
+    4.0. Earlier CUDA versions supported a single exclusive mode, which is
+    equivalent to NVML_COMPUTEMODE_EXCLUSIVE_THREAD in CUDA 4.0 and beyond.
+
+    See `nvmlComputeMode_t`.
+    """
+    COMPUTEMODE_DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
+    COMPUTEMODE_EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
+    COMPUTEMODE_PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
+    COMPUTEMODE_EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
     COMPUTEMODE_COUNT = NVML_COMPUTEMODE_COUNT
 
-class MemoryErrorType(_IntEnum):
-    """See `nvmlMemoryErrorType_t`."""
-    CORRECTED = NVML_MEMORY_ERROR_TYPE_CORRECTED
-    UNCORRECTED = NVML_MEMORY_ERROR_TYPE_UNCORRECTED
-    COUNT = NVML_MEMORY_ERROR_TYPE_COUNT
+class MemoryErrorType(_FastEnum):
+    """
+    Memory error types
 
-class NvlinkVersion(_IntEnum):
-    """See `nvmlNvlinkVersion_t`."""
-    VERSION_INVALID = NVML_NVLINK_VERSION_INVALID
-    VERSION_1_0 = NVML_NVLINK_VERSION_1_0
-    VERSION_2_0 = NVML_NVLINK_VERSION_2_0
-    VERSION_2_2 = NVML_NVLINK_VERSION_2_2
-    VERSION_3_0 = NVML_NVLINK_VERSION_3_0
-    VERSION_3_1 = NVML_NVLINK_VERSION_3_1
-    VERSION_4_0 = NVML_NVLINK_VERSION_4_0
-    VERSION_5_0 = NVML_NVLINK_VERSION_5_0
+    See `nvmlMemoryErrorType_t`.
+    """
+    CORRECTED = (NVML_MEMORY_ERROR_TYPE_CORRECTED, 'A memory error that was corrected  For ECC errors, these are single bit errors For Texture memory, these are errors fixed by resend')
+    UNCORRECTED = (NVML_MEMORY_ERROR_TYPE_UNCORRECTED, 'A memory error that was not corrected  For ECC errors, these are double bit errors For Texture memory, these are errors where the resend fails')
+    COUNT = (NVML_MEMORY_ERROR_TYPE_COUNT, 'Count of memory error types.')
 
-class EccCounterType(_IntEnum):
-    """See `nvmlEccCounterType_t`."""
-    VOLATILE_ECC = NVML_VOLATILE_ECC
-    AGGREGATE_ECC = NVML_AGGREGATE_ECC
-    COUNT = NVML_ECC_COUNTER_TYPE_COUNT
+class NvlinkVersion(_FastEnum):
+    """
+    Represents Nvlink Version
 
-class ClockType(_IntEnum):
-    """See `nvmlClockType_t`."""
-    CLOCK_GRAPHICS = NVML_CLOCK_GRAPHICS
-    CLOCK_SM = NVML_CLOCK_SM
-    CLOCK_MEM = NVML_CLOCK_MEM
-    CLOCK_VIDEO = NVML_CLOCK_VIDEO
-    CLOCK_COUNT = NVML_CLOCK_COUNT
+    See `nvmlNvlinkVersion_t`.
+    """
+    VERSION_INVALID = (NVML_NVLINK_VERSION_INVALID, 'NVLink version is invalid.')
+    VERSION_1_0 = (NVML_NVLINK_VERSION_1_0, 'NVLink Version 1.0.')
+    VERSION_2_0 = (NVML_NVLINK_VERSION_2_0, 'NVLink Version 2.0.')
+    VERSION_2_2 = (NVML_NVLINK_VERSION_2_2, 'NVLink Version 2.2.')
+    VERSION_3_0 = (NVML_NVLINK_VERSION_3_0, 'NVLink Version 3.0.')
+    VERSION_3_1 = (NVML_NVLINK_VERSION_3_1, 'NVLink Version 3.1.')
+    VERSION_4_0 = (NVML_NVLINK_VERSION_4_0, 'NVLink Version 4.0.')
+    VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
 
-class ClockId(_IntEnum):
-    """See `nvmlClockId_t`."""
-    CURRENT = NVML_CLOCK_ID_CURRENT
-    APP_CLOCK_TARGET = NVML_CLOCK_ID_APP_CLOCK_TARGET
-    APP_CLOCK_DEFAULT = NVML_CLOCK_ID_APP_CLOCK_DEFAULT
-    CUSTOMER_BOOST_MAX = NVML_CLOCK_ID_CUSTOMER_BOOST_MAX
-    COUNT = NVML_CLOCK_ID_COUNT
+class EccCounterType(_FastEnum):
+    """
+    ECC counter types.  Note: Volatile counts are reset each time the
+    driver loads. On Windows this is once per boot. On Linux this can be
+    more frequent. On Linux the driver unloads when no active clients
+    exist. If persistence mode is enabled or there is always a driver
+    client active (e.g. X11), then Linux also sees per-boot behavior. If
+    not, volatile counts are reset each time a compute app is run.
 
-class DriverModel(_IntEnum):
-    """See `nvmlDriverModel_t`."""
-    DRIVER_WDDM = NVML_DRIVER_WDDM
-    DRIVER_WDM = NVML_DRIVER_WDM
-    DRIVER_MCDM = NVML_DRIVER_MCDM
+    See `nvmlEccCounterType_t`.
+    """
+    VOLATILE_ECC = (NVML_VOLATILE_ECC, 'Volatile counts are reset each time the driver loads.')
+    AGGREGATE_ECC = (NVML_AGGREGATE_ECC, 'Aggregate counts persist across reboots (i.e. for the lifetime of the device)')
+    COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
 
-class Pstates(_IntEnum):
-    """See `nvmlPstates_t`."""
-    PSTATE_0 = NVML_PSTATE_0
-    PSTATE_1 = NVML_PSTATE_1
-    PSTATE_2 = NVML_PSTATE_2
-    PSTATE_3 = NVML_PSTATE_3
-    PSTATE_4 = NVML_PSTATE_4
-    PSTATE_5 = NVML_PSTATE_5
-    PSTATE_6 = NVML_PSTATE_6
-    PSTATE_7 = NVML_PSTATE_7
-    PSTATE_8 = NVML_PSTATE_8
-    PSTATE_9 = NVML_PSTATE_9
-    PSTATE_10 = NVML_PSTATE_10
-    PSTATE_11 = NVML_PSTATE_11
-    PSTATE_12 = NVML_PSTATE_12
-    PSTATE_13 = NVML_PSTATE_13
-    PSTATE_14 = NVML_PSTATE_14
-    PSTATE_15 = NVML_PSTATE_15
-    PSTATE_UNKNOWN = NVML_PSTATE_UNKNOWN
+class ClockType(_FastEnum):
+    """
+    Clock types.  All speeds are in Mhz.
 
-class GpuOperationMode(_IntEnum):
-    """See `nvmlGpuOperationMode_t`."""
-    GOM_ALL_ON = NVML_GOM_ALL_ON
-    GOM_COMPUTE = NVML_GOM_COMPUTE
-    GOM_LOW_DP = NVML_GOM_LOW_DP
+    See `nvmlClockType_t`.
+    """
+    CLOCK_GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
+    CLOCK_SM = (NVML_CLOCK_SM, 'SM clock domain.')
+    CLOCK_MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
+    CLOCK_VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
+    CLOCK_COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
 
-class InforomObject(_IntEnum):
-    """See `nvmlInforomObject_t`."""
-    INFOROM_OEM = NVML_INFOROM_OEM
-    INFOROM_ECC = NVML_INFOROM_ECC
-    INFOROM_POWER = NVML_INFOROM_POWER
-    INFOROM_DEN = NVML_INFOROM_DEN
-    INFOROM_COUNT = NVML_INFOROM_COUNT
+class ClockId(_FastEnum):
+    """
+    Clock Ids. These are used in combination with nvmlClockType_t to
+    specify a single clock value.
 
-class Return(_IntEnum):
-    """See `nvmlReturn_t`."""
-    SUCCESS = NVML_SUCCESS
-    ERROR_UNINITIALIZED = NVML_ERROR_UNINITIALIZED
-    ERROR_INVALID_ARGUMENT = NVML_ERROR_INVALID_ARGUMENT
-    ERROR_NOT_SUPPORTED = NVML_ERROR_NOT_SUPPORTED
-    ERROR_NO_PERMISSION = NVML_ERROR_NO_PERMISSION
-    ERROR_ALREADY_INITIALIZED = NVML_ERROR_ALREADY_INITIALIZED
-    ERROR_NOT_FOUND = NVML_ERROR_NOT_FOUND
-    ERROR_INSUFFICIENT_SIZE = NVML_ERROR_INSUFFICIENT_SIZE
-    ERROR_INSUFFICIENT_POWER = NVML_ERROR_INSUFFICIENT_POWER
-    ERROR_DRIVER_NOT_LOADED = NVML_ERROR_DRIVER_NOT_LOADED
-    ERROR_TIMEOUT = NVML_ERROR_TIMEOUT
-    ERROR_IRQ_ISSUE = NVML_ERROR_IRQ_ISSUE
-    ERROR_LIBRARY_NOT_FOUND = NVML_ERROR_LIBRARY_NOT_FOUND
-    ERROR_FUNCTION_NOT_FOUND = NVML_ERROR_FUNCTION_NOT_FOUND
-    ERROR_CORRUPTED_INFOROM = NVML_ERROR_CORRUPTED_INFOROM
-    ERROR_GPU_IS_LOST = NVML_ERROR_GPU_IS_LOST
-    ERROR_RESET_REQUIRED = NVML_ERROR_RESET_REQUIRED
-    ERROR_OPERATING_SYSTEM = NVML_ERROR_OPERATING_SYSTEM
-    ERROR_LIB_RM_VERSION_MISMATCH = NVML_ERROR_LIB_RM_VERSION_MISMATCH
-    ERROR_IN_USE = NVML_ERROR_IN_USE
-    ERROR_MEMORY = NVML_ERROR_MEMORY
-    ERROR_NO_DATA = NVML_ERROR_NO_DATA
-    ERROR_VGPU_ECC_NOT_SUPPORTED = NVML_ERROR_VGPU_ECC_NOT_SUPPORTED
-    ERROR_INSUFFICIENT_RESOURCES = NVML_ERROR_INSUFFICIENT_RESOURCES
-    ERROR_FREQ_NOT_SUPPORTED = NVML_ERROR_FREQ_NOT_SUPPORTED
-    ERROR_ARGUMENT_VERSION_MISMATCH = NVML_ERROR_ARGUMENT_VERSION_MISMATCH
-    ERROR_DEPRECATED = NVML_ERROR_DEPRECATED
-    ERROR_NOT_READY = NVML_ERROR_NOT_READY
-    ERROR_GPU_NOT_FOUND = NVML_ERROR_GPU_NOT_FOUND
-    ERROR_INVALID_STATE = NVML_ERROR_INVALID_STATE
-    ERROR_RESET_TYPE_NOT_SUPPORTED = NVML_ERROR_RESET_TYPE_NOT_SUPPORTED
-    ERROR_UNKNOWN = NVML_ERROR_UNKNOWN
+    See `nvmlClockId_t`.
+    """
+    CURRENT = (NVML_CLOCK_ID_CURRENT, 'Current actual clock value.')
+    APP_CLOCK_TARGET = (NVML_CLOCK_ID_APP_CLOCK_TARGET, 'Target application clock. Deprecated, do not use.')
+    APP_CLOCK_DEFAULT = (NVML_CLOCK_ID_APP_CLOCK_DEFAULT, 'Default application clock target Deprecated, do not use.')
+    CUSTOMER_BOOST_MAX = (NVML_CLOCK_ID_CUSTOMER_BOOST_MAX, 'OEM-defined maximum clock rate.')
+    COUNT = (NVML_CLOCK_ID_COUNT, 'Count of Clock Ids.')
 
-class MemoryLocation(_IntEnum):
-    """See `nvmlMemoryLocation_t`."""
-    L1_CACHE = NVML_MEMORY_LOCATION_L1_CACHE
-    L2_CACHE = NVML_MEMORY_LOCATION_L2_CACHE
-    DRAM = NVML_MEMORY_LOCATION_DRAM
-    DEVICE_MEMORY = NVML_MEMORY_LOCATION_DEVICE_MEMORY
-    REGISTER_FILE = NVML_MEMORY_LOCATION_REGISTER_FILE
-    TEXTURE_MEMORY = NVML_MEMORY_LOCATION_TEXTURE_MEMORY
-    TEXTURE_SHM = NVML_MEMORY_LOCATION_TEXTURE_SHM
-    CBU = NVML_MEMORY_LOCATION_CBU
-    SRAM = NVML_MEMORY_LOCATION_SRAM
-    COUNT = NVML_MEMORY_LOCATION_COUNT
+class DriverModel(_FastEnum):
+    """
+    Driver models.  Windows only.
 
-class PageRetirementCause(_IntEnum):
-    """See `nvmlPageRetirementCause_t`."""
-    MULTIPLE_SINGLE_BIT_ECC_ERRORS = NVML_PAGE_RETIREMENT_CAUSE_MULTIPLE_SINGLE_BIT_ECC_ERRORS
-    DOUBLE_BIT_ECC_ERROR = NVML_PAGE_RETIREMENT_CAUSE_DOUBLE_BIT_ECC_ERROR
+    See `nvmlDriverModel_t`.
+    """
+    DRIVER_WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
+    DRIVER_WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
+    DRIVER_MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
+
+class Pstates(_FastEnum):
+    """
+    Allowed PStates.
+
+    See `nvmlPstates_t`.
+    """
+    PSTATE_0 = (NVML_PSTATE_0, 'Performance state 0 -- Maximum Performance.')
+    PSTATE_1 = (NVML_PSTATE_1, 'Performance state 1.')
+    PSTATE_2 = (NVML_PSTATE_2, 'Performance state 2.')
+    PSTATE_3 = (NVML_PSTATE_3, 'Performance state 3.')
+    PSTATE_4 = (NVML_PSTATE_4, 'Performance state 4.')
+    PSTATE_5 = (NVML_PSTATE_5, 'Performance state 5.')
+    PSTATE_6 = (NVML_PSTATE_6, 'Performance state 6.')
+    PSTATE_7 = (NVML_PSTATE_7, 'Performance state 7.')
+    PSTATE_8 = (NVML_PSTATE_8, 'Performance state 8.')
+    PSTATE_9 = (NVML_PSTATE_9, 'Performance state 9.')
+    PSTATE_10 = (NVML_PSTATE_10, 'Performance state 10.')
+    PSTATE_11 = (NVML_PSTATE_11, 'Performance state 11.')
+    PSTATE_12 = (NVML_PSTATE_12, 'Performance state 12.')
+    PSTATE_13 = (NVML_PSTATE_13, 'Performance state 13.')
+    PSTATE_14 = (NVML_PSTATE_14, 'Performance state 14.')
+    PSTATE_15 = (NVML_PSTATE_15, 'Performance state 15 -- Minimum Performance.')
+    PSTATE_UNKNOWN = (NVML_PSTATE_UNKNOWN, 'Unknown performance state.')
+
+class GpuOperationMode(_FastEnum):
+    """
+    GPU Operation Mode  GOM allows to reduce power usage and optimize GPU
+    throughput by disabling GPU features.  Each GOM is designed to meet
+    specific user needs.
+
+    See `nvmlGpuOperationMode_t`.
+    """
+    GOM_ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
+    GOM_COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
+    GOM_LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
+
+class InforomObject(_FastEnum):
+    """
+    Available infoROM objects.
+
+    See `nvmlInforomObject_t`.
+    """
+    INFOROM_OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
+    INFOROM_ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
+    INFOROM_POWER = (NVML_INFOROM_POWER, 'The power management object.')
+    INFOROM_DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
+    INFOROM_COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
+
+class Return(_FastEnum):
+    """
+    Return values for NVML API calls.
+
+    See `nvmlReturn_t`.
+    """
+    SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
+    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
+    ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
+    ERROR_NOT_SUPPORTED = (NVML_ERROR_NOT_SUPPORTED, 'The requested operation is not available on target device.')
+    ERROR_NO_PERMISSION = (NVML_ERROR_NO_PERMISSION, 'The current user does not have permission for operation.')
+    ERROR_ALREADY_INITIALIZED = (NVML_ERROR_ALREADY_INITIALIZED, 'Deprecated: Multiple initializations are now allowed through ref counting.')
+    ERROR_NOT_FOUND = (NVML_ERROR_NOT_FOUND, 'A query to find an object was unsuccessful.')
+    ERROR_INSUFFICIENT_SIZE = (NVML_ERROR_INSUFFICIENT_SIZE, 'An input argument is not large enough.')
+    ERROR_INSUFFICIENT_POWER = (NVML_ERROR_INSUFFICIENT_POWER, "A device's external power cables are not properly attached.")
+    ERROR_DRIVER_NOT_LOADED = (NVML_ERROR_DRIVER_NOT_LOADED, 'NVIDIA driver is not loaded.')
+    ERROR_TIMEOUT = (NVML_ERROR_TIMEOUT, 'User provided timeout passed.')
+    ERROR_IRQ_ISSUE = (NVML_ERROR_IRQ_ISSUE, 'NVIDIA Kernel detected an interrupt issue with a GPU.')
+    ERROR_LIBRARY_NOT_FOUND = (NVML_ERROR_LIBRARY_NOT_FOUND, "NVML Shared Library couldn't be found or loaded.")
+    ERROR_FUNCTION_NOT_FOUND = (NVML_ERROR_FUNCTION_NOT_FOUND, "Local version of NVML doesn't implement this function.")
+    ERROR_CORRUPTED_INFOROM = (NVML_ERROR_CORRUPTED_INFOROM, 'infoROM is corrupted')
+    ERROR_GPU_IS_LOST = (NVML_ERROR_GPU_IS_LOST, 'The GPU has fallen off the bus or has otherwise become inaccessible.')
+    ERROR_RESET_REQUIRED = (NVML_ERROR_RESET_REQUIRED, 'The GPU requires a reset before it can be used again.')
+    ERROR_OPERATING_SYSTEM = (NVML_ERROR_OPERATING_SYSTEM, 'The GPU control device has been blocked by the operating system/cgroups.')
+    ERROR_LIB_RM_VERSION_MISMATCH = (NVML_ERROR_LIB_RM_VERSION_MISMATCH, 'RM detects a driver/library version mismatch.')
+    ERROR_IN_USE = (NVML_ERROR_IN_USE, 'An operation cannot be performed because the GPU is currently in use.')
+    ERROR_MEMORY = (NVML_ERROR_MEMORY, 'Insufficient memory.')
+    ERROR_NO_DATA = (NVML_ERROR_NO_DATA, 'No data.')
+    ERROR_VGPU_ECC_NOT_SUPPORTED = (NVML_ERROR_VGPU_ECC_NOT_SUPPORTED, 'The requested vgpu operation is not available on target device, becasue ECC is enabled.')
+    ERROR_INSUFFICIENT_RESOURCES = (NVML_ERROR_INSUFFICIENT_RESOURCES, 'Ran out of critical resources, other than memory.')
+    ERROR_FREQ_NOT_SUPPORTED = (NVML_ERROR_FREQ_NOT_SUPPORTED, 'Ran out of critical resources, other than memory.')
+    ERROR_ARGUMENT_VERSION_MISMATCH = (NVML_ERROR_ARGUMENT_VERSION_MISMATCH, 'The provided version is invalid/unsupported.')
+    ERROR_DEPRECATED = (NVML_ERROR_DEPRECATED, 'The requested functionality has been deprecated.')
+    ERROR_NOT_READY = (NVML_ERROR_NOT_READY, 'The system is not ready for the request.')
+    ERROR_GPU_NOT_FOUND = (NVML_ERROR_GPU_NOT_FOUND, 'No GPUs were found.')
+    ERROR_INVALID_STATE = (NVML_ERROR_INVALID_STATE, 'Resource not in correct state to perform requested operation.')
+    ERROR_RESET_TYPE_NOT_SUPPORTED = (NVML_ERROR_RESET_TYPE_NOT_SUPPORTED, 'Reset not supported for given device/parameters.')
+    ERROR_UNKNOWN = (NVML_ERROR_UNKNOWN, 'An internal driver error occurred.')
+
+class MemoryLocation(_FastEnum):
+    """
+    See `nvmlDeviceGetMemoryErrorCounter`
+
+    See `nvmlMemoryLocation_t`.
+    """
+    L1_CACHE = (NVML_MEMORY_LOCATION_L1_CACHE, 'GPU L1 Cache.')
+    L2_CACHE = (NVML_MEMORY_LOCATION_L2_CACHE, 'GPU L2 Cache.')
+    DRAM = (NVML_MEMORY_LOCATION_DRAM, 'Turing+ DRAM.')
+    DEVICE_MEMORY = (NVML_MEMORY_LOCATION_DEVICE_MEMORY, 'GPU Device Memory.')
+    REGISTER_FILE = (NVML_MEMORY_LOCATION_REGISTER_FILE, 'GPU Register File.')
+    TEXTURE_MEMORY = (NVML_MEMORY_LOCATION_TEXTURE_MEMORY, 'GPU Texture Memory.')
+    TEXTURE_SHM = (NVML_MEMORY_LOCATION_TEXTURE_SHM, 'Shared memory.')
+    CBU = (NVML_MEMORY_LOCATION_CBU, 'CBU.')
+    SRAM = (NVML_MEMORY_LOCATION_SRAM, 'Turing+ SRAM.')
+    COUNT = (NVML_MEMORY_LOCATION_COUNT, 'This counts the number of memory locations the driver knows about.')
+
+class PageRetirementCause(_FastEnum):
+    """
+    Causes for page retirement
+
+    See `nvmlPageRetirementCause_t`.
+    """
+    MULTIPLE_SINGLE_BIT_ECC_ERRORS = (NVML_PAGE_RETIREMENT_CAUSE_MULTIPLE_SINGLE_BIT_ECC_ERRORS, 'Page was retired due to multiple single bit ECC error.')
+    DOUBLE_BIT_ECC_ERROR = (NVML_PAGE_RETIREMENT_CAUSE_DOUBLE_BIT_ECC_ERROR, 'Page was retired due to double bit ECC error.')
     COUNT = NVML_PAGE_RETIREMENT_CAUSE_COUNT
 
-class RestrictedAPI(_IntEnum):
-    """See `nvmlRestrictedAPI_t`."""
-    SET_APPLICATION_CLOCKS = NVML_RESTRICTED_API_SET_APPLICATION_CLOCKS
-    SET_AUTO_BOOSTED_CLOCKS = NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS
+class RestrictedAPI(_FastEnum):
+    """
+    API types that allow changes to default permission restrictions
+
+    See `nvmlRestrictedAPI_t`.
+    """
+    SET_APPLICATION_CLOCKS = (NVML_RESTRICTED_API_SET_APPLICATION_CLOCKS, 'APIs that change application clocks, see nvmlDeviceSetApplicationsClocks and see nvmlDeviceResetApplicationsClocks. Deprecated, keeping definition for backward compatibility.')
+    SET_AUTO_BOOSTED_CLOCKS = (NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS, 'APIs that enable/disable Auto Boosted clocks see nvmlDeviceSetAutoBoostedClocksEnabled')
     COUNT = NVML_RESTRICTED_API_COUNT
 
-class GpuUtilizationDomainId(_IntEnum):
-    """See `nvmlGpuUtilizationDomainId_t`."""
-    GPU_UTILIZATION_DOMAIN_GPU = NVML_GPU_UTILIZATION_DOMAIN_GPU
-    GPU_UTILIZATION_DOMAIN_FB = NVML_GPU_UTILIZATION_DOMAIN_FB
-    GPU_UTILIZATION_DOMAIN_VID = NVML_GPU_UTILIZATION_DOMAIN_VID
-    GPU_UTILIZATION_DOMAIN_BUS = NVML_GPU_UTILIZATION_DOMAIN_BUS
+class GpuUtilizationDomainId(_FastEnum):
+    """
+    Represents the GPU utilization domains
 
-class GpuVirtualizationMode(_IntEnum):
-    """See `nvmlGpuVirtualizationMode_t`."""
-    NONE = NVML_GPU_VIRTUALIZATION_MODE_NONE
-    PASSTHROUGH = NVML_GPU_VIRTUALIZATION_MODE_PASSTHROUGH
-    VGPU = NVML_GPU_VIRTUALIZATION_MODE_VGPU
-    HOST_VGPU = NVML_GPU_VIRTUALIZATION_MODE_HOST_VGPU
-    HOST_VSGA = NVML_GPU_VIRTUALIZATION_MODE_HOST_VSGA
+    See `nvmlGpuUtilizationDomainId_t`.
+    """
+    GPU_UTILIZATION_DOMAIN_GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
+    GPU_UTILIZATION_DOMAIN_FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
+    GPU_UTILIZATION_DOMAIN_VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
+    GPU_UTILIZATION_DOMAIN_BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
 
-class HostVgpuMode(_IntEnum):
-    """See `nvmlHostVgpuMode_t`."""
-    NON_SRIOV = NVML_HOST_VGPU_MODE_NON_SRIOV
-    SRIOV = NVML_HOST_VGPU_MODE_SRIOV
+class GpuVirtualizationMode(_FastEnum):
+    """
+    GPU virtualization mode types.
 
-class VgpuVmIdType(_IntEnum):
-    """See `nvmlVgpuVmIdType_t`."""
-    VGPU_VM_ID_DOMAIN_ID = NVML_VGPU_VM_ID_DOMAIN_ID
-    VGPU_VM_ID_UUID = NVML_VGPU_VM_ID_UUID
+    See `nvmlGpuVirtualizationMode_t`.
+    """
+    NONE = (NVML_GPU_VIRTUALIZATION_MODE_NONE, 'Represents Bare Metal GPU.')
+    PASSTHROUGH = (NVML_GPU_VIRTUALIZATION_MODE_PASSTHROUGH, 'Device is associated with GPU-Passthorugh.')
+    VGPU = (NVML_GPU_VIRTUALIZATION_MODE_VGPU, 'Device is associated with vGPU inside virtual machine.')
+    HOST_VGPU = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VGPU, 'Device is associated with VGX hypervisor in vGPU mode.')
+    HOST_VSGA = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VSGA, 'Device is associated with VGX hypervisor in vSGA mode.')
 
-class VgpuGuestInfoState(_IntEnum):
-    """See `nvmlVgpuGuestInfoState_t`."""
-    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED
-    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED
+class HostVgpuMode(_FastEnum):
+    """
+    Host vGPU modes
 
-class GridLicenseFeatureCode(_IntEnum):
-    """See `nvmlGridLicenseFeatureCode_t`."""
-    UNKNOWN = NVML_GRID_LICENSE_FEATURE_CODE_UNKNOWN
-    VGPU = NVML_GRID_LICENSE_FEATURE_CODE_VGPU
-    NVIDIA_RTX = NVML_GRID_LICENSE_FEATURE_CODE_NVIDIA_RTX
-    VWORKSTATION = NVML_GRID_LICENSE_FEATURE_CODE_VWORKSTATION
-    GAMING = NVML_GRID_LICENSE_FEATURE_CODE_GAMING
-    COMPUTE = NVML_GRID_LICENSE_FEATURE_CODE_COMPUTE
+    See `nvmlHostVgpuMode_t`.
+    """
+    NON_SRIOV = (NVML_HOST_VGPU_MODE_NON_SRIOV, 'Non SR-IOV mode.')
+    SRIOV = (NVML_HOST_VGPU_MODE_SRIOV, 'SR-IOV mode.')
 
-class VgpuCapability(_IntEnum):
-    """See `nvmlVgpuCapability_t`."""
-    VGPU_CAP_NVLINK_P2P = NVML_VGPU_CAP_NVLINK_P2P
-    VGPU_CAP_GPUDIRECT = NVML_VGPU_CAP_GPUDIRECT
-    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE
-    VGPU_CAP_EXCLUSIVE_TYPE = NVML_VGPU_CAP_EXCLUSIVE_TYPE
-    VGPU_CAP_EXCLUSIVE_SIZE = NVML_VGPU_CAP_EXCLUSIVE_SIZE
+class VgpuVmIdType(_FastEnum):
+    """
+    Types of VM identifiers
+
+    See `nvmlVgpuVmIdType_t`.
+    """
+    VGPU_VM_ID_DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
+    VGPU_VM_ID_UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
+
+class VgpuGuestInfoState(_FastEnum):
+    """
+    vGPU GUEST info state
+
+    See `nvmlVgpuGuestInfoState_t`.
+    """
+    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
+    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
+
+class GridLicenseFeatureCode(_FastEnum):
+    """
+    vGPU software licensable features
+
+    See `nvmlGridLicenseFeatureCode_t`.
+    """
+    UNKNOWN = (NVML_GRID_LICENSE_FEATURE_CODE_UNKNOWN, 'Unknown.')
+    VGPU = (NVML_GRID_LICENSE_FEATURE_CODE_VGPU, 'Virtual GPU.')
+    NVIDIA_RTX = (NVML_GRID_LICENSE_FEATURE_CODE_NVIDIA_RTX, 'Nvidia RTX.')
+    VWORKSTATION = (NVML_GRID_LICENSE_FEATURE_CODE_VWORKSTATION, 'Deprecated, do not use.')
+    GAMING = (NVML_GRID_LICENSE_FEATURE_CODE_GAMING, 'Gaming.')
+    COMPUTE = (NVML_GRID_LICENSE_FEATURE_CODE_COMPUTE, 'Compute.')
+
+class VgpuCapability(_FastEnum):
+    """
+    vGPU queryable capabilities
+
+    See `nvmlVgpuCapability_t`.
+    """
+    VGPU_CAP_NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
+    VGPU_CAP_GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
+    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
+    VGPU_CAP_EXCLUSIVE_TYPE = (NVML_VGPU_CAP_EXCLUSIVE_TYPE, 'vGPU profile cannot run on a GPU alongside other profiles of different type')
+    VGPU_CAP_EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
     VGPU_CAP_COUNT = NVML_VGPU_CAP_COUNT
 
-class VgpuDriverCapability(_IntEnum):
-    """See `nvmlVgpuDriverCapability_t`."""
-    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU
-    VGPU_DRIVER_CAP_WARM_UPDATE = NVML_VGPU_DRIVER_CAP_WARM_UPDATE
+class VgpuDriverCapability(_FastEnum):
+    """
+    vGPU driver queryable capabilities
+
+    See `nvmlVgpuDriverCapability_t`.
+    """
+    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
+    VGPU_DRIVER_CAP_WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
     VGPU_DRIVER_CAP_COUNT = NVML_VGPU_DRIVER_CAP_COUNT
 
-class DeviceVgpuCapability(_IntEnum):
-    """See `nvmlDeviceVgpuCapability_t`."""
-    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES
-    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW
-    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW
-    DEVICE_VGPU_CAP_DEVICE_STREAMING = NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING
-    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU
-    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU
-    DEVICE_VGPU_CAP_WARM_UPDATE = NVML_DEVICE_VGPU_CAP_WARM_UPDATE
-    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED
+class DeviceVgpuCapability(_FastEnum):
+    """
+    Device vGPU queryable capabilities
+
+    See `nvmlDeviceVgpuCapability_t`.
+    """
+    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
+    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW, "Query the GPU's read_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW, "Query the GPU's write_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_DEVICE_STREAMING = (NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING, 'Query whether the vGPU profiles on the GPU supports migration data streaming.')
+    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = (NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU, 'Set/Get support for mini-quarter vGPU profiles.')
+    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = (NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU, 'Set/Get support for compute media engine vGPU profiles.')
+    DEVICE_VGPU_CAP_WARM_UPDATE = (NVML_DEVICE_VGPU_CAP_WARM_UPDATE, 'Query whether the GPU supports FSR and warm update.')
+    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = (NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS, 'Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED, 'Query whether the GPU supports timesliced vGPU on MIG.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
     DEVICE_VGPU_CAP_COUNT = NVML_DEVICE_VGPU_CAP_COUNT
 
-class DeviceGpuRecoveryAction(_IntEnum):
-    """See `nvmlDeviceGpuRecoveryAction_t`."""
+class DeviceGpuRecoveryAction(_FastEnum):
+    """
+    Enum describing the GPU Recovery Action
+
+    See `nvmlDeviceGpuRecoveryAction_t`.
+    """
     GPU_RECOVERY_ACTION_NONE = NVML_GPU_RECOVERY_ACTION_NONE
     GPU_RECOVERY_ACTION_GPU_RESET = NVML_GPU_RECOVERY_ACTION_GPU_RESET
     GPU_RECOVERY_ACTION_NODE_REBOOT = NVML_GPU_RECOVERY_ACTION_NODE_REBOOT
     GPU_RECOVERY_ACTION_DRAIN_P2P = NVML_GPU_RECOVERY_ACTION_DRAIN_P2P
     GPU_RECOVERY_ACTION_DRAIN_AND_RESET = NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET
 
-class FanState(_IntEnum):
-    """See `nvmlFanState_t`."""
-    FAN_NORMAL = NVML_FAN_NORMAL
-    FAN_FAILED = NVML_FAN_FAILED
+class FanState(_FastEnum):
+    """
+    Fan state enum.
 
-class LedColor(_IntEnum):
-    """See `nvmlLedColor_t`."""
-    GREEN = NVML_LED_COLOR_GREEN
-    AMBER = NVML_LED_COLOR_AMBER
+    See `nvmlFanState_t`.
+    """
+    FAN_NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
+    FAN_FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
 
-class EncoderType(_IntEnum):
-    """See `nvmlEncoderType_t`."""
-    ENCODER_QUERY_H264 = NVML_ENCODER_QUERY_H264
-    ENCODER_QUERY_HEVC = NVML_ENCODER_QUERY_HEVC
-    ENCODER_QUERY_AV1 = NVML_ENCODER_QUERY_AV1
-    ENCODER_QUERY_UNKNOWN = NVML_ENCODER_QUERY_UNKNOWN
+class LedColor(_FastEnum):
+    """
+    Led color enum.
 
-class FBCSessionType(_IntEnum):
-    """See `nvmlFBCSessionType_t`."""
-    UNKNOWN = NVML_FBC_SESSION_TYPE_UNKNOWN
-    TOSYS = NVML_FBC_SESSION_TYPE_TOSYS
-    CUDA = NVML_FBC_SESSION_TYPE_CUDA
-    VID = NVML_FBC_SESSION_TYPE_VID
-    HWENC = NVML_FBC_SESSION_TYPE_HWENC
+    See `nvmlLedColor_t`.
+    """
+    GREEN = (NVML_LED_COLOR_GREEN, 'GREEN, indicates good health.')
+    AMBER = (NVML_LED_COLOR_AMBER, 'AMBER, indicates problem.')
 
-class DetachGpuState(_IntEnum):
-    """See `nvmlDetachGpuState_t`."""
+class EncoderType(_FastEnum):
+    """
+    Represents type of encoder for capacity can be queried
+
+    See `nvmlEncoderType_t`.
+    """
+    ENCODER_QUERY_H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
+    ENCODER_QUERY_HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
+    ENCODER_QUERY_AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
+    ENCODER_QUERY_UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
+
+class FBCSessionType(_FastEnum):
+    """
+    Represents frame buffer capture session type
+
+    See `nvmlFBCSessionType_t`.
+    """
+    UNKNOWN = (NVML_FBC_SESSION_TYPE_UNKNOWN, 'Unknown.')
+    TOSYS = (NVML_FBC_SESSION_TYPE_TOSYS, 'ToSys.')
+    CUDA = (NVML_FBC_SESSION_TYPE_CUDA, 'Cuda.')
+    VID = (NVML_FBC_SESSION_TYPE_VID, 'Vid.')
+    HWENC = (NVML_FBC_SESSION_TYPE_HWENC, 'HEnc.')
+
+class DetachGpuState(_FastEnum):
+    """
+    Is the GPU device to be removed from the kernel by
+    nvmlDeviceRemoveGpu()
+
+    See `nvmlDetachGpuState_t`.
+    """
     DETACH_GPU_KEEP = NVML_DETACH_GPU_KEEP
     DETACH_GPU_REMOVE = NVML_DETACH_GPU_REMOVE
 
-class PcieLinkState(_IntEnum):
-    """See `nvmlPcieLinkState_t`."""
+class PcieLinkState(_FastEnum):
+    """
+    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+
+    See `nvmlPcieLinkState_t`.
+    """
     PCIE_LINK_KEEP = NVML_PCIE_LINK_KEEP
     PCIE_LINK_SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
 
-class ClockLimitId(_IntEnum):
-    """See `nvmlClockLimitId_t`."""
+class ClockLimitId(_FastEnum):
+    """
+    See `nvmlClockLimitId_t`.
+    """
     RANGE_START = NVML_CLOCK_LIMIT_ID_RANGE_START
     TDP = NVML_CLOCK_LIMIT_ID_TDP
     UNLIMITED = NVML_CLOCK_LIMIT_ID_UNLIMITED
 
-class VgpuVmCompatibility(_IntEnum):
-    """See `nvmlVgpuVmCompatibility_t`."""
-    NONE = NVML_VGPU_VM_COMPATIBILITY_NONE
-    COLD = NVML_VGPU_VM_COMPATIBILITY_COLD
-    HIBERNATE = NVML_VGPU_VM_COMPATIBILITY_HIBERNATE
-    SLEEP = NVML_VGPU_VM_COMPATIBILITY_SLEEP
-    LIVE = NVML_VGPU_VM_COMPATIBILITY_LIVE
+class VgpuVmCompatibility(_FastEnum):
+    """
+    vGPU VM compatibility codes
 
-class VgpuPgpuCompatibilityLimitCode(_IntEnum):
-    """See `nvmlVgpuPgpuCompatibilityLimitCode_t`."""
-    VGPU_COMPATIBILITY_LIMIT_NONE = NVML_VGPU_COMPATIBILITY_LIMIT_NONE
-    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER
-    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER
-    VGPU_COMPATIBILITY_LIMIT_GPU = NVML_VGPU_COMPATIBILITY_LIMIT_GPU
-    VGPU_COMPATIBILITY_LIMIT_OTHER = NVML_VGPU_COMPATIBILITY_LIMIT_OTHER
+    See `nvmlVgpuVmCompatibility_t`.
+    """
+    NONE = (NVML_VGPU_VM_COMPATIBILITY_NONE, 'vGPU is not runnable')
+    COLD = (NVML_VGPU_VM_COMPATIBILITY_COLD, 'vGPU is runnable from a cold / powered-off state (ACPI S5)')
+    HIBERNATE = (NVML_VGPU_VM_COMPATIBILITY_HIBERNATE, 'vGPU is runnable from a hibernated state (ACPI S4)')
+    SLEEP = (NVML_VGPU_VM_COMPATIBILITY_SLEEP, 'vGPU is runnable from a sleeped state (ACPI S3)')
+    LIVE = (NVML_VGPU_VM_COMPATIBILITY_LIVE, 'vGPU is runnable from a live/paused (ACPI S0)')
 
-class GpmMetricId(_IntEnum):
-    """See `nvmlGpmMetricId_t`."""
-    GPM_METRIC_GRAPHICS_UTIL = NVML_GPM_METRIC_GRAPHICS_UTIL
-    GPM_METRIC_SM_UTIL = NVML_GPM_METRIC_SM_UTIL
-    GPM_METRIC_SM_OCCUPANCY = NVML_GPM_METRIC_SM_OCCUPANCY
-    GPM_METRIC_INTEGER_UTIL = NVML_GPM_METRIC_INTEGER_UTIL
-    GPM_METRIC_ANY_TENSOR_UTIL = NVML_GPM_METRIC_ANY_TENSOR_UTIL
-    GPM_METRIC_DFMA_TENSOR_UTIL = NVML_GPM_METRIC_DFMA_TENSOR_UTIL
-    GPM_METRIC_HMMA_TENSOR_UTIL = NVML_GPM_METRIC_HMMA_TENSOR_UTIL
-    GPM_METRIC_IMMA_TENSOR_UTIL = NVML_GPM_METRIC_IMMA_TENSOR_UTIL
-    GPM_METRIC_DRAM_BW_UTIL = NVML_GPM_METRIC_DRAM_BW_UTIL
-    GPM_METRIC_FP64_UTIL = NVML_GPM_METRIC_FP64_UTIL
-    GPM_METRIC_FP32_UTIL = NVML_GPM_METRIC_FP32_UTIL
-    GPM_METRIC_FP16_UTIL = NVML_GPM_METRIC_FP16_UTIL
-    GPM_METRIC_PCIE_TX_PER_SEC = NVML_GPM_METRIC_PCIE_TX_PER_SEC
-    GPM_METRIC_PCIE_RX_PER_SEC = NVML_GPM_METRIC_PCIE_RX_PER_SEC
-    GPM_METRIC_NVDEC_0_UTIL = NVML_GPM_METRIC_NVDEC_0_UTIL
-    GPM_METRIC_NVDEC_1_UTIL = NVML_GPM_METRIC_NVDEC_1_UTIL
-    GPM_METRIC_NVDEC_2_UTIL = NVML_GPM_METRIC_NVDEC_2_UTIL
-    GPM_METRIC_NVDEC_3_UTIL = NVML_GPM_METRIC_NVDEC_3_UTIL
-    GPM_METRIC_NVDEC_4_UTIL = NVML_GPM_METRIC_NVDEC_4_UTIL
-    GPM_METRIC_NVDEC_5_UTIL = NVML_GPM_METRIC_NVDEC_5_UTIL
-    GPM_METRIC_NVDEC_6_UTIL = NVML_GPM_METRIC_NVDEC_6_UTIL
-    GPM_METRIC_NVDEC_7_UTIL = NVML_GPM_METRIC_NVDEC_7_UTIL
-    GPM_METRIC_NVJPG_0_UTIL = NVML_GPM_METRIC_NVJPG_0_UTIL
-    GPM_METRIC_NVJPG_1_UTIL = NVML_GPM_METRIC_NVJPG_1_UTIL
-    GPM_METRIC_NVJPG_2_UTIL = NVML_GPM_METRIC_NVJPG_2_UTIL
-    GPM_METRIC_NVJPG_3_UTIL = NVML_GPM_METRIC_NVJPG_3_UTIL
-    GPM_METRIC_NVJPG_4_UTIL = NVML_GPM_METRIC_NVJPG_4_UTIL
-    GPM_METRIC_NVJPG_5_UTIL = NVML_GPM_METRIC_NVJPG_5_UTIL
-    GPM_METRIC_NVJPG_6_UTIL = NVML_GPM_METRIC_NVJPG_6_UTIL
-    GPM_METRIC_NVJPG_7_UTIL = NVML_GPM_METRIC_NVJPG_7_UTIL
-    GPM_METRIC_NVOFA_0_UTIL = NVML_GPM_METRIC_NVOFA_0_UTIL
-    GPM_METRIC_NVOFA_1_UTIL = NVML_GPM_METRIC_NVOFA_1_UTIL
-    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC
-    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC
-    GPM_METRIC_NVLINK_L0_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC
-    GPM_METRIC_NVLINK_L0_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC
-    GPM_METRIC_NVLINK_L1_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC
-    GPM_METRIC_NVLINK_L1_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC
-    GPM_METRIC_NVLINK_L2_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC
-    GPM_METRIC_NVLINK_L2_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC
-    GPM_METRIC_NVLINK_L3_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC
-    GPM_METRIC_NVLINK_L3_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC
-    GPM_METRIC_NVLINK_L4_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC
-    GPM_METRIC_NVLINK_L4_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC
-    GPM_METRIC_NVLINK_L5_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC
-    GPM_METRIC_NVLINK_L5_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC
-    GPM_METRIC_NVLINK_L6_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC
-    GPM_METRIC_NVLINK_L6_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC
-    GPM_METRIC_NVLINK_L7_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC
-    GPM_METRIC_NVLINK_L7_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC
-    GPM_METRIC_NVLINK_L8_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC
-    GPM_METRIC_NVLINK_L8_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC
-    GPM_METRIC_NVLINK_L9_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC
-    GPM_METRIC_NVLINK_L9_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC
-    GPM_METRIC_NVLINK_L10_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC
-    GPM_METRIC_NVLINK_L10_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC
-    GPM_METRIC_NVLINK_L11_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC
-    GPM_METRIC_NVLINK_L11_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC
-    GPM_METRIC_NVLINK_L12_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC
-    GPM_METRIC_NVLINK_L12_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC
-    GPM_METRIC_NVLINK_L13_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC
-    GPM_METRIC_NVLINK_L13_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC
-    GPM_METRIC_NVLINK_L14_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC
-    GPM_METRIC_NVLINK_L14_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC
-    GPM_METRIC_NVLINK_L15_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC
-    GPM_METRIC_NVLINK_L15_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC
-    GPM_METRIC_NVLINK_L16_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC
-    GPM_METRIC_NVLINK_L16_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC
-    GPM_METRIC_NVLINK_L17_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC
-    GPM_METRIC_NVLINK_L17_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC
+class VgpuPgpuCompatibilityLimitCode(_FastEnum):
+    """
+    vGPU-pGPU compatibility limit codes
+
+    See `nvmlVgpuPgpuCompatibilityLimitCode_t`.
+    """
+    VGPU_COMPATIBILITY_LIMIT_NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
+    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
+    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
+    VGPU_COMPATIBILITY_LIMIT_GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
+    VGPU_COMPATIBILITY_LIMIT_OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
+
+class GpmMetricId(_FastEnum):
+    """
+    GPM Metric Identifiers
+
+    See `nvmlGpmMetricId_t`.
+    """
+    GPM_METRIC_GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
+    GPM_METRIC_SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
+    GPM_METRIC_SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
+    GPM_METRIC_INTEGER_UTIL = (NVML_GPM_METRIC_INTEGER_UTIL, "Percentage of time the GPU's SMs were doing integer operations. 0.0 - 100.0.")
+    GPM_METRIC_ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
+    GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
+    GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
+    GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
+    GPM_METRIC_PCIE_TX_PER_SEC = (NVML_GPM_METRIC_PCIE_TX_PER_SEC, 'PCIe traffic from this GPU in MiB/sec.')
+    GPM_METRIC_PCIE_RX_PER_SEC = (NVML_GPM_METRIC_PCIE_RX_PER_SEC, 'PCIe traffic to this GPU in MiB/sec.')
+    GPM_METRIC_NVDEC_0_UTIL = (NVML_GPM_METRIC_NVDEC_0_UTIL, 'Percent utilization of NVDEC 0. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_1_UTIL = (NVML_GPM_METRIC_NVDEC_1_UTIL, 'Percent utilization of NVDEC 1. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_2_UTIL = (NVML_GPM_METRIC_NVDEC_2_UTIL, 'Percent utilization of NVDEC 2. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_3_UTIL = (NVML_GPM_METRIC_NVDEC_3_UTIL, 'Percent utilization of NVDEC 3. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_4_UTIL = (NVML_GPM_METRIC_NVDEC_4_UTIL, 'Percent utilization of NVDEC 4. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_5_UTIL = (NVML_GPM_METRIC_NVDEC_5_UTIL, 'Percent utilization of NVDEC 5. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_6_UTIL = (NVML_GPM_METRIC_NVDEC_6_UTIL, 'Percent utilization of NVDEC 6. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_7_UTIL = (NVML_GPM_METRIC_NVDEC_7_UTIL, 'Percent utilization of NVDEC 7. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_0_UTIL = (NVML_GPM_METRIC_NVJPG_0_UTIL, 'Percent utilization of NVJPG 0. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_1_UTIL = (NVML_GPM_METRIC_NVJPG_1_UTIL, 'Percent utilization of NVJPG 1. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_2_UTIL = (NVML_GPM_METRIC_NVJPG_2_UTIL, 'Percent utilization of NVJPG 2. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_3_UTIL = (NVML_GPM_METRIC_NVJPG_3_UTIL, 'Percent utilization of NVJPG 3. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_4_UTIL = (NVML_GPM_METRIC_NVJPG_4_UTIL, 'Percent utilization of NVJPG 4. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_5_UTIL = (NVML_GPM_METRIC_NVJPG_5_UTIL, 'Percent utilization of NVJPG 5. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_6_UTIL = (NVML_GPM_METRIC_NVJPG_6_UTIL, 'Percent utilization of NVJPG 6. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_7_UTIL = (NVML_GPM_METRIC_NVJPG_7_UTIL, 'Percent utilization of NVJPG 7. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_0_UTIL = (NVML_GPM_METRIC_NVOFA_0_UTIL, 'Percent utilization of NVOFA 0. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_1_UTIL = (NVML_GPM_METRIC_NVOFA_1_UTIL, 'Percent utilization of NVOFA 1. 0.0 - 100.0.')
+    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC, 'NvLink read bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC, 'NvLink write bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC, 'NvLink read bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC, 'NvLink write bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC, 'NvLink read bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC, 'NvLink write bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC, 'NvLink read bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC, 'NvLink write bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC, 'NvLink read bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC, 'NvLink write bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC, 'NvLink read bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC, 'NvLink write bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC, 'NvLink read bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC, 'NvLink write bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC, 'NvLink read bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC, 'NvLink write bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC, 'NvLink read bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC, 'NvLink write bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC, 'NvLink read bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC, 'NvLink write bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC, 'NvLink read bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC, 'NvLink write bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC, 'NvLink read bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC, 'NvLink write bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC, 'NvLink read bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC, 'NvLink write bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC, 'NvLink read bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC, 'NvLink write bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC, 'NvLink read bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC, 'NvLink write bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC, 'NvLink read bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC, 'NvLink write bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC, 'NvLink read bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC, 'NvLink write bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC, 'NvLink read bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
     GPM_METRIC_C2C_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC
     GPM_METRIC_C2C_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC
     GPM_METRIC_C2C_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC
@@ -729,10 +966,12 @@ class GpmMetricId(_IntEnum):
     GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
     GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
     GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
-    GPM_METRIC_MAX = NVML_GPM_METRIC_MAX
+    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1. Note that changing this should also change NVML_GPM_METRICS_GET_VERSION due to struct size change.')
 
-class PowerProfileType(_IntEnum):
-    """See `nvmlPowerProfileType_t`."""
+class PowerProfileType(_FastEnum):
+    """
+    See `nvmlPowerProfileType_t`.
+    """
     POWER_PROFILE_MAX_P = NVML_POWER_PROFILE_MAX_P
     POWER_PROFILE_MAX_Q = NVML_POWER_PROFILE_MAX_Q
     POWER_PROFILE_COMPUTE = NVML_POWER_PROFILE_COMPUTE
@@ -750,14 +989,22 @@ class PowerProfileType(_IntEnum):
     POWER_PROFILE_MIG = NVML_POWER_PROFILE_MIG
     POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
 
-class DeviceAddressingModeType(_IntEnum):
-    """See `nvmlDeviceAddressingModeType_t`."""
-    DEVICE_ADDRESSING_MODE_NONE = NVML_DEVICE_ADDRESSING_MODE_NONE
-    DEVICE_ADDRESSING_MODE_HMM = NVML_DEVICE_ADDRESSING_MODE_HMM
-    DEVICE_ADDRESSING_MODE_ATS = NVML_DEVICE_ADDRESSING_MODE_ATS
+class DeviceAddressingModeType(_FastEnum):
+    """
+    Enum to represent device addressing mode values
 
-class PRMCounterId(_IntEnum):
-    """See `nvmlPRMCounterId_t`."""
+    See `nvmlDeviceAddressingModeType_t`.
+    """
+    DEVICE_ADDRESSING_MODE_NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
+    DEVICE_ADDRESSING_MODE_HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
+    DEVICE_ADDRESSING_MODE_ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
+
+class PRMCounterId(_FastEnum):
+    """
+    PRM Counter IDs
+
+    See `nvmlPRMCounterId_t`.
+    """
     NONE = NVML_PRM_COUNTER_ID_NONE
     PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS
     PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS
@@ -774,808 +1021,792 @@ class PRMCounterId(_IntEnum):
     PPCNT_PLR_SYNC_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PLR_SYNC_EVENTS
     PPRM_OPER_RECOVERY = NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY
 
-class PowerProfileOperation(_IntEnum):
-    """See `nvmlPowerProfileOperation_t`."""
-    CLEAR = NVML_POWER_PROFILE_OPERATION_CLEAR
-    SET = NVML_POWER_PROFILE_OPERATION_SET
-    SET_AND_OVERWRITE = NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE
-    MAX = NVML_POWER_PROFILE_OPERATION_MAX
+class PowerProfileOperation(_FastEnum):
+    """
+    Enum for operation to perform on the requested profiles
+
+    See `nvmlPowerProfileOperation_t`.
+    """
+    CLEAR = (NVML_POWER_PROFILE_OPERATION_CLEAR, 'Remove the requested profiles from the existing list of requested profiles.')
+    SET = (NVML_POWER_PROFILE_OPERATION_SET, 'Add the requested profiles to the existing list of requested profiles.')
+    SET_AND_OVERWRITE = (NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE, 'Overwrite the existing list of requested profiles with just the requested profiles.')
+    MAX = (NVML_POWER_PROFILE_OPERATION_MAX, 'Max value above +1.')
 
 
-class AffinityScope(_IntEnum):
-    NODE = 0     # Scope of NUMA node for affinity queries
-    SOCKET = 1   # Scope of processor socket for affinity queries
+class AffinityScope(_FastEnum):
+    NODE = (0, "Scope of NUMA node for affinity queries")
+    SOCKET = (1, "Scope of processor socket for affinity queries")
 
 
-class FieldId(_IntEnum):
-    DEV_ECC_CURRENT =          1   # Current ECC mode. 1=Active. 0=Inactive
-    DEV_ECC_PENDING =          2   # Pending ECC mode. 1=Active. 0=Inactive
+class FieldId(_FastEnum):
+    DEV_ECC_CURRENT = (1, "Current ECC mode. 1=Active. 0=Inactive")
+    DEV_ECC_PENDING = (2, "Pending ECC mode. 1=Active. 0=Inactive")
     # ECC Count Totals
-    DEV_ECC_SBE_VOL_TOTAL =    3   # Total single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_TOTAL =    4   # Total double bit volatile ECC errors
-    DEV_ECC_SBE_AGG_TOTAL =    5   # Total single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_TOTAL =    6   # Total double bit aggregate (persistent) ECC errors
+    DEV_ECC_SBE_VOL_TOTAL = (3, "Total single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_TOTAL = (4, "Total double bit volatile ECC errors")
+    DEV_ECC_SBE_AGG_TOTAL = (5, "Total single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_TOTAL = (6, "Total double bit aggregate (persistent) ECC errors")
     # Individual ECC locations
-    DEV_ECC_SBE_VOL_L1 =       7   # L1 cache single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_L1 =       8   # L1 cache double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_L2 =       9   # L2 cache single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_L2 =       10  # L2 cache double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_DEV =      11  # Device memory single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_DEV =      12  # Device memory double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_REG =      13  # Register file single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_REG =      14  # Register file double bit volatile ECC errors
-    DEV_ECC_SBE_VOL_TEX =      15  # Texture memory single bit volatile ECC errors
-    DEV_ECC_DBE_VOL_TEX =      16  # Texture memory double bit volatile ECC errors
-    DEV_ECC_DBE_VOL_CBU =      17  # CBU double bit volatile ECC errors
-    DEV_ECC_SBE_AGG_L1 =       18  # L1 cache single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_L1 =       19  # L1 cache double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_L2 =       20  # L2 cache single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_L2 =       21  # L2 cache double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_DEV =      22  # Device memory single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_DEV =      23  # Device memory double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_REG =      24  # Register File single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_REG =      25  # Register File double bit aggregate (persistent) ECC errors
-    DEV_ECC_SBE_AGG_TEX =      26  # Texture memory single bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_TEX =      27  # Texture memory double bit aggregate (persistent) ECC errors
-    DEV_ECC_DBE_AGG_CBU =      28  # CBU double bit aggregate ECC errors
+    DEV_ECC_SBE_VOL_L1 = (7, "L1 cache single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_L1 = (8, "L1 cache double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_L2 = (9, "L2 cache single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_L2 = (10, "L2 cache double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_DEV = (11, "Device memory single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_DEV = (12, "Device memory double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_REG = (13, "Register file single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_REG = (14, "Register file double bit volatile ECC errors")
+    DEV_ECC_SBE_VOL_TEX = (15, "Texture memory single bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_TEX = (16, "Texture memory double bit volatile ECC errors")
+    DEV_ECC_DBE_VOL_CBU = (17, "CBU double bit volatile ECC errors")
+    DEV_ECC_SBE_AGG_L1 = (18, "L1 cache single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_L1 = (19, "L1 cache double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_L2 = (20, "L2 cache single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_L2 = (21, "L2 cache double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_DEV = (22, "Device memory single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_DEV = (23, "Device memory double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_REG = (24, "Register File single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_REG = (25, "Register File double bit aggregate (persistent) ECC errors")
+    DEV_ECC_SBE_AGG_TEX = (26, "Texture memory single bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_TEX = (27, "Texture memory double bit aggregate (persistent) ECC errors")
+    DEV_ECC_DBE_AGG_CBU = (28, "CBU double bit aggregate ECC errors")
 
     # Page Retirement
-    DEV_RETIRED_SBE =          29  # Number of retired pages because of single bit errors
-    DEV_RETIRED_DBE =          30  # Number of retired pages because of double bit errors
-    DEV_RETIRED_PENDING =      31  # If any pages are pending retirement. 1=yes. 0=no.
-
+    DEV_RETIRED_SBE = (29, "Number of retired pages because of single bit errors")
+    DEV_RETIRED_DBE = (30, "Number of retired pages because of double bit errors")
+    DEV_RETIRED_PENDING = (31, "If any pages are pending retirement. 1=yes. 0=no.")
 
     # NVLink Flit Error Counters
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L0 =   32 # NVLink flow control CRC  Error Counter for Lane 0
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L1 =   33 # NVLink flow control CRC  Error Counter for Lane 1
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L2 =   34 # NVLink flow control CRC  Error Counter for Lane 2
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L3 =   35 # NVLink flow control CRC  Error Counter for Lane 3
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L4 =   36 # NVLink flow control CRC  Error Counter for Lane 4
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L5 =   37 # NVLink flow control CRC  Error Counter for Lane 5
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL =38 # NVLink flow control CRC  Error Counter total for all Lanes
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L0 = (32, "NVLink flow control CRC  Error Counter for Lane 0")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L1 = (33, "NVLink flow control CRC  Error Counter for Lane 1")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L2 = (34, "NVLink flow control CRC  Error Counter for Lane 2")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L3 = (35, "NVLink flow control CRC  Error Counter for Lane 3")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L4 = (36, "NVLink flow control CRC  Error Counter for Lane 4")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L5 = (37, "NVLink flow control CRC  Error Counter for Lane 5")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL = (38, "NVLink flow control CRC  Error Counter total for all Lanes")
 
     # NVLink CRC Data Error Counters
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L0 =   39 # NVLink data CRC Error Counter for Lane 0
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L1 =   40 # NVLink data CRC Error Counter for Lane 1
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L2 =   41 # NVLink data CRC Error Counter for Lane 2
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L3 =   42 # NVLink data CRC Error Counter for Lane 3
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L4 =   43 # NVLink data CRC Error Counter for Lane 4
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L5 =   44 # NVLink data CRC Error Counter for Lane 5
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL =45 # NvLink data CRC Error Counter total for all Lanes
-
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L0 = (39, "NVLink data CRC Error Counter for Lane 0")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L1 = (40, "NVLink data CRC Error Counter for Lane 1")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L2 = (41, "NVLink data CRC Error Counter for Lane 2")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L3 = (42, "NVLink data CRC Error Counter for Lane 3")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L4 = (43, "NVLink data CRC Error Counter for Lane 4")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L5 = (44, "NVLink data CRC Error Counter for Lane 5")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL = (45, "NvLink data CRC Error Counter total for all Lanes")
 
     # NVLink Replay Error Counters
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L0 =     46 # NVLink Replay Error Counter for Lane 0
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L1 =     47 # NVLink Replay Error Counter for Lane 1
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L2 =     48 # NVLink Replay Error Counter for Lane 2
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L3 =     49 # NVLink Replay Error Counter for Lane 3
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L4 =     50 # NVLink Replay Error Counter for Lane 4
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L5 =     51 # NVLink Replay Error Counter for Lane 5
-    DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL =  52 # NVLink Replay Error Counter total for all Lanes
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L0 = (46, "NVLink Replay Error Counter for Lane 0")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L1 = (47, "NVLink Replay Error Counter for Lane 1")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L2 = (48, "NVLink Replay Error Counter for Lane 2")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L3 = (49, "NVLink Replay Error Counter for Lane 3")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L4 = (50, "NVLink Replay Error Counter for Lane 4")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L5 = (51, "NVLink Replay Error Counter for Lane 5")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL = (52, "NVLink Replay Error Counter total for all Lanes")
 
     # NVLink Recovery Error Counters
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L0 =   53 # NVLink Recovery Error Counter for Lane 0
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L1 =   54 # NVLink Recovery Error Counter for Lane 1
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L2 =   55 # NVLink Recovery Error Counter for Lane 2
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L3 =   56 # NVLink Recovery Error Counter for Lane 3
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L4 =   57 # NVLink Recovery Error Counter for Lane 4
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L5 =   58 # NVLink Recovery Error Counter for Lane 5
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL =59 # NVLink Recovery Error Counter total for all Lanes
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L0 = (53, "NVLink Recovery Error Counter for Lane 0")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L1 = (54, "NVLink Recovery Error Counter for Lane 1")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L2 = (55, "NVLink Recovery Error Counter for Lane 2")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L3 = (56, "NVLink Recovery Error Counter for Lane 3")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L4 = (57, "NVLink Recovery Error Counter for Lane 4")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L5 = (58, "NVLink Recovery Error Counter for Lane 5")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL = (59, "NVLink Recovery Error Counter total for all Lanes")
 
     # NvLink Bandwidth Counters
-    DEV_NVLINK_BANDWIDTH_C0_L0 =    60 # NVLink Bandwidth Counter for Counter Set 0, Lane 0
-    DEV_NVLINK_BANDWIDTH_C0_L1 =    61 # NVLink Bandwidth Counter for Counter Set 0, Lane 1
-    DEV_NVLINK_BANDWIDTH_C0_L2 =    62 # NVLink Bandwidth Counter for Counter Set 0, Lane 2
-    DEV_NVLINK_BANDWIDTH_C0_L3 =    63 # NVLink Bandwidth Counter for Counter Set 0, Lane 3
-    DEV_NVLINK_BANDWIDTH_C0_L4 =    64 # NVLink Bandwidth Counter for Counter Set 0, Lane 4
-    DEV_NVLINK_BANDWIDTH_C0_L5 =    65 # NVLink Bandwidth Counter for Counter Set 0, Lane 5
-    DEV_NVLINK_BANDWIDTH_C0_TOTAL = 66 # NVLink Bandwidth Counter Total for Counter Set 0, All Lanes
+    DEV_NVLINK_BANDWIDTH_C0_L0 = (60, "NVLink Bandwidth Counter for Counter Set 0, Lane 0")
+    DEV_NVLINK_BANDWIDTH_C0_L1 = (61, "NVLink Bandwidth Counter for Counter Set 0, Lane 1")
+    DEV_NVLINK_BANDWIDTH_C0_L2 = (62, "NVLink Bandwidth Counter for Counter Set 0, Lane 2")
+    DEV_NVLINK_BANDWIDTH_C0_L3 = (63, "NVLink Bandwidth Counter for Counter Set 0, Lane 3")
+    DEV_NVLINK_BANDWIDTH_C0_L4 = (64, "NVLink Bandwidth Counter for Counter Set 0, Lane 4")
+    DEV_NVLINK_BANDWIDTH_C0_L5 = (65, "NVLink Bandwidth Counter for Counter Set 0, Lane 5")
+    DEV_NVLINK_BANDWIDTH_C0_TOTAL = (66, "NVLink Bandwidth Counter Total for Counter Set 0, All Lanes")
 
     # NvLink Bandwidth Counters
-    DEV_NVLINK_BANDWIDTH_C1_L0 =    67 # NVLink Bandwidth Counter for Counter Set 1, Lane 0
-    DEV_NVLINK_BANDWIDTH_C1_L1 =    68 # NVLink Bandwidth Counter for Counter Set 1, Lane 1
-    DEV_NVLINK_BANDWIDTH_C1_L2 =    69 # NVLink Bandwidth Counter for Counter Set 1, Lane 2
-    DEV_NVLINK_BANDWIDTH_C1_L3 =    70 # NVLink Bandwidth Counter for Counter Set 1, Lane 3
-    DEV_NVLINK_BANDWIDTH_C1_L4 =    71 # NVLink Bandwidth Counter for Counter Set 1, Lane 4
-    DEV_NVLINK_BANDWIDTH_C1_L5 =    72 # NVLink Bandwidth Counter for Counter Set 1, Lane 5
-    DEV_NVLINK_BANDWIDTH_C1_TOTAL = 73 # NVLink Bandwidth Counter Total for Counter Set 1, All Lanes
+    DEV_NVLINK_BANDWIDTH_C1_L0 = (67, "NVLink Bandwidth Counter for Counter Set 1, Lane 0")
+    DEV_NVLINK_BANDWIDTH_C1_L1 = (68, "NVLink Bandwidth Counter for Counter Set 1, Lane 1")
+    DEV_NVLINK_BANDWIDTH_C1_L2 = (69, "NVLink Bandwidth Counter for Counter Set 1, Lane 2")
+    DEV_NVLINK_BANDWIDTH_C1_L3 = (70, "NVLink Bandwidth Counter for Counter Set 1, Lane 3")
+    DEV_NVLINK_BANDWIDTH_C1_L4 = (71, "NVLink Bandwidth Counter for Counter Set 1, Lane 4")
+    DEV_NVLINK_BANDWIDTH_C1_L5 = (72, "NVLink Bandwidth Counter for Counter Set 1, Lane 5")
+    DEV_NVLINK_BANDWIDTH_C1_TOTAL = (73, "NVLink Bandwidth Counter Total for Counter Set 1, All Lanes")
 
     # NVML Perf Policy Counters
-    DEV_PERF_POLICY_POWER =             74   # Perf Policy Counter for Power Policy
-    DEV_PERF_POLICY_THERMAL =           75   # Perf Policy Counter for Thermal Policy
-    DEV_PERF_POLICY_SYNC_BOOST =        76   # Perf Policy Counter for Sync boost Policy
-    DEV_PERF_POLICY_BOARD_LIMIT =       77   # Perf Policy Counter for Board Limit
-    DEV_PERF_POLICY_LOW_UTILIZATION =   78   # Perf Policy Counter for Low GPU Utilization Policy
-    DEV_PERF_POLICY_RELIABILITY =       79   # Perf Policy Counter for Reliability Policy
-    DEV_PERF_POLICY_TOTAL_APP_CLOCKS =  80   # Perf Policy Counter for Total App Clock Policy
-    DEV_PERF_POLICY_TOTAL_BASE_CLOCKS = 81   # Perf Policy Counter for Total Base Clocks Policy
+    DEV_PERF_POLICY_POWER = (74, "Perf Policy Counter for Power Policy")
+    DEV_PERF_POLICY_THERMAL = (75, "Perf Policy Counter for Thermal Policy")
+    DEV_PERF_POLICY_SYNC_BOOST = (76, "Perf Policy Counter for Sync boost Policy")
+    DEV_PERF_POLICY_BOARD_LIMIT = (77, "Perf Policy Counter for Board Limit")
+    DEV_PERF_POLICY_LOW_UTILIZATION = (78, "Perf Policy Counter for Low GPU Utilization Policy")
+    DEV_PERF_POLICY_RELIABILITY = (79, "Perf Policy Counter for Reliability Policy")
+    DEV_PERF_POLICY_TOTAL_APP_CLOCKS = (80, "Perf Policy Counter for Total App Clock Policy")
+    DEV_PERF_POLICY_TOTAL_BASE_CLOCKS = (81, "Perf Policy Counter for Total Base Clocks Policy")
 
     # Memory temperatures
-    DEV_MEMORY_TEMP = 82 # Memory temperature for the device
+    DEV_MEMORY_TEMP = (82, "Memory temperature for the device")
 
     # Energy Counter
-    DEV_TOTAL_ENERGY_CONSUMPTION =83 # Total energy consumption for the GPU in mJ since the driver was last reloaded
+    DEV_TOTAL_ENERGY_CONSUMPTION = (83, "Total energy consumption for the GPU in mJ since the driver was last reloaded")
 
     # NVLink Speed
-    DEV_NVLINK_SPEED_MBPS_L0 =    84  # NVLink Speed in MBps for Link 0
-    DEV_NVLINK_SPEED_MBPS_L1 =    85  # NVLink Speed in MBps for Link 1
-    DEV_NVLINK_SPEED_MBPS_L2 =    86  # NVLink Speed in MBps for Link 2
-    DEV_NVLINK_SPEED_MBPS_L3 =    87  # NVLink Speed in MBps for Link 3
-    DEV_NVLINK_SPEED_MBPS_L4 =    88  # NVLink Speed in MBps for Link 4
-    DEV_NVLINK_SPEED_MBPS_L5 =    89  # NVLink Speed in MBps for Link 5
-    DEV_NVLINK_SPEED_MBPS_COMMON =90  # Common NVLink Speed in MBps for active links
+    DEV_NVLINK_SPEED_MBPS_L0 = (84, "NVLink Speed in MBps for Link 0")
+    DEV_NVLINK_SPEED_MBPS_L1 = (85, "NVLink Speed in MBps for Link 1")
+    DEV_NVLINK_SPEED_MBPS_L2 = (86, "NVLink Speed in MBps for Link 2")
+    DEV_NVLINK_SPEED_MBPS_L3 = (87, "NVLink Speed in MBps for Link 3")
+    DEV_NVLINK_SPEED_MBPS_L4 = (88, "NVLink Speed in MBps for Link 4")
+    DEV_NVLINK_SPEED_MBPS_L5 = (89, "NVLink Speed in MBps for Link 5")
+    DEV_NVLINK_SPEED_MBPS_COMMON = (90, "Common NVLink Speed in MBps for active links")
 
-    DEV_NVLINK_LINK_COUNT =       91  # Number of NVLinks present on the device
+    DEV_NVLINK_LINK_COUNT = (91, "Number of NVLinks present on the device")
 
-    DEV_RETIRED_PENDING_SBE =     92  # If any pages are pending retirement due to SBE. 1=yes. 0=no.
-    DEV_RETIRED_PENDING_DBE =     93  # If any pages are pending retirement due to DBE. 1=yes. 0=no.
+    DEV_RETIRED_PENDING_SBE = (92, "If any pages are pending retirement due to SBE. 1=yes. 0=no.")
+    DEV_RETIRED_PENDING_DBE = (93, "If any pages are pending retirement due to DBE. 1=yes. 0=no.")
 
-    DEV_PCIE_REPLAY_COUNTER =            94  # PCIe replay counter
-    DEV_PCIE_REPLAY_ROLLOVER_COUNTER =   95  # PCIe replay rollover counter
+    DEV_PCIE_REPLAY_COUNTER = (94, "PCIe replay counter")
+    DEV_PCIE_REPLAY_ROLLOVER_COUNTER = (95, "PCIe replay rollover counter")
 
     # NVLink Flit Error Counters
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L6 =    96 # NVLink flow control CRC  Error Counter for Lane 6
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L7 =    97 # NVLink flow control CRC  Error Counter for Lane 7
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L8 =    98 # NVLink flow control CRC  Error Counter for Lane 8
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L9 =    99 # NVLink flow control CRC  Error Counter for Lane 9
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L10 =  100 # NVLink flow control CRC  Error Counter for Lane 10
-    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L11 =  101 # NVLink flow control CRC  Error Counter for Lane 11
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L6 = (96, "NVLink flow control CRC  Error Counter for Lane 6")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L7 = (97, "NVLink flow control CRC  Error Counter for Lane 7")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L8 = (98, "NVLink flow control CRC  Error Counter for Lane 8")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L9 = (99, "NVLink flow control CRC  Error Counter for Lane 9")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L10 = (100, "NVLink flow control CRC  Error Counter for Lane 10")
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L11 = (101, "NVLink flow control CRC  Error Counter for Lane 11")
 
     # NVLink CRC Data Error Counters
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L6 =   102 # NVLink data CRC Error Counter for Lane 6
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L7 =   103 # NVLink data CRC Error Counter for Lane 7
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L8 =   104 # NVLink data CRC Error Counter for Lane 8
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L9 =   105 # NVLink data CRC Error Counter for Lane 9
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L10 =  106 # NVLink data CRC Error Counter for Lane 10
-    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L11 =  107 # NVLink data CRC Error Counter for Lane 11
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L6 = (102, "NVLink data CRC Error Counter for Lane 6")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L7 = (103, "NVLink data CRC Error Counter for Lane 7")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L8 = (104, "NVLink data CRC Error Counter for Lane 8")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L9 = (105, "NVLink data CRC Error Counter for Lane 9")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L10 = (106, "NVLink data CRC Error Counter for Lane 10")
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L11 = (107, "NVLink data CRC Error Counter for Lane 11")
 
     # NVLink Replay Error Counters
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L6 =     108 # NVLink Replay Error Counter for Lane 6
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L7 =     109 # NVLink Replay Error Counter for Lane 7
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L8 =     110 # NVLink Replay Error Counter for Lane 8
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L9 =     111 # NVLink Replay Error Counter for Lane 9
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L10 =    112 # NVLink Replay Error Counter for Lane 10
-    DEV_NVLINK_REPLAY_ERROR_COUNT_L11 =    113 # NVLink Replay Error Counter for Lane 11
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L6 = (108, "NVLink Replay Error Counter for Lane 6")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L7 = (109, "NVLink Replay Error Counter for Lane 7")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L8 = (110, "NVLink Replay Error Counter for Lane 8")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L9 = (111, "NVLink Replay Error Counter for Lane 9")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L10 = (112, "NVLink Replay Error Counter for Lane 10")
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L11 = (113, "NVLink Replay Error Counter for Lane 11")
 
     # NVLink Recovery Error Counters
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L6 =   114 # NVLink Recovery Error Counter for Lane 6
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L7 =   115 # NVLink Recovery Error Counter for Lane 7
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L8 =   116 # NVLink Recovery Error Counter for Lane 8
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L9 =   117 # NVLink Recovery Error Counter for Lane 9
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L10 =  118 # NVLink Recovery Error Counter for Lane 10
-    DEV_NVLINK_RECOVERY_ERROR_COUNT_L11 =  119 # NVLink Recovery Error Counter for Lane 11
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L6 = (114, "NVLink Recovery Error Counter for Lane 6")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L7 = (115, "NVLink Recovery Error Counter for Lane 7")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L8 = (116, "NVLink Recovery Error Counter for Lane 8")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L9 = (117, "NVLink Recovery Error Counter for Lane 9")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L10 = (118, "NVLink Recovery Error Counter for Lane 10")
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L11 = (119, "NVLink Recovery Error Counter for Lane 11")
 
     # NvLink Bandwidth Counters */
-    DEV_NVLINK_BANDWIDTH_C0_L6 =    120 # NVLink Bandwidth Counter for Counter Set 0, Lane 6
-    DEV_NVLINK_BANDWIDTH_C0_L7 =    121 # NVLink Bandwidth Counter for Counter Set 0, Lane 7
-    DEV_NVLINK_BANDWIDTH_C0_L8 =    122 # NVLink Bandwidth Counter for Counter Set 0, Lane 8
-    DEV_NVLINK_BANDWIDTH_C0_L9 =    123 # NVLink Bandwidth Counter for Counter Set 0, Lane 9
-    DEV_NVLINK_BANDWIDTH_C0_L10 =   124 # NVLink Bandwidth Counter for Counter Set 0, Lane 10
-    DEV_NVLINK_BANDWIDTH_C0_L11 =   125 # NVLink Bandwidth Counter for Counter Set 0, Lane 11
+    DEV_NVLINK_BANDWIDTH_C0_L6 = (120, "NVLink Bandwidth Counter for Counter Set 0, Lane 6")
+    DEV_NVLINK_BANDWIDTH_C0_L7 = (121, "NVLink Bandwidth Counter for Counter Set 0, Lane 7")
+    DEV_NVLINK_BANDWIDTH_C0_L8 = (122, "NVLink Bandwidth Counter for Counter Set 0, Lane 8")
+    DEV_NVLINK_BANDWIDTH_C0_L9 = (123, "NVLink Bandwidth Counter for Counter Set 0, Lane 9")
+    DEV_NVLINK_BANDWIDTH_C0_L10 = (124, "NVLink Bandwidth Counter for Counter Set 0, Lane 10")
+    DEV_NVLINK_BANDWIDTH_C0_L11 = (125, "NVLink Bandwidth Counter for Counter Set 0, Lane 11")
 
     # NvLink Bandwidth Counters
-    DEV_NVLINK_BANDWIDTH_C1_L6 =    126 # NVLink Bandwidth Counter for Counter Set 1, Lane 6
-    DEV_NVLINK_BANDWIDTH_C1_L7 =    127 # NVLink Bandwidth Counter for Counter Set 1, Lane 7
-    DEV_NVLINK_BANDWIDTH_C1_L8 =    128 # NVLink Bandwidth Counter for Counter Set 1, Lane 8
-    DEV_NVLINK_BANDWIDTH_C1_L9 =    129 # NVLink Bandwidth Counter for Counter Set 1, Lane 9
-    DEV_NVLINK_BANDWIDTH_C1_L10 =   130 # NVLink Bandwidth Counter for Counter Set 1, Lane 10
-    DEV_NVLINK_BANDWIDTH_C1_L11 =   131 # NVLink Bandwidth Counter for Counter Set 1, Lane 11
+    DEV_NVLINK_BANDWIDTH_C1_L6 = (126, "NVLink Bandwidth Counter for Counter Set 1, Lane 6")
+    DEV_NVLINK_BANDWIDTH_C1_L7 = (127, "NVLink Bandwidth Counter for Counter Set 1, Lane 7")
+    DEV_NVLINK_BANDWIDTH_C1_L8 = (128, "NVLink Bandwidth Counter for Counter Set 1, Lane 8")
+    DEV_NVLINK_BANDWIDTH_C1_L9 = (129, "NVLink Bandwidth Counter for Counter Set 1, Lane 9")
+    DEV_NVLINK_BANDWIDTH_C1_L10 = (130, "NVLink Bandwidth Counter for Counter Set 1, Lane 10")
+    DEV_NVLINK_BANDWIDTH_C1_L11 = (131, "NVLink Bandwidth Counter for Counter Set 1, Lane 11")
 
     # NVLink Speed
-    DEV_NVLINK_SPEED_MBPS_L6 =    132  # NVLink Speed in MBps for Link 6
-    DEV_NVLINK_SPEED_MBPS_L7 =    133  # NVLink Speed in MBps for Link 7
-    DEV_NVLINK_SPEED_MBPS_L8 =    134  # NVLink Speed in MBps for Link 8
-    DEV_NVLINK_SPEED_MBPS_L9 =    135  # NVLink Speed in MBps for Link 9
-    DEV_NVLINK_SPEED_MBPS_L10 =   136  # NVLink Speed in MBps for Link 10
-    DEV_NVLINK_SPEED_MBPS_L11 =   137  # NVLink Speed in MBps for Link 11
+    DEV_NVLINK_SPEED_MBPS_L6 = (132, "NVLink Speed in MBps for Link 6")
+    DEV_NVLINK_SPEED_MBPS_L7 = (133, "NVLink Speed in MBps for Link 7")
+    DEV_NVLINK_SPEED_MBPS_L8 = (134, "NVLink Speed in MBps for Link 8")
+    DEV_NVLINK_SPEED_MBPS_L9 = (135, "NVLink Speed in MBps for Link 9")
+    DEV_NVLINK_SPEED_MBPS_L10 = (136, "NVLink Speed in MBps for Link 10")
+    DEV_NVLINK_SPEED_MBPS_L11 = (137, "NVLink Speed in MBps for Link 11")
 
     # NVLink throughput counters field values
-    DEV_NVLINK_THROUGHPUT_DATA_TX =     138 # NVLink TX Data throughput in KiB
-    DEV_NVLINK_THROUGHPUT_DATA_RX =     139 # NVLink RX Data throughput in KiB
-    DEV_NVLINK_THROUGHPUT_RAW_TX =      140 # NVLink TX Data + protocol overhead in KiB
-    DEV_NVLINK_THROUGHPUT_RAW_RX =      141 # NVLink RX Data + protocol overhead in KiB
+    DEV_NVLINK_THROUGHPUT_DATA_TX = (138, "NVLink TX Data throughput in KiB")
+    DEV_NVLINK_THROUGHPUT_DATA_RX = (139, "NVLink RX Data throughput in KiB")
+    DEV_NVLINK_THROUGHPUT_RAW_TX = (140, "NVLink TX Data + protocol overhead in KiB")
+    DEV_NVLINK_THROUGHPUT_RAW_RX = (141, "NVLink RX Data + protocol overhead in KiB")
 
     # Row Remapper
-    DEV_REMAPPED_COR =       142 # Number of remapped rows due to correctable errors
-    DEV_REMAPPED_UNC =       143 # Number of remapped rows due to uncorrectable errors
-    DEV_REMAPPED_PENDING =   144 # If any rows are pending remapping. 1=yes 0=no
-    DEV_REMAPPED_FAILURE =   145 # If any rows failed to be remapped 1=yes 0=no
+    DEV_REMAPPED_COR = (142, "Number of remapped rows due to correctable errors")
+    DEV_REMAPPED_UNC = (143, "Number of remapped rows due to uncorrectable errors")
+    DEV_REMAPPED_PENDING = (144, "If any rows are pending remapping. 1=yes 0=no")
+    DEV_REMAPPED_FAILURE = (145, "If any rows failed to be remapped 1=yes 0=no")
 
     # Remote device NVLink ID
-    DEV_NVLINK_REMOTE_NVLINK_ID =    146 # Remote device NVLink ID
+    DEV_NVLINK_REMOTE_NVLINK_ID = (146, "Remote device NVLink ID")
 
     # NVSwitch: connected NVLink count
-    DEV_NVSWITCH_CONNECTED_LINK_COUNT =  147  # Number of NVLinks connected to NVSwitch
+    DEV_NVSWITCH_CONNECTED_LINK_COUNT = (147, "Number of NVLinks connected to NVSwitch")
 
     # NvLink ECC Data Error Counters
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L0 =   148 # NVLink data ECC Error Counter for Link 0
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L1 =   149 # NVLink data ECC Error Counter for Link 1
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L2 =   150 # NVLink data ECC Error Counter for Link 2
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L3 =   151 # NVLink data ECC Error Counter for Link 3
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L4 =   152 # NVLink data ECC Error Counter for Link 4
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L5 =   153 # NVLink data ECC Error Counter for Link 5
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L6 =   154 # NVLink data ECC Error Counter for Link 6
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L7 =   155 # NVLink data ECC Error Counter for Link 7
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L8 =   156 # NVLink data ECC Error Counter for Link 8
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L9 =   157 # NVLink data ECC Error Counter for Link 9
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L10 =  158 # NVLink data ECC Error Counter for Link 10
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L11 =  159 # NVLink data ECC Error Counter for Link 11
-    DEV_NVLINK_ECC_DATA_ERROR_COUNT_TOTAL =160 # NVLink data ECC Error Counter total for all Links
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L0 = (148, "NVLink data ECC Error Counter for Link 0")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L1 = (149, "NVLink data ECC Error Counter for Link 1")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L2 = (150, "NVLink data ECC Error Counter for Link 2")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L3 = (151, "NVLink data ECC Error Counter for Link 3")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L4 = (152, "NVLink data ECC Error Counter for Link 4")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L5 = (153, "NVLink data ECC Error Counter for Link 5")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L6 = (154, "NVLink data ECC Error Counter for Link 6")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L7 = (155, "NVLink data ECC Error Counter for Link 7")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L8 = (156, "NVLink data ECC Error Counter for Link 8")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L9 = (157, "NVLink data ECC Error Counter for Link 9")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L10 = (158, "NVLink data ECC Error Counter for Link 10")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L11 = (159, "NVLink data ECC Error Counter for Link 11")
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_TOTAL = (160, "NVLink data ECC Error Counter total for all Links")
 
     # NVLink Error Replay
-    DEV_NVLINK_ERROR_DL_REPLAY =           161 # NVLink Replay Error Counter
+    DEV_NVLINK_ERROR_DL_REPLAY = (161, "NVLink Replay Error Counter")
 
     # NVLink Recovery Error Counter
-    DEV_NVLINK_ERROR_DL_RECOVERY =         162 # NVLink Recovery Error Counter
+    DEV_NVLINK_ERROR_DL_RECOVERY = (162, "NVLink Recovery Error Counter")
 
     # NVLink Recovery Error CRC Counter
-    DEV_NVLINK_ERROR_DL_CRC =              163 # NVLink CRC Error Counter
+    DEV_NVLINK_ERROR_DL_CRC = (163, "NVLink CRC Error Counter")
 
 
     # NVLink Speed, State and Version field id 164, 165, and 166
-    DEV_NVLINK_GET_SPEED =                 164 # NVLink Speed in MBps
-    DEV_NVLINK_GET_STATE =                 165 # NVLink State - Active,Inactive
-    DEV_NVLINK_GET_VERSION =               166 # NVLink Version
+    DEV_NVLINK_GET_SPEED = (164, "NVLink Speed in MBps")
+    DEV_NVLINK_GET_STATE = (165, "NVLink State - Active,Inactive")
+    DEV_NVLINK_GET_VERSION = (166, "NVLink Version")
 
-    DEV_NVLINK_GET_POWER_STATE =           167 # NVLink Power state. 0=HIGH_SPEED 1=LOW_SPEED
-    DEV_NVLINK_GET_POWER_THRESHOLD =       168 # NVLink length of idle period (units can be found from
-                                                       # DEV_NVLINK_GET_POWER_THRESHOLD_UNITS) before
-                                                       # transitioning links to sleep state
+    DEV_NVLINK_GET_POWER_STATE = (167, "NVLink Power state. 0=HIGH_SPEED 1=LOW_SPEED")
+    DEV_NVLINK_GET_POWER_THRESHOLD = (168, "NVLink length of idle period (units can be found from DEV_NVLINK_GET_POWER_THRESHOLD_UNITS) before transitioning links to sleep state")
 
-    DEV_PCIE_L0_TO_RECOVERY_COUNTER =      169 # Device PEX error recovery counter
+    DEV_PCIE_L0_TO_RECOVERY_COUNTER = (169, "Device PEX error recovery counter")
 
-    DEV_C2C_LINK_COUNT =                   170 # Number of C2C Links present on the device
-    DEV_C2C_LINK_GET_STATUS =              171 # C2C Link Status 0=INACTIVE 1=ACTIVE
-    DEV_C2C_LINK_GET_MAX_BW =              172 # C2C Link Speed in MBps for active links
+    DEV_C2C_LINK_COUNT = (170, "Number of C2C Links present on the device")
+    DEV_C2C_LINK_GET_STATUS = (171, "C2C Link Status 0=INACTIVE 1=ACTIVE")
+    DEV_C2C_LINK_GET_MAX_BW = (172, "C2C Link Speed in MBps for active links")
 
-    DEV_PCIE_COUNT_CORRECTABLE_ERRORS =    173 # PCIe Correctable Errors Counter
-    DEV_PCIE_COUNT_NAKS_RECEIVED =         174 # PCIe NAK Receive Counter
-    DEV_PCIE_COUNT_RECEIVER_ERROR =        175 # PCIe Receiver Error Counter
-    DEV_PCIE_COUNT_BAD_TLP =               176 # PCIe Bad TLP Counter
-    DEV_PCIE_COUNT_NAKS_SENT =             177 # PCIe NAK Send Counter
-    DEV_PCIE_COUNT_BAD_DLLP =              178 # PCIe Bad DLLP Counter
-    DEV_PCIE_COUNT_NON_FATAL_ERROR =       179 # PCIe Non Fatal Error Counter
-    DEV_PCIE_COUNT_FATAL_ERROR =           180 # PCIe Fatal Error Counter
-    DEV_PCIE_COUNT_UNSUPPORTED_REQ =       181 # PCIe Unsupported Request Counter
-    DEV_PCIE_COUNT_LCRC_ERROR =            182 # PCIe LCRC Error Counter
-    DEV_PCIE_COUNT_LANE_ERROR =            183 # PCIe Per Lane Error Counter.
+    DEV_PCIE_COUNT_CORRECTABLE_ERRORS = (173, "PCIe Correctable Errors Counter")
+    DEV_PCIE_COUNT_NAKS_RECEIVED = (174, "PCIe NAK Receive Counter")
+    DEV_PCIE_COUNT_RECEIVER_ERROR = (175, "PCIe Receiver Error Counter")
+    DEV_PCIE_COUNT_BAD_TLP = (176, "PCIe Bad TLP Counter")
+    DEV_PCIE_COUNT_NAKS_SENT = (177, "PCIe NAK Send Counter")
+    DEV_PCIE_COUNT_BAD_DLLP = (178, "PCIe Bad DLLP Counter")
+    DEV_PCIE_COUNT_NON_FATAL_ERROR = (179, "PCIe Non Fatal Error Counter")
+    DEV_PCIE_COUNT_FATAL_ERROR = (180, "PCIe Fatal Error Counter")
+    DEV_PCIE_COUNT_UNSUPPORTED_REQ = (181, "PCIe Unsupported Request Counter")
+    DEV_PCIE_COUNT_LCRC_ERROR = (182, "PCIe LCRC Error Counter")
+    DEV_PCIE_COUNT_LANE_ERROR = (183, "PCIe Per Lane Error Counter.")
 
-    DEV_IS_RESETLESS_MIG_SUPPORTED =       184 # Device's Restless MIG Capability
+    DEV_IS_RESETLESS_MIG_SUPPORTED = (184, "Device's Restless MIG Capability")
 
-    DEV_POWER_AVERAGE =                    185 # GPU power averaged over 1 sec interval, supported on Ampere (except GA100) or newer architectures.
-    DEV_POWER_INSTANT =                    186 # Current GPU power, supported on all architectures.
-    DEV_POWER_MIN_LIMIT =                  187 # Minimum power limit in milliwatts.
-    DEV_POWER_MAX_LIMIT =                  188 # Maximum power limit in milliwatts.
-    DEV_POWER_DEFAULT_LIMIT =              189 # Default power limit in milliwatts (limit which device boots with).
-    DEV_POWER_CURRENT_LIMIT =              190 # Limit currently enforced in milliwatts (This includes other limits set elsewhere. E.g. Out-of-band).
-    DEV_ENERGY =                           191 # Total energy consumption (in mJ) since the driver was last reloaded. Same as \ref DEV_TOTAL_ENERGY_CONSUMPTION for the GPU.
-    DEV_POWER_REQUESTED_LIMIT =            192 # Power limit requested by NVML or any other userspace client.
+    DEV_POWER_AVERAGE = (185, "GPU power averaged over 1 sec interval, supported on Ampere (except GA100) or newer architectures.")
+    DEV_POWER_INSTANT = (186, "Current GPU power, supported on all architectures.")
+    DEV_POWER_MIN_LIMIT = (187, "Minimum power limit in milliwatts.")
+    DEV_POWER_MAX_LIMIT = (188, "Maximum power limit in milliwatts.")
+    DEV_POWER_DEFAULT_LIMIT = (189, "Default power limit in milliwatts (limit which device boots with).")
+    DEV_POWER_CURRENT_LIMIT = (190, "Limit currently enforced in milliwatts (This includes other limits set elsewhere. E.g. Out-of-band).")
+    DEV_ENERGY = (191, "Total energy consumption (in mJ) since the driver was last reloaded. Same as \ref DEV_TOTAL_ENERGY_CONSUMPTION for the GPU.")
+    DEV_POWER_REQUESTED_LIMIT = (192, "Power limit requested by NVML or any other userspace client.")
 
     # GPU T.Limit temperature thresholds in degree Celsius
-    DEV_TEMPERATURE_SHUTDOWN_TLIMIT =      193 # T.Limit temperature after which GPU may shut down for HW protection
-    DEV_TEMPERATURE_SLOWDOWN_TLIMIT =      194 # T.Limit temperature after which GPU may begin HW slowdown
-    DEV_TEMPERATURE_MEM_MAX_TLIMIT =       195 # T.Limit temperature after which GPU may begin SW slowdown due to memory temperature
-    DEV_TEMPERATURE_GPU_MAX_TLIMIT =       196 # T.Limit temperature after which GPU may be throttled below base clock
+    DEV_TEMPERATURE_SHUTDOWN_TLIMIT = (193, "T.Limit temperature after which GPU may shut down for HW protection")
+    DEV_TEMPERATURE_SLOWDOWN_TLIMIT = (194, "T.Limit temperature after which GPU may begin HW slowdown")
+    DEV_TEMPERATURE_MEM_MAX_TLIMIT = (195, "T.Limit temperature after which GPU may begin SW slowdown due to memory temperature")
+    DEV_TEMPERATURE_GPU_MAX_TLIMIT = (196, "T.Limit temperature after which GPU may be throttled below base clock")
 
-    DEV_PCIE_COUNT_TX_BYTES =              197 # PCIe transmit bytes. Value can be wrapped.
-    DEV_PCIE_COUNT_RX_BYTES =              198 # PCIe receive bytes. Value can be wrapped.
+    DEV_PCIE_COUNT_TX_BYTES = (197, "PCIe transmit bytes. Value can be wrapped.")
+    DEV_PCIE_COUNT_RX_BYTES = (198, "PCIe receive bytes. Value can be wrapped.")
 
-    DEV_IS_MIG_MODE_INDEPENDENT_MIG_QUERY_CAPABLE =  199 # MIG mode independent, MIG query capable device. 1=yes. 0=no.
+    DEV_IS_MIG_MODE_INDEPENDENT_MIG_QUERY_CAPABLE = (199, "MIG mode independent, MIG query capable device. 1=yes. 0=no.")
 
-    DEV_NVLINK_GET_POWER_THRESHOLD_MAX =             200 # Max Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD
+    DEV_NVLINK_GET_POWER_THRESHOLD_MAX = (200, "Max Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD")
 
 
     # NVLink counter field id 201-225
-    DEV_NVLINK_COUNT_XMIT_PACKETS =                   201 # Total Tx packets on the link in NVLink5
-    DEV_NVLINK_COUNT_XMIT_BYTES =                     202 # Total Tx bytes on the link in NVLink5
-    DEV_NVLINK_COUNT_RCV_PACKETS =                    203 # Total Rx packets on the link in NVLink5
-    DEV_NVLINK_COUNT_RCV_BYTES =                      204 # Total Rx bytes on the link in NVLink5
-    DEV_NVLINK_COUNT_VL15_DROPPED =                   205 # Deprecated, do not use
-    DEV_NVLINK_COUNT_MALFORMED_PACKET_ERRORS =        206 # Number of packets Rx on a link where packets are malformed
-    DEV_NVLINK_COUNT_BUFFER_OVERRUN_ERRORS =          207 # Number of packets that were discarded on Rx due to buffer overrun
-    DEV_NVLINK_COUNT_RCV_ERRORS =                     208 # Total number of packets with errors Rx on a link
-    DEV_NVLINK_COUNT_RCV_REMOTE_ERRORS =              209 # Total number of packets Rx - stomp/EBP marker
-    DEV_NVLINK_COUNT_RCV_GENERAL_ERRORS =             210 # Total number of packets Rx with header mismatch
-    DEV_NVLINK_COUNT_LOCAL_LINK_INTEGRITY_ERRORS =    211 # Total number of times that the count of local errors exceeded a threshold
-    DEV_NVLINK_COUNT_XMIT_DISCARDS =                  212 # Total number of tx error packets that were discarded
+    DEV_NVLINK_COUNT_XMIT_PACKETS = (201, "Total Tx packets on the link in NVLink5")
+    DEV_NVLINK_COUNT_XMIT_BYTES = (202, "Total Tx bytes on the link in NVLink5")
+    DEV_NVLINK_COUNT_RCV_PACKETS = (203, "Total Rx packets on the link in NVLink5")
+    DEV_NVLINK_COUNT_RCV_BYTES = (204, "Total Rx bytes on the link in NVLink5")
+    DEV_NVLINK_COUNT_VL15_DROPPED = (205, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_MALFORMED_PACKET_ERRORS = (206, "Number of packets Rx on a link where packets are malformed")
+    DEV_NVLINK_COUNT_BUFFER_OVERRUN_ERRORS = (207, "Number of packets that were discarded on Rx due to buffer overrun")
+    DEV_NVLINK_COUNT_RCV_ERRORS = (208, "Total number of packets with errors Rx on a link")
+    DEV_NVLINK_COUNT_RCV_REMOTE_ERRORS = (209, "Total number of packets Rx - stomp/EBP marker")
+    DEV_NVLINK_COUNT_RCV_GENERAL_ERRORS = (210, "Total number of packets Rx with header mismatch")
+    DEV_NVLINK_COUNT_LOCAL_LINK_INTEGRITY_ERRORS = (211, "Total number of times that the count of local errors exceeded a threshold")
+    DEV_NVLINK_COUNT_XMIT_DISCARDS = (212, "Total number of tx error packets that were discarded")
 
-    DEV_NVLINK_COUNT_LINK_RECOVERY_SUCCESSFUL_EVENTS =213 # Number of times link went from Up to recovery, succeeded and link came back up
-    DEV_NVLINK_COUNT_LINK_RECOVERY_FAILED_EVENTS =    214 # Number of times link went from Up to recovery, failed and link was declared down
-    DEV_NVLINK_COUNT_LINK_RECOVERY_EVENTS =           215 # Number of times link went from Up to recovery, irrespective of the result
+    DEV_NVLINK_COUNT_LINK_RECOVERY_SUCCESSFUL_EVENTS =(213, "Number of times link went from Up to recovery, succeeded and link came back up")
+    DEV_NVLINK_COUNT_LINK_RECOVERY_FAILED_EVENTS = (214, "Number of times link went from Up to recovery, failed and link was declared down")
+    DEV_NVLINK_COUNT_LINK_RECOVERY_EVENTS = (215, "Number of times link went from Up to recovery, irrespective of the result")
 
-    DEV_NVLINK_COUNT_RAW_BER_LANE0 =                  216 # Deprecated, do not use
-    DEV_NVLINK_COUNT_RAW_BER_LANE1 =                  217 # Deprecated, do not use
-    DEV_NVLINK_COUNT_RAW_BER =                        218 # Deprecated, do not use
-    DEV_NVLINK_COUNT_EFFECTIVE_ERRORS =               219 # Sum of the number of errors in each Nvlink packet
+    DEV_NVLINK_COUNT_RAW_BER_LANE0 = (216, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_RAW_BER_LANE1 = (217, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_RAW_BER = (218, "Deprecated, do not use")
+    DEV_NVLINK_COUNT_EFFECTIVE_ERRORS = (219, "Sum of the number of errors in each Nvlink packet")
 
     # NVLink Effective BER
-    DEV_NVLINK_COUNT_EFFECTIVE_BER =                  220 # Effective BER for effective errors
-    DEV_NVLINK_COUNT_SYMBOL_ERRORS =                  221 # Number of errors in rx symbols
+    DEV_NVLINK_COUNT_EFFECTIVE_BER = (220, "Effective BER for effective errors")
+    DEV_NVLINK_COUNT_SYMBOL_ERRORS = (221, "Number of errors in rx symbols")
 
     # NVLink Symbol BER
-    DEV_NVLINK_COUNT_SYMBOL_BER =                     222 # BER for symbol errors
+    DEV_NVLINK_COUNT_SYMBOL_BER = (222, "BER for symbol errors")
 
-    DEV_NVLINK_GET_POWER_THRESHOLD_MIN =              223 # Min Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD
-    DEV_NVLINK_GET_POWER_THRESHOLD_UNITS =            224 # Values are in the form NVML_NVLINK_LOW_POWER_THRESHOLD_UNIT_*
-    DEV_NVLINK_GET_POWER_THRESHOLD_SUPPORTED =        225 # Determine if Nvlink Power Threshold feature is supported
+    DEV_NVLINK_GET_POWER_THRESHOLD_MIN = (223, "Min Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD")
+    DEV_NVLINK_GET_POWER_THRESHOLD_UNITS = (224, "Values are in the form NVML_NVLINK_LOW_POWER_THRESHOLD_UNIT_*")
+    DEV_NVLINK_GET_POWER_THRESHOLD_SUPPORTED = (225, "Determine if Nvlink Power Threshold feature is supported")
 
-    DEV_RESET_STATUS =                                226 # Depracated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)
-    DEV_DRAIN_AND_RESET_STATUS =                      227 # Deprecated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)
-    DEV_PCIE_OUTBOUND_ATOMICS_MASK =                  228
-    DEV_PCIE_INBOUND_ATOMICS_MASK =                   229
-    DEV_GET_GPU_RECOVERY_ACTION =                     230 # GPU Recovery action - None/Reset/Reboot/Drain P2P/Drain and Reset
-    DEV_C2C_LINK_ERROR_INTR =                         231 # C2C Link CRC Error Counter
-    DEV_C2C_LINK_ERROR_REPLAY =                       232 # C2C Link Replay Error Counter
-    DEV_C2C_LINK_ERROR_REPLAY_B2B =                   233 # C2C Link Back to Back Replay Error Counter
-    DEV_C2C_LINK_POWER_STATE =                        234 # C2C Link Power state. See NVML_C2C_POWER_STATE_*
+    DEV_RESET_STATUS = (226, "Depracated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)")
+    DEV_DRAIN_AND_RESET_STATUS = (227, "Deprecated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)")
+    DEV_PCIE_OUTBOUND_ATOMICS_MASK = 228
+    DEV_PCIE_INBOUND_ATOMICS_MASK = 229
+    DEV_GET_GPU_RECOVERY_ACTION = (230, "GPU Recovery action - None/Reset/Reboot/Drain P2P/Drain and Reset")
+    DEV_C2C_LINK_ERROR_INTR = (231, "C2C Link CRC Error Counter")
+    DEV_C2C_LINK_ERROR_REPLAY = (232, "C2C Link Replay Error Counter")
+    DEV_C2C_LINK_ERROR_REPLAY_B2B = (233, "C2C Link Back to Back Replay Error Counter")
+    DEV_C2C_LINK_POWER_STATE = (234, "C2C Link Power state. See NVML_C2C_POWER_STATE_*")
 
     # NVLink counter field id 235-250
-    DEV_NVLINK_COUNT_FEC_HISTORY_0 =                  235 # Count of symbol errors that are corrected - bin 0
-    DEV_NVLINK_COUNT_FEC_HISTORY_1 =                  236 # Count of symbol errors that are corrected - bin 1
-    DEV_NVLINK_COUNT_FEC_HISTORY_2 =                  237 # Count of symbol errors that are corrected - bin 2
-    DEV_NVLINK_COUNT_FEC_HISTORY_3 =                  238 # Count of symbol errors that are corrected - bin 3
-    DEV_NVLINK_COUNT_FEC_HISTORY_4 =                  239 # Count of symbol errors that are corrected - bin 4
-    DEV_NVLINK_COUNT_FEC_HISTORY_5 =                  240 # Count of symbol errors that are corrected - bin 5
-    DEV_NVLINK_COUNT_FEC_HISTORY_6 =                  241 # Count of symbol errors that are corrected - bin 6
-    DEV_NVLINK_COUNT_FEC_HISTORY_7 =                  242 # Count of symbol errors that are corrected - bin 7
-    DEV_NVLINK_COUNT_FEC_HISTORY_8 =                  243 # Count of symbol errors that are corrected - bin 8
-    DEV_NVLINK_COUNT_FEC_HISTORY_9 =                  244 # Count of symbol errors that are corrected - bin 9
-    DEV_NVLINK_COUNT_FEC_HISTORY_10 =                 245 # Count of symbol errors that are corrected - bin 10
-    DEV_NVLINK_COUNT_FEC_HISTORY_11 =                 246 # Count of symbol errors that are corrected - bin 11
-    DEV_NVLINK_COUNT_FEC_HISTORY_12 =                 247 # Count of symbol errors that are corrected - bin 12
-    DEV_NVLINK_COUNT_FEC_HISTORY_13 =                 248 # Count of symbol errors that are corrected - bin 13
-    DEV_NVLINK_COUNT_FEC_HISTORY_14 =                 249 # Count of symbol errors that are corrected - bin 14
-    DEV_NVLINK_COUNT_FEC_HISTORY_15 =                 250 # Count of symbol errors that are corrected - bin 15
+    DEV_NVLINK_COUNT_FEC_HISTORY_0 = (235, "Count of symbol errors that are corrected - bin 0")
+    DEV_NVLINK_COUNT_FEC_HISTORY_1 = (236, "Count of symbol errors that are corrected - bin 1")
+    DEV_NVLINK_COUNT_FEC_HISTORY_2 = (237, "Count of symbol errors that are corrected - bin 2")
+    DEV_NVLINK_COUNT_FEC_HISTORY_3 = (238, "Count of symbol errors that are corrected - bin 3")
+    DEV_NVLINK_COUNT_FEC_HISTORY_4 = (239, "Count of symbol errors that are corrected - bin 4")
+    DEV_NVLINK_COUNT_FEC_HISTORY_5 = (240, "Count of symbol errors that are corrected - bin 5")
+    DEV_NVLINK_COUNT_FEC_HISTORY_6 = (241, "Count of symbol errors that are corrected - bin 6")
+    DEV_NVLINK_COUNT_FEC_HISTORY_7 = (242, "Count of symbol errors that are corrected - bin 7")
+    DEV_NVLINK_COUNT_FEC_HISTORY_8 = (243, "Count of symbol errors that are corrected - bin 8")
+    DEV_NVLINK_COUNT_FEC_HISTORY_9 = (244, "Count of symbol errors that are corrected - bin 9")
+    DEV_NVLINK_COUNT_FEC_HISTORY_10 = (245, "Count of symbol errors that are corrected - bin 10")
+    DEV_NVLINK_COUNT_FEC_HISTORY_11 = (246, "Count of symbol errors that are corrected - bin 11")
+    DEV_NVLINK_COUNT_FEC_HISTORY_12 = (247, "Count of symbol errors that are corrected - bin 12")
+    DEV_NVLINK_COUNT_FEC_HISTORY_13 = (248, "Count of symbol errors that are corrected - bin 13")
+    DEV_NVLINK_COUNT_FEC_HISTORY_14 = (249, "Count of symbol errors that are corrected - bin 14")
+    DEV_NVLINK_COUNT_FEC_HISTORY_15 = (250, "Count of symbol errors that are corrected - bin 15")
 
     # Power Smoothing
-    PWR_SMOOTHING_ENABLED =                                  251 # Enablement (0/DISABLED or 1/ENABLED)
-    PWR_SMOOTHING_PRIV_LVL =                                 252 # Current privilege level
-    PWR_SMOOTHING_IMM_RAMP_DOWN_ENABLED =                    253 # Immediate ramp down enablement (0/DISABLED or 1/ENABLED)
-    PWR_SMOOTHING_APPLIED_TMP_CEIL =                         254 # Applied TMP ceiling value in Watts
-    PWR_SMOOTHING_APPLIED_TMP_FLOOR =                        255 # Applied TMP floor value in Watts
-    PWR_SMOOTHING_MAX_PERCENT_TMP_FLOOR_SETTING =            256 # Max % TMP Floor value
-    PWR_SMOOTHING_MIN_PERCENT_TMP_FLOOR_SETTING =            257 # Min % TMP Floor value
-    PWR_SMOOTHING_HW_CIRCUITRY_PERCENT_LIFETIME_REMAINING =  258 # HW Circuitry % lifetime remaining
-    PWR_SMOOTHING_MAX_NUM_PRESET_PROFILES =                  259 # Max number of preset profiles
-    PWR_SMOOTHING_PROFILE_PERCENT_TMP_FLOOR =                260 # % TMP floor for a given profile
-    PWR_SMOOTHING_PROFILE_RAMP_UP_RATE =                     261 # Ramp up rate in mW/s for a given profile
-    PWR_SMOOTHING_PROFILE_RAMP_DOWN_RATE =                   262 # Ramp down rate in mW/s for a given profile
-    PWR_SMOOTHING_PROFILE_RAMP_DOWN_HYST_VAL =               263 # Ramp down hysteresis value in ms for a given profile
-    PWR_SMOOTHING_ACTIVE_PRESET_PROFILE =                    264 # Active preset profile number
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PERCENT_TMP_FLOOR =         265 # % TMP floor for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_UP_RATE =              266 # Ramp up rate in mW/s for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_RATE =            267 # Ramp down rate in mW/s for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_HYST_VAL =        268 # Ramp down hysteresis value in ms for a given profile
+    PWR_SMOOTHING_ENABLED = (251, "Enablement (0/DISABLED or 1/ENABLED)")
+    PWR_SMOOTHING_PRIV_LVL = (252, "Current privilege level")
+    PWR_SMOOTHING_IMM_RAMP_DOWN_ENABLED = (253, "Immediate ramp down enablement (0/DISABLED or 1/ENABLED)")
+    PWR_SMOOTHING_APPLIED_TMP_CEIL = (254, "Applied TMP ceiling value in Watts")
+    PWR_SMOOTHING_APPLIED_TMP_FLOOR = (255, "Applied TMP floor value in Watts")
+    PWR_SMOOTHING_MAX_PERCENT_TMP_FLOOR_SETTING = (256, "Max % TMP Floor value")
+    PWR_SMOOTHING_MIN_PERCENT_TMP_FLOOR_SETTING = (257, "Min % TMP Floor value")
+    PWR_SMOOTHING_HW_CIRCUITRY_PERCENT_LIFETIME_REMAINING = (258, "HW Circuitry % lifetime remaining")
+    PWR_SMOOTHING_MAX_NUM_PRESET_PROFILES = (259, "Max number of preset profiles")
+    PWR_SMOOTHING_PROFILE_PERCENT_TMP_FLOOR = (260, "% TMP floor for a given profile")
+    PWR_SMOOTHING_PROFILE_RAMP_UP_RATE = (261, "Ramp up rate in mW/s for a given profile")
+    PWR_SMOOTHING_PROFILE_RAMP_DOWN_RATE = (262, "Ramp down rate in mW/s for a given profile")
+    PWR_SMOOTHING_PROFILE_RAMP_DOWN_HYST_VAL = (263, "Ramp down hysteresis value in ms for a given profile")
+    PWR_SMOOTHING_ACTIVE_PRESET_PROFILE = (264, "Active preset profile number")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PERCENT_TMP_FLOOR = (265, "% TMP floor for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_UP_RATE = (266, "Ramp up rate in mW/s for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_RATE = (267, "Ramp down rate in mW/s for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_HYST_VAL = (268, "Ramp down hysteresis value in ms for a given profile")
 
     # Field values for Clock Throttle Reason Counters
-    DEV_CLOCKS_EVENT_REASON_SW_POWER_CAP =            DEV_PERF_POLICY_POWER      # Throttling to not exceed currently set power limits in ns
-    DEV_CLOCKS_EVENT_REASON_SYNC_BOOST =              DEV_PERF_POLICY_SYNC_BOOST # Throttling to match minimum possible clock across Sync Boost Group in ns
-    DEV_CLOCKS_EVENT_REASON_SW_THERM_SLOWDOWN =       269 # Throttling to ensure ((GPU temp < GPU Max Operating Temp) && (Memory Temp < Memory Max Operating Temp)) in ns
-    DEV_CLOCKS_EVENT_REASON_HW_THERM_SLOWDOWN =       270 # Throttling due to temperature being too high (reducing core clocks by a factor of 2 or more) in ns
-    DEV_CLOCKS_EVENT_REASON_HW_POWER_BRAKE_SLOWDOWN = 271 # Throttling due to external power brake assertion trigger (reducing core clocks by a factor of 2 or more) in ns
-    DEV_POWER_SYNC_BALANCING_FREQ =                   272 # Accumulated frequency of the GPU to be used for averaging
-    DEV_POWER_SYNC_BALANCING_AF =                     273 # Accumulated activity factor of the GPU to be used for averaging
-    DEV_EDPP_MULTIPLIER =                             274 # EDPp multiplier expressed as a percentage
+    DEV_CLOCKS_EVENT_REASON_SW_POWER_CAP = (74, "Throttling to not exceed currently set power limits in ns")
+    DEV_CLOCKS_EVENT_REASON_SYNC_BOOST = (76, "Throttling to match minimum possible clock across Sync Boost Group in ns")
+    DEV_CLOCKS_EVENT_REASON_SW_THERM_SLOWDOWN = (269, "Throttling to ensure ((GPU temp < GPU Max Operating Temp) && (Memory Temp < Memory Max Operating Temp)) in ns")
+    DEV_CLOCKS_EVENT_REASON_HW_THERM_SLOWDOWN = (270, "Throttling due to temperature being too high (reducing core clocks by a factor of 2 or more) in ns")
+    DEV_CLOCKS_EVENT_REASON_HW_POWER_BRAKE_SLOWDOWN = (271, "Throttling due to external power brake assertion trigger (reducing core clocks by a factor of 2 or more) in ns")
+    DEV_POWER_SYNC_BALANCING_FREQ = (272, "Accumulated frequency of the GPU to be used for averaging")
+    DEV_POWER_SYNC_BALANCING_AF = (273, "Accumulated activity factor of the GPU to be used for averaging")
+    DEV_EDPP_MULTIPLIER = (274, "EDPp multiplier expressed as a percentage")
 
-    PWR_SMOOTHING_PRIMARY_POWER_FLOOR =               275 # Current primary power floor value in Watts
-    PWR_SMOOTHING_SECONDARY_POWER_FLOOR =             276 # Current secondary power floor value in Watts
-    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_OFFSET =        277 # Minimum primary floor activation offset value in Watts
-    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_POINT =         278 # Minimum primary floor activation point value in Watts
-    PWR_SMOOTHING_WINDOW_MULTIPLIER =                 279 # Window Multiplier value in ms
-    PWR_SMOOTHING_DELAYED_PWR_SMOOTHING_SUPPORTED =   280 # Support (0/Not Supported or 1/Supported) for delayed power smoothing
-    PWR_SMOOTHING_PROFILE_SECONDARY_POWER_FLOOR =     281 # Current secondary power floor value in Watts for a given profile
-    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_WIN_MULT = 282 # Current primary floor activation window multiplier value for a given profile
-    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_TAR_WIN_MULT = 283 # Current primary floor target window multiplier value for a given profile
-    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_OFFSET =   284 # Current primary floor activation offset value in Watts for a given profile
-    PWR_SMOOTHING_ADMIN_OVERRIDE_SECONDARY_POWER_FLOOR =  285 # Current secondary power floor value in Watts for admin override
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_WIN_MULT = 286 # Current primary floor activation window multiplier value for admin override
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_TAR_WIN_MULT = 287 # Current primary floor target window multiplier value for admin override
-    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_OFFSET = 288 # Current primary floor activation offset value in Watts for admin override
+    PWR_SMOOTHING_PRIMARY_POWER_FLOOR = (275, "Current primary power floor value in Watts")
+    PWR_SMOOTHING_SECONDARY_POWER_FLOOR = (276, "Current secondary power floor value in Watts")
+    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_OFFSET = (277, "Minimum primary floor activation offset value in Watts")
+    PWR_SMOOTHING_MIN_PRIMARY_FLOOR_ACT_POINT = (278, "Minimum primary floor activation point value in Watts")
+    PWR_SMOOTHING_WINDOW_MULTIPLIER = (279, "Window Multiplier value in ms")
+    PWR_SMOOTHING_DELAYED_PWR_SMOOTHING_SUPPORTED = (280, "Support (0/Not Supported or 1/Supported) for delayed power smoothing")
+    PWR_SMOOTHING_PROFILE_SECONDARY_POWER_FLOOR = (281, "Current secondary power floor value in Watts for a given profile")
+    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_WIN_MULT = (282, "Current primary floor activation window multiplier value for a given profile")
+    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_TAR_WIN_MULT = (283, "Current primary floor target window multiplier value for a given profile")
+    PWR_SMOOTHING_PROFILE_PRIMARY_FLOOR_ACT_OFFSET = (284, "Current primary floor activation offset value in Watts for a given profile")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_SECONDARY_POWER_FLOOR = (285, "Current secondary power floor value in Watts for admin override")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_WIN_MULT = (286, "Current primary floor activation window multiplier value for admin override")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_TAR_WIN_MULT = (287, "Current primary floor target window multiplier value for admin override")
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_OFFSET = (288, "Current primary floor activation offset value in Watts for admin override")
 
     MAX = 289
 
 NVLINK_MAX_LINKS = 18
 
 
-class RUSD(_IntEnum):
-    POLL_NONE = 0x0        # Disable RUSD polling on all metric groups
-    POLL_CLOCK = 0x1       # Enable RUSD polling on clock group
-    POLL_PERF = 0x2        # Enable RUSD polling on performance group
-    POLL_MEMORY = 0x4      # Enable RUSD polling on memory group
-    POLL_POWER = 0x8       # Enable RUSD polling on power group
-    POLL_THERMAL = 0x10    # Enable RUSD polling on thermal group
-    POLL_PCI = 0x20        # Enable RUSD polling on pci group
-    POLL_FAN = 0x40        # Enable RUSD polling on fan group
-    POLL_PROC_UTIL = 0x80  # Enable RUSD polling on process utilization group
-    POLL_ALL = 0xFFFFFFFFFFFFFFFF  # Enable RUSD polling on all groups
+class RUSD(_FastEnum):
+    POLL_NONE = (0x0, "Disable RUSD polling on all metric groups")
+    POLL_CLOCK = (0x1, "Enable RUSD polling on clock group")
+    POLL_PERF = (0x2, "Enable RUSD polling on performance group")
+    POLL_MEMORY = (0x4, "Enable RUSD polling on memory group")
+    POLL_POWER = (0x8, "Enable RUSD polling on power group")
+    POLL_THERMAL = (0x10, "Enable RUSD polling on thermal group")
+    POLL_PCI = (0x20, "Enable RUSD polling on pci group")
+    POLL_FAN = (0x40, "Enable RUSD polling on fan group")
+    POLL_PROC_UTIL = (0x80, "Enable RUSD polling on process utilization group")
+    POLL_ALL = (0xFFFFFFFFFFFFFFFF, "Enable RUSD polling on all groups")
 
 
-class PowerMizerMode(_IntEnum):
-    POWER_MIZER_MODE_ADAPTIVE = 0  # Adjust GPU clocks based on GPU utilization
-    POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE = 1  # Raise GPU clocks to favor maximum performance, to the extent that thermal and other constraints allow
-    POWER_MIZER_MODE_AUTO = 2  # PowerMizer mode is driver controlled
-    POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE = 3  # lock to GPU base clocks
+class PowerMizerMode(_FastEnum):
+    ADAPTIVE = (0, "Adjust GPU clocks based on GPU utilization")
+    PREFER_MAXIMUM_PERFORMANCE = (1, "Raise GPU clocks to favor maximum performance, to the extent that thermal and other constraints allow")
+    AUTO = (2, "PowerMizer mode is driver controlled")
+    PREFER_CONSISTENT_PERFORMANCE = (3, "lock to GPU base clocks")
 
 
-class DeviceArch(_IntEnum):
-    DEVICE_ARCH_KEPLER = 2
-    DEVICE_ARCH_MAXWELL = 3
-    DEVICE_ARCH_PASCAL = 4
-    DEVICE_ARCH_VOLTA = 5
-    DEVICE_ARCH_TURING = 6
-    DEVICE_ARCH_AMPERE = 7
-    DEVICE_ARCH_ADA = 8
-    DEVICE_ARCH_HOPPER = 9
-    DEVICE_ARCH_BLACKWELL = 10
-    DEVICE_ARCH_UNKNOWN = 0xFFFFFFFF
+class DeviceArch(_FastEnum):
+    KEPLER = 2
+    MAXWELL = 3
+    PASCAL = 4
+    VOLTA = 5
+    TURING = 6
+    AMPERE = 7
+    ADA = 8
+    HOPPER = 9
+    BLACKWELL = 10
+    UNKNOWN = 0xFFFFFFFF
 
 
-class BusType(_IntEnum):
-    BUS_TYPE_UNKNOWN = 0
-    BUS_TYPE_PCI = 1
-    BUS_TYPE_PCIE = 2
-    BUS_TYPE_FPCI = 3
-    BUS_TYPE_AGP = 4
+class BusType(_FastEnum):
+    UNKNOWN = (0, "Unknown bus type")
+    PCI = (1, "PCI bus")
+    PCIE = (2, "PXI-Express bus")
+    FPCI = (3, "FPCI bus")
+    AGP = (4, "AGP bus")
 
 
-class FanControlPolicy(_IntEnum):
-    FAN_CONTROL_POLICY_TEMPERATURE_CONTINUOUS_SW = 0  # Temperature-controlled fan policy
-    FAN_CONTROL_POLICY_MANUAL = 1  # Manual fan control policy
+class FanControlPolicy(_FastEnum):
+    TEMPERATURE_CONTINUOUS_SW = (0, "Temperature-controlled fan policy")
+    MANUAL = (1, "Manual fan control policy")
 
 
-class PowerSource(_IntEnum):
-    POWER_SOURCE_AC = 0x00000000
-    POWER_SOURCE_BATTERY = 0x00000001
-    POWER_SOURCE_UNDERSIZED = 0x00000002
+class PowerSource(_FastEnum):
+    AC = 0x00000000
+    BATTERY = 0x00000001
+    UNDERSIZED = 0x00000002
 
 
-class PcieLinkMaxSpeed(_IntEnum):
-    PCIE_LINK_MAX_SPEED_INVALID = 0x00000000
-    PCIE_LINK_MAX_SPEED_2500MBPS = 0x00000001
-    PCIE_LINK_MAX_SPEED_5000MBPS = 0x00000002
-    PCIE_LINK_MAX_SPEED_8000MBPS = 0x00000003
-    PCIE_LINK_MAX_SPEED_16000MBPS = 0x00000004
-    PCIE_LINK_MAX_SPEED_32000MBPS = 0x00000005
-    PCIE_LINK_MAX_SPEED_64000MBPS = 0x00000006
+class PcieLinkMaxSpeed(_FastEnum):
+    SPEED_INVALID = 0x00000000
+    SPEED_2500MBPS = 0x00000001
+    SPEED_5000MBPS = 0x00000002
+    SPEED_8000MBPS = 0x00000003
+    SPEED_16000MBPS = 0x00000004
+    SPEED_32000MBPS = 0x00000005
+    SPEED_64000MBPS = 0x00000006
 
 
-class AdaptiveClockingInfoStatus(_IntEnum):
-    ADAPTIVE_CLOCKING_INFO_STATUS_DISABLED = 0x00000000
-    ADAPTIVE_CLOCKING_INFO_STATUS_ENABLED = 0x00000001
+class AdaptiveClockingInfoStatus(_FastEnum):
+    DISABLED = 0x00000000
+    ENABLED = 0x00000001
 
 
 MAX_GPU_UTILIZATIONS = 8
 
 
-class PcieAtomicsCap(_IntEnum):
-    PCIE_ATOMICS_CAP_FETCHADD32 = 0x01
-    PCIE_ATOMICS_CAP_FETCHADD64 = 0x02
-    PCIE_ATOMICS_CAP_SWAP32 = 0x04
-    PCIE_ATOMICS_CAP_SWAP64 = 0x08
-    PCIE_ATOMICS_CAP_CAS32 = 0x10
-    PCIE_ATOMICS_CAP_CAS64 = 0x20
-    PCIE_ATOMICS_CAP_CAS128 = 0x40
-    PCIE_ATOMICS_OPS_MAX = 7
+class PcieAtomicsCap(_FastEnum):
+    FETCHADD32 = (0x01, "32-bit fetch and add")
+    FETCHADD64 = (0x02, "64-bit fetch and add")
+    SWAP32 = (0x04, "32-bit swap")
+    SWAP64 = (0x08, "64-bit swap")
+    CAS32 = (0x10, "32-bit compare and swap")
+    CAS64 = (0x20, "64-bit compare and swap")
+    CAS128 = (0x40, "128-bit compare and swap")
+    MAX = 7
 
 
-class PowerScope(_IntEnum):
-    POWER_SCOPE_GPU = 0
-    POWER_SCOPE_MODULE = 1
-    POWER_SCOPE_MEMORY = 2
+class PowerScope(_FastEnum):
+    GPU = (0, "Targets only GPU")
+    MODULE = (1, "Targets the whole module")
+    MEMORY = (2, "Targets the GPU memory")
 
 
 # Need "Enum" suffix to disambiguate from nvmlGridLicenseExpiry_t
-class GridLicenseExpiryEnum(_IntEnum):
-    GRID_LICENSE_EXPIRY_NOT_AVAILABLE = 0
-    GRID_LICENSE_EXPIRY_INVALID = 1
-    GRID_LICENSE_EXPIRY_VALID = 2
-    GRID_LICENSE_EXPIRY_NOT_APPLICABLE = 3
-    GRID_LICENSE_EXPIRY_PERMANENT = 4
+class GridLicenseExpiryEnum(_FastEnum):
+    NOT_AVAILABLE = (0, "Expiry information not available")
+    INVALID = (1, "Invalid expiry or error fetching expiry")
+    VALID = (2, "Valid expiry")
+    NOT_APPLICABLE = (3, "Expiry not applicable")
+    PERMANENT = (4, "Permanent expiry")
 
 
 GRID_LICENSE_FEATURE_MAX_COUNT = 3
 
 
-class VgpuVirtualizationCapMigration(_IntEnum):
-    VGPU_VIRTUALIZATION_CAP_MIGRATION_NO = 0x0
-    VGPU_VIRTUALIZATION_CAP_MIGRATION_YES = 0x1
+class VgpuVirtualizationCapMigration(_FastEnum):
+    NO = 0x0
+    YES = 0x1
 
 
-class VgpuPgpuVirtualizationCapMigration(_IntEnum):
-    VGPU_PGPU_VIRTUALIZATION_CAP_MIGRATION_NO = 0x0
-    VGPU_PGPU_VIRTUALIZATION_CAP_MIGRATION_YES = 0x1
+class VgpuPgpuVirtualizationCapMigration(_FastEnum):
+    NO = 0x0
+    YES = 0x1
 
 
-class VgpuSchedulerPolicy(_IntEnum):
-    VGPU_SCHEDULER_POLICY_UNKNOWN = 0
-    VGPU_SCHEDULER_POLICY_BEST_EFFORT = 1
-    VGPU_SCHEDULER_POLICY_EQUAL_SHARE = 2
-    VGPU_SCHEDULER_POLICY_FIXED_SHARE = 3
-    SUPPORTED_VGPU_SCHEDULER_POLICY_COUNT = 3
+class VgpuSchedulerPolicy(_FastEnum):
+    UNKNOWN = 0
+    BEST_EFFORT = 1
+    EQUAL_SHARE = 2
+    FIXED_SHARE = 3
 
 
-class VgpuSchedulerArr(_IntEnum):
-    VGPU_SCHEDULER_ARR_DEFAULT = 0
-    VGPU_SCHEDULER_ARR_DISABLE = 1
-    VGPU_SCHEDULER_ARR_ENABLE = 2
+class VgpuSchedulerArr(_FastEnum):
+    DEFAULT = 0
+    DISABLE = 1
+    ENABLE = 2
 
 
-class VgpuSchedulerEngineType(_IntEnum):
-    VGPU_SCHEDULER_ENGINE_TYPE_GRAPHICS = 1
-    VGPU_SCHEDULER_ENGINE_TYPE_NVENC1 = 2
+class VgpuSchedulerEngineType(_FastEnum):
+    GRAPHICS = 1
+    NVENC1 = 2
 
 
-class GridLicenseState(_IntEnum):
-    GRID_LICENSE_STATE_UNKNOWN = 0
-    GRID_LICENSE_STATE_UNINITIALIZED = 1
-    GRID_LICENSE_STATE_UNLICENSED_UNRESTRICTED = 2
-    GRID_LICENSE_STATE_UNLICENSED_RESTRICTED = 3
-    GRID_LICENSE_STATE_UNLICENSED = 4
-    GRID_LICENSE_STATE_LICENSED = 5
+class GridLicenseState(_FastEnum):
+    UNKNOWN = 0
+    UNINITIALIZED = 1
+    UNLICENSED_UNRESTRICTED = 2
+    UNLICENSED_RESTRICTED = 3
+    UNLICENSED = 4
+    LICENSED = 5
 
 
-class NvlinkLowPowerThresholdUnit(_IntEnum):
-    NVLINK_LOW_POWER_THRESHOLD_UNIT_100US = 0x0
-    NVLINK_LOW_POWER_THRESHOLD_UNIT_50US = 0x1
+class NvlinkLowPowerThresholdUnit(_FastEnum):
+    UNIT_100US = 0x0
+    UNIT_50US = 0x1
 
 
-class NvlinkPowerState(_IntEnum):
-    NVLINK_POWER_STATE_HIGH_SPEED = 0x0
-    NVLINK_POWER_STATE_LOW_SPEED = 0x1
+class NvlinkPowerState(_FastEnum):
+    HIGH_SPEED = 0x0
+    LOW_SPEED = 0x1
 
 
-NVLINK_LOW_POWER_THRESHOLD_MIN = 0x1
+class NvlinkLowPowerThreshold(_FastEnum):
+    MIN = 0x1
+    MAX = 0x1FFF
+    RESET = 0xFFFFFFFF
+    DEFAULT = 0xFFFFFFFF
 
 
-class NvlinkLowPowerThreshold(_IntEnum):
-    NVLINK_LOW_POWER_THRESHOLD_MAX = 0x1FFF
-    NVLINK_LOW_POWER_THRESHOLD_RESET = 0xFFFFFFFF
-    NVLINK_LOW_POWER_THRESHOLD_DEFAULT = 0xFFFFFFFF
+class C2CPowerState(_FastEnum):
+    FULL_POWER = 0
+    LOW_POWER = 1
 
 
-class C2CPowerState(_IntEnum):
-    C2C_POWER_STATE_FULL_POWER = 0
-    C2C_POWER_STATE_LOW_POWER = 1
+class EventType(_FastEnum):
+    NONE = 0x0000000000000000
+    SINGLE_BIT_ECC_ERROR = 0x0000000000000001
+    DOUBLE_BIT_ECC_ERROR = 0x0000000000000002
+    PSTATE = 0x0000000000000004
+    XID_CRITICAL_ERROR = 0x0000000000000008
+    CLOCK = 0x0000000000000010
+    POWER_SOURCE_CHANGE = 0x0000000000000080
+    MIG_CONFIG_CHANGE = 0x0000000000000100
+    SINGLE_BIT_ECC_ERROR_STORM = 0x0000000000000200
+    DRAM_RETIREMENT_EVENT = 0x0000000000000400
+    DRAM_RETIREMENT_FAILURE = 0x0000000000000800
+    NON_FATAL_POISON_ERROR = 0x0000000000001000
+    FATAL_POISON_ERROR = 0x0000000000002000
+    GPU_UNAVAILABLE_ERROR = 0x0000000000004000
+    GPU_RECOVERY_ACTION = 0x0000000000008000
 
 
-class EventType(_IntEnum):
-    EVENT_TYPE_NONE = 0x0000000000000000
-    EVENT_TYPE_SINGLE_BIT_ECC_ERROR = 0x0000000000000001
-    EVENT_TYPE_DOUBLE_BIT_ECC_ERROR = 0x0000000000000002
-    EVENT_TYPE_PSTATE = 0x0000000000000004
-    EVENT_TYPE_XID_CRITICAL_ERROR = 0x0000000000000008
-    EVENT_TYPE_CLOCK = 0x0000000000000010
-    EVENT_TYPE_POWER_SOURCE_CHANGE = 0x0000000000000080
-    EVENT_MIG_CONFIG_CHANGE = 0x0000000000000100
-    EVENT_TYPE_SINGLE_BIT_ECC_ERROR_STORM = 0x0000000000000200
-    EVENT_TYPE_DRAM_RETIREMENT_EVENT = 0x0000000000000400
-    EVENT_TYPE_DRAM_RETIREMENT_FAILURE = 0x0000000000000800
-    EVENT_TYPE_NON_FATAL_POISON_ERROR = 0x0000000000001000
-    EVENT_TYPE_FATAL_POISON_ERROR = 0x0000000000002000
-    EVENT_TYPE_GPU_UNAVAILABLE_ERROR = 0x0000000000004000
-    EVENT_TYPE_GPU_RECOVERY_ACTION = 0x0000000000008000
+class SystemEventType(_FastEnum):
+    GPU_DRIVER_UNBIND = 0x0000000000000001
+    GPU_DRIVER_BIND = 0x0000000000000002
 
 
-class SystemEventType(_IntEnum):
-    SYSTEM_EVENT_TYPE_GPU_DRIVER_UNBIND = 0x0000000000000001
-    SYSTEM_EVENT_TYPE_GPU_DRIVER_BIND = 0x0000000000000002
+class ClocksEventReasons(_FastEnum):
+    EVENT_REASON_GPU_IDLE = 0x0000000000000001
+    EVENT_REASON_APPLICATIONS_CLOCKS_SETTING = 0x0000000000000002
+    EVENT_REASON_SW_POWER_CAP = 0x0000000000000004
+    THROTTLE_REASON_HW_SLOWDOWN = 0x0000000000000008
+    EVENT_REASON_SYNC_BOOST = 0x0000000000000010
+    EVENT_REASON_SW_THERMAL_SLOWDOWN = 0x0000000000000020
+    THROTTLE_REASON_HW_THERMAL_SLOWDOWN = 0x0000000000000040
+    THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN = 0x0000000000000080
+    EVENT_REASON_DISPLAY_CLOCK_SETTING = 0x0000000000000100
+    EVENT_REASON_NONE = 0x0000000000000000
 
 
-class ClocksEvent(_IntEnum):
-    CLOCKS_EVENT_REASON_GPU_IDLE = 0x0000000000000001
-    CLOCKS_EVENT_REASON_APPLICATIONS_CLOCKS_SETTING = 0x0000000000000002
-    CLOCKS_THROTTLE_REASON_USER_DEFINED_CLOCKS = 0x0000000000000002
-    CLOCKS_EVENT_REASON_SW_POWER_CAP = 0x0000000000000004
-    CLOCKS_THROTTLE_REASON_HW_SLOWDOWN = 0x0000000000000008
-    CLOCKS_EVENT_REASON_SYNC_BOOST = 0x0000000000000010
-    CLOCKS_EVENT_REASON_SW_THERMAL_SLOWDOWN = 0x0000000000000020
-    CLOCKS_THROTTLE_REASON_HW_THERMAL_SLOWDOWN = 0x0000000000000040
-    CLOCKS_THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN = 0x0000000000000080
-    CLOCKS_EVENT_REASON_DISPLAY_CLOCK_SETTING = 0x0000000000000100
-    CLOCKS_EVENT_REASON_NONE = 0x0000000000000000
-    CLOCKS_THROTTLE_REASON_GPU_IDLE = 0x0000000000000001
-    CLOCKS_THROTTLE_REASON_APPLICATIONS_CLOCKS_SETTING = 0x0000000000002
-    CLOCKS_THROTTLE_REASON_SYNC_BOOST = 0x00000000000010
-    CLOCKS_THROTTLE_REASON_SW_POWER_CAP = 0x00000000000004
-    CLOCKS_THROTTLE_REASON_SW_THERMAL_SLOWDOWN = 0x00000000000020
-    CLOCKS_THROTTLE_REASON_DISPLAY_CLOCK_SETTING = 0x00000000000100
-    CLOCKS_THROTTLE_REASON_NONE = 0x0000000000000000
+class EncoderQuery(_FastEnum):
+    H264 = 0x00
+    HEVC = 0x01
+    AV1 = 0x02
+    UNKNOWN = 0xFF
 
 
-class EncoderQuery(_IntEnum):
-    ENCODER_QUERY_H264 = 0x00
-    ENCODER_QUERY_HEVC = 0x01
-    ENCODER_QUERY_AV1 = 0x02
-    ENCODER_QUERY_UNKNOWN = 0xFF
+class NvFBCSessionFlag(_FastEnum):
+    DIFFMAP_ENABLED = 0x00000001
+    CLASSIFICATIONMAP_ENABLED = 0x00000002
+    CAPTURE_WITH_WAIT_NO_WAIT = 0x00000004
+    CAPTURE_WITH_WAIT_INFINITE = 0x00000008
+    CAPTURE_WITH_WAIT_TIMEOUT = 0x00000010
 
 
-class NvFBCSessionFlag(_IntEnum):
-    NVFBC_SESSION_FLAG_DIFFMAP_ENABLED = 0x00000001
-    NVFBC_SESSION_FLAG_CLASSIFICATIONMAP_ENABLED = 0x00000002
-    NVFBC_SESSION_FLAG_CAPTURE_WITH_WAIT_NO_WAIT = 0x00000004
-    NVFBC_SESSION_FLAG_CAPTURE_WITH_WAIT_INFINITE = 0x00000008
-    NVFBC_SESSION_FLAG_CAPTURE_WITH_WAIT_TIMEOUT = 0x00000010
+class CCSystemCpuCaps(_FastEnum):
+    NONE = 0
+    AMD_SEV = 1
+    INTEL_TDX = 2
+    AMD_SEV_SNP = 3
+    AMD_SNP_VTOM = 4
 
 
-class CCSystemCpuCaps(_IntEnum):
-    CC_SYSTEM_CPU_CAPS_NONE = 0
-    CC_SYSTEM_CPU_CAPS_AMD_SEV = 1
-    CC_SYSTEM_CPU_CAPS_INTEL_TDX = 2
-    CC_SYSTEM_CPU_CAPS_AMD_SEV_SNP = 3
-    CC_SYSTEM_CPU_CAPS_AMD_SNP_VTOM = 4
+class CCSystemGpus(_FastEnum):
+    CC_NOT_CAPABLE = 0
+    CC_CAPABLE = 1
 
 
-class CCSystemGpus(_IntEnum):
-    CC_SYSTEM_GPUS_CC_NOT_CAPABLE = 0
-    CC_SYSTEM_GPUS_CC_CAPABLE = 1
+class CCSystemDevtoolsMode(_FastEnum):
+    OFF = 0
+    ON = 1
 
 
-class CCSystemDevtoolsMode(_IntEnum):
-    CC_SYSTEM_DEVTOOLS_MODE_OFF = 0
-    CC_SYSTEM_DEVTOOLS_MODE_ON = 1
+class CCSystemEnvironment(_FastEnum):
+    UNAVAILABLE = 0
+    SIM = 1
+    PROD = 2
 
 
-class CCSystemEnvironment(_IntEnum):
-    CC_SYSTEM_ENVIRONMENT_UNAVAILABLE = 0
-    CC_SYSTEM_ENVIRONMENT_SIM = 1
-    CC_SYSTEM_ENVIRONMENT_PROD = 2
+class CCSystemFeature(_FastEnum):
+    DISABLED = 0
+    ENABLED = 1
 
 
-class CCSystemFeature(_IntEnum):
-    CC_SYSTEM_FEATURE_DISABLED = 0
-    CC_SYSTEM_FEATURE_ENABLED = 1
+class CCSystemMultiGpu(_FastEnum):
+    NONE = 0
+    PROTECTED_PCIE = 1
+    NVLE = 2
 
 
-class CCSystemMultiGpu(_IntEnum):
-    CC_SYSTEM_MULTIGPU_NONE = 0
-    CC_SYSTEM_MULTIGPU_PROTECTED_PCIE = 1
-    CC_SYSTEM_MULTIGPU_NVLE = 2
+class CCAcceptingClientRequests(_FastEnum):
+    FALSE = 0
+    TRUE = 1
 
 
-class CCAcceptingClientRequests(_IntEnum):
-    CC_ACCEPTING_CLIENT_REQUESTS_FALSE = 0
-    CC_ACCEPTING_CLIENT_REQUESTS_TRUE = 1
+class GpuFabricState(_FastEnum):
+    NOT_SUPPORTED = 0
+    NOT_STARTED = 1
+    IN_PROGRESS = 2
+    COMPLETED = 3
 
 
-class GpuFabricState(_IntEnum):
-    GPU_FABRIC_STATE_NOT_SUPPORTED = 0
-    GPU_FABRIC_STATE_NOT_STARTED = 1
-    GPU_FABRIC_STATE_IN_PROGRESS = 2
-    GPU_FABRIC_STATE_COMPLETED = 3
+class GpuFabricHealthMaskDegradedBw(_FastEnum):
+    NOT_SUPPORTED = 0
+    TRUE = 1
+    FALSE = 2
 
 
-class GpuFabricHealthMaskDegradedBw(_IntEnum):
-    GPU_FABRIC_HEALTH_MASK_DEGRADED_BW_NOT_SUPPORTED = 0
-    GPU_FABRIC_HEALTH_MASK_DEGRADED_BW_TRUE = 1
-    GPU_FABRIC_HEALTH_MASK_DEGRADED_BW_FALSE = 2
-    GPU_FABRIC_HEALTH_MASK_SHIFT_DEGRADED_BW = 0
-    GPU_FABRIC_HEALTH_MASK_WIDTH_DEGRADED_BW = 0x3
+class GpuFabricHealthMaskRouteRecovery(_FastEnum):
+    NOT_SUPPORTED = 0
+    TRUE = 1
+    FALSE = 2
 
 
-class GpuFabricHealthMaskRouteRecovery(_IntEnum):
-    GPU_FABRIC_HEALTH_MASK_ROUTE_RECOVERY_NOT_SUPPORTED = 0
-    GPU_FABRIC_HEALTH_MASK_ROUTE_RECOVERY_TRUE = 1
-    GPU_FABRIC_HEALTH_MASK_ROUTE_RECOVERY_FALSE = 2
-    GPU_FABRIC_HEALTH_MASK_SHIFT_ROUTE_RECOVERY = 2
-    GPU_FABRIC_HEALTH_MASK_WIDTH_ROUTE_RECOVERY = 0x3
+class GpuFabricHealthMaskRouteUnhealthy(_FastEnum):
+    NOT_SUPPORTED = 0
+    TRUE = 1
+    FALSE = 2
 
 
-class GpuFabricHealthMaskRouteUnhealthy(_IntEnum):
-    GPU_FABRIC_HEALTH_MASK_ROUTE_UNHEALTHY_NOT_SUPPORTED = 0
-    GPU_FABRIC_HEALTH_MASK_ROUTE_UNHEALTHY_TRUE = 1
-    GPU_FABRIC_HEALTH_MASK_ROUTE_UNHEALTHY_FALSE = 2
-    GPU_FABRIC_HEALTH_MASK_SHIFT_ROUTE_UNHEALTHY = 4
-    GPU_FABRIC_HEALTH_MASK_WIDTH_ROUTE_UNHEALTHY = 0x3
+class GpuFabricHealthMaskAccessTimeout(_FastEnum):
+    NOT_SUPPORTED = 0
+    TRUE = 1
+    FALSE = 2
 
 
-class GpuFabricHealthMaskAccessTimeout(_IntEnum):
-    GPU_FABRIC_HEALTH_MASK_ACCESS_TIMEOUT_NOT_SUPPORTED = 0
-    GPU_FABRIC_HEALTH_MASK_ACCESS_TIMEOUT_TRUE = 1
-    GPU_FABRIC_HEALTH_MASK_ACCESS_TIMEOUT_FALSE = 2
-    GPU_FABRIC_HEALTH_MASK_SHIFT_ACCESS_TIMEOUT = 6
-    GPU_FABRIC_HEALTH_MASK_WIDTH_ACCESS_TIMEOUT = 0x3
+class GpuFabricHealthMaskIncorrectConfiguration(_FastEnum):
+    NOT_SUPPORTED = 0
+    NONE = 1
+    INCORRECT_SYSGUID = 2
+    INCORRECT_CHASSIS_SN = 3
+    NO_PARTITION = 4
+    INSUFFICIENT_NVLINKS = 5
+    INCOMPATIBLE_GPU_FW = 6
+    INVALID_LOCATION = 7
 
 
-class GpuFabricHealthMaskIncorrectConfiguration(_IntEnum):
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_NOT_SUPPORTED = 0
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_NONE = 1
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_INCORRECT_SYSGUID = 2
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_INCORRECT_CHASSIS_SN = 3
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGRUATION_NO_PARTITION = 4
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_INSUFFICIENT_NVLINKS = 5
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_INCOMPATIBLE_GPU_FW = 6
-    GPU_FABRIC_HEALTH_MASK_INCORRECT_CONFIGURATION_INVALID_LOCATION = 7
-    GPU_FABRIC_HEALTH_MASK_SHIFT_INCORRECT_CONFIGURATION = 8
-    GPU_FABRIC_HEALTH_MASK_WIDTH_INCORRECT_CONFIGURATION = 0xf
+class GpuFabricHealthSummary(_FastEnum):
+    NOT_SUPPORTED = 0
+    HEALTHY = 1
+    UNHEALTHY = 2
+    LIMITED_CAPACITY = 3
 
 
-class GpuFabricHealthSummary(_IntEnum):
-    GPU_FABRIC_HEALTH_SUMMARY_NOT_SUPPORTED = 0
-    GPU_FABRIC_HEALTH_SUMMARY_HEALTHY = 1
-    GPU_FABRIC_HEALTH_SUMMARY_UNHEALTHY = 2
-    GPU_FABRIC_HEALTH_SUMMARY_LIMITED_CAPACITY = 3
+class InitFlag(_FastEnum):
+    NO_GPUS = 1
+    NO_ATTACH = 2
 
 
-class InitFlag(_IntEnum):
-    INIT_FLAG_NO_GPUS = 1
-    INIT_FLAG_NO_ATTACH = 2
+class NvlinkState(_FastEnum):
+    INACTIVE = 0x0
+    ACTIVE = 0x1
+    SLEEP = 0x2
 
 
-class NvlinkState(_IntEnum):
-    NVLINK_STATE_INACTIVE = 0x0
-    NVLINK_STATE_ACTIVE = 0x1
-    NVLINK_STATE_SLEEP = 0x2
+class NvlinkFirmwareUcodeType(_FastEnum):
+    MSE = 0x1
+    NETIR = 0x2
+    NETIR_UPHY = 0x3
+    NETIR_CLN = 0x4
+    NETIR_DLN = 0x5
 
 
-class NvlinkFirmwareUcodeType(_IntEnum):
-    NVLINK_FIRMWARE_UCODE_TYPE_MSE = 0x1
-    NVLINK_FIRMWARE_UCODE_TYPE_NETIR = 0x2
-    NVLINK_FIRMWARE_UCODE_TYPE_NETIR_UPHY = 0x3
-    NVLINK_FIRMWARE_UCODE_TYPE_NETIR_CLN = 0x4
-    NVLINK_FIRMWARE_UCODE_TYPE_NETIR_DLN = 0x5
+class DeviceMig(_FastEnum):
+    DISABLE = 0
+    ENABLE = 1
 
 
-class DeviceMig(_IntEnum):
-    DEVICE_MIG_DISABLE = 0
-    DEVICE_MIG_ENABLE = 1
+class GpuInstanceProfile(_FastEnum):
+    PROFILE_1_SLICE = 0x0
+    PROFILE_2_SLICE = 0x1
+    PROFILE_3_SLICE = 0x2
+    PROFILE_4_SLICE = 0x3
+    PROFILE_7_SLICE = 0x4
+    PROFILE_8_SLICE = 0x5
+    PROFILE_6_SLICE = 0x6
+    PROFILE_1_SLICE_REV1 = 0x7
+    PROFILE_2_SLICE_REV1 = 0x8
+    PROFILE_1_SLICE_REV2 = 0x9
+    PROFILE_1_SLICE_GFX = 0x0A
+    PROFILE_2_SLICE_GFX = 0x0B
+    PROFILE_4_SLICE_GFX = 0x0C
+    PROFILE_1_SLICE_NO_ME = 0x0D
+    PROFILE_2_SLICE_NO_ME = 0x0E
+    PROFILE_1_SLICE_ALL_ME = 0x0F
+    PROFILE_2_SLICE_ALL_ME = 0x10
+    PROFILE_COUNT = 0x11
 
 
-class GpuInstanceProfile(_IntEnum):
-    GPU_INSTANCE_PROFILE_1_SLICE = 0x0
-    GPU_INSTANCE_PROFILE_2_SLICE = 0x1
-    GPU_INSTANCE_PROFILE_3_SLICE = 0x2
-    GPU_INSTANCE_PROFILE_4_SLICE = 0x3
-    GPU_INSTANCE_PROFILE_7_SLICE = 0x4
-    GPU_INSTANCE_PROFILE_8_SLICE = 0x5
-    GPU_INSTANCE_PROFILE_6_SLICE = 0x6
-    GPU_INSTANCE_PROFILE_1_SLICE_REV1 = 0x7
-    GPU_INSTANCE_PROFILE_2_SLICE_REV1 = 0x8
-    GPU_INSTANCE_PROFILE_1_SLICE_REV2 = 0x9
-    GPU_INSTANCE_PROFILE_1_SLICE_GFX = 0x0A
-    GPU_INSTANCE_PROFILE_2_SLICE_GFX = 0x0B
-    GPU_INSTANCE_PROFILE_4_SLICE_GFX = 0x0C
-    GPU_INSTANCE_PROFILE_1_SLICE_NO_ME = 0x0D
-    GPU_INSTANCE_PROFILE_2_SLICE_NO_ME = 0x0E
-    GPU_INSTANCE_PROFILE_1_SLICE_ALL_ME = 0x0F
-    GPU_INSTANCE_PROFILE_2_SLICE_ALL_ME = 0x10
-    GPU_INSTANCE_PROFILE_COUNT = 0x11
+class GpuInstanceProfileCaps(_FastEnum):
+    P2P = 0x1
+    GFX = 0x2
 
 
-class GpuInstanceProfileCaps(_IntEnum):
-    GPU_INSTANCE_PROFILE_CAPS_P2P = 0x1
-    GPU_INSTANCE_PROFILE_CAPS_GFX = 0x2
+class ComputeInstanceProfileCaps(_FastEnum):
+    GFX = 0x1
 
 
-class ComputeInstanceProfileCaps(_IntEnum):
-    COMPUTE_INSTANCE_PROFILE_CAPS_GFX = 0x1
+class ComputeInstanceProfile(_FastEnum):
+    PROFILE_1_SLICE = 0x0
+    PROFILE_2_SLICE = 0x1
+    PROFILE_3_SLICE = 0x2
+    PROFILE_4_SLICE = 0x3
+    PROFILE_7_SLICE = 0x4
+    PROFILE_8_SLICE = 0x5
+    PROFILE_6_SLICE = 0x6
+    PROFILE_1_SLICE_REV1 = 0x7
+    PROFILE_COUNT = 0x8
 
 
-class ComputeInstanceProfile(_IntEnum):
-    COMPUTE_INSTANCE_PROFILE_1_SLICE = 0x0
-    COMPUTE_INSTANCE_PROFILE_2_SLICE = 0x1
-    COMPUTE_INSTANCE_PROFILE_3_SLICE = 0x2
-    COMPUTE_INSTANCE_PROFILE_4_SLICE = 0x3
-    COMPUTE_INSTANCE_PROFILE_7_SLICE = 0x4
-    COMPUTE_INSTANCE_PROFILE_8_SLICE = 0x5
-    COMPUTE_INSTANCE_PROFILE_6_SLICE = 0x6
-    COMPUTE_INSTANCE_PROFILE_1_SLICE_REV1 = 0x7
-    COMPUTE_INSTANCE_PROFILE_COUNT = 0x8
+class ComputeInstanceEngineProfile(_FastEnum):
+    SHARED = 0x0
+    COUNT = 0x1
 
 
-class ComputeInstanceEngineProfile(_IntEnum):
-    COMPUTE_INSTANCE_ENGINE_PROFILE_SHARED = 0x0
-    COMPUTE_INSTANCE_ENGINE_PROFILE_COUNT = 0x1
+class PowerSmoothingProfileParam(_FastEnum):
+    PERCENT_TMP_FLOOR = 0
+    RAMP_UP_RATE = 1
+    RAMP_DOWN_RATE = 2
+    RAMP_DOWN_HYSTERESIS = 3
+    SECONDARY_POWER_FLOOR = 4
+    PRIMARY_FLOOR_ACT_WIN_MULT = 5
+    PRIMARY_FLOOR_TAR_WIN_MULT = 6
+    PRIMARY_FLOOR_ACT_OFFSET = 7
 
 
-class PowerSmoothingProfileParam(_IntEnum):
-    POWER_SMOOTHING_PROFILE_PARAM_PERCENT_TMP_FLOOR = 0
-    POWER_SMOOTHING_PROFILE_PARAM_RAMP_UP_RATE = 1
-    POWER_SMOOTHING_PROFILE_PARAM_RAMP_DOWN_RATE = 2
-    POWER_SMOOTHING_PROFILE_PARAM_RAMP_DOWN_HYSTERESIS = 3
-    POWER_SMOOTHING_PROFILE_PARAM_SECONDARY_POWER_FLOOR = 4
-    POWER_SMOOTHING_PROFILE_PARAM_PRIMARY_FLOOR_ACT_WIN_MULT = 5
-    POWER_SMOOTHING_PROFILE_PARAM_PRIMARY_FLOOR_TAR_WIN_MULT = 6
-    POWER_SMOOTHING_PROFILE_PARAM_PRIMARY_FLOOR_ACT_OFFSET = 7
+class VgpuPgpu(_FastEnum):
+    HETEROGENEOUS_MODE = 0  # Heterogeneous vGPU mode.
+    HOMOGENEOUS_MODE = 1  # Homogeneous vGPU mode.
 
 
 ###############################################################################
@@ -4295,138 +4526,6 @@ cdef class CoolerInfo_v1:
         return obj
 
 
-cdef _get_margin_temperature_v1_dtype_offsets():
-    cdef nvmlMarginTemperature_v1_t pod = nvmlMarginTemperature_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'margin_temperature'],
-        'formats': [_numpy.uint32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.marginTemperature)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlMarginTemperature_v1_t),
-    })
-
-margin_temperature_v1_dtype = _get_margin_temperature_v1_dtype_offsets()
-
-cdef class MarginTemperature_v1:
-    """Empty-initialize an instance of `nvmlMarginTemperature_v1_t`.
-
-
-    .. seealso:: `nvmlMarginTemperature_v1_t`
-    """
-    cdef:
-        nvmlMarginTemperature_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlMarginTemperature_v1_t *>calloc(1, sizeof(nvmlMarginTemperature_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating MarginTemperature_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlMarginTemperature_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.MarginTemperature_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef MarginTemperature_v1 other_
-        if not isinstance(other, MarginTemperature_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMarginTemperature_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlMarginTemperature_v1_t *>malloc(sizeof(nvmlMarginTemperature_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating MarginTemperature_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMarginTemperature_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: The version number of this struct."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This MarginTemperature_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def margin_temperature(self):
-        """int: The margin temperature value."""
-        return self._ptr[0].marginTemperature
-
-    @margin_temperature.setter
-    def margin_temperature(self, val):
-        if self._readonly:
-            raise ValueError("This MarginTemperature_v1 instance is read-only")
-        self._ptr[0].marginTemperature = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an MarginTemperature_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `margin_temperature_v1_dtype` holding the data.
-        """
-        return __from_data(data, "margin_temperature_v1_dtype", margin_temperature_v1_dtype, MarginTemperature_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an MarginTemperature_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef MarginTemperature_v1 obj = MarginTemperature_v1.__new__(MarginTemperature_v1)
-        if owner is None:
-            obj._ptr = <nvmlMarginTemperature_v1_t *>malloc(sizeof(nvmlMarginTemperature_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating MarginTemperature_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMarginTemperature_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlMarginTemperature_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
 cdef _get_clk_mon_fault_info_dtype_offsets():
     cdef nvmlClkMonFaultInfo_t pod = nvmlClkMonFaultInfo_t()
     return _numpy.dtype({
@@ -4747,422 +4846,6 @@ cdef class ClockOffset_v1:
             obj._owned = True
         else:
             obj._ptr = <nvmlClockOffset_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_fan_speed_info_v1_dtype_offsets():
-    cdef nvmlFanSpeedInfo_v1_t pod = nvmlFanSpeedInfo_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'fan', 'speed'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fan)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.speed)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlFanSpeedInfo_v1_t),
-    })
-
-fan_speed_info_v1_dtype = _get_fan_speed_info_v1_dtype_offsets()
-
-cdef class FanSpeedInfo_v1:
-    """Empty-initialize an instance of `nvmlFanSpeedInfo_v1_t`.
-
-
-    .. seealso:: `nvmlFanSpeedInfo_v1_t`
-    """
-    cdef:
-        nvmlFanSpeedInfo_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlFanSpeedInfo_v1_t *>calloc(1, sizeof(nvmlFanSpeedInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating FanSpeedInfo_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlFanSpeedInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.FanSpeedInfo_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef FanSpeedInfo_v1 other_
-        if not isinstance(other, FanSpeedInfo_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlFanSpeedInfo_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlFanSpeedInfo_v1_t *>malloc(sizeof(nvmlFanSpeedInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating FanSpeedInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlFanSpeedInfo_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: the API version number"""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This FanSpeedInfo_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def fan(self):
-        """int: the fan index"""
-        return self._ptr[0].fan
-
-    @fan.setter
-    def fan(self, val):
-        if self._readonly:
-            raise ValueError("This FanSpeedInfo_v1 instance is read-only")
-        self._ptr[0].fan = val
-
-    @property
-    def speed(self):
-        """int: OUT: the fan speed in RPM."""
-        return self._ptr[0].speed
-
-    @speed.setter
-    def speed(self, val):
-        if self._readonly:
-            raise ValueError("This FanSpeedInfo_v1 instance is read-only")
-        self._ptr[0].speed = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an FanSpeedInfo_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `fan_speed_info_v1_dtype` holding the data.
-        """
-        return __from_data(data, "fan_speed_info_v1_dtype", fan_speed_info_v1_dtype, FanSpeedInfo_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an FanSpeedInfo_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef FanSpeedInfo_v1 obj = FanSpeedInfo_v1.__new__(FanSpeedInfo_v1)
-        if owner is None:
-            obj._ptr = <nvmlFanSpeedInfo_v1_t *>malloc(sizeof(nvmlFanSpeedInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating FanSpeedInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlFanSpeedInfo_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlFanSpeedInfo_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_device_perf_modes_v1_dtype_offsets():
-    cdef nvmlDevicePerfModes_v1_t pod = nvmlDevicePerfModes_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'str'],
-        'formats': [_numpy.uint32, (_numpy.int8, 2048)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDevicePerfModes_v1_t),
-    })
-
-device_perf_modes_v1_dtype = _get_device_perf_modes_v1_dtype_offsets()
-
-cdef class DevicePerfModes_v1:
-    """Empty-initialize an instance of `nvmlDevicePerfModes_v1_t`.
-
-
-    .. seealso:: `nvmlDevicePerfModes_v1_t`
-    """
-    cdef:
-        nvmlDevicePerfModes_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlDevicePerfModes_v1_t *>calloc(1, sizeof(nvmlDevicePerfModes_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DevicePerfModes_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDevicePerfModes_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.DevicePerfModes_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef DevicePerfModes_v1 other_
-        if not isinstance(other, DevicePerfModes_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDevicePerfModes_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDevicePerfModes_v1_t *>malloc(sizeof(nvmlDevicePerfModes_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DevicePerfModes_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDevicePerfModes_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: the API version number"""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This DevicePerfModes_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def str(self):
-        """~_numpy.int8: (array of length 2048).OUT: the performance modes string."""
-        return cpython.PyUnicode_FromString(self._ptr[0].str)
-
-    @str.setter
-    def str(self, val):
-        if self._readonly:
-            raise ValueError("This DevicePerfModes_v1 instance is read-only")
-        cdef bytes buf = val.encode()
-        if len(buf) >= 2048:
-            raise ValueError("String too long for field str, max length is 2047")
-        cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].str), <void *>ptr, 2048)
-
-    @staticmethod
-    def from_data(data):
-        """Create an DevicePerfModes_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `device_perf_modes_v1_dtype` holding the data.
-        """
-        return __from_data(data, "device_perf_modes_v1_dtype", device_perf_modes_v1_dtype, DevicePerfModes_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an DevicePerfModes_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef DevicePerfModes_v1 obj = DevicePerfModes_v1.__new__(DevicePerfModes_v1)
-        if owner is None:
-            obj._ptr = <nvmlDevicePerfModes_v1_t *>malloc(sizeof(nvmlDevicePerfModes_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DevicePerfModes_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDevicePerfModes_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlDevicePerfModes_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_device_current_clock_freqs_v1_dtype_offsets():
-    cdef nvmlDeviceCurrentClockFreqs_v1_t pod = nvmlDeviceCurrentClockFreqs_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'str'],
-        'formats': [_numpy.uint32, (_numpy.int8, 2048)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDeviceCurrentClockFreqs_v1_t),
-    })
-
-device_current_clock_freqs_v1_dtype = _get_device_current_clock_freqs_v1_dtype_offsets()
-
-cdef class DeviceCurrentClockFreqs_v1:
-    """Empty-initialize an instance of `nvmlDeviceCurrentClockFreqs_v1_t`.
-
-
-    .. seealso:: `nvmlDeviceCurrentClockFreqs_v1_t`
-    """
-    cdef:
-        nvmlDeviceCurrentClockFreqs_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>calloc(1, sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DeviceCurrentClockFreqs_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDeviceCurrentClockFreqs_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.DeviceCurrentClockFreqs_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef DeviceCurrentClockFreqs_v1 other_
-        if not isinstance(other, DeviceCurrentClockFreqs_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceCurrentClockFreqs_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>malloc(sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DeviceCurrentClockFreqs_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: the API version number"""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This DeviceCurrentClockFreqs_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def str(self):
-        """~_numpy.int8: (array of length 2048).OUT: the current clock frequency string."""
-        return cpython.PyUnicode_FromString(self._ptr[0].str)
-
-    @str.setter
-    def str(self, val):
-        if self._readonly:
-            raise ValueError("This DeviceCurrentClockFreqs_v1 instance is read-only")
-        cdef bytes buf = val.encode()
-        if len(buf) >= 2048:
-            raise ValueError("String too long for field str, max length is 2047")
-        cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].str), <void *>ptr, 2048)
-
-    @staticmethod
-    def from_data(data):
-        """Create an DeviceCurrentClockFreqs_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `device_current_clock_freqs_v1_dtype` holding the data.
-        """
-        return __from_data(data, "device_current_clock_freqs_v1_dtype", device_current_clock_freqs_v1_dtype, DeviceCurrentClockFreqs_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an DeviceCurrentClockFreqs_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef DeviceCurrentClockFreqs_v1 obj = DeviceCurrentClockFreqs_v1.__new__(DeviceCurrentClockFreqs_v1)
-        if owner is None:
-            obj._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>malloc(sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DeviceCurrentClockFreqs_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceCurrentClockFreqs_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlDeviceCurrentClockFreqs_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -5947,6 +5630,8 @@ cdef class PlatformInfo_v1:
     def ib_guid(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
+        if len(val) != 16:
+            raise ValueError(f"Expected length { 16 } for field ib_guid, got {len(val)}")
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -5962,6 +5647,8 @@ cdef class PlatformInfo_v1:
     def rack_guid(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
+        if len(val) != 16:
+            raise ValueError(f"Expected length { 16 } for field rack_guid, got {len(val)}")
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].rackGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -6159,6 +5846,8 @@ cdef class PlatformInfo_v2:
     def ib_guid(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
+        if len(val) != 16:
+            raise ValueError(f"Expected length { 16 } for field ib_guid, got {len(val)}")
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -6174,6 +5863,8 @@ cdef class PlatformInfo_v2:
     def chassis_serial_number(self, val):
         if self._readonly:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
+        if len(val) != 16:
+            raise ValueError(f"Expected length { 16 } for field chassis_serial_number, got {len(val)}")
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].chassisSerialNumber)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -6419,270 +6110,6 @@ cdef class _py_anon_pod1:
             obj._owned = True
         else:
             obj._ptr = <_anon_pod1 *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_vgpu_heterogeneous_mode_v1_dtype_offsets():
-    cdef nvmlVgpuHeterogeneousMode_v1_t pod = nvmlVgpuHeterogeneousMode_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'mode'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuHeterogeneousMode_v1_t),
-    })
-
-vgpu_heterogeneous_mode_v1_dtype = _get_vgpu_heterogeneous_mode_v1_dtype_offsets()
-
-cdef class VgpuHeterogeneousMode_v1:
-    """Empty-initialize an instance of `nvmlVgpuHeterogeneousMode_v1_t`.
-
-
-    .. seealso:: `nvmlVgpuHeterogeneousMode_v1_t`
-    """
-    cdef:
-        nvmlVgpuHeterogeneousMode_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlVgpuHeterogeneousMode_v1_t *>calloc(1, sizeof(nvmlVgpuHeterogeneousMode_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuHeterogeneousMode_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuHeterogeneousMode_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.VgpuHeterogeneousMode_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef VgpuHeterogeneousMode_v1 other_
-        if not isinstance(other, VgpuHeterogeneousMode_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuHeterogeneousMode_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuHeterogeneousMode_v1_t *>malloc(sizeof(nvmlVgpuHeterogeneousMode_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuHeterogeneousMode_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuHeterogeneousMode_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: The version number of this struct."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuHeterogeneousMode_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def mode(self):
-        """int: The vGPU heterogeneous mode."""
-        return self._ptr[0].mode
-
-    @mode.setter
-    def mode(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuHeterogeneousMode_v1 instance is read-only")
-        self._ptr[0].mode = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an VgpuHeterogeneousMode_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `vgpu_heterogeneous_mode_v1_dtype` holding the data.
-        """
-        return __from_data(data, "vgpu_heterogeneous_mode_v1_dtype", vgpu_heterogeneous_mode_v1_dtype, VgpuHeterogeneousMode_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an VgpuHeterogeneousMode_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef VgpuHeterogeneousMode_v1 obj = VgpuHeterogeneousMode_v1.__new__(VgpuHeterogeneousMode_v1)
-        if owner is None:
-            obj._ptr = <nvmlVgpuHeterogeneousMode_v1_t *>malloc(sizeof(nvmlVgpuHeterogeneousMode_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuHeterogeneousMode_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuHeterogeneousMode_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlVgpuHeterogeneousMode_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_vgpu_placement_id_v1_dtype_offsets():
-    cdef nvmlVgpuPlacementId_v1_t pod = nvmlVgpuPlacementId_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'placement_id'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placementId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuPlacementId_v1_t),
-    })
-
-vgpu_placement_id_v1_dtype = _get_vgpu_placement_id_v1_dtype_offsets()
-
-cdef class VgpuPlacementId_v1:
-    """Empty-initialize an instance of `nvmlVgpuPlacementId_v1_t`.
-
-
-    .. seealso:: `nvmlVgpuPlacementId_v1_t`
-    """
-    cdef:
-        nvmlVgpuPlacementId_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlVgpuPlacementId_v1_t *>calloc(1, sizeof(nvmlVgpuPlacementId_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuPlacementId_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuPlacementId_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.VgpuPlacementId_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef VgpuPlacementId_v1 other_
-        if not isinstance(other, VgpuPlacementId_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPlacementId_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPlacementId_v1_t *>malloc(sizeof(nvmlVgpuPlacementId_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPlacementId_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPlacementId_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: The version number of this struct."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuPlacementId_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def placement_id(self):
-        """int: Placement ID of the active vGPU instance."""
-        return self._ptr[0].placementId
-
-    @placement_id.setter
-    def placement_id(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuPlacementId_v1 instance is read-only")
-        self._ptr[0].placementId = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an VgpuPlacementId_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `vgpu_placement_id_v1_dtype` holding the data.
-        """
-        return __from_data(data, "vgpu_placement_id_v1_dtype", vgpu_placement_id_v1_dtype, VgpuPlacementId_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an VgpuPlacementId_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef VgpuPlacementId_v1 obj = VgpuPlacementId_v1.__new__(VgpuPlacementId_v1)
-        if owner is None:
-            obj._ptr = <nvmlVgpuPlacementId_v1_t *>malloc(sizeof(nvmlVgpuPlacementId_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPlacementId_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPlacementId_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlVgpuPlacementId_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7226,138 +6653,6 @@ cdef class VgpuProcessUtilizationInfo_v1:
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        return obj
-
-
-cdef _get_vgpu_runtime_state_v1_dtype_offsets():
-    cdef nvmlVgpuRuntimeState_v1_t pod = nvmlVgpuRuntimeState_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'size_'],
-        'formats': [_numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuRuntimeState_v1_t),
-    })
-
-vgpu_runtime_state_v1_dtype = _get_vgpu_runtime_state_v1_dtype_offsets()
-
-cdef class VgpuRuntimeState_v1:
-    """Empty-initialize an instance of `nvmlVgpuRuntimeState_v1_t`.
-
-
-    .. seealso:: `nvmlVgpuRuntimeState_v1_t`
-    """
-    cdef:
-        nvmlVgpuRuntimeState_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlVgpuRuntimeState_v1_t *>calloc(1, sizeof(nvmlVgpuRuntimeState_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuRuntimeState_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuRuntimeState_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.VgpuRuntimeState_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef VgpuRuntimeState_v1 other_
-        if not isinstance(other, VgpuRuntimeState_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuRuntimeState_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuRuntimeState_v1_t *>malloc(sizeof(nvmlVgpuRuntimeState_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuRuntimeState_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuRuntimeState_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: IN: The version number of this struct."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuRuntimeState_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def size_(self):
-        """int: OUT: The runtime state size of the vGPU instance."""
-        return self._ptr[0].size
-
-    @size_.setter
-    def size_(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuRuntimeState_v1 instance is read-only")
-        self._ptr[0].size = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an VgpuRuntimeState_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `vgpu_runtime_state_v1_dtype` holding the data.
-        """
-        return __from_data(data, "vgpu_runtime_state_v1_dtype", vgpu_runtime_state_v1_dtype, VgpuRuntimeState_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an VgpuRuntimeState_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef VgpuRuntimeState_v1 obj = VgpuRuntimeState_v1.__new__(VgpuRuntimeState_v1)
-        if owner is None:
-            obj._ptr = <nvmlVgpuRuntimeState_v1_t *>malloc(sizeof(nvmlVgpuRuntimeState_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuRuntimeState_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuRuntimeState_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlVgpuRuntimeState_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
         return obj
 
 
@@ -8150,6 +7445,8 @@ cdef class VgpuSchedulerCapabilities:
     def supported_schedulers(self, val):
         if self._readonly:
             raise ValueError("This VgpuSchedulerCapabilities instance is read-only")
+        if len(val) != 3:
+            raise ValueError(f"Expected length { 3 } for field supported_schedulers, got {len(val)}")
         cdef view.array arr = view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
         memcpy(<void *>(&(self._ptr[0].supportedSchedulers)), <void *>(arr.data), sizeof(unsigned int) * len(val))
@@ -8740,13 +8037,21 @@ cdef class VgpuTypeIdInfo_v1:
     @property
     def vgpu_type_ids(self):
         """int: OUT: List of vGPU type IDs."""
-        return <intptr_t>(self._ptr[0].vgpuTypeIds)
+        if self._ptr[0].vgpuTypeIds == NULL:
+            return []
+        cdef view.array arr = view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        arr.data = <char *>(self._ptr[0].vgpuTypeIds)
+        return _numpy.asarray(arr)
 
     @vgpu_type_ids.setter
     def vgpu_type_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuTypeIdInfo_v1 instance is read-only")
-        self._ptr[0].vgpuTypeIds = <nvmlVgpuTypeId_t*><intptr_t>val
+        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
+        self._ptr[0].vgpuTypeIds = <nvmlVgpuTypeId_t*><intptr_t>(arr.data)
+        self._ptr[0].vgpuCount = len(val)
+        self._refs["vgpu_type_ids"] = arr
 
     @staticmethod
     def from_data(data):
@@ -8778,150 +8083,6 @@ cdef class VgpuTypeIdInfo_v1:
             obj._owned = True
         else:
             obj._ptr = <nvmlVgpuTypeIdInfo_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_vgpu_type_max_instance_v1_dtype_offsets():
-    cdef nvmlVgpuTypeMaxInstance_v1_t pod = nvmlVgpuTypeMaxInstance_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'vgpu_type_id', 'max_instance_per_gi'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuTypeId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxInstancePerGI)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuTypeMaxInstance_v1_t),
-    })
-
-vgpu_type_max_instance_v1_dtype = _get_vgpu_type_max_instance_v1_dtype_offsets()
-
-cdef class VgpuTypeMaxInstance_v1:
-    """Empty-initialize an instance of `nvmlVgpuTypeMaxInstance_v1_t`.
-
-
-    .. seealso:: `nvmlVgpuTypeMaxInstance_v1_t`
-    """
-    cdef:
-        nvmlVgpuTypeMaxInstance_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlVgpuTypeMaxInstance_v1_t *>calloc(1, sizeof(nvmlVgpuTypeMaxInstance_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuTypeMaxInstance_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuTypeMaxInstance_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.VgpuTypeMaxInstance_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef VgpuTypeMaxInstance_v1 other_
-        if not isinstance(other, VgpuTypeMaxInstance_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeMaxInstance_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuTypeMaxInstance_v1_t *>malloc(sizeof(nvmlVgpuTypeMaxInstance_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuTypeMaxInstance_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeMaxInstance_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: IN: The version number of this struct."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuTypeMaxInstance_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def vgpu_type_id(self):
-        """int: IN: Handle to vGPU type."""
-        return <unsigned int>(self._ptr[0].vgpuTypeId)
-
-    @vgpu_type_id.setter
-    def vgpu_type_id(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuTypeMaxInstance_v1 instance is read-only")
-        self._ptr[0].vgpuTypeId = <nvmlVgpuTypeId_t><unsigned int>val
-
-    @property
-    def max_instance_per_gi(self):
-        """int: OUT: Maximum number of vGPU instances per GPU instance."""
-        return self._ptr[0].maxInstancePerGI
-
-    @max_instance_per_gi.setter
-    def max_instance_per_gi(self, val):
-        if self._readonly:
-            raise ValueError("This VgpuTypeMaxInstance_v1 instance is read-only")
-        self._ptr[0].maxInstancePerGI = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an VgpuTypeMaxInstance_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `vgpu_type_max_instance_v1_dtype` holding the data.
-        """
-        return __from_data(data, "vgpu_type_max_instance_v1_dtype", vgpu_type_max_instance_v1_dtype, VgpuTypeMaxInstance_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an VgpuTypeMaxInstance_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef VgpuTypeMaxInstance_v1 obj = VgpuTypeMaxInstance_v1.__new__(VgpuTypeMaxInstance_v1)
-        if owner is None:
-            obj._ptr = <nvmlVgpuTypeMaxInstance_v1_t *>malloc(sizeof(nvmlVgpuTypeMaxInstance_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuTypeMaxInstance_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeMaxInstance_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlVgpuTypeMaxInstance_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -9017,13 +8178,21 @@ cdef class ActiveVgpuInstanceInfo_v1:
     @property
     def vgpu_instances(self):
         """int: IN/OUT: list of active vGPU instances."""
-        return <intptr_t>(self._ptr[0].vgpuInstances)
+        if self._ptr[0].vgpuInstances == NULL:
+            return []
+        cdef view.array arr = view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        arr.data = <char *>(self._ptr[0].vgpuInstances)
+        return _numpy.asarray(arr)
 
     @vgpu_instances.setter
     def vgpu_instances(self, val):
         if self._readonly:
             raise ValueError("This ActiveVgpuInstanceInfo_v1 instance is read-only")
-        self._ptr[0].vgpuInstances = <nvmlVgpuInstance_t*><intptr_t>val
+        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
+        self._ptr[0].vgpuInstances = <nvmlVgpuInstance_t*><intptr_t>(arr.data)
+        self._ptr[0].vgpuCount = len(val)
+        self._refs["vgpu_instances"] = arr
 
     @staticmethod
     def from_data(data):
@@ -11763,31 +10932,11 @@ cdef class ConfComputeGpuCertificate:
             setattr(self, key, val)
 
     @property
-    def cert_chain_size(self):
-        """int: """
-        return self._ptr[0].certChainSize
-
-    @cert_chain_size.setter
-    def cert_chain_size(self, val):
-        if self._readonly:
-            raise ValueError("This ConfComputeGpuCertificate instance is read-only")
-        self._ptr[0].certChainSize = val
-
-    @property
-    def attestation_cert_chain_size(self):
-        """int: """
-        return self._ptr[0].attestationCertChainSize
-
-    @attestation_cert_chain_size.setter
-    def attestation_cert_chain_size(self, val):
-        if self._readonly:
-            raise ValueError("This ConfComputeGpuCertificate instance is read-only")
-        self._ptr[0].attestationCertChainSize = val
-
-    @property
     def cert_chain(self):
         """~_numpy.uint8: (array of length 4096)."""
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        if self._ptr[0].certChainSize == 0:
+            return _numpy.array([])
+        cdef view.array arr = view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].certChain))
         return _numpy.asarray(arr)
 
@@ -11795,14 +10944,21 @@ cdef class ConfComputeGpuCertificate:
     def cert_chain(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuCertificate instance is read-only")
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field cert_chain, max is 4096, got {len(val)}")
+        self._ptr[0].certChainSize = len(val)
+        if len(val) == 0:
+            return
+        cdef view.array arr = view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].certChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def attestation_cert_chain(self):
         """~_numpy.uint8: (array of length 5120)."""
-        cdef view.array arr = view.array(shape=(5120,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        if self._ptr[0].attestationCertChainSize == 0:
+            return _numpy.array([])
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationCertChain))
         return _numpy.asarray(arr)
 
@@ -11810,7 +10966,12 @@ cdef class ConfComputeGpuCertificate:
     def attestation_cert_chain(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuCertificate instance is read-only")
-        cdef view.array arr = view.array(shape=(5120,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        if len(val) > 5120:
+            raise ValueError(f"Too many elements for field attestation_cert_chain, max is 5120, got {len(val)}")
+        self._ptr[0].attestationCertChainSize = len(val)
+        if len(val) == 0:
+            return
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -11940,28 +11101,6 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].isCecAttestationReportPresent = val
 
     @property
-    def attestation_report_size(self):
-        """int: """
-        return self._ptr[0].attestationReportSize
-
-    @attestation_report_size.setter
-    def attestation_report_size(self, val):
-        if self._readonly:
-            raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
-        self._ptr[0].attestationReportSize = val
-
-    @property
-    def cec_attestation_report_size(self):
-        """int: """
-        return self._ptr[0].cecAttestationReportSize
-
-    @cec_attestation_report_size.setter
-    def cec_attestation_report_size(self, val):
-        if self._readonly:
-            raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
-        self._ptr[0].cecAttestationReportSize = val
-
-    @property
     def nonce(self):
         """~_numpy.uint8: (array of length 32)."""
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
@@ -11972,6 +11111,8 @@ cdef class ConfComputeGpuAttestationReport:
     def nonce(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field nonce, got {len(val)}")
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].nonce)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -11979,7 +11120,9 @@ cdef class ConfComputeGpuAttestationReport:
     @property
     def attestation_report(self):
         """~_numpy.uint8: (array of length 8192)."""
-        cdef view.array arr = view.array(shape=(8192,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        if self._ptr[0].attestationReportSize == 0:
+            return _numpy.array([])
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationReport))
         return _numpy.asarray(arr)
 
@@ -11987,14 +11130,21 @@ cdef class ConfComputeGpuAttestationReport:
     def attestation_report(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
-        cdef view.array arr = view.array(shape=(8192,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        if len(val) > 8192:
+            raise ValueError(f"Too many elements for field attestation_report, max is 8192, got {len(val)}")
+        self._ptr[0].attestationReportSize = len(val)
+        if len(val) == 0:
+            return
+        cdef view.array arr = view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def cec_attestation_report(self):
         """~_numpy.uint8: (array of length 4096)."""
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        if self._ptr[0].cecAttestationReportSize == 0:
+            return _numpy.array([])
+        cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].cecAttestationReport))
         return _numpy.asarray(arr)
 
@@ -12002,7 +11152,12 @@ cdef class ConfComputeGpuAttestationReport:
     def cec_attestation_report(self, val):
         if self._readonly:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
-        cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field cec_attestation_report, max is 4096, got {len(val)}")
+        self._ptr[0].cecAttestationReportSize = len(val)
+        if len(val) == 0:
+            return
+        cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
@@ -12036,138 +11191,6 @@ cdef class ConfComputeGpuAttestationReport:
             obj._owned = True
         else:
             obj._ptr = <nvmlConfComputeGpuAttestationReport_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_conf_compute_get_key_rotation_threshold_info_v1_dtype_offsets():
-    cdef nvmlConfComputeGetKeyRotationThresholdInfo_v1_t pod = nvmlConfComputeGetKeyRotationThresholdInfo_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'attacker_advantage'],
-        'formats': [_numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attackerAdvantage)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t),
-    })
-
-conf_compute_get_key_rotation_threshold_info_v1_dtype = _get_conf_compute_get_key_rotation_threshold_info_v1_dtype_offsets()
-
-cdef class ConfComputeGetKeyRotationThresholdInfo_v1:
-    """Empty-initialize an instance of `nvmlConfComputeGetKeyRotationThresholdInfo_v1_t`.
-
-
-    .. seealso:: `nvmlConfComputeGetKeyRotationThresholdInfo_v1_t`
-    """
-    cdef:
-        nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *>calloc(1, sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ConfComputeGetKeyRotationThresholdInfo_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.ConfComputeGetKeyRotationThresholdInfo_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef ConfComputeGetKeyRotationThresholdInfo_v1 other_
-        if not isinstance(other, ConfComputeGetKeyRotationThresholdInfo_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *>malloc(sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeGetKeyRotationThresholdInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: """
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This ConfComputeGetKeyRotationThresholdInfo_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def attacker_advantage(self):
-        """int: """
-        return self._ptr[0].attackerAdvantage
-
-    @attacker_advantage.setter
-    def attacker_advantage(self, val):
-        if self._readonly:
-            raise ValueError("This ConfComputeGetKeyRotationThresholdInfo_v1 instance is read-only")
-        self._ptr[0].attackerAdvantage = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an ConfComputeGetKeyRotationThresholdInfo_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `conf_compute_get_key_rotation_threshold_info_v1_dtype` holding the data.
-        """
-        return __from_data(data, "conf_compute_get_key_rotation_threshold_info_v1_dtype", conf_compute_get_key_rotation_threshold_info_v1_dtype, ConfComputeGetKeyRotationThresholdInfo_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an ConfComputeGetKeyRotationThresholdInfo_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef ConfComputeGetKeyRotationThresholdInfo_v1 obj = ConfComputeGetKeyRotationThresholdInfo_v1.__new__(ConfComputeGetKeyRotationThresholdInfo_v1)
-        if owner is None:
-            obj._ptr = <nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *>malloc(sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeGetKeyRotationThresholdInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -12274,6 +11297,8 @@ cdef class GpuFabricInfo_v2:
     def cluster_uuid(self, val):
         if self._readonly:
             raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        if len(val) != 16:
+            raise ValueError(f"Expected length { 16 } for field cluster_uuid, got {len(val)}")
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -12447,7 +11472,9 @@ cdef class NvlinkSupportedBwModes_v1:
     @property
     def bw_modes(self):
         """~_numpy.uint8: (array of length 23)."""
-        cdef view.array arr = view.array(shape=(23,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        if self._ptr[0].totalBwModes == 0:
+            return _numpy.array([])
+        cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].bwModes))
         return _numpy.asarray(arr)
 
@@ -12455,20 +11482,14 @@ cdef class NvlinkSupportedBwModes_v1:
     def bw_modes(self, val):
         if self._readonly:
             raise ValueError("This NvlinkSupportedBwModes_v1 instance is read-only")
-        cdef view.array arr = view.array(shape=(23,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        if len(val) > 23:
+            raise ValueError(f"Too many elements for field bw_modes, max is 23, got {len(val)}")
+        self._ptr[0].totalBwModes = len(val)
+        if len(val) == 0:
+            return
+        cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
-
-    @property
-    def total_bw_modes(self):
-        """int: """
-        return self._ptr[0].totalBwModes
-
-    @total_bw_modes.setter
-    def total_bw_modes(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkSupportedBwModes_v1 instance is read-only")
-        self._ptr[0].totalBwModes = val
 
     @staticmethod
     def from_data(data):
@@ -13433,274 +12454,6 @@ cdef class GpuInstancePlacement:
         return obj
 
 
-cdef _get_gpu_instance_profile_info_v2_dtype_offsets():
-    cdef nvmlGpuInstanceProfileInfo_v2_t pod = nvmlGpuInstanceProfileInfo_v2_t()
-    return _numpy.dtype({
-        'names': ['version', 'id', 'is_p2p_supported', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, (_numpy.int8, 96)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isP2pSupported)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.copyEngineCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.jpegCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ofaCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuInstanceProfileInfo_v2_t),
-    })
-
-gpu_instance_profile_info_v2_dtype = _get_gpu_instance_profile_info_v2_dtype_offsets()
-
-cdef class GpuInstanceProfileInfo_v2:
-    """Empty-initialize an instance of `nvmlGpuInstanceProfileInfo_v2_t`.
-
-
-    .. seealso:: `nvmlGpuInstanceProfileInfo_v2_t`
-    """
-    cdef:
-        nvmlGpuInstanceProfileInfo_v2_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlGpuInstanceProfileInfo_v2_t *>calloc(1, sizeof(nvmlGpuInstanceProfileInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuInstanceProfileInfo_v2")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuInstanceProfileInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.GpuInstanceProfileInfo_v2 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef GpuInstanceProfileInfo_v2 other_
-        if not isinstance(other, GpuInstanceProfileInfo_v2):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceProfileInfo_v2_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuInstanceProfileInfo_v2_t *>malloc(sizeof(nvmlGpuInstanceProfileInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuInstanceProfileInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceProfileInfo_v2_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: """
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def id(self):
-        """int: """
-        return self._ptr[0].id
-
-    @id.setter
-    def id(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].id = val
-
-    @property
-    def is_p2p_supported(self):
-        """int: """
-        return self._ptr[0].isP2pSupported
-
-    @is_p2p_supported.setter
-    def is_p2p_supported(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].isP2pSupported = val
-
-    @property
-    def slice_count(self):
-        """int: """
-        return self._ptr[0].sliceCount
-
-    @slice_count.setter
-    def slice_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].sliceCount = val
-
-    @property
-    def instance_count(self):
-        """int: """
-        return self._ptr[0].instanceCount
-
-    @instance_count.setter
-    def instance_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].instanceCount = val
-
-    @property
-    def multiprocessor_count(self):
-        """int: """
-        return self._ptr[0].multiprocessorCount
-
-    @multiprocessor_count.setter
-    def multiprocessor_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].multiprocessorCount = val
-
-    @property
-    def copy_engine_count(self):
-        """int: """
-        return self._ptr[0].copyEngineCount
-
-    @copy_engine_count.setter
-    def copy_engine_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].copyEngineCount = val
-
-    @property
-    def decoder_count(self):
-        """int: """
-        return self._ptr[0].decoderCount
-
-    @decoder_count.setter
-    def decoder_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].decoderCount = val
-
-    @property
-    def encoder_count(self):
-        """int: """
-        return self._ptr[0].encoderCount
-
-    @encoder_count.setter
-    def encoder_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].encoderCount = val
-
-    @property
-    def jpeg_count(self):
-        """int: """
-        return self._ptr[0].jpegCount
-
-    @jpeg_count.setter
-    def jpeg_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].jpegCount = val
-
-    @property
-    def ofa_count(self):
-        """int: """
-        return self._ptr[0].ofaCount
-
-    @ofa_count.setter
-    def ofa_count(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].ofaCount = val
-
-    @property
-    def memory_size_mb(self):
-        """int: """
-        return self._ptr[0].memorySizeMB
-
-    @memory_size_mb.setter
-    def memory_size_mb(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        self._ptr[0].memorySizeMB = val
-
-    @property
-    def name(self):
-        """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].name)
-
-    @name.setter
-    def name(self, val):
-        if self._readonly:
-            raise ValueError("This GpuInstanceProfileInfo_v2 instance is read-only")
-        cdef bytes buf = val.encode()
-        if len(buf) >= 96:
-            raise ValueError("String too long for field name, max length is 95")
-        cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
-
-    @staticmethod
-    def from_data(data):
-        """Create an GpuInstanceProfileInfo_v2 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `gpu_instance_profile_info_v2_dtype` holding the data.
-        """
-        return __from_data(data, "gpu_instance_profile_info_v2_dtype", gpu_instance_profile_info_v2_dtype, GpuInstanceProfileInfo_v2)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an GpuInstanceProfileInfo_v2 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef GpuInstanceProfileInfo_v2 obj = GpuInstanceProfileInfo_v2.__new__(GpuInstanceProfileInfo_v2)
-        if owner is None:
-            obj._ptr = <nvmlGpuInstanceProfileInfo_v2_t *>malloc(sizeof(nvmlGpuInstanceProfileInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuInstanceProfileInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceProfileInfo_v2_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlGpuInstanceProfileInfo_v2_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
 cdef _get_gpu_instance_profile_info_v3_dtype_offsets():
     cdef nvmlGpuInstanceProfileInfo_v3_t pod = nvmlGpuInstanceProfileInfo_v3_t()
     return _numpy.dtype({
@@ -14615,270 +13368,6 @@ cdef class ComputeInstanceProfileInfo_v3:
         return obj
 
 
-cdef _get_gpm_support_dtype_offsets():
-    cdef nvmlGpmSupport_t pod = nvmlGpmSupport_t()
-    return _numpy.dtype({
-        'names': ['version', 'is_supported_device'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isSupportedDevice)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpmSupport_t),
-    })
-
-gpm_support_dtype = _get_gpm_support_dtype_offsets()
-
-cdef class GpmSupport:
-    """Empty-initialize an instance of `nvmlGpmSupport_t`.
-
-
-    .. seealso:: `nvmlGpmSupport_t`
-    """
-    cdef:
-        nvmlGpmSupport_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlGpmSupport_t *>calloc(1, sizeof(nvmlGpmSupport_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpmSupport")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpmSupport_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.GpmSupport object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef GpmSupport other_
-        if not isinstance(other, GpmSupport):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpmSupport_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpmSupport_t *>malloc(sizeof(nvmlGpmSupport_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpmSupport")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpmSupport_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: IN: Set to NVML_GPM_SUPPORT_VERSION."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This GpmSupport instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def is_supported_device(self):
-        """int: OUT: Indicates device support."""
-        return self._ptr[0].isSupportedDevice
-
-    @is_supported_device.setter
-    def is_supported_device(self, val):
-        if self._readonly:
-            raise ValueError("This GpmSupport instance is read-only")
-        self._ptr[0].isSupportedDevice = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an GpmSupport instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `gpm_support_dtype` holding the data.
-        """
-        return __from_data(data, "gpm_support_dtype", gpm_support_dtype, GpmSupport)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an GpmSupport instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef GpmSupport obj = GpmSupport.__new__(GpmSupport)
-        if owner is None:
-            obj._ptr = <nvmlGpmSupport_t *>malloc(sizeof(nvmlGpmSupport_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpmSupport")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpmSupport_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlGpmSupport_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_device_capabilities_v1_dtype_offsets():
-    cdef nvmlDeviceCapabilities_v1_t pod = nvmlDeviceCapabilities_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'cap_mask'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.capMask)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDeviceCapabilities_v1_t),
-    })
-
-device_capabilities_v1_dtype = _get_device_capabilities_v1_dtype_offsets()
-
-cdef class DeviceCapabilities_v1:
-    """Empty-initialize an instance of `nvmlDeviceCapabilities_v1_t`.
-
-
-    .. seealso:: `nvmlDeviceCapabilities_v1_t`
-    """
-    cdef:
-        nvmlDeviceCapabilities_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlDeviceCapabilities_v1_t *>calloc(1, sizeof(nvmlDeviceCapabilities_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DeviceCapabilities_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDeviceCapabilities_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.DeviceCapabilities_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef DeviceCapabilities_v1 other_
-        if not isinstance(other, DeviceCapabilities_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceCapabilities_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceCapabilities_v1_t *>malloc(sizeof(nvmlDeviceCapabilities_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DeviceCapabilities_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceCapabilities_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: the API version number"""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This DeviceCapabilities_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def cap_mask(self):
-        """int: OUT: Bit mask of capabilities."""
-        return self._ptr[0].capMask
-
-    @cap_mask.setter
-    def cap_mask(self, val):
-        if self._readonly:
-            raise ValueError("This DeviceCapabilities_v1 instance is read-only")
-        self._ptr[0].capMask = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an DeviceCapabilities_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `device_capabilities_v1_dtype` holding the data.
-        """
-        return __from_data(data, "device_capabilities_v1_dtype", device_capabilities_v1_dtype, DeviceCapabilities_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an DeviceCapabilities_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef DeviceCapabilities_v1 obj = DeviceCapabilities_v1.__new__(DeviceCapabilities_v1)
-        if owner is None:
-            obj._ptr = <nvmlDeviceCapabilities_v1_t *>malloc(sizeof(nvmlDeviceCapabilities_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DeviceCapabilities_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceCapabilities_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlDeviceCapabilities_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
 cdef _get_device_addressing_mode_v1_dtype_offsets():
     cdef nvmlDeviceAddressingMode_v1_t pod = nvmlDeviceAddressingMode_v1_t()
     return _numpy.dtype({
@@ -15155,138 +13644,6 @@ cdef class RepairStatus_v1:
         return obj
 
 
-cdef _get_pdi_v1_dtype_offsets():
-    cdef nvmlPdi_v1_t pod = nvmlPdi_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'value'],
-        'formats': [_numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPdi_v1_t),
-    })
-
-pdi_v1_dtype = _get_pdi_v1_dtype_offsets()
-
-cdef class Pdi_v1:
-    """Empty-initialize an instance of `nvmlPdi_v1_t`.
-
-
-    .. seealso:: `nvmlPdi_v1_t`
-    """
-    cdef:
-        nvmlPdi_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlPdi_v1_t *>calloc(1, sizeof(nvmlPdi_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating Pdi_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlPdi_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.Pdi_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef Pdi_v1 other_
-        if not isinstance(other, Pdi_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPdi_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPdi_v1_t *>malloc(sizeof(nvmlPdi_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating Pdi_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPdi_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: API version number."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This Pdi_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def value(self):
-        """int: 64-bit PDI value"""
-        return self._ptr[0].value
-
-    @value.setter
-    def value(self, val):
-        if self._readonly:
-            raise ValueError("This Pdi_v1 instance is read-only")
-        self._ptr[0].value = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an Pdi_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `pdi_v1_dtype` holding the data.
-        """
-        return __from_data(data, "pdi_v1_dtype", pdi_v1_dtype, Pdi_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an Pdi_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef Pdi_v1 obj = Pdi_v1.__new__(Pdi_v1)
-        if owner is None:
-            obj._ptr = <nvmlPdi_v1_t *>malloc(sizeof(nvmlPdi_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating Pdi_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPdi_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlPdi_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
 cdef _get_device_power_mizer_modes_v1_dtype_offsets():
     cdef nvmlDevicePowerMizerModes_v1_t pod = nvmlDevicePowerMizerModes_v1_t()
     return _numpy.dtype({
@@ -15386,7 +13743,7 @@ cdef class DevicePowerMizerModes_v1:
 
     @property
     def supported_power_mizer_modes(self):
-        """int: OUT: Bitmask of supported powermizer modes."""
+        """int: OUT: Bitmask of supported powermizer modes. The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
         return self._ptr[0].supportedPowerMizerModes
 
     @supported_power_mizer_modes.setter
@@ -15738,6 +14095,8 @@ cdef class GpuFabricInfo_v3:
     def cluster_uuid(self, val):
         if self._readonly:
             raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        if len(val) != 16:
+            raise ValueError(f"Expected length { 16 } for field cluster_uuid, got {len(val)}")
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
@@ -16115,258 +14474,6 @@ cdef class NvlinkFirmwareVersion:
             obj._owned = True
         else:
             obj._ptr = <nvmlNvlinkFirmwareVersion_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_unrepairable_memory_status_v1_dtype_offsets():
-    cdef nvmlUnrepairableMemoryStatus_v1_t pod = nvmlUnrepairableMemoryStatus_v1_t()
-    return _numpy.dtype({
-        'names': ['b_unrepairable_memory'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.bUnrepairableMemory)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlUnrepairableMemoryStatus_v1_t),
-    })
-
-unrepairable_memory_status_v1_dtype = _get_unrepairable_memory_status_v1_dtype_offsets()
-
-cdef class UnrepairableMemoryStatus_v1:
-    """Empty-initialize an instance of `nvmlUnrepairableMemoryStatus_v1_t`.
-
-
-    .. seealso:: `nvmlUnrepairableMemoryStatus_v1_t`
-    """
-    cdef:
-        nvmlUnrepairableMemoryStatus_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlUnrepairableMemoryStatus_v1_t *>calloc(1, sizeof(nvmlUnrepairableMemoryStatus_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating UnrepairableMemoryStatus_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlUnrepairableMemoryStatus_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.UnrepairableMemoryStatus_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef UnrepairableMemoryStatus_v1 other_
-        if not isinstance(other, UnrepairableMemoryStatus_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnrepairableMemoryStatus_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUnrepairableMemoryStatus_v1_t *>malloc(sizeof(nvmlUnrepairableMemoryStatus_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating UnrepairableMemoryStatus_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnrepairableMemoryStatus_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def b_unrepairable_memory(self):
-        """int: Reference to `unsigned` int."""
-        return self._ptr[0].bUnrepairableMemory
-
-    @b_unrepairable_memory.setter
-    def b_unrepairable_memory(self, val):
-        if self._readonly:
-            raise ValueError("This UnrepairableMemoryStatus_v1 instance is read-only")
-        self._ptr[0].bUnrepairableMemory = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an UnrepairableMemoryStatus_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `unrepairable_memory_status_v1_dtype` holding the data.
-        """
-        return __from_data(data, "unrepairable_memory_status_v1_dtype", unrepairable_memory_status_v1_dtype, UnrepairableMemoryStatus_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an UnrepairableMemoryStatus_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef UnrepairableMemoryStatus_v1 obj = UnrepairableMemoryStatus_v1.__new__(UnrepairableMemoryStatus_v1)
-        if owner is None:
-            obj._ptr = <nvmlUnrepairableMemoryStatus_v1_t *>malloc(sizeof(nvmlUnrepairableMemoryStatus_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating UnrepairableMemoryStatus_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnrepairableMemoryStatus_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlUnrepairableMemoryStatus_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_rusd_settings_v1_dtype_offsets():
-    cdef nvmlRusdSettings_v1_t pod = nvmlRusdSettings_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'poll_mask'],
-        'formats': [_numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pollMask)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlRusdSettings_v1_t),
-    })
-
-rusd_settings_v1_dtype = _get_rusd_settings_v1_dtype_offsets()
-
-cdef class RusdSettings_v1:
-    """Empty-initialize an instance of `nvmlRusdSettings_v1_t`.
-
-
-    .. seealso:: `nvmlRusdSettings_v1_t`
-    """
-    cdef:
-        nvmlRusdSettings_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlRusdSettings_v1_t *>calloc(1, sizeof(nvmlRusdSettings_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating RusdSettings_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlRusdSettings_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.RusdSettings_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef RusdSettings_v1 other_
-        if not isinstance(other, RusdSettings_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRusdSettings_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlRusdSettings_v1_t *>malloc(sizeof(nvmlRusdSettings_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating RusdSettings_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRusdSettings_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: """
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This RusdSettings_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def poll_mask(self):
-        """int: Bitmask of polling data. 0 value means the GPU's RUSD polling mask is cleared."""
-        return self._ptr[0].pollMask
-
-    @poll_mask.setter
-    def poll_mask(self, val):
-        if self._readonly:
-            raise ValueError("This RusdSettings_v1 instance is read-only")
-        self._ptr[0].pollMask = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an RusdSettings_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `rusd_settings_v1_dtype` holding the data.
-        """
-        return __from_data(data, "rusd_settings_v1_dtype", rusd_settings_v1_dtype, RusdSettings_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an RusdSettings_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef RusdSettings_v1 obj = RusdSettings_v1.__new__(RusdSettings_v1)
-        if owner is None:
-            obj._ptr = <nvmlRusdSettings_v1_t *>malloc(sizeof(nvmlRusdSettings_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating RusdSettings_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRusdSettings_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlRusdSettings_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -16860,27 +14967,19 @@ cdef class BridgeChipHierarchy:
     @property
     def bridge_chip_info(self):
         """BridgeChipInfo: """
-        return BridgeChipInfo.from_ptr(<intptr_t>&(self._ptr[0].bridgeChipInfo), 128, self._readonly)
+        return BridgeChipInfo.from_ptr(<intptr_t>&(self._ptr[0].bridgeChipInfo), self._ptr[0].bridgeCount, self._readonly)
 
     @bridge_chip_info.setter
     def bridge_chip_info(self, val):
         if self._readonly:
             raise ValueError("This BridgeChipHierarchy instance is read-only")
         cdef BridgeChipInfo val_ = val
-        if len(val) != 128:
-            raise ValueError(f"Expected length 128 for field bridge_chip_info, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].bridgeChipInfo), <void *>(val_._get_ptr()), sizeof(nvmlBridgeChipInfo_t) * 128)
-
-    @property
-    def bridge_count(self):
-        """int: """
-        return self._ptr[0].bridgeCount
-
-    @bridge_count.setter
-    def bridge_count(self, val):
-        if self._readonly:
-            raise ValueError("This BridgeChipHierarchy instance is read-only")
-        self._ptr[0].bridgeCount = val
+        if len(val) > 128:
+            raise ValueError(f"Expected length < 128 for field bridge_chip_info, got {len(val)}")
+        self._ptr[0].bridgeCount = len(val)
+        if len(val) == 0:
+            return
+        memcpy(<void *>&(self._ptr[0].bridgeChipInfo), <void *>(val_._get_ptr()), sizeof(nvmlBridgeChipInfo_t) * self._ptr[0].bridgeCount)
 
     @staticmethod
     def from_data(data):
@@ -17057,6 +15156,192 @@ cdef class Sample:
         cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=sample_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+cdef _get_vgpu_instance_utilization_sample_dtype_offsets():
+    cdef nvmlVgpuInstanceUtilizationSample_t pod = nvmlVgpuInstanceUtilizationSample_t()
+    return _numpy.dtype({
+        'names': ['vgpu_instance', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+        'formats': [_numpy.uint32, _numpy.uint64, value_dtype, value_dtype, value_dtype, value_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuInstanceUtilizationSample_t),
+    })
+
+vgpu_instance_utilization_sample_dtype = _get_vgpu_instance_utilization_sample_dtype_offsets()
+
+cdef class VgpuInstanceUtilizationSample:
+    """Empty-initialize an array of `nvmlVgpuInstanceUtilizationSample_t`.
+
+    The resulting object is of length `size` and of dtype `vgpu_instance_utilization_sample_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `nvmlVgpuInstanceUtilizationSample_t`
+    """
+    cdef:
+        readonly object _data
+
+
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationSample_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationSample_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.VgpuInstanceUtilizationSample_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.VgpuInstanceUtilizationSample object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, VgpuInstanceUtilizationSample)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    @property
+    def vgpu_instance(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.vgpu_instance[0])
+        return self._data.vgpu_instance
+
+    @vgpu_instance.setter
+    def vgpu_instance(self, val):
+        self._data.vgpu_instance = val
+
+    @property
+    def time_stamp(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.time_stamp[0])
+        return self._data.time_stamp
+
+    @time_stamp.setter
+    def time_stamp(self, val):
+        self._data.time_stamp = val
+
+    @property
+    def sm_util(self):
+        """value_dtype: """
+        return self._data.sm_util
+
+    @sm_util.setter
+    def sm_util(self, val):
+        self._data.sm_util = val
+
+    @property
+    def mem_util(self):
+        """value_dtype: """
+        return self._data.mem_util
+
+    @mem_util.setter
+    def mem_util(self, val):
+        self._data.mem_util = val
+
+    @property
+    def enc_util(self):
+        """value_dtype: """
+        return self._data.enc_util
+
+    @enc_util.setter
+    def enc_util(self, val):
+        self._data.enc_util = val
+
+    @property
+    def dec_util(self):
+        """value_dtype: """
+        return self._data.dec_util
+
+    @dec_util.setter
+    def dec_util(self, val):
+        self._data.dec_util = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return VgpuInstanceUtilizationSample.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_instance_utilization_sample_dtype:
+            return VgpuInstanceUtilizationSample.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuInstanceUtilizationSample instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `vgpu_instance_utilization_sample_dtype` holding the data.
+        """
+        cdef VgpuInstanceUtilizationSample obj = VgpuInstanceUtilizationSample.__new__(VgpuInstanceUtilizationSample)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != vgpu_instance_utilization_sample_dtype:
+            raise ValueError("data array must be of dtype vgpu_instance_utilization_sample_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an VgpuInstanceUtilizationSample instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuInstanceUtilizationSample obj = VgpuInstanceUtilizationSample.__new__(VgpuInstanceUtilizationSample)
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationSample_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_sample_dtype)
         obj._data = data.view(_numpy.recarray)
 
         return obj
@@ -17702,7 +15987,7 @@ cdef class GpuThermalSettings:
             raise ValueError("This GpuThermalSettings instance is read-only")
         cdef _py_anon_pod0 val_ = val
         if len(val) != 3:
-            raise ValueError(f"Expected length 3 for field sensor, got {len(val)}")
+            raise ValueError(f"Expected length { 3 } for field sensor, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(_anon_pod0) * 3)
 
     @property
@@ -17830,16 +16115,19 @@ cdef class ClkMonStatus:
     @property
     def clk_mon_list(self):
         """ClkMonFaultInfo: """
-        return ClkMonFaultInfo.from_ptr(<intptr_t>&(self._ptr[0].clkMonList), 32, self._readonly)
+        return ClkMonFaultInfo.from_ptr(<intptr_t>&(self._ptr[0].clkMonList), self._ptr[0].clkMonListSize, self._readonly)
 
     @clk_mon_list.setter
     def clk_mon_list(self, val):
         if self._readonly:
             raise ValueError("This ClkMonStatus instance is read-only")
         cdef ClkMonFaultInfo val_ = val
-        if len(val) != 32:
-            raise ValueError(f"Expected length 32 for field clk_mon_list, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].clkMonList), <void *>(val_._get_ptr()), sizeof(nvmlClkMonFaultInfo_t) * 32)
+        if len(val) > 32:
+            raise ValueError(f"Expected length < 32 for field clk_mon_list, got {len(val)}")
+        self._ptr[0].clkMonListSize = len(val)
+        if len(val) == 0:
+            return
+        memcpy(<void *>&(self._ptr[0].clkMonList), <void *>(val_._get_ptr()), sizeof(nvmlClkMonFaultInfo_t) * self._ptr[0].clkMonListSize)
 
     @property
     def b_global_status(self):
@@ -17851,17 +16139,6 @@ cdef class ClkMonStatus:
         if self._readonly:
             raise ValueError("This ClkMonStatus instance is read-only")
         self._ptr[0].bGlobalStatus = val
-
-    @property
-    def clk_mon_list_size(self):
-        """int: """
-        return self._ptr[0].clkMonListSize
-
-    @clk_mon_list_size.setter
-    def clk_mon_list_size(self, val):
-        if self._readonly:
-            raise ValueError("This ClkMonStatus instance is read-only")
-        self._ptr[0].clkMonListSize = val
 
     @staticmethod
     def from_data(data):
@@ -18137,7 +16414,7 @@ cdef class GpuDynamicPstatesInfo:
             raise ValueError("This GpuDynamicPstatesInfo instance is read-only")
         cdef _py_anon_pod1 val_ = val
         if len(val) != 8:
-            raise ValueError(f"Expected length 8 for field utilization, got {len(val)}")
+            raise ValueError(f"Expected length { 8 } for field utilization, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(_anon_pod1) * 8)
 
     @property
@@ -19016,7 +17293,7 @@ cdef class UnitFanSpeeds:
             raise ValueError("This UnitFanSpeeds instance is read-only")
         cdef UnitFanInfo val_ = val
         if len(val) != 24:
-            raise ValueError(f"Expected length 24 for field fans, got {len(val)}")
+            raise ValueError(f"Expected length { 24 } for field fans, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].fans), <void *>(val_._get_ptr()), sizeof(nvmlUnitFanInfo_t) * 24)
 
     @property
@@ -19820,7 +18097,7 @@ cdef class NvlinkFirmwareInfo:
             raise ValueError("This NvlinkFirmwareInfo instance is read-only")
         cdef NvlinkFirmwareVersion val_ = val
         if len(val) != 100:
-            raise ValueError(f"Expected length 100 for field firmware_version, got {len(val)}")
+            raise ValueError(f"Expected length { 100 } for field firmware_version, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * 100)
 
     @property
@@ -20051,133 +18328,141 @@ cdef _get_prm_counter_v1_dtype_offsets():
 prm_counter_v1_dtype = _get_prm_counter_v1_dtype_offsets()
 
 cdef class PRMCounter_v1:
-    """Empty-initialize an instance of `nvmlPRMCounter_v1_t`.
+    """Empty-initialize an array of `nvmlPRMCounter_v1_t`.
+
+    The resulting object is of length `size` and of dtype `prm_counter_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
 
 
     .. seealso:: `nvmlPRMCounter_v1_t`
     """
     cdef:
-        nvmlPRMCounter_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
+        readonly object _data
 
-    def __init__(self):
-        self._ptr = <nvmlPRMCounter_v1_t *>calloc(1, sizeof(nvmlPRMCounter_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PRMCounter_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
 
-    def __dealloc__(self):
-        cdef nvmlPRMCounter_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPRMCounter_v1_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPRMCounter_v1_t) }"
 
     def __repr__(self):
-        return f"<{__name__}.PRMCounter_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.PRMCounter_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PRMCounter_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef PRMCounter_v1 other_
-        if not isinstance(other, PRMCounter_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, PRMCounter_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounter_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPRMCounter_v1_t *>malloc(sizeof(nvmlPRMCounter_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PRMCounter_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounter_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def in_data(self):
-        """PRMCounterInput_v1: PRM input values."""
-        return PRMCounterInput_v1.from_ptr(<intptr_t>&(self._ptr[0].inData), self._readonly, self)
-
-    @in_data.setter
-    def in_data(self, val):
-        if self._readonly:
-            raise ValueError("This PRMCounter_v1 instance is read-only")
-        cdef PRMCounterInput_v1 val_ = val
-        memcpy(<void *>&(self._ptr[0].inData), <void *>(val_._get_ptr()), sizeof(nvmlPRMCounterInput_v1_t) * 1)
-
-    @property
-    def counter_value(self):
-        """PRMCounterValue_v1: Counter value."""
-        return PRMCounterValue_v1.from_ptr(<intptr_t>&(self._ptr[0].counterValue), self._readonly, self)
-
-    @counter_value.setter
-    def counter_value(self, val):
-        if self._readonly:
-            raise ValueError("This PRMCounter_v1 instance is read-only")
-        cdef PRMCounterValue_v1 val_ = val
-        memcpy(<void *>&(self._ptr[0].counterValue), <void *>(val_._get_ptr()), sizeof(nvmlPRMCounterValue_v1_t) * 1)
+        return bool((self_data == other._data).all())
 
     @property
     def counter_id(self):
-        """int: Counter ID, one of nvmlPRMCounterId_t."""
-        return self._ptr[0].counterId
+        """Union[~_numpy.uint32, int]: Counter ID, one of nvmlPRMCounterId_t."""
+        if self._data.size == 1:
+            return int(self._data.counter_id[0])
+        return self._data.counter_id
 
     @counter_id.setter
     def counter_id(self, val):
-        if self._readonly:
-            raise ValueError("This PRMCounter_v1 instance is read-only")
-        self._ptr[0].counterId = val
+        self._data.counter_id = val
+
+    @property
+    def in_data(self):
+        """prm_counter_input_v1_dtype: PRM input values."""
+        return self._data.in_data
+
+    @in_data.setter
+    def in_data(self, val):
+        self._data.in_data = val
+
+    @property
+    def counter_value(self):
+        """prm_counter_value_v1_dtype: Counter value."""
+        return self._data.counter_value
+
+    @counter_value.setter
+    def counter_value(self, val):
+        self._data.counter_value = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PRMCounter_v1.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == prm_counter_v1_dtype:
+            return PRMCounter_v1.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_data(data):
         """Create an PRMCounter_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `prm_counter_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `prm_counter_v1_dtype` holding the data.
         """
-        return __from_data(data, "prm_counter_v1_dtype", prm_counter_v1_dtype, PRMCounter_v1)
+        cdef PRMCounter_v1 obj = PRMCounter_v1.__new__(PRMCounter_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != prm_counter_v1_dtype:
+            raise ValueError("data array must be of dtype prm_counter_v1_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
         """Create an PRMCounter_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef PRMCounter_v1 obj = PRMCounter_v1.__new__(PRMCounter_v1)
-        if owner is None:
-            obj._ptr = <nvmlPRMCounter_v1_t *>malloc(sizeof(nvmlPRMCounter_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PRMCounter_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounter_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlPRMCounter_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPRMCounter_v1_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=prm_counter_v1_dtype)
+        obj._data = data.view(_numpy.recarray)
+
         return obj
 
 
@@ -20282,7 +18567,7 @@ cdef class VgpuSchedulerLog:
             raise ValueError("This VgpuSchedulerLog instance is read-only")
         cdef VgpuSchedulerLogEntry val_ = val
         if len(val) != 200:
-            raise ValueError(f"Expected length 200 for field log_entries, got {len(val)}")
+            raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_t) * 200)
 
     @property
@@ -20781,7 +19066,7 @@ cdef class VgpuSchedulerLogInfo_v1:
             raise ValueError("This VgpuSchedulerLogInfo_v1 instance is read-only")
         cdef VgpuSchedulerLogEntry val_ = val
         if len(val) != 200:
-            raise ValueError(f"Expected length 200 for field log_entries, got {len(val)}")
+            raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_t) * 200)
 
     @property
@@ -21122,16 +19407,19 @@ cdef class GridLicensableFeatures:
     @property
     def grid_licensable_features(self):
         """GridLicensableFeature: """
-        return GridLicensableFeature.from_ptr(<intptr_t>&(self._ptr[0].gridLicensableFeatures), 3, self._readonly)
+        return GridLicensableFeature.from_ptr(<intptr_t>&(self._ptr[0].gridLicensableFeatures), self._ptr[0].licensableFeaturesCount, self._readonly)
 
     @grid_licensable_features.setter
     def grid_licensable_features(self, val):
         if self._readonly:
             raise ValueError("This GridLicensableFeatures instance is read-only")
         cdef GridLicensableFeature val_ = val
-        if len(val) != 3:
-            raise ValueError(f"Expected length 3 for field grid_licensable_features, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].gridLicensableFeatures), <void *>(val_._get_ptr()), sizeof(nvmlGridLicensableFeature_t) * 3)
+        if len(val) > 3:
+            raise ValueError(f"Expected length < 3 for field grid_licensable_features, got {len(val)}")
+        self._ptr[0].licensableFeaturesCount = len(val)
+        if len(val) == 0:
+            return
+        memcpy(<void *>&(self._ptr[0].gridLicensableFeatures), <void *>(val_._get_ptr()), sizeof(nvmlGridLicensableFeature_t) * self._ptr[0].licensableFeaturesCount)
 
     @property
     def is_grid_license_supported(self):
@@ -21143,17 +19431,6 @@ cdef class GridLicensableFeatures:
         if self._readonly:
             raise ValueError("This GridLicensableFeatures instance is read-only")
         self._ptr[0].isGridLicenseSupported = val
-
-    @property
-    def licensable_features_count(self):
-        """int: """
-        return self._ptr[0].licensableFeaturesCount
-
-    @licensable_features_count.setter
-    def licensable_features_count(self, val):
-        if self._readonly:
-            raise ValueError("This GridLicensableFeatures instance is read-only")
-        self._ptr[0].licensableFeaturesCount = val
 
     @staticmethod
     def from_data(data):
@@ -21333,135 +19610,6 @@ cdef class NvLinkInfo_v2:
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
-        return obj
-
-
-cdef _get_prm_counter_list_v1_dtype_offsets():
-    cdef nvmlPRMCounterList_v1_t pod = nvmlPRMCounterList_v1_t()
-    return _numpy.dtype({
-        'names': ['num_counters', 'counters'],
-        'formats': [_numpy.uint32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.numCounters)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.counters)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPRMCounterList_v1_t),
-    })
-
-prm_counter_list_v1_dtype = _get_prm_counter_list_v1_dtype_offsets()
-
-cdef class PRMCounterList_v1:
-    """Empty-initialize an instance of `nvmlPRMCounterList_v1_t`.
-
-
-    .. seealso:: `nvmlPRMCounterList_v1_t`
-    """
-    cdef:
-        nvmlPRMCounterList_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-        dict _refs
-
-    def __init__(self):
-        self._ptr = <nvmlPRMCounterList_v1_t *>calloc(1, sizeof(nvmlPRMCounterList_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PRMCounterList_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-        self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlPRMCounterList_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.PRMCounterList_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef PRMCounterList_v1 other_
-        if not isinstance(other, PRMCounterList_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterList_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPRMCounterList_v1_t *>malloc(sizeof(nvmlPRMCounterList_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PRMCounterList_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterList_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def counters(self):
-        """int: Pointer to array of PRM counters."""
-        if self._ptr[0].counters == NULL or self._ptr[0].numCounters == 0:
-            return []
-        return PRMCounter_v1.from_ptr(<intptr_t>(self._ptr[0].counters), self._ptr[0].numCounters)
-
-    @counters.setter
-    def counters(self, val):
-        if self._readonly:
-            raise ValueError("This PRMCounterList_v1 instance is read-only")
-        cdef PRMCounter_v1 arr = val
-        self._ptr[0].counters = <nvmlPRMCounter_v1_t*><intptr_t>(arr._get_ptr())
-        self._ptr[0].numCounters = len(arr)
-        self._refs["counters"] = arr
-
-    @staticmethod
-    def from_data(data):
-        """Create an PRMCounterList_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `prm_counter_list_v1_dtype` holding the data.
-        """
-        return __from_data(data, "prm_counter_list_v1_dtype", prm_counter_list_v1_dtype, PRMCounterList_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an PRMCounterList_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef PRMCounterList_v1 obj = PRMCounterList_v1.__new__(PRMCounterList_v1)
-        if owner is None:
-            obj._ptr = <nvmlPRMCounterList_v1_t *>malloc(sizeof(nvmlPRMCounterList_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PRMCounterList_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterList_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlPRMCounterList_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        obj._refs = {}
         return obj
 
 
@@ -21823,24 +19971,6 @@ cpdef intptr_t device_get_handle_by_uuid(uuid) except? 0:
     cdef Device device
     with nogil:
         __status__ = nvmlDeviceGetHandleByUUID(<const char*>_uuid_, &device)
-    check_status(__status__)
-    return <intptr_t>device
-
-
-cpdef intptr_t device_get_handle_by_uuidv(intptr_t uuid) except? 0:
-    """Acquire the handle for a particular device, based on its globally unique immutable UUID (in either ASCII or binary format) associated with each device. See ``nvmlUUID_v1_t`` for more information on the UUID struct. The caller must set the appropriate version prior to calling this API.
-
-    Args:
-        uuid (intptr_t): The UUID of the target GPU or MIG instance.
-
-    Returns:
-        intptr_t: Reference in which to return the device handle or MIG device handle.
-
-    .. seealso:: `nvmlDeviceGetHandleByUUIDV`
-    """
-    cdef Device device
-    with nogil:
-        __status__ = nvmlDeviceGetHandleByUUIDV(<const nvmlUUID_t*>uuid, &device)
     check_status(__status__)
     return <intptr_t>device
 
@@ -22317,7 +20447,7 @@ cpdef object device_get_pci_info_ext(intptr_t device):
     """
     cdef PciInfoExt_v1 pci_py = PciInfoExt_v1()
     cdef nvmlPciInfoExt_t *pci = <nvmlPciInfoExt_t *><intptr_t>(pci_py._get_ptr())
-    pci.version = sizeof(nvmlPciInfoExt_v1_t) | (1 << 24)
+    pci.version = NVML_VERSION_STRUCT(sizeof(nvmlPciInfoExt_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetPciInfoExt(<Device>device, pci)
     check_status(__status__)
@@ -22669,26 +20799,6 @@ cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) ex
     return speed
 
 
-cpdef object device_get_fan_speed_rpm(intptr_t device):
-    """Retrieves the intended operating speed in rotations per minute (RPM) of the device's specified fan.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlFanSpeedInfo_v1_t: Structure specifying the index of the target fan (input) and retrieved fan speed value (output).
-
-    .. seealso:: `nvmlDeviceGetFanSpeedRPM`
-    """
-    cdef FanSpeedInfo_v1 fan_speed_py = FanSpeedInfo_v1()
-    cdef nvmlFanSpeedInfo_t *fan_speed = <nvmlFanSpeedInfo_t *><intptr_t>(fan_speed_py._get_ptr())
-    fan_speed.version = sizeof(nvmlFanSpeedInfo_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetFanSpeedRPM(<Device>device, fan_speed)
-    check_status(__status__)
-    return fan_speed_py
-
-
 cpdef unsigned int device_get_target_fan_speed(intptr_t device, unsigned int fan) except? 0:
     """Retrieves the intended target speed of the device's specified fan.
 
@@ -22780,7 +20890,7 @@ cpdef object device_get_cooler_info(intptr_t device):
     """
     cdef CoolerInfo_v1 cooler_info_py = CoolerInfo_v1()
     cdef nvmlCoolerInfo_t *cooler_info = <nvmlCoolerInfo_t *><intptr_t>(cooler_info_py._get_ptr())
-    cooler_info.version = sizeof(nvmlCoolerInfo_v1_t) | (1 << 24)
+    cooler_info.version = NVML_VERSION_STRUCT(sizeof(nvmlCoolerInfo_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetCoolerInfo(<Device>device, cooler_info)
     check_status(__status__)
@@ -22804,26 +20914,6 @@ cpdef unsigned int device_get_temperature_threshold(intptr_t device, int thresho
         __status__ = nvmlDeviceGetTemperatureThreshold(<Device>device, <_TemperatureThresholds>threshold_type, &temp)
     check_status(__status__)
     return temp
-
-
-cpdef object device_get_margin_temperature(intptr_t device):
-    """Retrieves the thermal margin temperature (distance to nearest slowdown threshold).
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlMarginTemperature_v1_t: Versioned structure in which to return the temperature reading.
-
-    .. seealso:: `nvmlDeviceGetMarginTemperature`
-    """
-    cdef MarginTemperature_v1 margin_temp_info_py = MarginTemperature_v1()
-    cdef nvmlMarginTemperature_t *margin_temp_info = <nvmlMarginTemperature_t *><intptr_t>(margin_temp_info_py._get_ptr())
-    margin_temp_info.version = sizeof(nvmlMarginTemperature_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetMarginTemperature(<Device>device, margin_temp_info)
-    check_status(__status__)
-    return margin_temp_info_py
 
 
 cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex):
@@ -23023,26 +21113,6 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
     return (min_offset, max_offset)
 
 
-cpdef object device_get_clock_offsets(intptr_t device):
-    """Retrieve min, max and current clock offset of some clock domain for a given PState.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlClockOffset_v1_t: Structure specifying the clock type (input) and the pstate (input) retrieved clock offset value (output), min clock offset (output) and max clock offset (output).
-
-    .. seealso:: `nvmlDeviceGetClockOffsets`
-    """
-    cdef ClockOffset_v1 info_py = ClockOffset_v1()
-    cdef nvmlClockOffset_t *info = <nvmlClockOffset_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlClockOffset_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetClockOffsets(<Device>device, info)
-    check_status(__status__)
-    return info_py
-
-
 cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
     """Control current clock offset of some clock domain for a given PState.
 
@@ -23055,46 +21125,6 @@ cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
     with nogil:
         __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>info)
     check_status(__status__)
-
-
-cpdef object device_get_performance_modes(intptr_t device):
-    """Retrieves a performance mode string with all the performance modes defined for this device along with their associated GPU Clock and Memory Clock values. Not all tokens will be reported on all GPUs, and additional tokens may be added in the future. For backwards compatibility we still provide nvclock and memclock; those are the same as nvclockmin and memclockmin.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlDevicePerfModes_v1_t: Reference in which to return the performance level string.
-
-    .. seealso:: `nvmlDeviceGetPerformanceModes`
-    """
-    cdef DevicePerfModes_v1 perf_modes_py = DevicePerfModes_v1()
-    cdef nvmlDevicePerfModes_t *perf_modes = <nvmlDevicePerfModes_t *><intptr_t>(perf_modes_py._get_ptr())
-    perf_modes.version = sizeof(nvmlDevicePerfModes_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetPerformanceModes(<Device>device, perf_modes)
-    check_status(__status__)
-    return perf_modes_py
-
-
-cpdef object device_get_current_clock_freqs(intptr_t device):
-    """Retrieves a string with the associated current GPU Clock and Memory Clock values.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlDeviceCurrentClockFreqs_v1_t: Reference in which to return the performance level string.
-
-    .. seealso:: `nvmlDeviceGetCurrentClockFreqs`
-    """
-    cdef DeviceCurrentClockFreqs_v1 current_clock_freqs_py = DeviceCurrentClockFreqs_v1()
-    cdef nvmlDeviceCurrentClockFreqs_t *current_clock_freqs = <nvmlDeviceCurrentClockFreqs_t *><intptr_t>(current_clock_freqs_py._get_ptr())
-    current_clock_freqs.version = sizeof(nvmlDeviceCurrentClockFreqs_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetCurrentClockFreqs(<Device>device, current_clock_freqs)
-    check_status(__status__)
-    return current_clock_freqs_py
 
 
 cpdef unsigned int device_get_power_management_limit(intptr_t device) except? 0:
@@ -23232,7 +21262,7 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
 
 cpdef object device_get_memory_info_v2(intptr_t device):
-    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. The reserved amount is supported on version 2 only.
+    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. nvmlDeviceGetMemoryInfo_v2 accounts separately for reserved memory and includes it in the used memory amount.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -23244,7 +21274,7 @@ cpdef object device_get_memory_info_v2(intptr_t device):
     """
     cdef Memory_v2 memory_py = Memory_v2()
     cdef nvmlMemory_v2_t *memory = <nvmlMemory_v2_t *><intptr_t>(memory_py._get_ptr())
-    memory.version = sizeof(nvmlMemory_v2_t) | (2 << 24)
+    memory.version = NVML_VERSION_STRUCT(sizeof(nvmlMemory_v2_t), 2)
     with nogil:
         __status__ = nvmlDeviceGetMemoryInfo_v2(<Device>device, memory)
     check_status(__status__)
@@ -23289,42 +21319,6 @@ cpdef tuple device_get_cuda_compute_capability(intptr_t device):
         __status__ = nvmlDeviceGetCudaComputeCapability(<Device>device, &major, &minor)
     check_status(__status__)
     return (major, minor)
-
-
-cpdef tuple device_get_dram_encryption_mode(intptr_t device):
-    """Retrieves the current and pending DRAM Encryption modes for the device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        A 2-tuple containing:
-
-        - nvmlDramEncryptionInfo_v1_t: Reference in which to return the current DRAM Encryption mode.
-        - nvmlDramEncryptionInfo_v1_t: Reference in which to return the pending DRAM Encryption mode.
-
-    .. seealso:: `nvmlDeviceGetDramEncryptionMode`
-    """
-    cdef nvmlDramEncryptionInfo_t current
-    cdef nvmlDramEncryptionInfo_t pending
-    with nogil:
-        __status__ = nvmlDeviceGetDramEncryptionMode(<Device>device, &current, &pending)
-    check_status(__status__)
-    return (<nvmlDramEncryptionInfo_v1_t>current, <nvmlDramEncryptionInfo_v1_t>pending)
-
-
-cpdef device_set_dram_encryption_mode(intptr_t device, intptr_t dram_encryption):
-    """Set the DRAM Encryption mode for the device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        dram_encryption (intptr_t): The target DRAM Encryption mode.
-
-    .. seealso:: `nvmlDeviceSetDramEncryptionMode`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetDramEncryptionMode(<Device>device, <const nvmlDramEncryptionInfo_t*>dram_encryption)
-    check_status(__status__)
 
 
 cpdef tuple device_get_ecc_mode(intptr_t device):
@@ -24063,42 +22057,6 @@ cpdef object device_get_conf_compute_gpu_certificate(intptr_t device):
     return gpu_cert_py
 
 
-cpdef object device_get_conf_compute_gpu_attestation_report(intptr_t device):
-    """Get Conf Computing GPU attestation report.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlConfComputeGpuAttestationReport_t: Reference in which to return the gpu attestation report.
-
-    .. seealso:: `nvmlDeviceGetConfComputeGpuAttestationReport`
-    """
-    cdef ConfComputeGpuAttestationReport gpu_atst_report_py = ConfComputeGpuAttestationReport()
-    cdef nvmlConfComputeGpuAttestationReport_t *gpu_atst_report = <nvmlConfComputeGpuAttestationReport_t *><intptr_t>(gpu_atst_report_py._get_ptr())
-    with nogil:
-        __status__ = nvmlDeviceGetConfComputeGpuAttestationReport(<Device>device, gpu_atst_report)
-    check_status(__status__)
-    return gpu_atst_report_py
-
-
-cpdef object system_get_conf_compute_key_rotation_threshold_info():
-    """Get Conf Computing key rotation threshold detail.
-
-    Returns:
-        nvmlConfComputeGetKeyRotationThresholdInfo_v1_t: Reference in which to return the key rotation threshold data.
-
-    .. seealso:: `nvmlSystemGetConfComputeKeyRotationThresholdInfo`
-    """
-    cdef ConfComputeGetKeyRotationThresholdInfo_v1 p_key_rotation_thr_info_py = ConfComputeGetKeyRotationThresholdInfo_v1()
-    cdef nvmlConfComputeGetKeyRotationThresholdInfo_t *p_key_rotation_thr_info = <nvmlConfComputeGetKeyRotationThresholdInfo_t *><intptr_t>(p_key_rotation_thr_info_py._get_ptr())
-    p_key_rotation_thr_info.version = sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlSystemGetConfComputeKeyRotationThresholdInfo(p_key_rotation_thr_info)
-    check_status(__status__)
-    return p_key_rotation_thr_info_py
-
-
 cpdef device_set_conf_compute_unprotected_mem_size(intptr_t device, unsigned long long size_ki_b):
     """Set Conf Computing Unprotected Memory Size.
 
@@ -24126,19 +22084,6 @@ cpdef system_set_conf_compute_gpus_ready_state(unsigned int is_accepting_work):
     check_status(__status__)
 
 
-cpdef system_set_conf_compute_key_rotation_threshold_info(intptr_t p_key_rotation_thr_info):
-    """Set Conf Computing key rotation threshold.
-
-    Args:
-        p_key_rotation_thr_info (intptr_t): Reference to the key rotation threshold data.
-
-    .. seealso:: `nvmlSystemSetConfComputeKeyRotationThresholdInfo`
-    """
-    with nogil:
-        __status__ = nvmlSystemSetConfComputeKeyRotationThresholdInfo(<nvmlConfComputeSetKeyRotationThresholdInfo_t*>p_key_rotation_thr_info)
-    check_status(__status__)
-
-
 cpdef object system_get_conf_compute_settings():
     """Get Conf Computing System Settings.
 
@@ -24149,7 +22094,7 @@ cpdef object system_get_conf_compute_settings():
     """
     cdef SystemConfComputeSettings_v1 settings_py = SystemConfComputeSettings_v1()
     cdef nvmlSystemConfComputeSettings_t *settings = <nvmlSystemConfComputeSettings_t *><intptr_t>(settings_py._get_ptr())
-    settings.version = sizeof(nvmlSystemConfComputeSettings_v1_t) | (1 << 24)
+    settings.version = NVML_VERSION_STRUCT(sizeof(nvmlSystemConfComputeSettings_v1_t), 1)
     with nogil:
         __status__ = nvmlSystemGetConfComputeSettings(settings)
     check_status(__status__)
@@ -24209,7 +22154,7 @@ cpdef object device_get_sram_ecc_error_status(intptr_t device):
     """
     cdef EccSramErrorStatus_v1 status_py = EccSramErrorStatus_v1()
     cdef nvmlEccSramErrorStatus_t *status = <nvmlEccSramErrorStatus_t *><intptr_t>(status_py._get_ptr())
-    status.version = sizeof(nvmlEccSramErrorStatus_v1_t) | (1 << 24)
+    status.version = NVML_VERSION_STRUCT(sizeof(nvmlEccSramErrorStatus_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetSramEccErrorStatus(<Device>device, status)
     check_status(__status__)
@@ -24639,35 +22584,6 @@ cpdef device_set_fan_control_policy(intptr_t device, unsigned int fan, unsigned 
     check_status(__status__)
 
 
-cpdef device_set_temperature_threshold(intptr_t device, int threshold_type, intptr_t temp):
-    """Sets the temperature threshold for the GPU with the specified threshold type in degrees C.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        threshold_type (TemperatureThresholds): The type of threshold value to be set.
-        temp (intptr_t): Reference which hold the value to be set.
-
-    .. seealso:: `nvmlDeviceSetTemperatureThreshold`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetTemperatureThreshold(<Device>device, <_TemperatureThresholds>threshold_type, <int*>temp)
-    check_status(__status__)
-
-
-cpdef device_set_power_management_limit(intptr_t device, unsigned int limit):
-    """Set new power limit of this device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        limit (unsigned int): Power management limit in milliwatts to set.
-
-    .. seealso:: `nvmlDeviceSetPowerManagementLimit`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetPowerManagementLimit(<Device>device, limit)
-    check_status(__status__)
-
-
 cpdef device_set_gpu_operation_mode(intptr_t device, int mode):
     """Sets new GOM. See ``nvmlGpuOperationMode_t`` for details.
 
@@ -24739,20 +22655,6 @@ cpdef device_clear_accounting_pids(intptr_t device):
     check_status(__status__)
 
 
-cpdef device_set_power_management_limit_v2(intptr_t device, intptr_t power_value):
-    """Set new power limit of this device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        power_value (intptr_t): Power management limit in milliwatts to set.
-
-    .. seealso:: `nvmlDeviceSetPowerManagementLimit_v2`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetPowerManagementLimit_v2(<Device>device, <nvmlPowerValue_v2_t*>power_value)
-    check_status(__status__)
-
-
 cpdef int device_get_nvlink_state(intptr_t device, unsigned int link) except? -1:
     """Retrieves the state of the device's NvLink for the link specified.
 
@@ -24780,7 +22682,7 @@ cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link)
         link (unsigned int): Specifies the NvLink link to be queried.
 
     Returns:
-        unsigned int: Requested NvLink version from nvmlNvlinkVersion_t.
+        unsigned int: Requested NvLink version from ``nvmlNvlinkVersion_t``.
 
     .. seealso:: `nvmlDeviceGetNvLinkVersion`
     """
@@ -24884,20 +22786,6 @@ cpdef int device_get_nvlink_remote_device_type(intptr_t device, unsigned int lin
     return <int>p_nv_link_device_type
 
 
-cpdef device_set_nvlink_device_low_power_threshold(intptr_t device, intptr_t info):
-    """Set NvLink Low Power Threshold for device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        info (intptr_t): Reference to ``nvmlNvLinkPowerThres_t`` struct input parameters.
-
-    .. seealso:: `nvmlDeviceSetNvLinkDeviceLowPowerThreshold`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetNvLinkDeviceLowPowerThreshold(<Device>device, <nvmlNvLinkPowerThres_t*>info)
-    check_status(__status__)
-
-
 cpdef system_set_nvlink_bw_mode(unsigned int nvlink_bw_mode):
     """Set the global nvlink bandwith mode.
 
@@ -24939,7 +22827,7 @@ cpdef object device_get_nvlink_supported_bw_modes(intptr_t device):
     """
     cdef NvlinkSupportedBwModes_v1 supported_bw_mode_py = NvlinkSupportedBwModes_v1()
     cdef nvmlNvlinkSupportedBwModes_t *supported_bw_mode = <nvmlNvlinkSupportedBwModes_t *><intptr_t>(supported_bw_mode_py._get_ptr())
-    supported_bw_mode.version = sizeof(nvmlNvlinkSupportedBwModes_v1_t) | (1 << 24)
+    supported_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSupportedBwModes_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetNvlinkSupportedBwModes(<Device>device, supported_bw_mode)
     check_status(__status__)
@@ -24959,7 +22847,7 @@ cpdef object device_get_nvlink_bw_mode(intptr_t device):
     """
     cdef NvlinkGetBwMode_v1 get_bw_mode_py = NvlinkGetBwMode_v1()
     cdef nvmlNvlinkGetBwMode_t *get_bw_mode = <nvmlNvlinkGetBwMode_t *><intptr_t>(get_bw_mode_py._get_ptr())
-    get_bw_mode.version = sizeof(nvmlNvlinkGetBwMode_v1_t) | (1 << 24)
+    get_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkGetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetNvlinkBwMode(<Device>device, get_bw_mode)
     check_status(__status__)
@@ -24975,7 +22863,7 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
-    set_bw_mode.version = sizeof(nvmlNvlinkSetBwMode_v1_t) | (1 << 24)
+    set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>set_bw_mode)
     check_status(__status__)
@@ -25172,80 +23060,6 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
     check_status(__status__)
 
 
-cpdef object device_get_vgpu_heterogeneous_mode(intptr_t device):
-    """Get the vGPU heterogeneous mode for the device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlVgpuHeterogeneousMode_v1_t: Pointer to the caller-provided structure of nvmlVgpuHeterogeneousMode_t.
-
-    .. seealso:: `nvmlDeviceGetVgpuHeterogeneousMode`
-    """
-    cdef VgpuHeterogeneousMode_v1 p_heterogeneous_mode_py = VgpuHeterogeneousMode_v1()
-    cdef nvmlVgpuHeterogeneousMode_t *p_heterogeneous_mode = <nvmlVgpuHeterogeneousMode_t *><intptr_t>(p_heterogeneous_mode_py._get_ptr())
-    p_heterogeneous_mode.version = sizeof(nvmlVgpuHeterogeneousMode_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuHeterogeneousMode(<Device>device, p_heterogeneous_mode)
-    check_status(__status__)
-    return p_heterogeneous_mode_py
-
-
-cpdef device_set_vgpu_heterogeneous_mode(intptr_t device, intptr_t p_heterogeneous_mode):
-    """Enable or disable vGPU heterogeneous mode for the device.
-
-    Args:
-        device (intptr_t): Identifier of the target device.
-        p_heterogeneous_mode (intptr_t): Pointer to the caller-provided structure of nvmlVgpuHeterogeneousMode_t.
-
-    .. seealso:: `nvmlDeviceSetVgpuHeterogeneousMode`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetVgpuHeterogeneousMode(<Device>device, <const nvmlVgpuHeterogeneousMode_t*>p_heterogeneous_mode)
-    check_status(__status__)
-
-
-cpdef object vgpu_instance_get_placement_id(unsigned int vgpu_instance):
-    """Query the placement ID of active vGPU instance.
-
-    Args:
-        vgpu_instance (unsigned int): Identifier of the target vGPU instance.
-
-    Returns:
-        nvmlVgpuPlacementId_v1_t: Pointer to vGPU placement ID structure ``nvmlVgpuPlacementId_t``.
-
-    .. seealso:: `nvmlVgpuInstanceGetPlacementId`
-    """
-    cdef VgpuPlacementId_v1 p_placement_py = VgpuPlacementId_v1()
-    cdef nvmlVgpuPlacementId_t *p_placement = <nvmlVgpuPlacementId_t *><intptr_t>(p_placement_py._get_ptr())
-    p_placement.version = sizeof(nvmlVgpuPlacementId_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetPlacementId(<nvmlVgpuInstance_t>vgpu_instance, p_placement)
-    check_status(__status__)
-    return p_placement_py
-
-
-cpdef object device_get_vgpu_type_supported_placements(intptr_t device, unsigned int vgpu_type_id):
-    """Query the supported vGPU placement ID of the vGPU type.
-
-    Args:
-        device (intptr_t): Identifier of the target device.
-        vgpu_type_id (unsigned int): Handle to vGPU type. The vGPU type ID.
-
-    Returns:
-        nvmlVgpuPlacementList_v2_t: Pointer to the vGPU placement structure ``nvmlVgpuPlacementList_t``.
-
-    .. seealso:: `nvmlDeviceGetVgpuTypeSupportedPlacements`
-    """
-    cdef VgpuPlacementList_v2 p_placement_list_py = VgpuPlacementList_v2()
-    cdef nvmlVgpuPlacementList_t *p_placement_list = <nvmlVgpuPlacementList_t *><intptr_t>(p_placement_list_py._get_ptr())
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuTypeSupportedPlacements(<Device>device, <nvmlVgpuTypeId_t>vgpu_type_id, p_placement_list)
-    check_status(__status__)
-    return p_placement_list_py
-
-
 cpdef unsigned long long vgpu_type_get_gsp_heap_size(unsigned int vgpu_type_id) except? 0:
     """Retrieve the static GSP heap size of the vGPU type in bytes.
 
@@ -25280,26 +23094,6 @@ cpdef unsigned long long vgpu_type_get_fb_reservation(unsigned int vgpu_type_id)
         __status__ = nvmlVgpuTypeGetFbReservation(<nvmlVgpuTypeId_t>vgpu_type_id, &fb_reservation)
     check_status(__status__)
     return fb_reservation
-
-
-cpdef object vgpu_instance_get_runtime_state_size(unsigned int vgpu_instance):
-    """Retrieve the currently used runtime state size of the vGPU instance.
-
-    Args:
-        vgpu_instance (unsigned int): Identifier of the target vGPU instance.
-
-    Returns:
-        nvmlVgpuRuntimeState_v1_t: Pointer to the vGPU runtime state's structure ``nvmlVgpuRuntimeState_t``.
-
-    .. seealso:: `nvmlVgpuInstanceGetRuntimeStateSize`
-    """
-    cdef VgpuRuntimeState_v1 p_state_py = VgpuRuntimeState_v1()
-    cdef nvmlVgpuRuntimeState_t *p_state = <nvmlVgpuRuntimeState_t *><intptr_t>(p_state_py._get_ptr())
-    p_state.version = sizeof(nvmlVgpuRuntimeState_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetRuntimeStateSize(<nvmlVgpuInstance_t>vgpu_instance, p_state)
-    check_status(__status__)
-    return p_state_py
 
 
 cpdef device_set_vgpu_capabilities(intptr_t device, int capability, int state):
@@ -25510,19 +23304,20 @@ cpdef tuple vgpu_type_get_resolution(unsigned int vgpu_type_id, unsigned int dis
     return (xdim, ydim)
 
 
-cpdef vgpu_type_get_license(unsigned int vgpu_type_id, intptr_t vgpu_type_license_string, unsigned int size):
+cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
     """Retrieve license requirements for a vGPU type.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
-        vgpu_type_license_string (intptr_t): Pointer to buffer to return license info.
-        size (unsigned int): Size of ``vgpu_type_license_string`` buffer.
 
     .. seealso:: `nvmlVgpuTypeGetLicense`
     """
+    cdef unsigned int size = 128
+    cdef char[128] vgpu_type_license_string
     with nogil:
-        __status__ = nvmlVgpuTypeGetLicense(<nvmlVgpuTypeId_t>vgpu_type_id, <char*>vgpu_type_license_string, size)
+        __status__ = nvmlVgpuTypeGetLicense(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_license_string, size)
     check_status(__status__)
+    return cpython.PyUnicode_FromString(vgpu_type_license_string)
 
 
 cpdef unsigned int vgpu_type_get_frame_rate_limit(unsigned int vgpu_type_id) except? 0:
@@ -25593,7 +23388,7 @@ cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
     """
     cdef VgpuTypeBar1Info_v1 bar1info_py = VgpuTypeBar1Info_v1()
     cdef nvmlVgpuTypeBar1Info_t *bar1info = <nvmlVgpuTypeBar1Info_t *><intptr_t>(bar1info_py._get_ptr())
-    bar1info.version = sizeof(nvmlVgpuTypeBar1Info_v1_t) | (1 << 24)
+    bar1info.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuTypeBar1Info_v1_t), 1)
     with nogil:
         __status__ = nvmlVgpuTypeGetBAR1Info(<nvmlVgpuTypeId_t>vgpu_type_id, bar1info)
     check_status(__status__)
@@ -25916,23 +23711,6 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     return cpython.PyUnicode_FromString(mdev_uuid)
 
 
-cpdef object vgpu_type_get_max_instances_per_gpu_instance():
-    """Retrieve the maximum number of vGPU instances per GPU instance for given vGPU type.
-
-    Returns:
-        nvmlVgpuTypeMaxInstance_v1_t: Pointer to the caller-provided structure of nvmlVgpuTypeMaxInstance_t.
-
-    .. seealso:: `nvmlVgpuTypeGetMaxInstancesPerGpuInstance`
-    """
-    cdef VgpuTypeMaxInstance_v1 p_max_instance_py = VgpuTypeMaxInstance_v1()
-    cdef nvmlVgpuTypeMaxInstance_t *p_max_instance = <nvmlVgpuTypeMaxInstance_t *><intptr_t>(p_max_instance_py._get_ptr())
-    p_max_instance.version = sizeof(nvmlVgpuTypeMaxInstance_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlVgpuTypeGetMaxInstancesPerGpuInstance(p_max_instance)
-    check_status(__status__)
-    return p_max_instance_py
-
-
 cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_scheduler):
     """Set vGPU scheduler state for the given GPU instance.
 
@@ -25942,6 +23720,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_sc
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
+    (<nvmlVgpuSchedulerState_t*>p_scheduler).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>p_scheduler)
     check_status(__status__)
@@ -25960,7 +23739,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
     """
     cdef VgpuSchedulerStateInfo_v1 p_scheduler_state_info_py = VgpuSchedulerStateInfo_v1()
     cdef nvmlVgpuSchedulerStateInfo_t *p_scheduler_state_info = <nvmlVgpuSchedulerStateInfo_t *><intptr_t>(p_scheduler_state_info_py._get_ptr())
-    p_scheduler_state_info.version = sizeof(nvmlVgpuSchedulerState_v1_t) | (1 << 24)
+    p_scheduler_state_info.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceGetVgpuSchedulerState(<GpuInstance>gpu_instance, p_scheduler_state_info)
     check_status(__status__)
@@ -25980,45 +23759,11 @@ cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance):
     """
     cdef VgpuSchedulerLogInfo_v1 p_scheduler_log_info_py = VgpuSchedulerLogInfo_v1()
     cdef nvmlVgpuSchedulerLogInfo_t *p_scheduler_log_info = <nvmlVgpuSchedulerLogInfo_t *><intptr_t>(p_scheduler_log_info_py._get_ptr())
-    p_scheduler_log_info.version = sizeof(nvmlVgpuSchedulerLogInfo_v1_t) | (1 << 24)
+    p_scheduler_log_info.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerLogInfo_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceGetVgpuSchedulerLog(<GpuInstance>gpu_instance, p_scheduler_log_info)
     check_status(__status__)
     return p_scheduler_log_info_py
-
-
-cpdef object gpu_instance_get_vgpu_heterogeneous_mode(intptr_t gpu_instance):
-    """Get the vGPU heterogeneous mode for the GPU instance.
-
-    Args:
-        gpu_instance (intptr_t): The GPU instance handle.
-
-    Returns:
-        nvmlVgpuHeterogeneousMode_v1_t: Pointer to the caller-provided structure of nvmlVgpuHeterogeneousMode_t.
-
-    .. seealso:: `nvmlGpuInstanceGetVgpuHeterogeneousMode`
-    """
-    cdef VgpuHeterogeneousMode_v1 p_heterogeneous_mode_py = VgpuHeterogeneousMode_v1()
-    cdef nvmlVgpuHeterogeneousMode_t *p_heterogeneous_mode = <nvmlVgpuHeterogeneousMode_t *><intptr_t>(p_heterogeneous_mode_py._get_ptr())
-    p_heterogeneous_mode.version = sizeof(nvmlVgpuHeterogeneousMode_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlGpuInstanceGetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, p_heterogeneous_mode)
-    check_status(__status__)
-    return p_heterogeneous_mode_py
-
-
-cpdef gpu_instance_set_vgpu_heterogeneous_mode(intptr_t gpu_instance, intptr_t p_heterogeneous_mode):
-    """Enable or disable vGPU heterogeneous mode for the GPU instance.
-
-    Args:
-        gpu_instance (intptr_t): The GPU instance handle.
-        p_heterogeneous_mode (intptr_t): Pointer to the caller-provided structure of nvmlVgpuHeterogeneousMode_t.
-
-    .. seealso:: `nvmlGpuInstanceSetVgpuHeterogeneousMode`
-    """
-    with nogil:
-        __status__ = nvmlGpuInstanceSetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, <const nvmlVgpuHeterogeneousMode_t*>p_heterogeneous_mode)
-    check_status(__status__)
 
 
 cpdef str device_get_pgpu_metadata_string(intptr_t device):
@@ -26125,31 +23870,6 @@ cpdef set_vgpu_version(intptr_t vgpu_version):
     with nogil:
         __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>vgpu_version)
     check_status(__status__)
-
-
-cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for vGPUs on a physical GPU (device).
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    Returns:
-        A 3-tuple containing:
-
-        - int: Pointer to caller-supplied buffer to hold the type of returned sample values.
-        - unsigned int: Pointer to caller-supplied array size, and returns number of vGPU instances.
-        - nvmlVgpuInstanceUtilizationSample_t: Pointer to caller-supplied buffer in which vGPU utilization samples are returned.
-
-    .. seealso:: `nvmlDeviceGetVgpuUtilization`
-    """
-    cdef _ValueType sample_val_type
-    cdef unsigned int vgpu_instance_samples_count
-    cdef nvmlVgpuInstanceUtilizationSample_t utilization_samples
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, &vgpu_instance_samples_count, &utilization_samples)
-    check_status(__status__)
-    return (<int>sample_val_type, vgpu_instance_samples_count, utilization_samples)
 
 
 cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
@@ -26342,27 +24062,6 @@ cpdef tuple device_get_mig_mode(intptr_t device):
     return (current_mode, pending_mode)
 
 
-cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned int profile):
-    """Versioned wrapper around ``nvmlDeviceGetGpuInstanceProfileInfo`` that accepts a versioned ``nvmlGpuInstanceProfileInfo_v2_t`` or later output structure.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        profile (unsigned int): One of the NVML_GPU_INSTANCE_PROFILE_*.
-
-    Returns:
-        nvmlGpuInstanceProfileInfo_v2_t: Returns detailed profile information.
-
-    .. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoV`
-    """
-    cdef GpuInstanceProfileInfo_v2 info_py = GpuInstanceProfileInfo_v2()
-    cdef nvmlGpuInstanceProfileInfo_v2_t *info = <nvmlGpuInstanceProfileInfo_v2_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstanceProfileInfoV(<Device>device, profile, info)
-    check_status(__status__)
-    return info_py
-
-
 cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, unsigned int profile_id):
     """Get GPU instance placements.
 
@@ -26510,7 +24209,7 @@ cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_insta
     """
     cdef ComputeInstanceProfileInfo_v2 info_py = ComputeInstanceProfileInfo_v2()
     cdef nvmlComputeInstanceProfileInfo_v2_t *info = <nvmlComputeInstanceProfileInfo_v2_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlComputeInstanceProfileInfo_v2_t) | (2 << 24)
+    info.version = NVML_VERSION_STRUCT(sizeof(nvmlComputeInstanceProfileInfo_v2_t), 2)
     with nogil:
         __status__ = nvmlGpuInstanceGetComputeInstanceProfileInfoV(<GpuInstance>gpu_instance, profile, eng_profile, info)
     check_status(__status__)
@@ -26758,121 +24457,6 @@ cpdef intptr_t device_get_device_handle_from_mig_device_handle(intptr_t mig_devi
     return <intptr_t>device
 
 
-cpdef gpm_sample_get(intptr_t device, intptr_t gpm_sample):
-    """Read a sample of GPM metrics into the provided ``gpm_sample`` buffer. After two samples are gathered, you can call nvmlGpmMetricGet on those samples to retrive metrics.
-
-    Args:
-        device (intptr_t): Device to get samples for.
-        gpm_sample (intptr_t): Buffer to read samples into.
-
-    .. seealso:: `nvmlGpmSampleGet`
-    """
-    with nogil:
-        __status__ = nvmlGpmSampleGet(<Device>device, <GpmSample>gpm_sample)
-    check_status(__status__)
-
-
-cpdef gpm_mig_sample_get(intptr_t device, unsigned int gpu_instance_id, intptr_t gpm_sample):
-    """Read a sample of GPM metrics into the provided ``gpm_sample`` buffer for a MIG GPU Instance.
-
-    Args:
-        device (intptr_t): Device to get samples for.
-        gpu_instance_id (unsigned int): MIG GPU Instance ID.
-        gpm_sample (intptr_t): Buffer to read samples into.
-
-    .. seealso:: `nvmlGpmMigSampleGet`
-    """
-    with nogil:
-        __status__ = nvmlGpmMigSampleGet(<Device>device, gpu_instance_id, <GpmSample>gpm_sample)
-    check_status(__status__)
-
-
-cpdef object gpm_query_device_support(intptr_t device):
-    """Indicate whether the supplied device supports GPM.
-
-    Args:
-        device (intptr_t): NVML device to query for.
-
-    Returns:
-        nvmlGpmSupport_t: Structure to indicate GPM support ``nvmlGpmSupport_t``. Indicates GPM support per system for the supplied device.
-
-    .. seealso:: `nvmlGpmQueryDeviceSupport`
-    """
-    cdef GpmSupport gpm_support_py = GpmSupport()
-    cdef nvmlGpmSupport_t *gpm_support = <nvmlGpmSupport_t *><intptr_t>(gpm_support_py._get_ptr())
-    gpm_support.version = 1
-    with nogil:
-        __status__ = nvmlGpmQueryDeviceSupport(<Device>device, gpm_support)
-    check_status(__status__)
-    return gpm_support_py
-
-
-cpdef unsigned int gpm_query_if_streaming_enabled(intptr_t device) except? 0:
-    """Get GPM stream state.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        unsigned int: Returns GPM stream state NVML_FEATURE_DISABLED or NVML_FEATURE_ENABLED.
-
-    .. seealso:: `nvmlGpmQueryIfStreamingEnabled`
-    """
-    cdef unsigned int state
-    with nogil:
-        __status__ = nvmlGpmQueryIfStreamingEnabled(<Device>device, &state)
-    check_status(__status__)
-    return state
-
-
-cpdef gpm_set_streaming_enabled(intptr_t device, unsigned int state):
-    """Set GPM stream state.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        state (unsigned int): GPM stream state, NVML_FEATURE_DISABLED or NVML_FEATURE_ENABLED.
-
-    .. seealso:: `nvmlGpmSetStreamingEnabled`
-    """
-    with nogil:
-        __status__ = nvmlGpmSetStreamingEnabled(<Device>device, state)
-    check_status(__status__)
-
-
-cpdef object device_get_capabilities(intptr_t device):
-    """Get device capabilities.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlDeviceCapabilities_v1_t: Returns GPU's capabilities.
-
-    .. seealso:: `nvmlDeviceGetCapabilities`
-    """
-    cdef DeviceCapabilities_v1 caps_py = DeviceCapabilities_v1()
-    cdef nvmlDeviceCapabilities_t *caps = <nvmlDeviceCapabilities_t *><intptr_t>(caps_py._get_ptr())
-    caps.version = sizeof(nvmlDeviceCapabilities_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetCapabilities(<Device>device, caps)
-    check_status(__status__)
-    return caps_py
-
-
-cpdef device_workload_power_profile_clear_requested_profiles(intptr_t device, intptr_t requested_profiles):
-    """Clear Requested Performance Profiles.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        requested_profiles (intptr_t): Reference to struct ``nvmlWorkloadPowerProfileRequestedProfiles_v1_t``.
-
-    .. seealso:: `nvmlDeviceWorkloadPowerProfileClearRequestedProfiles`
-    """
-    with nogil:
-        __status__ = nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(<Device>device, <nvmlWorkloadPowerProfileRequestedProfiles_t*>requested_profiles)
-    check_status(__status__)
-
-
 cpdef device_power_smoothing_activate_preset_profile(intptr_t device, intptr_t profile):
     """Activiate a specific preset profile for datacenter power smoothing. The API only sets the active preset profile based on the input profileId, and ignores the other parameters of the structure. Requires root/admin permissions.
 
@@ -26928,7 +24512,7 @@ cpdef object device_get_addressing_mode(intptr_t device):
     """
     cdef DeviceAddressingMode_v1 mode_py = DeviceAddressingMode_v1()
     cdef nvmlDeviceAddressingMode_t *mode = <nvmlDeviceAddressingMode_t *><intptr_t>(mode_py._get_ptr())
-    mode.version = sizeof(nvmlDeviceAddressingMode_v1_t) | (1 << 24)
+    mode.version = NVML_VERSION_STRUCT(sizeof(nvmlDeviceAddressingMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetAddressingMode(<Device>device, mode)
     check_status(__status__)
@@ -26948,7 +24532,7 @@ cpdef object device_get_repair_status(intptr_t device):
     """
     cdef RepairStatus_v1 repair_status_py = RepairStatus_v1()
     cdef nvmlRepairStatus_t *repair_status = <nvmlRepairStatus_t *><intptr_t>(repair_status_py._get_ptr())
-    repair_status.version = sizeof(nvmlRepairStatus_v1_t) | (1 << 24)
+    repair_status.version = NVML_VERSION_STRUCT(sizeof(nvmlRepairStatus_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceGetRepairStatus(<Device>device, repair_status)
     check_status(__status__)
@@ -26988,108 +24572,6 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
     check_status(__status__)
 
 
-cpdef object device_get_pdi(intptr_t device):
-    """Retrieves the Per Device Identifier (PDI) associated with this device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlPdi_v1_t: Reference to the caller-provided structure to return the GPU PDI.
-
-    .. seealso:: `nvmlDeviceGetPdi`
-    """
-    cdef Pdi_v1 pdi_py = Pdi_v1()
-    cdef nvmlPdi_t *pdi = <nvmlPdi_t *><intptr_t>(pdi_py._get_ptr())
-    pdi.version = sizeof(nvmlPdi_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetPdi(<Device>device, pdi)
-    check_status(__status__)
-    return pdi_py
-
-
-cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer):
-    """Read or write a GPU PRM register. The input is assumed to be in TLV format in network byte order.
-
-    Args:
-        device (intptr_t): Identifer of target GPU device.
-        buffer (intptr_t): Structure holding the input data in TLV format as well as the PRM register contents in TLV format (in the case of a successful read operation). Note: the input data and any returned data shall be in network byte order.
-
-    .. seealso:: `nvmlDeviceReadWritePRM_v1`
-    """
-    with nogil:
-        __status__ = nvmlDeviceReadWritePRM_v1(<Device>device, <nvmlPRMTLV_v1_t*>buffer)
-    check_status(__status__)
-
-
-cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id):
-    """GPU instance profile query function that accepts profile ID, instead of profile name. It accepts a versioned ``nvmlGpuInstanceProfileInfo_v2_t`` or later output structure.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        profile_id (unsigned int): One of the profile IDs.
-
-    Returns:
-        nvmlGpuInstanceProfileInfo_v2_t: Returns detailed profile information.
-
-    .. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoByIdV`
-    """
-    cdef GpuInstanceProfileInfo_v2 info_py = GpuInstanceProfileInfo_v2()
-    cdef nvmlGpuInstanceProfileInfo_v2_t *info = <nvmlGpuInstanceProfileInfo_v2_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstanceProfileInfoByIdV(<Device>device, profile_id, info)
-    check_status(__status__)
-    return info_py
-
-
-cpdef object device_get_unrepairable_memory_flag_v1(intptr_t device):
-    """Get the unrepairable memory flag for a given GPU.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlUnrepairableMemoryStatus_v1_t: Reference to ``nvmlUnrepairableMemoryStatus_v1_t``.
-
-    .. seealso:: `nvmlDeviceGetUnrepairableMemoryFlag_v1`
-    """
-    cdef UnrepairableMemoryStatus_v1 unrepairable_memory_status_py = UnrepairableMemoryStatus_v1()
-    cdef nvmlUnrepairableMemoryStatus_v1_t *unrepairable_memory_status = <nvmlUnrepairableMemoryStatus_v1_t *><intptr_t>(unrepairable_memory_status_py._get_ptr())
-    with nogil:
-        __status__ = nvmlDeviceGetUnrepairableMemoryFlag_v1(<Device>device, unrepairable_memory_status)
-    check_status(__status__)
-    return unrepairable_memory_status_py
-
-
-cpdef device_read_prm_counters_v1(intptr_t device, intptr_t counter_list):
-    """Read a list of GPU PRM Counters.
-
-    Args:
-        device (intptr_t): Identifer of target GPU device.
-        counter_list (intptr_t): Structure holding the input parameters as well as the retrieved counter values.
-
-    .. seealso:: `nvmlDeviceReadPRMCounters_v1`
-    """
-    with nogil:
-        __status__ = nvmlDeviceReadPRMCounters_v1(<Device>device, <nvmlPRMCounterList_v1_t*>counter_list)
-    check_status(__status__)
-
-
-cpdef device_set_rusd_settings_v1(intptr_t device, intptr_t settings):
-    """Set Read-only user shared data (RUSD) settings for GPU. Requires root/admin permissions.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-        settings (intptr_t): Reference to nvmlRusdSettings_t struct.
-
-    .. seealso:: `nvmlDeviceSetRusdSettings_v1`
-    """
-    with nogil:
-        __status__ = nvmlDeviceSetRusdSettings_v1(<Device>device, <nvmlRusdSettings_v1_t*>settings)
-    check_status(__status__)
-
-
 cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
     """Retrieve the set of GPUs that have a CPU affinity with the given CPU number
 
@@ -27122,7 +24604,7 @@ cpdef str system_get_driver_branch():
     # Calculation copied from the macro NVML_STRUCT_VERSION in nvml.h
     # Needs to be updated if the version of the nvmlSystemDriverBranchInfo_t
     # struct changes in the future.
-    info.version = sizeof(nvmlSystemDriverBranchInfo_v1_t) | (1 << 24)
+    info.version = NVML_VERSION_STRUCT(sizeof(nvmlSystemDriverBranchInfo_v1_t), 1)
     cdef unsigned int length = 80
     with nogil:
         __status__ = nvmlSystemGetDriverBranch(&info, length)
@@ -27173,7 +24655,7 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int leve
     check_status_size(__status__)
     if count[0] == 0:
         return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
+    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlDeviceGetTopologyNearestGpus(
             <Device>device,
@@ -27185,7 +24667,7 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int leve
     return deviceArray
 
 
-cpdef object device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
+cpdef int device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
     """Retrieves the current temperature readings (in degrees C) for the given device.
 
     Args:
@@ -27197,24 +24679,22 @@ cpdef object device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t 
     .. seealso:: `nvmlDeviceGetTemperatureV`
     """
     cdef nvmlTemperature_v1_t[1] temperature
-    temperature[0].version = sizeof(nvmlTemperature_v1_t) | (1 << 24)
-    temperature[0].sensorType = <nvmlTemperatureSensors_t>sensorType
 
     with nogil:
+        temperature[0].version = NVML_VERSION_STRUCT(sizeof(nvmlTemperature_v1_t), 1)
+        temperature[0].sensorType = <nvmlTemperatureSensors_t>sensorType
         __status__ = nvmlDeviceGetTemperatureV(<Device>device, temperature)
     check_status(__status__)
     return temperature.temperature
 
 
-cpdef object device_get_supported_performance_states(intptr_t device, unsigned int size):
+cpdef object device_get_supported_performance_states(intptr_t device):
     """Get all supported Performance States (P-States) for the device.
 
     Args:
         device (Device): The identifier of the target device.
-        size (unsigned int): The number of states to return.
     """
-    if size == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
+    cdef int size = 16  # NVML_MAX_GPU_PERF_STATES
     cdef view.array pstates = view.array(shape=(size,), itemsize=sizeof(unsigned int), format="I", mode="c")
 
     # The header says "size is the size of the pstates array in bytes".
@@ -27242,7 +24722,7 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlProcessDetailList_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlProcessDetailList_v1_t), 1)
         ptr.mode = mode
         ptr.numProcArrayEntries = 0
         ptr.procArray = NULL
@@ -27258,9 +24738,10 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
     with nogil:
         __status__ = nvmlDeviceGetRunningProcessDetailList(<Device>device, ptr)
     check_status(__status__)
+    return plist
 
 
-cpdef object device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
+cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
     """Gets recent samples for the GPU.
 
     Args:
@@ -27285,7 +24766,7 @@ cpdef object device_get_samples(intptr_t device, int type, unsigned long long la
     return (sample_val_type[0], samples)
 
 
-cpdef object device_get_retired_pages_v2(intptr_t device, int cause):
+cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
     """Returns the list of retired pages by source, including pages that are pending retirement
 
     Args:
@@ -27329,7 +24810,7 @@ cpdef object device_get_processes_utilization_info(intptr_t device, unsigned lon
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlProcessesUtilizationInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlProcessesUtilizationInfo_v1_t), 1)
         ptr.processSamplesCount = 0
         ptr.lastSeenTimeStamp = last_seen_time_stamp
         ptr.procUtilArray = NULL
@@ -27429,7 +24910,7 @@ cpdef object device_get_field_values(intptr_t device, values):
     return values_
 
 
-cpdef object device_clear_field_values(intptr_t device, values):
+cpdef  device_clear_field_values(intptr_t device, values):
     """Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.
 
     Args:
@@ -27512,7 +24993,7 @@ cpdef object device_get_active_vgpus(intptr_t device):
     return vgpuInstances
 
 
-cpdef str vgpu_instance_get_vm_id(unsigned int vgpu_instance):
+cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
     """Retrieve the VM ID associated with a vGPU instance.
 
     Args:
@@ -27545,7 +25026,7 @@ cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlVgpuTypeIdInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuTypeIdInfo_v1_t), 1)
         ptr.vgpuCount = 0
         ptr.vgpuTypeIds = NULL
         __status__ = nvmlGpuInstanceGetCreatableVgpus(<GpuInstance>gpu_instance, ptr)
@@ -27577,7 +25058,7 @@ cpdef object gpu_instance_get_active_vgpus(intptr_t gpu_instance):
     cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>activeVgpuInfo._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlActiveVgpuInstanceInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlActiveVgpuInstanceInfo_v1_t), 1)
         ptr.vgpuCount = 0
         ptr.vgpuInstances = NULL
         __status__ = nvmlGpuInstanceGetActiveVgpus(<GpuInstance>gpu_instance, ptr)
@@ -27612,9 +25093,10 @@ cpdef object gpu_instance_get_vgpu_type_creatable_placements(intptr_t gpu_instan
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlVgpuCreatablePlacementInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), 1)
         ptr.count = 0
         ptr.placementIds = NULL
+        ptr.vgpuTypeId = vgpu_type_id
         __status__ = nvmlGpuInstanceGetVgpuTypeCreatablePlacements(<GpuInstance>gpu_instance, ptr)
     check_status_size(__status__)
 
@@ -27648,7 +25130,7 @@ cpdef object device_get_vgpu_type_creatable_placements(intptr_t device, unsigned
 
     # Get size of array
     with nogil:
-        ptr.version = sizeof(nvmlVgpuPlacementList_v2_t) | (2 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuPlacementList_v2_t), 2)
         ptr.count = 0
         ptr.placementIds = NULL
         ptr.mode = mode
@@ -27768,7 +25250,7 @@ cpdef object device_get_vgpu_instances_utilization_info(intptr_t device):
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t *ptr = <nvmlVgpuInstancesUtilizationInfo_t *>vgpuUtilInfo._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), 1)
         ptr.vgpuInstanceCount = 0
         ptr.vgpuUtilArray = NULL
         __status__ = nvmlDeviceGetVgpuInstancesUtilizationInfo(<Device>device, ptr)
@@ -27801,7 +25283,7 @@ cpdef object device_get_vgpu_processes_utilization_info(intptr_t device, unsigne
     cdef nvmlVgpuProcessesUtilizationInfo_v1_t *ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>vgpuProcUtilInfo._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), 1)
         ptr.vgpuProcessCount = 0
         ptr.vgpuProcUtilArray = NULL
         ptr.lastSeenTimeStamp = last_seen_time_stamp
@@ -27887,7 +25369,7 @@ cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device
     cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>errorCounts._get_ptr()
 
     with nogil:
-        ptr.version = sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t) | (1 << 24)
+        ptr.version = NVML_VERSION_STRUCT(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), 1)
         ptr.entryCount = 0
         ptr.entries = NULL
         __status__ = nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(<Device>device, ptr)
@@ -27923,8 +25405,8 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
     if CUDA_VERSION >= 13000:
         gpu_fabric_info_v3_py = GpuFabricInfo_v3()
         gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v3_py._get_ptr())
-        gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v3_t) | (3 << 24)
         with nogil:
+            gpu_fabric_info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuFabricInfo_v3_t), 3)
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v3_py
@@ -27932,8 +25414,8 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
     else:
         gpu_fabric_info_v2_py = GpuFabricInfo_v2()
         gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v2_py._get_ptr())
-        gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
         with nogil:
+            gpu_fabric_info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuFabricInfo_v2_t), 2)
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v2_py
@@ -27957,8 +25439,8 @@ cpdef object device_get_platform_info(intptr_t device):
     if CUDA_VERSION >= 13000:
         platform_info_v2_py = PlatformInfo_v2()
         platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v2_py._get_ptr())
-        platform_info.version = sizeof(nvmlPlatformInfo_v2_t) | (2 << 24)
         with nogil:
+            platform_info.version = NVML_VERSION_STRUCT(sizeof(nvmlPlatformInfo_v2_t), 2)
             __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
         check_status(__status__)
         return platform_info_v2_py
@@ -27966,8 +25448,8 @@ cpdef object device_get_platform_info(intptr_t device):
     else:
         platform_info_v1_py = PlatformInfo_v1()
         platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v1_py._get_ptr())
-        platform_info.version = sizeof(nvmlPlatformInfo_v1_t) | (1 << 24)
         with nogil:
+            platform_info.version = NVML_VERSION_STRUCT(sizeof(nvmlPlatformInfo_v1_t), 1)
             __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
         check_status(__status__)
         return platform_info_v1_py
@@ -27991,8 +25473,8 @@ cpdef object device_get_nvlink_info(intptr_t device):
     if CUDA_VERSION >= 13000:
         info_v2_py = NvLinkInfo_v2()
         info = <nvmlNvLinkInfo_t *><intptr_t>(info_v2_py._get_ptr())
-        info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
         with nogil:
+            info.version = NVML_VERSION_STRUCT(sizeof(nvmlNvLinkInfo_v2_t), 2)
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v2_py
@@ -28000,8 +25482,8 @@ cpdef object device_get_nvlink_info(intptr_t device):
     else:
         info_v1_py = NvLinkInfo_v1()
         info = <nvmlNvLinkInfo_t *><intptr_t>(info_v1_py._get_ptr())
-        info.version = sizeof(nvmlNvLinkInfo_v1_t) | (1 << 24)
         with nogil:
+            info.version = NVML_VERSION_STRUCT(sizeof(nvmlNvLinkInfo_v1_t), 1)
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v1_py
@@ -28011,7 +25493,7 @@ cpdef intptr_t system_event_set_create():
     """Create an empty set of system events. Event set should be freed by ``nvmlSystemEventSetFree``."""
     cdef nvmlSystemEventSetCreateRequest_v1_t[1] request
     with nogil:
-        request[0].version = sizeof(nvmlSystemEventSetCreateRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemEventSetCreateRequest_v1_t), 1)
         __status__ = nvmlSystemEventSetCreate(<nvmlSystemEventSetCreateRequest_t*>request)
     check_status(__status__)
     return <intptr_t>(request[0].set)
@@ -28022,7 +25504,7 @@ cpdef system_event_set_free(intptr_t event_set):
     cdef nvmlSystemEventSetFreeRequest_v1_t[1] request
     request[0].set = <SystemEventSet>event_set
     with nogil:
-        request[0].version = sizeof(nvmlSystemEventSetFreeRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemEventSetFreeRequest_v1_t), 1)
         __status__ = nvmlSystemEventSetFree(<nvmlSystemEventSetFreeRequest_t*>request)
     check_status(__status__)
 
@@ -28035,10 +25517,10 @@ cpdef system_register_events(unsigned long long event_types, intptr_t event_set)
         event_set (intptr_t): The system event set handle.
     """
     cdef nvmlSystemRegisterEventRequest_v1_t[1] request
-    request[0].set = <SystemEventSet>event_set
-    request[0].eventTypes = event_types
     with nogil:
-        request[0].version = sizeof(nvmlSystemRegisterEventRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemRegisterEventRequest_v1_t), 1)
+        request[0].set = <SystemEventSet>event_set
+        request[0].eventTypes = event_types
         __status__ = nvmlSystemRegisterEvents(<nvmlSystemRegisterEventRequest_t*>request)
     check_status(__status__)
 
@@ -28056,13 +25538,693 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
     """
     cdef nvmlSystemEventSetWaitRequest_v1_t[1] request
     cdef SystemEventData_v1 event_data = SystemEventData_v1(buffer_size)
-    request[0].timeoutms = timeout_ms
-    request[0].set = <SystemEventSet>event_set
     request[0].data = <nvmlSystemEventData_v1_t *><intptr_t>(event_data._get_ptr())
-    request[0].dataSize = buffer_size
     with nogil:
-        request[0].version = sizeof(nvmlSystemEventSetWaitRequest_v1_t) | (1 << 24)
+        request[0].version = NVML_VERSION_STRUCT(sizeof(nvmlSystemEventSetWaitRequest_v1_t), 1)
+        request[0].timeoutms = timeout_ms
+        request[0].set = <SystemEventSet>event_set
+        request[0].dataSize = buffer_size
         __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
     check_status(__status__)
     event_data._data.resize((request[0].numEvent,))
     return event_data
+
+
+cpdef unsigned int device_get_fan_speed_rpm(intptr_t device, unsigned int fan):
+    """Retrieves the intended operating speed in rotations per minute (RPM) of the device's specified fan.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        fan (unsigned int): The index of the fan to query.
+
+    Returns:
+        rpm (unsigned int): The fan speed in RPM.
+
+    .. seealso:: `nvmlDeviceGetFanSpeedRPM`
+    """
+    cdef nvmlFanSpeedInfo_v1_t[1] fan_speed
+    with nogil:
+        fan_speed[0].version = NVML_VERSION_STRUCT(sizeof(nvmlFanSpeedInfo_v1_t), 1)
+        fan_speed[0].fan = fan
+        __status__ = nvmlDeviceGetFanSpeedRPM(<Device>device, fan_speed)
+    check_status(__status__)
+    return fan_speed[0].speed
+
+
+cpdef int device_get_margin_temperature(intptr_t device):
+    """Retrieves the thermal margin temperature (distance to nearest slowdown threshold).
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        margin_temperature (int): The margin temperature value.
+
+    .. seealso:: `nvmlDeviceGetMarginTemperature`
+    """
+    cdef nvmlMarginTemperature_v1_t[1] margin_temp_info
+    with nogil:
+        margin_temp_info[0].version = NVML_VERSION_STRUCT(sizeof(nvmlMarginTemperature_v1_t), 1)
+        __status__ = nvmlDeviceGetMarginTemperature(<Device>device, margin_temp_info)
+    check_status(__status__)
+    return margin_temp_info[0].marginTemperature
+
+
+cpdef object device_get_clock_offsets(intptr_t device, nvmlClockType_t clock_type, nvmlPstates_t pstate):
+    """Retrieve min, max and current clock offset of some clock domain for a given PState.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlClockOffset_v1_t: Structure specifying the clock type (input) and the pstate (input) retrieved clock offset value (output), min clock offset (output) and max clock offset (output).
+
+    .. seealso:: `nvmlDeviceGetClockOffsets`
+    """
+    cdef ClockOffset_v1 info_py = ClockOffset_v1()
+    cdef nvmlClockOffset_v1_t *info = <nvmlClockOffset_v1_t *><intptr_t>(info_py._get_ptr())
+    with nogil:
+        info.version = NVML_VERSION_STRUCT(sizeof(nvmlClockOffset_v1_t), 1)
+        info.type = clock_type
+        info.pstate = pstate
+        __status__ = nvmlDeviceGetClockOffsets(<Device>device, info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef object device_get_vgpu_type_supported_placements(intptr_t device, unsigned int vgpu_type_id, unsigned int mode):
+    """Query the supported vGPU placement ID of the vGPU type.
+
+    Args:
+        device (intptr_t): Identifier of the target device.
+        vgpu_type_id (unsigned int): Handle to vGPU type. The vGPU type ID.
+        mode (unsigned int): The placement mode. 0: Heterogeneous, 1: Homogeneous.
+
+    Returns:
+        nvmlVgpuPlacementList_v2_t: Pointer to the vGPU placement structure ``nvmlVgpuPlacementList_t``.
+
+    .. seealso:: `nvmlDeviceGetVgpuTypeSupportedPlacements`
+    """
+    cdef VgpuPlacementList_v2 p_placement_list_py = VgpuPlacementList_v2()
+    cdef nvmlVgpuPlacementList_t *p_placement_list = <nvmlVgpuPlacementList_t *><intptr_t>(p_placement_list_py._get_ptr())
+    with nogil:
+        p_placement_list.count = 0
+        p_placement_list.placementIds = NULL
+        p_placement_list.version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuPlacementList_v2_t), 2)
+        __status__ = nvmlDeviceGetVgpuTypeSupportedPlacements(<Device>device, <nvmlVgpuTypeId_t>vgpu_type_id, p_placement_list)
+    check_status_size(__status__)
+
+    if p_placement_list.count == 0:
+        return p_placement_list_py
+
+    cdef view.array placement_ids = view.array(shape=(p_placement_list.count,), itemsize=sizeof(unsigned int), format="I", mode="c")
+    p_placement_list_py.placement_ids = placement_ids
+
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuTypeSupportedPlacements(<Device>device, <nvmlVgpuTypeId_t>vgpu_type_id, p_placement_list)
+    check_status(__status__)
+
+    return p_placement_list_py
+
+
+cpdef unsigned int vgpu_instance_get_placement_id(unsigned int vgpu_instance):
+    """Query the placement ID of active vGPU instance.
+
+    Args:
+        vgpu_instance (unsigned int): Identifier of the target vGPU instance.
+
+    Returns:
+        unsigned int: The placement ID
+
+    .. seealso:: `nvmlVgpuInstanceGetPlacementId`
+    """
+    cdef nvmlVgpuPlacementId_t[1] p_placement
+    with nogil:
+        p_placement[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuPlacementId_v1_t), 1)
+        __status__ = nvmlVgpuInstanceGetPlacementId(<nvmlVgpuInstance_t>vgpu_instance, p_placement)
+    check_status(__status__)
+    return p_placement[0].placementId
+
+
+cpdef object device_get_capabilities(intptr_t device):
+    """Get device capabilities.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlDeviceCapabilities_v1_t: Returns GPU's capabilities.
+
+    .. seealso:: `nvmlDeviceGetCapabilities`
+    """
+    cdef nvmlDeviceCapabilities_t[1] caps
+    with nogil:
+        caps[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDeviceCapabilities_v1_t), 1)
+        __status__ = nvmlDeviceGetCapabilities(<Device>device, caps)
+    check_status(__status__)
+    return caps[0].capMask
+
+
+cpdef object device_get_conf_compute_gpu_attestation_report(intptr_t device, char[32] nonce):
+    """Get Conf Computing GPU attestation report.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlConfComputeGpuAttestationReport_t: Reference in which to return the gpu attestation report.
+
+    .. seealso:: `nvmlDeviceGetConfComputeGpuAttestationReport`
+    """
+    cdef ConfComputeGpuAttestationReport gpu_atst_report_py = ConfComputeGpuAttestationReport()
+    cdef nvmlConfComputeGpuAttestationReport_t *gpu_atst_report = <nvmlConfComputeGpuAttestationReport_t *><intptr_t>(gpu_atst_report_py._get_ptr())
+    with nogil:
+        memcpy(gpu_atst_report.nonce, nonce, 32)
+        __status__ = nvmlDeviceGetConfComputeGpuAttestationReport(<Device>device, gpu_atst_report)
+    check_status(__status__)
+    return gpu_atst_report_py
+
+
+cpdef tuple device_get_dram_encryption_mode(intptr_t device):
+    """Retrieves the current and pending DRAM Encryption modes for the device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        A 2-tuple containing:
+
+        - nvmlEnableState_t: Reference in which to return the current DRAM Encryption mode.
+        - nvmlEnableState_t: Reference in which to return the pending DRAM Encryption mode.
+
+    .. seealso:: `nvmlDeviceGetDramEncryptionMode`
+    """
+    cdef nvmlDramEncryptionInfo_t current
+    cdef nvmlDramEncryptionInfo_t pending
+    with nogil:
+        current.version = pending.version = NVML_VERSION_STRUCT(sizeof(nvmlDramEncryptionInfo_t), 1)
+        __status__ = nvmlDeviceGetDramEncryptionMode(<Device>device, &current, &pending)
+    check_status(__status__)
+    return (current.encryptionState, pending.encryptionState)
+
+
+cpdef device_set_dram_encryption_mode(intptr_t device, int dram_encryption):
+    """Set the DRAM Encryption mode for the device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        dram_encryption (nvmlEnableState_t): The target DRAM Encryption mode.
+
+    .. seealso:: `nvmlDeviceSetDramEncryptionMode`
+    """
+    cdef nvmlDramEncryptionInfo_t[1] encryption
+    with nogil:
+        encryption[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDramEncryptionInfo_t), 1)
+        encryption[0].encryptionState = <nvmlEnableState_t>dram_encryption
+        __status__ = nvmlDeviceSetDramEncryptionMode(<Device>device, encryption)
+    check_status(__status__)
+
+
+cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id):
+    """GPU instance profile query function that accepts profile ID, instead of profile name. It accepts a versioned ``nvmlGpuInstanceProfileInfo_v3_t`` or later output structure.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): One of the profile IDs.
+
+    Returns:
+        nvmlGpuInstanceProfileInfo_v3_t: Returns detailed profile information.
+
+    .. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoByIdV`
+    """
+    cdef GpuInstanceProfileInfo_v3 info_py = GpuInstanceProfileInfo_v3()
+    cdef nvmlGpuInstanceProfileInfo_v3_t *info = <nvmlGpuInstanceProfileInfo_v3_t *><intptr_t>(info_py._get_ptr())
+    with nogil:
+        info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuInstanceProfileInfo_v3_t), 3)
+        __status__ = nvmlDeviceGetGpuInstanceProfileInfoByIdV(<Device>device, profile_id, <nvmlGpuInstanceProfileInfo_v2_t *>info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned int profile):
+    """Versioned wrapper around ``nvmlDeviceGetGpuInstanceProfileInfo`` that accepts a versioned ``nvmlGpuInstanceProfileInfo_v3_t`` or later output structure.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile (unsigned int): One of the NVML_GPU_INSTANCE_PROFILE_*.
+
+    Returns:
+        nvmlGpuInstanceProfileInfo_v3_t: Returns detailed profile information.
+
+    .. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoV`
+    """
+    cdef GpuInstanceProfileInfo_v3 info_py = GpuInstanceProfileInfo_v3()
+    cdef nvmlGpuInstanceProfileInfo_v3_t *info = <nvmlGpuInstanceProfileInfo_v3_t *><intptr_t>(info_py._get_ptr())
+    with nogil:
+        info.version = NVML_VERSION_STRUCT(sizeof(nvmlGpuInstanceProfileInfo_v3_t), 3)
+        __status__ = nvmlDeviceGetGpuInstanceProfileInfoV(<Device>device, profile, <nvmlGpuInstanceProfileInfo_v2_t *>info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef intptr_t device_get_handle_by_uuidv(int type, bytes uuid) except? 0:
+    """Acquire the handle for a particular device, based on its globally unique immutable UUID (in either ASCII or binary format) associated with each device. See ``nvmlUUID_v1_t`` for more information on the UUID struct. The caller must set the appropriate version prior to calling this API.
+
+    Args:
+        type (UUIDType): The format of the UUID being provided (ASCII or binary).
+        uuid (intptr_t): The UUID of the target GPU or MIG instance.
+
+    Returns:
+        intptr_t: Reference in which to return the device handle or MIG device handle.
+
+    .. seealso:: `nvmlDeviceGetHandleByUUIDV`
+    """
+    cdef Device device
+    cdef nvmlUUID_t[1] uuid_struct
+    cdef int NVML_DEVICE_UUID_ASCII_LEN = 41
+    cdef int NVML_DEVICE_UUID_BINARY_LEN = 16
+    cdef char *uuid_ptr = cpython.PyBytes_AsString(uuid)
+
+    if type == UUIDType.ASCII:
+        if len(uuid) != NVML_DEVICE_UUID_ASCII_LEN - 1:
+            raise ValueError(f"UUID ASCII string must be {NVML_DEVICE_UUID_ASCII_LEN - 1} bytes long")
+        memcpy(<void *>(uuid_struct[0].value.str), <void *>uuid_ptr, NVML_DEVICE_UUID_ASCII_LEN)
+    elif type == UUIDType.BINARY:
+        if len(uuid) != NVML_DEVICE_UUID_BINARY_LEN - 1:
+            raise ValueError(f"UUID binary string must be {NVML_DEVICE_UUID_BINARY_LEN - 1} bytes long")
+        memcpy(<void *>(uuid_struct[0].value.bytes), <void *>uuid_ptr, NVML_DEVICE_UUID_BINARY_LEN)
+    else:
+        raise ValueError("Invalid UUID format specified")
+
+    with nogil:
+        uuid_struct[0].version = NVML_VERSION_STRUCT(sizeof(nvmlUUID_v1_t), 1)
+        uuid_struct[0].type = type
+        __status__ = nvmlDeviceGetHandleByUUIDV(uuid_struct, &device)
+    check_status(__status__)
+    return <intptr_t>device
+
+
+cpdef unsigned long long device_get_pdi(intptr_t device):
+    """Retrieves the Per Device Identifier (PDI) associated with this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned long long: The GPU PDI.
+
+    .. seealso:: `nvmlDeviceGetPdi`
+    """
+    cdef nvmlPdi_v1_t[1] pdi
+    with nogil:
+        pdi[0].version = NVML_VERSION_STRUCT(sizeof(nvmlPdi_v1_t), 1)
+        __status__ = nvmlDeviceGetPdi(<Device>device, pdi)
+    check_status(__status__)
+    return pdi[0].value
+
+
+cpdef str device_get_performance_modes(intptr_t device):
+    """Retrieves a performance mode string with all the performance modes defined for this device along with their associated GPU Clock and Memory Clock values. Not all tokens will be reported on all GPUs, and additional tokens may be added in the future. For backwards compatibility we still provide nvclock and memclock; those are the same as nvclockmin and memclockmin.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        str: The performance level string.
+
+    .. seealso:: `nvmlDeviceGetPerformanceModes`
+    """
+    cdef nvmlDevicePerfModes_t[1] perf_modes
+    with nogil:
+        perf_modes[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDevicePerfModes_v1_t), 1)
+        __status__ = nvmlDeviceGetPerformanceModes(<Device>device, perf_modes)
+    check_status(__status__)
+    return cpython.PyUnicode_FromString(perf_modes[0].str)
+
+
+cpdef unsigned int device_get_unrepairable_memory_flag_v1(intptr_t device):
+    """Get the unrepairable memory flag for a given GPU.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: unrepairable memory status
+
+    .. seealso:: `nvmlDeviceGetUnrepairableMemoryFlag_v1`
+    """
+    cdef nvmlUnrepairableMemoryStatus_v1_t[1] unrepairable_memory_status
+    with nogil:
+        __status__ = nvmlDeviceGetUnrepairableMemoryFlag_v1(<Device>device, unrepairable_memory_status)
+    check_status(__status__)
+    return unrepairable_memory_status.bUnrepairableMemory
+
+
+cpdef unsigned int device_get_vgpu_heterogeneous_mode(intptr_t device):
+    """Get the vGPU heterogeneous mode for the device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: The mode
+
+    .. seealso:: `nvmlDeviceGetVgpuHeterogeneousMode`
+    """
+    cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
+    with nogil:
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
+        __status__ = nvmlDeviceGetVgpuHeterogeneousMode(<Device>device, heterogeneous_mode)
+    check_status(__status__)
+    return heterogeneous_mode[0].mode
+
+
+cpdef device_set_vgpu_heterogeneous_mode(intptr_t device, int mode):
+    """Enable or disable vGPU heterogeneous mode for the device.
+
+    Args:
+        device (intptr_t): Identifier of the target device.
+        heterogeneous_mode (unsigned int): mode
+
+    .. seealso:: `nvmlDeviceSetVgpuHeterogeneousMode`
+    """
+    cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
+    with nogil:
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
+        heterogeneous_mode[0].mode = mode
+        __status__ = nvmlDeviceSetVgpuHeterogeneousMode(<Device>device, heterogeneous_mode)
+    check_status(__status__)
+
+
+cpdef object gpu_instance_get_vgpu_heterogeneous_mode(intptr_t gpu_instance):
+    """Get the vGPU heterogeneous mode for the GPU instance.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+
+    Returns:
+        unsigned int: the mode
+
+    .. seealso:: `nvmlGpuInstanceGetVgpuHeterogeneousMode`
+    """
+    cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
+    with nogil:
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
+        __status__ = nvmlGpuInstanceGetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
+    check_status(__status__)
+    return heterogeneous_mode[0].mode
+
+
+cpdef gpu_instance_set_vgpu_heterogeneous_mode(intptr_t gpu_instance, unsigned int mode):
+    """Enable or disable vGPU heterogeneous mode for the GPU instance.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+        mode (unsigned int): The mode
+
+    .. seealso:: `nvmlGpuInstanceSetVgpuHeterogeneousMode`
+    """
+    cdef nvmlVgpuHeterogeneousMode_t[1] heterogeneous_mode
+    with nogil:
+        heterogeneous_mode[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuHeterogeneousMode_v1_t), 1)
+        heterogeneous_mode[0].mode = mode
+        __status__ = nvmlGpuInstanceSetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
+    check_status(__status__)
+
+
+cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for vGPUs on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        A 2-tuple containing:
+
+        - samples: Returned sample values.
+        - utilizationSamples: Utilization samples.
+
+    .. seealso:: `nvmlDeviceGetVgpuUtilization`
+    """
+    cdef unsigned int vgpu_instance_samples_count
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuUtilization(
+            <Device>device,
+            last_seen_time_stamp,
+            NULL,
+            &vgpu_instance_samples_count,
+            NULL
+        )
+    check_status_size(__status__)
+
+    if vgpu_instance_samples_count == 0:
+        return (
+            view.array(shape=(1,), itemsize=sizeof(int), format="I", mode="c")[:0],
+            VgpuInstanceUtilizationSample(0)
+        )
+
+    cdef view.array arr = view.array(shape=(vgpu_instance_samples_count,), itemsize=sizeof(int), format="I", mode="c")
+    cdef VgpuInstanceUtilizationSample utilization_samples_py = VgpuInstanceUtilizationSample(vgpu_instance_samples_count)
+    cdef nvmlVgpuInstanceUtilizationSample_t *ptr = <nvmlVgpuInstanceUtilizationSample_t *>utilization_samples_py._get_ptr()
+
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuUtilization(
+            <Device>device,
+            last_seen_time_stamp,
+            <nvmlValueType_t *>arr.data,
+            &vgpu_instance_samples_count,
+            ptr
+        )
+    check_status(__status__)
+
+    return (arr, utilization_samples_py)
+
+
+cpdef object device_read_prm_counters_v1(intptr_t device, PRMCounter_v1 counters):
+    """Read a list of GPU PRM Counters.
+
+    Args:
+        device (intptr_t): Identifer of target GPU device.
+        counters (PRMCounter_v1): Array holding the input parameters as well as the retrieved counter values.
+
+    .. seealso:: `nvmlDeviceReadPRMCounters_v1`
+    """
+    # Unlike in the raw C API, counter_list here is an PRMCounter_v1
+    # AUTO_LOWPP_ARRAY, and we need to wrap it in a nvmlPRMCounterList_v1_t.
+
+    cdef nvmlPRMCounterList_v1_t[1] counter_list
+    counter_list[0].numCounters = len(counters)
+    counter_list[0].counters = <nvmlPRMCounter_v1_t *>counters._get_ptr()
+
+    with nogil:
+        __status__ = nvmlDeviceReadPRMCounters_v1(<Device>device, <nvmlPRMCounterList_v1_t*>counter_list)
+    check_status(__status__)
+
+    return counters
+
+
+ctypedef union __nvmlPRMTLV_v1_value_t:
+    char[496] inData
+    char[496] outData
+
+
+ctypedef struct __nvmlPRMTLV_v1_t:
+    unsigned dataSize
+    unsigned status
+    __nvmlPRMTLV_v1_value_t value
+
+
+cpdef tuple device_read_write_prm_v1(intptr_t device, bytes in_data):
+    """Read or write a GPU PRM register. The input is assumed to be in TLV format in network byte order.
+
+    Args:
+        device (intptr_t): Identifer of target GPU device.
+        in_data (bytes): The input data for the PRM register.
+
+    Returns:
+        A 2-tuple containing:
+
+        - unsigned int: Status of the PRM operation.
+        - bytes: Output data in TLV format.
+
+    .. seealso:: `nvmlDeviceReadWritePRM_v1`
+    """
+    cdef int NVML_PRM_DATA_MAX_SIZE = 496
+    cdef __nvmlPRMTLV_v1_t buffer
+    cdef int in_data_size = len(in_data)
+
+    if in_data_size > NVML_PRM_DATA_MAX_SIZE - 1:
+        raise ValueError(f"Input data size exceeds maximum allowed size of {NVML_PRM_DATA_MAX_SIZE - 1} bytes")
+
+    cdef char *in_data_ptr = cpython.PyBytes_AsString(in_data)
+
+    with nogil:
+        memcpy(<void *>(buffer.value.inData), <void *>in_data_ptr, in_data_size)
+        buffer.dataSize = in_data_size
+        __status__ = nvmlDeviceReadWritePRM_v1(<Device>device, <nvmlPRMTLV_v1_t *>&buffer)
+    check_status(__status__)
+
+    cdef bytes out_data = cpython.PyBytes_FromStringAndSize(buffer.value.outData, buffer.dataSize)
+    cdef unsigned int status = buffer.status
+
+    return (status, out_data)
+
+
+cpdef device_set_nvlink_device_low_power_threshold(intptr_t device, unsigned int threshold):
+    """Set NvLink Low Power Threshold for device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        threshold (unsigned int):
+
+    .. seealso:: `nvmlDeviceSetNvLinkDeviceLowPowerThreshold`
+    """
+    cdef nvmlNvLinkPowerThres_t[1] info
+
+    with nogil:
+        info[0].lowPwrThreshold
+        __status__ = nvmlDeviceSetNvLinkDeviceLowPowerThreshold(<Device>device, <nvmlNvLinkPowerThres_t*>info)
+    check_status(__status__)
+
+
+cpdef device_set_power_management_limit_v2(intptr_t device, int power_scope, unsigned int power_value_mw):
+    """Set new power limit of this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        power_scope (PowerScope): Device type
+        power_value_mw (unsigned int): Power value to retrieve or set in milliwatts
+
+    .. seealso:: `nvmlDeviceSetPowerManagementLimit_v2`
+    """
+    cdef nvmlPowerValue_v2_t[1] power_value
+
+    with nogil:
+        power_value[0].version = NVML_VERSION_STRUCT(sizeof(nvmlPowerValue_v2_t), 2)
+        power_value[0].powerScope = <nvmlPowerScopeType_t>power_scope
+        power_value[0].powerValueMw = power_value_mw
+        __status__ = nvmlDeviceSetPowerManagementLimit_v2(<Device>device, power_value)
+    check_status(__status__)
+
+
+cpdef device_set_rusd_settings_v1(intptr_t device, unsigned long long poll_mask):
+    """Set Read-only user shared data (RUSD) settings for GPU. Requires root/admin permissions.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        poll_mask (unsigned long long): Bitmask of polling data. 0 value means the GPU's RUSD polling mask is cleared
+
+    .. seealso:: `nvmlDeviceSetRusdSettings_v1`
+    """
+    cdef nvmlRusdSettings_v1_t[1] settings
+    with nogil:
+        settings[0].version = NVML_VERSION_STRUCT(sizeof(nvmlRusdSettings_v1_t), 1)
+        settings[0].pollMask = poll_mask
+        __status__ = nvmlDeviceSetRusdSettings_v1(<Device>device, settings)
+    check_status(__status__)
+
+
+cpdef device_set_temperature_threshold(intptr_t device, int threshold_type, int temp):
+    """Sets the temperature threshold for the GPU with the specified threshold type in degrees C.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        threshold_type (TemperatureThresholds): The type of threshold value to be set.
+        temp (int): The value to be set.
+
+    .. seealso:: `nvmlDeviceSetTemperatureThreshold`
+    """
+    with nogil:
+        __status__ = nvmlDeviceSetTemperatureThreshold(<Device>device, <_TemperatureThresholds>threshold_type, &temp)
+    check_status(__status__)
+
+
+cpdef unsigned long long system_get_conf_compute_key_rotation_threshold_info():
+    """Get Conf Computing key rotation threshold detail.
+
+    Returns:
+        unsigned long long: The key rotation threshold data.
+
+    .. seealso:: `nvmlSystemGetConfComputeKeyRotationThresholdInfo`
+    """
+    cdef nvmlConfComputeGetKeyRotationThresholdInfo_t[1] key_rotation_thr_info
+    with nogil:
+        key_rotation_thr_info[0].version = NVML_VERSION_STRUCT(sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t), 1)
+        __status__ = nvmlSystemGetConfComputeKeyRotationThresholdInfo(key_rotation_thr_info)
+    check_status(__status__)
+    return key_rotation_thr_info[0].attackerAdvantage
+
+
+cpdef system_set_conf_compute_key_rotation_threshold_info(unsigned long long max_attacker_advantage):
+    """Set Conf Computing key rotation threshold.
+
+    Args:
+        max_attacker_advantage (unsigned long long): The key rotation threshold data.
+
+    .. seealso:: `nvmlSystemSetConfComputeKeyRotationThresholdInfo`
+    """
+    cdef nvmlConfComputeSetKeyRotationThresholdInfo_t[1] key_rotation_thr_info
+    with nogil:
+        key_rotation_thr_info[0].version = NVML_VERSION_STRUCT(sizeof(nvmlConfComputeSetKeyRotationThresholdInfo_v1_t), 1)
+        key_rotation_thr_info[0].maxAttackerAdvantage = max_attacker_advantage
+        __status__ = nvmlSystemSetConfComputeKeyRotationThresholdInfo(key_rotation_thr_info)
+    check_status(__status__)
+
+
+cpdef unsigned long long vgpu_instance_get_runtime_state_size(unsigned int vgpu_instance):
+    """Retrieve the currently used runtime state size of the vGPU instance.
+
+    Args:
+        vgpu_instance (unsigned int): Identifier of the target vGPU instance.
+
+    Returns:
+        unsigned long long: Runtime state size of the vGPU instance.
+
+    .. seealso:: `nvmlVgpuInstanceGetRuntimeStateSize`
+    """
+    cdef nvmlVgpuRuntimeState_t[1] p_state
+    with nogil:
+        p_state[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuRuntimeState_v1_t), 1)
+        __status__ = nvmlVgpuInstanceGetRuntimeStateSize(<nvmlVgpuInstance_t>vgpu_instance, p_state)
+    check_status(__status__)
+    return p_state[0].size
+
+
+cpdef unsigned int vgpu_type_get_max_instances_per_gpu_instance(unsigned int vgpu_type_id):
+    """Retrieve the maximum number of vGPU instances per GPU instance for given vGPU type.
+
+    Args:
+        vgpu_type_id (VgpuTypeId): Handle to vGPU type.
+
+    Returns:
+        unsigned int: Maximum number of vGPU instances per GPU instance
+
+    .. seealso:: `nvmlVgpuTypeGetMaxInstancesPerGpuInstance`
+    """
+    cdef nvmlVgpuTypeMaxInstance_t[1] max_instance
+    with nogil:
+        max_instance[0].version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuTypeMaxInstance_v1_t), 1)
+        max_instance[0].vgpuTypeId = <nvmlVgpuTypeId_t>vgpu_type_id
+        __status__ = nvmlVgpuTypeGetMaxInstancesPerGpuInstance(max_instance)
+    check_status(__status__)
+    return max_instance[0].maxInstancePerGI
+
+
+cpdef str device_get_current_clock_freqs(intptr_t device):
+    """Retrieves a string with the associated current GPU Clock and Memory Clock values.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        str: The current clock frequency string.
+
+    .. seealso:: `nvmlDeviceGetCurrentClockFreqs`
+    """
+    cdef nvmlDeviceCurrentClockFreqs_t[1] current_clock_freqs
+    with nogil:
+        current_clock_freqs[0].version = NVML_VERSION_STRUCT(sizeof(nvmlDeviceCurrentClockFreqs_v1_t), 1)
+        __status__ = nvmlDeviceGetCurrentClockFreqs(<Device>device, current_clock_freqs)
+    check_status(__status__)
+    return cpython.PyUnicode_FromString(current_clock_freqs[0].str)

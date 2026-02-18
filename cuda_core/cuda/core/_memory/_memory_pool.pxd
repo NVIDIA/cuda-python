@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -17,6 +17,16 @@ cdef class _MemPool(MemoryResource):
         object                _attributes
         object                _peer_accessible_by
         object                __weakref__
+
+
+cdef class _MemPoolAttributes:
+    cdef:
+        MemoryPoolHandle _h_pool
+
+    @staticmethod
+    cdef _MemPoolAttributes _init(MemoryPoolHandle h_pool)
+
+    cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except? -1
 
 
 cdef class _MemPoolOptions:

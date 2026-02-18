@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -55,7 +55,7 @@ cu12 = ["cuda-bindings[all]==12.*"]
 cu13 = ["cuda-bindings[all]==13.*"]
 
 [dependency-groups]
-test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-randomly"]
+test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-randomly", "pytest-repeat"]
 test-cu12 = ["cuda-core[test]", "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = ["cuda-core[test]", "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 # free threaded build, cupy doesn't support free-threaded builds yet, so avoid installing it for now
@@ -72,9 +72,13 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 [tool.setuptools.packages.find]
 include = ["cuda.core*"]
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.package-data]
-"cuda.core._include" = ["*.h", "*.hpp", "*.cuh"]
-"cuda.core._cpp" = ["*.cpp", "*.hpp"]
+"*" = ["*.pxd"]
+"cuda.core._include" = ["*.h", "*.hpp"]
+"cuda.core._cpp" = ["*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }

@@ -19,7 +19,7 @@ import re
 
 import pytest
 
-from cuda.pathfinder import find_nvidia_header_directory
+from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_HEADERS_CTK_ALL,
@@ -44,6 +44,11 @@ def test_unknown_libname():
         find_nvidia_header_directory("unknown-libname")
 
 
+def _located_hdr_dir_asserts(located_hdr_dir):
+    assert isinstance(located_hdr_dir, LocatedHeaderDir)
+    assert located_hdr_dir.found_via in ("site-packages", "conda", "CUDA_HOME", "supported_install_dir")
+
+
 def test_non_ctk_importlib_metadata_distributions_names():
     # Ensure the dict keys above stay in sync with supported_nvidia_headers
     assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(SUPPORTED_HEADERS_NON_CTK_ALL)
@@ -58,10 +63,14 @@ def have_distribution_for(libname: str) -> bool:
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_NON_CTK.keys())
-def test_find_non_ctk_headers(info_summary_append, libname):
+def test_locate_non_ctk_headers(info_summary_append, libname):
     hdr_dir = find_nvidia_header_directory(libname)
+    located_hdr_dir = locate_nvidia_header_directory(libname)
+    assert hdr_dir is None if not located_hdr_dir else hdr_dir == located_hdr_dir.abs_path
+
     info_summary_append(f"{hdr_dir=!r}")
     if hdr_dir:
+        _located_hdr_dir_asserts(located_hdr_dir)
         assert os.path.isdir(hdr_dir)
         assert os.path.isfile(os.path.join(hdr_dir, SUPPORTED_HEADERS_NON_CTK[libname]))
     if have_distribution_for(libname):
@@ -88,10 +97,14 @@ def test_supported_headers_site_packages_ctk_consistency():
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
-def test_find_ctk_headers(info_summary_append, libname):
+def test_locate_ctk_headers(info_summary_append, libname):
     hdr_dir = find_nvidia_header_directory(libname)
+    located_hdr_dir = locate_nvidia_header_directory(libname)
+    assert hdr_dir is None if not located_hdr_dir else hdr_dir == located_hdr_dir.abs_path
+
     info_summary_append(f"{hdr_dir=!r}")
     if hdr_dir:
+        _located_hdr_dir_asserts(located_hdr_dir)
         assert os.path.isdir(hdr_dir)
         h_filename = SUPPORTED_HEADERS_CTK[libname]
         assert os.path.isfile(os.path.join(hdr_dir, h_filename))

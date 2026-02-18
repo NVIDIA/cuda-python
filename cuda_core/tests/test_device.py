@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 try:
@@ -25,6 +25,35 @@ def cuda_version():
     return _py_major_ver, _driver_ver
 
 
+def test_to_system_device(deinit_cuda):
+    from cuda.core.system import _system
+
+    device = Device()
+
+    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        with pytest.raises(RuntimeError):
+            device.to_system_device()
+        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
+
+    from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
+
+    if not hardware_supports_nvml():
+        pytest.skip("NVML not supported on this platform")
+
+    from cuda.core.system import Device as SystemDevice
+
+    system_device = device.to_system_device()
+    assert isinstance(system_device, SystemDevice)
+    assert system_device.uuid == device.uuid
+
+    # Technically, this test will only work with PCI devices, but are there
+    # non-PCI devices we need to support?
+
+    # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
+    # 4-byte domain
+    assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
+
+
 def test_device_set_current(deinit_cuda):
     device = Device()
     device.set_current()
@@ -44,6 +73,16 @@ def test_device_alloc(deinit_cuda):
     device.sync()
     assert buffer.handle != 0
     assert buffer.size == 1024
+    assert buffer.device_id == int(device)
+
+
+def test_device_alloc_zero_bytes(deinit_cuda):
+    device = Device()
+    device.set_current()
+    buffer = device.allocate(0)
+    device.sync()
+    assert buffer.handle >= 0
+    assert buffer.size == 0
     assert buffer.device_id == int(device)
 
 

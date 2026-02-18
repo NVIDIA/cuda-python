@@ -5,7 +5,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Iterable, Literal, Union
+from typing import TYPE_CHECKING, Iterable, Literal
+
+if TYPE_CHECKING:
+    from cuda.core._stream import Stream
 
 from cuda.core._device import Device
 from cuda.core._memory._buffer import Buffer, MemoryResource
@@ -19,15 +22,12 @@ from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 
-if TYPE_CHECKING:
-    from cuda.core._stream import Stream
-
 __all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
 
-VirtualMemoryHandleTypeT = Union[Literal["posix_fd", "generic", "win32_kmt", "fabric"], None]
+VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "win32_kmt", "fabric"] | None
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
-VirtualMemoryAccessTypeT = Union[Literal["rw", "r"], None]
+VirtualMemoryAccessTypeT = Literal["rw", "r"] | None
 VirtualMemoryAllocationTypeT = Literal["pinned", "managed"]
 
 

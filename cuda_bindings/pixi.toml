@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -17,6 +17,7 @@ cuda-bindings = { path = "." }
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
 pytest-randomly = "*"
+pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
 
@@ -118,6 +119,7 @@ cuda-pathfinder = ">=1.1,<2"
 libnvjitlink = "*"
 cuda-nvrtc = "*"
 cuda-nvvm = "*"
+libnvfatbin  = "*"
 
 [package.target.linux.run-dependencies]
 libcufile = "*"

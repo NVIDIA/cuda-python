@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -284,7 +284,6 @@ def test_cpp_program_with_various_options(init_cuda, options):
     assert program.backend == "NVRTC"
     program.compile("ptx")
     program.close()
-    assert program.handle is None
 
 
 @pytest.mark.skipif(
@@ -299,7 +298,6 @@ def test_cpp_program_with_trace_option(init_cuda, tmp_path):
     assert program.backend == "NVRTC"
     program.compile("ptx")
     program.close()
-    assert program.handle is None
 
 
 @pytest.mark.skipif((_get_nvrtc_version_for_tests() or 0) < 12800, reason="PCH requires NVRTC >= 12.8")
@@ -314,7 +312,6 @@ def test_cpp_program_with_pch_options(init_cuda, tmp_path):
         assert program.backend == "NVRTC"
         program.compile("ptx")
         program.close()
-        assert program.handle is None
 
 
 options = [
@@ -335,11 +332,10 @@ if not is_culink_backend:
 
 @pytest.mark.parametrize("options", options)
 def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
-    program = Program(ptx_code_object._module.decode(), "ptx", options=options)
+    program = Program(ptx_code_object.code.decode(), "ptx", options=options)
     assert program.backend == ("driver" if is_culink_backend else "nvJitLink")
     program.compile("cubin")
     program.close()
-    assert program.handle is None
 
 
 def test_program_init_valid_code_type():
@@ -378,7 +374,7 @@ def test_program_compile_valid_target_type(init_cuda):
         ptx_kernel = ptx_object_code.get_kernel("my_kernel")
         assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code._module.decode(), "ptx", options={"name": "24"})
+    program = Program(ptx_object_code.code.decode(), "ptx", options={"name": "24"})
     cubin_object_code = program.compile("cubin")
     assert isinstance(cubin_object_code, ObjectCode)
     assert cubin_object_code.name == "24"
@@ -409,7 +405,8 @@ def test_program_close():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
     program.close()
-    assert program.handle is None
+    # close() is idempotent
+    program.close()
 
 
 @nvvm_available
@@ -441,7 +438,7 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
 def test_nvvm_compile_invalid_target(nvvm_ir):
     """Test that NVVM programs reject invalid compilation targets"""
     program = Program(nvvm_ir, "nvvm")
-    with pytest.raises(ValueError, match='NVVM backend only supports target_type="ptx"'):
+    with pytest.raises(ValueError, match='Unsupported target_type="cubin" for NVVM'):
         program.compile("cubin")
     program.close()
 

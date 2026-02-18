@@ -1,15 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from enum import IntEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 
 
 ###############################################################################
@@ -17,7 +17,11 @@ from enum import IntEnum as _IntEnum
 ###############################################################################
 
 class Result(_IntEnum):
-    """See `nvvmResult`."""
+    """
+    NVVM API call result code.
+
+    See `nvvmResult`.
+    """
     SUCCESS = NVVM_SUCCESS
     ERROR_OUT_OF_MEMORY = NVVM_ERROR_OUT_OF_MEMORY
     ERROR_PROGRAM_CREATION_FAILURE = NVVM_ERROR_PROGRAM_CREATION_FAILURE

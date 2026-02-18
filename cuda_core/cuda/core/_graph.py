@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from cuda.core._stream import Stream
+
 from cuda.core._utils.cuda_utils import (
     driver,
     get_binding_version,

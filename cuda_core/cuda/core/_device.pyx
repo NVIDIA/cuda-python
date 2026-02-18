@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 cimport cpython
 from libc.stdint cimport uintptr_t
 
@@ -9,7 +11,6 @@ from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import TYPE_CHECKING
 
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
@@ -33,9 +34,6 @@ from cuda.core._utils.cuda_utils import (
     runtime,
 )
 from cuda.core._stream cimport default_stream
-
-if TYPE_CHECKING:
-    from cuda.core._memory import Buffer, MemoryResource
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
@@ -957,56 +955,15 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context")
+    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context", "__weakref__")
 
     def __new__(cls, device_id: Device | int | None = None):
-        # Handle device_id argument.
         if isinstance(device_id, Device):
             return device_id
-        else:
-            device_id = getattr(device_id, 'device_id', device_id)
 
-        # Initialize CUDA.
-        global _is_cuInit
-        if _is_cuInit is False:
-            with _lock, nogil:
-                HANDLE_RETURN(cydriver.cuInit(0))
-                _is_cuInit = True
-
-        # important: creating a Device instance does not initialize the GPU!
-        cdef cydriver.CUdevice dev
-        cdef cydriver.CUcontext ctx
-        if device_id is None:
-            with nogil:
-                err = cydriver.cuCtxGetDevice(&dev)
-            if err == cydriver.CUresult.CUDA_SUCCESS:
-                device_id = int(dev)
-            elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                # No context is current - verify and default to device 0 (cudart behavior)
-                assert cydriver.cuCtxGetCurrent(&ctx) == cydriver.CUresult.CUDA_SUCCESS and ctx == NULL
-                device_id = 0
-            else:
-                HANDLE_RETURN(err)
-        elif device_id < 0:
-            raise ValueError(f"device_id must be >= 0, got {device_id}")
-
-        # ensure Device is singleton
-        cdef int total
-        try:
-            devices = _tls.devices
-        except AttributeError:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
-            devices = _tls.devices = []
-            for i in range(total):
-                device = super().__new__(cls)
-                device._device_id = i
-                device._memory_resource = None
-                device._has_inited = False
-                device._properties = None
-                device._uuid = None
-                device._context = None
-                devices.append(device)
+        Device_ensure_cuda_initialized()
+        device_id = Device_resolve_device_id(device_id)
+        devices = Device_ensure_tls_devices(cls)
 
         try:
             return devices[device_id]
@@ -1033,6 +990,29 @@ class Device:
         from cuda.core import system
         total = system.get_num_devices()
         return tuple(cls(device_id) for device_id in range(total))
+
+    def to_system_device(self) -> 'cuda.core.system.Device':
+        """
+        Get the corresponding :class:`cuda.core.system.Device` (which is used
+        for NVIDIA Machine Library (NVML) access) for this
+        :class:`cuda.core.Device` (which is used for CUDA access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.system.Device
+            The corresponding system-level device instance used for NVML access.
+        """
+        from cuda.core.system._system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
+
+        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+            raise RuntimeError(
+                "cuda.core.system.Device requires cuda_bindings 13.1.2+ or 12.9.6+"
+            )
+
+        from cuda.core.system import Device as SystemDevice
+        return SystemDevice(uuid=self.uuid)
 
     @property
     def device_id(self) -> int:
@@ -1393,3 +1373,62 @@ class Device:
         """
         self._check_context_initialized()
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
+
+
+cdef inline int Device_ensure_cuda_initialized() except? -1:
+    """Initialize CUDA driver and check version compatibility (once per process)."""
+    global _is_cuInit
+    if _is_cuInit is False:
+        with _lock, nogil:
+            HANDLE_RETURN(cydriver.cuInit(0))
+            _is_cuInit = True
+        try:
+            from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
+        except ImportError:
+            pass
+        else:
+            warn_if_cuda_major_version_mismatch()
+    return 0
+
+
+cdef inline int Device_resolve_device_id(device_id) except? -1:
+    """Resolve device_id, defaulting to current device or 0."""
+    cdef cydriver.CUdevice dev
+    cdef cydriver.CUcontext ctx
+    cdef cydriver.CUresult err
+    if device_id is None:
+        with nogil:
+            err = cydriver.cuCtxGetDevice(&dev)
+        if err == cydriver.CUresult.CUDA_SUCCESS:
+            return int(dev)
+        elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            assert <void*>(ctx) == NULL
+            return 0  # cudart behavior
+        else:
+            HANDLE_RETURN(err)
+    elif device_id < 0:
+        raise ValueError(f"device_id must be >= 0, got {device_id}")
+    return device_id
+
+
+cdef inline list Device_ensure_tls_devices(cls):
+    """Ensure thread-local Device singletons exist, creating if needed."""
+    cdef int total
+    try:
+        return _tls.devices
+    except AttributeError:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
+        devices = _tls.devices = []
+        for dev_id in range(total):
+            device = super(Device, cls).__new__(cls)
+            device._device_id = dev_id
+            device._memory_resource = None
+            device._has_inited = False
+            device._properties = None
+            device._uuid = None
+            device._context = None
+            devices.append(device)
+        return devices
