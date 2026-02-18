@@ -332,13 +332,12 @@ jobs:
 
       - name: Install test deps and wheels for Cython tests
         run: |
-          # Run all uv sync calls first (each one resets the venv), then
-          # install all pre-built wheels after the last sync.
-          uv sync --frozen --package cuda-bindings --only-group test --no-install-project
-          uv sync --frozen --package cuda-core --only-group test --no-install-project
           uv pip install cuda_pathfinder/dist/*.whl
           uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
+          # --inexact preserves the wheels installed above
+          uv sync --frozen --inexact --package cuda-bindings --only-group test --no-install-project
+          uv sync --frozen --inexact --package cuda-core --only-group test --no-install-project
 
       - name: Build cuda.bindings Cython tests
         run: |
