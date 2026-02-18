@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Tag Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: "Component to tag (cuda_bindings implies cuda_python as well)"
+        required: true
+        type: choice
+        options:
+          - cuda_bindings
+          - cuda_core
+          - cuda_pathfinder
+      version:
+        description: "Version to tag (e.g. 1.2.3)"
+        required: true
+        type: string
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ fromJSON('{"cuda_bindings":"v","cuda_core":"cuda-core-v","cuda_pathfinder":"cuda-pathfinder-v"}')[inputs.component] }}${{ inputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create empty commit and tag
+        run: |
+          git commit --allow-empty -m "Release ${TAG}"
+          git tag "${TAG}"
+
+      - name: Push commit and tag
+        run: |
+          git push origin main
+          git push origin "${TAG}"
