@@ -327,8 +327,12 @@ jobs:
 
       # Create a fresh venv for the matrix Python (differs from the 3.12 used
       # during the build phase above).
-      - name: Create venv
-        run: uv venv
+      - name: Create and activate venv
+        run: |
+          uv venv
+          echo "${GITHUB_WORKSPACE}/.venv/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.venv/Scripts" >> $GITHUB_PATH
+          echo "VIRTUAL_ENV=${GITHUB_WORKSPACE}/.venv" >> $GITHUB_ENV
 
       - name: Install test deps and wheels for Cython tests
         run: |
@@ -341,7 +345,6 @@ jobs:
 
       - name: Build cuda.bindings Cython tests
         run: |
-          export PATH="${GITHUB_WORKSPACE}/.venv/bin:${GITHUB_WORKSPACE}/.venv/Scripts:${PATH}"
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -355,7 +358,6 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          export PATH="${GITHUB_WORKSPACE}/.venv/bin:${GITHUB_WORKSPACE}/.venv/Scripts:${PATH}"
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
