@@ -3,6 +3,7 @@
 
 import multiprocessing as mp
 
+import pytest
 from cuda.core import Buffer, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
@@ -10,6 +11,8 @@ CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NWORKERS = 2
 NTASKS = 2
+
+pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
 
 
 class TestIpcMempool:

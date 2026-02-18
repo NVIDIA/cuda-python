@@ -11,6 +11,7 @@ import cuda.bindings.runtime as cudart
 import numpy as np
 import pytest
 from cuda.bindings import driver
+from cuda_python_test_helpers.managed_memory import managed_memory_skip_reason
 
 
 def driverVersionLessThan(target):
@@ -37,6 +38,12 @@ def supportsCudaAPI(name):
 
 def callableBinary(name):
     return shutil.which(name) is not None
+
+
+def skip_if_concurrent_managed_access_disabled():
+    reason = managed_memory_skip_reason()
+    if reason:
+        pytest.skip(reason)
 
 
 def test_cuda_memcpy():
@@ -324,6 +331,7 @@ def test_cuda_memPool_attr():
     driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
+    skip_if_concurrent_managed_access_disabled()
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -389,6 +397,7 @@ def test_pointer_get_attributes_device_ordinal():
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
 def test_cuda_mem_range_attr(device):
+    skip_if_concurrent_managed_access_disabled()
     size = 0x1000
     location_device = cuda.CUmemLocation()
     location_device.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE

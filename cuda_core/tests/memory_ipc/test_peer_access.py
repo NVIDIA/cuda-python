@@ -57,6 +57,8 @@ class TestBufferPeerAccessAfterImport:
     setting peer access on the imported memory resource, and that access can be revoked.
     """
 
+    pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
+
     @pytest.mark.parametrize("grant_access_in_parent", [True, False])
     def test_main(self, mempool_device_x2, grant_access_in_parent):
         dev0, dev1 = mempool_device_x2

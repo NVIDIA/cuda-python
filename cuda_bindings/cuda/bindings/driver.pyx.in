@@ -30662,7 +30662,7 @@ def cuMemHostGetFlags(p):
     return (CUresult(err), pFlags)
 {{endif}}
 
-{{if 'cuMemAllocManaged' in found_functions}}
+{{if 'MANUALLYDISABLEDcuMemAllocManaged' in found_functions}}
 
 @cython.embedsignature(True)
 def cuMemAllocManaged(size_t bytesize, unsigned int flags):
