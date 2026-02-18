@@ -158,18 +158,45 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_cuda_array_interface(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        """Create a view from an object supporting the ``__cuda_array_interface__`` protocol.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing the ``__cuda_array_interface__`` protocol.
+        stream_ptr : int, optional
+            Stream pointer for synchronization. If ``None``, no synchronization is performed.
+        """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_cai(obj, stream_ptr, buf)
         return buf
 
     @classmethod
     def from_array_interface(cls, obj: object) -> StridedMemoryView:
+        """Create a view from an object supporting the ``__array_interface__`` protocol.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing the ``__array_interface__`` protocol (e.g., a numpy array).
+        """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_array_interface(obj, buf)
         return buf
 
     @classmethod
     def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
+        """Create a view by automatically selecting the best available protocol.
+
+        Tries DLPack first, then falls back to ``__cuda_array_interface__``.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing DLPack or ``__cuda_array_interface__``.
+        stream_ptr : int, optional
+            Stream pointer for synchronization. If ``None``, no synchronization is performed.
+        """
         if check_has_dlpack(obj):
             return cls.from_dlpack(obj, stream_ptr)
         return cls.from_cuda_array_interface(obj, stream_ptr)

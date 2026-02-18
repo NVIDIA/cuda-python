@@ -23,6 +23,8 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
+   LEGACY_DEFAULT_STREAM
+   PER_THREAD_DEFAULT_STREAM
 
    :template: autosummary/cyclass.rst
 

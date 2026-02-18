@@ -304,6 +304,15 @@ class ProgramOptions:
     instantiate_templates_in_pch : bool, optional
         Control template instantiation in PCH (NVRTC only, CUDA 12.8+).
         Default: False
+    extra_sources : list of 2-tuples or tuple of 2-tuples, optional
+        Additional NVVM IR modules to compile together with the main program, specified as
+        ``((name1, source1), (name2, source2), ...)``. Each source can be a string (textual
+        LLVM IR), bytes, or bytearray. Only supported for the NVVM backend.
+        Default: None
+    use_libdevice : bool, optional
+        Load NVIDIA's libdevice math builtins library during NVVM compilation. Only
+        supported for the NVVM backend.
+        Default: False
     """
 
     name: str | None = "default_program"
