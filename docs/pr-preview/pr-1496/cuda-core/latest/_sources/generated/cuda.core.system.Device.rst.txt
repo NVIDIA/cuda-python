@@ -14,9 +14,25 @@ cuda.core.system.Device
 
    
    .. automethod:: __init__
+   .. automethod:: clear_cpu_affinity
    .. automethod:: clear_field_values
+   .. automethod:: clock
+   .. automethod:: fan
    .. automethod:: get_all_devices
+   .. automethod:: get_all_devices_with_cpu_affinity
+   .. automethod:: get_auto_boosted_clocks_enabled
+   .. automethod:: get_cpu_affinity
+   .. automethod:: get_current_clock_event_reasons
+   .. automethod:: get_device_count
    .. automethod:: get_field_values
+   .. automethod:: get_memory_affinity
+   .. automethod:: get_supported_clock_event_reasons
+   .. automethod:: get_supported_event_types
+   .. automethod:: get_supported_pstates
+   .. automethod:: get_topology_nearest_gpus
+   .. automethod:: register_events
+   .. automethod:: set_cpu_affinity
+   .. automethod:: to_cuda_device
 
    
    
@@ -26,19 +42,32 @@ cuda.core.system.Device
    .. rubric:: Attributes
 
    
-   .. autoattribute:: architecture
+   .. autoattribute:: addressing_mode
+   .. autoattribute:: arch
    .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
-   .. autoattribute:: cpu_affinity
+   .. autoattribute:: cooler
    .. autoattribute:: cuda_compute_capability
+   .. autoattribute:: display_active
+   .. autoattribute:: display_mode
+   .. autoattribute:: dynamic_pstates_info
    .. autoattribute:: index
+   .. autoattribute:: inforom
    .. autoattribute:: is_c2c_mode_enabled
    .. autoattribute:: memory_info
+   .. autoattribute:: minor_number
+   .. autoattribute:: module_id
    .. autoattribute:: name
+   .. autoattribute:: num_fans
+   .. autoattribute:: numa_node_id
+   .. autoattribute:: pci_bus_id
    .. autoattribute:: pci_info
+   .. autoattribute:: performance_state
    .. autoattribute:: persistence_mode_enabled
+   .. autoattribute:: repair_status
    .. autoattribute:: serial
+   .. autoattribute:: temperature
    .. autoattribute:: uuid
    
    

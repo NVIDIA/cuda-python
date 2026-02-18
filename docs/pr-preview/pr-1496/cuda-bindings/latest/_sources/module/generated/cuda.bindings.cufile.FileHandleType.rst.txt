@@ -3,4 +3,41 @@
 
 .. currentmodule:: cuda.bindings.cufile
 
-.. autoenum:: FileHandleType
+.. autoclass:: FileHandleType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FileHandleType.__init__
+      ~FileHandleType.as_integer_ratio
+      ~FileHandleType.bit_count
+      ~FileHandleType.bit_length
+      ~FileHandleType.conjugate
+      ~FileHandleType.from_bytes
+      ~FileHandleType.is_integer
+      ~FileHandleType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FileHandleType.OPAQUE_FD
+      ~FileHandleType.OPAQUE_WIN32
+      ~FileHandleType.USERSPACE_FS
+      ~FileHandleType.denominator
+      ~FileHandleType.imag
+      ~FileHandleType.name
+      ~FileHandleType.numerator
+      ~FileHandleType.real
+      ~FileHandleType.value
+   
+   

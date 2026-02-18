@@ -25,9 +25,4 @@ cuda.core.\_module.KernelOccupancy
 
    
    
-   .. rubric:: Attributes
-
-   
-   .. autoproperty:: slots
-   
    

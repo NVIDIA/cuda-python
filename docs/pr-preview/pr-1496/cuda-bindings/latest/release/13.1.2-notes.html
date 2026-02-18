@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda-bindings 13.1.X Release notes &#8212; cuda.bindings</title>
+    <title>cuda-bindings 13.1.2 Release notes &#8212; cuda.bindings</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/13.1.X-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/13.1.2-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
@@ -58,11 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/release/13.1.X-notes.html" />
+    <link rel="canonical" href="docs/release/13.1.2-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="../install.html" />
+    <link rel="prev" title="cuda-bindings 13.1.1 Release notes" href="13.1.1-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -181,7 +183,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../release.html">
     Release Notes
   </a>
@@ -391,7 +393,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../release.html">
     Release Notes
   </a>
@@ -498,8 +500,9 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">13.1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.3-notes.html">13.0.3</a></li>
@@ -549,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/nvvm.html">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvfatbin.html">nvfatbin</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../module/cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -645,7 +649,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.X Release notes</span></li>
+    
+    <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.2 Release notes</span></li>
   </ul>
 </nav>
 </div>
@@ -662,10 +669,17 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-bindings-13-1-x-release-notes">
-<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.X Release notes<a class="headerlink" href="#cuda-bindings-13-1-x-release-notes" title="Link to this heading">#</a></h1>
+  <section id="cuda-bindings-13-1-2-release-notes">
+<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.2 Release notes<a class="headerlink" href="#cuda-bindings-13-1-2-release-notes" title="Link to this heading">#</a></h1>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">nvFatbin</span></code> bindings. (PR #1467 &lt;<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/pull/1467">NVIDIA/cuda-python#1467</a>&gt;_)</p></li>
+<li><p>Performance improvement: <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> now uses a faster <code class="docutils literal notranslate"><span class="pre">enum</span></code>
+implementation, rather than the standard library’s <code class="docutils literal notranslate"><span class="pre">enum.IntEnum</span></code>.
+This leads to much faster import times, and slightly faster attribute access
+times.  (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1581">PR #1581</a>)</p></li>
+</ul>
 </section>
 <section id="experimental">
 <h2>Experimental<a class="headerlink" href="#experimental" title="Link to this heading">#</a></h2>
@@ -676,6 +690,15 @@
 <li><p>Fixed an issue where the <code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL</span></code> attribute was
 retrieved as an unsigned int, rather than a signed int.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1336">PR #1336</a>)</p></li>
+<li><p>Fixed ABI incompatibility bugs in cuFILE bindings introduced in v13.1.0.</p></li>
+</ul>
+</section>
+<section id="miscellaneous">
+<h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Wheel and installed package sizes significantly reduced (e.g., on a typical Linux x86_64
+build, wheel from ~16.6 MB to ~5.7 MB and installed from ~152 MB to ~23 MB) by excluding
+Cython source files, generated C++ files, and template files from distribution packages.</p></li>
 </ul>
 </section>
 <section id="known-issues">
@@ -697,6 +720,24 @@ retrieved as an unsigned int, rather than a signed int.
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="13.1.1-notes.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.1 Release notes</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../install.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -721,6 +762,7 @@ retrieved as an unsigned int, rather than a signed int.
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experimental">Experimental</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous">Miscellaneous</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
 </ul>
   </nav></div>

@@ -64,7 +64,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cuda.bindings.cufile.handle_register" href="generated/cuda.bindings.cufile.handle_register.html" />
-    <link rel="prev" title="nvvm" href="nvvm.html" />
+    <link rel="prev" title="nvfatbin" href="nvfatbin.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -502,6 +502,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.2-notes.html">13.1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.3-notes.html">13.0.3</a></li>
@@ -551,6 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvvm.html">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvfatbin.html">nvfatbin</a></li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">cufile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -787,37 +789,37 @@ Supported on Linux only.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.IOParams.html#cuda.bindings.cufile.IOParams" title="cuda.bindings.cufile.IOParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IOParams</span></code></a>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileIOParams_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError" title="cuda.bindings.cufile.OpError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpError</span></code></a>(value[, names, module, qualname, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError" title="cuda.bindings.cufile.OpError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpError</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileOpError</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.DriverStatusFlags.html#cuda.bindings.cufile.DriverStatusFlags" title="cuda.bindings.cufile.DriverStatusFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DriverStatusFlags</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.DriverStatusFlags.html#cuda.bindings.cufile.DriverStatusFlags" title="cuda.bindings.cufile.DriverStatusFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DriverStatusFlags</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileDriverStatusFlags_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.DriverControlFlags.html#cuda.bindings.cufile.DriverControlFlags" title="cuda.bindings.cufile.DriverControlFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DriverControlFlags</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.DriverControlFlags.html#cuda.bindings.cufile.DriverControlFlags" title="cuda.bindings.cufile.DriverControlFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DriverControlFlags</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileDriverControlFlags_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.FeatureFlags.html#cuda.bindings.cufile.FeatureFlags" title="cuda.bindings.cufile.FeatureFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureFlags</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.FeatureFlags.html#cuda.bindings.cufile.FeatureFlags" title="cuda.bindings.cufile.FeatureFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureFlags</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileFeatureFlags_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.FileHandleType.html#cuda.bindings.cufile.FileHandleType" title="cuda.bindings.cufile.FileHandleType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileHandleType</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.FileHandleType.html#cuda.bindings.cufile.FileHandleType" title="cuda.bindings.cufile.FileHandleType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileHandleType</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileFileHandleType</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.Opcode.html#cuda.bindings.cufile.Opcode" title="cuda.bindings.cufile.Opcode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Opcode</span></code></a>(value[, names, module, qualname, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.Opcode.html#cuda.bindings.cufile.Opcode" title="cuda.bindings.cufile.Opcode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Opcode</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileOpcode_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.Status.html#cuda.bindings.cufile.Status" title="cuda.bindings.cufile.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a>(value[, names, module, qualname, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.Status.html#cuda.bindings.cufile.Status" title="cuda.bindings.cufile.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileStatus_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.BatchMode.html#cuda.bindings.cufile.BatchMode" title="cuda.bindings.cufile.BatchMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchMode</span></code></a>(value[, names, module, qualname, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.BatchMode.html#cuda.bindings.cufile.BatchMode" title="cuda.bindings.cufile.BatchMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchMode</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUfileBatchMode_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.SizeTConfigParameter.html#cuda.bindings.cufile.SizeTConfigParameter" title="cuda.bindings.cufile.SizeTConfigParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SizeTConfigParameter</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.SizeTConfigParameter.html#cuda.bindings.cufile.SizeTConfigParameter" title="cuda.bindings.cufile.SizeTConfigParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SizeTConfigParameter</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUFileSizeTConfigParameter_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.BoolConfigParameter.html#cuda.bindings.cufile.BoolConfigParameter" title="cuda.bindings.cufile.BoolConfigParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoolConfigParameter</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.BoolConfigParameter.html#cuda.bindings.cufile.BoolConfigParameter" title="cuda.bindings.cufile.BoolConfigParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoolConfigParameter</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUFileBoolConfigParameter_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.StringConfigParameter.html#cuda.bindings.cufile.StringConfigParameter" title="cuda.bindings.cufile.StringConfigParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StringConfigParameter</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.StringConfigParameter.html#cuda.bindings.cufile.StringConfigParameter" title="cuda.bindings.cufile.StringConfigParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StringConfigParameter</span></code></a>(value)</p></td>
 <td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">CUFileStringConfigParameter_t</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.cuFileError.html#cuda.bindings.cufile.cuFileError" title="cuda.bindings.cufile.cuFileError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuFileError</span></code></a>(status[, cu_err])</p></td>
@@ -840,12 +842,12 @@ Supported on Linux only.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="nvvm.html"
+       href="nvfatbin.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">nvvm</p>
+        <p class="prev-next-title">nvfatbin</p>
       </div>
     </a>
     <a class="right-next"
