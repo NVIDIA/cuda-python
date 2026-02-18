@@ -1,0 +1,20 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+CUDA Python 13.1.0 Release notes
+================================
+
+Released on Dec 4, 2025.
+
+
+Included components
+-------------------
+
+* `cuda.bindings 13.1.0 <https://nvidia.github.io/cuda-python/cuda-bindings/13.1.0/release/13.1.0-notes.html>`_
+* `cuda.pathfinder 1.3.3 <https://nvidia.github.io/cuda-python/cuda-pathfinder/1.3.3/>`_
+
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
