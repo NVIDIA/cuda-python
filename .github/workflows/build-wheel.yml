@@ -178,11 +178,16 @@ jobs:
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_PASS_WINDOWS: >
-            DISTUTILS_USE_SDK INCLUDE LIB VCToolsInstallDir
+            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            PATH="$VCToolsInstallDir/bin/Hostx64/x64;$PATH"
+          # Git ships /usr/bin/link.exe (POSIX hardlink tool) which shadows
+          # MSVC's linker when DISTUTILS_USE_SDK=1 skips vcvarsall.bat.
+          CIBW_BEFORE_BUILD_WINDOWS: >
+            pip install delvewheel &&
+            if exist "C:\Program Files\Git\usr\bin\link.exe"
+            (rename "C:\Program Files\Git\usr\bin\link.exe" link.exe.bak)
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-stats
@@ -237,13 +242,16 @@ jobs:
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_PASS_WINDOWS: >
-            DISTUTILS_USE_SDK INCLUDE LIB VCToolsInstallDir
+            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
-            PATH="$VCToolsInstallDir/bin/Hostx64/x64;$PATH"
+          CIBW_BEFORE_BUILD_WINDOWS: >
+            pip install delvewheel &&
+            if exist "C:\Program Files\Git\usr\bin\link.exe"
+            (rename "C:\Program Files\Git\usr\bin\link.exe" link.exe.bak)
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
@@ -436,13 +444,16 @@ jobs:
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_PASS_WINDOWS: >
-            DISTUTILS_USE_SDK INCLUDE LIB VCToolsInstallDir
+            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
-            PATH="$VCToolsInstallDir/bin/Hostx64/x64;$PATH"
+          CIBW_BEFORE_BUILD_WINDOWS: >
+            pip install delvewheel &&
+            if exist "C:\Program Files\Git\usr\bin\link.exe"
+            (rename "C:\Program Files\Git\usr\bin\link.exe" link.exe.bak)
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
