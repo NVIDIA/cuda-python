@@ -1,0 +1,39 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.\_module.KernelAttributes
+===================================
+
+.. currentmodule:: cuda.core._module
+
+.. autoclass:: KernelAttributes
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: binary_version
+   .. automethod:: cache_mode_ca
+   .. automethod:: cluster_scheduling_policy_preference
+   .. automethod:: cluster_size_must_be_set
+   .. automethod:: const_size_bytes
+   .. automethod:: local_size_bytes
+   .. automethod:: max_dynamic_shared_size_bytes
+   .. automethod:: max_threads_per_block
+   .. automethod:: non_portable_cluster_size_allowed
+   .. automethod:: num_regs
+   .. automethod:: preferred_shared_memory_carveout
+   .. automethod:: ptx_version
+   .. automethod:: required_cluster_depth
+   .. automethod:: required_cluster_height
+   .. automethod:: required_cluster_width
+   .. automethod:: shared_size_bytes
+
+   
+   
+
+   
+   
+   
