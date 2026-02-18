@@ -534,6 +534,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
     self._use_libdevice = False
+    self._libdevice_added = False
 
     if code_type == "c++":
         assert_type(code, str)
@@ -577,7 +578,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._h_nvvm = create_nvvm_program_handle(nvvm_prog)  # RAII from here
         with nogil:
             HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(nvvm_prog, code_ptr, code_len, name_ptr))
-
+        
         # Add extra modules if provided
         if options.extra_sources is not None:
             if not is_sequence(options.extra_sources):
@@ -618,7 +619,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
                 with nogil:
                     HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
                         nvvm_prog, module_ptr, module_len, module_name_ptr))
-
+                
         # Store use_libdevice flag
         if options.use_libdevice:
             self._use_libdevice = True
@@ -726,16 +727,16 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
         HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
 
     # Load libdevice if requested  - following numba-cuda
-    if self._use_libdevice:
+    if self._use_libdevice and not self._libdevice_added:
         libdevice_path = _find_libdevice_path()
         with open(libdevice_path, "rb") as f:
             libdevice_bytes = f.read()
         libdevice_ptr = <const char*>libdevice_bytes
         libdevice_len = len(libdevice_bytes)
-        # Use lazy_add_module
         with nogil:
             HANDLE_RETURN_NVVM(prog, cynvvm.nvvmLazyAddModuleToProgram(
                 prog, libdevice_ptr, libdevice_len, NULL))
+        self._libdevice_added = True
 
     with nogil:
         HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
