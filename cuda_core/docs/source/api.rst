@@ -23,8 +23,6 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
-   LEGACY_DEFAULT_STREAM
-   PER_THREAD_DEFAULT_STREAM
 
    :template: autosummary/cyclass.rst
 
@@ -50,6 +48,18 @@ CUDA runtime
    StreamOptions
    LaunchConfig
    VirtualMemoryResourceOptions
+
+.. data:: LEGACY_DEFAULT_STREAM
+
+   The legacy default CUDA stream. All devices share the same legacy default
+   stream, and work launched on it is not concurrent with work on any other
+   stream.
+
+.. data:: PER_THREAD_DEFAULT_STREAM
+
+   The per-thread default CUDA stream. Each host thread has its own per-thread
+   default stream, and work launched on it can execute concurrently with work
+   on other non-blocking streams.
 
 
 CUDA compilation toolchain

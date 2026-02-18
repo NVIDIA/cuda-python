@@ -152,18 +152,28 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_dlpack(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        """Create a view from an object supporting the `DLPack <https://dmlc.github.io/dlpack/latest/>`_ protocol.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing the `DLPack <https://dmlc.github.io/dlpack/latest/>`_ protocol
+            (via ``__dlpack__``).
+        stream_ptr : int, optional
+            Stream pointer for synchronization. If ``None``, no synchronization is performed.
+        """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_dlpack(obj, stream_ptr, buf)
         return buf
 
     @classmethod
     def from_cuda_array_interface(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
-        """Create a view from an object supporting the ``__cuda_array_interface__`` protocol.
+        """Create a view from an object supporting the `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_ protocol.
 
         Parameters
         ----------
         obj : object
-            An object implementing the ``__cuda_array_interface__`` protocol.
+            An object implementing the `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_ protocol.
         stream_ptr : int, optional
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
@@ -173,12 +183,12 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_array_interface(cls, obj: object) -> StridedMemoryView:
-        """Create a view from an object supporting the ``__array_interface__`` protocol.
+        """Create a view from an object supporting the `__array_interface__ <https://numpy.org/doc/stable/reference/arrays.interface.html>`_ protocol.
 
         Parameters
         ----------
         obj : object
-            An object implementing the ``__array_interface__`` protocol (e.g., a numpy array).
+            An object implementing the `__array_interface__ <https://numpy.org/doc/stable/reference/arrays.interface.html>`_ protocol (e.g., a numpy array).
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_array_interface(obj, buf)
@@ -188,12 +198,14 @@ cdef class StridedMemoryView:
     def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
         """Create a view by automatically selecting the best available protocol.
 
-        Tries DLPack first, then falls back to ``__cuda_array_interface__``.
+        Tries `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
+        `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
 
         Parameters
         ----------
         obj : object
-            An object implementing DLPack or ``__cuda_array_interface__``.
+            An object implementing `DLPack <https://dmlc.github.io/dlpack/latest/>`_ or
+            `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
         stream_ptr : int, optional
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """

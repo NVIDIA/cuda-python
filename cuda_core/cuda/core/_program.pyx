@@ -306,12 +306,13 @@ class ProgramOptions:
         Default: False
     extra_sources : list of 2-tuples or tuple of 2-tuples, optional
         Additional NVVM IR modules to compile together with the main program, specified as
-        ``((name1, source1), (name2, source2), ...)``. Each source can be a string (textual
-        LLVM IR), bytes, or bytearray. Only supported for the NVVM backend.
+        ``((name1, source1), (name2, source2), ...)``. Each name is a string identifier used
+        in diagnostic messages. Each source can be a string (textual LLVM IR) or bytes/bytearray
+        (LLVM bitcode). Only supported for the NVVM backend.
         Default: None
     use_libdevice : bool, optional
-        Load NVIDIA's libdevice math builtins library during NVVM compilation. Only
-        supported for the NVVM backend.
+        Load NVIDIA's `libdevice <https://docs.nvidia.com/cuda/libdevice-users-guide/>`_
+        math builtins library. Only supported for the NVVM backend.
         Default: False
     """
 
