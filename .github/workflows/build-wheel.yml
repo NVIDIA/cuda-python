@@ -113,11 +113,14 @@ jobs:
       # outer environment. Pass DISTUTILS_USE_SDK=1 so setuptools uses those
       # vars directly instead of calling vcvarsall.bat (which can exceed the
       # cmd.exe ~8KB command line limit with build[uv]'s longer PATH).
-      - name: Set DISTUTILS_USE_SDK (Windows)
+      - name: Set DISTUTILS_USE_SDK and fix link.exe (Windows)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
           echo "DISTUTILS_USE_SDK=1" >> $GITHUB_ENV
-          echo "${VCToolsInstallDir}bin/Hostx64/x64" >> $GITHUB_PATH
+          # Git ships /usr/bin/link.exe (POSIX hardlink tool) which shadows
+          # MSVC's linker. Rename it so MSVC's link.exe is always found.
+          mv "C:/Program Files/Git/usr/bin/link.exe" \
+             "C:/Program Files/Git/usr/bin/link.exe.bak" 2>/dev/null || true
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
