@@ -703,6 +703,7 @@ test = [
     { name = "pyglet" },
     { name = "pytest" },
     { name = "pytest-benchmark" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
     { name = "setuptools" },
 ]
@@ -722,6 +723,7 @@ test = [
     { name = "pyglet", specifier = ">=2.1.9" },
     { name = "pytest", specifier = ">=6.2.4" },
     { name = "pytest-benchmark", specifier = ">=3.4.1" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
     { name = "setuptools", specifier = ">=77.0.0" },
 ]
@@ -840,6 +842,7 @@ host = [
 test = [
     { name = "pytest" },
     { name = "pytest-mock" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
 ]
 test-cu12 = [
@@ -856,6 +859,7 @@ test-cu12 = [
     { name = "nvpl-fft", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine != 'aarch64' and extra == 'extra-9-cuda-core-cu12' and extra == 'extra-9-cuda-core-cu13') or (sys_platform != 'linux' and extra == 'extra-9-cuda-core-cu12' and extra == 'extra-9-cuda-core-cu13')" },
     { name = "pytest" },
     { name = "pytest-mock" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
 ]
 test-cu13 = [
@@ -871,6 +875,7 @@ test-cu13 = [
     { name = "nvpl-fft", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine != 'aarch64' and extra == 'extra-9-cuda-core-cu12' and extra == 'extra-9-cuda-core-cu13') or (sys_platform != 'linux' and extra == 'extra-9-cuda-core-cu12' and extra == 'extra-9-cuda-core-cu13')" },
     { name = "pytest" },
     { name = "pytest-mock" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
 ]
 
@@ -904,6 +909,7 @@ host = [{ name = "nvpl-fft", marker = "platform_machine == 'aarch64' and sys_pla
 test = [
     { name = "pytest", specifier = ">=6.2.4" },
     { name = "pytest-mock" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
 ]
 test-cu12 = [
@@ -920,6 +926,7 @@ test-cu12 = [
     { name = "nvpl-fft", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
     { name = "pytest", specifier = ">=6.2.4" },
     { name = "pytest-mock" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
 ]
 test-cu13 = [
@@ -935,6 +942,7 @@ test-cu13 = [
     { name = "nvpl-fft", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
     { name = "pytest", specifier = ">=6.2.4" },
     { name = "pytest-mock" },
+    { name = "pytest-randomly" },
     { name = "pytest-repeat" },
 ]
 
