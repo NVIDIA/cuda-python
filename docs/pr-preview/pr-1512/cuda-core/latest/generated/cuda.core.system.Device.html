@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e279b667"></script>
+    <script src="../_static/documentation_options.js?v=610dd795"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev60';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev118';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -212,8 +212,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute.html">
-    Contributing
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -225,6 +225,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
     Code of Conduct
@@ -401,6 +408,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../contribute.html">
     Contributing
   </a>
@@ -551,6 +565,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -559,6 +574,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
@@ -994,7 +1010,6 @@ NVIDIA machine library (NVML) access).</p>
 <span class="sig-name descname"><span class="pre">addressing_mode</span></span><a class="headerlink" href="#cuda.core.system.Device.addressing_mode" title="Link to this definition">#</a></dt>
 <dd><p>AddressingMode</p>
 <p>Get the addressing mode of the device.</p>
-<p>For Turing™ or newer fully supported devices.</p>
 <p>Addressing modes can be one of:</p>
 <ul class="simple">
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_HMM</span></code>: System allocated
@@ -1263,6 +1278,18 @@ be 0.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.pci_bus_id">
+<span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core.system.Device.pci_bus_id" title="Link to this definition">#</a></dt>
+<dd><p>str</p>
+<p>Retrieves the PCI bus ID of this device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.pci_bus_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.pci_info">
 <span class="sig-name descname"><span class="pre">pci_info</span></span><a class="headerlink" href="#cuda.core.system.Device.pci_info" title="Link to this definition">#</a></dt>
 <dd><p>PciInfo</p>
@@ -1449,6 +1476,7 @@ prefix.  That is not included in <code class="docutils literal notranslate"><spa
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.name"><code class="docutils literal notranslate"><span class="pre">Device.name</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.num_fans"><code class="docutils literal notranslate"><span class="pre">Device.num_fans</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.numa_node_id"><code class="docutils literal notranslate"><span class="pre">Device.numa_node_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.pci_bus_id"><code class="docutils literal notranslate"><span class="pre">Device.pci_bus_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.pci_info"><code class="docutils literal notranslate"><span class="pre">Device.pci_info</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.performance_state"><code class="docutils literal notranslate"><span class="pre">Device.performance_state</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.persistence_mode_enabled"><code class="docutils literal notranslate"><span class="pre">Device.persistence_mode_enabled</span></code></a></li>

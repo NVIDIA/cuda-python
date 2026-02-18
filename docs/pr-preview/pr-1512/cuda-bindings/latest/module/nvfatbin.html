@@ -502,6 +502,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.2-notes.html">13.1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.3-notes.html">13.0.3</a></li>
@@ -942,109 +943,98 @@ to a valid sequence of ‘char’, or</p></li>
 <h2>Types<a class="headerlink" href="#types" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.Result" title="Link to this definition">#</a></dt>
-<dd><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinResult</span></code>.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.Result" title="Link to this definition">#</a></dt>
+<dd><p>The enumerated type nvFatbinResult defines API call result codes.
+nvFatbin APIs return nvFatbinResult codes to indicate the result.</p>
+<p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinResult</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.SUCCESS">
-<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.SUCCESS" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.SUCCESS:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.SUCCESS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_INTERNAL">
-<span class="sig-name descname"><span class="pre">ERROR_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INTERNAL" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INTERNAL:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INTERNAL" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_ELF_ARCH_MISMATCH">
-<span class="sig-name descname"><span class="pre">ERROR_ELF_ARCH_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_ELF_ARCH_MISMATCH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_ELF_ARCH_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_ELF_ARCH_MISMATCH:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_ELF_ARCH_MISMATCH" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_ELF_SIZE_MISMATCH">
-<span class="sig-name descname"><span class="pre">ERROR_ELF_SIZE_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_ELF_SIZE_MISMATCH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_ELF_SIZE_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_ELF_SIZE_MISMATCH:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_ELF_SIZE_MISMATCH" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_VERSION">
-<span class="sig-name descname"><span class="pre">ERROR_MISSING_PTX_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_VERSION" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_MISSING_PTX_VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_MISSING_PTX_VERSION:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_VERSION" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_NULL_POINTER">
-<span class="sig-name descname"><span class="pre">ERROR_NULL_POINTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_NULL_POINTER" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_NULL_POINTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_NULL_POINTER:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_NULL_POINTER" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_COMPRESSION_FAILED">
-<span class="sig-name descname"><span class="pre">ERROR_COMPRESSION_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_COMPRESSION_FAILED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_COMPRESSION_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_COMPRESSION_FAILED:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_COMPRESSION_FAILED" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_COMPRESSED_SIZE_EXCEEDED">
-<span class="sig-name descname"><span class="pre">ERROR_COMPRESSED_SIZE_EXCEEDED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_COMPRESSED_SIZE_EXCEEDED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_COMPRESSED_SIZE_EXCEEDED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_COMPRESSED_SIZE_EXCEEDED:</span> <span class="pre">7&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_COMPRESSED_SIZE_EXCEEDED" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_UNRECOGNIZED_OPTION">
-<span class="sig-name descname"><span class="pre">ERROR_UNRECOGNIZED_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_UNRECOGNIZED_OPTION" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_UNRECOGNIZED_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_UNRECOGNIZED_OPTION:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_UNRECOGNIZED_OPTION" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_INVALID_ARCH">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_ARCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INVALID_ARCH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_ARCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_ARCH:</span> <span class="pre">9&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INVALID_ARCH" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_INVALID_NVVM">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_NVVM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INVALID_NVVM" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_NVVM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_NVVM:</span> <span class="pre">10&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INVALID_NVVM" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_EMPTY_INPUT">
-<span class="sig-name descname"><span class="pre">ERROR_EMPTY_INPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_EMPTY_INPUT" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_EMPTY_INPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_EMPTY_INPUT:</span> <span class="pre">11&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_EMPTY_INPUT" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_ARCH">
-<span class="sig-name descname"><span class="pre">ERROR_MISSING_PTX_ARCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_ARCH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_MISSING_PTX_ARCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_MISSING_PTX_ARCH:</span> <span class="pre">12&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_ARCH" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_PTX_ARCH_MISMATCH">
-<span class="sig-name descname"><span class="pre">ERROR_PTX_ARCH_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_PTX_ARCH_MISMATCH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_PTX_ARCH_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_PTX_ARCH_MISMATCH:</span> <span class="pre">13&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_PTX_ARCH_MISMATCH" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_MISSING_FATBIN">
-<span class="sig-name descname"><span class="pre">ERROR_MISSING_FATBIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_MISSING_FATBIN" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_MISSING_FATBIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_MISSING_FATBIN:</span> <span class="pre">14&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_MISSING_FATBIN" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_INVALID_INDEX">
-<span class="sig-name descname"><span class="pre">ERROR_INVALID_INDEX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INVALID_INDEX" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INVALID_INDEX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INVALID_INDEX:</span> <span class="pre">15&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INVALID_INDEX" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_IDENTIFIER_REUSE">
-<span class="sig-name descname"><span class="pre">ERROR_IDENTIFIER_REUSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_IDENTIFIER_REUSE" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_IDENTIFIER_REUSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_IDENTIFIER_REUSE:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_IDENTIFIER_REUSE" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.ERROR_INTERNAL_PTX_OPTION">
-<span class="sig-name descname"><span class="pre">ERROR_INTERNAL_PTX_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">17</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INTERNAL_PTX_OPTION" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ERROR_INTERNAL_PTX_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INTERNAL_PTX_OPTION:</span> <span class="pre">17&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.ERROR_INTERNAL_PTX_OPTION" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e279b667"></script>
+    <script src="../_static/documentation_options.js?v=610dd795"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev60';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev118';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -212,8 +212,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute.html">
-    Contributing
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -225,6 +225,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
     Code of Conduct
@@ -401,6 +408,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../contribute.html">
     Contributing
   </a>
@@ -551,6 +565,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -559,6 +574,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
@@ -928,7 +944,7 @@ Setting to an empty sequence revokes all peer access.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.uuid">
 <span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.uuid" title="Link to this definition">#</a></dt>
-<dd><p>Optional[uuid.UUID]</p>
+<dd><p>uuid.UUID | None</p>
 <p>A universally unique identifier for this memory resource. Meaningful
 only for IPC-enabled memory resources.</p>
 <dl class="field-list simple">

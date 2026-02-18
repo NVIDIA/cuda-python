@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e279b667"></script>
+    <script src="../_static/documentation_options.js?v=610dd795"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev60';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev118';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -212,8 +212,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute.html">
-    Contributing
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -225,6 +225,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
     Code of Conduct
@@ -401,6 +408,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../contribute.html">
     Contributing
   </a>
@@ -551,6 +565,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -559,6 +574,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
@@ -630,21 +646,199 @@
 <h1>cuda.core.system.TemperatureThresholds<a class="headerlink" href="#cuda-core-system-temperaturethresholds" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">TemperatureThresholds</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">TemperatureThresholds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds" title="Link to this definition">#</a></dt>
+<dd><p>Temperature thresholds.</p>
+<p>See <cite>nvmlTemperatureThresholds_t</cite>.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.as_integer_ratio">
+<span class="sig-name descname"><span class="pre">as_integer_ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.as_integer_ratio" title="Link to this definition">#</a></dt>
+<dd><p>Return a pair of integers, whose ratio is equal to the original int.</p>
+<p>The ratio is in lowest terms and has a positive denominator.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(10, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(-10, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">as_integer_ratio</span><span class="p">()</span>
+<span class="go">(0, 1)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.bit_count">
+<span class="sig-name descname"><span class="pre">bit_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.bit_count" title="Link to this definition">#</a></dt>
+<dd><p>Number of ones in the binary representation of the absolute value of self.</p>
+<p>Also known as the population count.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>
+<span class="go">&#39;0b1101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.bit_length">
+<span class="sig-name descname"><span class="pre">bit_length</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.bit_length" title="Link to this definition">#</a></dt>
+<dd><p>Number of bits necessary to represent self in binary.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="mi">37</span><span class="p">)</span>
+<span class="go">&#39;0b100101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">37</span><span class="p">)</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.conjugate">
+<span class="sig-name descname"><span class="pre">conjugate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.conjugate" title="Link to this definition">#</a></dt>
+<dd><p>Returns self, the complex conjugate of any int.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.from_bytes">
+<span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">byteorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'big'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.from_bytes" title="Link to this definition">#</a></dt>
+<dd><p>Return the integer represented by the given array of bytes.</p>
+<dl class="simple">
+<dt>bytes</dt><dd><p>Holds the array of bytes to convert.  The argument must either
+support the buffer protocol or be an iterable object producing bytes.
+Bytes and bytearray are examples of built-in objects that support the
+buffer protocol.</p>
+</dd>
+<dt>byteorder</dt><dd><p>The byte order used to represent the integer.  If byteorder is ‘big’,
+the most significant byte is at the beginning of the byte array.  If
+byteorder is ‘little’, the most significant byte is at the end of the
+byte array.  To request the native byte order of the host system, use
+<a href="#id1"><span class="problematic" id="id2">`</span></a>sys.byteorder’ as the byte order value.  Default is to use ‘big’.</p>
+</dd>
+<dt>signed</dt><dd><p>Indicates whether two’s complement is used to represent the integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.is_integer">
+<span class="sig-name descname"><span class="pre">is_integer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.is_integer" title="Link to this definition">#</a></dt>
+<dd><p>Returns True. Exists for duck type compatibility with float.is_integer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">byteorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'big'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds" title="Link to this definition">#</a></dt>
-<dd><p>See <cite>nvmlTemperatureThresholds_t</cite>.</p>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.to_bytes" title="Link to this definition">#</a></dt>
+<dd><p>Return an array of bytes representing an integer.</p>
+<dl class="simple">
+<dt>length</dt><dd><p>Length of bytes object to use.  An OverflowError is raised if the
+integer is not representable with the given number of bytes.  Default
+is length 1.</p>
+</dd>
+<dt>byteorder</dt><dd><p>The byte order used to represent the integer.  If byteorder is ‘big’,
+the most significant byte is at the beginning of the byte array.  If
+byteorder is ‘little’, the most significant byte is at the end of the
+byte array.  To request the native byte order of the host system, use
+<a href="#id3"><span class="problematic" id="id4">`</span></a>sys.byteorder’ as the byte order value.  Default is to use ‘big’.</p>
+</dd>
+<dt>signed</dt><dd><p>Determines whether two’s complement is used to represent the integer.
+If signed is False and a negative integer is given, an OverflowError
+is raised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_ACOUSTIC_CURR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_ACOUSTIC_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX:</span> <span class="pre">6&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MIN">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_ACOUSTIC_MIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MIN:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MIN" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_COUNT">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_COUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_COUNT:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_COUNT" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_GPS_CURR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR:</span> <span class="pre">7&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_GPU_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_MEM_MAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_SHUTDOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN">
+<span class="sig-name descname"><span class="pre">TEMPERATURE_THRESHOLD_SLOWDOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.denominator">
+<span class="sig-name descname"><span class="pre">denominator</span></span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.denominator" title="Link to this definition">#</a></dt>
+<dd><p>the denominator of a rational number in lowest terms</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.imag">
+<span class="sig-name descname"><span class="pre">imag</span></span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.imag" title="Link to this definition">#</a></dt>
+<dd><p>the imaginary part of a complex number</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.numerator">
+<span class="sig-name descname"><span class="pre">numerator</span></span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.numerator" title="Link to this definition">#</a></dt>
+<dd><p>the numerator of a rational number in lowest terms</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.real">
+<span class="sig-name descname"><span class="pre">real</span></span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.real" title="Link to this definition">#</a></dt>
+<dd><p>the real part of a complex number</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.TemperatureThresholds.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#cuda.core.system.TemperatureThresholds.value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -698,7 +892,32 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.__init__"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.as_integer_ratio"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.as_integer_ratio()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.bit_count"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.bit_count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.bit_length"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.bit_length()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.conjugate"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.conjugate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.from_bytes"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.from_bytes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.is_integer"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.is_integer()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.to_bytes"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.to_bytes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MIN"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MIN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_COUNT"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_COUNT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.denominator"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.denominator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.imag"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.imag</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.name"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.numerator"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.numerator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.real"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.real</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.TemperatureThresholds.value"><code class="docutils literal notranslate"><span class="pre">TemperatureThresholds.value</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

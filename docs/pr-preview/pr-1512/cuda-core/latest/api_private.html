@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=e279b667"></script>
+    <script src="_static/documentation_options.js?v=610dd795"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev60';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev118';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -210,8 +210,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="contribute.html">
-    Contributing
+  <a class="nav-link nav-internal" href="environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -223,6 +223,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contribute.html">
+    Contributing
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="conduct.html">
     Code of Conduct
@@ -399,6 +406,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="contribute.html">
     Contributing
   </a>
@@ -549,6 +563,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -557,6 +572,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.4.2-notes.html">0.4.2</a></li>
@@ -626,7 +642,7 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._buffer.DevicePointerT.html#cuda.core._memory._buffer.DevicePointerT" title="cuda.core._memory._buffer.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._buffer.DevicePointerT</span></code></a></p></td>
-<td><p>alias of <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUdeviceptr" title="(in cuda.bindings)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUdeviceptr</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
+<td><p>Represent a PEP 604 union type</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT" title="cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._virtual_memory_resource.VirtualMemoryAllocationTypeT</span></code></a></p></td>
 <td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['pinned', 'managed']</p></td>
@@ -644,7 +660,7 @@
 <td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['posix_fd', 'generic', 'win32_kmt', 'fabric'] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes" title="cuda.core._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
-<td><p></p></td>
+<td><p>Provides access to kernel attributes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._module.KernelOccupancy.html#cuda.core._module.KernelOccupancy" title="cuda.core._module.KernelOccupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelOccupancy</span></code></a>(*args, **kwargs)</p></td>
 <td><p>This class offers methods to query occupancy metrics that help determine optimal launch parameters such as block size, grid size, and shared memory usage.</p></td>

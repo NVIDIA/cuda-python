@@ -502,6 +502,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.1.2-notes.html">13.1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.3-notes.html">13.0.3</a></li>
@@ -673,51 +674,90 @@
                   
   <section id="cuda-bindings-cufile-status">
 <h1>cuda.bindings.cufile.Status<a class="headerlink" href="#cuda-bindings-cufile-status" title="Link to this heading">#</a></h1>
-<dl class="py class enum">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.cufile.Status">
-<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cufile.</span></span><span class="sig-name descname"><span class="pre">Status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.Status" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cufile.</span></span><span class="sig-name descname"><span class="pre">Status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.Status" title="Link to this definition">#</a></dt>
 <dd><p>See <cite>CUfileStatus_t</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Member Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-</dl>
-<p>Valid values are as follows:</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.WAITING">
-<span class="sig-name descname"><span class="pre">WAITING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.WAITING:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.WAITING" title="Link to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.Status.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.PENDING">
-<span class="sig-name descname"><span class="pre">PENDING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.PENDING:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.PENDING" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.INVALID">
-<span class="sig-name descname"><span class="pre">INVALID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.INVALID:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.INVALID" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.CANCELED">
-<span class="sig-name descname"><span class="pre">CANCELED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.CANCELED:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.CANCELED" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.COMPLETE">
-<span class="sig-name descname"><span class="pre">COMPLETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.COMPLETE:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.COMPLETE" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.TIMEOUT">
-<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.TIMEOUT:</span> <span class="pre">32&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.TIMEOUT" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.Status.FAILED">
-<span class="sig-name descname"><span class="pre">FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Status.FAILED:</span> <span class="pre">64&gt;</span></em><a class="headerlink" href="#cuda.bindings.cufile.Status.FAILED" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.cufile.Status.__init__" title="cuda.bindings.cufile.Status.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
+<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
+<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
+<td><p>Number of bits necessary to represent self in binary.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
+<td><p>Returns self, the complex conjugate of any int.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
+<td><p>Return the integer represented by the given array of bytes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
+<td><p>Returns True.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
+<td><p>Return an array of bytes representing an integer.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CANCELED</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">COMPLETE</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">FAILED</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PENDING</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMEOUT</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WAITING</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
+<td><p>the denominator of a rational number in lowest terms</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
+<td><p>the imaginary part of a complex number</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
+<td><p>the numerator of a rational number in lowest terms</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
+<td><p>the real part of a complex number</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </dd></dl>
 
 </section>
@@ -772,13 +812,7 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status"><code class="docutils literal notranslate"><span class="pre">Status</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.WAITING"><code class="docutils literal notranslate"><span class="pre">Status.WAITING</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.PENDING"><code class="docutils literal notranslate"><span class="pre">Status.PENDING</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.INVALID"><code class="docutils literal notranslate"><span class="pre">Status.INVALID</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.CANCELED"><code class="docutils literal notranslate"><span class="pre">Status.CANCELED</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.COMPLETE"><code class="docutils literal notranslate"><span class="pre">Status.COMPLETE</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">Status.TIMEOUT</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.FAILED"><code class="docutils literal notranslate"><span class="pre">Status.FAILED</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.Status.__init__"><code class="docutils literal notranslate"><span class="pre">Status.__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
