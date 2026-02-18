@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version 0d24f4f. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -6258,6 +6258,12 @@ class cudaGLMapFlags(_FastEnum):
     ){{endif}}
 
 {{endif}}
+
+cdef object _cudaError_t = cudaError_t
+cdef object _cudaError_t_SUCCESS = cudaError_t.cudaSuccess
+
+
+
 {{if 'cudaLaunchAttributeID' in found_types}}
 
 class cudaStreamAttrID(_FastEnum):
@@ -20592,7 +20598,7 @@ def cudaDeviceReset():
     """
     with nogil:
         err = cyruntime.cudaDeviceReset()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceSynchronize' in found_functions}}
@@ -20619,7 +20625,7 @@ def cudaDeviceSynchronize():
     """
     with nogil:
         err = cyruntime.cudaDeviceSynchronize()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceSetLimit' in found_functions}}
@@ -20722,7 +20728,7 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
     cdef cyruntime.cudaLimit cylimit = int(limit)
     with nogil:
         err = cyruntime.cudaDeviceSetLimit(cylimit, value)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetLimit' in found_functions}}
@@ -20781,8 +20787,8 @@ def cudaDeviceGetLimit(limit not None : cudaLimit):
     with nogil:
         err = cyruntime.cudaDeviceGetLimit(&pValue, cylimit)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pValue)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pValue)
 {{endif}}
 
 {{if 'cudaDeviceGetTexture1DLinearMaxWidth' in found_functions}}
@@ -20819,8 +20825,8 @@ def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDes
     with nogil:
         err = cyruntime.cudaDeviceGetTexture1DLinearMaxWidth(&maxWidthInElements, cyfmtDesc_ptr, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), maxWidthInElements)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, maxWidthInElements)
 {{endif}}
 
 {{if 'cudaDeviceGetCacheConfig' in found_functions}}
@@ -20869,8 +20875,8 @@ def cudaDeviceGetCacheConfig():
     with nogil:
         err = cyruntime.cudaDeviceGetCacheConfig(&pCacheConfig)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cudaFuncCache(pCacheConfig))
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cudaFuncCache(pCacheConfig))
 {{endif}}
 
 {{if 'cudaDeviceGetStreamPriorityRange' in found_functions}}
@@ -20916,8 +20922,8 @@ def cudaDeviceGetStreamPriorityRange():
     with nogil:
         err = cyruntime.cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), leastPriority, greatestPriority)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, leastPriority, greatestPriority)
 {{endif}}
 
 {{if 'cudaDeviceSetCacheConfig' in found_functions}}
@@ -20975,7 +20981,7 @@ def cudaDeviceSetCacheConfig(cacheConfig not None : cudaFuncCache):
     cdef cyruntime.cudaFuncCache cycacheConfig = int(cacheConfig)
     with nogil:
         err = cyruntime.cudaDeviceSetCacheConfig(cycacheConfig)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetByPCIBusId' in found_functions}}
@@ -21009,8 +21015,8 @@ def cudaDeviceGetByPCIBusId(char* pciBusId):
     with nogil:
         err = cyruntime.cudaDeviceGetByPCIBusId(&device, pciBusId)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), device)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, device)
 {{endif}}
 
 {{if 'cudaDeviceGetPCIBusId' in found_functions}}
@@ -21050,8 +21056,8 @@ def cudaDeviceGetPCIBusId(int length, int device):
     with nogil:
         err = cyruntime.cudaDeviceGetPCIBusId(pciBusId, length, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pypciBusId)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pypciBusId)
 {{endif}}
 
 {{if 'cudaIpcGetEventHandle' in found_functions}}
@@ -21111,8 +21117,8 @@ def cudaIpcGetEventHandle(event):
     with nogil:
         err = cyruntime.cudaIpcGetEventHandle(<cyruntime.cudaIpcEventHandle_t*>handle._pvt_ptr, cyevent)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), handle)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, handle)
 {{endif}}
 
 {{if 'cudaIpcOpenEventHandle' in found_functions}}
@@ -21158,8 +21164,8 @@ def cudaIpcOpenEventHandle(handle not None : cudaIpcEventHandle_t):
     with nogil:
         err = cyruntime.cudaIpcOpenEventHandle(<cyruntime.cudaEvent_t*>event._pvt_ptr, handle._pvt_ptr[0])
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), event)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, event)
 {{endif}}
 
 {{if 'cudaIpcGetMemHandle' in found_functions}}
@@ -21208,8 +21214,8 @@ def cudaIpcGetMemHandle(devPtr):
     with nogil:
         err = cyruntime.cudaIpcGetMemHandle(<cyruntime.cudaIpcMemHandle_t*>handle._pvt_ptr, cydevPtr_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), handle)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, handle)
 {{endif}}
 
 {{if 'cudaIpcOpenMemHandle' in found_functions}}
@@ -21281,8 +21287,8 @@ def cudaIpcOpenMemHandle(handle not None : cudaIpcMemHandle_t, unsigned int flag
     with nogil:
         err = cyruntime.cudaIpcOpenMemHandle(<void**>&devPtr, handle._pvt_ptr[0], flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), devPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, devPtr)
 {{endif}}
 
 {{if 'cudaIpcCloseMemHandle' in found_functions}}
@@ -21325,7 +21331,7 @@ def cudaIpcCloseMemHandle(devPtr):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaIpcCloseMemHandle(cydevPtr_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceFlushGPUDirectRDMAWrites' in found_functions}}
@@ -21368,7 +21374,7 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
     cdef cyruntime.cudaFlushGPUDirectRDMAWritesScope cyscope = int(scope)
     with nogil:
         err = cyruntime.cudaDeviceFlushGPUDirectRDMAWrites(cytarget, cyscope)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
@@ -21454,8 +21460,8 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     else:
         m_global._allocated[int(callback)] = cbData
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), callback)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t(err), callback)
 {{endif}}
 
 {{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
@@ -21497,7 +21503,7 @@ def cudaDeviceUnregisterAsyncNotification(int device, callback):
     if err == cyruntime.cudaSuccess:
         free(m_global._allocated[pcallback])
         m_global._allocated.erase(<void_ptr>pcallback)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
@@ -21540,8 +21546,8 @@ def cudaDeviceGetSharedMemConfig():
     with nogil:
         err = cyruntime.cudaDeviceGetSharedMemConfig(&pConfig)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cudaSharedMemConfig(pConfig))
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cudaSharedMemConfig(pConfig))
 {{endif}}
 
 {{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
@@ -21598,7 +21604,7 @@ def cudaDeviceSetSharedMemConfig(config not None : cudaSharedMemConfig):
     cdef cyruntime.cudaSharedMemConfig cyconfig = int(config)
     with nogil:
         err = cyruntime.cudaDeviceSetSharedMemConfig(cyconfig)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGetLastError' in found_functions}}
@@ -21626,7 +21632,7 @@ def cudaGetLastError():
     """
     with nogil:
         err = cyruntime.cudaGetLastError()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaPeekAtLastError' in found_functions}}
@@ -21655,7 +21661,7 @@ def cudaPeekAtLastError():
     """
     with nogil:
         err = cyruntime.cudaPeekAtLastError()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGetErrorName' in found_functions}}
@@ -21746,8 +21752,8 @@ def cudaGetDeviceCount():
     with nogil:
         err = cyruntime.cudaGetDeviceCount(&count)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), count)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, count)
 {{endif}}
 
 {{if 'cudaGetDeviceProperties' in found_functions}}
@@ -21778,8 +21784,8 @@ def cudaGetDeviceProperties(int device):
     with nogil:
         err = cyruntime.cudaGetDeviceProperties(<cyruntime.cudaDeviceProp*>prop._pvt_ptr, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), prop)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, prop)
 {{endif}}
 
 {{if 'cudaDeviceGetAttribute' in found_functions}}
@@ -21814,8 +21820,8 @@ def cudaDeviceGetAttribute(attr not None : cudaDeviceAttr, int device):
     with nogil:
         err = cyruntime.cudaDeviceGetAttribute(&value, cyattr, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), value)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, value)
 {{endif}}
 
 {{if 'cudaDeviceGetHostAtomicCapabilities' in found_functions}}
@@ -21877,8 +21883,8 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOp
     if cycapabilities is not NULL:
         free(cycapabilities)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pycapabilities)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pycapabilities)
 {{endif}}
 
 {{if 'cudaDeviceGetDefaultMemPool' in found_functions}}
@@ -21910,8 +21916,8 @@ def cudaDeviceGetDefaultMemPool(int device):
     with nogil:
         err = cyruntime.cudaDeviceGetDefaultMemPool(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memPool)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memPool)
 {{endif}}
 
 {{if 'cudaDeviceSetMemPool' in found_functions}}
@@ -21956,7 +21962,7 @@ def cudaDeviceSetMemPool(int device, memPool):
     cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     with nogil:
         err = cyruntime.cudaDeviceSetMemPool(device, cymemPool)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetMemPool' in found_functions}}
@@ -21992,8 +21998,8 @@ def cudaDeviceGetMemPool(int device):
     with nogil:
         err = cyruntime.cudaDeviceGetMemPool(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memPool)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memPool)
 {{endif}}
 
 {{if 'cudaDeviceGetNvSciSyncAttributes' in found_functions}}
@@ -22079,7 +22085,7 @@ def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
     cdef void* cynvSciSyncAttrList_ptr = <void*><void_ptr>cynvSciSyncAttrList.cptr
     with nogil:
         err = cyruntime.cudaDeviceGetNvSciSyncAttributes(cynvSciSyncAttrList_ptr, device, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetP2PAttribute' in found_functions}}
@@ -22143,8 +22149,8 @@ def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, 
     with nogil:
         err = cyruntime.cudaDeviceGetP2PAttribute(&value, cyattr, srcDevice, dstDevice)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), value)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, value)
 {{endif}}
 
 {{if 'cudaDeviceGetP2PAtomicCapabilities' in found_functions}}
@@ -22210,8 +22216,8 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOpe
     if cycapabilities is not NULL:
         free(cycapabilities)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pycapabilities)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pycapabilities)
 {{endif}}
 
 {{if 'cudaChooseDevice' in found_functions}}
@@ -22244,8 +22250,8 @@ def cudaChooseDevice(prop : Optional[cudaDeviceProp]):
     with nogil:
         err = cyruntime.cudaChooseDevice(&device, cyprop_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), device)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, device)
 {{endif}}
 
 {{if 'cudaInitDevice' in found_functions}}
@@ -22288,7 +22294,7 @@ def cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags):
     """
     with nogil:
         err = cyruntime.cudaInitDevice(device, deviceFlags, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaSetDevice' in found_functions}}
@@ -22344,7 +22350,7 @@ def cudaSetDevice(int device):
     """
     with nogil:
         err = cyruntime.cudaSetDevice(device)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGetDevice' in found_functions}}
@@ -22371,8 +22377,8 @@ def cudaGetDevice():
     with nogil:
         err = cyruntime.cudaGetDevice(&device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), device)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, device)
 {{endif}}
 
 {{if 'cudaSetDeviceFlags' in found_functions}}
@@ -22459,7 +22465,7 @@ def cudaSetDeviceFlags(unsigned int flags):
     """
     with nogil:
         err = cyruntime.cudaSetDeviceFlags(flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGetDeviceFlags' in found_functions}}
@@ -22508,8 +22514,8 @@ def cudaGetDeviceFlags():
     with nogil:
         err = cyruntime.cudaGetDeviceFlags(&flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), flags)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, flags)
 {{endif}}
 
 {{if 'cudaStreamCreate' in found_functions}}
@@ -22538,8 +22544,8 @@ def cudaStreamCreate():
     with nogil:
         err = cyruntime.cudaStreamCreate(<cyruntime.cudaStream_t*>pStream._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pStream)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pStream)
 {{endif}}
 
 {{if 'cudaStreamCreateWithFlags' in found_functions}}
@@ -22582,8 +22588,8 @@ def cudaStreamCreateWithFlags(unsigned int flags):
     with nogil:
         err = cyruntime.cudaStreamCreateWithFlags(<cyruntime.cudaStream_t*>pStream._pvt_ptr, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pStream)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pStream)
 {{endif}}
 
 {{if 'cudaStreamCreateWithPriority' in found_functions}}
@@ -22643,8 +22649,8 @@ def cudaStreamCreateWithPriority(unsigned int flags, int priority):
     with nogil:
         err = cyruntime.cudaStreamCreateWithPriority(<cyruntime.cudaStream_t*>pStream._pvt_ptr, flags, priority)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pStream)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pStream)
 {{endif}}
 
 {{if 'cudaStreamGetPriority' in found_functions}}
@@ -22689,8 +22695,8 @@ def cudaStreamGetPriority(hStream):
     with nogil:
         err = cyruntime.cudaStreamGetPriority(cyhStream, &priority)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), priority)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, priority)
 {{endif}}
 
 {{if 'cudaStreamGetFlags' in found_functions}}
@@ -22731,8 +22737,8 @@ def cudaStreamGetFlags(hStream):
     with nogil:
         err = cyruntime.cudaStreamGetFlags(cyhStream, &flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), flags)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, flags)
 {{endif}}
 
 {{if 'cudaStreamGetId' in found_functions}}
@@ -22787,8 +22793,8 @@ def cudaStreamGetId(hStream):
     with nogil:
         err = cyruntime.cudaStreamGetId(cyhStream, &streamId)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), streamId)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, streamId)
 {{endif}}
 
 {{if 'cudaStreamGetDevice' in found_functions}}
@@ -22827,8 +22833,8 @@ def cudaStreamGetDevice(hStream):
     with nogil:
         err = cyruntime.cudaStreamGetDevice(cyhStream, &device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), device)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, device)
 {{endif}}
 
 {{if 'cudaCtxResetPersistingL2Cache' in found_functions}}
@@ -22851,7 +22857,7 @@ def cudaCtxResetPersistingL2Cache():
     """
     with nogil:
         err = cyruntime.cudaCtxResetPersistingL2Cache()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamCopyAttributes' in found_functions}}
@@ -22897,7 +22903,7 @@ def cudaStreamCopyAttributes(dst, src):
     cydst = <cyruntime.cudaStream_t><void_ptr>pdst
     with nogil:
         err = cyruntime.cudaStreamCopyAttributes(cydst, cysrc)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamGetAttribute' in found_functions}}
@@ -22940,8 +22946,8 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
     with nogil:
         err = cyruntime.cudaStreamGetAttribute(cyhStream, cyattr, <cyruntime.cudaStreamAttrValue*>value_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), value_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, value_out)
 {{endif}}
 
 {{if 'cudaStreamSetAttribute' in found_functions}}
@@ -22984,7 +22990,7 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Op
     cdef cyruntime.cudaStreamAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
     with nogil:
         err = cyruntime.cudaStreamSetAttribute(cyhStream, cyattr, cyvalue_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamDestroy' in found_functions}}
@@ -23024,7 +23030,7 @@ def cudaStreamDestroy(stream):
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaStreamDestroy(cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamWaitEvent' in found_functions}}
@@ -23082,7 +23088,7 @@ def cudaStreamWaitEvent(stream, event, unsigned int flags):
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaStreamWaitEvent(cystream, cyevent, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamAddCallback' in found_functions}}
@@ -23199,7 +23205,7 @@ def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
         err = cyruntime.cudaStreamAddCallback(cystream, <cyruntime.cudaStreamCallback_t>cudaStreamRtCallbackWrapper, <void *>cbData, flags)
     if err != cyruntime.cudaSuccess:
         free(cbData)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamSynchronize' in found_functions}}
@@ -23237,7 +23243,7 @@ def cudaStreamSynchronize(stream):
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaStreamSynchronize(cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamQuery' in found_functions}}
@@ -23277,7 +23283,7 @@ def cudaStreamQuery(stream):
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaStreamQuery(cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamAttachMemAsync' in found_functions}}
@@ -23388,7 +23394,7 @@ def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaStreamAttachMemAsync(cystream, cydevPtr_ptr, length, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamBeginCapture' in found_functions}}
@@ -23445,7 +23451,7 @@ def cudaStreamBeginCapture(stream, mode not None : cudaStreamCaptureMode):
     cdef cyruntime.cudaStreamCaptureMode cymode = int(mode)
     with nogil:
         err = cyruntime.cudaStreamBeginCapture(cystream, cymode)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
@@ -23550,7 +23556,7 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[c
         free(cydependencies)
     if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
@@ -23623,8 +23629,8 @@ def cudaThreadExchangeStreamCaptureMode(mode not None : cudaStreamCaptureMode):
     with nogil:
         err = cyruntime.cudaThreadExchangeStreamCaptureMode(&cymode)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cudaStreamCaptureMode(cymode))
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cudaStreamCaptureMode(cymode))
 {{endif}}
 
 {{if 'cudaStreamEndCapture' in found_functions}}
@@ -23671,8 +23677,8 @@ def cudaStreamEndCapture(stream):
     with nogil:
         err = cyruntime.cudaStreamEndCapture(cystream, <cyruntime.cudaGraph_t*>pGraph._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraph)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraph)
 {{endif}}
 
 {{if 'cudaStreamIsCapturing' in found_functions}}
@@ -23733,8 +23739,8 @@ def cudaStreamIsCapturing(stream):
     with nogil:
         err = cyruntime.cudaStreamIsCapturing(cystream, &pCaptureStatus)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cudaStreamCaptureStatus(pCaptureStatus))
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cudaStreamCaptureStatus(pCaptureStatus))
 {{endif}}
 
 {{if 'cudaStreamGetCaptureInfo' in found_functions}}
@@ -23833,8 +23839,8 @@ def cudaStreamGetCaptureInfo(stream):
     if cudaError_t(err) == cudaError_t(0):
         pyedgeData_out = [cudaGraphEdgeData(_ptr=<void_ptr>&cyedgeData_out[idx]) for idx in range(numDependencies_out)]
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None, None, None, None, None)
-    return (cudaError_t(err), cudaStreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, pyedgeData_out, numDependencies_out)
+        return (_cudaError_t(err), None, None, None, None, None, None)
+    return (_cudaError_t_SUCCESS, cudaStreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, pyedgeData_out, numDependencies_out)
 {{endif}}
 
 {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
@@ -23921,7 +23927,7 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cu
         free(cydependencies)
     if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaEventCreate' in found_functions}}
@@ -23948,8 +23954,8 @@ def cudaEventCreate():
     with nogil:
         err = cyruntime.cudaEventCreate(<cyruntime.cudaEvent_t*>event._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), event)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, event)
 {{endif}}
 
 {{if 'cudaEventCreateWithFlags' in found_functions}}
@@ -24000,8 +24006,8 @@ def cudaEventCreateWithFlags(unsigned int flags):
     with nogil:
         err = cyruntime.cudaEventCreateWithFlags(<cyruntime.cudaEvent_t*>event._pvt_ptr, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), event)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, event)
 {{endif}}
 
 {{if 'cudaEventRecord' in found_functions}}
@@ -24060,7 +24066,7 @@ def cudaEventRecord(event, stream):
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     with nogil:
         err = cyruntime.cudaEventRecord(cyevent, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaEventRecordWithFlags' in found_functions}}
@@ -24128,7 +24134,7 @@ def cudaEventRecordWithFlags(event, stream, unsigned int flags):
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     with nogil:
         err = cyruntime.cudaEventRecordWithFlags(cyevent, cystream, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaEventQuery' in found_functions}}
@@ -24173,7 +24179,7 @@ def cudaEventQuery(event):
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     with nogil:
         err = cyruntime.cudaEventQuery(cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaEventSynchronize' in found_functions}}
@@ -24217,7 +24223,7 @@ def cudaEventSynchronize(event):
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     with nogil:
         err = cyruntime.cudaEventSynchronize(cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaEventDestroy' in found_functions}}
@@ -24258,7 +24264,7 @@ def cudaEventDestroy(event):
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     with nogil:
         err = cyruntime.cudaEventDestroy(cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaEventElapsedTime' in found_functions}}
@@ -24330,8 +24336,8 @@ def cudaEventElapsedTime(start, end):
     with nogil:
         err = cyruntime.cudaEventElapsedTime(&ms, cystart, cyend)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ms)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ms)
 {{endif}}
 
 {{if 'cudaImportExternalMemory' in found_functions}}
@@ -24484,8 +24490,8 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     with nogil:
         err = cyruntime.cudaImportExternalMemory(<cyruntime.cudaExternalMemory_t*>extMem_out._pvt_ptr, cymemHandleDesc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), extMem_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, extMem_out)
 {{endif}}
 
 {{if 'cudaExternalMemoryGetMappedBuffer' in found_functions}}
@@ -24552,8 +24558,8 @@ def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternal
     with nogil:
         err = cyruntime.cudaExternalMemoryGetMappedBuffer(<void**>&devPtr, cyextMem, cybufferDesc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), devPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, devPtr)
 {{endif}}
 
 {{if 'cudaExternalMemoryGetMappedMipmappedArray' in found_functions}}
@@ -24624,8 +24630,8 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cuda
     with nogil:
         err = cyruntime.cudaExternalMemoryGetMappedMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmap._pvt_ptr, cyextMem, cymipmapDesc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), mipmap)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, mipmap)
 {{endif}}
 
 {{if 'cudaDestroyExternalMemory' in found_functions}}
@@ -24663,7 +24669,7 @@ def cudaDestroyExternalMemory(extMem):
     cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     with nogil:
         err = cyruntime.cudaDestroyExternalMemory(cyextMem)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaImportExternalSemaphore' in found_functions}}
@@ -24811,8 +24817,8 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     with nogil:
         err = cyruntime.cudaImportExternalSemaphore(<cyruntime.cudaExternalSemaphore_t*>extSem_out._pvt_ptr, cysemHandleDesc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), extSem_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, extSem_out)
 {{endif}}
 
 {{if 'cudaSignalExternalSemaphoresAsync' in found_functions}}
@@ -24968,7 +24974,7 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalS
         free(cyextSemArray)
     if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaWaitExternalSemaphoresAsync' in found_functions}}
@@ -25097,7 +25103,7 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSem
         free(cyextSemArray)
     if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDestroyExternalSemaphore' in found_functions}}
@@ -25134,7 +25140,7 @@ def cudaDestroyExternalSemaphore(extSem):
     cyextSem = <cyruntime.cudaExternalSemaphore_t><void_ptr>pextSem
     with nogil:
         err = cyruntime.cudaDestroyExternalSemaphore(cyextSem)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaFuncSetCacheConfig' in found_functions}}
@@ -25201,7 +25207,7 @@ def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
     cdef cyruntime.cudaFuncCache cycacheConfig = int(cacheConfig)
     with nogil:
         err = cyruntime.cudaFuncSetCacheConfig(cyfunc_ptr, cycacheConfig)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaFuncGetAttributes' in found_functions}}
@@ -25244,8 +25250,8 @@ def cudaFuncGetAttributes(func):
     with nogil:
         err = cyruntime.cudaFuncGetAttributes(<cyruntime.cudaFuncAttributes*>attr._pvt_ptr, cyfunc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), attr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, attr)
 {{endif}}
 
 {{if 'cudaFuncSetAttribute' in found_functions}}
@@ -25331,7 +25337,7 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
     cdef cyruntime.cudaFuncAttribute cyattr = int(attr)
     with nogil:
         err = cyruntime.cudaFuncSetAttribute(cyfunc_ptr, cyattr, value)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaLaunchHostFunc' in found_functions}}
@@ -25441,7 +25447,7 @@ def cudaLaunchHostFunc(stream, fn, userData):
         err = cyruntime.cudaLaunchHostFunc(cystream, <cyruntime.cudaHostFn_t>cudaStreamRtHostCallbackWrapper, <void *>cbData)
     if err != cyruntime.cudaSuccess:
         free(cbData)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaFuncSetSharedMemConfig' in found_functions}}
@@ -25509,7 +25515,7 @@ def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
     cdef cyruntime.cudaSharedMemConfig cyconfig = int(config)
     with nogil:
         err = cyruntime.cudaFuncSetSharedMemConfig(cyfunc_ptr, cyconfig)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
@@ -25547,8 +25553,8 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessor(func, int blockSize, size_t dy
     with nogil:
         err = cyruntime.cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocks, cyfunc_ptr, blockSize, dynamicSMemSize)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), numBlocks)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, numBlocks)
 {{endif}}
 
 {{if 'cudaOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
@@ -25586,8 +25592,8 @@ def cudaOccupancyAvailableDynamicSMemPerBlock(func, int numBlocks, int blockSize
     with nogil:
         err = cyruntime.cudaOccupancyAvailableDynamicSMemPerBlock(&dynamicSmemSize, cyfunc_ptr, numBlocks, blockSize)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), dynamicSmemSize)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, dynamicSmemSize)
 {{endif}}
 
 {{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
@@ -25642,8 +25648,8 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func, int blockSize, 
     with nogil:
         err = cyruntime.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(&numBlocks, cyfunc_ptr, blockSize, dynamicSMemSize, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), numBlocks)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, numBlocks)
 {{endif}}
 
 {{if 'cudaMallocManaged' in found_functions}}
@@ -25776,8 +25782,8 @@ def cudaMallocManaged(size_t size, unsigned int flags):
     with nogil:
         err = cyruntime.cudaMallocManaged(<void**>&devPtr, size, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), devPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, devPtr)
 {{endif}}
 
 {{if 'cudaMalloc' in found_functions}}
@@ -25815,8 +25821,8 @@ def cudaMalloc(size_t size):
     with nogil:
         err = cyruntime.cudaMalloc(<void**>&devPtr, size)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), devPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, devPtr)
 {{endif}}
 
 {{if 'cudaMallocHost' in found_functions}}
@@ -25863,8 +25869,8 @@ def cudaMallocHost(size_t size):
     with nogil:
         err = cyruntime.cudaMallocHost(<void**>&ptr, size)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ptr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ptr)
 {{endif}}
 
 {{if 'cudaMallocPitch' in found_functions}}
@@ -25919,8 +25925,8 @@ def cudaMallocPitch(size_t width, size_t height):
     with nogil:
         err = cyruntime.cudaMallocPitch(<void**>&devPtr, &pitch, width, height)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), devPtr, pitch)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, devPtr, pitch)
 {{endif}}
 
 {{if 'cudaMallocArray' in found_functions}}
@@ -25996,8 +26002,8 @@ def cudaMallocArray(desc : Optional[cudaChannelFormatDesc], size_t width, size_t
     with nogil:
         err = cyruntime.cudaMallocArray(<cyruntime.cudaArray_t*>array._pvt_ptr, cydesc_ptr, width, height, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), array)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, array)
 {{endif}}
 
 {{if 'cudaFree' in found_functions}}
@@ -26047,7 +26053,7 @@ def cudaFree(devPtr):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaFree(cydevPtr_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaFreeHost' in found_functions}}
@@ -26078,7 +26084,7 @@ def cudaFreeHost(ptr):
     cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
     with nogil:
         err = cyruntime.cudaFreeHost(cyptr_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaFreeArray' in found_functions}}
@@ -26115,7 +26121,7 @@ def cudaFreeArray(array):
     cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     with nogil:
         err = cyruntime.cudaFreeArray(cyarray)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaFreeMipmappedArray' in found_functions}}
@@ -26152,7 +26158,7 @@ def cudaFreeMipmappedArray(mipmappedArray):
     cymipmappedArray = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmappedArray
     with nogil:
         err = cyruntime.cudaFreeMipmappedArray(cymipmappedArray)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaHostAlloc' in found_functions}}
@@ -26236,8 +26242,8 @@ def cudaHostAlloc(size_t size, unsigned int flags):
     with nogil:
         err = cyruntime.cudaHostAlloc(<void**>&pHost, size, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pHost)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pHost)
 {{endif}}
 
 {{if 'cudaHostRegister' in found_functions}}
@@ -26354,7 +26360,7 @@ def cudaHostRegister(ptr, size_t size, unsigned int flags):
     cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
     with nogil:
         err = cyruntime.cudaHostRegister(cyptr_ptr, size, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaHostUnregister' in found_functions}}
@@ -26387,7 +26393,7 @@ def cudaHostUnregister(ptr):
     cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
     with nogil:
         err = cyruntime.cudaHostUnregister(cyptr_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaHostGetDevicePointer' in found_functions}}
@@ -26448,8 +26454,8 @@ def cudaHostGetDevicePointer(pHost, unsigned int flags):
     with nogil:
         err = cyruntime.cudaHostGetDevicePointer(<void**>&pDevice, cypHost_ptr, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pDevice)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pDevice)
 {{endif}}
 
 {{if 'cudaHostGetFlags' in found_functions}}
@@ -26483,8 +26489,8 @@ def cudaHostGetFlags(pHost):
     with nogil:
         err = cyruntime.cudaHostGetFlags(&pFlags, cypHost_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pFlags)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pFlags)
 {{endif}}
 
 {{if 'cudaMalloc3D' in found_functions}}
@@ -26532,8 +26538,8 @@ def cudaMalloc3D(extent not None : cudaExtent):
     with nogil:
         err = cyruntime.cudaMalloc3D(<cyruntime.cudaPitchedPtr*>pitchedDevPtr._pvt_ptr, extent._pvt_ptr[0])
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pitchedDevPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pitchedDevPtr)
 {{endif}}
 
 {{if 'cudaMalloc3DArray' in found_functions}}
@@ -26655,8 +26661,8 @@ def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : 
     with nogil:
         err = cyruntime.cudaMalloc3DArray(<cyruntime.cudaArray_t*>array._pvt_ptr, cydesc_ptr, extent._pvt_ptr[0], flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), array)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, array)
 {{endif}}
 
 {{if 'cudaMallocMipmappedArray' in found_functions}}
@@ -26781,8 +26787,8 @@ def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not 
     with nogil:
         err = cyruntime.cudaMallocMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmappedArray._pvt_ptr, cydesc_ptr, extent._pvt_ptr[0], numLevels, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), mipmappedArray)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, mipmappedArray)
 {{endif}}
 
 {{if 'cudaGetMipmappedArrayLevel' in found_functions}}
@@ -26830,8 +26836,8 @@ def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
     with nogil:
         err = cyruntime.cudaGetMipmappedArrayLevel(<cyruntime.cudaArray_t*>levelArray._pvt_ptr, cymipmappedArray, level)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), levelArray)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, levelArray)
 {{endif}}
 
 {{if 'cudaMemcpy3D' in found_functions}}
@@ -26915,7 +26921,7 @@ def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
     cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3D(cyp_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy3DPeer' in found_functions}}
@@ -26952,7 +26958,7 @@ def cudaMemcpy3DPeer(p : Optional[cudaMemcpy3DPeerParms]):
     cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DPeer(cyp_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy3DAsync' in found_functions}}
@@ -27057,7 +27063,7 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
     cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DAsync(cyp_ptr, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy3DPeerAsync' in found_functions}}
@@ -27097,7 +27103,7 @@ def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
     cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DPeerAsync(cyp_ptr, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemGetInfo' in found_functions}}
@@ -27141,8 +27147,8 @@ def cudaMemGetInfo():
     with nogil:
         err = cyruntime.cudaMemGetInfo(&free, &total)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), free, total)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, free, total)
 {{endif}}
 
 {{if 'cudaArrayGetInfo' in found_functions}}
@@ -27190,8 +27196,8 @@ def cudaArrayGetInfo(array):
     with nogil:
         err = cyruntime.cudaArrayGetInfo(<cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr, <cyruntime.cudaExtent*>extent._pvt_ptr, &flags, cyarray)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None, None)
-    return (cudaError_t(err), desc, extent, flags)
+        return (_cudaError_t(err), None, None, None)
+    return (_cudaError_t_SUCCESS, desc, extent, flags)
 {{endif}}
 
 {{if 'cudaArrayGetPlane' in found_functions}}
@@ -27246,8 +27252,8 @@ def cudaArrayGetPlane(hArray, unsigned int planeIdx):
     with nogil:
         err = cyruntime.cudaArrayGetPlane(<cyruntime.cudaArray_t*>pPlaneArray._pvt_ptr, cyhArray, planeIdx)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pPlaneArray)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pPlaneArray)
 {{endif}}
 
 {{if 'cudaArrayGetMemoryRequirements' in found_functions}}
@@ -27296,8 +27302,8 @@ def cudaArrayGetMemoryRequirements(array, int device):
     with nogil:
         err = cyruntime.cudaArrayGetMemoryRequirements(<cyruntime.cudaArrayMemoryRequirements*>memoryRequirements._pvt_ptr, cyarray, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memoryRequirements)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memoryRequirements)
 {{endif}}
 
 {{if 'cudaMipmappedArrayGetMemoryRequirements' in found_functions}}
@@ -27346,8 +27352,8 @@ def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
     with nogil:
         err = cyruntime.cudaMipmappedArrayGetMemoryRequirements(<cyruntime.cudaArrayMemoryRequirements*>memoryRequirements._pvt_ptr, cymipmap, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memoryRequirements)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memoryRequirements)
 {{endif}}
 
 {{if 'cudaArrayGetSparseProperties' in found_functions}}
@@ -27402,8 +27408,8 @@ def cudaArrayGetSparseProperties(array):
     with nogil:
         err = cyruntime.cudaArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cyarray)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), sparseProperties)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, sparseProperties)
 {{endif}}
 
 {{if 'cudaMipmappedArrayGetSparseProperties' in found_functions}}
@@ -27458,8 +27464,8 @@ def cudaMipmappedArrayGetSparseProperties(mipmap):
     with nogil:
         err = cyruntime.cudaMipmappedArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cymipmap)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), sparseProperties)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, sparseProperties)
 {{endif}}
 
 {{if 'cudaMemcpy' in found_functions}}
@@ -27509,7 +27515,7 @@ def cudaMemcpy(dst, src, size_t count, kind not None : cudaMemcpyKind):
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy(cydst_ptr, cysrc_ptr, count, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyPeer' in found_functions}}
@@ -27557,7 +27563,7 @@ def cudaMemcpyPeer(dst, int dstDevice, src, int srcDevice, size_t count):
     cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
     with nogil:
         err = cyruntime.cudaMemcpyPeer(cydst_ptr, dstDevice, cysrc_ptr, srcDevice, count)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2D' in found_functions}}
@@ -27617,7 +27623,7 @@ def cudaMemcpy2D(dst, size_t dpitch, src, size_t spitch, size_t width, size_t he
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2D(cydst_ptr, dpitch, cysrc_ptr, spitch, width, height, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2DToArray' in found_functions}}
@@ -27684,7 +27690,7 @@ def cudaMemcpy2DToArray(dst, size_t wOffset, size_t hOffset, src, size_t spitch,
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2DToArray(cydst, wOffset, hOffset, cysrc_ptr, spitch, width, height, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2DFromArray' in found_functions}}
@@ -27751,7 +27757,7 @@ def cudaMemcpy2DFromArray(dst, size_t dpitch, src, size_t wOffset, size_t hOffse
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2DFromArray(cydst_ptr, dpitch, cysrc, wOffset, hOffset, width, height, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2DArrayToArray' in found_functions}}
@@ -27824,7 +27830,7 @@ def cudaMemcpy2DArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, siz
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2DArrayToArray(cydst, wOffsetDst, hOffsetDst, cysrc, wOffsetSrc, hOffsetSrc, width, height, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyAsync' in found_functions}}
@@ -27894,7 +27900,7 @@ def cudaMemcpyAsync(dst, src, size_t count, kind not None : cudaMemcpyKind, stre
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpyAsync(cydst_ptr, cysrc_ptr, count, cykind, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyPeerAsync' in found_functions}}
@@ -27950,7 +27956,7 @@ def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, st
     cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
     with nogil:
         err = cyruntime.cudaMemcpyPeerAsync(cydst_ptr, dstDevice, cysrc_ptr, srcDevice, count, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyBatchAsync' in found_functions}}
@@ -28100,7 +28106,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
         err = cyruntime.cudaMemcpyBatchAsync(cydsts_ptr, cysrcs_ptr, cysizes.data(), count, cyattrs, cyattrsIdxs.data(), numAttrs, cystream)
     if len(attrs) > 1 and cyattrs is not NULL:
         free(cyattrs)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy3DBatchAsync' in found_functions}}
@@ -28230,7 +28236,7 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBa
         err = cyruntime.cudaMemcpy3DBatchAsync(numOps, cyopList, flags, cystream)
     if len(opList) > 1 and cyopList is not NULL:
         free(cyopList)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2DAsync' in found_functions}}
@@ -28311,7 +28317,7 @@ def cudaMemcpy2DAsync(dst, size_t dpitch, src, size_t spitch, size_t width, size
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2DAsync(cydst_ptr, dpitch, cysrc_ptr, spitch, width, height, cykind, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2DToArrayAsync' in found_functions}}
@@ -28399,7 +28405,7 @@ def cudaMemcpy2DToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t sp
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2DToArrayAsync(cydst, wOffset, hOffset, cysrc_ptr, spitch, width, height, cykind, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpy2DFromArrayAsync' in found_functions}}
@@ -28486,7 +28492,7 @@ def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src, size_t wOffset, size_t h
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpy2DFromArrayAsync(cydst_ptr, dpitch, cysrc, wOffset, hOffset, width, height, cykind, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemset' in found_functions}}
@@ -28523,7 +28529,7 @@ def cudaMemset(devPtr, int value, size_t count):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaMemset(cydevPtr_ptr, value, count)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemset2D' in found_functions}}
@@ -28567,7 +28573,7 @@ def cudaMemset2D(devPtr, size_t pitch, int value, size_t width, size_t height):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaMemset2D(cydevPtr_ptr, pitch, value, width, height)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemset3D' in found_functions}}
@@ -28621,7 +28627,7 @@ def cudaMemset3D(pitchedDevPtr not None : cudaPitchedPtr, int value, extent not 
     """
     with nogil:
         err = cyruntime.cudaMemset3D(pitchedDevPtr._pvt_ptr[0], value, extent._pvt_ptr[0])
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemsetAsync' in found_functions}}
@@ -28674,7 +28680,7 @@ def cudaMemsetAsync(devPtr, int value, size_t count, stream):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaMemsetAsync(cydevPtr_ptr, value, count, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemset2DAsync' in found_functions}}
@@ -28734,7 +28740,7 @@ def cudaMemset2DAsync(devPtr, size_t pitch, int value, size_t width, size_t heig
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaMemset2DAsync(cydevPtr_ptr, pitch, value, width, height, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemset3DAsync' in found_functions}}
@@ -28804,7 +28810,7 @@ def cudaMemset3DAsync(pitchedDevPtr not None : cudaPitchedPtr, int value, extent
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaMemset3DAsync(pitchedDevPtr._pvt_ptr[0], value, extent._pvt_ptr[0], cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemPrefetchAsync' in found_functions}}
@@ -28922,7 +28928,7 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaMemPrefetchAsync(cydevPtr_ptr, count, location._pvt_ptr[0], flags, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemPrefetchBatchAsync' in found_functions}}
@@ -29031,7 +29037,7 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : 
         err = cyruntime.cudaMemPrefetchBatchAsync(cydptrs_ptr, cysizes.data(), count, cyprefetchLocs, cyprefetchLocIdxs.data(), numPrefetchLocs, flags, cystream)
     if len(prefetchLocs) > 1 and cyprefetchLocs is not NULL:
         free(cyprefetchLocs)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemDiscardBatchAsync' in found_functions}}
@@ -29105,7 +29111,7 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : t
     if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
     with nogil:
         err = cyruntime.cudaMemDiscardBatchAsync(cydptrs_ptr, cysizes.data(), count, flags, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemDiscardAndPrefetchBatchAsync' in found_functions}}
@@ -29222,7 +29228,7 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
         err = cyruntime.cudaMemDiscardAndPrefetchBatchAsync(cydptrs_ptr, cysizes.data(), count, cyprefetchLocs, cyprefetchLocIdxs.data(), numPrefetchLocs, flags, cystream)
     if len(prefetchLocs) > 1 and cyprefetchLocs is not NULL:
         free(cyprefetchLocs)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemAdvise' in found_functions}}
@@ -29419,7 +29425,7 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, loca
     cdef cyruntime.cudaMemoryAdvise cyadvice = int(advice)
     with nogil:
         err = cyruntime.cudaMemAdvise(cydevPtr_ptr, count, cyadvice, location._pvt_ptr[0])
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemRangeGetAttribute' in found_functions}}
@@ -29568,8 +29574,8 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
     with nogil:
         err = cyruntime.cudaMemRangeGetAttribute(cydata_ptr, dataSize, cyattribute, cydevPtr_ptr, count)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cydata.pyObj())
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cydata.pyObj())
 {{endif}}
 
 {{if 'cudaMemRangeGetAttributes' in found_functions}}
@@ -29649,8 +29655,8 @@ def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : O
     with nogil:
         err = cyruntime.cudaMemRangeGetAttributes(cyvoidStarHelper_ptr, cydataSizes.data(), cyattributes.data(), numAttributes, cydevPtr_ptr, count)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), [obj.pyObj() for obj in pylist])
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, [obj.pyObj() for obj in pylist])
 {{endif}}
 
 {{if 'cudaMemcpyToArray' in found_functions}}
@@ -29709,7 +29715,7 @@ def cudaMemcpyToArray(dst, size_t wOffset, size_t hOffset, src, size_t count, ki
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpyToArray(cydst, wOffset, hOffset, cysrc_ptr, count, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyFromArray' in found_functions}}
@@ -29768,7 +29774,7 @@ def cudaMemcpyFromArray(dst, src, size_t wOffset, size_t hOffset, size_t count, 
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpyFromArray(cydst_ptr, cysrc, wOffset, hOffset, count, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyArrayToArray' in found_functions}}
@@ -29838,7 +29844,7 @@ def cudaMemcpyArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpyArrayToArray(cydst, wOffsetDst, hOffsetDst, cysrc, wOffsetSrc, hOffsetSrc, count, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyToArrayAsync' in found_functions}}
@@ -29914,7 +29920,7 @@ def cudaMemcpyToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t coun
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpyToArrayAsync(cydst, wOffset, hOffset, cysrc_ptr, count, cykind, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemcpyFromArrayAsync' in found_functions}}
@@ -29990,7 +29996,7 @@ def cudaMemcpyFromArrayAsync(dst, src, size_t wOffset, size_t hOffset, size_t co
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaMemcpyFromArrayAsync(cydst_ptr, cysrc, wOffset, hOffset, count, cykind, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMallocAsync' in found_functions}}
@@ -30044,8 +30050,8 @@ def cudaMallocAsync(size_t size, hStream):
     with nogil:
         err = cyruntime.cudaMallocAsync(<void**>&devPtr, size, cyhStream)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), devPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, devPtr)
 {{endif}}
 
 {{if 'cudaFreeAsync' in found_functions}}
@@ -30091,7 +30097,7 @@ def cudaFreeAsync(devPtr, hStream):
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
         err = cyruntime.cudaFreeAsync(cydevPtr_ptr, cyhStream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemPoolTrimTo' in found_functions}}
@@ -30141,7 +30147,7 @@ def cudaMemPoolTrimTo(memPool, size_t minBytesToKeep):
     cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     with nogil:
         err = cyruntime.cudaMemPoolTrimTo(cymemPool, minBytesToKeep)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemPoolSetAttribute' in found_functions}}
@@ -30217,7 +30223,7 @@ def cudaMemPoolSetAttribute(memPool, attr not None : cudaMemPoolAttr, value):
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     with nogil:
         err = cyruntime.cudaMemPoolSetAttribute(cymemPool, cyattr, cyvalue_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemPoolGetAttribute' in found_functions}}
@@ -30300,8 +30306,8 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
     with nogil:
         err = cyruntime.cudaMemPoolGetAttribute(cymemPool, cyattr, cyvalue_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cyvalue.pyObj())
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cyvalue.pyObj())
 {{endif}}
 
 {{if 'cudaMemPoolSetAccess' in found_functions}}
@@ -30354,7 +30360,7 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] |
         err = cyruntime.cudaMemPoolSetAccess(cymemPool, cydescList, count)
     if len(descList) > 1 and cydescList is not NULL:
         free(cydescList)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemPoolGetAccess' in found_functions}}
@@ -30397,8 +30403,8 @@ def cudaMemPoolGetAccess(memPool, location : Optional[cudaMemLocation]):
     with nogil:
         err = cyruntime.cudaMemPoolGetAccess(&flags, cymemPool, cylocation_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cudaMemAccessFlags(flags))
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cudaMemAccessFlags(flags))
 {{endif}}
 
 {{if 'cudaMemPoolCreate' in found_functions}}
@@ -30497,8 +30503,8 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     with nogil:
         err = cyruntime.cudaMemPoolCreate(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cypoolProps_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memPool)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memPool)
 {{endif}}
 
 {{if 'cudaMemPoolDestroy' in found_functions}}
@@ -30544,7 +30550,7 @@ def cudaMemPoolDestroy(memPool):
     cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     with nogil:
         err = cyruntime.cudaMemPoolDestroy(cymemPool)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMemGetDefaultMemPool' in found_functions}}
@@ -30588,8 +30594,8 @@ def cudaMemGetDefaultMemPool(location : Optional[cudaMemLocation], typename not 
     with nogil:
         err = cyruntime.cudaMemGetDefaultMemPool(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cylocation_ptr, cytypename)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memPool)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memPool)
 {{endif}}
 
 {{if 'cudaMemGetMemPool' in found_functions}}
@@ -30642,8 +30648,8 @@ def cudaMemGetMemPool(location : Optional[cudaMemLocation], typename not None : 
     with nogil:
         err = cyruntime.cudaMemGetMemPool(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cylocation_ptr, cytypename)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memPool)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memPool)
 {{endif}}
 
 {{if 'cudaMemSetMemPool' in found_functions}}
@@ -30710,7 +30716,7 @@ def cudaMemSetMemPool(location : Optional[cudaMemLocation], typename not None : 
     cdef cyruntime.cudaMemAllocationType cytypename = int(typename)
     with nogil:
         err = cyruntime.cudaMemSetMemPool(cylocation_ptr, cytypename, cymemPool)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaMallocFromPoolAsync' in found_functions}}
@@ -30768,8 +30774,8 @@ def cudaMallocFromPoolAsync(size_t size, memPool, stream):
     with nogil:
         err = cyruntime.cudaMallocFromPoolAsync(<void**>&ptr, size, cymemPool, cystream)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ptr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ptr)
 {{endif}}
 
 {{if 'cudaMemPoolExportToShareableHandle' in found_functions}}
@@ -30825,8 +30831,8 @@ def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAll
     with nogil:
         err = cyruntime.cudaMemPoolExportToShareableHandle(cyshareableHandle_ptr, cymemPool, cyhandleType, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cyshareableHandle.pyObj())
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cyshareableHandle.pyObj())
 {{endif}}
 
 {{if 'cudaMemPoolImportFromShareableHandle' in found_functions}}
@@ -30869,8 +30875,8 @@ def cudaMemPoolImportFromShareableHandle(shareableHandle, handleType not None : 
     with nogil:
         err = cyruntime.cudaMemPoolImportFromShareableHandle(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cyshareableHandle_ptr, cyhandleType, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), memPool)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, memPool)
 {{endif}}
 
 {{if 'cudaMemPoolExportPointer' in found_functions}}
@@ -30906,8 +30912,8 @@ def cudaMemPoolExportPointer(ptr):
     with nogil:
         err = cyruntime.cudaMemPoolExportPointer(<cyruntime.cudaMemPoolPtrExportData*>exportData._pvt_ptr, cyptr_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), exportData)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, exportData)
 {{endif}}
 
 {{if 'cudaMemPoolImportPointer' in found_functions}}
@@ -30959,8 +30965,8 @@ def cudaMemPoolImportPointer(memPool, exportData : Optional[cudaMemPoolPtrExport
     with nogil:
         err = cyruntime.cudaMemPoolImportPointer(<void**>&ptr, cymemPool, cyexportData_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ptr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ptr)
 {{endif}}
 
 {{if 'cudaPointerGetAttributes' in found_functions}}
@@ -31031,8 +31037,8 @@ def cudaPointerGetAttributes(ptr):
     with nogil:
         err = cyruntime.cudaPointerGetAttributes(<cyruntime.cudaPointerAttributes*>attributes._pvt_ptr, cyptr_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), attributes)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, attributes)
 {{endif}}
 
 {{if 'cudaDeviceCanAccessPeer' in found_functions}}
@@ -31070,8 +31076,8 @@ def cudaDeviceCanAccessPeer(int device, int peerDevice):
     with nogil:
         err = cyruntime.cudaDeviceCanAccessPeer(&canAccessPeer, device, peerDevice)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), canAccessPeer)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, canAccessPeer)
 {{endif}}
 
 {{if 'cudaDeviceEnablePeerAccess' in found_functions}}
@@ -31122,7 +31128,7 @@ def cudaDeviceEnablePeerAccess(int peerDevice, unsigned int flags):
     """
     with nogil:
         err = cyruntime.cudaDeviceEnablePeerAccess(peerDevice, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceDisablePeerAccess' in found_functions}}
@@ -31151,7 +31157,7 @@ def cudaDeviceDisablePeerAccess(int peerDevice):
     """
     with nogil:
         err = cyruntime.cudaDeviceDisablePeerAccess(peerDevice)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphicsUnregisterResource' in found_functions}}
@@ -31190,7 +31196,7 @@ def cudaGraphicsUnregisterResource(resource):
     cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     with nogil:
         err = cyruntime.cudaGraphicsUnregisterResource(cyresource)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphicsResourceSetMapFlags' in found_functions}}
@@ -31246,7 +31252,7 @@ def cudaGraphicsResourceSetMapFlags(resource, unsigned int flags):
     cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     with nogil:
         err = cyruntime.cudaGraphicsResourceSetMapFlags(cyresource, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphicsMapResources' in found_functions}}
@@ -31309,7 +31315,7 @@ def cudaGraphicsMapResources(int count, resources, stream):
         raise TypeError("Argument 'resources' is not instance of type (expected <class 'int, runtime.cudaGraphicsResource_t'>, found " + str(type(resources)))
     with nogil:
         err = cyruntime.cudaGraphicsMapResources(count, cyresources, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphicsUnmapResources' in found_functions}}
@@ -31370,7 +31376,7 @@ def cudaGraphicsUnmapResources(int count, resources, stream):
         raise TypeError("Argument 'resources' is not instance of type (expected <class 'int, runtime.cudaGraphicsResource_t'>, found " + str(type(resources)))
     with nogil:
         err = cyruntime.cudaGraphicsUnmapResources(count, cyresources, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphicsResourceGetMappedPointer' in found_functions}}
@@ -31415,8 +31421,8 @@ def cudaGraphicsResourceGetMappedPointer(resource):
     with nogil:
         err = cyruntime.cudaGraphicsResourceGetMappedPointer(<void**>&devPtr, &size, cyresource)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), devPtr, size)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, devPtr, size)
 {{endif}}
 
 {{if 'cudaGraphicsSubResourceGetMappedArray' in found_functions}}
@@ -31472,8 +31478,8 @@ def cudaGraphicsSubResourceGetMappedArray(resource, unsigned int arrayIndex, uns
     with nogil:
         err = cyruntime.cudaGraphicsSubResourceGetMappedArray(<cyruntime.cudaArray_t*>array._pvt_ptr, cyresource, arrayIndex, mipLevel)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), array)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, array)
 {{endif}}
 
 {{if 'cudaGraphicsResourceGetMappedMipmappedArray' in found_functions}}
@@ -31518,8 +31524,8 @@ def cudaGraphicsResourceGetMappedMipmappedArray(resource):
     with nogil:
         err = cyruntime.cudaGraphicsResourceGetMappedMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmappedArray._pvt_ptr, cyresource)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), mipmappedArray)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, mipmappedArray)
 {{endif}}
 
 {{if 'cudaGetChannelDesc' in found_functions}}
@@ -31558,8 +31564,8 @@ def cudaGetChannelDesc(array):
     with nogil:
         err = cyruntime.cudaGetChannelDesc(<cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr, cyarray)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), desc)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, desc)
 {{endif}}
 
 {{if 'cudaCreateChannelDesc' in found_functions}}
@@ -31852,8 +31858,8 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
     with nogil:
         err = cyruntime.cudaCreateTextureObject(<cyruntime.cudaTextureObject_t*>pTexObject._pvt_ptr, cypResDesc_ptr, cypTexDesc_ptr, cypResViewDesc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pTexObject)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pTexObject)
 {{endif}}
 
 {{if 'cudaDestroyTextureObject' in found_functions}}
@@ -31888,7 +31894,7 @@ def cudaDestroyTextureObject(texObject):
     cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     with nogil:
         err = cyruntime.cudaDestroyTextureObject(cytexObject)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGetTextureObjectResourceDesc' in found_functions}}
@@ -31928,8 +31934,8 @@ def cudaGetTextureObjectResourceDesc(texObject):
     with nogil:
         err = cyruntime.cudaGetTextureObjectResourceDesc(<cyruntime.cudaResourceDesc*>pResDesc._pvt_ptr, cytexObject)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pResDesc)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pResDesc)
 {{endif}}
 
 {{if 'cudaGetTextureObjectTextureDesc' in found_functions}}
@@ -31969,8 +31975,8 @@ def cudaGetTextureObjectTextureDesc(texObject):
     with nogil:
         err = cyruntime.cudaGetTextureObjectTextureDesc(<cyruntime.cudaTextureDesc*>pTexDesc._pvt_ptr, cytexObject)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pTexDesc)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pTexDesc)
 {{endif}}
 
 {{if 'cudaGetTextureObjectResourceViewDesc' in found_functions}}
@@ -32011,8 +32017,8 @@ def cudaGetTextureObjectResourceViewDesc(texObject):
     with nogil:
         err = cyruntime.cudaGetTextureObjectResourceViewDesc(<cyruntime.cudaResourceViewDesc*>pResViewDesc._pvt_ptr, cytexObject)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pResViewDesc)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pResViewDesc)
 {{endif}}
 
 {{if 'cudaCreateSurfaceObject' in found_functions}}
@@ -32053,8 +32059,8 @@ def cudaCreateSurfaceObject(pResDesc : Optional[cudaResourceDesc]):
     with nogil:
         err = cyruntime.cudaCreateSurfaceObject(<cyruntime.cudaSurfaceObject_t*>pSurfObject._pvt_ptr, cypResDesc_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pSurfObject)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pSurfObject)
 {{endif}}
 
 {{if 'cudaDestroySurfaceObject' in found_functions}}
@@ -32089,7 +32095,7 @@ def cudaDestroySurfaceObject(surfObject):
     cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
     with nogil:
         err = cyruntime.cudaDestroySurfaceObject(cysurfObject)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGetSurfaceObjectResourceDesc' in found_functions}}
@@ -32126,8 +32132,8 @@ def cudaGetSurfaceObjectResourceDesc(surfObject):
     with nogil:
         err = cyruntime.cudaGetSurfaceObjectResourceDesc(<cyruntime.cudaResourceDesc*>pResDesc._pvt_ptr, cysurfObject)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pResDesc)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pResDesc)
 {{endif}}
 
 {{if 'cudaDriverGetVersion' in found_functions}}
@@ -32159,8 +32165,8 @@ def cudaDriverGetVersion():
     with nogil:
         err = cyruntime.cudaDriverGetVersion(&driverVersion)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), driverVersion)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, driverVersion)
 {{endif}}
 
 {{if 'cudaRuntimeGetVersion' in found_functions}}
@@ -32195,8 +32201,8 @@ def cudaRuntimeGetVersion():
     with nogil:
         err = cyruntime.cudaRuntimeGetVersion(&runtimeVersion)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), runtimeVersion)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, runtimeVersion)
 {{endif}}
 
 {{if 'cudaLogsRegisterCallback' in found_functions}}
@@ -32235,8 +32241,8 @@ def cudaLogsRegisterCallback(callbackFunc, userData):
     with nogil:
         err = cyruntime.cudaLogsRegisterCallback(cycallbackFunc, cyuserData_ptr, <cyruntime.cudaLogsCallbackHandle*>callback_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), callback_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, callback_out)
 {{endif}}
 
 {{if 'cudaLogsUnregisterCallback' in found_functions}}
@@ -32265,7 +32271,7 @@ def cudaLogsUnregisterCallback(callback):
     cycallback = <cyruntime.cudaLogsCallbackHandle><void_ptr>pcallback
     with nogil:
         err = cyruntime.cudaLogsUnregisterCallback(cycallback)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaLogsCurrent' in found_functions}}
@@ -32290,8 +32296,8 @@ def cudaLogsCurrent(unsigned int flags):
     with nogil:
         err = cyruntime.cudaLogsCurrent(<cyruntime.cudaLogIterator*>iterator_out._pvt_ptr, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), iterator_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, iterator_out)
 {{endif}}
 
 {{if 'cudaLogsDumpToFile' in found_functions}}
@@ -32334,8 +32340,8 @@ def cudaLogsDumpToFile(iterator : Optional[cudaLogIterator], char* pathToFile, u
     with nogil:
         err = cyruntime.cudaLogsDumpToFile(cyiterator, pathToFile, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), iterator)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, iterator)
 {{endif}}
 
 {{if 'cudaLogsDumpToMemory' in found_functions}}
@@ -32392,8 +32398,8 @@ def cudaLogsDumpToMemory(iterator : Optional[cudaLogIterator], char* buffer, siz
     with nogil:
         err = cyruntime.cudaLogsDumpToMemory(cyiterator, buffer, &size, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), iterator, size)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, iterator, size)
 {{endif}}
 
 {{if 'cudaGraphCreate' in found_functions}}
@@ -32424,8 +32430,8 @@ def cudaGraphCreate(unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphCreate(<cyruntime.cudaGraph_t*>pGraph._pvt_ptr, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraph)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraph)
 {{endif}}
 
 {{if 'cudaGraphAddKernelNode' in found_functions}}
@@ -32546,8 +32552,8 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphKernelNodeGetParams' in found_functions}}
@@ -32595,8 +32601,8 @@ def cudaGraphKernelNodeGetParams(node):
     with nogil:
         err = cyruntime.cudaGraphKernelNodeGetParams(cynode, <cyruntime.cudaKernelNodeParams*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pNodeParams)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pNodeParams)
 {{endif}}
 
 {{if 'cudaGraphKernelNodeSetParams' in found_functions}}
@@ -32634,7 +32640,7 @@ def cudaGraphKernelNodeSetParams(node, pNodeParams : Optional[cudaKernelNodePara
     cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphKernelNodeSetParams(cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphKernelNodeCopyAttributes' in found_functions}}
@@ -32681,7 +32687,7 @@ def cudaGraphKernelNodeCopyAttributes(hDst, hSrc):
     cyhDst = <cyruntime.cudaGraphNode_t><void_ptr>phDst
     with nogil:
         err = cyruntime.cudaGraphKernelNodeCopyAttributes(cyhDst, cyhSrc)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphKernelNodeGetAttribute' in found_functions}}
@@ -32724,8 +32730,8 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
     with nogil:
         err = cyruntime.cudaGraphKernelNodeGetAttribute(cyhNode, cyattr, <cyruntime.cudaKernelNodeAttrValue*>value_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), value_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, value_out)
 {{endif}}
 
 {{if 'cudaGraphKernelNodeSetAttribute' in found_functions}}
@@ -32767,7 +32773,7 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
     cdef cyruntime.cudaKernelNodeAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphKernelNodeSetAttribute(cyhNode, cyattr, cyvalue_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddMemcpyNode' in found_functions}}
@@ -32842,8 +32848,8 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphAddMemcpyNode1D' in found_functions}}
@@ -32937,8 +32943,8 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphMemcpyNodeGetParams' in found_functions}}
@@ -32977,8 +32983,8 @@ def cudaGraphMemcpyNodeGetParams(node):
     with nogil:
         err = cyruntime.cudaGraphMemcpyNodeGetParams(cynode, <cyruntime.cudaMemcpy3DParms*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pNodeParams)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pNodeParams)
 {{endif}}
 
 {{if 'cudaGraphMemcpyNodeSetParams' in found_functions}}
@@ -33016,7 +33022,7 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]
     cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphMemcpyNodeSetParams(cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphMemcpyNodeSetParams1D' in found_functions}}
@@ -33078,7 +33084,7 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaGraphMemcpyNodeSetParams1D(cynode, cydst_ptr, cysrc_ptr, count, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddMemsetNode' in found_functions}}
@@ -33147,8 +33153,8 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphMemsetNodeGetParams' in found_functions}}
@@ -33187,8 +33193,8 @@ def cudaGraphMemsetNodeGetParams(node):
     with nogil:
         err = cyruntime.cudaGraphMemsetNodeGetParams(cynode, <cyruntime.cudaMemsetParams*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pNodeParams)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pNodeParams)
 {{endif}}
 
 {{if 'cudaGraphMemsetNodeSetParams' in found_functions}}
@@ -33226,7 +33232,7 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams])
     cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphMemsetNodeSetParams(cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddHostNode' in found_functions}}
@@ -33296,8 +33302,8 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] 
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphHostNodeGetParams' in found_functions}}
@@ -33336,8 +33342,8 @@ def cudaGraphHostNodeGetParams(node):
     with nogil:
         err = cyruntime.cudaGraphHostNodeGetParams(cynode, <cyruntime.cudaHostNodeParams*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pNodeParams)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pNodeParams)
 {{endif}}
 
 {{if 'cudaGraphHostNodeSetParams' in found_functions}}
@@ -33375,7 +33381,7 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams])
     cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphHostNodeSetParams(cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddChildGraphNode' in found_functions}}
@@ -33455,8 +33461,8 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[tuple[cudaGraphNo
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphChildGraphNodeGetGraph' in found_functions}}
@@ -33500,8 +33506,8 @@ def cudaGraphChildGraphNodeGetGraph(node):
     with nogil:
         err = cyruntime.cudaGraphChildGraphNodeGetGraph(cynode, <cyruntime.cudaGraph_t*>pGraph._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraph)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraph)
 {{endif}}
 
 {{if 'cudaGraphAddEmptyNode' in found_functions}}
@@ -33571,8 +33577,8 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t]
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphAddEventRecordNode' in found_functions}}
@@ -33651,8 +33657,8 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphN
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphEventRecordNodeGetEvent' in found_functions}}
@@ -33691,8 +33697,8 @@ def cudaGraphEventRecordNodeGetEvent(node):
     with nogil:
         err = cyruntime.cudaGraphEventRecordNodeGetEvent(cynode, <cyruntime.cudaEvent_t*>event_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), event_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, event_out)
 {{endif}}
 
 {{if 'cudaGraphEventRecordNodeSetEvent' in found_functions}}
@@ -33737,7 +33743,7 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     with nogil:
         err = cyruntime.cudaGraphEventRecordNodeSetEvent(cynode, cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddEventWaitNode' in found_functions}}
@@ -33819,8 +33825,8 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNod
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphEventWaitNodeGetEvent' in found_functions}}
@@ -33859,8 +33865,8 @@ def cudaGraphEventWaitNodeGetEvent(node):
     with nogil:
         err = cyruntime.cudaGraphEventWaitNodeGetEvent(cynode, <cyruntime.cudaEvent_t*>event_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), event_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, event_out)
 {{endif}}
 
 {{if 'cudaGraphEventWaitNodeSetEvent' in found_functions}}
@@ -33905,7 +33911,7 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     with nogil:
         err = cyruntime.cudaGraphEventWaitNodeSetEvent(cynode, cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddExternalSemaphoresSignalNode' in found_functions}}
@@ -33976,8 +33982,8 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tup
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
@@ -34022,8 +34028,8 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresSignalNodeGetParams(cyhNode, <cyruntime.cudaExternalSemaphoreSignalNodeParams*>params_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), params_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, params_out)
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
@@ -34062,7 +34068,7 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresSignalNodeSetParams(cyhNode, cynodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddExternalSemaphoresWaitNode' in found_functions}}
@@ -34133,8 +34139,8 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
@@ -34179,8 +34185,8 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresWaitNodeGetParams(cyhNode, <cyruntime.cudaExternalSemaphoreWaitNodeParams*>params_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), params_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, params_out)
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
@@ -34219,7 +34225,7 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cu
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresWaitNodeSetParams(cyhNode, cynodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddMemAllocNode' in found_functions}}
@@ -34329,8 +34335,8 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphMemAllocNodeGetParams' in found_functions}}
@@ -34372,8 +34378,8 @@ def cudaGraphMemAllocNodeGetParams(node):
     with nogil:
         err = cyruntime.cudaGraphMemAllocNodeGetParams(cynode, <cyruntime.cudaMemAllocNodeParams*>params_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), params_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, params_out)
 {{endif}}
 
 {{if 'cudaGraphAddMemFreeNode' in found_functions}}
@@ -34462,8 +34468,8 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_
     if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
@@ -34503,8 +34509,8 @@ def cudaGraphMemFreeNodeGetParams(node):
     with nogil:
         err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, cydptr_out_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), dptr_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, dptr_out)
 {{endif}}
 
 {{if 'cudaDeviceGraphMemTrim' in found_functions}}
@@ -34533,7 +34539,7 @@ def cudaDeviceGraphMemTrim(int device):
     """
     with nogil:
         err = cyruntime.cudaDeviceGraphMemTrim(device)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetGraphMemAttribute' in found_functions}}
@@ -34583,8 +34589,8 @@ def cudaDeviceGetGraphMemAttribute(int device, attr not None : cudaGraphMemAttri
     with nogil:
         err = cyruntime.cudaDeviceGetGraphMemAttribute(device, cyattr, cyvalue_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cyvalue.pyObj())
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cyvalue.pyObj())
 {{endif}}
 
 {{if 'cudaDeviceSetGraphMemAttribute' in found_functions}}
@@ -34626,7 +34632,7 @@ def cudaDeviceSetGraphMemAttribute(int device, attr not None : cudaGraphMemAttri
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
     with nogil:
         err = cyruntime.cudaDeviceSetGraphMemAttribute(device, cyattr, cyvalue_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphClone' in found_functions}}
@@ -34675,8 +34681,8 @@ def cudaGraphClone(originalGraph):
     with nogil:
         err = cyruntime.cudaGraphClone(<cyruntime.cudaGraph_t*>pGraphClone._pvt_ptr, cyoriginalGraph)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphClone)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphClone)
 {{endif}}
 
 {{if 'cudaGraphNodeFindInClone' in found_functions}}
@@ -34732,8 +34738,8 @@ def cudaGraphNodeFindInClone(originalNode, clonedGraph):
     with nogil:
         err = cyruntime.cudaGraphNodeFindInClone(<cyruntime.cudaGraphNode_t*>pNode._pvt_ptr, cyoriginalNode, cyclonedGraph)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pNode)
 {{endif}}
 
 {{if 'cudaGraphNodeGetType' in found_functions}}
@@ -34772,8 +34778,8 @@ def cudaGraphNodeGetType(node):
     with nogil:
         err = cyruntime.cudaGraphNodeGetType(cynode, &pType)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), cudaGraphNodeType(pType))
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, cudaGraphNodeType(pType))
 {{endif}}
 
 {{if 'cudaGraphNodeGetContainingGraph' in found_functions}}
@@ -34813,8 +34819,8 @@ def cudaGraphNodeGetContainingGraph(hNode):
     with nogil:
         err = cyruntime.cudaGraphNodeGetContainingGraph(cyhNode, <cyruntime.cudaGraph_t*>phGraph._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), phGraph)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, phGraph)
 {{endif}}
 
 {{if 'cudaGraphNodeGetLocalId' in found_functions}}
@@ -34855,8 +34861,8 @@ def cudaGraphNodeGetLocalId(hNode):
     with nogil:
         err = cyruntime.cudaGraphNodeGetLocalId(cyhNode, &nodeId)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), nodeId)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, nodeId)
 {{endif}}
 
 {{if 'cudaGraphNodeGetToolsId' in found_functions}}
@@ -34893,8 +34899,8 @@ def cudaGraphNodeGetToolsId(hNode):
     with nogil:
         err = cyruntime.cudaGraphNodeGetToolsId(cyhNode, &toolsNodeId)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), toolsNodeId)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, toolsNodeId)
 {{endif}}
 
 {{if 'cudaGraphGetId' in found_functions}}
@@ -34934,8 +34940,8 @@ def cudaGraphGetId(hGraph):
     with nogil:
         err = cyruntime.cudaGraphGetId(cyhGraph, &graphID)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), graphID)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, graphID)
 {{endif}}
 
 {{if 'cudaGraphExecGetId' in found_functions}}
@@ -34975,8 +34981,8 @@ def cudaGraphExecGetId(hGraphExec):
     with nogil:
         err = cyruntime.cudaGraphExecGetId(cyhGraphExec, &graphID)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), graphID)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, graphID)
 {{endif}}
 
 {{if 'cudaGraphGetNodes' in found_functions}}
@@ -35034,8 +35040,8 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     if cynodes is not NULL:
         free(cynodes)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), pynodes, numNodes)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, pynodes, numNodes)
 {{endif}}
 
 {{if 'cudaGraphGetRootNodes' in found_functions}}
@@ -35093,8 +35099,8 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     if cypRootNodes is not NULL:
         free(cypRootNodes)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), pypRootNodes, pNumRootNodes)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, pypRootNodes, pNumRootNodes)
 {{endif}}
 
 {{if 'cudaGraphGetEdges' in found_functions}}
@@ -35183,8 +35189,8 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None, None, None)
-    return (cudaError_t(err), pyfrom_, pyto, pyedgeData, numEdges)
+        return (_cudaError_t(err), None, None, None, None)
+    return (_cudaError_t_SUCCESS, pyfrom_, pyto, pyedgeData, numEdges)
 {{endif}}
 
 {{if 'cudaGraphNodeGetDependencies' in found_functions}}
@@ -35260,8 +35266,8 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None, None)
-    return (cudaError_t(err), pypDependencies, pyedgeData, pNumDependencies)
+        return (_cudaError_t(err), None, None, None)
+    return (_cudaError_t_SUCCESS, pypDependencies, pyedgeData, pNumDependencies)
 {{endif}}
 
 {{if 'cudaGraphNodeGetDependentNodes' in found_functions}}
@@ -35337,8 +35343,8 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     if cyedgeData is not NULL:
         free(cyedgeData)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None, None)
-    return (cudaError_t(err), pypDependentNodes, pyedgeData, pNumDependentNodes)
+        return (_cudaError_t(err), None, None, None)
+    return (_cudaError_t_SUCCESS, pypDependentNodes, pyedgeData, pNumDependentNodes)
 {{endif}}
 
 {{if 'cudaGraphAddDependencies' in found_functions}}
@@ -35431,7 +35437,7 @@ def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | li
         free(cyto)
     if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphRemoveDependencies' in found_functions}}
@@ -35527,7 +35533,7 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] |
         free(cyto)
     if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphDestroyNode' in found_functions}}
@@ -35566,7 +35572,7 @@ def cudaGraphDestroyNode(node):
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     with nogil:
         err = cyruntime.cudaGraphDestroyNode(cynode)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphInstantiate' in found_functions}}
@@ -35669,8 +35675,8 @@ def cudaGraphInstantiate(graph, unsigned long long flags):
     with nogil:
         err = cyruntime.cudaGraphInstantiate(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphExec)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphExec)
 {{endif}}
 
 {{if 'cudaGraphInstantiateWithFlags' in found_functions}}
@@ -35775,8 +35781,8 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
     with nogil:
         err = cyruntime.cudaGraphInstantiateWithFlags(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphExec)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphExec)
 {{endif}}
 
 {{if 'cudaGraphInstantiateWithParams' in found_functions}}
@@ -35922,8 +35928,8 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
     with nogil:
         err = cyruntime.cudaGraphInstantiateWithParams(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, cyinstantiateParams_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphExec)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphExec)
 {{endif}}
 
 {{if 'cudaGraphExecGetFlags' in found_functions}}
@@ -35965,8 +35971,8 @@ def cudaGraphExecGetFlags(graphExec):
     with nogil:
         err = cyruntime.cudaGraphExecGetFlags(cygraphExec, &flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), flags)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, flags)
 {{endif}}
 
 {{if 'cudaGraphExecKernelNodeSetParams' in found_functions}}
@@ -36048,7 +36054,7 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecKernelNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecMemcpyNodeSetParams' in found_functions}}
@@ -36113,7 +36119,7 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecMemcpyNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecMemcpyNodeSetParams1D' in found_functions}}
@@ -36186,7 +36192,7 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
     cdef cyruntime.cudaMemcpyKind cykind = int(kind)
     with nogil:
         err = cyruntime.cudaGraphExecMemcpyNodeSetParams1D(cyhGraphExec, cynode, cydst_ptr, cysrc_ptr, count, cykind)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecMemsetNodeSetParams' in found_functions}}
@@ -36256,7 +36262,7 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecMemsetNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecHostNodeSetParams' in found_functions}}
@@ -36311,7 +36317,7 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cuda
     cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecHostNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecChildGraphNodeSetParams' in found_functions}}
@@ -36381,7 +36387,7 @@ def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     with nogil:
         err = cyruntime.cudaGraphExecChildGraphNodeSetParams(cyhGraphExec, cynode, cychildGraph)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecEventRecordNodeSetEvent' in found_functions}}
@@ -36444,7 +36450,7 @@ def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     with nogil:
         err = cyruntime.cudaGraphExecEventRecordNodeSetEvent(cyhGraphExec, cyhNode, cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecEventWaitNodeSetEvent' in found_functions}}
@@ -36507,7 +36513,7 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     with nogil:
         err = cyruntime.cudaGraphExecEventWaitNodeSetEvent(cyhGraphExec, cyhNode, cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
@@ -36567,7 +36573,7 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecExternalSemaphoresSignalNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
@@ -36627,7 +36633,7 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecExternalSemaphoresWaitNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphNodeSetEnabled' in found_functions}}
@@ -36690,7 +36696,7 @@ def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     with nogil:
         err = cyruntime.cudaGraphNodeSetEnabled(cyhGraphExec, cyhNode, isEnabled)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphNodeGetEnabled' in found_functions}}
@@ -36748,8 +36754,8 @@ def cudaGraphNodeGetEnabled(hGraphExec, hNode):
     with nogil:
         err = cyruntime.cudaGraphNodeGetEnabled(cyhGraphExec, cyhNode, &isEnabled)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), isEnabled)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, isEnabled)
 {{endif}}
 
 {{if 'cudaGraphExecUpdate' in found_functions}}
@@ -36924,8 +36930,8 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     with nogil:
         err = cyruntime.cudaGraphExecUpdate(cyhGraphExec, cyhGraph, <cyruntime.cudaGraphExecUpdateResultInfo*>resultInfo._pvt_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resultInfo)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resultInfo)
 {{endif}}
 
 {{if 'cudaGraphUpload' in found_functions}}
@@ -36974,7 +36980,7 @@ def cudaGraphUpload(graphExec, stream):
     cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     with nogil:
         err = cyruntime.cudaGraphUpload(cygraphExec, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphLaunch' in found_functions}}
@@ -37028,7 +37034,7 @@ def cudaGraphLaunch(graphExec, stream):
     cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     with nogil:
         err = cyruntime.cudaGraphLaunch(cygraphExec, cystream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecDestroy' in found_functions}}
@@ -37063,7 +37069,7 @@ def cudaGraphExecDestroy(graphExec):
     cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     with nogil:
         err = cyruntime.cudaGraphExecDestroy(cygraphExec)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphDestroy' in found_functions}}
@@ -37098,7 +37104,7 @@ def cudaGraphDestroy(graph):
     cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     with nogil:
         err = cyruntime.cudaGraphDestroy(cygraph)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphDebugDotPrint' in found_functions}}
@@ -37138,7 +37144,7 @@ def cudaGraphDebugDotPrint(graph, char* path, unsigned int flags):
     cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     with nogil:
         err = cyruntime.cudaGraphDebugDotPrint(cygraph, path, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaUserObjectCreate' in found_functions}}
@@ -37199,8 +37205,8 @@ def cudaUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned in
     with nogil:
         err = cyruntime.cudaUserObjectCreate(<cyruntime.cudaUserObject_t*>object_out._pvt_ptr, cyptr_ptr, cydestroy, initialRefcount, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), object_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, object_out)
 {{endif}}
 
 {{if 'cudaUserObjectRetain' in found_functions}}
@@ -37242,7 +37248,7 @@ def cudaUserObjectRetain(object, unsigned int count):
     cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     with nogil:
         err = cyruntime.cudaUserObjectRetain(cyobject, count)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaUserObjectRelease' in found_functions}}
@@ -37287,7 +37293,7 @@ def cudaUserObjectRelease(object, unsigned int count):
     cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     with nogil:
         err = cyruntime.cudaUserObjectRelease(cyobject, count)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphRetainUserObject' in found_functions}}
@@ -37343,7 +37349,7 @@ def cudaGraphRetainUserObject(graph, object, unsigned int count, unsigned int fl
     cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     with nogil:
         err = cyruntime.cudaGraphRetainUserObject(cygraph, cyobject, count, flags)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphReleaseUserObject' in found_functions}}
@@ -37394,7 +37400,7 @@ def cudaGraphReleaseUserObject(graph, object, unsigned int count):
     cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     with nogil:
         err = cyruntime.cudaGraphReleaseUserObject(cygraph, cyobject, count)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphAddNode' in found_functions}}
@@ -37489,8 +37495,8 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
     if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pGraphNode)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pGraphNode)
 {{endif}}
 
 {{if 'cudaGraphNodeSetParams' in found_functions}}
@@ -37534,7 +37540,7 @@ def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
     cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphNodeSetParams(cynode, cynodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphExecNodeSetParams' in found_functions}}
@@ -37594,7 +37600,7 @@ def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : Optional[cudaGraphN
     cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecNodeSetParams(cygraphExec, cynode, cynodeParams_ptr)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaGraphConditionalHandleCreate' in found_functions}}
@@ -37645,8 +37651,8 @@ def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, uns
     with nogil:
         err = cyruntime.cudaGraphConditionalHandleCreate(<cyruntime.cudaGraphConditionalHandle*>pHandle_out._pvt_ptr, cygraph, defaultLaunchValue, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pHandle_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pHandle_out)
 {{endif}}
 
 {{if 'cudaGraphConditionalHandleCreate_v2' in found_functions}}
@@ -37708,8 +37714,8 @@ def cudaGraphConditionalHandleCreate_v2(graph, ctx, unsigned int defaultLaunchVa
     with nogil:
         err = cyruntime.cudaGraphConditionalHandleCreate_v2(<cyruntime.cudaGraphConditionalHandle*>pHandle_out._pvt_ptr, cygraph, cyctx, defaultLaunchValue, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pHandle_out)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pHandle_out)
 {{endif}}
 
 {{if 'cudaGetDriverEntryPoint' in found_functions}}
@@ -37812,8 +37818,8 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
     with nogil:
         err = cyruntime.cudaGetDriverEntryPoint(symbol, <void**>&funcPtr, flags, &driverStatus)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
 {{endif}}
 
 {{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
@@ -37920,8 +37926,8 @@ def cudaGetDriverEntryPointByVersion(char* symbol, unsigned int cudaVersion, uns
     with nogil:
         err = cyruntime.cudaGetDriverEntryPointByVersion(symbol, <void**>&funcPtr, cudaVersion, flags, &driverStatus)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
 {{endif}}
 
 {{if 'cudaLibraryLoadData' in found_functions}}
@@ -38019,8 +38025,8 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     with nogil:
         err = cyruntime.cudaLibraryLoadData(<cyruntime.cudaLibrary_t*>library._pvt_ptr, cycode_ptr, cyjitOptions.data(), cyjitOptionsValues_ptr, numJitOptions, cylibraryOptions.data(), cylibraryOptionValues_ptr, numLibraryOptions)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), library)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, library)
 {{endif}}
 
 {{if 'cudaLibraryLoadFromFile' in found_functions}}
@@ -38117,8 +38123,8 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitO
     with nogil:
         err = cyruntime.cudaLibraryLoadFromFile(<cyruntime.cudaLibrary_t*>library._pvt_ptr, fileName, cyjitOptions.data(), cyjitOptionsValues_ptr, numJitOptions, cylibraryOptions.data(), cylibraryOptionValues_ptr, numLibraryOptions)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), library)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, library)
 {{endif}}
 
 {{if 'cudaLibraryUnload' in found_functions}}
@@ -38153,7 +38159,7 @@ def cudaLibraryUnload(library):
     cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     with nogil:
         err = cyruntime.cudaLibraryUnload(cylibrary)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaLibraryGetKernel' in found_functions}}
@@ -38196,8 +38202,8 @@ def cudaLibraryGetKernel(library, char* name):
     with nogil:
         err = cyruntime.cudaLibraryGetKernel(<cyruntime.cudaKernel_t*>pKernel._pvt_ptr, cylibrary, name)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pKernel)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pKernel)
 {{endif}}
 
 {{if 'cudaLibraryGetGlobal' in found_functions}}
@@ -38248,8 +38254,8 @@ def cudaLibraryGetGlobal(library, char* name):
     with nogil:
         err = cyruntime.cudaLibraryGetGlobal(<void**>&dptr, &numbytes, cylibrary, name)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), dptr, numbytes)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, dptr, numbytes)
 {{endif}}
 
 {{if 'cudaLibraryGetManaged' in found_functions}}
@@ -38302,8 +38308,8 @@ def cudaLibraryGetManaged(library, char* name):
     with nogil:
         err = cyruntime.cudaLibraryGetManaged(<void**>&dptr, &numbytes, cylibrary, name)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), dptr, numbytes)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, dptr, numbytes)
 {{endif}}
 
 {{if 'cudaLibraryGetUnifiedFunction' in found_functions}}
@@ -38348,8 +38354,8 @@ def cudaLibraryGetUnifiedFunction(library, char* symbol):
     with nogil:
         err = cyruntime.cudaLibraryGetUnifiedFunction(<void**>&fptr, cylibrary, symbol)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), fptr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, fptr)
 {{endif}}
 
 {{if 'cudaLibraryGetKernelCount' in found_functions}}
@@ -38388,8 +38394,8 @@ def cudaLibraryGetKernelCount(lib):
     with nogil:
         err = cyruntime.cudaLibraryGetKernelCount(&count, cylib)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), count)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, count)
 {{endif}}
 
 {{if 'cudaLibraryEnumerateKernels' in found_functions}}
@@ -38441,8 +38447,8 @@ def cudaLibraryEnumerateKernels(unsigned int numKernels, lib):
     if cykernels is not NULL:
         free(cykernels)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pykernels)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pykernels)
 {{endif}}
 
 {{if 'cudaKernelSetAttributeForDevice' in found_functions}}
@@ -38548,7 +38554,7 @@ def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, i
     cdef cyruntime.cudaFuncAttribute cyattr = int(attr)
     with nogil:
         err = cyruntime.cudaKernelSetAttributeForDevice(cykernel, cyattr, value, device)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetDevResource' in found_functions}}
@@ -38586,8 +38592,8 @@ def cudaDeviceGetDevResource(int device, typename not None : cudaDevResourceType
     with nogil:
         err = cyruntime.cudaDeviceGetDevResource(device, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 {{if 'cudaDevSmResourceSplitByCount' in found_functions}}
@@ -38706,8 +38712,8 @@ def cudaDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[cudaD
     if cyresult is not NULL:
         free(cyresult)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None, None)
-    return (cudaError_t(err), pyresult, cynbGroups, remaining)
+        return (_cudaError_t(err), None, None, None)
+    return (_cudaError_t_SUCCESS, pyresult, cynbGroups, remaining)
 {{endif}}
 
 {{if 'cudaDevSmResourceSplit' in found_functions}}
@@ -38866,8 +38872,8 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
     if cyresult is not NULL:
         free(cyresult)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), pyresult, remainder)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, pyresult, remainder)
 {{endif}}
 
 {{if 'cudaDevResourceGenerateDesc' in found_functions}}
@@ -38933,8 +38939,8 @@ def cudaDevResourceGenerateDesc(resources : Optional[tuple[cudaDevResource] | li
     if len(resources) > 1 and cyresources is not NULL:
         free(cyresources)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), phDesc)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, phDesc)
 {{endif}}
 
 {{if 'cudaGreenCtxCreate' in found_functions}}
@@ -38996,8 +39002,8 @@ def cudaGreenCtxCreate(desc, int device, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGreenCtxCreate(<cyruntime.cudaExecutionContext_t*>phCtx._pvt_ptr, cydesc, device, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), phCtx)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, phCtx)
 {{endif}}
 
 {{if 'cudaExecutionCtxDestroy' in found_functions}}
@@ -39056,7 +39062,7 @@ def cudaExecutionCtxDestroy(ctx):
     cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
     with nogil:
         err = cyruntime.cudaExecutionCtxDestroy(cyctx)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaExecutionCtxGetDevResource' in found_functions}}
@@ -39101,8 +39107,8 @@ def cudaExecutionCtxGetDevResource(ctx, typename not None : cudaDevResourceType)
     with nogil:
         err = cyruntime.cudaExecutionCtxGetDevResource(cyctx, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 {{if 'cudaExecutionCtxGetDevice' in found_functions}}
@@ -39143,8 +39149,8 @@ def cudaExecutionCtxGetDevice(ctx):
     with nogil:
         err = cyruntime.cudaExecutionCtxGetDevice(&device, cyctx)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), device)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, device)
 {{endif}}
 
 {{if 'cudaExecutionCtxGetId' in found_functions}}
@@ -39186,8 +39192,8 @@ def cudaExecutionCtxGetId(ctx):
     with nogil:
         err = cyruntime.cudaExecutionCtxGetId(cyctx, &ctxId)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ctxId)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ctxId)
 {{endif}}
 
 {{if 'cudaExecutionCtxStreamCreate' in found_functions}}
@@ -39261,8 +39267,8 @@ def cudaExecutionCtxStreamCreate(ctx, unsigned int flags, int priority):
     with nogil:
         err = cyruntime.cudaExecutionCtxStreamCreate(<cyruntime.cudaStream_t*>phStream._pvt_ptr, cyctx, flags, priority)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), phStream)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, phStream)
 {{endif}}
 
 {{if 'cudaExecutionCtxSynchronize' in found_functions}}
@@ -39304,7 +39310,7 @@ def cudaExecutionCtxSynchronize(ctx):
     cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
     with nogil:
         err = cyruntime.cudaExecutionCtxSynchronize(cyctx)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaStreamGetDevResource' in found_functions}}
@@ -39351,8 +39357,8 @@ def cudaStreamGetDevResource(hStream, typename not None : cudaDevResourceType):
     with nogil:
         err = cyruntime.cudaStreamGetDevResource(cyhStream, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 {{if 'cudaExecutionCtxRecordEvent' in found_functions}}
@@ -39411,7 +39417,7 @@ def cudaExecutionCtxRecordEvent(ctx, event):
     cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
     with nogil:
         err = cyruntime.cudaExecutionCtxRecordEvent(cyctx, cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaExecutionCtxWaitEvent' in found_functions}}
@@ -39469,7 +39475,7 @@ def cudaExecutionCtxWaitEvent(ctx, event):
     cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
     with nogil:
         err = cyruntime.cudaExecutionCtxWaitEvent(cyctx, cyevent)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetExecutionCtx' in found_functions}}
@@ -39507,8 +39513,8 @@ def cudaDeviceGetExecutionCtx(int device):
     with nogil:
         err = cyruntime.cudaDeviceGetExecutionCtx(<cyruntime.cudaExecutionContext_t*>ctx._pvt_ptr, device)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ctx)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ctx)
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}
@@ -39521,8 +39527,8 @@ def cudaGetExportTable(pExportTableId : Optional[cudaUUID_t]):
     with nogil:
         err = cyruntime.cudaGetExportTable(<const void**>&ppExportTable, cypExportTableId_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), ppExportTable)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, ppExportTable)
 {{endif}}
 
 {{if 'cudaGetKernel' in found_functions}}
@@ -39565,8 +39571,8 @@ def cudaGetKernel(entryFuncAddr):
     with nogil:
         err = cyruntime.cudaGetKernel(<cyruntime.cudaKernel_t*>kernelPtr._pvt_ptr, cyentryFuncAddr_ptr)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), kernelPtr)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, kernelPtr)
 {{endif}}
 
 {{if 'make_cudaPitchedPtr' in found_functions}}
@@ -39754,8 +39760,8 @@ def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphicsEGLRegisterImage(pCudaResource._pvt_ptr, cyimage, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), pCudaResource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, pCudaResource)
 {{endif}}
 
 {{if True}}
@@ -39797,8 +39803,8 @@ def cudaEGLStreamConsumerConnect(eglStream):
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerConnect(<cyruntime.cudaEglStreamConnection*>conn._pvt_ptr, cyeglStream)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), conn)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, conn)
 {{endif}}
 
 {{if True}}
@@ -39844,8 +39850,8 @@ def cudaEGLStreamConsumerConnectWithFlags(eglStream, unsigned int flags):
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerConnectWithFlags(<cyruntime.cudaEglStreamConnection*>conn._pvt_ptr, cyeglStream, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), conn)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, conn)
 {{endif}}
 
 {{if True}}
@@ -39882,7 +39888,7 @@ def cudaEGLStreamConsumerDisconnect(conn):
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, runtime.cudaEglStreamConnection'>, found " + str(type(conn)))
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerDisconnect(cyconn)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -39948,7 +39954,7 @@ def cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, unsigned int
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, runtime.cudaEglStreamConnection'>, found " + str(type(conn)))
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerAcquireFrame(cyconn, cypCudaResource, cypStream, timeout)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40008,7 +40014,7 @@ def cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream):
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, runtime.cudaEglStreamConnection'>, found " + str(type(conn)))
     with nogil:
         err = cyruntime.cudaEGLStreamConsumerReleaseFrame(cyconn, cypCudaResource, cypStream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40070,8 +40076,8 @@ def cudaEGLStreamProducerConnect(eglStream, width, height):
     with nogil:
         err = cyruntime.cudaEGLStreamProducerConnect(<cyruntime.cudaEglStreamConnection*>conn._pvt_ptr, cyeglStream, cywidth, cyheight)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), conn)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, conn)
 {{endif}}
 
 {{if True}}
@@ -40108,7 +40114,7 @@ def cudaEGLStreamProducerDisconnect(conn):
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, runtime.cudaEglStreamConnection'>, found " + str(type(conn)))
     with nogil:
         err = cyruntime.cudaEGLStreamProducerDisconnect(cyconn)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40168,7 +40174,7 @@ def cudaEGLStreamProducerPresentFrame(conn, eglframe not None : cudaEglFrame, pS
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, runtime.cudaEglStreamConnection'>, found " + str(type(conn)))
     with nogil:
         err = cyruntime.cudaEGLStreamProducerPresentFrame(cyconn, eglframe._pvt_ptr[0], cypStream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40223,7 +40229,7 @@ def cudaEGLStreamProducerReturnFrame(conn, eglframe : Optional[cudaEglFrame], pS
     cdef cyruntime.cudaEglFrame* cyeglframe_ptr = eglframe._pvt_ptr if eglframe is not None else NULL
     with nogil:
         err = cyruntime.cudaEGLStreamProducerReturnFrame(cyconn, cyeglframe_ptr, cypStream)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40276,8 +40282,8 @@ def cudaGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned
     with nogil:
         err = cyruntime.cudaGraphicsResourceGetMappedEglFrame(<cyruntime.cudaEglFrame*>eglFrame._pvt_ptr, cyresource, index, mipLevel)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), eglFrame)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, eglFrame)
 {{endif}}
 
 {{if True}}
@@ -40332,8 +40338,8 @@ def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
     with nogil:
         err = cyruntime.cudaEventCreateFromEGLSync(<cyruntime.cudaEvent_t*>phEvent._pvt_ptr, cyeglSync, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), phEvent)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, phEvent)
 {{endif}}
 
 {{if 'cudaProfilerStart' in found_functions}}
@@ -40361,7 +40367,7 @@ def cudaProfilerStart():
     """
     with nogil:
         err = cyruntime.cudaProfilerStart()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaProfilerStop' in found_functions}}
@@ -40389,7 +40395,7 @@ def cudaProfilerStop():
     """
     with nogil:
         err = cyruntime.cudaProfilerStop()
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40456,8 +40462,8 @@ def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLD
     if cypCudaDevices is not NULL:
         free(cypCudaDevices)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None, None)
-    return (cudaError_t(err), pCudaDeviceCount, pypCudaDevices)
+        return (_cudaError_t(err), None, None)
+    return (_cudaError_t_SUCCESS, pCudaDeviceCount, pypCudaDevices)
 {{endif}}
 
 {{if True}}
@@ -40556,8 +40562,8 @@ def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphicsGLRegisterImage(resource._pvt_ptr, cyimage, cytarget, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 {{if True}}
@@ -40613,8 +40619,8 @@ def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphicsGLRegisterBuffer(resource._pvt_ptr, cybuffer, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 {{if True}}
@@ -40666,8 +40672,8 @@ def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
     with nogil:
         err = cyruntime.cudaVDPAUGetDevice(&device, cyvdpDevice, cyvdpGetProcAddress)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), device)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, device)
 {{endif}}
 
 {{if True}}
@@ -40726,7 +40732,7 @@ def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
     cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
     with nogil:
         err = cyruntime.cudaVDPAUSetVDPAUDevice(device, cyvdpDevice, cyvdpGetProcAddress)
-    return (cudaError_t(err),)
+    return (_cudaError_t(err),)
 {{endif}}
 
 {{if True}}
@@ -40782,8 +40788,8 @@ def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphicsVDPAURegisterVideoSurface(resource._pvt_ptr, cyvdpSurface, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 {{if True}}
@@ -40839,8 +40845,8 @@ def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
     with nogil:
         err = cyruntime.cudaGraphicsVDPAURegisterOutputSurface(resource._pvt_ptr, cyvdpSurface, flags)
     if err != cyruntime.cudaSuccess:
-        return (cudaError_t(err), None)
-    return (cudaError_t(err), resource)
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, resource)
 {{endif}}
 
 
