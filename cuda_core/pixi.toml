@@ -138,7 +138,6 @@ cmd = [
     "--override-ini",
     "norecursedirs=\"\"", # include cython tests (ignore by default config)
 ]
-env = { PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_python_test_helpers" }
 depends-on = [{ task = "build-cython-tests" }]
 
 [target.win-64.tasks.test]
@@ -148,5 +147,4 @@ cmd = [
     "--override-ini",
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]
-env = { PYTHONPATH = '%PIXI_PROJECT_ROOT%\..\cuda_python_test_helpers' }
 depends-on = [{ task = "build-cython-tests" }]
