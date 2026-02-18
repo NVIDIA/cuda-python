@@ -337,11 +337,8 @@ jobs:
       - name: Install test deps and wheels for Cython tests
         run: |
           uv pip install cuda_pathfinder/dist/*.whl
-          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
-          # --inexact preserves the wheels installed above
-          uv sync --frozen --inexact --package cuda-bindings --only-group test --no-install-project
-          uv sync --frozen --inexact --package cuda-core --only-group test --no-install-project
+          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group cuda_bindings/pyproject.toml:test
+          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl --group cuda_core/pyproject.toml:test
 
       - name: Build cuda.bindings Cython tests
         run: |

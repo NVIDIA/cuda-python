@@ -23,9 +23,8 @@ test_module=${1}
 # Unconditionally install pathfinder wheel
 # (it is a direct dependency of bindings, and a transitive dependency of core)
 pushd ./cuda_pathfinder
-echo "Installing pathfinder wheel"
-uv pip install ./*.whl
-uv sync --frozen --inexact --package cuda-pathfinder --only-group test --no-install-project
+echo "Installing pathfinder wheel and test deps"
+uv pip install ./*.whl --group ./pyproject.toml:test
 popd
 
 if [[ "${test_module}" == "pathfinder" ]]; then
@@ -43,11 +42,10 @@ elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
   pushd ./cuda_bindings
   if [[ "${LOCAL_CTK}" == 1 ]]; then
-    uv pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
+    uv pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group ./pyproject.toml:test
   else
-    uv pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
+    uv pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group ./pyproject.toml:test
   fi
-  uv sync --frozen --inexact --package cuda-bindings --only-group test --no-install-project
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
@@ -75,11 +73,10 @@ elif [[ "${test_module}" == "core" ]]; then
 
   pushd ./cuda_core
   if [[ "${LOCAL_CTK}" == 1 ]]; then
-    uv pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl
+    uv pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl --group "./pyproject.toml:test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   else
-    uv pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"]
+    uv pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "./pyproject.toml:test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi
-  uv sync --frozen --inexact --package cuda-core --only-group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" --no-install-project
   echo "Running core tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then

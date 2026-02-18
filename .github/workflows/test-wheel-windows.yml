@@ -271,9 +271,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          uv pip install -v ./*.whl
-          # --inexact preserves the wheel installed above
-          uv sync --frozen --inexact --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-install-project
+          uv pip install -v ./*.whl --group "pyproject.toml:test-cu${TEST_CUDA_MAJOR}"
           uv pip list
           popd
 
