@@ -578,7 +578,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._h_nvvm = create_nvvm_program_handle(nvvm_prog)  # RAII from here
         with nogil:
             HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(nvvm_prog, code_ptr, code_len, name_ptr))
-        
+
         # Add extra modules if provided
         if options.extra_sources is not None:
             if not is_sequence(options.extra_sources):
@@ -619,7 +619,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
                 with nogil:
                     HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
                         nvvm_prog, module_ptr, module_len, module_name_ptr))
-                
+
         # Store use_libdevice flag
         if options.use_libdevice:
             self._use_libdevice = True
