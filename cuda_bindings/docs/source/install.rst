@@ -74,6 +74,58 @@ For example:
 
    $ conda install -c conda-forge cuda-python cuda-version=13
 
+Installing with uv
+------------------
+
+`uv`_ is a fast Python package and project manager. To install ``cuda-python`` using ``uv``:
+
+.. code-block:: console
+
+   $ uv pip install cuda-python
+
+To install with all optional dependencies:
+
+.. code-block:: console
+
+   $ uv pip install "cuda-python[all]"
+
+``uv`` can also manage virtual environments automatically:
+
+.. code-block:: console
+
+   $ uv venv
+   $ uv pip install cuda-python
+
+.. _uv: https://docs.astral.sh/uv/
+
+Installing with pixi
+--------------------
+
+`pixi`_ is a cross-platform package manager built on top of the conda ecosystem. To install ``cuda-python`` in a pixi project:
+
+.. code-block:: console
+
+   $ pixi init my-cuda-project
+   $ cd my-cuda-project
+   $ pixi add cuda-python --channel conda-forge --channel nvidia
+
+Or add it to an existing ``pixi.toml``:
+
+.. code-block:: toml
+
+   [dependencies]
+   cuda-python = ">=12.8.0"
+
+.. note::
+
+   Use the ``cuda-version`` package to pin the CUDA Toolkit version in your pixi environment:
+
+.. code-block:: console
+
+   $ pixi add cuda-version=13 --channel conda-forge
+
+.. _pixi: https://pixi.sh/
+
 Installing from Source
 ----------------------
 

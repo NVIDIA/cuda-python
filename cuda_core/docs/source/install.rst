@@ -71,6 +71,54 @@ and likewise use ``cuda-version=13`` for CUDA 13.
 Note that to use ``cuda.core`` with nvJitLink installed from conda-forge requires ``cuda.bindings`` 12.8.0+.
 
 
+Installing with uv
+------------------
+
+`uv`_ is a fast Python package and project manager. To install ``cuda-core`` using ``uv``:
+
+.. code-block:: console
+
+   $ uv pip install cuda-core[cu12]
+
+and likewise use ``[cu13]`` for CUDA 13.
+
+``uv`` can also manage virtual environments automatically:
+
+.. code-block:: console
+
+   $ uv venv
+   $ uv pip install cuda-core[cu12]
+
+.. _uv: https://docs.astral.sh/uv/
+
+Installing with pixi
+--------------------
+
+`pixi`_ is a cross-platform package manager built on top of the conda ecosystem. To install ``cuda-core`` in a pixi project:
+
+.. code-block:: console
+
+   $ pixi init my-cuda-project
+   $ cd my-cuda-project
+   $ pixi add cuda-core --channel conda-forge
+
+Or add it to an existing ``pixi.toml``:
+
+.. code-block:: toml
+
+   [dependencies]
+   cuda-core = "*"
+
+.. note::
+
+   Use the ``cuda-version`` package to pin the CUDA Toolkit version in your pixi environment:
+
+.. code-block:: console
+
+   $ pixi add cuda-version=12 --channel conda-forge
+
+.. _pixi: https://pixi.sh/
+
 Installing from Source
 ----------------------
 
