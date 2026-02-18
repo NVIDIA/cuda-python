@@ -21,8 +21,9 @@ except ImportError:
     from cuda import nvrtc
 
 from cuda.bindings.nvvm import nvvmError
+from cuda.bindings.nvjitlink import nvJitLinkError
 
-from cuda.bindings cimport cynvrtc, cynvvm
+from cuda.bindings cimport cynvrtc, cynvvm, cynvjitlink
 
 from cuda.core._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
 from cuda.core._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
@@ -116,6 +117,34 @@ cdef int _raise_nvvm_error(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) excep
     cdef object exc = nvvmError(err)
     if log_str:
         exc.args = (exc.args[0] + f"\nNVVM program log: {log_str}", *exc.args[1:])
+    raise exc
+
+
+cdef int HANDLE_RETURN_NVJITLINK(
+        cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil:
+    """Handle nvJitLink result codes, raising nvJitLinkError with error log on failure."""
+    if err == cynvjitlink.nvJitLinkResult.NVJITLINK_SUCCESS:
+        return 0
+    with gil:
+        _raise_nvjitlink_error(handle, err)
+
+
+cdef int _raise_nvjitlink_error(
+        cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except -1:
+    """Raise nvJitLinkError annotated with the error log."""
+    cdef size_t logsize = 0
+    if handle != NULL:
+        cynvjitlink.nvJitLinkGetErrorLogSize(handle, &logsize)
+    cdef bytes log_bytes
+    cdef str log_str = ""
+    if logsize > 1 and handle != NULL:
+        log_bytes = b" " * logsize
+        if cynvjitlink.nvJitLinkGetErrorLog(handle, <char*>log_bytes) == \
+                cynvjitlink.nvJitLinkResult.NVJITLINK_SUCCESS:
+            log_str = log_bytes.decode("utf-8", errors="backslashreplace")
+    cdef object exc = nvJitLinkError(err)
+    if log_str:
+        exc.args = (exc.args[0] + f"\nnvJitLink error log: {log_str}", *exc.args[1:])
     raise exc
 
 
