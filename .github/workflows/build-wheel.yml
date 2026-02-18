@@ -115,7 +115,9 @@ jobs:
       # cmd.exe ~8KB command line limit with build[uv]'s longer PATH).
       - name: Set DISTUTILS_USE_SDK (Windows)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        run: echo "DISTUTILS_USE_SDK=1" >> $GITHUB_ENV
+        run: |
+          echo "DISTUTILS_USE_SDK=1" >> $GITHUB_ENV
+          echo "${VCToolsInstallDir}bin/Hostx64/x64" >> $GITHUB_PATH
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
@@ -182,7 +184,6 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            PATH="${{ env.VCToolsInstallDir }}bin/Hostx64/x64;$PATH"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-stats
@@ -243,7 +244,6 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
-            PATH="${{ env.VCToolsInstallDir }}bin/Hostx64/x64;$PATH"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
@@ -442,7 +442,6 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
-            PATH="${{ env.VCToolsInstallDir }}bin/Hostx64/x64;$PATH"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
