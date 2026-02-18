@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 cimport cuda.bindings.driver as driver
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings.cyruntime as cyruntime
 from libcpp.vector cimport vector
+from cpython.buffer cimport PyBuffer_Release, Py_buffer
 
 cdef class _HelperKernelParams:
     cdef Py_buffer _pybuffer
@@ -14,10 +15,19 @@ cdef class _HelperKernelParams:
     cdef int _length
     cdef bint _malloc_list_created
 
+cdef struct _HelperInputVoidPtrStruct:
+    Py_buffer _pybuffer
+
 cdef class _HelperInputVoidPtr:
-    cdef Py_buffer _pybuffer
+    cdef _HelperInputVoidPtrStruct _helper 
     cdef void* _cptr
-    cdef bint _pyobj_acquired
+
+cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *buffer)
+
+cdef inline void * _helper_input_void_ptr_free(_HelperInputVoidPtrStruct *helper):
+    if helper[0]._pybuffer.buf != NULL:
+        PyBuffer_Release(&helper[0]._pybuffer)
+
 {{if 'CUmemPool_attribute_enum' in found_types}}
 
 cdef class _HelperCUmemPool_attribute:
@@ -134,6 +144,7 @@ cdef class _HelperCUmemAllocationHandleType:
 {{endif}}
 
 cdef class _InputVoidPtrPtrHelper:
+    cdef object _references
     cdef void** _cptr
 
 {{if 'CUcoredumpSettings_enum' in found_types}}

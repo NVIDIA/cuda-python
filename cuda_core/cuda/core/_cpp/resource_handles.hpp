@@ -244,6 +244,23 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 
+// Callback type for MemoryResource deallocation.
+// Called from the shared_ptr deleter when a handle created via
+// deviceptr_create_with_mr is destroyed.  The implementation is responsible
+// for converting raw C types to Python objects and calling
+// mr.deallocate(ptr, size, stream).
+using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
+                                   size_t size, const StreamHandle& stream);
+
+// Register the MR deallocation callback.
+void register_mr_dealloc_callback(MRDeallocCallback cb);
+
+// Create a device pointer handle whose destructor calls mr.deallocate()
+// via the registered callback.  The mr's refcount is incremented and
+// decremented when the handle is released.
+// If mr is nullptr, equivalent to deviceptr_create_ref.
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
+
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Note: Does not yet implement reference counting for nvbug 5570902.

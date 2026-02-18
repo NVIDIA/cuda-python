@@ -30,11 +30,13 @@ popd
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
   echo "Running pathfinder tests with " \
-      "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
-      "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
+    "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
+    "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS} " \
+    "BC:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS}"
   pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
-  # Fail if no "INFO test_" lines are found; capture line count otherwise
-  line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
+  # Report the number of "INFO test_" lines (including zero)
+  # to support quick validations based on GHA log archives.
+  line_count=$(awk '/^INFO test_/ {count++} END {print count+0}' /tmp/pathfinder_test_log.txt)
   echo "Number of \"INFO test_\" lines: $line_count"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
@@ -46,9 +48,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
@@ -79,11 +81,11 @@ elif [[ "${test_module}" == "core" ]]; then
     pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi
   echo "Running core tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   # Currently our CI always installs the latest bindings (from either major version).
   # This is not compatible with the test requirements.
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
 fi

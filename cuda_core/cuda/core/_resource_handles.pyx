@@ -93,6 +93,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr) except+ nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
         cydriver.CUdeviceptr ptr, object owner) except+ nogil
+
+    # MR deallocation callback
+    ctypedef void (*MRDeallocCallback)(
+        object mr, cydriver.CUdeviceptr ptr, size_t size,
+        const StreamHandle& stream) noexcept
+    void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
+        MRDeallocCallback cb) noexcept
+    DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
+        cydriver.CUdeviceptr ptr, size_t size, object mr) except+ nogil
+
     DevicePtrHandle deviceptr_import_ipc "cuda_core::deviceptr_import_ipc" (
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
