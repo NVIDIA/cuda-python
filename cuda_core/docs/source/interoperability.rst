@@ -86,7 +86,8 @@ If ``ml_dtypes`` is not available and such a tensor is encountered, a
 :obj:`NotImplementedError` will be raised.
 
 Currently supported narrow data types:
-- ``bfloat16``
+
+* ``bfloat16``
 
 .. rubric:: Footnotes
 
