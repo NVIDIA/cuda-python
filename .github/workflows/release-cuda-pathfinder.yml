@@ -1,0 +1,441 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# One-click release workflow for cuda-pathfinder.
+#
+# Provide a version number and commit SHA.  The workflow automatically finds
+# the CI run and creates the git tag, creates a draft GitHub release with the standard
+# body, builds versioned docs, uploads source archive + wheels to the
+# release, publishes to TestPyPI, verifies the install, publishes to PyPI,
+# verifies again, and finally marks the release as published.
+
+name: "Release: cuda-pathfinder"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 1.3.5)"
+        required: true
+        type: string
+      commit:
+        description: "Commit SHA to release (must be on default branch)"
+        required: true
+        type: string
+
+concurrency:
+  group: release-cuda-pathfinder
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Validate inputs, find the CI run, create the tag + draft release.
+  # --------------------------------------------------------------------------
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+      version: ${{ steps.vars.outputs.version }}
+      run-id: ${{ steps.detect-run.outputs.run-id }}
+      ctk-ver: ${{ steps.ctk.outputs.ctk-ver }}
+    steps:
+      - name: Verify running on default branch
+        run: |
+          if [[ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ]]; then
+            echo "::error::This workflow must be triggered from the default branch (${{ github.event.repository.default_branch }}). Got: ${{ github.ref_name }} (select the correct branch in the 'Use workflow from' dropdown)."
+            exit 1
+          fi
+
+      - name: Validate version
+        id: vars
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          # Strip leading "v" if present (common typo)
+          version="${VERSION_INPUT#v}"
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version must be MAJOR.MINOR.PATCH, got: ${version}"
+            exit 1
+          fi
+          tag="cuda-pathfinder-v${version}"
+          {
+            echo "tag=${tag}"
+            echo "version=${version}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate commit input format
+        env:
+          COMMIT_INPUT: ${{ inputs.commit }}
+        run: |
+          # Require a full SHA to avoid ambiguity and accidental releases.
+          if [[ ! "${COMMIT_INPUT}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::error::Commit must be a full 40-character SHA, got: ${COMMIT_INPUT}"
+            exit 1
+          fi
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.commit }}
+
+      - name: Validate and resolve commit
+        id: commit
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git fetch --no-tags origin "${DEFAULT_BRANCH}"
+          commit=$(git rev-parse --verify "HEAD^{commit}")
+
+          if ! git merge-base --is-ancestor "${commit}" "origin/${DEFAULT_BRANCH}"; then
+            echo "::error::Commit ${commit} is not reachable from origin/${DEFAULT_BRANCH}"
+            exit 1
+          fi
+
+          echo "commit=${commit}" >> "$GITHUB_OUTPUT"
+
+      - name: Check release notes exist
+        env:
+          VERSION: ${{ steps.vars.outputs.version }}
+        run: |
+          notes="cuda_pathfinder/docs/source/release/${VERSION}-notes.rst"
+          if [[ ! -f "${notes}" ]]; then
+            echo "::error::Release notes not found: ${notes}"
+            echo "Create the release notes file before running this workflow."
+            exit 1
+          fi
+
+      - name: Read CTK build version
+        id: ctk
+        run: |
+          ctk_ver=$(yq '.cuda.build.version' ci/versions.yml)
+          echo "ctk-ver=${ctk_ver}" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+          TARGET_COMMIT: ${{ steps.commit.outputs.commit }}
+        run: |
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            existing_commit=$(git rev-parse "${TAG}^{commit}")
+            if [[ "${existing_commit}" != "${TARGET_COMMIT}" ]]; then
+              echo "::error::Tag ${TAG} already exists at ${existing_commit}, expected ${TARGET_COMMIT}"
+              exit 1
+            fi
+          else
+            git tag "${TAG}" "${TARGET_COMMIT}"
+            git push origin "${TAG}"
+          fi
+
+      - name: Detect CI run ID
+        id: detect-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          run_id=$(./ci/tools/lookup-run-id "${TAG}" "${{ github.repository }}")
+          echo "run-id=${run_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.vars.outputs.tag }}
+          VERSION: ${{ steps.vars.outputs.version }}
+        run: |
+          # If the release exists and is already published, stop early.
+          existing_draft=$(gh release view "${TAG}" --repo "${{ github.repository }}" --json isDraft --jq '.isDraft' 2>/dev/null || echo "missing")
+          if [[ "${existing_draft}" == "false" ]]; then
+            echo "::error::Release ${TAG} already exists and is published. Cannot re-release."
+            exit 1
+          fi
+          if [[ "${existing_draft}" == "true" ]]; then
+            exit 0
+          fi
+          cat > /tmp/release-body.md <<BODY
+          ## Release notes
+
+          - https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/release/${VERSION}-notes.html
+
+          ## Documentation
+
+          - https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/
+
+          ## PyPI
+
+          - https://pypi.org/project/cuda-pathfinder/${VERSION}/
+
+          ## Conda
+
+          - https://anaconda.org/conda-forge/cuda-pathfinder/files?version=${VERSION}
+          - \`conda install conda-forge::cuda-pathfinder=${VERSION}\`
+          BODY
+          gh release create "${TAG}" \
+            --repo "${{ github.repository }}" \
+            --draft \
+            --latest=false \
+            --title "cuda-pathfinder v${VERSION}" \
+            --notes-file /tmp/release-body.md
+
+  # --------------------------------------------------------------------------
+  # Build and deploy versioned docs.
+  # --------------------------------------------------------------------------
+  docs:
+    needs: prepare
+    if: ${{ github.repository_owner == 'nvidia' }}
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    secrets: inherit
+    uses: ./.github/workflows/build-docs.yml
+    with:
+      build-ctk-ver: ${{ needs.prepare.outputs.ctk-ver }}
+      component: cuda-pathfinder
+      git-tag: ${{ needs.prepare.outputs.tag }}
+      run-id: ${{ needs.prepare.outputs.run-id }}
+      is-release: true
+
+  # --------------------------------------------------------------------------
+  # Upload source archive and wheels to the GitHub release.
+  # Runs even if docs fail -- assets are independent and the finalize
+  # job's docs-URL check will warn if docs aren't deployed yet.
+  # --------------------------------------------------------------------------
+  upload-assets:
+    needs: [prepare, docs]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.prepare.outputs.tag }}
+      RUN_ID: ${{ needs.prepare.outputs.run-id }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Create source archive
+        run: |
+          archive="${{ github.event.repository.name }}-${TAG}"
+          mkdir -p release
+          git archive \
+            --format=tar.gz \
+            --prefix="${archive}/" \
+            --output="release/${archive}.tar.gz" \
+            "${TAG}"
+          sha256sum "release/${archive}.tar.gz" \
+            | awk '{print $1}' > "release/${archive}.tar.gz.sha256sum"
+
+      - name: Download wheels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./ci/tools/download-wheels "${RUN_ID}" "cuda-pathfinder" "${{ github.repository }}" "release/wheels"
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${TAG}" \
+            --repo "${{ github.repository }}" \
+            --clobber \
+            release/*.tar.gz release/*.sha256sum release/wheels/*.whl
+
+  # --------------------------------------------------------------------------
+  # Publish to TestPyPI.
+  # --------------------------------------------------------------------------
+  publish-testpypi:
+    needs: [prepare, docs]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/cuda-pathfinder/
+    permissions:
+      id-token: write
+    env:
+      RUN_ID: ${{ needs.prepare.outputs.run-id }}
+    steps:
+      - name: Download wheels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Intentionally inline artifact download logic here so publish jobs
+          # are pinned only to RUN_ID artifacts and do not depend on repo checkout.
+          mkdir -p dist
+          gh run download "${RUN_ID}" -p "cuda-pathfinder*" -R "${{ github.repository }}"
+          shopt -s nullglob globstar
+          for artifact_dir in cuda-*; do
+            if [[ ! -d "${artifact_dir}" ]]; then
+              continue
+            fi
+            if [[ "${artifact_dir}" == *-tests ]]; then
+              continue
+            fi
+            wheels=( "${artifact_dir}"/**/*.whl )
+            if (( ${#wheels[@]} > 0 )); then
+              mv "${wheels[@]}" dist/
+            fi
+          done
+          rm -rf cuda-*
+          ls -la dist
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # --------------------------------------------------------------------------
+  # Verify the TestPyPI package installs and imports correctly.
+  # --------------------------------------------------------------------------
+  verify-testpypi:
+    needs: [prepare, publish-testpypi]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Install from TestPyPI and verify
+        run: |
+          python3 -m venv /tmp/verify
+          source /tmp/verify/bin/activate
+          max_attempts=6
+          retry_seconds=30
+          for ((attempt=1; attempt<=max_attempts; attempt++)); do
+            if pip install \
+              --index-url https://test.pypi.org/simple/ \
+              --extra-index-url https://pypi.org/simple/ \
+              "cuda-pathfinder==${VERSION}"; then
+              break
+            fi
+            if (( attempt == max_attempts )); then
+              echo "::error::Failed to install cuda-pathfinder==${VERSION} from TestPyPI after ${max_attempts} attempts"
+              exit 1
+            fi
+            sleep "${retry_seconds}"
+          done
+          installed=$(python -c "from cuda.pathfinder import __version__; print(__version__)")
+          if [[ "${installed}" != "${VERSION}" ]]; then
+            echo "::error::Version mismatch: expected ${VERSION}, got ${installed}"
+            exit 1
+          fi
+
+  # --------------------------------------------------------------------------
+  # Publish to PyPI.
+  # --------------------------------------------------------------------------
+  publish-pypi:
+    needs: [prepare, verify-testpypi]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/cuda-pathfinder/
+    permissions:
+      id-token: write
+    env:
+      RUN_ID: ${{ needs.prepare.outputs.run-id }}
+    steps:
+      - name: Download wheels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Intentionally inline artifact download logic here so publish jobs
+          # are pinned only to RUN_ID artifacts and do not depend on repo checkout.
+          mkdir -p dist
+          gh run download "${RUN_ID}" -p "cuda-pathfinder*" -R "${{ github.repository }}"
+          shopt -s nullglob globstar
+          for artifact_dir in cuda-*; do
+            if [[ ! -d "${artifact_dir}" ]]; then
+              continue
+            fi
+            if [[ "${artifact_dir}" == *-tests ]]; then
+              continue
+            fi
+            wheels=( "${artifact_dir}"/**/*.whl )
+            if (( ${#wheels[@]} > 0 )); then
+              mv "${wheels[@]}" dist/
+            fi
+          done
+          rm -rf cuda-*
+          ls -la dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
+
+  # --------------------------------------------------------------------------
+  # Verify the PyPI package installs and imports correctly.
+  # --------------------------------------------------------------------------
+  verify-pypi:
+    needs: [prepare, publish-pypi]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Install from PyPI and verify
+        run: |
+          python3 -m venv /tmp/verify
+          source /tmp/verify/bin/activate
+          max_attempts=6
+          retry_seconds=30
+          for ((attempt=1; attempt<=max_attempts; attempt++)); do
+            if pip install "cuda-pathfinder==${VERSION}"; then
+              break
+            fi
+            if (( attempt == max_attempts )); then
+              echo "::error::Failed to install cuda-pathfinder==${VERSION} from PyPI after ${max_attempts} attempts"
+              exit 1
+            fi
+            sleep "${retry_seconds}"
+          done
+          installed=$(python -c "from cuda.pathfinder import __version__; print(__version__)")
+          if [[ "${installed}" != "${VERSION}" ]]; then
+            echo "::error::Version mismatch: expected ${VERSION}, got ${installed}"
+            exit 1
+          fi
+
+  # --------------------------------------------------------------------------
+  # Verify docs and publish the release (mark non-draft).
+  # --------------------------------------------------------------------------
+  finalize:
+    needs: [prepare, verify-pypi, upload-assets]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.prepare.outputs.tag }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Verify docs URL
+        run: |
+          url="https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/"
+          status=$(curl -sL -o /dev/null -w '%{http_code}' "${url}")
+          if [[ "${status}" != "200" ]]; then
+            echo "::warning::Docs URL returned HTTP ${status} -- docs may not be deployed yet"
+          fi
+
+      - name: Verify release is still a draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          is_draft=$(gh release view "${TAG}" --repo "${{ github.repository }}" --json isDraft --jq '.isDraft')
+          if [[ "${is_draft}" != "true" ]]; then
+            echo "::error::Release ${TAG} is no longer a draft (was it published manually?)"
+            exit 1
+          fi
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit "${TAG}" \
+            --repo "${{ github.repository }}" \
+            --draft=false \
+            --latest=false
+          docs_url="https://nvidia.github.io/cuda-python/cuda-pathfinder/${VERSION}/"
+          echo "${docs_url}"
+          printf '%s\n' "${docs_url}" >> "$GITHUB_STEP_SUMMARY"
