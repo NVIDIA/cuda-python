@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version ee2a03d. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -21107,7 +21107,7 @@ def cudaIpcGetEventHandle(event):
     else:
         pevent = int(cudaEvent_t(event))
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
-    cdef cudaIpcEventHandle_t handle = cudaIpcEventHandle_t()
+    cdef cudaIpcEventHandle_t handle = cudaIpcEventHandle_t.__new__(cudaIpcEventHandle_t)
     with nogil:
         err = cyruntime.cudaIpcGetEventHandle(<cyruntime.cudaIpcEventHandle_t*>handle._pvt_ptr, cyevent)
     if err != cyruntime.cudaSuccess:
@@ -21202,7 +21202,7 @@ def cudaIpcGetMemHandle(devPtr):
     --------
     :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaIpcGetEventHandle`, :py:obj:`~.cudaIpcOpenEventHandle`, :py:obj:`~.cudaIpcOpenMemHandle`, :py:obj:`~.cudaIpcCloseMemHandle`, :py:obj:`~.cuIpcGetMemHandle`
     """
-    cdef cudaIpcMemHandle_t handle = cudaIpcMemHandle_t()
+    cdef cudaIpcMemHandle_t handle = cudaIpcMemHandle_t.__new__(cudaIpcMemHandle_t)
     cdef _HelperInputVoidPtrStruct cydevPtrHelper
     cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
     with nogil:
@@ -21778,7 +21778,7 @@ def cudaGetDeviceProperties(int device):
     --------
     :py:obj:`~.cudaGetDeviceCount`, :py:obj:`~.cudaGetDevice`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaChooseDevice`, :py:obj:`~.cudaDeviceGetAttribute`, :py:obj:`~.cudaInitDevice`, :py:obj:`~.cuDeviceGetAttribute`, :py:obj:`~.cuDeviceGetName`
     """
-    cdef cudaDeviceProp prop = cudaDeviceProp()
+    cdef cudaDeviceProp prop = cudaDeviceProp.__new__(cudaDeviceProp)
     with nogil:
         err = cyruntime.cudaGetDeviceProperties(<cyruntime.cudaDeviceProp*>prop._pvt_ptr, device)
     if err != cyruntime.cudaSuccess:
@@ -25247,7 +25247,7 @@ def cudaFuncGetAttributes(func):
     --------
     :py:obj:`~.cudaFuncSetCacheConfig (C API)`, cudaFuncGetAttributes (C++ API), :py:obj:`~.cudaLaunchKernel (C API)`, :py:obj:`~.cuFuncGetAttribute`
     """
-    cdef cudaFuncAttributes attr = cudaFuncAttributes()
+    cdef cudaFuncAttributes attr = cudaFuncAttributes.__new__(cudaFuncAttributes)
     cdef _HelperInputVoidPtrStruct cyfuncHelper
     cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
     with nogil:
@@ -26551,7 +26551,7 @@ def cudaMalloc3D(extent not None : cudaExtent):
     --------
     :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMallocArray`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaPitchedPtr`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuMemAllocPitch`
     """
-    cdef cudaPitchedPtr pitchedDevPtr = cudaPitchedPtr()
+    cdef cudaPitchedPtr pitchedDevPtr = cudaPitchedPtr.__new__(cudaPitchedPtr)
     with nogil:
         err = cyruntime.cudaMalloc3D(<cyruntime.cudaPitchedPtr*>pitchedDevPtr._pvt_ptr, extent._pvt_ptr[0])
     if err != cyruntime.cudaSuccess:
@@ -27207,8 +27207,8 @@ def cudaArrayGetInfo(array):
     else:
         parray = int(cudaArray_t(array))
     cyarray = <cyruntime.cudaArray_t><void_ptr>parray
-    cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc()
-    cdef cudaExtent extent = cudaExtent()
+    cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc.__new__(cudaChannelFormatDesc)
+    cdef cudaExtent extent = cudaExtent.__new__(cudaExtent)
     cdef unsigned int flags = 0
     with nogil:
         err = cyruntime.cudaArrayGetInfo(<cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr, <cyruntime.cudaExtent*>extent._pvt_ptr, &flags, cyarray)
@@ -27315,7 +27315,7 @@ def cudaArrayGetMemoryRequirements(array, int device):
     else:
         parray = int(cudaArray_t(array))
     cyarray = <cyruntime.cudaArray_t><void_ptr>parray
-    cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements()
+    cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements.__new__(cudaArrayMemoryRequirements)
     with nogil:
         err = cyruntime.cudaArrayGetMemoryRequirements(<cyruntime.cudaArrayMemoryRequirements*>memoryRequirements._pvt_ptr, cyarray, device)
     if err != cyruntime.cudaSuccess:
@@ -27365,7 +27365,7 @@ def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
     else:
         pmipmap = int(cudaMipmappedArray_t(mipmap))
     cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
-    cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements()
+    cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements.__new__(cudaArrayMemoryRequirements)
     with nogil:
         err = cyruntime.cudaMipmappedArrayGetMemoryRequirements(<cyruntime.cudaArrayMemoryRequirements*>memoryRequirements._pvt_ptr, cymipmap, device)
     if err != cyruntime.cudaSuccess:
@@ -27421,7 +27421,7 @@ def cudaArrayGetSparseProperties(array):
     else:
         parray = int(cudaArray_t(array))
     cyarray = <cyruntime.cudaArray_t><void_ptr>parray
-    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
+    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties.__new__(cudaArraySparseProperties)
     with nogil:
         err = cyruntime.cudaArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cyarray)
     if err != cyruntime.cudaSuccess:
@@ -27477,7 +27477,7 @@ def cudaMipmappedArrayGetSparseProperties(mipmap):
     else:
         pmipmap = int(cudaMipmappedArray_t(mipmap))
     cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
-    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
+    cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties.__new__(cudaArraySparseProperties)
     with nogil:
         err = cyruntime.cudaMipmappedArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cymipmap)
     if err != cyruntime.cudaSuccess:
@@ -30953,7 +30953,7 @@ def cudaMemPoolExportPointer(ptr):
     --------
     :py:obj:`~.cuMemPoolExportPointer`, :py:obj:`~.cudaMemPoolExportToShareableHandle`, :py:obj:`~.cudaMemPoolImportFromShareableHandle`, :py:obj:`~.cudaMemPoolImportPointer`
     """
-    cdef cudaMemPoolPtrExportData exportData = cudaMemPoolPtrExportData()
+    cdef cudaMemPoolPtrExportData exportData = cudaMemPoolPtrExportData.__new__(cudaMemPoolPtrExportData)
     cdef _HelperInputVoidPtrStruct cyptrHelper
     cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
@@ -31079,7 +31079,7 @@ def cudaPointerGetAttributes(ptr):
     -----
     In CUDA 11.0 forward passing host pointer will return :py:obj:`~.cudaMemoryTypeUnregistered` in :py:obj:`~.cudaPointerAttributes.type` and call will return :py:obj:`~.cudaSuccess`.
     """
-    cdef cudaPointerAttributes attributes = cudaPointerAttributes()
+    cdef cudaPointerAttributes attributes = cudaPointerAttributes.__new__(cudaPointerAttributes)
     cdef _HelperInputVoidPtrStruct cyptrHelper
     cdef void* cyptr = _helper_input_void_ptr(ptr, &cyptrHelper)
     with nogil:
@@ -31609,7 +31609,7 @@ def cudaGetChannelDesc(array):
     else:
         parray = int(cudaArray_const_t(array))
     cyarray = <cyruntime.cudaArray_const_t><void_ptr>parray
-    cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc()
+    cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc.__new__(cudaChannelFormatDesc)
     with nogil:
         err = cyruntime.cudaGetChannelDesc(<cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr, cyarray)
     if err != cyruntime.cudaSuccess:
@@ -31979,7 +31979,7 @@ def cudaGetTextureObjectResourceDesc(texObject):
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
     cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
-    cdef cudaResourceDesc pResDesc = cudaResourceDesc()
+    cdef cudaResourceDesc pResDesc = cudaResourceDesc.__new__(cudaResourceDesc)
     with nogil:
         err = cyruntime.cudaGetTextureObjectResourceDesc(<cyruntime.cudaResourceDesc*>pResDesc._pvt_ptr, cytexObject)
     if err != cyruntime.cudaSuccess:
@@ -32020,7 +32020,7 @@ def cudaGetTextureObjectTextureDesc(texObject):
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
     cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
-    cdef cudaTextureDesc pTexDesc = cudaTextureDesc()
+    cdef cudaTextureDesc pTexDesc = cudaTextureDesc.__new__(cudaTextureDesc)
     with nogil:
         err = cyruntime.cudaGetTextureObjectTextureDesc(<cyruntime.cudaTextureDesc*>pTexDesc._pvt_ptr, cytexObject)
     if err != cyruntime.cudaSuccess:
@@ -32062,7 +32062,7 @@ def cudaGetTextureObjectResourceViewDesc(texObject):
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
     cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
-    cdef cudaResourceViewDesc pResViewDesc = cudaResourceViewDesc()
+    cdef cudaResourceViewDesc pResViewDesc = cudaResourceViewDesc.__new__(cudaResourceViewDesc)
     with nogil:
         err = cyruntime.cudaGetTextureObjectResourceViewDesc(<cyruntime.cudaResourceViewDesc*>pResViewDesc._pvt_ptr, cytexObject)
     if err != cyruntime.cudaSuccess:
@@ -32177,7 +32177,7 @@ def cudaGetSurfaceObjectResourceDesc(surfObject):
     else:
         psurfObject = int(cudaSurfaceObject_t(surfObject))
     cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
-    cdef cudaResourceDesc pResDesc = cudaResourceDesc()
+    cdef cudaResourceDesc pResDesc = cudaResourceDesc.__new__(cudaResourceDesc)
     with nogil:
         err = cyruntime.cudaGetSurfaceObjectResourceDesc(<cyruntime.cudaResourceDesc*>pResDesc._pvt_ptr, cysurfObject)
     if err != cyruntime.cudaSuccess:
@@ -32647,7 +32647,7 @@ def cudaGraphKernelNodeGetParams(node):
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cudaKernelNodeParams pNodeParams = cudaKernelNodeParams()
+    cdef cudaKernelNodeParams pNodeParams = cudaKernelNodeParams.__new__(cudaKernelNodeParams)
     with nogil:
         err = cyruntime.cudaGraphKernelNodeGetParams(cynode, <cyruntime.cudaKernelNodeParams*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -33031,7 +33031,7 @@ def cudaGraphMemcpyNodeGetParams(node):
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cudaMemcpy3DParms pNodeParams = cudaMemcpy3DParms()
+    cdef cudaMemcpy3DParms pNodeParams = cudaMemcpy3DParms.__new__(cudaMemcpy3DParms)
     with nogil:
         err = cyruntime.cudaGraphMemcpyNodeGetParams(cynode, <cyruntime.cudaMemcpy3DParms*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -33243,7 +33243,7 @@ def cudaGraphMemsetNodeGetParams(node):
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cudaMemsetParams pNodeParams = cudaMemsetParams()
+    cdef cudaMemsetParams pNodeParams = cudaMemsetParams.__new__(cudaMemsetParams)
     with nogil:
         err = cyruntime.cudaGraphMemsetNodeGetParams(cynode, <cyruntime.cudaMemsetParams*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -33392,7 +33392,7 @@ def cudaGraphHostNodeGetParams(node):
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cudaHostNodeParams pNodeParams = cudaHostNodeParams()
+    cdef cudaHostNodeParams pNodeParams = cudaHostNodeParams.__new__(cudaHostNodeParams)
     with nogil:
         err = cyruntime.cudaGraphHostNodeGetParams(cynode, <cyruntime.cudaHostNodeParams*>pNodeParams._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -34078,7 +34078,7 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
     else:
         phNode = int(cudaGraphNode_t(hNode))
     cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
-    cdef cudaExternalSemaphoreSignalNodeParams params_out = cudaExternalSemaphoreSignalNodeParams()
+    cdef cudaExternalSemaphoreSignalNodeParams params_out = cudaExternalSemaphoreSignalNodeParams.__new__(cudaExternalSemaphoreSignalNodeParams)
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresSignalNodeGetParams(cyhNode, <cyruntime.cudaExternalSemaphoreSignalNodeParams*>params_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -34235,7 +34235,7 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
     else:
         phNode = int(cudaGraphNode_t(hNode))
     cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
-    cdef cudaExternalSemaphoreWaitNodeParams params_out = cudaExternalSemaphoreWaitNodeParams()
+    cdef cudaExternalSemaphoreWaitNodeParams params_out = cudaExternalSemaphoreWaitNodeParams.__new__(cudaExternalSemaphoreWaitNodeParams)
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresWaitNodeGetParams(cyhNode, <cyruntime.cudaExternalSemaphoreWaitNodeParams*>params_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -34428,7 +34428,7 @@ def cudaGraphMemAllocNodeGetParams(node):
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cudaMemAllocNodeParams params_out = cudaMemAllocNodeParams()
+    cdef cudaMemAllocNodeParams params_out = cudaMemAllocNodeParams.__new__(cudaMemAllocNodeParams)
     with nogil:
         err = cyruntime.cudaGraphMemAllocNodeGetParams(cynode, <cyruntime.cudaMemAllocNodeParams*>params_out._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -36983,7 +36983,7 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cudaGraphExecUpdateResultInfo resultInfo = cudaGraphExecUpdateResultInfo()
+    cdef cudaGraphExecUpdateResultInfo resultInfo = cudaGraphExecUpdateResultInfo.__new__(cudaGraphExecUpdateResultInfo)
     with nogil:
         err = cyruntime.cudaGraphExecUpdate(cyhGraphExec, cyhGraph, <cyruntime.cudaGraphExecUpdateResultInfo*>resultInfo._pvt_ptr)
     if err != cyruntime.cudaSuccess:
@@ -38646,7 +38646,7 @@ def cudaDeviceGetDevResource(int device, typename not None : cudaDevResourceType
     --------
     :py:obj:`~.cuDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaDevResourceGenerateDesc`
     """
-    cdef cudaDevResource resource = cudaDevResource()
+    cdef cudaDevResource resource = cudaDevResource.__new__(cudaDevResource)
     cdef cyruntime.cudaDevResourceType cytypename = int(typename)
     with nogil:
         err = cyruntime.cudaDeviceGetDevResource(device, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
@@ -38762,7 +38762,7 @@ def cudaDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[cudaD
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cyruntime.cudaDevResource)))
     cdef unsigned int cynbGroups = nbGroups
     cdef cyruntime.cudaDevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
-    cdef cudaDevResource remaining = cudaDevResource()
+    cdef cudaDevResource remaining = cudaDevResource.__new__(cudaDevResource)
     with nogil:
         err = cyruntime.cudaDevSmResourceSplitByCount(cyresult, &cynbGroups, cyinput__ptr, <cyruntime.cudaDevResource*>remaining._pvt_ptr, flags, minCount)
     if cudaError_t(err) == cudaError_t(0):
@@ -38921,7 +38921,7 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
         if cyresult is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cyruntime.cudaDevResource)))
     cdef cyruntime.cudaDevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
-    cdef cudaDevResource remainder = cudaDevResource()
+    cdef cudaDevResource remainder = cudaDevResource.__new__(cudaDevResource)
     cdef cyruntime.cudaDevSmResourceGroupParams* cygroupParams_ptr = groupParams._pvt_ptr if groupParams is not None else NULL
     with nogil:
         err = cyruntime.cudaDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cyruntime.cudaDevResource*>remainder._pvt_ptr, flags, cygroupParams_ptr)
@@ -39161,7 +39161,7 @@ def cudaExecutionCtxGetDevResource(ctx, typename not None : cudaDevResourceType)
     else:
         pctx = int(cudaExecutionContext_t(ctx))
     cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
-    cdef cudaDevResource resource = cudaDevResource()
+    cdef cudaDevResource resource = cudaDevResource.__new__(cudaDevResource)
     cdef cyruntime.cudaDevResourceType cytypename = int(typename)
     with nogil:
         err = cyruntime.cudaExecutionCtxGetDevResource(cyctx, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
@@ -39411,7 +39411,7 @@ def cudaStreamGetDevResource(hStream, typename not None : cudaDevResourceType):
     else:
         phStream = int(cudaStream_t(hStream))
     cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
-    cdef cudaDevResource resource = cudaDevResource()
+    cdef cudaDevResource resource = cudaDevResource.__new__(cudaDevResource)
     cdef cyruntime.cudaDevResourceType cytypename = int(typename)
     with nogil:
         err = cyruntime.cudaStreamGetDevResource(cyhStream, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
@@ -40339,7 +40339,7 @@ def cudaGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned
     else:
         presource = int(cudaGraphicsResource_t(resource))
     cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
-    cdef cudaEglFrame eglFrame = cudaEglFrame()
+    cdef cudaEglFrame eglFrame = cudaEglFrame.__new__(cudaEglFrame)
     with nogil:
         err = cyruntime.cudaGraphicsResourceGetMappedEglFrame(<cyruntime.cudaEglFrame*>eglFrame._pvt_ptr, cyresource, index, mipLevel)
     if err != cyruntime.cudaSuccess:

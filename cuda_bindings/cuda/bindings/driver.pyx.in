@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version ee2a03d. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -25862,7 +25862,7 @@ def cuDeviceGetUuid(dev):
     else:
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
-    cdef CUuuid uuid = CUuuid()
+    cdef CUuuid uuid = CUuuid.__new__(CUuuid)
     with nogil:
         err = cydriver.cuDeviceGetUuid(<cydriver.CUuuid*>uuid._pvt_ptr, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -26525,7 +26525,7 @@ def cuDeviceGetProperties(dev):
     else:
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
-    cdef CUdevprop prop = CUdevprop()
+    cdef CUdevprop prop = CUdevprop.__new__(CUdevprop)
     with nogil:
         err = cydriver.cuDeviceGetProperties(<cydriver.CUdevprop*>prop._pvt_ptr, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -27940,7 +27940,7 @@ def cuCtxGetExecAffinity(typename not None : CUexecAffinityType):
     --------
     :py:obj:`~.CUexecAffinityParam`
     """
-    cdef CUexecAffinityParam pExecAffinity = CUexecAffinityParam()
+    cdef CUexecAffinityParam pExecAffinity = CUexecAffinityParam.__new__(CUexecAffinityParam)
     cdef cydriver.CUexecAffinityType cytypename = int(typename)
     with nogil:
         err = cydriver.cuCtxGetExecAffinity(<cydriver.CUexecAffinityParam*>pExecAffinity._pvt_ptr, cytypename)
@@ -31091,7 +31091,7 @@ def cuIpcGetEventHandle(event):
     else:
         pevent = int(CUevent(event))
     cyevent = <cydriver.CUevent><void_ptr>pevent
-    cdef CUipcEventHandle pHandle = CUipcEventHandle()
+    cdef CUipcEventHandle pHandle = CUipcEventHandle.__new__(CUipcEventHandle)
     with nogil:
         err = cydriver.cuIpcGetEventHandle(<cydriver.CUipcEventHandle*>pHandle._pvt_ptr, cyevent)
     if err != cydriver.CUDA_SUCCESS:
@@ -31194,7 +31194,7 @@ def cuIpcGetMemHandle(dptr):
     else:
         pdptr = int(CUdeviceptr(dptr))
     cydptr = <cydriver.CUdeviceptr><void_ptr>pdptr
-    cdef CUipcMemHandle pHandle = CUipcMemHandle()
+    cdef CUipcMemHandle pHandle = CUipcMemHandle.__new__(CUipcMemHandle)
     with nogil:
         err = cydriver.cuIpcGetMemHandle(<cydriver.CUipcMemHandle*>pHandle._pvt_ptr, cydptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -34132,7 +34132,7 @@ def cuArrayGetDescriptor(hArray):
     else:
         phArray = int(CUarray(hArray))
     cyhArray = <cydriver.CUarray><void_ptr>phArray
-    cdef CUDA_ARRAY_DESCRIPTOR pArrayDescriptor = CUDA_ARRAY_DESCRIPTOR()
+    cdef CUDA_ARRAY_DESCRIPTOR pArrayDescriptor = CUDA_ARRAY_DESCRIPTOR.__new__(CUDA_ARRAY_DESCRIPTOR)
     with nogil:
         err = cydriver.cuArrayGetDescriptor(<cydriver.CUDA_ARRAY_DESCRIPTOR*>pArrayDescriptor._pvt_ptr, cyhArray)
     if err != cydriver.CUDA_SUCCESS:
@@ -34188,7 +34188,7 @@ def cuArrayGetSparseProperties(array):
     else:
         parray = int(CUarray(array))
     cyarray = <cydriver.CUarray><void_ptr>parray
-    cdef CUDA_ARRAY_SPARSE_PROPERTIES sparseProperties = CUDA_ARRAY_SPARSE_PROPERTIES()
+    cdef CUDA_ARRAY_SPARSE_PROPERTIES sparseProperties = CUDA_ARRAY_SPARSE_PROPERTIES.__new__(CUDA_ARRAY_SPARSE_PROPERTIES)
     with nogil:
         err = cydriver.cuArrayGetSparseProperties(<cydriver.CUDA_ARRAY_SPARSE_PROPERTIES*>sparseProperties._pvt_ptr, cyarray)
     if err != cydriver.CUDA_SUCCESS:
@@ -34246,7 +34246,7 @@ def cuMipmappedArrayGetSparseProperties(mipmap):
     else:
         pmipmap = int(CUmipmappedArray(mipmap))
     cymipmap = <cydriver.CUmipmappedArray><void_ptr>pmipmap
-    cdef CUDA_ARRAY_SPARSE_PROPERTIES sparseProperties = CUDA_ARRAY_SPARSE_PROPERTIES()
+    cdef CUDA_ARRAY_SPARSE_PROPERTIES sparseProperties = CUDA_ARRAY_SPARSE_PROPERTIES.__new__(CUDA_ARRAY_SPARSE_PROPERTIES)
     with nogil:
         err = cydriver.cuMipmappedArrayGetSparseProperties(<cydriver.CUDA_ARRAY_SPARSE_PROPERTIES*>sparseProperties._pvt_ptr, cymipmap)
     if err != cydriver.CUDA_SUCCESS:
@@ -34304,7 +34304,7 @@ def cuArrayGetMemoryRequirements(array, device):
     else:
         parray = int(CUarray(array))
     cyarray = <cydriver.CUarray><void_ptr>parray
-    cdef CUDA_ARRAY_MEMORY_REQUIREMENTS memoryRequirements = CUDA_ARRAY_MEMORY_REQUIREMENTS()
+    cdef CUDA_ARRAY_MEMORY_REQUIREMENTS memoryRequirements = CUDA_ARRAY_MEMORY_REQUIREMENTS.__new__(CUDA_ARRAY_MEMORY_REQUIREMENTS)
     with nogil:
         err = cydriver.cuArrayGetMemoryRequirements(<cydriver.CUDA_ARRAY_MEMORY_REQUIREMENTS*>memoryRequirements._pvt_ptr, cyarray, cydevice)
     if err != cydriver.CUDA_SUCCESS:
@@ -34363,7 +34363,7 @@ def cuMipmappedArrayGetMemoryRequirements(mipmap, device):
     else:
         pmipmap = int(CUmipmappedArray(mipmap))
     cymipmap = <cydriver.CUmipmappedArray><void_ptr>pmipmap
-    cdef CUDA_ARRAY_MEMORY_REQUIREMENTS memoryRequirements = CUDA_ARRAY_MEMORY_REQUIREMENTS()
+    cdef CUDA_ARRAY_MEMORY_REQUIREMENTS memoryRequirements = CUDA_ARRAY_MEMORY_REQUIREMENTS.__new__(CUDA_ARRAY_MEMORY_REQUIREMENTS)
     with nogil:
         err = cydriver.cuMipmappedArrayGetMemoryRequirements(<cydriver.CUDA_ARRAY_MEMORY_REQUIREMENTS*>memoryRequirements._pvt_ptr, cymipmap, cydevice)
     if err != cydriver.CUDA_SUCCESS:
@@ -34636,7 +34636,7 @@ def cuArray3DGetDescriptor(hArray):
     else:
         phArray = int(CUarray(hArray))
     cyhArray = <cydriver.CUarray><void_ptr>phArray
-    cdef CUDA_ARRAY3D_DESCRIPTOR pArrayDescriptor = CUDA_ARRAY3D_DESCRIPTOR()
+    cdef CUDA_ARRAY3D_DESCRIPTOR pArrayDescriptor = CUDA_ARRAY3D_DESCRIPTOR.__new__(CUDA_ARRAY3D_DESCRIPTOR)
     with nogil:
         err = cydriver.cuArray3DGetDescriptor(<cydriver.CUDA_ARRAY3D_DESCRIPTOR*>pArrayDescriptor._pvt_ptr, cyhArray)
     if err != cydriver.CUDA_SUCCESS:
@@ -35844,7 +35844,7 @@ def cuMemGetAllocationPropertiesFromHandle(handle):
     else:
         phandle = int(CUmemGenericAllocationHandle(handle))
     cyhandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>phandle
-    cdef CUmemAllocationProp prop = CUmemAllocationProp()
+    cdef CUmemAllocationProp prop = CUmemAllocationProp.__new__(CUmemAllocationProp)
     with nogil:
         err = cydriver.cuMemGetAllocationPropertiesFromHandle(<cydriver.CUmemAllocationProp*>prop._pvt_ptr, cyhandle)
     if err != cydriver.CUDA_SUCCESS:
@@ -36812,7 +36812,7 @@ def cuMemPoolExportPointer(ptr):
     else:
         pptr = int(CUdeviceptr(ptr))
     cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
-    cdef CUmemPoolPtrExportData shareData_out = CUmemPoolPtrExportData()
+    cdef CUmemPoolPtrExportData shareData_out = CUmemPoolPtrExportData.__new__(CUmemPoolPtrExportData)
     with nogil:
         err = cydriver.cuMemPoolExportPointer(<cydriver.CUmemPoolPtrExportData*>shareData_out._pvt_ptr, cyptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -43818,7 +43818,7 @@ def cuGraphKernelNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_KERNEL_NODE_PARAMS nodeParams = CUDA_KERNEL_NODE_PARAMS()
+    cdef CUDA_KERNEL_NODE_PARAMS nodeParams = CUDA_KERNEL_NODE_PARAMS.__new__(CUDA_KERNEL_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphKernelNodeGetParams(cyhNode, <cydriver.CUDA_KERNEL_NODE_PARAMS*>nodeParams._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -43987,7 +43987,7 @@ def cuGraphMemcpyNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_MEMCPY3D nodeParams = CUDA_MEMCPY3D()
+    cdef CUDA_MEMCPY3D nodeParams = CUDA_MEMCPY3D.__new__(CUDA_MEMCPY3D)
     with nogil:
         err = cydriver.cuGraphMemcpyNodeGetParams(cyhNode, <cydriver.CUDA_MEMCPY3D*>nodeParams._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -44146,7 +44146,7 @@ def cuGraphMemsetNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_MEMSET_NODE_PARAMS nodeParams = CUDA_MEMSET_NODE_PARAMS()
+    cdef CUDA_MEMSET_NODE_PARAMS nodeParams = CUDA_MEMSET_NODE_PARAMS.__new__(CUDA_MEMSET_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphMemsetNodeGetParams(cyhNode, <cydriver.CUDA_MEMSET_NODE_PARAMS*>nodeParams._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -44295,7 +44295,7 @@ def cuGraphHostNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_HOST_NODE_PARAMS nodeParams = CUDA_HOST_NODE_PARAMS()
+    cdef CUDA_HOST_NODE_PARAMS nodeParams = CUDA_HOST_NODE_PARAMS.__new__(CUDA_HOST_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphHostNodeGetParams(cyhNode, <cydriver.CUDA_HOST_NODE_PARAMS*>nodeParams._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -44976,7 +44976,7 @@ def cuGraphExternalSemaphoresSignalNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS params_out = CUDA_EXT_SEM_SIGNAL_NODE_PARAMS()
+    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS params_out = CUDA_EXT_SEM_SIGNAL_NODE_PARAMS.__new__(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphExternalSemaphoresSignalNodeGetParams(cyhNode, <cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>params_out._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -45133,7 +45133,7 @@ def cuGraphExternalSemaphoresWaitNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS params_out = CUDA_EXT_SEM_WAIT_NODE_PARAMS()
+    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS params_out = CUDA_EXT_SEM_WAIT_NODE_PARAMS.__new__(CUDA_EXT_SEM_WAIT_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphExternalSemaphoresWaitNodeGetParams(cyhNode, <cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>params_out._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -45292,7 +45292,7 @@ def cuGraphBatchMemOpNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS nodeParams_out = CUDA_BATCH_MEM_OP_NODE_PARAMS()
+    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS nodeParams_out = CUDA_BATCH_MEM_OP_NODE_PARAMS.__new__(CUDA_BATCH_MEM_OP_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphBatchMemOpNodeGetParams(cyhNode, <cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS*>nodeParams_out._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -45559,7 +45559,7 @@ def cuGraphMemAllocNodeGetParams(hNode):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef CUDA_MEM_ALLOC_NODE_PARAMS params_out = CUDA_MEM_ALLOC_NODE_PARAMS()
+    cdef CUDA_MEM_ALLOC_NODE_PARAMS params_out = CUDA_MEM_ALLOC_NODE_PARAMS.__new__(CUDA_MEM_ALLOC_NODE_PARAMS)
     with nogil:
         err = cydriver.cuGraphMemAllocNodeGetParams(cyhNode, <cydriver.CUDA_MEM_ALLOC_NODE_PARAMS*>params_out._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -48170,7 +48170,7 @@ def cuGraphExecUpdate(hGraphExec, hGraph):
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef CUgraphExecUpdateResultInfo resultInfo = CUgraphExecUpdateResultInfo()
+    cdef CUgraphExecUpdateResultInfo resultInfo = CUgraphExecUpdateResultInfo.__new__(CUgraphExecUpdateResultInfo)
     with nogil:
         err = cydriver.cuGraphExecUpdate(cyhGraphExec, cyhGraph, <cydriver.CUgraphExecUpdateResultInfo*>resultInfo._pvt_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -51038,7 +51038,7 @@ def cuTexObjectGetResourceDesc(texObject):
     else:
         ptexObject = int(CUtexObject(texObject))
     cytexObject = <cydriver.CUtexObject><void_ptr>ptexObject
-    cdef CUDA_RESOURCE_DESC pResDesc = CUDA_RESOURCE_DESC()
+    cdef CUDA_RESOURCE_DESC pResDesc = CUDA_RESOURCE_DESC.__new__(CUDA_RESOURCE_DESC)
     with nogil:
         err = cydriver.cuTexObjectGetResourceDesc(<cydriver.CUDA_RESOURCE_DESC*>pResDesc._pvt_ptr, cytexObject)
     if err != cydriver.CUDA_SUCCESS:
@@ -51079,7 +51079,7 @@ def cuTexObjectGetTextureDesc(texObject):
     else:
         ptexObject = int(CUtexObject(texObject))
     cytexObject = <cydriver.CUtexObject><void_ptr>ptexObject
-    cdef CUDA_TEXTURE_DESC pTexDesc = CUDA_TEXTURE_DESC()
+    cdef CUDA_TEXTURE_DESC pTexDesc = CUDA_TEXTURE_DESC.__new__(CUDA_TEXTURE_DESC)
     with nogil:
         err = cydriver.cuTexObjectGetTextureDesc(<cydriver.CUDA_TEXTURE_DESC*>pTexDesc._pvt_ptr, cytexObject)
     if err != cydriver.CUDA_SUCCESS:
@@ -51121,7 +51121,7 @@ def cuTexObjectGetResourceViewDesc(texObject):
     else:
         ptexObject = int(CUtexObject(texObject))
     cytexObject = <cydriver.CUtexObject><void_ptr>ptexObject
-    cdef CUDA_RESOURCE_VIEW_DESC pResViewDesc = CUDA_RESOURCE_VIEW_DESC()
+    cdef CUDA_RESOURCE_VIEW_DESC pResViewDesc = CUDA_RESOURCE_VIEW_DESC.__new__(CUDA_RESOURCE_VIEW_DESC)
     with nogil:
         err = cydriver.cuTexObjectGetResourceViewDesc(<cydriver.CUDA_RESOURCE_VIEW_DESC*>pResViewDesc._pvt_ptr, cytexObject)
     if err != cydriver.CUDA_SUCCESS:
@@ -51240,7 +51240,7 @@ def cuSurfObjectGetResourceDesc(surfObject):
     else:
         psurfObject = int(CUsurfObject(surfObject))
     cysurfObject = <cydriver.CUsurfObject><void_ptr>psurfObject
-    cdef CUDA_RESOURCE_DESC pResDesc = CUDA_RESOURCE_DESC()
+    cdef CUDA_RESOURCE_DESC pResDesc = CUDA_RESOURCE_DESC.__new__(CUDA_RESOURCE_DESC)
     with nogil:
         err = cydriver.cuSurfObjectGetResourceDesc(<cydriver.CUDA_RESOURCE_DESC*>pResDesc._pvt_ptr, cysurfObject)
     if err != cydriver.CUDA_SUCCESS:
@@ -51540,7 +51540,7 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     else:
         ptensorRank = int(cuuint32_t(tensorRank))
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
-    cdef CUtensorMap tensorMap = CUtensorMap()
+    cdef CUtensorMap tensorMap = CUtensorMap.__new__(CUtensorMap)
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
     cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
@@ -51883,7 +51883,7 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     else:
         ptensorRank = int(cuuint32_t(tensorRank))
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
-    cdef CUtensorMap tensorMap = CUtensorMap()
+    cdef CUtensorMap tensorMap = CUtensorMap.__new__(CUtensorMap)
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
     cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
@@ -52209,7 +52209,7 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     else:
         ptensorRank = int(cuuint32_t(tensorRank))
     cytensorRank = <cydriver.cuuint32_t><void_ptr>ptensorRank
-    cdef CUtensorMap tensorMap = CUtensorMap()
+    cdef CUtensorMap tensorMap = CUtensorMap.__new__(CUtensorMap)
     cdef cydriver.CUtensorMapDataType cytensorDataType = int(tensorDataType)
     cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
     cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
@@ -53796,7 +53796,7 @@ def cuDeviceGetDevResource(device, typename not None : CUdevResourceType):
     else:
         pdevice = int(CUdevice(device))
     cydevice = <cydriver.CUdevice>pdevice
-    cdef CUdevResource resource = CUdevResource()
+    cdef CUdevResource resource = CUdevResource.__new__(CUdevResource)
     cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuDeviceGetDevResource(cydevice, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
@@ -53840,7 +53840,7 @@ def cuCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
     else:
         phCtx = int(CUcontext(hCtx))
     cyhCtx = <cydriver.CUcontext><void_ptr>phCtx
-    cdef CUdevResource resource = CUdevResource()
+    cdef CUdevResource resource = CUdevResource.__new__(CUdevResource)
     cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuCtxGetDevResource(cyhCtx, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
@@ -53884,7 +53884,7 @@ def cuGreenCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
     else:
         phCtx = int(CUgreenCtx(hCtx))
     cyhCtx = <cydriver.CUgreenCtx><void_ptr>phCtx
-    cdef CUdevResource resource = CUdevResource()
+    cdef CUdevResource resource = CUdevResource.__new__(CUdevResource)
     cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuGreenCtxGetDevResource(cyhCtx, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
@@ -54004,7 +54004,7 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cydriver.CUdevResource)))
     cdef unsigned int cynbGroups = nbGroups
     cdef cydriver.CUdevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
-    cdef CUdevResource remainder = CUdevResource()
+    cdef CUdevResource remainder = CUdevResource.__new__(CUdevResource)
     with nogil:
         err = cydriver.cuDevSmResourceSplitByCount(cyresult, &cynbGroups, cyinput__ptr, <cydriver.CUdevResource*>remainder._pvt_ptr, flags, minCount)
     if CUresult(err) == CUresult(0):
@@ -54164,7 +54164,7 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
         if cyresult is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cydriver.CUdevResource)))
     cdef cydriver.CUdevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
-    cdef CUdevResource remainder = CUdevResource()
+    cdef CUdevResource remainder = CUdevResource.__new__(CUdevResource)
     cdef cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* cygroupParams_ptr = groupParams._pvt_ptr if groupParams is not None else NULL
     with nogil:
         err = cydriver.cuDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cydriver.CUdevResource*>remainder._pvt_ptr, flags, cygroupParams_ptr)
@@ -54574,7 +54574,7 @@ def cuStreamGetDevResource(hStream, typename not None : CUdevResourceType):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef CUdevResource resource = CUdevResource()
+    cdef CUdevResource resource = CUdevResource.__new__(CUdevResource)
     cdef cydriver.CUdevResourceType cytypename = int(typename)
     with nogil:
         err = cydriver.cuStreamGetDevResource(cyhStream, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
@@ -55659,7 +55659,7 @@ def cuGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned i
     else:
         presource = int(CUgraphicsResource(resource))
     cyresource = <cydriver.CUgraphicsResource><void_ptr>presource
-    cdef CUeglFrame eglFrame = CUeglFrame()
+    cdef CUeglFrame eglFrame = CUeglFrame.__new__(CUeglFrame)
     with nogil:
         err = cydriver.cuGraphicsResourceGetMappedEglFrame(<cydriver.CUeglFrame*>eglFrame._pvt_ptr, cyresource, index, mipLevel)
     if err != cydriver.CUDA_SUCCESS:
