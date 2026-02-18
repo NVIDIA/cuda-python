@@ -105,11 +105,13 @@ jobs:
 
       - name: Build cuda-bindings
         run: |
-          uv pip install -v ./cuda_bindings --group cuda_bindings/pyproject.toml:test
+          uv pip install -v ./cuda_bindings
+          pushd cuda_bindings && uv pip install --group test && popd
 
       - name: Build cuda-core
         run: |
-          uv pip install -v ./cuda_core --group "cuda_core/pyproject.toml:test-cu$(cut -d. -f1 <<< $CUDA_VER)"
+          uv pip install -v ./cuda_core
+          pushd cuda_core && uv pip install --group "test-cu$(cut -d. -f1 <<< $CUDA_VER)" && popd
 
       - name: Install coverage tools
         run: |

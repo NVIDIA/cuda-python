@@ -109,16 +109,13 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
 
-      # Shorten TEMP on Windows so cibuildwheel's build isolation paths
-      # stay within cmd.exe's ~8KB environment limit (needed for py3.14t).
-      - name: Shorten TEMP path (Windows)
+      # ilammy/msvc-dev-cmd sets up MSVC env vars (INCLUDE, LIB, etc.) in the
+      # outer environment. Pass DISTUTILS_USE_SDK=1 so setuptools uses those
+      # vars directly instead of calling vcvarsall.bat (which can exceed the
+      # cmd.exe ~8KB command line limit with build[uv]'s longer PATH).
+      - name: Set DISTUTILS_USE_SDK (Windows)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        shell: pwsh
-        run: |
-          $short = "C:\t"
-          New-Item -ItemType Directory -Force -Path $short | Out-Null
-          "TEMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "TMP=$short" | Out-File -FilePath $env:GITHUB_ENV -Append
+        run: echo "DISTUTILS_USE_SDK=1" >> $GITHUB_ENV
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
@@ -180,6 +177,8 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+          CIBW_ENVIRONMENT_PASS_WINDOWS: >
+            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -237,6 +236,8 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+          CIBW_ENVIRONMENT_PASS_WINDOWS: >
+            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -327,14 +328,20 @@ jobs:
 
       # Create a fresh venv for the matrix Python (differs from the 3.12 used
       # during the build phase above).
-      - name: Create venv
-        run: uv venv
+      - name: Create and activate venv
+        run: |
+          uv venv
+          echo "${GITHUB_WORKSPACE}/.venv/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.venv/Scripts" >> $GITHUB_PATH
+          echo "VIRTUAL_ENV=${GITHUB_WORKSPACE}/.venv" >> $GITHUB_ENV
 
       - name: Install test deps and wheels for Cython tests
         run: |
           uv pip install cuda_pathfinder/dist/*.whl
-          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group cuda_bindings/pyproject.toml:test
-          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl --group cuda_core/pyproject.toml:test
+          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
+          pushd cuda_bindings && uv pip install --group test && popd
+          pushd cuda_core && uv pip install --group test && popd
 
       - name: Build cuda.bindings Cython tests
         run: |
@@ -427,6 +434,8 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+          CIBW_ENVIRONMENT_PASS_WINDOWS: >
+            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}

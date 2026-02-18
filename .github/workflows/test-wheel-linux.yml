@@ -293,7 +293,7 @@ jobs:
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          uv pip install -v ./*.whl --group "pyproject.toml:test-cu${TEST_CUDA_MAJOR}"
+          uv pip install -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           uv pip list
           popd
 
