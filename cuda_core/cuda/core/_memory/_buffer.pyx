@@ -17,12 +17,14 @@ from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     StreamHandle,
     deviceptr_create_with_owner,
+    deviceptr_create_with_mr,
+    register_mr_dealloc_callback,
     as_intptr,
     as_cu,
     set_deallocation_stream,
 )
 
-from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import sys
@@ -36,6 +38,30 @@ else:
 from cuda.core._dlpack import DLDeviceType, make_py_capsule
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
+
+
+# =============================================================================
+# MR deallocation callback (invoked from C++ shared_ptr deleter)
+# =============================================================================
+
+cdef void _mr_dealloc_callback(
+    object mr,
+    cydriver.CUdeviceptr ptr,
+    size_t size,
+    const StreamHandle& h_stream,
+) noexcept:
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
+    try:
+        stream = None
+        if h_stream:
+            stream = Stream._from_handle(Stream, h_stream)
+        mr.deallocate(int(ptr), size, stream)
+    except Exception as exc:
+        print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
+              file=sys.stderr)
+
+register_mr_dealloc_callback(_mr_dealloc_callback)
+
 
 __all__ = ['Buffer', 'MemoryResource']
 
@@ -73,26 +99,29 @@ cdef class Buffer:
     @classmethod
     def _init(
         cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
-        stream: Stream | None = None, ipc_descriptor: IPCBufferDescriptor | None = None,
+        ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
     ):
-        """Legacy init for compatibility - creates a non-owning ref handle.
+        """Create a Buffer from a raw pointer.
 
-        Note: The stream parameter is accepted for API compatibility but is
-        ignored since non-owning refs are never freed by the handle.
+        When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
+        is called when the buffer is closed or garbage collected.  When ``owner``
+        is provided, the owner is kept alive but no deallocation is performed.
         """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
         cdef Buffer self = Buffer.__new__(cls)
-        self._h_ptr = deviceptr_create_with_owner(<uintptr_t>(int(ptr)), owner)
+        cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
+        if mr is not None:
+            self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
+        else:
+            self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
         self._mem_attrs_inited = False
         return self
-
-    # No __dealloc__ needed - RAII handles cleanup via _h_ptr destructor
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
@@ -112,7 +141,9 @@ cdef class Buffer:
         size : int
             Memory size of the buffer
         mr : :obj:`~_memory.MemoryResource`, optional
-            Memory resource associated with the buffer
+            Memory resource associated with the buffer.  When provided,
+            :meth:`MemoryResource.deallocate` is called when the buffer is
+            closed or garbage collected.
         owner : object, optional
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
@@ -120,8 +151,9 @@ cdef class Buffer:
 
         Note
         ----
-        This creates a non-owning reference. The pointer will NOT be freed
-        when the Buffer is closed or garbage collected.
+        When neither ``mr`` nor ``owner`` is specified, this creates a
+        non-owning reference.  The pointer will NOT be freed when the
+        :class:`Buffer` is closed or garbage collected.
         """
         return Buffer._init(ptr, size, mr=mr, owner=owner)
 
