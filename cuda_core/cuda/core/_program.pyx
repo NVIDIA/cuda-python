@@ -10,6 +10,7 @@ This module provides :class:`Program` for compiling source code into
 from __future__ import annotations
 
 from dataclasses import dataclass
+import threading
 from warnings import warn
 
 from cuda.bindings import driver, nvrtc
@@ -533,6 +534,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
+    self._compile_lock = threading.Lock()
     self._use_libdevice = False
     self._libdevice_added = False
 
@@ -723,41 +725,43 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
     for i in range(len(options_list)):
         options_vec[i] = <const char*>(<bytes>options_list[i])
 
-    with nogil:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
-
-    # Load libdevice if requested  - following numba-cuda
-    if self._use_libdevice and not self._libdevice_added:
-        libdevice_path = _find_libdevice_path()
-        with open(libdevice_path, "rb") as f:
-            libdevice_bytes = f.read()
-        libdevice_ptr = <const char*>libdevice_bytes
-        libdevice_len = len(libdevice_bytes)
+    # Serialize NVVM program mutation/use per Program instance.
+    with self._compile_lock:
         with nogil:
-            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmLazyAddModuleToProgram(
-                prog, libdevice_ptr, libdevice_len, NULL))
-        self._libdevice_added = True
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
 
-    with nogil:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
-
-    HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResultSize(prog, &output_size))
-    data = bytearray(output_size)
-    data_ptr = <char*>(<bytearray>data)
-    with nogil:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResult(prog, data_ptr))
-
-    # Get compilation log if requested
-    if logs is not None:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLogSize(prog, &logsize))
-        if logsize > 1:
-            log = bytearray(logsize)
-            data_ptr = <char*>(<bytearray>log)
+        # Load libdevice if requested - following numba-cuda.
+        if self._use_libdevice and not self._libdevice_added:
+            libdevice_path = _find_libdevice_path()
+            with open(libdevice_path, "rb") as f:
+                libdevice_bytes = f.read()
+            libdevice_ptr = <const char*>libdevice_bytes
+            libdevice_len = len(libdevice_bytes)
             with nogil:
-                HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLog(prog, data_ptr))
-            logs.write(log.decode("utf-8", errors="backslashreplace"))
+                HANDLE_RETURN_NVVM(prog, cynvvm.nvvmLazyAddModuleToProgram(
+                    prog, libdevice_ptr, libdevice_len, NULL))
+            self._libdevice_added = True
 
-    return ObjectCode._init(bytes(data), target_type, name=self._options.name)
+        with nogil:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
+
+        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResultSize(prog, &output_size))
+        data = bytearray(output_size)
+        data_ptr = <char*>(<bytearray>data)
+        with nogil:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResult(prog, data_ptr))
+
+        # Get compilation log if requested
+        if logs is not None:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLogSize(prog, &logsize))
+            if logsize > 1:
+                log = bytearray(logsize)
+                data_ptr = <char*>(<bytearray>log)
+                with nogil:
+                    HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLog(prog, data_ptr))
+                logs.write(log.decode("utf-8", errors="backslashreplace"))
+
+        return ObjectCode._init(bytes(data), target_type, name=self._options.name)
 
 # Supported target types per backend
 cdef dict SUPPORTED_TARGETS = {

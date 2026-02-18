@@ -13,5 +13,6 @@ cdef class Program:
         object _linker  # Linker
         object _options  # ProgramOptions
         object __weakref__
+        object _compile_lock  # Per-instance lock for compile-time mutation
         bint _use_libdevice      # Flag for libdevice loading
         bint _libdevice_added
