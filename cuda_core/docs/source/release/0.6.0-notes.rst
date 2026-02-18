@@ -27,6 +27,13 @@ New features
 
   This replaces the previous undocumented workaround of using ``Stream.from_handle(0)`` to access the legacy default stream.
 
+- Added :func:`~cuda.core.utils.make_aligned_dtype` utility for creating
+  structured NumPy dtypes with GPU-compatible alignment.  Field offsets and
+  the total ``itemsize`` are recomputed so that each field is naturally aligned
+  and the structure size is a multiple of the largest member alignment.  An
+  explicit ``alignment`` can be requested and is stored in the dtype's metadata
+  under the key ``"__cuda_alignment__"``.  (Resolves :issue:`734`.)
+
 Fixes and enhancements
 -----------------------
 

@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 from cuda.core import Device
 from cuda.core._layout import _StridedLayout
-from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory, make_aligned_dtype
 from pytest import param
 
 
@@ -524,3 +524,126 @@ def test_from_array_interface_unsupported_strides(init_cuda):
     with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
         # TODO: ideally this would raise on construction
         smv.strides  # noqa: B018
+
+
+# --- Tests for make_aligned_dtype ---
+
+
+class TestMakeAlignedDtype:
+    def test_simple_struct_padding(self):
+        # int8 followed by float32: needs padding after int8
+        dt = np.dtype([("a", "i1"), ("b", "f4")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["b"][1] == 4  # padded to 4-byte alignment
+        assert result.itemsize == 8  # 4 (pad+a) + 4 (b)
+
+    def test_already_aligned(self):
+        dt = np.dtype([("x", "f4"), ("y", "f4")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["x"][1] == 0
+        assert result.fields["y"][1] == 4
+        assert result.itemsize == 8
+
+    def test_mixed_types(self):
+        dt = np.dtype([("a", "i1"), ("b", "f8"), ("c", "i4")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["a"][1] == 0
+        assert result.fields["b"][1] == 8  # aligned to 8
+        assert result.fields["c"][1] == 16  # aligned to 4
+        assert result.itemsize % 8 == 0  # padded to max alignment (8)
+
+    def test_explicit_alignment(self):
+        dt = np.dtype([("x", "f4"), ("y", "i1")])
+        result = make_aligned_dtype(dt, alignment=16)
+        assert result.itemsize == 16
+        assert result.metadata == {"__cuda_alignment__": 16}
+
+    def test_alignment_too_small_raises(self):
+        dt = np.dtype([("x", "f8")])  # min alignment is 8
+        with pytest.raises(ValueError, match="smaller than minimum alignment"):
+            make_aligned_dtype(dt, alignment=2)
+
+    def test_alignment_not_power_of_two_raises(self):
+        dt = np.dtype([("x", "f4")])
+        with pytest.raises(ValueError, match="power of 2"):
+            make_aligned_dtype(dt, alignment=3)
+
+    def test_alignment_zero_raises(self):
+        dt = np.dtype([("x", "f4")])
+        with pytest.raises(ValueError, match="power of 2"):
+            make_aligned_dtype(dt, alignment=0)
+
+    def test_alignment_negative_raises(self):
+        dt = np.dtype([("x", "f4")])
+        with pytest.raises(ValueError, match="power of 2"):
+            make_aligned_dtype(dt, alignment=-2)
+
+    def test_recurse_nested(self):
+        inner = np.dtype([("a", "i1"), ("b", "f4")])
+        outer = np.dtype([("inner", inner), ("c", "f8")])
+        result = make_aligned_dtype(outer, recurse=True)
+        inner_result = result.fields["inner"][0]
+        assert inner_result.fields["b"][1] == 4
+        assert result.itemsize % 8 == 0
+
+    def test_no_recurse_nested(self):
+        inner = np.dtype([("a", "i1"), ("b", "f4")])
+        outer = np.dtype([("inner", inner), ("c", "f8")])
+        result_no_recurse = make_aligned_dtype(outer, recurse=False)
+        result_recurse = make_aligned_dtype(outer, recurse=True)
+        # Without recursion, inner is left as-is
+        inner_no_recurse = result_no_recurse.fields["inner"][0]
+        assert inner_no_recurse.fields["a"][1] == 0
+
+        # The outer dtype should still be aligned properly
+        assert result_no_recurse.itemsize % 8 == 0
+        assert result_recurse.itemsize % 8 == 0
+
+    def test_single_field(self):
+        dt = np.dtype([("x", "f8")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["x"][1] == 0
+        assert result.itemsize == 8
+
+    def test_many_small_fields(self):
+        dt = np.dtype([("a", "i1"), ("b", "i1"), ("c", "i1"), ("d", "f4")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["d"][1] == 4  # aligned to 4
+        assert result.itemsize % 4 == 0
+
+    def test_metadata_preserved_with_alignment(self):
+        dt = np.dtype([("x", "f4")])
+        result = make_aligned_dtype(dt, alignment=8)
+        assert result.metadata["__cuda_alignment__"] == 8
+
+    def test_default_alignment_no_metadata(self):
+        dt = np.dtype([("x", "f4"), ("y", "f4")])
+        result = make_aligned_dtype(dt)
+        assert result.metadata is None
+
+    def test_non_struct_dtype_passthrough(self):
+        # Non-structured dtypes should pass through if alignment matches
+        dt = np.dtype("f4")
+        result = make_aligned_dtype(dt)
+        assert result.itemsize == 4
+
+    def test_non_struct_alignment_too_large(self):
+        dt = np.dtype("f4")
+        with pytest.raises(ValueError, match="Alignment larger than itemsize"):
+            make_aligned_dtype(dt, alignment=8)
+
+    def test_three_floats(self):
+        # Common GPU struct: float3
+        dt = np.dtype([("x", "f4"), ("y", "f4"), ("z", "f4")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["x"][1] == 0
+        assert result.fields["y"][1] == 4
+        assert result.fields["z"][1] == 8
+        assert result.itemsize == 12
+
+    def test_int_then_double(self):
+        dt = np.dtype([("i", "i4"), ("d", "f8")])
+        result = make_aligned_dtype(dt)
+        assert result.fields["i"][1] == 0
+        assert result.fields["d"][1] == 8
+        assert result.itemsize == 16
