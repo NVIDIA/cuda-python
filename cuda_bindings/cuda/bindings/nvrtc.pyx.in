@@ -1,9 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version fd3f910. Do not modify it directly.
 from typing import Any, Optional
-from enum import IntEnum
 import cython
 import ctypes
 from libc.stdlib cimport calloc, malloc, free
@@ -14,6 +13,7 @@ from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
+from ._internal._fast_enum import FastEnum as _FastEnum
 
 import cuda.bindings.driver as _driver
 _driver = _driver.__dict__
@@ -46,7 +46,7 @@ ctypedef unsigned long long void_ptr
 
 {{if 'nvrtcResult' in found_types}}
 
-class nvrtcResult(IntEnum):
+class nvrtcResult(_FastEnum):
     """
     The enumerated type nvrtcResult defines API call result codes.
     NVRTC API functions return nvrtcResult to indicate the call result.
@@ -88,8 +88,13 @@ class nvrtcResult(IntEnum):
     {{if 'NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED' in found_values}}
     NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED{{endif}}
 
-_dict_nvrtcResult = dict(((int(v), v) for k, v in nvrtcResult.__members__.items()))
 {{endif}}
+
+cdef object _nvrtcResult = nvrtcResult
+cdef object _nvrtcResult_SUCCESS = nvrtcResult.NVRTC_SUCCESS
+
+
+
 {{if 'nvrtcProgram' in found_types}}
 
 cdef class nvrtcProgram:
@@ -145,7 +150,7 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
     bytes
         Message string for the given :py:obj:`~.nvrtcResult` code.
     """
-    cdef cynvrtc.nvrtcResult cyresult = result.value
+    cdef cynvrtc.nvrtcResult cyresult = int(result)
     with nogil:
         err = cynvrtc.nvrtcGetErrorString(cyresult)
     return (nvrtcResult.NVRTC_SUCCESS, err)
@@ -172,8 +177,8 @@ def nvrtcVersion():
     with nogil:
         err = cynvrtc.nvrtcVersion(&major, &minor)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None, None)
-    return (_dict_nvrtcResult[err], major, minor)
+        return (_nvrtcResult(err), None, None)
+    return (_nvrtcResult_SUCCESS, major, minor)
 {{endif}}
 
 {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
@@ -196,8 +201,8 @@ def nvrtcGetNumSupportedArchs():
     with nogil:
         err = cynvrtc.nvrtcGetNumSupportedArchs(&numArchs)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], numArchs)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, numArchs)
 {{endif}}
 
 {{if 'nvrtcGetSupportedArchs' in found_functions}}
@@ -223,8 +228,8 @@ def nvrtcGetSupportedArchs():
     with nogil:
         err = cynvrtc.nvrtcGetSupportedArchs(supportedArchs.data())
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], supportedArchs)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, supportedArchs)
 {{endif}}
 
 {{if 'nvrtcCreateProgram' in found_functions}}
@@ -281,8 +286,8 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     with nogil:
         err = cynvrtc.nvrtcCreateProgram(<cynvrtc.nvrtcProgram*>prog._pvt_ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], prog)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, prog)
 {{endif}}
 
 {{if 'nvrtcDestroyProgram' in found_functions}}
@@ -318,7 +323,7 @@ def nvrtcDestroyProgram(prog):
         raise TypeError("Argument 'prog' is not instance of type (expected <class 'int, nvrtc.nvrtcProgram'>, found " + str(type(prog)))
     with nogil:
         err = cynvrtc.nvrtcDestroyProgram(cyprog)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcCompileProgram' in found_functions}}
@@ -368,7 +373,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
     cdef vector[const char*] cyoptions = options
     with nogil:
         err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetPTXSize' in found_functions}}
@@ -407,8 +412,8 @@ def nvrtcGetPTXSize(prog):
     with nogil:
         err = cynvrtc.nvrtcGetPTXSize(cyprog, &ptxSizeRet)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], ptxSizeRet)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, ptxSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetPTX' in found_functions}}
@@ -445,7 +450,7 @@ def nvrtcGetPTX(prog, char* ptx):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetPTX(cyprog, ptx)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetCUBINSize' in found_functions}}
@@ -484,8 +489,8 @@ def nvrtcGetCUBINSize(prog):
     with nogil:
         err = cynvrtc.nvrtcGetCUBINSize(cyprog, &cubinSizeRet)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], cubinSizeRet)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, cubinSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetCUBIN' in found_functions}}
@@ -522,7 +527,7 @@ def nvrtcGetCUBIN(prog, char* cubin):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetLTOIRSize' in found_functions}}
@@ -561,8 +566,8 @@ def nvrtcGetLTOIRSize(prog):
     with nogil:
         err = cynvrtc.nvrtcGetLTOIRSize(cyprog, &LTOIRSizeRet)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], LTOIRSizeRet)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, LTOIRSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetLTOIR' in found_functions}}
@@ -599,7 +604,7 @@ def nvrtcGetLTOIR(prog, char* LTOIR):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetLTOIR(cyprog, LTOIR)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetOptiXIRSize' in found_functions}}
@@ -638,8 +643,8 @@ def nvrtcGetOptiXIRSize(prog):
     with nogil:
         err = cynvrtc.nvrtcGetOptiXIRSize(cyprog, &optixirSizeRet)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], optixirSizeRet)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, optixirSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetOptiXIR' in found_functions}}
@@ -676,7 +681,7 @@ def nvrtcGetOptiXIR(prog, char* optixir):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetOptiXIR(cyprog, optixir)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetProgramLogSize' in found_functions}}
@@ -718,8 +723,8 @@ def nvrtcGetProgramLogSize(prog):
     with nogil:
         err = cynvrtc.nvrtcGetProgramLogSize(cyprog, &logSizeRet)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], logSizeRet)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, logSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetProgramLog' in found_functions}}
@@ -756,7 +761,7 @@ def nvrtcGetProgramLog(prog, char* log):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetProgramLog(cyprog, log)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcAddNameExpression' in found_functions}}
@@ -798,7 +803,7 @@ def nvrtcAddNameExpression(prog, char* name_expression):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcAddNameExpression(cyprog, name_expression)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetLoweredName' in found_functions}}
@@ -842,8 +847,8 @@ def nvrtcGetLoweredName(prog, char* name_expression):
     with nogil:
         err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], <bytes>lowered_name if lowered_name != NULL else None)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, <bytes>lowered_name if lowered_name != NULL else None)
 {{endif}}
 
 {{if 'nvrtcGetPCHHeapSize' in found_functions}}
@@ -864,8 +869,8 @@ def nvrtcGetPCHHeapSize():
     with nogil:
         err = cynvrtc.nvrtcGetPCHHeapSize(&ret)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], ret)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, ret)
 {{endif}}
 
 {{if 'nvrtcSetPCHHeapSize' in found_functions}}
@@ -890,7 +895,7 @@ def nvrtcSetPCHHeapSize(size_t size):
     """
     with nogil:
         err = cynvrtc.nvrtcSetPCHHeapSize(size)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
@@ -938,7 +943,7 @@ def nvrtcGetPCHCreateStatus(prog):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetPCHCreateStatus(cyprog)
-    return (_dict_nvrtcResult[err],)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
@@ -974,8 +979,8 @@ def nvrtcGetPCHHeapSizeRequired(prog):
     with nogil:
         err = cynvrtc.nvrtcGetPCHHeapSizeRequired(cyprog, &size)
     if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], size)
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, size)
 {{endif}}
 
 {{if 'nvrtcSetFlowCallback' in found_functions}}
@@ -1030,13 +1035,15 @@ def nvrtcSetFlowCallback(prog, callback, payload):
     else:
         pprog = int(nvrtcProgram(prog))
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
-    cycallback = _HelperInputVoidPtr(callback)
-    cdef void* cycallback_ptr = <void*><void_ptr>cycallback.cptr
-    cypayload = _HelperInputVoidPtr(payload)
-    cdef void* cypayload_ptr = <void*><void_ptr>cypayload.cptr
+    cdef _HelperInputVoidPtrStruct cycallbackHelper
+    cdef void* cycallback = _helper_input_void_ptr(callback, &cycallbackHelper)
+    cdef _HelperInputVoidPtrStruct cypayloadHelper
+    cdef void* cypayload = _helper_input_void_ptr(payload, &cypayloadHelper)
     with nogil:
-        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback_ptr, cypayload_ptr)
-    return (_dict_nvrtcResult[err],)
+        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback, cypayload)
+    _helper_input_void_ptr_free(&cycallbackHelper)
+    _helper_input_void_ptr_free(&cypayloadHelper)
+    return (_nvrtcResult(err),)
 {{endif}}
 
 @cython.embedsignature(True)

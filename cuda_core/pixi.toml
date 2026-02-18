@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -15,6 +15,7 @@ cuda-core = { path = "." }
 pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
+pytest-repeat = "*"
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
@@ -59,6 +60,9 @@ cuda = "12"
 cuda-version = "12.*"
 
 # We keep both cu12 and cu13 because cuda.core works with either major version
+# NOTE: Path dependency to ../cuda_bindings only works for cu13 (local bindings is v13.1)
+#       For cu12 testing, use conda-forge packages: temporarily change path to wildcard
+#       or skip cu12 locally: pixi run -e cu13 test
 [environments]
 default = { features = [
     "cu13",
@@ -101,10 +105,9 @@ setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-profiler-api = "*"
-# this doesn't work because Cython cannot find editable-installed build-time
-# dependencies https://github.com/cython/cython/issues/7326
-# cuda-bindings = { path = "../cuda_bindings" }
-cuda-bindings = "*"
+# Using path dependency now that we've added .pth support for Cython .pxd files
+# See build_hooks.py:_add_cython_include_paths_to_pth()
+cuda-bindings = { path = "../cuda_bindings" }
 
 [package.target.linux-64.host-dependencies]
 cuda-crt-dev_linux-64 = "*"
@@ -118,10 +121,9 @@ cuda-crt-dev_win-64 = "*"
 [package.run-dependencies]
 python = "*"
 numpy = "*"
-# this doesn't work because Cython cannot find editable-installed build-time
-# dependencies https://github.com/cython/cython/issues/7326
-# cuda-bindings = { path = "../cuda_bindings" }
-cuda-bindings = "*"
+# Using path dependency now that we've added .pth support for Cython .pxd files
+# See build_hooks.py:_add_cython_include_paths_to_pth()
+cuda-bindings = { path = "../cuda_bindings" }
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]

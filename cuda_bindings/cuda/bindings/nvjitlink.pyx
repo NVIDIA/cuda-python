@@ -1,15 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
-from enum import IntEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 from libcpp.vector cimport vector
 
 
@@ -17,39 +17,49 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
-    """See `nvJitLinkResult`."""
-    SUCCESS = NVJITLINK_SUCCESS
-    ERROR_UNRECOGNIZED_OPTION = NVJITLINK_ERROR_UNRECOGNIZED_OPTION
-    ERROR_MISSING_ARCH = NVJITLINK_ERROR_MISSING_ARCH
-    ERROR_INVALID_INPUT = NVJITLINK_ERROR_INVALID_INPUT
-    ERROR_PTX_COMPILE = NVJITLINK_ERROR_PTX_COMPILE
-    ERROR_NVVM_COMPILE = NVJITLINK_ERROR_NVVM_COMPILE
-    ERROR_INTERNAL = NVJITLINK_ERROR_INTERNAL
-    ERROR_THREADPOOL = NVJITLINK_ERROR_THREADPOOL
-    ERROR_UNRECOGNIZED_INPUT = NVJITLINK_ERROR_UNRECOGNIZED_INPUT
-    ERROR_FINALIZE = NVJITLINK_ERROR_FINALIZE
-    ERROR_NULL_INPUT = NVJITLINK_ERROR_NULL_INPUT
-    ERROR_INCOMPATIBLE_OPTIONS = NVJITLINK_ERROR_INCOMPATIBLE_OPTIONS
-    ERROR_INCORRECT_INPUT_TYPE = NVJITLINK_ERROR_INCORRECT_INPUT_TYPE
-    ERROR_ARCH_MISMATCH = NVJITLINK_ERROR_ARCH_MISMATCH
-    ERROR_OUTDATED_LIBRARY = NVJITLINK_ERROR_OUTDATED_LIBRARY
-    ERROR_MISSING_FATBIN = NVJITLINK_ERROR_MISSING_FATBIN
-    ERROR_UNRECOGNIZED_ARCH = NVJITLINK_ERROR_UNRECOGNIZED_ARCH
-    ERROR_UNSUPPORTED_ARCH = NVJITLINK_ERROR_UNSUPPORTED_ARCH
-    ERROR_LTO_NOT_ENABLED = NVJITLINK_ERROR_LTO_NOT_ENABLED
+class Result(_FastEnum):
+    """
+    The enumerated type nvJitLinkResult defines API call result codes.
+    nvJitLink APIs return nvJitLinkResult codes to indicate the result.
 
-class InputType(_IntEnum):
-    """See `nvJitLinkInputType`."""
-    NONE = NVJITLINK_INPUT_NONE
-    CUBIN = NVJITLINK_INPUT_CUBIN
-    PTX = NVJITLINK_INPUT_PTX
-    LTOIR = NVJITLINK_INPUT_LTOIR
-    FATBIN = NVJITLINK_INPUT_FATBIN
-    OBJECT = NVJITLINK_INPUT_OBJECT
-    LIBRARY = NVJITLINK_INPUT_LIBRARY
-    INDEX = NVJITLINK_INPUT_INDEX
-    ANY = NVJITLINK_INPUT_ANY
+    See `nvJitLinkResult`.
+    """
+    SUCCESS = NVJITLINK_SUCCESS
+    ERROR_UNRECOGNIZED_OPTION = (NVJITLINK_ERROR_UNRECOGNIZED_OPTION, 'Unrecognized Option')
+    ERROR_MISSING_ARCH = (NVJITLINK_ERROR_MISSING_ARCH, 'Option `-arch=sm_NN` not specified')
+    ERROR_INVALID_INPUT = (NVJITLINK_ERROR_INVALID_INPUT, 'Invalid Input')
+    ERROR_PTX_COMPILE = (NVJITLINK_ERROR_PTX_COMPILE, 'Issue during PTX Compilation')
+    ERROR_NVVM_COMPILE = (NVJITLINK_ERROR_NVVM_COMPILE, 'Issue during NVVM Compilation')
+    ERROR_INTERNAL = (NVJITLINK_ERROR_INTERNAL, 'Internal Error')
+    ERROR_THREADPOOL = (NVJITLINK_ERROR_THREADPOOL, 'Issue with Thread Pool')
+    ERROR_UNRECOGNIZED_INPUT = (NVJITLINK_ERROR_UNRECOGNIZED_INPUT, 'Unrecognized Input')
+    ERROR_FINALIZE = (NVJITLINK_ERROR_FINALIZE, 'Finalizer Error')
+    ERROR_NULL_INPUT = (NVJITLINK_ERROR_NULL_INPUT, 'Null Input')
+    ERROR_INCOMPATIBLE_OPTIONS = (NVJITLINK_ERROR_INCOMPATIBLE_OPTIONS, 'Incompatible Options')
+    ERROR_INCORRECT_INPUT_TYPE = (NVJITLINK_ERROR_INCORRECT_INPUT_TYPE, 'Incorrect Input Type')
+    ERROR_ARCH_MISMATCH = (NVJITLINK_ERROR_ARCH_MISMATCH, 'Arch Mismatch')
+    ERROR_OUTDATED_LIBRARY = (NVJITLINK_ERROR_OUTDATED_LIBRARY, 'Outdated Library')
+    ERROR_MISSING_FATBIN = (NVJITLINK_ERROR_MISSING_FATBIN, 'Missing Fatbin')
+    ERROR_UNRECOGNIZED_ARCH = (NVJITLINK_ERROR_UNRECOGNIZED_ARCH, 'Unrecognized -arch value')
+    ERROR_UNSUPPORTED_ARCH = (NVJITLINK_ERROR_UNSUPPORTED_ARCH, 'Unsupported -arch value')
+    ERROR_LTO_NOT_ENABLED = (NVJITLINK_ERROR_LTO_NOT_ENABLED, 'Requires -lto')
+
+class InputType(_FastEnum):
+    """
+    The enumerated type nvJitLinkInputType defines the kind of inputs that
+    can be passed to nvJitLinkAdd* APIs.
+
+    See `nvJitLinkInputType`.
+    """
+    NONE = (NVJITLINK_INPUT_NONE, 'Error Type')
+    CUBIN = (NVJITLINK_INPUT_CUBIN, 'For CUDA Binaries')
+    PTX = (NVJITLINK_INPUT_PTX, 'For PTX')
+    LTOIR = (NVJITLINK_INPUT_LTOIR, 'For LTO-IR')
+    FATBIN = (NVJITLINK_INPUT_FATBIN, 'For Fatbin')
+    OBJECT = (NVJITLINK_INPUT_OBJECT, 'For Host Object')
+    LIBRARY = (NVJITLINK_INPUT_LIBRARY, 'For Host Library')
+    INDEX = (NVJITLINK_INPUT_INDEX, 'For Index File')
+    ANY = (NVJITLINK_INPUT_ANY, 'Dynamically chooses from the valid types')
 
 
 ###############################################################################

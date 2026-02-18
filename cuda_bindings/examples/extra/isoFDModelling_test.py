@@ -310,7 +310,7 @@ class propagator:
         freq = np.array(self.params.freqMax, dtype=np.float32)
 
         args = [buf, dt, freq, nt]
-        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+        argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
         checkCudaErrors(
             cuda.cuLaunchKernel(
@@ -323,7 +323,7 @@ class propagator:
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
-                args.ctypes.data,
+                argsp.ctypes.data,
                 0,
             )
         )  # arguments
@@ -351,7 +351,7 @@ class propagator:
         np_it = np.array(iter, dtype=np.uint32)
 
         args = [wavein + offset_sourceInject, src, np_it]
-        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+        argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
         checkCudaErrors(
             cuda.cuLaunchKernel(
                 kernel.injectSource,
@@ -363,7 +363,7 @@ class propagator:
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
-                args.ctypes.data,
+                argsp.ctypes.data,
                 0,
             )
         )  # arguments
@@ -391,7 +391,7 @@ class propagator:
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [vel + offset_velocity, np_dx_dt2, np_nz, np_nx, np_stride]
-        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+        argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
 
@@ -407,7 +407,7 @@ class propagator:
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
-                args.ctypes.data,
+                argsp.ctypes.data,
                 0,
             )
         )  # arguments
@@ -448,7 +448,7 @@ class propagator:
             np_nx,
             np_stride,
         ]
-        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+        argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         # do center propagation from 2 * fd_order to nz - 2 * fd_order
         checkCudaErrors(
@@ -462,7 +462,7 @@ class propagator:
                 1,  # block dim
                 0,
                 self.streamCenter,  # shared mem and stream
-                args.ctypes.data,
+                argsp.ctypes.data,
                 0,
             )
         )  # arguments
@@ -503,7 +503,7 @@ class propagator:
             np_nx,
             np_stride,
         ]
-        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+        argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         # do halo up
         checkCudaErrors(
@@ -517,7 +517,7 @@ class propagator:
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
-                args.ctypes.data,
+                argsp.ctypes.data,
                 0,
             )
         )  # arguments
@@ -541,7 +541,7 @@ class propagator:
             np_nx,
             np_stride,
         ]
-        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+        argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
         checkCudaErrors(
             cuda.cuLaunchKernel(
                 kernel.fdPropag,
@@ -553,7 +553,7 @@ class propagator:
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
-                args.ctypes.data,
+                argsp.ctypes.data,
                 0,
             )
         )  # arguments

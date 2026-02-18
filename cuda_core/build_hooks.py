@@ -11,6 +11,10 @@ import functools
 import glob
 import os
 import re
+import sys
+import tempfile
+import zipfile
+from pathlib import Path
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -93,6 +97,22 @@ def _build_cuda_core():
     # This function populates "_extensions".
     global _extensions
 
+    # Add cuda-bindings to sys.path so Cython can find .pxd files
+    # This is needed for editable installs where meta path finders don't work for Cython
+    # We need to add the directory containing the 'cuda' package so Cython can resolve
+    # "from cuda.bindings cimport cydriver"
+    try:
+        import cuda.bindings
+
+        bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
+        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
+        if str(cuda_package_dir) not in sys.path:
+            sys.path.insert(0, str(cuda_package_dir))
+            print(f"Added cuda-bindings parent path for Cython: {cuda_package_dir}", file=sys.stderr)
+    except ImportError:
+        # cuda-bindings not available in editable mode, will use installed version
+        pass
+
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
     def module_names():
@@ -143,6 +163,7 @@ def _build_cuda_core():
         ext_modules,
         verbose=True,
         language_level=3,
+        build_dir="build/cython",
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
@@ -151,9 +172,94 @@ def _build_cuda_core():
     return
 
 
+def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
+    """
+    Modify the .pth file in an editable install wheel to add Cython include paths.
+
+    This is needed because Cython cannot find .pxd files through meta path finders,
+    it only looks in sys.path directories. By adding direct paths to the .pth file,
+    we enable Cython to find .pxd files from editable-installed cuda-bindings.
+
+    See: https://github.com/scikit-build/scikit-build-core/pull/516
+    See: https://github.com/cython/cython/issues/7326
+    """
+    # Find cuda-bindings location
+    # When building with pixi path dependencies, cuda-bindings should be importable
+    try:
+        import cuda.bindings
+
+        bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
+        # We need the directory containing the 'cuda' package for Cython imports
+        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
+        print(f"Found cuda-bindings at: {bindings_path}", file=sys.stderr)
+        print(f"Will add to .pth for Cython: {cuda_package_dir}", file=sys.stderr)
+    except ImportError:
+        # If cuda-bindings isn't available yet, we can't add the path
+        # This might happen in some build scenarios, but it's okay - the
+        # wildcard dependency will work in those cases
+        print("cuda-bindings not found in current environment, skipping .pth modification")
+        return
+
+    # Create a temporary directory for wheel manipulation
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        wheel_file = Path(wheel_path)
+
+        # Extract the wheel
+        extract_dir = tmpdir_path / "extracted"
+        with zipfile.ZipFile(wheel_file, "r") as zf:
+            zf.extractall(extract_dir)
+
+        # Find the .pth file (should be named something like __editable___cuda_core-*.pth)
+        pth_files = list(extract_dir.glob("**/*.pth"))
+        if not pth_files:
+            print("Warning: No .pth file found in editable wheel", file=sys.stderr)
+            return
+
+        # Modify each .pth file (usually just one)
+        for pth_file in pth_files:
+            print(f"Modifying {pth_file.name} to add Cython include paths", file=sys.stderr)
+
+            # Read existing content
+            content = pth_file.read_text()
+
+            # Add the cuda-bindings source path to sys.path for Cython
+            # This allows Cython to find .pxd files via direct path lookup
+            # The path must be the directory containing the 'cuda' package
+            path_to_add = str(cuda_package_dir.absolute())
+
+            # Ensure content ends with newline before adding path
+            if not content.endswith("\n"):
+                content += "\n"
+
+            # Append to the .pth file (after the import hook line)
+            if path_to_add not in content:
+                pth_file.write_text(content + path_to_add + "\n")
+                print(f"Added Cython include path: {cuda_package_dir}", file=sys.stderr)
+
+        # Repackage the wheel
+        # Remove the old wheel first
+        wheel_file.unlink()
+
+        # Create new wheel with same name
+        with zipfile.ZipFile(wheel_file, "w", zipfile.ZIP_DEFLATED) as zf:
+            for file_path in extract_dir.rglob("*"):
+                if file_path.is_file():
+                    arcname = file_path.relative_to(extract_dir)
+                    zf.write(file_path, arcname)
+
+        print(f"Successfully patched {wheel_file.name}", file=sys.stderr)
+
+
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
     _build_cuda_core()
-    return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
+    wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
+
+    # Patch the .pth file to add Cython include paths
+    wheel_path = os.path.join(wheel_directory, wheel_name)
+    _add_cython_include_paths_to_pth(wheel_path)
+
+    return wheel_name
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):

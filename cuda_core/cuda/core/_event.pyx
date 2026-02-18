@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -26,14 +26,11 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 import multiprocessing
-from typing import TYPE_CHECKING, Optional
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
 )
-if TYPE_CHECKING:
-    import cuda.bindings
 
 
 @dataclass
@@ -56,9 +53,9 @@ cdef class EventOptions:
 
     """
 
-    enable_timing: Optional[bool] = False
-    busy_waited_sync: Optional[bool] = False
-    ipc_enabled: Optional[bool] = False
+    enable_timing: bool | None = False
+    busy_waited_sync: bool | None = False
+    ipc_enabled: bool | None = False
 
 
 cdef class Event:
@@ -172,7 +169,7 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((type(self), as_intptr(self._h_event)))
+        return hash(as_intptr(self._h_event))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.
@@ -180,6 +177,9 @@ cdef class Event:
             return NotImplemented
         cdef Event _other = <Event>other
         return as_intptr(self._h_event) == as_intptr(_other._h_event)
+
+    def __repr__(self) -> str:
+        return f"<Event handle={as_intptr(self._h_event):#x}>"
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""

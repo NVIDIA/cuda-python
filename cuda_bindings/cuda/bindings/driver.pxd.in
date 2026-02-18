@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This code was automatically generated with version 13.1.0. Do not modify it directly.
@@ -1162,6 +1162,9 @@ cdef class CUaccessPolicyWindow_st:
     """
     cdef cydriver.CUaccessPolicyWindow_st _pvt_val
     cdef cydriver.CUaccessPolicyWindow_st* _pvt_ptr
+    {{if 'CUaccessPolicyWindow_st.base_ptr' in found_struct}}
+    cdef _HelperInputVoidPtr _cybase_ptr
+    {{endif}}
 {{endif}}
 {{if 'CUDA_KERNEL_NODE_PARAMS_st' in found_struct}}
 
@@ -1506,6 +1509,9 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
     {{if 'CUDA_HOST_NODE_PARAMS_st.fn' in found_struct}}
     cdef CUhostFn _fn
     {{endif}}
+    {{if 'CUDA_HOST_NODE_PARAMS_st.userData' in found_struct}}
+    cdef _HelperInputVoidPtr _cyuserData
+    {{endif}}
 {{endif}}
 {{if 'CUDA_HOST_NODE_PARAMS_v2_st' in found_struct}}
 
@@ -1533,6 +1539,9 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
     cdef cydriver.CUDA_HOST_NODE_PARAMS_v2_st* _pvt_ptr
     {{if 'CUDA_HOST_NODE_PARAMS_v2_st.fn' in found_struct}}
     cdef CUhostFn _fn
+    {{endif}}
+    {{if 'CUDA_HOST_NODE_PARAMS_v2_st.userData' in found_struct}}
+    cdef _HelperInputVoidPtr _cyuserData
     {{endif}}
 {{endif}}
 {{if 'CUDA_CONDITIONAL_NODE_PARAMS' in found_struct}}
@@ -2186,6 +2195,9 @@ cdef class CUctxCigParam_st:
     """
     cdef cydriver.CUctxCigParam_st _pvt_val
     cdef cydriver.CUctxCigParam_st* _pvt_ptr
+    {{if 'CUctxCigParam_st.sharedData' in found_struct}}
+    cdef _HelperInputVoidPtr _cysharedData
+    {{endif}}
 {{endif}}
 {{if 'CUctxCreateParams_st' in found_struct}}
 
@@ -2255,6 +2267,12 @@ cdef class CUlibraryHostUniversalFunctionAndDataTable_st:
     """
     cdef cydriver.CUlibraryHostUniversalFunctionAndDataTable_st _pvt_val
     cdef cydriver.CUlibraryHostUniversalFunctionAndDataTable_st* _pvt_ptr
+    {{if 'CUlibraryHostUniversalFunctionAndDataTable_st.functionTable' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfunctionTable
+    {{endif}}
+    {{if 'CUlibraryHostUniversalFunctionAndDataTable_st.dataTable' in found_struct}}
+    cdef _HelperInputVoidPtr _cydataTable
+    {{endif}}
 {{endif}}
 {{if 'CUDA_MEMCPY2D_st' in found_struct}}
 
@@ -2336,11 +2354,17 @@ cdef class CUDA_MEMCPY2D_st:
     """
     cdef cydriver.CUDA_MEMCPY2D_st _pvt_val
     cdef cydriver.CUDA_MEMCPY2D_st* _pvt_ptr
+    {{if 'CUDA_MEMCPY2D_st.srcHost' in found_struct}}
+    cdef _HelperInputVoidPtr _cysrcHost
+    {{endif}}
     {{if 'CUDA_MEMCPY2D_st.srcDevice' in found_struct}}
     cdef CUdeviceptr _srcDevice
     {{endif}}
     {{if 'CUDA_MEMCPY2D_st.srcArray' in found_struct}}
     cdef CUarray _srcArray
+    {{endif}}
+    {{if 'CUDA_MEMCPY2D_st.dstHost' in found_struct}}
+    cdef _HelperInputVoidPtr _cydstHost
     {{endif}}
     {{if 'CUDA_MEMCPY2D_st.dstDevice' in found_struct}}
     cdef CUdeviceptr _dstDevice
@@ -2466,17 +2490,29 @@ cdef class CUDA_MEMCPY3D_st:
     """
     cdef cydriver.CUDA_MEMCPY3D_st _pvt_val
     cdef cydriver.CUDA_MEMCPY3D_st* _pvt_ptr
+    {{if 'CUDA_MEMCPY3D_st.srcHost' in found_struct}}
+    cdef _HelperInputVoidPtr _cysrcHost
+    {{endif}}
     {{if 'CUDA_MEMCPY3D_st.srcDevice' in found_struct}}
     cdef CUdeviceptr _srcDevice
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.srcArray' in found_struct}}
     cdef CUarray _srcArray
     {{endif}}
+    {{if 'CUDA_MEMCPY3D_st.reserved0' in found_struct}}
+    cdef _HelperInputVoidPtr _cyreserved0
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_st.dstHost' in found_struct}}
+    cdef _HelperInputVoidPtr _cydstHost
+    {{endif}}
     {{if 'CUDA_MEMCPY3D_st.dstDevice' in found_struct}}
     cdef CUdeviceptr _dstDevice
     {{endif}}
     {{if 'CUDA_MEMCPY3D_st.dstArray' in found_struct}}
     cdef CUarray _dstArray
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_st.reserved1' in found_struct}}
+    cdef _HelperInputVoidPtr _cyreserved1
     {{endif}}
 {{endif}}
 {{if 'CUDA_MEMCPY3D_PEER_st' in found_struct}}
@@ -2597,6 +2633,9 @@ cdef class CUDA_MEMCPY3D_PEER_st:
     """
     cdef cydriver.CUDA_MEMCPY3D_PEER_st _pvt_val
     cdef cydriver.CUDA_MEMCPY3D_PEER_st* _pvt_ptr
+    {{if 'CUDA_MEMCPY3D_PEER_st.srcHost' in found_struct}}
+    cdef _HelperInputVoidPtr _cysrcHost
+    {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.srcDevice' in found_struct}}
     cdef CUdeviceptr _srcDevice
     {{endif}}
@@ -2605,6 +2644,9 @@ cdef class CUDA_MEMCPY3D_PEER_st:
     {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.srcContext' in found_struct}}
     cdef CUcontext _srcContext
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_PEER_st.dstHost' in found_struct}}
+    cdef _HelperInputVoidPtr _cydstHost
     {{endif}}
     {{if 'CUDA_MEMCPY3D_PEER_st.dstDevice' in found_struct}}
     cdef CUdeviceptr _dstDevice
@@ -3284,6 +3326,12 @@ cdef class anon_struct12:
         Get memory address of class instance
     """
     cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _pvt_ptr
+    {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.win32.handle' in found_struct}}
+    cdef _HelperInputVoidPtr _cyhandle
+    {{endif}}
+    {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.win32.name' in found_struct}}
+    cdef _HelperInputVoidPtr _cyname
+    {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle' in found_struct}}
 
@@ -3312,6 +3360,9 @@ cdef class anon_union5:
     cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _pvt_ptr
     {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.win32' in found_struct}}
     cdef anon_struct12 _win32
+    {{endif}}
+    {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.nvSciBufObject' in found_struct}}
+    cdef _HelperInputVoidPtr _cynvSciBufObject
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_struct}}
@@ -3445,6 +3496,12 @@ cdef class anon_struct13:
         Get memory address of class instance
     """
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _pvt_ptr
+    {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle.win32.handle' in found_struct}}
+    cdef _HelperInputVoidPtr _cyhandle
+    {{endif}}
+    {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle.win32.name' in found_struct}}
+    cdef _HelperInputVoidPtr _cyname
+    {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle' in found_struct}}
 
@@ -3473,6 +3530,9 @@ cdef class anon_union6:
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _pvt_ptr
     {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle.win32' in found_struct}}
     cdef anon_struct13 _win32
+    {{endif}}
+    {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.handle.nvSciSyncObj' in found_struct}}
+    cdef _HelperInputVoidPtr _cynvSciSyncObj
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_struct}}
@@ -3550,6 +3610,9 @@ cdef class anon_union7:
         Get memory address of class instance
     """
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _pvt_ptr
+    {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.params.nvSciSync.fence' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfence
+    {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.params.keyedMutex' in found_struct}}
 
@@ -3686,6 +3749,9 @@ cdef class anon_union8:
         Get memory address of class instance
     """
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _pvt_ptr
+    {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.params.nvSciSync.fence' in found_struct}}
+    cdef _HelperInputVoidPtr _cyfence
+    {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.params.keyedMutex' in found_struct}}
 
@@ -4257,6 +4323,9 @@ cdef class CUmemAllocationProp_st:
     {{if 'CUmemAllocationProp_st.location' in found_struct}}
     cdef CUmemLocation _location
     {{endif}}
+    {{if 'CUmemAllocationProp_st.win32HandleMetaData' in found_struct}}
+    cdef _HelperInputVoidPtr _cywin32HandleMetaData
+    {{endif}}
     {{if 'CUmemAllocationProp_st.allocFlags' in found_struct}}
     cdef anon_struct22 _allocFlags
     {{endif}}
@@ -4415,6 +4484,9 @@ cdef class CUmemPoolProps_st:
     cdef cydriver.CUmemPoolProps_st* _pvt_ptr
     {{if 'CUmemPoolProps_st.location' in found_struct}}
     cdef CUmemLocation _location
+    {{endif}}
+    {{if 'CUmemPoolProps_st.win32SecurityAttributes' in found_struct}}
+    cdef _HelperInputVoidPtr _cywin32SecurityAttributes
     {{endif}}
 {{endif}}
 {{if 'CUmemPoolPtrExportData_st' in found_struct}}
@@ -5232,6 +5304,12 @@ cdef class CUmemDecompressParams_st:
     """
     cdef cydriver.CUmemDecompressParams_st _pvt_val
     cdef cydriver.CUmemDecompressParams_st* _pvt_ptr
+    {{if 'CUmemDecompressParams_st.src' in found_struct}}
+    cdef _HelperInputVoidPtr _cysrc
+    {{endif}}
+    {{if 'CUmemDecompressParams_st.dst' in found_struct}}
+    cdef _HelperInputVoidPtr _cydst
+    {{endif}}
 {{endif}}
 {{if 'CUdevSmResource_st' in found_struct}}
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -28,15 +28,9 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-from typing import TYPE_CHECKING
 import platform  # no-cython-lint
-import weakref
 
 from cuda.core._utils.cuda_utils import driver
-
-if TYPE_CHECKING:
-    from cuda.core._memory.buffer import DevicePointerT
-    from .._device import Device
 
 
 cdef class _MemPoolOptions:
@@ -50,16 +44,15 @@ cdef class _MemPoolOptions:
 
 
 cdef class _MemPoolAttributes:
-    cdef:
-        object _mr_weakref
+    """Provides access to memory pool attributes."""
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("_MemPoolAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
 
-    @classmethod
-    def _init(cls, mr):
-        cdef _MemPoolAttributes self = _MemPoolAttributes.__new__(cls)
-        self._mr_weakref = mr
+    @staticmethod
+    cdef _MemPoolAttributes _init(MemoryPoolHandle h_pool):
+        cdef _MemPoolAttributes self = _MemPoolAttributes.__new__(_MemPoolAttributes)
+        self._h_pool = h_pool
         return self
 
     def __repr__(self):
@@ -69,12 +62,8 @@ cdef class _MemPoolAttributes:
         )
 
     cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except?-1:
-        cdef _MemPool mr = <_MemPool>(self._mr_weakref())
-        if mr is None:
-            raise RuntimeError("_MemPool is expired")
-        cdef cydriver.CUmemoryPool pool_handle = as_cu(mr._h_pool)
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(pool_handle, attr_enum, value))
+            HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(as_cu(self._h_pool), attr_enum, value))
         return 0
 
     @property
@@ -202,8 +191,7 @@ cdef class _MemPool(MemoryResource):
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
         if self._attributes is None:
-            ref = weakref.ref(self)
-            self._attributes = _MemPoolAttributes._init(ref)
+            self._attributes = _MemPoolAttributes._init(self._h_pool)
         return self._attributes
 
     @property
@@ -302,7 +290,7 @@ cdef class _MemPool(MemoryResource):
         return self._ipc_data is not None and self._ipc_data._is_mapped
 
     @property
-    def uuid(self) -> Optional[uuid.UUID]:
+    def uuid(self) -> uuid.UUID | None:
         """
         A universally unique identifier for this memory resource. Meaningful
         only for IPC-enabled memory resources.

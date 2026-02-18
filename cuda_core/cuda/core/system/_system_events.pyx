@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 
 from libc.stdint cimport intptr_t
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from ._nvml_context cimport initialize
 

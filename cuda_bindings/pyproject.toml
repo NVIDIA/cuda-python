@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 [build-system]
 requires = [
@@ -45,6 +45,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pytest-repeat",
     "pyglet>=2.1.9",
 ]
 
@@ -54,6 +55,14 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 
 [tool.setuptools.packages.find]
 include = ["cuda*"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"*" = ["*.pxd", "*.pxi"]
+"cuda.bindings._bindings" = ["*.h"]
+"cuda.bindings._lib" = ["*.h"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
@@ -80,6 +89,6 @@ xfail_strict = true
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
+# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]

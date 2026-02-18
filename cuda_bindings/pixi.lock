@@ -98,6 +98,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/liblzma-5.8.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libmpdec-4.0.0-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libnl-3.11.0-hb9d3cd8_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-13.1.115-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-13.1.80-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libogg-1.3.5-hd0c01bc_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.30-pthreads_h94d23a6_4.conda
@@ -164,6 +165,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-benchmark-5.2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-randomly-3.15.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.2-h32b2ec7_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.14-8_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rdma-core-60.0-hecca717_0.conda
@@ -289,6 +291,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/liblzma-5.8.1-h86ecc28_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libmpdec-4.0.0-h86ecc28_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnl-3.11.0-h86ecc28_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnvfatbin-13.1.115-h8f3c8d4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnvjitlink-13.1.80-h8f3c8d4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libogg-1.3.5-h86ecc28_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libopenblas-0.3.30-pthreads_h9d3fd7e_4.conda
@@ -349,6 +352,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-benchmark-5.2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-randomly-3.15.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-3.14.2-hb06a95a_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.14-8_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/rdma-core-60.0-he839754_0.conda
@@ -454,6 +458,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/liblapack-3.11.0-5_hf9ab0e9_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/liblzma-5.8.1-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libmpdec-4.0.0-h2466b09_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/libnvfatbin-13.1.115-hac47afa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libnvjitlink-13.1.80-hac47afa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libogg-1.3.5-h2466b09_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libopus-1.6-h6a83c73_0.conda
@@ -492,6 +497,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-benchmark-5.2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-randomly-3.15.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/python-3.14.2-h4b44e0e_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.14-8_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/sdl2-2.32.56-h5112557_0.conda
@@ -515,7 +521,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -614,6 +620,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/liblzma-5.8.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libmpdec-4.0.0-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libnl-3.11.0-hb9d3cd8_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-13.1.115-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-13.1.80-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libogg-1.3.5-hd0c01bc_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.30-pthreads_h94d23a6_4.conda
@@ -680,6 +687,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-benchmark-5.2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-randomly-3.15.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.1-h32b2ec7_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.14-8_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rdma-core-60.0-hecca717_0.conda
@@ -805,6 +813,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/liblzma-5.8.1-h86ecc28_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libmpdec-4.0.0-h86ecc28_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnl-3.11.0-h86ecc28_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnvfatbin-13.1.115-h8f3c8d4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnvjitlink-13.1.80-h8f3c8d4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libogg-1.3.5-h86ecc28_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libopenblas-0.3.30-pthreads_h9d3fd7e_4.conda
@@ -865,6 +874,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-benchmark-5.2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-randomly-3.15.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-3.14.1-hb06a95a_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.14-8_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/rdma-core-60.0-he839754_0.conda
@@ -970,6 +980,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/liblapack-3.11.0-5_hf9ab0e9_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/liblzma-5.8.1-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libmpdec-4.0.0-h2466b09_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/libnvfatbin-13.1.115-hac47afa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libnvjitlink-13.1.80-hac47afa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libogg-1.3.5-h2466b09_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libopus-1.6-h6a83c73_0.conda
@@ -1008,6 +1019,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-benchmark-5.2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-randomly-3.15.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/python-3.14.1-h4b44e0e_100_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.14-8_cp314.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/sdl2-2.32.56-h5112557_0.conda
@@ -1031,7 +1043,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: .
-        build: py314h625260f_0
+        build: py314hae7e39d_0
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -1463,30 +1475,12 @@ packages:
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0
   - cuda-nvvm
+  - libnvfatbin
   - libcufile
   - libcufile >=1.16.1.26,<2.0a0
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
-  - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-- conda: .
-  name: cuda-bindings
-  version: 13.1.0
-  build: py314h625260f_0
-  subdir: win-64
-  variants:
-    python: 3.14.*
-    target_platform: win-64
-  depends:
-  - python
-  - cuda-pathfinder >=1.1,<2
-  - libnvjitlink
-  - cuda-nvrtc
-  - cuda-nvrtc >=13.1.115,<14.0a0
-  - cuda-nvvm
-  - vc >=14.1,<15
-  - vc14_runtime >=14.16.27033
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 - conda: .
@@ -1504,11 +1498,35 @@ packages:
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0
   - cuda-nvvm
+  - libnvfatbin
   - libcufile
   - libcufile >=1.16.1.26,<2.0a0
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
+  - python_abi 3.14.* *_cp314
+  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+- conda: .
+  name: cuda-bindings
+  version: 13.1.0
+  build: py314hae7e39d_0
+  subdir: win-64
+  variants:
+    c_compiler: vs2022
+    cxx_compiler: vs2022
+    python: 3.14.*
+    target_platform: win-64
+  depends:
+  - python
+  - cuda-pathfinder >=1.1,<2
+  - libnvjitlink
+  - cuda-nvrtc
+  - cuda-nvrtc >=13.1.115,<14.0a0
+  - cuda-nvvm
+  - libnvfatbin
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  - ucrt >=10.0.20348.0
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cccl_linux-64-13.1.78-ha770c72_0.conda
@@ -4063,6 +4081,41 @@ packages:
   license_family: LGPL
   size: 768716
   timestamp: 1731846931826
+- conda: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-13.1.115-hecca717_0.conda
+  sha256: b3e7ca708b0f032b2d3d3d95fc434c2e3ba2ab4b4e7b074ddf631bfe2a628b05
+  md5: 5d5c68679881ec4dc322f2b6f19655a4
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - cuda-version >=13.1,<13.2.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  size: 830431
+  timestamp: 1768274751667
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libnvfatbin-13.1.115-h8f3c8d4_0.conda
+  sha256: bf30b068c563f2ef6fba5e3810c9a30a088787392ecc930d8ecff6b19779a06a
+  md5: 989ca6328123bc801a482e1960f0dc26
+  depends:
+  - arm-variant * sbsa
+  - cuda-version >=13.1,<13.2.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  constrains:
+  - arm-variant * sbsa
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  size: 777030
+  timestamp: 1768274778465
+- conda: https://conda.anaconda.org/conda-forge/win-64/libnvfatbin-13.1.115-hac47afa_0.conda
+  sha256: 0f2cab4c5691598a63dc9361265e07e802a5298b0fb0309f2471800b10bef4b6
+  md5: 008e8577b0fabdfc3e2bcb57dc803141
+  depends:
+  - cuda-version >=13.1,<13.2.0a0
+  - ucrt >=10.0.20348.0
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  size: 355174
+  timestamp: 1768274854026
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-13.1.80-hecca717_0.conda
   sha256: 1ccfcadcd096e225a4d3a10c7d35363fa3ef02e97b54efb6ef50c8849aec4804
   md5: 12c045632ae898f40024b7a1d61fc100
@@ -6190,6 +6243,16 @@ packages:
   license_family: MIT
   size: 14133
   timestamp: 1692131735622
+- conda: https://conda.anaconda.org/conda-forge/noarch/pytest-repeat-0.9.4-pyhd8ed1ab_0.conda
+  sha256: cea7b0555c22a734d732f98a3b256646f3d82d926a35fa2bfd16f11395abd83b
+  md5: 9e8871313f26d8b6f0232522b3bc47a5
+  depends:
+  - pytest >=5
+  - python >=3.9
+  license: MPL-2.0
+  license_family: MOZILLA
+  size: 10537
+  timestamp: 1744061283541
 - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.1-h32b2ec7_100_cp314.conda
   build_number: 100
   sha256: 30d9c0997cec58298b4de04b44b4acc2bd16860ecbb8f6e623256c71820918ed

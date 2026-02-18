@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -191,10 +191,10 @@ class LinkerOptions:
     prec_div: bool | None = None
     prec_sqrt: bool | None = None
     fma: bool | None = None
-    kernels_used: Union[str, tuple[str], list[str]] | None = None
-    variables_used: Union[str, tuple[str], list[str]] | None = None
+    kernels_used: str | tuple[str] | list[str] | None = None
+    variables_used: str | tuple[str] | list[str] | None = None
     optimize_unused_variables: bool | None = None
-    ptxas_options: Union[str, tuple[str], list[str]] | None = None
+    ptxas_options: str | tuple[str] | list[str] | None = None
     split_compile: int | None = None
     split_compile_extended: int | None = None
     no_cache: bool | None = None
@@ -203,7 +203,7 @@ class LinkerOptions:
         _lazy_init()
         self._name = self.name.encode()
 
-    def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> Union[list[bytes], list[str]]:
+    def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> list[bytes] | list[str]:
         options = []
 
         if self.arch is not None:
@@ -444,13 +444,13 @@ class Linker:
             self._add_code_object(code)
 
     def _add_code_object(self, object_code: ObjectCode):
-        data = object_code._module
+        data = object_code.code
         with _exception_manager(self):
             name_str = f"{object_code.name}"
             if _nvjitlink and isinstance(data, bytes):
                 _nvjitlink.add_data(
                     self._mnff.handle,
-                    self._input_type_from_code_type(object_code._code_type),
+                    self._input_type_from_code_type(object_code.code_type),
                     data,
                     len(data),
                     name_str,
@@ -458,7 +458,7 @@ class Linker:
             elif _nvjitlink and isinstance(data, str):
                 _nvjitlink.add_file(
                     self._mnff.handle,
-                    self._input_type_from_code_type(object_code._code_type),
+                    self._input_type_from_code_type(object_code.code_type),
                     data,
                 )
             elif (not _nvjitlink) and isinstance(data, bytes):
@@ -466,7 +466,7 @@ class Linker:
                 handle_return(
                     _driver.cuLinkAddData(
                         self._mnff.handle,
-                        self._input_type_from_code_type(object_code._code_type),
+                        self._input_type_from_code_type(object_code.code_type),
                         data,
                         len(data),
                         name_bytes,
@@ -481,7 +481,7 @@ class Linker:
                 handle_return(
                     _driver.cuLinkAddFile(
                         self._mnff.handle,
-                        self._input_type_from_code_type(object_code._code_type),
+                        self._input_type_from_code_type(object_code.code_type),
                         data.encode(),
                         0,
                         None,

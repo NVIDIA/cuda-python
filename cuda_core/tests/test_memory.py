@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -39,7 +39,7 @@ from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyUnifiedMemoryResource
+from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
 
 from conftest import (
     create_managed_memory_resource_or_skip,
@@ -469,6 +469,49 @@ def test_buffer_external_managed(change_device):
     finally:
         if ptr is not None:
             handle_return(driver.cuMemFree(ptr))
+
+
+def test_mr_deallocate_called_on_close():
+    """Buffer.from_handle(mr=mr) calls mr.deallocate() on close (issue #1619)."""
+    device = Device()
+    device.set_current()
+    mr = TrackingMR()
+    buf = mr.allocate(1024)
+    assert len(mr.active) == 1
+    buf.close()
+    assert len(mr.active) == 0
+
+
+def test_mr_deallocate_called_on_gc():
+    """Buffer.from_handle(mr=mr) calls mr.deallocate() on GC (issue #1619)."""
+    import gc
+
+    device = Device()
+    device.set_current()
+    mr = TrackingMR()
+    buf = mr.allocate(1024)
+    assert len(mr.active) == 1
+    del buf
+    gc.collect()
+    assert len(mr.active) == 0
+
+
+def test_mr_deallocate_receives_stream():
+    """Buffer.close(stream) forwards the stream to mr.deallocate() (issue #1619)."""
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+    received = {}
+
+    class StreamCaptureMR(TrackingMR):
+        def deallocate(self, ptr, size, stream=None):
+            received["stream"] = stream
+            super().deallocate(ptr, size, stream)
+
+    mr = StreamCaptureMR()
+    buf = mr.allocate(1024)
+    buf.close(stream)
+    assert received["stream"].handle == stream.handle
 
 
 def test_memory_resource_and_owner_disallowed():
@@ -1162,7 +1205,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
 
 
 def test_mempool_attributes_ownership(memory_resource_factory):
-    """Ensure the attributes bundle handles references correctly for all memory resource types."""
+    """Ensure the attributes bundle keeps the pool alive via the handle."""
     MR, MRops = memory_resource_factory
     device = Device()
 
@@ -1190,21 +1233,9 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     mr.close()
     del mr
 
-    # After deleting the memory resource, the attributes suite is disconnected.
-    with pytest.raises(RuntimeError, match="is expired"):
-        _ = attributes.used_mem_high
-
-    # Even when a new object is created (we found a case where the same
-    # mempool handle was really reused).
-    if MR is DeviceMemoryResource:
-        mr = MR(device, dict(max_size=POOL_SIZE))  # noqa: F841
-    elif MR is PinnedMemoryResource:
-        mr = MR(dict(max_size=POOL_SIZE))  # noqa: F841
-    elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_skip(dict())  # noqa: F841
-
-    with pytest.raises(RuntimeError, match="is expired"):
-        _ = attributes.used_mem_high
+    # The attributes bundle keeps the pool alive via MemoryPoolHandle,
+    # so accessing attributes still works even after the MR is deleted.
+    _ = attributes.used_mem_high  # Should not raise
 
 
 # Ensure that memory views dellocate their reference to dlpack tensors

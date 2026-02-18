@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.1.1. Do not modify it directly.
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
-from enum import IntEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 from libcpp.vector cimport vector
 
 
@@ -18,7 +18,12 @@ from libcpp.vector cimport vector
 ###############################################################################
 
 class Result(_IntEnum):
-    """See `nvFatbinResult`."""
+    """
+    The enumerated type nvFatbinResult defines API call result codes.
+    nvFatbin APIs return nvFatbinResult codes to indicate the result.
+
+    See `nvFatbinResult`.
+    """
     SUCCESS = NVFATBIN_SUCCESS
     ERROR_INTERNAL = NVFATBIN_ERROR_INTERNAL
     ERROR_ELF_ARCH_MISMATCH = NVFATBIN_ERROR_ELF_ARCH_MISMATCH

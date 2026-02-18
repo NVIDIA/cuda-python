@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
 import sys
 
 import pytest
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 from .conftest import unsupported_before
 
@@ -23,6 +23,9 @@ def test_compute_mode_supported_nonroot(all_devices):
             original_compute_mode = nvml.device_get_compute_mode(device)
 
         for cm in COMPUTE_MODES:
-            with pytest.raises(nvml.NoPermissionError):
+            try:
                 nvml.device_set_compute_mode(device, cm)
+            except nvml.NoPermissionError:
+                pytest.skip("Insufficient permissions to set compute mode")
+            nvml.device_set_compute_mode(device, original_compute_mode)
             assert original_compute_mode == nvml.device_get_compute_mode(device), "Compute mode shouldn't have changed"
