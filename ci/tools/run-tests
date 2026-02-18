@@ -30,8 +30,9 @@ popd
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
   echo "Running pathfinder tests with " \
-      "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
-      "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
+    "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
+    "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS} " \
+    "BC:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS}"
   pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
   # Report the number of "INFO test_" lines (including zero)
   # to support quick validations based on GHA log archives.
