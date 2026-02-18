@@ -201,7 +201,6 @@ jobs:
           $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-
       - name: Check cuda.bindings wheel
         run: |
           uv tool run twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
