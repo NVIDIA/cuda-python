@@ -91,6 +91,17 @@ cdef class StridedMemoryView:
         If the view is created with :meth:`from_buffer`,
         it will be the Buffer instance passed to the method.
 
+    Notes
+    -----
+    The :attr:`dtype` property supports narrow data types (e.g., ``bfloat16``) when the optional
+    `ml_dtypes <https://github.com/jax-ml/ml_dtypes>`_ package is installed. This enables
+    interoperability with libraries that use narrow dtype tensors, such as PyTorch with
+    ``torch.bfloat16`` or CuPy with ``"bfloat16"`` dtype. If ``ml_dtypes`` is not available
+    and such a tensor is encountered, a :obj:`NotImplementedError` will be raised.
+
+    Currently supported narrow data types:
+    - ``bfloat16``
+
     """
     cdef readonly:
         intptr_t ptr
@@ -338,6 +349,11 @@ cdef class StridedMemoryView:
     def dtype(self) -> numpy.dtype | None:
         """
         Data type of the tensor.
+
+        Supports standard NumPy dtypes as well as narrow data types (e.g., ``bfloat16``)
+        when the optional `ml_dtypes <https://github.com/jax-ml/ml_dtypes>`_ package is
+        installed. If ``ml_dtypes`` is not available and such a tensor is encountered,
+        a :obj:`NotImplementedError` will be raised.
         """
         return self.get_dtype()
 
