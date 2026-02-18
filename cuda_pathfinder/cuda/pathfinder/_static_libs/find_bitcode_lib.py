@@ -22,6 +22,7 @@ class LocatedBitcodeLib:
     name: str
     abs_path: str
     filename: str
+    found_via: str
 
 
 class _BitcodeLibInfo(TypedDict):
@@ -121,19 +122,33 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     finder = _FindBitcodeLib(name)
 
     abs_path = finder.try_site_packages()
-    if abs_path is None:
-        abs_path = finder.try_with_conda_prefix()
-    if abs_path is None:
-        abs_path = finder.try_with_cuda_home()
+    if abs_path is not None:
+        return LocatedBitcodeLib(
+            name=name,
+            abs_path=abs_path,
+            filename=finder.filename,
+            found_via="site-packages",
+        )
 
-    if abs_path is None:
-        finder.raise_not_found_error()
+    abs_path = finder.try_with_conda_prefix()
+    if abs_path is not None:
+        return LocatedBitcodeLib(
+            name=name,
+            abs_path=abs_path,
+            filename=finder.filename,
+            found_via="conda",
+        )
 
-    return LocatedBitcodeLib(
-        name=name,
-        abs_path=abs_path,
-        filename=finder.filename,
-    )
+    abs_path = finder.try_with_cuda_home()
+    if abs_path is not None:
+        return LocatedBitcodeLib(
+            name=name,
+            abs_path=abs_path,
+            filename=finder.filename,
+            found_via="CUDA_HOME",
+        )
+
+    finder.raise_not_found_error()
 
 
 @functools.cache

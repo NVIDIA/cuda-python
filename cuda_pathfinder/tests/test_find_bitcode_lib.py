@@ -50,6 +50,8 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
     assert isinstance(located_bitcode_lib.name, str)
     assert isinstance(located_bitcode_lib.abs_path, str)
     assert isinstance(located_bitcode_lib.filename, str)
+    assert isinstance(located_bitcode_lib.found_via, str)
+    assert located_bitcode_lib.found_via in ("site-packages", "conda", "CUDA_HOME")
     assert os.path.isfile(located_bitcode_lib.abs_path)
 
 
@@ -93,13 +95,19 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path):
     monkeypatch.setenv("CUDA_HOME", str(cuda_home))
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
-    assert locate_bitcode_lib("device").abs_path == site_packages_path
+    located_lib = locate_bitcode_lib("device")
+    assert located_lib.abs_path == site_packages_path
+    assert located_lib.found_via == "site-packages"
     os.remove(site_packages_path)
 
-    assert locate_bitcode_lib("device").abs_path == conda_path
+    located_lib = locate_bitcode_lib("device")
+    assert located_lib.abs_path == conda_path
+    assert located_lib.found_via == "conda"
     os.remove(conda_path)
 
-    assert locate_bitcode_lib("device").abs_path == cuda_home_path
+    located_lib = locate_bitcode_lib("device")
+    assert located_lib.abs_path == cuda_home_path
+    assert located_lib.found_via == "CUDA_HOME"
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
