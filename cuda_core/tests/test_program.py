@@ -636,27 +636,25 @@ entry:
 
 @nvvm_available
 def test_bitcode_format(minimal_nvvmir):  # noqa: F811
+    from contextlib import ExitStack, closing
+
     if len(minimal_nvvmir) < 4:
         pytest.skip("Bitcode file is not valid or empty")
 
     options = ProgramOptions(name="minimal_nvvmir_bitcode_test", arch="sm_90")
-    program = Program(minimal_nvvmir, "nvvm", options)
 
-    assert program.backend == "NVVM"
-    ptx_result = program.compile("ptx")
-    assert isinstance(ptx_result, ObjectCode)
-    assert ptx_result.name == "minimal_nvvmir_bitcode_test"
-    assert len(ptx_result.code) > 0
-    program_lto = Program(minimal_nvvmir, "nvvm", options)
-    try:
+    with ExitStack() as stack:
+        program = stack.enter_context(closing(Program(minimal_nvvmir, "nvvm", options)))
+        assert program.backend == "NVVM"
+        ptx_result = program.compile("ptx")
+        assert isinstance(ptx_result, ObjectCode)
+        assert ptx_result.name == "minimal_nvvmir_bitcode_test"
+        assert len(ptx_result.code) > 0
+
+        program_lto = stack.enter_context(closing(Program(minimal_nvvmir, "nvvm", options)))
         ltoir_result = program_lto.compile("ltoir")
         assert isinstance(ltoir_result, ObjectCode)
         assert len(ltoir_result.code) > 0
-        print(f"LTOIR size: {len(ltoir_result.code)} bytes")
-    except Exception as e:
-        print(f"LTOIR compilation failed : {e}")
-    finally:
-        program.close()
 
 
 def test_cpp_program_with_extra_sources():

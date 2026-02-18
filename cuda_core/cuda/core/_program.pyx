@@ -533,7 +533,6 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
-    self._module_count = 0
     self._use_libdevice = False
 
     if code_type == "c++":
@@ -578,8 +577,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._h_nvvm = create_nvvm_program_handle(nvvm_prog)  # RAII from here
         with nogil:
             HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(nvvm_prog, code_ptr, code_len, name_ptr))
-        self._module_count = 1
-
+        
         # Add extra modules if provided
         if options.extra_sources is not None:
             if not is_sequence(options.extra_sources):
@@ -620,8 +618,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
                 with nogil:
                     HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
                         nvvm_prog, module_ptr, module_len, module_name_ptr))
-                self._module_count += 1
-
+                
         # Store use_libdevice flag
         if options.use_libdevice:
             self._use_libdevice = True
@@ -632,6 +629,8 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     else:
         supported_code_types = ("c++", "ptx", "nvvm")
         assert code_type not in supported_code_types, f"{code_type=}"
+        if options.use_libdevice:
+            raise ValueError("use_libdevice is only supported by the NVVM backend")
         raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
     return 0
