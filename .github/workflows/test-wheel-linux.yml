@@ -293,9 +293,9 @@ jobs:
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          uv pip install -v ./*.whl
-          # Install the "test-cu${TEST_CUDA_MAJOR}" dependency group from cuda_pathfinder/pyproject.toml.
+          # Install test deps first (uv sync resets the venv), then the wheel.
           uv sync --frozen --package cuda-pathfinder --only-group "test-cu${TEST_CUDA_MAJOR}" --no-install-project
+          uv pip install -v ./*.whl
           uv pip list
           popd
 

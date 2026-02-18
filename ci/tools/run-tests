@@ -20,16 +20,14 @@ fi
 
 test_module=${1}
 
-# Unconditionally install pathfinder wheel
-# (it is a direct dependency of bindings, and a transitive dependency of core)
-pushd ./cuda_pathfinder
-echo "Installing pathfinder wheel"
-uv pip install ./*.whl
-uv sync --frozen --package cuda-pathfinder --only-group test --no-install-project
-popd
+# Install dependency groups first (uv sync manages the venv and removes
+# packages it didn't install), then install pre-built wheels after.
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
+  echo "Installing pathfinder test deps and wheel"
+  uv sync --frozen --package cuda-pathfinder --only-group test --no-install-project
+  uv pip install ./*.whl
   echo "Running pathfinder tests with " \
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
@@ -40,14 +38,16 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   echo "Number of \"INFO test_\" lines: $line_count"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
-  echo "Installing bindings wheel"
+  echo "Installing bindings test deps and wheels"
   pushd ./cuda_bindings
+  uv sync --frozen --package cuda-pathfinder --only-group test --no-install-project
+  uv sync --frozen --package cuda-bindings --only-group test --no-install-project
+  uv pip install ./cuda_pathfinder/*.whl
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     uv pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
   else
     uv pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
   fi
-  uv sync --frozen --package cuda-bindings --only-group test --no-install-project
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
@@ -55,37 +55,36 @@ elif [[ "${test_module}" == "bindings" ]]; then
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
-  # If build/test majors match: cuda.bindings is installed in the previous step.
-  # If mismatch: cuda.bindings is installed from the backport branch.
-  if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
-    echo "Installing bindings wheel"
-    if [[ "${LOCAL_CTK}" == 1 ]]; then
-      uv pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
-    else
-      uv pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
-    fi
-  fi
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  echo "Installing core wheel"
 
   FREE_THREADING=""
   if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
     FREE_THREADING+="-ft"
   fi
 
+  echo "Installing core test deps and wheels"
   pushd ./cuda_core
+  uv sync --frozen --package cuda-pathfinder --only-group test --no-install-project
+  uv sync --frozen --package cuda-bindings --only-group test --no-install-project
+  uv sync --frozen --package cuda-core --only-group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" --no-install-project
+  # Install all wheels after the last sync
+  uv pip install ./cuda_pathfinder/*.whl
+  if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
+    if [[ "${LOCAL_CTK}" == 1 ]]; then
+      uv pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
+    else
+      uv pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
+    fi
+  else
+    uv pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
+  fi
   if [[ "${LOCAL_CTK}" == 1 ]]; then
-    # We already installed cuda-bindings, and all CTK components exist locally,
-    # so just install the test dependencies.
     uv pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl
   else
     uv pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"]
   fi
-  uv sync --frozen --package cuda-core --only-group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" --no-install-project
   echo "Running core tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
-  # Currently our CI always installs the latest bindings (from either major version).
-  # This is not compatible with the test requirements.
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
