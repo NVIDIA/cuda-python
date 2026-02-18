@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
-    GraphicsResourceHandle,
     create_graphics_resource_handle,
     as_cu,
     as_intptr,

@@ -11,7 +11,6 @@ import sys
 
 import numpy as np
 import pytest
-
 from cuda.core import (
     Buffer,
     Device,
@@ -20,10 +19,10 @@ from cuda.core import (
     StridedMemoryView,
 )
 
-
 # ---------------------------------------------------------------------------
 # GL context + buffer helpers
 # ---------------------------------------------------------------------------
+
 
 @contextlib.contextmanager
 def _gl_context_and_buffer(nbytes=1024):
@@ -33,9 +32,7 @@ def _gl_context_and_buffer(nbytes=1024):
     """
     pyglet = pytest.importorskip("pyglet")
 
-    if sys.platform.startswith("linux") and not (
-        os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
-    ):
+    if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
@@ -57,9 +54,7 @@ def _gl_context_and_buffer(nbytes=1024):
         buf_id = _gl.GLuint(0)
         _gl.glGenBuffers(1, ctypes.byref(buf_id))
         _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
-        _gl.glBufferData(
-            _gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW
-        )
+        _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
 
         yield int(buf_id.value), nbytes
 
@@ -71,12 +66,12 @@ def _gl_context_and_buffer(nbytes=1024):
 
             if buf_id is not None and buf_id.value:
                 _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
 
@@ -88,9 +83,7 @@ def _gl_context_and_texture(width=16, height=16):
     """
     pyglet = pytest.importorskip("pyglet")
 
-    if sys.platform.startswith("linux") and not (
-        os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
-    ):
+    if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
@@ -116,8 +109,15 @@ def _gl_context_and_texture(width=16, height=16):
         _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
         _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
         _gl.glTexImage2D(
-            target, 0, _gl.GL_RGBA8, width, height, 0,
-            _gl.GL_RGBA, _gl.GL_UNSIGNED_BYTE, None,
+            target,
+            0,
+            _gl.GL_RGBA8,
+            width,
+            height,
+            0,
+            _gl.GL_RGBA,
+            _gl.GL_UNSIGNED_BYTE,
+            None,
         )
 
         yield int(tex_id.value), int(target)
@@ -130,18 +130,19 @@ def _gl_context_and_texture(width=16, height=16):
 
             if tex_id is not None and tex_id.value:
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
 
 # ---------------------------------------------------------------------------
 # GraphicsRegisterFlags tests
 # ---------------------------------------------------------------------------
+
 
 class TestGraphicsRegisterFlags:
     def test_enum_values(self):
@@ -156,6 +157,7 @@ class TestGraphicsRegisterFlags:
 # GraphicsResource instantiation guard
 # ---------------------------------------------------------------------------
 
+
 class TestGraphicsResourceInit:
     def test_direct_init_raises(self):
         with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
@@ -165,6 +167,7 @@ class TestGraphicsResourceInit:
 # ---------------------------------------------------------------------------
 # GL buffer registration tests
 # ---------------------------------------------------------------------------
+
 
 class TestFromGLBuffer:
     def test_register_default_flags(self):
@@ -176,9 +179,7 @@ class TestFromGLBuffer:
 
     def test_register_write_discard(self):
         with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
             assert resource.handle != 0
             resource.close()
 
@@ -193,6 +194,7 @@ class TestFromGLBuffer:
 # GL image registration tests
 # ---------------------------------------------------------------------------
 
+
 class TestFromGLImage:
     def test_register_image(self):
         with _gl_context_and_texture() as (tex_id, target):
@@ -206,12 +208,11 @@ class TestFromGLImage:
 # Map / unmap tests
 # ---------------------------------------------------------------------------
 
+
 class TestMapUnmap:
     def test_map_returns_buffer(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
             mapped = resource.map()
             assert resource.is_mapped
             # mapped is a _MappedBufferContext; its .handle and .size delegate to Buffer
@@ -223,9 +224,7 @@ class TestMapUnmap:
 
     def test_context_manager_unmaps(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
             with resource.map() as buf:
                 assert isinstance(buf, Buffer)
                 assert resource.is_mapped
@@ -235,13 +234,10 @@ class TestMapUnmap:
 
     def test_context_manager_unmaps_on_exception(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
-            with pytest.raises(ValueError, match="test error"):
-                with resource.map() as buf:
-                    assert resource.is_mapped
-                    raise ValueError("test error")
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            with pytest.raises(ValueError, match="test error"), resource.map() as _buf:
+                assert resource.is_mapped
+                raise ValueError("test error")
             # Must be unmapped even after exception
             assert not resource.is_mapped
             resource.close()
@@ -250,13 +246,9 @@ class TestMapUnmap:
         """End-to-end: register, map, create StridedMemoryView."""
         nbytes = 256 * 4  # 256 float32 elements
         with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
             with resource.map() as buf:
-                view = StridedMemoryView.from_buffer(
-                    buf, shape=(256,), dtype=np.float32
-                )
+                view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
                 assert view.ptr == int(buf.handle)
                 assert view.shape == (256,)
                 assert view.is_device_accessible
@@ -267,9 +259,7 @@ class TestMapUnmap:
             dev = Device(0)
             dev.set_current()
             stream = dev.create_stream()
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
             with resource.map(stream=stream) as buf:
                 assert buf.size > 0
             resource.close()
@@ -278,6 +268,7 @@ class TestMapUnmap:
 # ---------------------------------------------------------------------------
 # Error handling tests
 # ---------------------------------------------------------------------------
+
 
 class TestErrorHandling:
     def test_double_map_raises(self):
@@ -313,9 +304,7 @@ class TestErrorHandling:
     def test_close_while_mapped(self):
         """close() should unmap before unregistering."""
         with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(
-                gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD
-            )
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
             resource.map()
             assert resource.is_mapped
             resource.close()  # Should unmap + unregister without error
@@ -325,6 +314,7 @@ class TestErrorHandling:
 # ---------------------------------------------------------------------------
 # GC / repr tests
 # ---------------------------------------------------------------------------
+
 
 class TestMisc:
     def test_gc_cleanup(self):

@@ -62,7 +62,6 @@ import sys
 import time
 
 import numpy as np
-
 from cuda.core import (
     Device,
     GraphicsRegisterFlags,
@@ -118,14 +117,14 @@ def create_window():
         from pyglet.gl import gl as _gl
     except ImportError:
         print(
-            "This example requires pyglet >= 2.0.\n"
-            "Install it with:  pip install pyglet",
+            "This example requires pyglet >= 2.0.\nInstall it with:  pip install pyglet",
             file=sys.stderr,
         )
         sys.exit(1)
 
     window = pyglet.window.Window(
-        WIDTH, HEIGHT,
+        WIDTH,
+        HEIGHT,
         caption="GraphicsResource Example - CUDA Plasma",
         vsync=False,
     )
@@ -151,15 +150,36 @@ def create_display_resources(gl, width, height):
     shader_prog = ShaderProgram(vert, frag)
 
     # Fullscreen quad (two triangles covering the entire window)
-    quad_verts = np.array([
-        # x,  y,    s, t      (position + texture coordinate)
-        -1, -1,    0, 0,
-         1, -1,    1, 0,
-         1,  1,    1, 1,
-        -1, -1,    0, 0,
-         1,  1,    1, 1,
-        -1,  1,    0, 1,
-    ], dtype=np.float32)
+    quad_verts = np.array(
+        [
+            # x,  y,    s, t      (position + texture coordinate)
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            -1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            -1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            1,
+        ],
+        dtype=np.float32,
+    )
 
     vao = ctypes.c_uint(0)
     gl.glGenVertexArrays(1, ctypes.byref(vao))
@@ -169,7 +189,8 @@ def create_display_resources(gl, width, height):
     gl.glGenBuffers(1, ctypes.byref(vbo))
     gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo.value)
     gl.glBufferData(
-        gl.GL_ARRAY_BUFFER, quad_verts.nbytes,
+        gl.GL_ARRAY_BUFFER,
+        quad_verts.nbytes,
         quad_verts.ctypes.data_as(ctypes.c_void_p),
         gl.GL_STATIC_DRAW,
     )
@@ -192,9 +213,15 @@ def create_display_resources(gl, width, height):
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
     gl.glTexImage2D(
-        gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8,
-        width, height, 0,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None,
+        gl.GL_TEXTURE_2D,
+        0,
+        gl.GL_RGBA8,
+        width,
+        height,
+        0,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
+        None,
     )
 
     return shader_prog, vao.value, tex.value
@@ -223,9 +250,14 @@ def copy_pbo_to_texture(gl, pbo_id, tex_id, width, height):
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, pbo_id)
     gl.glBindTexture(gl.GL_TEXTURE_2D, tex_id)
     gl.glTexSubImage2D(
-        gl.GL_TEXTURE_2D, 0, 0, 0,
-        width, height,
-        gl.GL_RGBA, gl.GL_UNSIGNED_BYTE,
+        gl.GL_TEXTURE_2D,
+        0,
+        0,
+        0,
+        width,
+        height,
+        gl.GL_RGBA,
+        gl.GL_UNSIGNED_BYTE,
         None,  # None = read from the currently bound PBO, not from CPU
     )
     gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0)
@@ -242,6 +274,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 
 # ================================== main() ==================================
+
 
 def main():
     # --- Step 1: Set up CUDA (compile kernel, create stream) ---
@@ -263,9 +296,7 @@ def main():
     #     THIS IS THE KEY LINE.  GraphicsResource.from_gl_buffer() tells the
     #     CUDA driver "I want to access this OpenGL buffer from CUDA kernels."
     #     WRITE_DISCARD means CUDA will overwrite the entire buffer each frame.
-    resource = GraphicsResource.from_gl_buffer(
-        pbo_id, flags=GraphicsRegisterFlags.WRITE_DISCARD
-    )
+    resource = GraphicsResource.from_gl_buffer(pbo_id, flags=GraphicsRegisterFlags.WRITE_DISCARD)
 
     # --- Step 6: Render loop ---
     start_time = time.monotonic()
@@ -285,11 +316,13 @@ def main():
         with resource.map(stream=stream) as buf:
             # (b) Launch the plasma kernel -- it writes RGBA pixels into buf.
             launch(
-                stream, config, kernel,
-                buf.handle,           # pointer to PBO memory (on GPU)
+                stream,
+                config,
+                kernel,
+                buf.handle,  # pointer to PBO memory (on GPU)
                 np.int32(WIDTH),
                 np.int32(HEIGHT),
-                np.float32(t),        # animation time
+                np.float32(t),  # animation time
             )
         # (c) Unmap happens automatically when the `with` block exits.
         #     The PBO now belongs to OpenGL again.  No stream.sync() is
@@ -309,7 +342,10 @@ def main():
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
             frame_us = 1_000_000.0 / fps if fps > 0 else 0
-            window.set_caption(f"GraphicsResource Example - CUDA Plasma ({WIDTH}x{HEIGHT}, {fps:.0f} FPS, {frame_us:.0f} \u00b5s frame)")
+            window.set_caption(
+                f"GraphicsResource Example - CUDA Plasma"
+                f" ({WIDTH}x{HEIGHT}, {fps:.0f} FPS, {frame_us:.0f} \u00b5s frame)"
+            )
             frame_count = 0
             fps_time = now
 
