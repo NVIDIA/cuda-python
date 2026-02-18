@@ -1,0 +1,6 @@
+﻿cuda.core.PER\_THREAD\_DEFAULT\_STREAM
+======================================
+
+.. currentmodule:: cuda.core
+
+.. autodata:: PER_THREAD_DEFAULT_STREAM

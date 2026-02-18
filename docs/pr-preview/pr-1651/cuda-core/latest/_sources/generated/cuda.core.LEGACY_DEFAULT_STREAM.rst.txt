@@ -1,0 +1,6 @@
+﻿cuda.core.LEGACY\_DEFAULT\_STREAM
+=================================
+
+.. currentmodule:: cuda.core
+
+.. autodata:: LEGACY_DEFAULT_STREAM
