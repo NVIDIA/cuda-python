@@ -12,6 +12,7 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
+ml_dtypes = "*"
 pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
@@ -105,6 +106,7 @@ setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-profiler-api = "*"
+cuda-nvrtc-dev = "*"
 # Using path dependency now that we've added .pth support for Cython .pxd files
 # See build_hooks.py:_add_cython_include_paths_to_pth()
 cuda-bindings = { path = "../cuda_bindings" }
