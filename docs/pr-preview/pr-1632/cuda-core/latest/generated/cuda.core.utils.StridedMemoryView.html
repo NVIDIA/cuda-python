@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=429ee49a"></script>
+    <script src="../_static/documentation_options.js?v=93f3e12c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -574,6 +574,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
@@ -829,7 +830,20 @@ still synchronize with the host if necessary.</p></li>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_any_interface" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a view by automatically selecting the best available protocol.</p>
+<p>Tries <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> first, then falls back to
+<a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> or
+<a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a>.</p>
+</p></li>
+<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_array_interface">
@@ -841,7 +855,14 @@ still synchronize with the host if necessary.</p></li>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_array_interface" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a view from an object supporting the <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.interface.html">__array_interface__</a> protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing the <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.interface.html">__array_interface__</a> protocol (e.g., a numpy array).</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_buffer">
@@ -882,7 +903,17 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_cuda_array_interface" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a view from an object supporting the <a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a> protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing the <a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a> protocol.</p>
+</p></li>
+<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_dlpack">
@@ -895,7 +926,18 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_dlpack" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a view from an object supporting the <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing the <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> protocol
+(via <code class="docutils literal notranslate"><span class="pre">__dlpack__</span></code>).</p>
+</p></li>
+<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.view">
@@ -918,6 +960,10 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 <span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.dtype" title="Link to this definition">#</a></dt>
 <dd><p>numpy.dtype | None</p>
 <p>Data type of the tensor.</p>
+<p>Supports standard NumPy dtypes as well as narrow data types (e.g., <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>)
+when the optional <a class="reference external" href="https://github.com/jax-ml/ml_dtypes">ml_dtypes</a> package is
+installed. If <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> is not available and such a tensor is encountered,
+a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> will be raised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>StridedMemoryView.dtype</p>

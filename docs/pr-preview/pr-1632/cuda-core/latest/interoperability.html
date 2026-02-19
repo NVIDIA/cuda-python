@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=429ee49a"></script>
+    <script src="_static/documentation_options.js?v=93f3e12c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev110';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -574,6 +574,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.4.2-notes.html">0.4.2</a></li>
@@ -697,6 +698,15 @@ without either re-implementing (the consumer-side of) the protocols or tying to 
 array libraries.</p>
 <p>The <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.is_device_accessible" title="cuda.core.utils.StridedMemoryView.is_device_accessible"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a> attribute can be used to check
 whether or not the underlying buffer can be accessed on GPU.</p>
+<p>The <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> class supports narrow data types (e.g., <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>) when the optional
+<a class="reference external" href="https://github.com/jax-ml/ml_dtypes">ml_dtypes</a> package is installed. This enables interoperability with libraries that use
+narrow dtype tensors, such as PyTorch with <code class="docutils literal notranslate"><span class="pre">torch.bfloat16</span></code> or CuPy with <code class="docutils literal notranslate"><span class="pre">&quot;bfloat16&quot;</span></code> dtype.
+If <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> is not available and such a tensor is encountered, a
+<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> will be raised.</p>
+<p>Currently supported narrow data types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bfloat16</span></code></p></li>
+</ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id4" role="doc-footnote">
