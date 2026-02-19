@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d8361e3c"></script>
+    <script src="../_static/documentation_options.js?v=13bf8ef1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev124';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -481,8 +481,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LEGACY_DEFAULT_STREAM.html">cuda.core.LEGACY_DEFAULT_STREAM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.PER_THREAD_DEFAULT_STREAM.html">cuda.core.PER_THREAD_DEFAULT_STREAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
@@ -1331,8 +1329,9 @@ Default: False</p>
 <dt class="sig sig-object py" id="cuda.core.ProgramOptions.extra_sources">
 <span class="sig-name descname"><span class="pre">extra_sources</span></span><a class="headerlink" href="#cuda.core.ProgramOptions.extra_sources" title="Link to this definition">#</a></dt>
 <dd><p>Additional NVVM IR modules to compile together with the main program, specified as
-<code class="docutils literal notranslate"><span class="pre">((name1,</span> <span class="pre">source1),</span> <span class="pre">(name2,</span> <span class="pre">source2),</span> <span class="pre">...)</span></code>. Each source can be a string (textual
-LLVM IR), bytes, or bytearray. Only supported for the NVVM backend.
+<code class="docutils literal notranslate"><span class="pre">((name1,</span> <span class="pre">source1),</span> <span class="pre">(name2,</span> <span class="pre">source2),</span> <span class="pre">...)</span></code>. Each name is a string identifier used
+in diagnostic messages. Each source can be a string (textual LLVM IR) or bytes/bytearray
+(LLVM bitcode). Only supported for the NVVM backend.
 Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -1344,8 +1343,8 @@ Default: None</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ProgramOptions.use_libdevice">
 <span class="sig-name descname"><span class="pre">use_libdevice</span></span><a class="headerlink" href="#cuda.core.ProgramOptions.use_libdevice" title="Link to this definition">#</a></dt>
-<dd><p>Load NVIDIA’s libdevice math builtins library during NVVM compilation. Only
-supported for the NVVM backend.
+<dd><p>Load NVIDIA’s <a class="reference external" href="https://docs.nvidia.com/cuda/libdevice-users-guide/">libdevice</a>
+math builtins library. Only supported for the NVVM backend.
 Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>

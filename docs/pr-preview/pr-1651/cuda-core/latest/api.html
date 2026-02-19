@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=d8361e3c"></script>
+    <script src="_static/documentation_options.js?v=13bf8ef1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev124';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -481,8 +481,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LEGACY_DEFAULT_STREAM.html">cuda.core.LEGACY_DEFAULT_STREAM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PER_THREAD_DEFAULT_STREAM.html">cuda.core.PER_THREAD_DEFAULT_STREAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
@@ -664,12 +662,6 @@ deprecation periods for breaking changes.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, LaunchConfig config, ...)</p></td>
 <td><p>Launches a <a class="reference internal" href="generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object with launch-time configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LEGACY_DEFAULT_STREAM.html#cuda.core.LEGACY_DEFAULT_STREAM" title="cuda.core.LEGACY_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a></p></td>
-<td><p>Stream(<a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs)</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.PER_THREAD_DEFAULT_STREAM.html#cuda.core.PER_THREAD_DEFAULT_STREAM" title="cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a></p></td>
-<td><p>Stream(<a href="#id5"><span class="problematic" id="id6">*</span></a>args, <a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs)</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a handle to allocated memory.</p></td>
 </tr>
@@ -730,6 +722,22 @@ deprecation periods for breaking changes.</p>
 </tbody>
 </table>
 </div>
+<dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.LEGACY_DEFAULT_STREAM">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">LEGACY_DEFAULT_STREAM</span></span><a class="headerlink" href="#cuda.core.LEGACY_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
+<dd><p>The legacy default CUDA stream. All devices share the same legacy default
+stream, and work launched on it is not concurrent with work on any other
+stream.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.PER_THREAD_DEFAULT_STREAM">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></span><a class="headerlink" href="#cuda.core.PER_THREAD_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
+<dd><p>The per-thread default CUDA stream. Each host thread has its own per-thread
+default stream, and work launched on it can execute concurrently with work
+on other non-blocking streams.</p>
+</dd></dl>
+
 </section>
 <section id="cuda-compilation-toolchain">
 <h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
@@ -995,7 +1003,11 @@ deprecation periods for breaking changes.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-runtime">CUDA runtime</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-runtime">CUDA runtime</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LEGACY_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information-and-nvidia-management-library-nvml">CUDA system information and NVIDIA Management Library (NVML)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions">Utility functions</a></li>

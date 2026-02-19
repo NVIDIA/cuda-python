@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d8361e3c"></script>
+    <script src="../_static/documentation_options.js?v=13bf8ef1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev124';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -480,8 +480,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LEGACY_DEFAULT_STREAM.html">cuda.core.LEGACY_DEFAULT_STREAM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.PER_THREAD_DEFAULT_STREAM.html">cuda.core.PER_THREAD_DEFAULT_STREAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Event.html">cuda.core.Event</a></li>
@@ -672,7 +670,6 @@ device attributes, clocks, temperatures, fans, events, and PCI information.</p><
 <ul>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">from_array_interface</span></code> constructor for creating views from numpy arrays.</p></li>
 <li><p>Improved structured dtype array support.</p></li>
-<li><p>Relaxed the power-of-two itemsize check in <code class="docutils literal notranslate"><span class="pre">StridedLayout</span></code>.</p></li>
 <li><p>Added bfloat16 dlpack support when the optional <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> package is installed.</p></li>
 </ul>
 </li>
@@ -690,26 +687,24 @@ multi-module NVVM compilation and automatic libdevice loading.</p></li>
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version.</p></li>
 </ul>
 </section>
-<section id="new-examples">
-<h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">#</a></h2>
-<p>None.</p>
-</section>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Reduced wheel and installed package sizes by excluding Cython source files and build
-artifacts from distribution packages.</p></li>
+<li><p>Eliminated spurious CUDA driver errors during interpreter shutdown by ensuring
+resources are destroyed in the correct order.</p></li>
+<li><p>Fixed a bug preventing weak references to core API objects.</p></li>
+<li><p>Fixed zero-sized allocations in legacy memory resources, which previously failed on
+certain platforms.</p></li>
 <li><p>Improved performance by Cythonizing <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> internals.</p></li>
 <li><p>Reduced <a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> construction overhead.</p></li>
-<li><p>Legacy and per-thread default streams are now singletons, ensuring consistent identity
-across the application.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">__hash__</span></code> and <code class="docutils literal notranslate"><span class="pre">__eq__</span></code> on core API classes no longer require a CUDA context.</p></li>
 <li><p>Device attribute queries now gracefully handle unsupported attributes on older CUDA
 drivers, returning sensible defaults instead of raising errors.</p></li>
-<li><p>Fixed zero-sized allocations in legacy memory resources, which previously failed on
-certain platforms.</p></li>
 <li><p>Added a warning when <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> is created on platforms without
 concurrent managed access support.</p></li>
+<li><p>Reduced wheel and installed package sizes by excluding Cython source files and build
+artifacts from distribution packages.</p></li>
+<li><p>Slightly improved typing support.</p></li>
 </ul>
 </section>
 </section>
@@ -757,7 +752,6 @@ concurrent managed access support.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-examples">New examples</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
   </nav></div>

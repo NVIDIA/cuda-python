@@ -35,7 +35,6 @@ New features
 
   - Added ``from_array_interface`` constructor for creating views from numpy arrays.
   - Improved structured dtype array support.
-  - Relaxed the power-of-two itemsize check in ``StridedLayout``.
   - Added bfloat16 dlpack support when the optional ``ml_dtypes`` package is installed.
 
 - Added public access to default CUDA streams via module-level constants
@@ -56,32 +55,30 @@ New features
   ``cuda.core`` and the installed ``cuda-bindings`` version.
 
 
-New examples
-------------
-
-None.
-
-
 Fixes and enhancements
 ----------------------
 
-- Reduced wheel and installed package sizes by excluding Cython source files and build
-  artifacts from distribution packages.
+- Eliminated spurious CUDA driver errors during interpreter shutdown by ensuring
+  resources are destroyed in the correct order.
+
+- Fixed a bug preventing weak references to core API objects.
+
+- Fixed zero-sized allocations in legacy memory resources, which previously failed on
+  certain platforms.
 
 - Improved performance by Cythonizing :class:`Program` and :class:`ObjectCode` internals.
 
 - Reduced :class:`~utils.StridedMemoryView` construction overhead.
-
-- Legacy and per-thread default streams are now singletons, ensuring consistent identity
-  across the application.
 
 - ``__hash__`` and ``__eq__`` on core API classes no longer require a CUDA context.
 
 - Device attribute queries now gracefully handle unsupported attributes on older CUDA
   drivers, returning sensible defaults instead of raising errors.
 
-- Fixed zero-sized allocations in legacy memory resources, which previously failed on
-  certain platforms.
-
 - Added a warning when :class:`ManagedMemoryResource` is created on platforms without
   concurrent managed access support.
+
+- Reduced wheel and installed package sizes by excluding Cython source files and build
+  artifacts from distribution packages.
+
+- Slightly improved typing support.
