@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1283+gc7bc6fa75. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -423,32 +423,7 @@ cdef void* __nvmlDeviceSetRusdSettings_v1 = NULL
 
 
 cdef uintptr_t load_library() except* with gil:
-    def do_load(path):
-        return LoadLibraryExW(
-            path,
-            <void *>0,
-            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
-        )
-
-    handle = do_load(
-        os.path.join(
-            os.getenv("WINDIR", "C:/Windows"),
-            "System32/nvml.dll"
-        )
-    )
-    if handle:
-        return handle
-
-    handle = do_load(
-        os.path.join(
-            os.getenv("ProgramFiles", "C:/Program Files"),
-            "NVIDIA Corporation/NVSMI/nvml.dll"
-        )
-    )
-    if handle:
-        return handle
-
-    return 0
+    return load_nvidia_dynamic_lib("nvml")._handle_uint
 
 
 cdef int _init_nvml() except -1 nogil:
