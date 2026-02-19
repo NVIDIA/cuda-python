@@ -9,6 +9,8 @@ from libc.stdint cimport intptr_t
 import os
 import threading
 
+from cuda.pathfinder import load_nvidia_dynamic_lib
+
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from libc.stddef cimport wchar_t
@@ -422,10 +424,6 @@ cdef void* __nvmlDeviceReadPRMCounters_v1 = NULL
 cdef void* __nvmlDeviceSetRusdSettings_v1 = NULL
 
 
-cdef uintptr_t load_library() except* with gil:
-    return load_nvidia_dynamic_lib("nvml")._handle_uint
-
-
 cdef int _init_nvml() except -1 nogil:
     global __py_nvml_init
 
@@ -433,7 +431,7 @@ cdef int _init_nvml() except -1 nogil:
     cdef uintptr_t handle
 
     with gil, __symbol_lock:
-        handle = load_library()
+        handle = load_nvidia_dynamic_lib("nvml")._handle_uint
 
         # Load function
         global __nvmlInit_v2
