@@ -47,6 +47,7 @@ test = [
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
     "pytest-repeat",
+    "pytest-randomly",
     "pyglet>=2.1.9",
 ]
 

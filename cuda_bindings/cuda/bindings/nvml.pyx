@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1283+gc7bc6fa75. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -23189,22 +23189,6 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     return cpython.PyUnicode_FromString(vgpu_type_class)
 
 
-cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
-    """Retrieve the vGPU type name.
-
-    Args:
-        vgpu_type_id (unsigned int): Handle to vGPU type.
-
-    .. seealso:: `nvmlVgpuTypeGetName`
-    """
-    cdef unsigned int size = 64
-    cdef char[64] vgpu_type_name
-    with nogil:
-        __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
-    check_status(__status__)
-    return cpython.PyUnicode_FromString(vgpu_type_name)
-
-
 cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_id) except? 0:
     """Retrieve the GPU Instance Profile ID for the given vGPU type ID. The API will return a valid GPU Instance Profile ID for the MIG capable vGPU types, else INVALID_GPU_INSTANCE_PROFILE_ID is returned.
 
@@ -26228,3 +26212,19 @@ cpdef str device_get_current_clock_freqs(intptr_t device):
         __status__ = nvmlDeviceGetCurrentClockFreqs(<Device>device, current_clock_freqs)
     check_status(__status__)
     return cpython.PyUnicode_FromString(current_clock_freqs[0].str)
+
+
+cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
+    """Retrieve the vGPU type name.
+
+    Args:
+        vgpu_type_id (unsigned int): Handle to vGPU type.
+
+    .. seealso:: `nvmlVgpuTypeGetName`
+    """
+    cdef unsigned int[1] size = [64]
+    cdef char[64] vgpu_type_name
+    with nogil:
+        __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
+    check_status(__status__)
+    return cpython.PyUnicode_FromString(vgpu_type_name)
