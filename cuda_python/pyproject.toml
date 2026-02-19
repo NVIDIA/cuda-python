@@ -41,10 +41,6 @@ documentation = "https://nvidia.github.io/cuda-python/"
 repository = "https://github.com/NVIDIA/cuda-python/"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
-# Version from git tags; setup.py still overrides install_requires at wheel build
-# for exact version pinning (~= for release, == for dev).
-[tool.setuptools_scm]
-root = ".."
-version_file = "cuda_python/_version.py"
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
-git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
+# The [tool.setuptools_scm] section is handled in setup.py since we need to
+# dynamically set the dependency to cuda_bindings based on the dynamically
+# determinded version
