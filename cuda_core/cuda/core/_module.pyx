@@ -561,6 +561,10 @@ cdef class Kernel:
         """
         return as_py(self._h_kernel)
 
+    @property
+    def _handle(self):
+        return self.handle
+
     @staticmethod
     def from_handle(handle, mod: ObjectCode = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
