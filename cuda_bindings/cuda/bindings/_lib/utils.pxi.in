@@ -6,11 +6,11 @@ from libc.stdlib cimport calloc, free
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.string cimport memcpy
-from enum import Enum as _Enum
 import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
 import cuda.bindings.driver as _driver
 cimport cuda.bindings._lib.param_packer as param_packer
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
 cdef void* _callocWrapper(length, size):
     cdef void* out = calloc(length, size)
@@ -74,7 +74,7 @@ cdef class _HelperKernelParams:
                         self._ckernelParams[idx] = <void*><void_ptr>value.getPtr()
                     elif isinstance(value, (_ctypes.Structure)):
                         self._ckernelParams[idx] = <void*><void_ptr>_ctypes.addressof(value)
-                    elif isinstance(value, (_Enum)):
+                    elif isinstance(value, (_FastEnum)):
                         self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
                         (<int*>self._ckernelParams[idx])[0] = value.value
                         data_idx += sizeof(int)
@@ -596,6 +596,9 @@ cdef class _HelperCUmemAllocationHandleType:
 
 cdef class _InputVoidPtrPtrHelper:
     def __cinit__(self, lst):
+        # Hold onto references to the original buffers so they
+        # won't be free'd behind our back
+        self._references = lst
         self._cptr = <void**>_callocWrapper(len(lst), sizeof(void*))
         for idx in range(len(lst)):
             self._cptr[idx] = <void*><void_ptr>lst[idx].cptr

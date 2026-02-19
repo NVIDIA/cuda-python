@@ -1,6 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
 import platform
 import shutil
 import textwrap
@@ -1051,3 +1052,261 @@ def test_struct_pointer_comparison(target):
     c = target(456)
     assert a != c
     assert hash(a) != hash(c)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphGetId(device, ctx):
+    """Test cuGraphGetId - get graph ID."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graph_id = cuda.cuGraphGetId(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(graph_id, int)
+    assert graph_id > 0
+
+    # Create another graph and verify it has a different ID
+    err, graph2 = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graph_id2 = cuda.cuGraphGetId(graph2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert graph_id2 != graph_id
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphExecGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphExecGetId(device, ctx):
+    """Test cuGraphExecGetId - get graph exec ID."""
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Add an empty node to make the graph valid
+    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graph_exec_id = cuda.cuGraphExecGetId(graphExec)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(graph_exec_id, int)
+    assert graph_exec_id > 0
+
+    # Create another graph exec and verify it has a different ID
+    err, graph2 = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, node2 = cuda.cuGraphAddEmptyNode(graph2, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graphExec2 = cuda.cuGraphInstantiate(graph2, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graph_exec_id2 = cuda.cuGraphExecGetId(graphExec2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert graph_exec_id2 != graph_exec_id
+
+    (err,) = cuda.cuGraphExecDestroy(graphExec)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphExecDestroy(graphExec2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuStreamDestroy(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphNodeGetLocalId(device, ctx):
+    """Test cuGraphNodeGetLocalId - get node local ID."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Add multiple nodes
+    err, node1 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node2 = cuda.cuGraphAddEmptyNode(graph, [node1], 1)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node3 = cuda.cuGraphAddEmptyNode(graph, [node1, node2], 2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get local IDs for each node
+    err, node_id1 = cuda.cuGraphNodeGetLocalId(node1)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(node_id1, int)
+    assert node_id1 >= 0
+
+    err, node_id2 = cuda.cuGraphNodeGetLocalId(node2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(node_id2, int)
+    assert node_id2 >= 0
+    assert node_id2 != node_id1
+
+    err, node_id3 = cuda.cuGraphNodeGetLocalId(node3)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(node_id3, int)
+    assert node_id3 >= 0
+    assert node_id3 != node_id1
+    assert node_id3 != node_id2
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphNodeGetToolsId(device, ctx):
+    """Test cuGraphNodeGetToolsId - get node tools ID."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, tools_node_id = cuda.cuGraphNodeGetToolsId(node)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(tools_node_id, int)
+    # toolsNodeId is unsigned long long, so it can be any non-negative value
+    assert tools_node_id >= 0
+
+    # Add another node and verify it has a different tools ID
+    err, node2 = cuda.cuGraphAddEmptyNode(graph, [node], 1)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, tools_node_id2 = cuda.cuGraphNodeGetToolsId(node2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert tools_node_id2 != tools_node_id
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphNodeGetContainingGraph(device, ctx):
+    """Test cuGraphNodeGetContainingGraph - get graph containing a node."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get the containing graph
+    err, containing_graph = cuda.cuGraphNodeGetContainingGraph(node)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify it's the same graph
+    assert int(containing_graph) == int(graph)
+
+    # Test with a child graph node (if supported)
+    # Create a child graph node
+    err, child_graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, child_node = cuda.cuGraphAddEmptyNode(child_graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Add child graph node to parent graph
+    childGraphNodeParams = cuda.CUgraphNodeParams()
+    childGraphNodeParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_GRAPH
+    childGraphNodeParams.graph.graph = child_graph
+    err, child_graph_node = cuda.cuGraphAddNode(graph, None, None, 0, childGraphNodeParams)
+    if err == cuda.CUresult.CUDA_SUCCESS:
+        # Get containing graph for the child graph node
+        err, containing_graph_for_child = cuda.cuGraphNodeGetContainingGraph(child_graph_node)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert int(containing_graph_for_child) == int(graph)
+
+        # Get containing graph for node inside child graph
+        err, containing_graph_for_nested = cuda.cuGraphNodeGetContainingGraph(child_node)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert int(containing_graph_for_nested) == int(child_graph)
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(child_graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuStreamGetDevResource(device, ctx):
+    """Test cuStreamGetDevResource - get device resource from stream."""
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get SM resource from stream
+    err, resource = cuda.cuStreamGetDevResource(stream, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+    (err,) = cuda.cuStreamDestroy(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuDevSmResourceSplit(device, ctx):
+    """Test cuDevSmResourceSplit - split SM resource into structured groups."""
+    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Create group params for splitting into 1 group (simpler test)
+    nb_groups = 1
+    group_params = cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS()
+    # Set up group: request 4 SMs with coscheduled count of 2
+    group_params.smCount = 4
+    group_params.coscheduledSmCount = 2
+
+    # Split the resource
+    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify we got results
+    assert len(res) == nb_groups
+    # Verify remainder is valid (may be None if no remainder)
+    assert rem is not None or len(res) > 0
+
+
+def test_buffer_reference():
+    # Create a host buffer
+    size = int(1024 * np.uint8().itemsize)
+    host = np.full(size, 2).astype(np.uint8)
+
+    # Set the buffer to a struct member
+    memcpyParams = cuda.CUgraphNodeParams()
+    memcpyParams.memcpy.copyParams.dstHost = host
+
+    # Delete the local reference to the host buffer.  The reference in the
+    # struct should keep it alive.
+    del host
+
+    # Create a new numpy array from the pointer and make sure the memory is
+    # intact and hasn't been freed.  If the reference counting in
+    # copyParams.dstHost is incorrect, we will either see over-written memory or
+    # a segmentation fault here.
+    ptr = ctypes.cast(memcpyParams.memcpy.copyParams.dstHost, ctypes.POINTER(ctypes.c_uint8))
+    x = np.ctypeslib.as_array(ptr, shape=(size,))
+    assert np.all(x == 2)
