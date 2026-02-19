@@ -1,0 +1,52 @@
+﻿cuda.bindings.cufile.SizeTConfigParameter
+=========================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: SizeTConfigParameter
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SizeTConfigParameter.__init__
+      ~SizeTConfigParameter.as_integer_ratio
+      ~SizeTConfigParameter.bit_count
+      ~SizeTConfigParameter.bit_length
+      ~SizeTConfigParameter.conjugate
+      ~SizeTConfigParameter.from_bytes
+      ~SizeTConfigParameter.is_integer
+      ~SizeTConfigParameter.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH
+      ~SizeTConfigParameter.EXECUTION_MAX_IO_THREADS
+      ~SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM
+      ~SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB
+      ~SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB
+      ~SizeTConfigParameter.PROFILE_STATS
+      ~SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS
+      ~SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE
+      ~SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB
+      ~SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB
+      ~SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB
+      ~SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB
+      ~SizeTConfigParameter.denominator
+      ~SizeTConfigParameter.imag
+      ~SizeTConfigParameter.name
+      ~SizeTConfigParameter.numerator
+      ~SizeTConfigParameter.real
+      ~SizeTConfigParameter.value
+   
+   

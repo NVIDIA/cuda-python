@@ -1,0 +1,38 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+CUDA Python 11.8.2 Release notes
+================================
+
+Released on May 18, 2023
+
+Highlights
+----------
+- Open libcuda.so.1 instead of libcuda.so
+
+Limitations
+-----------
+
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Symbol APIs
+    - cudaGraphExecMemcpyNodeSetParamsFromSymbol
+    - cudaGraphExecMemcpyNodeSetParamsToSymbol
+    - cudaGraphAddMemcpyNodeToSymbol
+    - cudaGraphAddMemcpyNodeFromSymbol
+    - cudaGraphMemcpyNodeSetParamsToSymbol
+    - cudaGraphMemcpyNodeSetParamsFromSymbol
+    - cudaMemcpyToSymbol
+    - cudaMemcpyFromSymbol
+    - cudaMemcpyToSymbolAsync
+    - cudaMemcpyFromSymbolAsync
+    - cudaGetSymbolAddress
+    - cudaGetSymbolSize
+    - cudaGetFuncBySymbol
+- Launch Options
+    - cudaLaunchKernel
+    - cudaLaunchCooperativeKernel
+    - cudaLaunchCooperativeKernelMultiDevice
+- cudaSetValidDevices
+- cudaVDPAUSetVDPAUDevice
