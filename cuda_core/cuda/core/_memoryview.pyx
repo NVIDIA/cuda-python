@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -26,6 +26,12 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
+
+
+try:
+    from ml_dtypes import bfloat16
+except ImportError:
+    bfloat16 = None
 
 # TODO(leofang): support NumPy structured dtypes
 
@@ -146,24 +152,63 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_dlpack(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        """Create a view from an object supporting the `DLPack <https://dmlc.github.io/dlpack/latest/>`_ protocol.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing the `DLPack <https://dmlc.github.io/dlpack/latest/>`_ protocol
+            (via ``__dlpack__``).
+        stream_ptr : int, optional
+            Stream pointer for synchronization. If ``None``, no synchronization is performed.
+        """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_dlpack(obj, stream_ptr, buf)
         return buf
 
     @classmethod
     def from_cuda_array_interface(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        """Create a view from an object supporting the `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_ protocol.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing the `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_ protocol.
+        stream_ptr : int, optional
+            Stream pointer for synchronization. If ``None``, no synchronization is performed.
+        """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_cai(obj, stream_ptr, buf)
         return buf
 
     @classmethod
     def from_array_interface(cls, obj: object) -> StridedMemoryView:
+        """Create a view from an object supporting the `__array_interface__ <https://numpy.org/doc/stable/reference/arrays.interface.html>`_ protocol.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing the `__array_interface__ <https://numpy.org/doc/stable/reference/arrays.interface.html>`_ protocol (e.g., a numpy array).
+        """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_array_interface(obj, buf)
         return buf
 
     @classmethod
     def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
+        """Create a view by automatically selecting the best available protocol.
+
+        Tries `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
+        `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
+
+        Parameters
+        ----------
+        obj : object
+            An object implementing `DLPack <https://dmlc.github.io/dlpack/latest/>`_ or
+            `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
+        stream_ptr : int, optional
+            Stream pointer for synchronization. If ``None``, no synchronization is performed.
+        """
         if check_has_dlpack(obj):
             return cls.from_dlpack(obj, stream_ptr)
         return cls.from_cuda_array_interface(obj, stream_ptr)
@@ -332,6 +377,11 @@ cdef class StridedMemoryView:
     def dtype(self) -> numpy.dtype | None:
         """
         Data type of the tensor.
+
+        Supports standard NumPy dtypes as well as narrow data types (e.g., ``bfloat16``)
+        when the optional `ml_dtypes <https://github.com/jax-ml/ml_dtypes>`_ package is
+        installed. If ``ml_dtypes`` is not available and such a tensor is encountered,
+        a :obj:`NotImplementedError` will be raised.
         """
         return self.get_dtype()
 
@@ -555,8 +605,13 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
         else:
             raise TypeError(f'{bits}-bit bool is not supported')
     elif dtype.code == kDLBfloat:
-        # TODO(leofang): use ml_dtype.bfloat16?
-        raise NotImplementedError('bfloat is not supported yet')
+        if bfloat16 is not None:
+            np_dtype = numpy.dtype("bfloat16")
+        else:
+            raise NotImplementedError(
+                'Support for bfloat16 within cuda-core requires `ml_dtypes`'
+                'to be installed.'
+            )
     else:
         raise TypeError('Unsupported dtype. dtype code: {}'.format(dtype.code))
 

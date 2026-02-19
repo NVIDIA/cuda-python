@@ -256,6 +256,7 @@ jobs:
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
+          CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
@@ -301,4 +302,5 @@ jobs:
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
+          CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder

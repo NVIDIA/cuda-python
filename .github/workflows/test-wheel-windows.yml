@@ -229,6 +229,7 @@ jobs:
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
+          CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
 
@@ -279,5 +280,6 @@ jobs:
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
+          CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
