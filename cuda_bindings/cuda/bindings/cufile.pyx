@@ -2901,25 +2901,25 @@ cpdef void batch_io_destroy(intptr_t batch_idp) except*:
 
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream):
     with nogil:
-        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <void*>stream)
+        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <CUstream>stream)
     check_status(__status__)
 
 
 cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_written_p, intptr_t stream):
     with nogil:
-        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <void*>stream)
+        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <CUstream>stream)
     check_status(__status__)
 
 
 cpdef stream_register(intptr_t stream, unsigned flags):
     with nogil:
-        __status__ = cuFileStreamRegister(<void*>stream, flags)
+        __status__ = cuFileStreamRegister(<CUstream>stream, flags)
     check_status(__status__)
 
 
 cpdef stream_deregister(intptr_t stream):
     with nogil:
-        __status__ = cuFileStreamDeregister(<void*>stream)
+        __status__ = cuFileStreamDeregister(<CUstream>stream)
     check_status(__status__)
 
 

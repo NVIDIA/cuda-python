@@ -1,13 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import atexit
 import contextlib
+import functools
 import glob
 import os
 import pathlib
 import platform
 import shutil
+import subprocess
 import sys
 import sysconfig
 import tempfile
@@ -270,6 +272,8 @@ if sys.platform != "win32":
         "-fpermissive",
         "-Wno-deprecated-declarations",
         "-fno-var-tracking-assignments",
+        "-Wno-unused-function",
+        "-Werror",
     ]
     if "--debug" in sys.argv:
         extra_cythonize_kwargs["gdb_debug"] = True
@@ -391,6 +395,13 @@ for sources, libraries in sources_list:
 building_wheel = False
 
 
+@functools.lru_cache
+def is_clang(compiler_cxx):
+    output = subprocess.check_output([*compiler_cxx, "--version"])  # noqa: S603
+    lines = output.decode().splitlines()
+    return "clang" in lines[0]
+
+
 class WheelsBuildExtensions(bdist_wheel):
     def run(self):
         global building_wheel
@@ -405,6 +416,9 @@ class ParallelBuildExtensions(build_ext):
             self.parallel = nthreads
 
     def build_extension(self, ext):
+        if is_clang(tuple(self.compiler.compiler_cxx)):
+            ext.extra_compile_args = [x for x in ext.extra_compile_args if x != "-fno-var-tracking-assignments"]
+
         if building_wheel and sys.platform == "linux" and "--debug" not in sys.argv:
             # Strip binaries to remove debug symbols
             ext.extra_link_args.append("-Wl,--strip-all")
