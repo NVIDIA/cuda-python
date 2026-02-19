@@ -109,19 +109,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
 
-      # ilammy/msvc-dev-cmd sets up MSVC env vars (INCLUDE, LIB, etc.) in the
-      # outer environment. Pass DISTUTILS_USE_SDK=1 so setuptools uses those
-      # vars directly instead of calling vcvarsall.bat (which can exceed the
-      # cmd.exe ~8KB command line limit with build[uv]'s longer PATH).
-      - name: Set DISTUTILS_USE_SDK and fix link.exe (Windows)
-        if: ${{ startsWith(inputs.host-platform, 'win') }}
-        run: |
-          echo "DISTUTILS_USE_SDK=1" >> $GITHUB_ENV
-          # Git ships /usr/bin/link.exe (POSIX hardlink tool) which shadows
-          # MSVC's linker. Rename it so MSVC's link.exe is always found.
-          mv "C:/Program Files/Git/usr/bin/link.exe" \
-             "C:/Program Files/Git/usr/bin/link.exe.bak" 2>/dev/null || true
-
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
         run: |
@@ -162,7 +149,10 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        # WAR: v3.3.x has a PATH mangling bug on Windows that causes Git's
+        # /usr/bin/link.exe to shadow MSVC's linker. Pinned to v3.2.1 until
+        # a fixed release is available. See https://github.com/pypa/cibuildwheel/issues/2663
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -182,8 +172,6 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-          CIBW_ENVIRONMENT_PASS_WINDOWS: >
-            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -218,7 +206,10 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        # WAR: v3.3.x has a PATH mangling bug on Windows that causes Git's
+        # /usr/bin/link.exe to shadow MSVC's linker. Pinned to v3.2.1 until
+        # a fixed release is available. See https://github.com/pypa/cibuildwheel/issues/2663
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -240,8 +231,6 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-          CIBW_ENVIRONMENT_PASS_WINDOWS: >
-            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -416,7 +405,10 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        # WAR: v3.3.x has a PATH mangling bug on Windows that causes Git's
+        # /usr/bin/link.exe to shadow MSVC's linker. Pinned to v3.2.1 until
+        # a fixed release is available. See https://github.com/pypa/cibuildwheel/issues/2663
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -438,8 +430,6 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-          CIBW_ENVIRONMENT_PASS_WINDOWS: >
-            DISTUTILS_USE_SDK INCLUDE LIB
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
