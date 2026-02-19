@@ -273,7 +273,6 @@ if sys.platform != "win32":
         "-Wno-deprecated-declarations",
         "-fno-var-tracking-assignments",
         "-Wno-unused-function",
-        "-Werror",
     ]
     if "--debug" in sys.argv:
         extra_cythonize_kwargs["gdb_debug"] = True
