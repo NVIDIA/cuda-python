@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # A utility script to find the GitHub Actions workflow run ID for a given git tag.
-# This script looks for the CI workflow run that corresponds to the commit of the given tag.
+# This script requires a successful CI run that was triggered by the tag push.
 
 set -euo pipefail
 
@@ -54,16 +54,16 @@ fi
 echo "Resolved tag '${GIT_TAG}' to commit: ${COMMIT_SHA}" >&2
 
 # Find workflow runs for this commit
-echo "Searching for '${WORKFLOW_NAME}' workflow runs for commit: ${COMMIT_SHA}" >&2
+echo "Searching for '${WORKFLOW_NAME}' workflow runs for commit: ${COMMIT_SHA} (tag: ${GIT_TAG})" >&2
 
-# Get workflow runs for the commit, filter by workflow name and successful status
+# Get completed workflow runs for this commit.
 RUN_DATA=$(gh run list \
     --repo "${REPOSITORY}" \
     --commit "${COMMIT_SHA}" \
     --workflow "${WORKFLOW_NAME}" \
     --status completed \
-    --json databaseId,workflowName,status,conclusion,headSha \
-    --limit 10)
+    --json databaseId,workflowName,status,conclusion,headSha,headBranch,event,createdAt,url \
+    --limit 50)
 
 if [[ -z "${RUN_DATA}" || "${RUN_DATA}" == "[]" ]]; then
     echo "Error: No completed '${WORKFLOW_NAME}' workflow runs found for commit ${COMMIT_SHA}" >&2
@@ -72,16 +72,21 @@ if [[ -z "${RUN_DATA}" || "${RUN_DATA}" == "[]" ]]; then
     exit 1
 fi
 
-# Filter for successful runs (conclusion = success) and extract the run ID from the first one
-RUN_ID=$(echo "${RUN_DATA}" | jq -r '.[] | select(.conclusion == "success") | .databaseId' | head -1)
+# Filter for successful push runs from the tag ref.
+RUN_ID=$(echo "${RUN_DATA}" | jq -r --arg tag "${GIT_TAG}" '
+    map(select(.conclusion == "success" and .event == "push" and .headBranch == $tag))
+    | sort_by(.createdAt)
+    | reverse
+    | .[0].databaseId // empty
+')
 
-if [[ -z "${RUN_ID}" || "${RUN_ID}" == "null" ]]; then
-    echo "Error: No successful '${WORKFLOW_NAME}' workflow runs found for commit ${COMMIT_SHA}" >&2
-    echo "Available workflow runs for this commit:" >&2
-    gh run list --repo "$REPOSITORY" --commit "${COMMIT_SHA}" --limit 10 || true
+if [[ -z "${RUN_ID}" ]]; then
+    echo "Error: No successful '${WORKFLOW_NAME}' workflow runs found for tag '${GIT_TAG}'." >&2
+    echo "This release workflow now requires artifacts from a tag-triggered CI run." >&2
+    echo "If you just pushed the tag, wait for CI on that tag to finish and retry." >&2
     echo "" >&2
-    echo "Completed runs with their conclusions:" >&2
-    echo "${RUN_DATA}" | jq -r '.[] | "\(.databaseId): \(.conclusion)"' >&2
+    echo "Completed runs for commit ${COMMIT_SHA}:" >&2
+    echo "${RUN_DATA}" | jq -r '.[] | "\(.databaseId): event=\(.event // "null"), headBranch=\(.headBranch // "null"), conclusion=\(.conclusion // "null"), status=\(.status // "null"), createdAt=\(.createdAt // "null")"' >&2
     exit 1
 fi
 
