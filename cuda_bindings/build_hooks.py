@@ -253,7 +253,7 @@ def _rename_architecture_specific_files():
     return dst_files
 
 
-def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compile_args):
+def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compile_args, extra_link_args):
     pattern = sources[0]
     files = glob.glob(pattern)
     libraries = libraries if libraries else []
@@ -270,6 +270,7 @@ def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compi
                 libraries=libraries,
                 language="c++",
                 extra_compile_args=extra_compile_args,
+                extra_link_args=extra_link_args,
             )
         )
     return exts
@@ -349,6 +350,7 @@ def _build_cuda_bindings(strip=False):
     library_dirs.extend(os.path.join(prefix, subdir) for prefix in cuda_paths for subdir in cudalib_subdirs)
 
     extra_compile_args = []
+    extra_link_args = []
     extra_cythonize_kwargs = {}
     if sys.platform != "win32":
         extra_compile_args += [
@@ -363,6 +365,8 @@ def _build_cuda_bindings(strip=False):
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
             extra_compile_args += ["-O3"]
+            if strip and sys.platform == "linux":
+                extra_link_args += ["-Wl,--strip-all"]
     if compile_for_coverage:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
@@ -399,22 +403,20 @@ def _build_cuda_bindings(strip=False):
     ]
 
     for sources, libraries in sources_list:
-        extensions += _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compile_args)
-
-    if strip and sys.platform == "linux" and "--debug" not in sys.argv:
-        for ext in extensions:
-            ext.extra_link_args.append("-Wl,--strip-all")
+        extensions += _prep_extensions(
+            sources, libraries, include_dirs, library_dirs, extra_compile_args, extra_link_args
+        )
 
     # Cythonize
-    compiler_directives = dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True)
+    cython_directives = dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True)
     if compile_for_coverage:
-        compiler_directives["linetrace"] = True
+        cython_directives["linetrace"] = True
 
     _extensions = cythonize(
         extensions,
         nthreads=nthreads,
         build_dir="build/cython",
-        compiler_directives=compiler_directives,
+        compiler_directives=cython_directives,
         **extra_cythonize_kwargs,
     )
 

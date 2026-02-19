@@ -2,12 +2,21 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import os
+from warnings import warn
 
 import build_hooks
 from setuptools import setup
 from setuptools.command.build_ext import build_ext as _build_ext
 
-nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
+if os.environ.get("PARALLEL_LEVEL") is not None:
+    warn(
+        "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
+        DeprecationWarning,
+        stacklevel=1,
+    )
+    nthreads = int(os.environ.get("PARALLEL_LEVEL", "0"))
+else:
+    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
 
 
 class build_ext(_build_ext):
