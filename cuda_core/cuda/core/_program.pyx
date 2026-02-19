@@ -387,18 +387,18 @@ class ProgramOptions:
                         f"Each extra module must be a 2-tuple (name, source)"
                         f", got {type(module).__name__} at index {i}"
                     )
-                
+
                 module_name, module_source = module
-                
+
                 if not isinstance(module_name, str):
                     raise TypeError(f"Module name at index {i} must be a string, got {type(module_name).__name__}")
-                
+
                 if not isinstance(module_source, (str, bytes, bytearray)):
                     raise TypeError(
                         f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
                         f"or bytearray, got {type(module_source).__name__}"
                     )
-                
+
                 if len(module_source) == 0:
                     raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
 
