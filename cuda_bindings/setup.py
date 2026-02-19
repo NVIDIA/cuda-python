@@ -40,12 +40,10 @@ class build_ext(_build_ext):
     def build_extensions(self):
         if nthreads > 0:
             self.parallel = nthreads
-        super().build_extensions()
-
-    def build_extension(self, ext):
         if _is_clang(self.compiler):
-            ext.extra_compile_args = [a for a in ext.extra_compile_args if a != "-fno-var-tracking-assignments"]
-        super().build_extension(ext)
+            for ext in self.extensions:
+                ext.extra_compile_args = [a for a in ext.extra_compile_args if a != "-fno-var-tracking-assignments"]
+        super().build_extensions()
 
 
 setup(
