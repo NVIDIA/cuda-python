@@ -46,6 +46,7 @@ test = [
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
     "pytest-repeat",
+    "pytest-randomly",
     "pyglet>=2.1.9",
 ]
 
@@ -89,6 +90,6 @@ xfail_strict = true
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
+# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]

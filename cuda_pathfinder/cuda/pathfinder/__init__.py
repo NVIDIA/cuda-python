@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """cuda.pathfinder public APIs"""
@@ -19,6 +19,21 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory,
 )
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    SUPPORTED_BITCODE_LIBS as _SUPPORTED_BITCODE_LIBS,
+)
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    BitcodeLibNotFoundError as BitcodeLibNotFoundError,
+)
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    LocatedBitcodeLib as LocatedBitcodeLib,
+)
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    find_bitcode_lib as find_bitcode_lib,
+)
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    locate_bitcode_lib as locate_bitcode_lib,
+)
 
 from cuda.pathfinder._version import __version__  # isort: skip  # noqa: F401
 
@@ -34,6 +49,11 @@ SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 #: utilities may be available only on Linux or Windows).
 #: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.
 SUPPORTED_BINARY_UTILITIES = _SUPPORTED_BINARIES
+
+#: Tuple of supported bitcode library names that can be resolved
+#: via ``locate_bitcode_lib()`` and ``find_bitcode_lib()``.
+#: Example value: ``"device"``.
+SUPPORTED_BITCODE_LIBS = _SUPPORTED_BITCODE_LIBS
 
 # Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.
 # It will be removed in release 1.2.4.
