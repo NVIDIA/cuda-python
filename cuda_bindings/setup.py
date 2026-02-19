@@ -394,11 +394,19 @@ for sources, libraries in sources_list:
 building_wheel = False
 
 
-@functools.lru_cache
-def is_clang(compiler_cxx):
-    output = subprocess.check_output([*compiler_cxx, "--version"])  # noqa: S603
-    lines = output.decode().splitlines()
-    return "clang" in lines[0]
+def is_clang(compiler):
+    @functools.lru_cache
+    def _is_clang(compiler_cxx):
+        try:
+            output = subprocess.check_output([*compiler_cxx, "--version"])  # noqa: S603
+        except subprocess.CalledProcessError:
+            return False
+        lines = output.decode().splitlines()
+        return len(lines) > 0 and "clang" in lines[0]
+
+    if not hasattr(compiler, "compiler_cxx"):
+        return False
+    return _is_clang(tuple(compiler.compiler_cxx))
 
 
 class WheelsBuildExtensions(bdist_wheel):
@@ -415,7 +423,7 @@ class ParallelBuildExtensions(build_ext):
             self.parallel = nthreads
 
     def build_extension(self, ext):
-        if is_clang(tuple(self.compiler.compiler_cxx)):
+        if is_clang(self.compiler):
             ext.extra_compile_args = [x for x in ext.extra_compile_args if x != "-fno-var-tracking-assignments"]
 
         if building_wheel and sys.platform == "linux" and "--debug" not in sys.argv:
