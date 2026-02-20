@@ -123,9 +123,13 @@ cdef class Buffer:
         self._mem_attrs_inited = False
         return self
 
+    @staticmethod
+    def _reduce_helper(mr, ipc_descriptor):
+        return Buffer.from_ipc_descriptor(mr, ipc_descriptor)
+
     def __reduce__(self):
         # Must not serialize the parent's stream!
-        return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
+        return Buffer._reduce_helper, (self.memory_resource, self.get_ipc_descriptor())
 
     @staticmethod
     def from_handle(
