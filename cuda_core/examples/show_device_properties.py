@@ -214,7 +214,7 @@ def print_device_properties(properties):
 
 
 # Print info about all CUDA devices in the system
-def show_device_properties():
+def main():
     ndev = system.get_num_devices()
     print(f"Number of GPUs: {ndev}")
 
@@ -238,4 +238,4 @@ def show_device_properties():
 
 if __name__ == "__main__":
     assert len(sys.argv) == 1, "no command-line arguments expected"
-    show_device_properties()
+    main()
