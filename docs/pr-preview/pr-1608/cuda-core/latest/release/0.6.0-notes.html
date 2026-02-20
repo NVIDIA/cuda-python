@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=68252340"></script>
+    <script src="../_static/documentation_options.js?v=ef1b6303"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev129';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -643,28 +643,69 @@
                   
   <section id="cuda-core-0-6-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.6.0 Release Notes<a class="headerlink" href="#cuda-core-0-6-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> module for NVML-based system and device queries.</p></li>
+<li><p>Several <a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> improvements, including bfloat16 dlpack support
+and numpy array interoperability.</p></li>
+<li><p>Improved support for Python object protocols across core API classes.</p></li>
+<li><p>Performance improvements through Cythonization and reduced Python overhead.</p></li>
+</ul>
+</section>
+<section id="breaking-changes">
+<h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Building <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> from source now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.0, due to Cython-level
+dependencies on the NVVM bindings (<code class="docutils literal notranslate"><span class="pre">cynvvm</span></code>). Pre-built wheels are unaffected. The previous
+minimum was 12.8.0.</p></li>
+</ul>
+</section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> module for NVML-based system and device queries, including
+device attributes, clocks, temperatures, fans, events, and PCI information.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> improvements:</p>
 <ul>
-<li><p>Added public access to default CUDA streams via module-level constants <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> and <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></p>
-<p>Users can now access default streams directly from the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">LEGACY_DEFAULT_STREAM</span><span class="p">,</span> <span class="n">PER_THREAD_DEFAULT_STREAM</span>
-
-<span class="c1"># Use legacy default stream (synchronizes with all blocking streams)</span>
-<span class="n">LEGACY_DEFAULT_STREAM</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-
-<span class="c1"># Use per-thread default stream (non-blocking, thread-local)</span>
-<span class="n">PER_THREAD_DEFAULT_STREAM</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>The legacy default stream synchronizes with all blocking streams in the same CUDA context, ensuring strict ordering but potentially limiting concurrency. The per-thread default stream is local to the calling thread and does not synchronize with other streams, enabling concurrent execution in multi-threaded applications.</p>
-<p>This replaces the previous undocumented workaround of using <code class="docutils literal notranslate"><span class="pre">Stream.from_handle(0)</span></code> to access the legacy default stream.</p>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">from_array_interface</span></code> constructor for creating views from numpy arrays.</p></li>
+<li><p>Improved structured dtype array support.</p></li>
+<li><p>Added bfloat16 dlpack support when the optional <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> package is installed.</p></li>
+</ul>
 </li>
+<li><p>Added public access to default CUDA streams via module-level constants
+<code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> and <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code>, replacing the previous
+workaround of using <code class="docutils literal notranslate"><span class="pre">Stream.from_handle(0)</span></code>.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel.from_handle" title="cuda.core.Kernel.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Kernel.from_handle()</span></code></a> for wrapping an existing <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> handle into a
+<a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a> object, enabling interoperability with foreign CUDA handles.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">__eq__</span></code>, <code class="docutils literal notranslate"><span class="pre">__hash__</span></code>, <code class="docutils literal notranslate"><span class="pre">__weakref__</span></code>, and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> support for core API classes
+including <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a>, <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, <a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a>, <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>.</p></li>
+<li><p>Added NVVM <code class="docutils literal notranslate"><span class="pre">extra_sources</span></code> and <code class="docutils literal notranslate"><span class="pre">use_libdevice</span></code> options to <a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> for
+multi-module NVVM compilation and automatic libdevice loading.</p></li>
+<li><p>Added CUDA version compatibility check at import time to detect mismatches between
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version.</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<ul class="simple">
+<li><p>Eliminated spurious CUDA driver errors during interpreter shutdown by ensuring
+resources are destroyed in the correct order.</p></li>
+<li><p>Fixed a bug preventing weak references to core API objects.</p></li>
+<li><p>Fixed zero-sized allocations in legacy memory resources, which previously failed on
+certain platforms.</p></li>
+<li><p>Improved performance by Cythonizing <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> internals.</p></li>
+<li><p>Reduced <a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> construction overhead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__hash__</span></code> and <code class="docutils literal notranslate"><span class="pre">__eq__</span></code> on core API classes no longer require a CUDA context.</p></li>
+<li><p>Device attribute queries now gracefully handle unsupported attributes on older CUDA
+drivers, returning sensible defaults instead of raising errors.</p></li>
+<li><p>Added a warning when <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> is created on platforms without
+concurrent managed access support.</p></li>
+<li><p>Reduced wheel and installed package sizes by excluding Cython source files and build
+artifacts from distribution packages.</p></li>
+<li><p>Slightly improved typing support.</p></li>
+</ul>
 </section>
 </section>
 
@@ -708,6 +749,8 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
