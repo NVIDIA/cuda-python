@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version fd3f910. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version c185cc3. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -21878,7 +21878,7 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOp
         cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
         if cycapabilities is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-    cdef vector[cyruntime.cudaAtomicOperation] cyoperations = [int(pyoperations) for pyoperations in (operations)]
+    cdef vector[cyruntime.cudaAtomicOperation] cyoperations = operations
     if count > len(operations): raise RuntimeError("List is too small: " + str(len(operations)) + " < " + str(count))
     with nogil:
         err = cyruntime.cudaDeviceGetHostAtomicCapabilities(cycapabilities, cyoperations.data(), count, device)
@@ -22212,7 +22212,7 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOpe
         cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
         if cycapabilities is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-    cdef vector[cyruntime.cudaAtomicOperation] cyoperations = [int(pyoperations) for pyoperations in (operations)]
+    cdef vector[cyruntime.cudaAtomicOperation] cyoperations = operations
     if count > len(operations): raise RuntimeError("List is too small: " + str(len(operations)) + " < " + str(count))
     with nogil:
         err = cyruntime.cudaDeviceGetP2PAtomicCapabilities(cycapabilities, cyoperations.data(), count, srcDevice, dstDevice)
@@ -29693,7 +29693,7 @@ def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : O
     cdef _InputVoidPtrPtrHelper voidStarHelperdata = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyvoidStarHelper_ptr = <void**><void_ptr>voidStarHelperdata.cptr
     cdef vector[size_t] cydataSizes = dataSizes
-    cdef vector[cyruntime.cudaMemRangeAttribute] cyattributes = [int(pyattributes) for pyattributes in (attributes)]
+    cdef vector[cyruntime.cudaMemRangeAttribute] cyattributes = attributes
     if numAttributes > <size_t>len(dataSizes): raise RuntimeError("List is too small: " + str(len(dataSizes)) + " < " + str(numAttributes))
     if numAttributes > <size_t>len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
     cdef _HelperInputVoidPtrStruct cydevPtrHelper
@@ -38074,13 +38074,13 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     cdef cudaLibrary_t library = cudaLibrary_t()
     cdef _HelperInputVoidPtrStruct cycodeHelper
     cdef void* cycode = _helper_input_void_ptr(code, &cycodeHelper)
-    cdef vector[cyruntime.cudaJitOption] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
+    cdef vector[cyruntime.cudaJitOption] cyjitOptions = jitOptions
     pylist = [_HelperCudaJitOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    cdef vector[cyruntime.cudaLibraryOption] cylibraryOptions = [int(pylibraryOptions) for pylibraryOptions in (libraryOptions)]
+    cdef vector[cyruntime.cudaLibraryOption] cylibraryOptions = libraryOptions
     pylist = [_HelperCudaLibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -38173,13 +38173,13 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitO
     if not all(isinstance(_x, (cudaJitOption)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cyruntime.cudaJitOption] or list[cyruntime.cudaJitOption]")
     cdef cudaLibrary_t library = cudaLibrary_t()
-    cdef vector[cyruntime.cudaJitOption] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
+    cdef vector[cyruntime.cudaJitOption] cyjitOptions = jitOptions
     pylist = [_HelperCudaJitOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    cdef vector[cyruntime.cudaLibraryOption] cylibraryOptions = [int(pylibraryOptions) for pylibraryOptions in (libraryOptions)]
+    cdef vector[cyruntime.cudaLibraryOption] cylibraryOptions = libraryOptions
     pylist = [_HelperCudaLibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
