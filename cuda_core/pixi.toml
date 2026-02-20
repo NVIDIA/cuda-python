@@ -105,6 +105,7 @@ setuptools = ">=80"
 setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
+cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
 cuda-nvrtc-dev = "*"
 # Using path dependency now that we've added .pth support for Cython .pxd files
