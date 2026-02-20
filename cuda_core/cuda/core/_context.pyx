@@ -39,6 +39,10 @@ cdef class Context:
             return None
         return as_py(self._h_context)
 
+    @property
+    def _handle(self):
+        return self.handle
+
     def __eq__(self, other):
         if not isinstance(other, Context):
             return NotImplemented

@@ -18,7 +18,11 @@ try:
 except ImportError:
     torch = None
 import cuda.core
-import ml_dtypes
+
+try:
+    import ml_dtypes
+except ImportError:
+    ml_dtypes = None
 import numpy as np
 import pytest
 from cuda.core import Device
@@ -545,6 +549,7 @@ def test_from_array_interface_unsupported_strides(init_cuda):
         param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
     ],
 )
+@pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
 @pytest.mark.skipif(cp is None, reason="CuPy is not installed")
 @pytest.mark.skipif(cp is not None and _get_cupy_version_major() < 14, reason="CuPy version is less than 14.0.0")
 def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
@@ -575,6 +580,7 @@ def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
         param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
     ],
 )
+@pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
 @pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
 def test_ml_dtypes_bfloat16_torch_dlpack(init_cuda, slices):
     a = torch.tensor([1, 2, 3, 4, 5, 6], dtype=torch.bfloat16, device="cuda").reshape(2, 3)[slices]

@@ -295,9 +295,9 @@ cdef class IPCEventDescriptor:
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
-    @classmethod
-    def _init(cls, reserved: bytes, busy_waited: cython.bint):
-        cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(cls)
+    @staticmethod
+    def _init(reserved: bytes, busy_waited: cython.bint):
+        cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(IPCEventDescriptor)
         self._reserved = reserved
         self._busy_waited = busy_waited
         return self
@@ -307,7 +307,7 @@ cdef class IPCEventDescriptor:
         return self._reserved == rhs._reserved
 
     def __reduce__(self):
-        return self._init, (self._reserved, self._busy_waited)
+        return IPCEventDescriptor._init, (self._reserved, self._busy_waited)
 
 
 def _reduce_event(event):

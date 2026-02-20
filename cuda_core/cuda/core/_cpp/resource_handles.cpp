@@ -750,7 +750,8 @@ LibraryHandle create_library_handle_from_file(const char* path) {
         new LibraryBox{library},
         [](const LibraryBox* b) {
             GILReleaseGuard gil;
-            p_cuLibraryUnload(b->resource);
+            // TODO: re-enable once LibraryBox tracks its owning context
+            // p_cuLibraryUnload(b->resource);
             delete b;
         }
     );
@@ -768,7 +769,8 @@ LibraryHandle create_library_handle_from_data(const void* data) {
         new LibraryBox{library},
         [](const LibraryBox* b) {
             GILReleaseGuard gil;
-            p_cuLibraryUnload(b->resource);
+            // TODO: re-enable once LibraryBox tracks its owning context
+            // p_cuLibraryUnload(b->resource);
             delete b;
         }
     );
