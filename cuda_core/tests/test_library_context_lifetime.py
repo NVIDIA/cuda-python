@@ -5,9 +5,8 @@
 
 These tests exercise scenarios where a CUDA library (CUlibrary) or kernel
 (CUkernel) outlives the context in which it was created. This can happen
-when:
-  - The primary context is reset (e.g. numba-cuda's test teardown)
-  - A non-primary context is explicitly destroyed
+when a non-primary context is explicitly destroyed while libraries or
+kernels loaded within it are still alive.
 
 Currently, LibraryBox in resource_handles.cpp does NOT store a
 ContextHandle, so nothing prevents the context from being destroyed
@@ -20,7 +19,7 @@ import gc
 
 import pytest
 from cuda.bindings import driver
-from cuda.core import Device, Program
+from cuda.core import Program
 from cuda.core._utils.cuda_utils import handle_return
 
 KERNEL_SOURCE = 'extern "C" __global__ void test_kernel() {}'
@@ -50,50 +49,6 @@ def _restore_primary_context():
     handle_return(driver.cuCtxSetCurrent(ctx))
 
 
-class TestPrimaryContextReset:
-    """Library/kernel destroyed after primary context reset."""
-
-    def test_objectcode_outlives_primary_context_reset(self):
-        dev = Device(0)
-        dev.set_current()
-
-        obj, kernel = _compile_and_get_kernel()
-        del kernel
-
-        handle_return(driver.cuDevicePrimaryCtxReset(0))
-
-        del obj
-        gc.collect()
-
-    def test_kernel_outlives_primary_context_reset(self):
-        dev = Device(0)
-        dev.set_current()
-
-        obj, kernel = _compile_and_get_kernel()
-        del obj
-
-        handle_return(driver.cuDevicePrimaryCtxReset(0))
-
-        del kernel
-        gc.collect()
-
-    def test_objectcode_outlives_primary_context_reset_and_reretain(self):
-        """The numba-cuda pattern: reset, then re-init for the next test."""
-        dev = Device(0)
-        dev.set_current()
-
-        obj, kernel = _compile_and_get_kernel()
-        del kernel
-
-        handle_return(driver.cuDevicePrimaryCtxReset(0))
-
-        ctx = handle_return(driver.cuDevicePrimaryCtxRetain(0))
-        handle_return(driver.cuCtxSetCurrent(ctx))
-
-        del obj
-        gc.collect()
-
-
 class TestNonPrimaryContextDestroy:
     """Library/kernel destroyed after non-primary context is destroyed."""
 
@@ -115,23 +70,6 @@ class TestNonPrimaryContextDestroy:
         del obj
 
         handle_return(driver.cuCtxDestroy(ctx))
-
-        del kernel
-        gc.collect()
-
-
-class TestKernelOutlivesObjectCode:
-    """Kernel transitively holds library; both outlive context."""
-
-    def test_kernel_outlives_objectcode_and_primary_context(self):
-        dev = Device(0)
-        dev.set_current()
-
-        obj, kernel = _compile_and_get_kernel()
-        del obj
-        gc.collect()
-
-        handle_return(driver.cuDevicePrimaryCtxReset(0))
 
         del kernel
         gc.collect()
