@@ -24,13 +24,19 @@ class CompletedProcess:
 
 
 class ChildProcessWrapper:
-    def __init__(self, result_queue, target, args, kwargs):
+    def __init__(
+        self,
+        result_queue: Any,
+        target: Callable[..., None],
+        args: Sequence[Any] | None,
+        kwargs: dict[str, Any] | None,
+    ) -> None:
         self.target = target
         self.args = () if args is None else args
         self.kwargs = {} if kwargs is None else kwargs
         self.result_queue = result_queue
 
-    def __call__(self):
+    def __call__(self) -> None:
         # Capture stdout/stderr
         old_stdout = sys.stdout
         old_stderr = sys.stderr
