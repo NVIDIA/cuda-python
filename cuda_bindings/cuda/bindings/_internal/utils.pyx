@@ -120,7 +120,14 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
         nested_ptr.reset(nested_vec, True)
         for i, obj_i in enumerate(obj):
             if ResT is char:
-                obj_i_bytes = (<str?>(obj_i)).encode()
+                obj_i_type = type(obj_i)
+                if obj_i_type is str:
+                    obj_i_bytes = obj_i.encode("utf-8")
+                elif obj_i_type is bytes:
+                    obj_i_bytes = obj_i
+                else:
+                    raise TypeError(
+                        f"Expected str or bytes, got {obj_i_type.__name__}")
                 str_len = <size_t>(len(obj_i_bytes)) + 1  # including null termination
                 deref(nested_res_vec)[i].resize(str_len)
                 obj_i_ptr = <char*>(obj_i_bytes)

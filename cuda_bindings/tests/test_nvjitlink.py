@@ -100,6 +100,13 @@ def test_create_and_destroy(option):
 
 
 @pytest.mark.parametrize("option", ARCHITECTURES)
+def test_create_and_destroy_bytes_options(option):
+    handle = nvjitlink.create(1, [f"-arch={option}".encode()])
+    assert handle != 0
+    nvjitlink.destroy(handle)
+
+
+@pytest.mark.parametrize("option", ARCHITECTURES)
 def test_complete_empty(option):
     handle = nvjitlink.create(1, [f"-arch={option}"])
     nvjitlink.complete(handle)
