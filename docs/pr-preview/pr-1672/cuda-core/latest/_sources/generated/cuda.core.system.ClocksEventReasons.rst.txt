@@ -1,0 +1,50 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.ClocksEventReasons
+===================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: ClocksEventReasons
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: EVENT_REASON_APPLICATIONS_CLOCKS_SETTING
+   .. autoattribute:: EVENT_REASON_DISPLAY_CLOCK_SETTING
+   .. autoattribute:: EVENT_REASON_GPU_IDLE
+   .. autoattribute:: EVENT_REASON_NONE
+   .. autoattribute:: EVENT_REASON_SW_POWER_CAP
+   .. autoattribute:: EVENT_REASON_SW_THERMAL_SLOWDOWN
+   .. autoattribute:: EVENT_REASON_SYNC_BOOST
+   .. autoattribute:: THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN
+   .. autoattribute:: THROTTLE_REASON_HW_SLOWDOWN
+   .. autoattribute:: THROTTLE_REASON_HW_THERMAL_SLOWDOWN
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
