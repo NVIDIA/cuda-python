@@ -10,8 +10,50 @@ cuda.core.system.ThermalController
 
    
    
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
    
 
    
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: ADM1032
+   .. autoattribute:: ADT7461
+   .. autoattribute:: ADT7473
+   .. autoattribute:: ADT7473S
+   .. autoattribute:: G781
+   .. autoattribute:: GPU_INTERNAL
+   .. autoattribute:: LM64
+   .. autoattribute:: LM89
+   .. autoattribute:: LM99
+   .. autoattribute:: MAX1617
+   .. autoattribute:: MAX6649
+   .. autoattribute:: MAX6649R
+   .. autoattribute:: NONE
+   .. autoattribute:: NVSYSCON_CANOAS
+   .. autoattribute:: NVSYSCON_E551
+   .. autoattribute:: OS
+   .. autoattribute:: SBMAX6649
+   .. autoattribute:: UNKNOWN
+   .. autoattribute:: VBIOSEVT
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
    
    
