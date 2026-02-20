@@ -3,21 +3,22 @@
 
 # If we have subcategories of examples in the future, this file can be split along those lines
 
-import glob
-import os
+from pathlib import Path
 
 import pytest
-from cuda.core import Device
 
 from .utils import run_example
 
-samples_path = os.path.join(os.path.dirname(__file__), "..", "..", "examples")
-sample_files = glob.glob(samples_path + "**/*.py", recursive=True)
+# not dividing, but navigating into the "examples" directory.
+EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "examples"
+
+# recursively glob for test files in examples directory, sort for deterministic
+# test runs. Relative paths offer cleaner output when tests fail.
+SAMPLE_FILES = sorted([str(p.relative_to(EXAMPLES_DIR)) for p in EXAMPLES_DIR.glob("**/*.py")])
 
 
-@pytest.mark.parametrize("example", sample_files)
+@pytest.mark.parametrize("example_rel_path", SAMPLE_FILES)
 class TestExamples:
-    def test_example(self, example, deinit_cuda):
-        run_example(samples_path, example)
-        if Device().device_id != 0:
-            Device(0).set_current()
+    # deinit_cuda is defined in conftest.py and pops the cuda context automatically.
+    def test_example(self, example_rel_path: str, deinit_cuda) -> None:
+        run_example(str(EXAMPLES_DIR), example_rel_path)
