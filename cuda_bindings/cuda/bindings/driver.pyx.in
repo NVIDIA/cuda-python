@@ -26102,7 +26102,9 @@ def cuDeviceGetHostAtomicCapabilities(operations : Optional[tuple[CUatomicOperat
     :py:obj:`~.cuDeviceGetAttribute`, :py:obj:`~.cuDeviceGetP2PAtomicCapabilities`, :py:obj:`~.cudaDeviceGeHostAtomicCapabilities`
     """
     cdef cydriver.CUdevice cydev
+
     cdef vector[cydriver.CUatomicOperation] cyoperations
+    operations = [] if operations is None else operations
     cdef unsigned int* cycapabilities = NULL
     pycapabilities = []
     try:
@@ -26110,7 +26112,6 @@ def cuDeviceGetHostAtomicCapabilities(operations : Optional[tuple[CUatomicOperat
             cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
             if cycapabilities is NULL:
                 raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-        operations = [] if operations is None else operations
         if not all(isinstance(_x, (CUatomicOperation)) for _x in operations):
             raise TypeError("Argument 'operations' is not instance of type (expected tuple[cydriver.CUatomicOperation] or list[cydriver.CUatomicOperation]")
         cyoperations = operations
@@ -28405,7 +28406,10 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues
     cdef void ** cyoptionValues_ptr
+    optionValues = [] if optionValues is None else optionValues
+
     cdef vector[cydriver.CUjit_option] cyoptions
+    options = [] if options is None else options
     cdef _HelperInputVoidPtrStruct cyimageHelper
     cdef void* cyimage
     cdef CUmodule module
@@ -28414,11 +28418,9 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
         cyimage = _helper_input_void_ptr(image, &cyimageHelper)
         if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
         if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-        options = [] if options is None else options
         if not all(isinstance(_x, (CUjit_option)) for _x in options):
             raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
         cyoptions = options
-        optionValues = [] if optionValues is None else optionValues  
         pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)] 
         voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
         cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -28794,15 +28796,16 @@ def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option]
     cdef CUlinkState stateOut
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues
     cdef void ** cyoptionValues_ptr
+    optionValues = [] if optionValues is None else optionValues
+
     cdef vector[cydriver.CUjit_option] cyoptions
+    options = [] if options is None else options
     try:
         if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
         if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-        options = [] if options is None else options
         if not all(isinstance(_x, (CUjit_option)) for _x in options):
             raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
         cyoptions = options
-        optionValues = [] if optionValues is None else optionValues  
         pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)] 
         voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
         cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -28868,7 +28871,10 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues
     cdef void ** cyoptionValues_ptr
+    optionValues = [] if optionValues is None else optionValues
+
     cdef vector[cydriver.CUjit_option] cyoptions
+    options = [] if options is None else options
     cdef _HelperInputVoidPtrStruct cydataHelper
     cdef void* cydata
     cdef cydriver.CUjitInputType cytypename
@@ -28885,11 +28891,9 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
         cydata = _helper_input_void_ptr(data, &cydataHelper)
         if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
         if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-        options = [] if options is None else options
         if not all(isinstance(_x, (CUjit_option)) for _x in options):
             raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
         cyoptions = options
-        optionValues = [] if optionValues is None else optionValues  
         pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)] 
         voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
         cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -28948,7 +28952,10 @@ def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigne
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues
     cdef void ** cyoptionValues_ptr
+    optionValues = [] if optionValues is None else optionValues
+
     cdef vector[cydriver.CUjit_option] cyoptions
+    options = [] if options is None else options
     cdef cydriver.CUjitInputType cytypename
     cdef cydriver.CUlinkState cystate
     if state is None:
@@ -28961,11 +28968,9 @@ def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigne
     cytypename = int(typename)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     cyoptions = options
-    optionValues = [] if optionValues is None else optionValues  
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)] 
     voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -29223,31 +29228,33 @@ def cuLibraryLoadData(code, jitOptions : Optional[tuple[CUjit_option] | list[CUj
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues
     cdef void** cylibraryOptionValues_ptr
+    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
+
     cdef vector[cydriver.CUlibraryOption] cylibraryOptions
+    libraryOptions = [] if libraryOptions is None else libraryOptions
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues
     cdef void** cyjitOptionsValues_ptr
+    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
+
     cdef vector[cydriver.CUjit_option] cyjitOptions
+    jitOptions = [] if jitOptions is None else jitOptions
     cdef _HelperInputVoidPtrStruct cycodeHelper
     cdef void* cycode
     cdef CUlibrary library
     try:
         library = CUlibrary()
         cycode = _helper_input_void_ptr(code, &cycodeHelper)
-        jitOptions = [] if jitOptions is None else jitOptions
         if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
             raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
         cyjitOptions = jitOptions
-        jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
         pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
         voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
         cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
         if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
         if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-        libraryOptions = [] if libraryOptions is None else libraryOptions
         if not all(isinstance(_x, (CUlibraryOption)) for _x in libraryOptions):
             raise TypeError("Argument 'libraryOptions' is not instance of type (expected tuple[cydriver.CUlibraryOption] or list[cydriver.CUlibraryOption]")
         cylibraryOptions = libraryOptions
-        libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
         pylist = [_HelperCUlibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
         voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
         cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -29333,27 +29340,29 @@ def cuLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[CUjit_opti
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues
     cdef void** cylibraryOptionValues_ptr
+    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
+
     cdef vector[cydriver.CUlibraryOption] cylibraryOptions
+    libraryOptions = [] if libraryOptions is None else libraryOptions
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues
     cdef void** cyjitOptionsValues_ptr
+    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
+
     cdef vector[cydriver.CUjit_option] cyjitOptions
+    jitOptions = [] if jitOptions is None else jitOptions
     cdef CUlibrary library
     library = CUlibrary()
-    jitOptions = [] if jitOptions is None else jitOptions
     if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     cyjitOptions = jitOptions
-    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    libraryOptions = [] if libraryOptions is None else libraryOptions
     if not all(isinstance(_x, (CUlibraryOption)) for _x in libraryOptions):
         raise TypeError("Argument 'libraryOptions' is not instance of type (expected tuple[cydriver.CUlibraryOption] or list[cydriver.CUlibraryOption]")
     cylibraryOptions = libraryOptions
-    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     pylist = [_HelperCUlibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -33414,11 +33423,13 @@ def cuMemcpyBatchAsync(dsts : Optional[tuple[CUdeviceptr] | list[CUdeviceptr]], 
     cdef cydriver.CUstream cyhStream
     cdef vector[size_t] cyattrsIdxs
     cdef cydriver.CUmemcpyAttributes* cyattrs = NULL
+    attrs = [] if attrs is None else attrs
     cdef vector[size_t] cysizes
     cdef cydriver.CUdeviceptr* cysrcs = NULL
+    srcs = [] if srcs is None else srcs
     cdef cydriver.CUdeviceptr* cydsts = NULL
+    dsts = [] if dsts is None else dsts
     try:
-        dsts = [] if dsts is None else dsts
         if not all(isinstance(_x, (CUdeviceptr,)) for _x in dsts):
             raise TypeError("Argument 'dsts' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
         if len(dsts) > 1:
@@ -33430,7 +33441,6 @@ def cuMemcpyBatchAsync(dsts : Optional[tuple[CUdeviceptr] | list[CUdeviceptr]], 
                     cydsts[idx] = <cydriver.CUdeviceptr>(<CUdeviceptr>dsts[idx])._pvt_ptr[0]
         elif len(dsts) == 1:
             cydsts = <cydriver.CUdeviceptr*>(<CUdeviceptr>dsts[0])._pvt_ptr
-        srcs = [] if srcs is None else srcs
         if not all(isinstance(_x, (CUdeviceptr,)) for _x in srcs):
             raise TypeError("Argument 'srcs' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
         if len(srcs) > 1:
@@ -33448,7 +33458,6 @@ def cuMemcpyBatchAsync(dsts : Optional[tuple[CUdeviceptr] | list[CUdeviceptr]], 
         if count > <size_t>len(dsts): raise RuntimeError("List is too small: " + str(len(dsts)) + " < " + str(count))
         if count > <size_t>len(srcs): raise RuntimeError("List is too small: " + str(len(srcs)) + " < " + str(count))
         if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
-        attrs = [] if attrs is None else attrs
         if not all(isinstance(_x, (CUmemcpyAttributes,)) for _x in attrs):
             raise TypeError("Argument 'attrs' is not instance of type (expected tuple[cydriver.CUmemcpyAttributes,] or list[cydriver.CUmemcpyAttributes,]")
         if len(attrs) > 1:
@@ -33588,9 +33597,9 @@ def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_MEMCPY3D_BA
     """
     cdef cydriver.CUstream cyhStream
     cdef cydriver.CUDA_MEMCPY3D_BATCH_OP* cyopList = NULL
+    opList = [] if opList is None else opList
     try:
         if numOps > <size_t>len(opList): raise RuntimeError("List is too small: " + str(len(opList)) + " < " + str(numOps))
-        opList = [] if opList is None else opList
         if not all(isinstance(_x, (CUDA_MEMCPY3D_BATCH_OP,)) for _x in opList):
             raise TypeError("Argument 'opList' is not instance of type (expected tuple[cydriver.CUDA_MEMCPY3D_BATCH_OP,] or list[cydriver.CUDA_MEMCPY3D_BATCH_OP,]")
         if len(opList) > 1:
@@ -35668,8 +35677,8 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     """
     cdef cydriver.CUstream cyhStream
     cdef cydriver.CUarrayMapInfo* cymapInfoList = NULL
+    mapInfoList = [] if mapInfoList is None else mapInfoList
     try:
-        mapInfoList = [] if mapInfoList is None else mapInfoList
         if not all(isinstance(_x, (CUarrayMapInfo,)) for _x in mapInfoList):
             raise TypeError("Argument 'mapInfoList' is not instance of type (expected tuple[cydriver.CUarrayMapInfo,] or list[cydriver.CUarrayMapInfo,]")
         if len(mapInfoList) > 1:
@@ -35790,6 +35799,7 @@ def cuMemSetAccess(ptr, size_t size, desc : Optional[tuple[CUmemAccessDesc] | li
     :py:obj:`~.cuMemSetAccess`, :py:obj:`~.cuMemCreate`, :py:obj:`~.py`:obj:`~.cuMemMap`
     """
     cdef cydriver.CUmemAccessDesc* cydesc = NULL
+    desc = [] if desc is None else desc
     cdef cydriver.CUdeviceptr cyptr
     try:
         if ptr is None:
@@ -35799,7 +35809,6 @@ def cuMemSetAccess(ptr, size_t size, desc : Optional[tuple[CUmemAccessDesc] | li
         else:
             pptr = int(CUdeviceptr(ptr))
         cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
-        desc = [] if desc is None else desc
         if not all(isinstance(_x, (CUmemAccessDesc,)) for _x in desc):
             raise TypeError("Argument 'desc' is not instance of type (expected tuple[cydriver.CUmemAccessDesc,] or list[cydriver.CUmemAccessDesc,]")
         if len(desc) > 1:
@@ -36451,6 +36460,7 @@ def cuMemPoolSetAccess(pool, map : Optional[tuple[CUmemAccessDesc] | list[CUmemA
     :py:obj:`~.cuMemAllocAsync`, :py:obj:`~.cuMemFreeAsync`, :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuDeviceGetMemPool`, :py:obj:`~.cuMemPoolCreate`
     """
     cdef cydriver.CUmemAccessDesc* cymap = NULL
+    map = [] if map is None else map
     cdef cydriver.CUmemoryPool cypool
     try:
         if pool is None:
@@ -36460,7 +36470,6 @@ def cuMemPoolSetAccess(pool, map : Optional[tuple[CUmemAccessDesc] | list[CUmemA
         else:
             ppool = int(CUmemoryPool(pool))
         cypool = <cydriver.CUmemoryPool><void_ptr>ppool
-        map = [] if map is None else map
         if not all(isinstance(_x, (CUmemAccessDesc,)) for _x in map):
             raise TypeError("Argument 'map' is not instance of type (expected tuple[cydriver.CUmemAccessDesc,] or list[cydriver.CUmemAccessDesc,]")
         if len(map) > 1:
@@ -38316,10 +38325,11 @@ def cuMemPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list[CUdevicep
     cdef cydriver.CUstream cyhStream
     cdef vector[size_t] cyprefetchLocIdxs
     cdef cydriver.CUmemLocation* cyprefetchLocs = NULL
+    prefetchLocs = [] if prefetchLocs is None else prefetchLocs
     cdef vector[size_t] cysizes
     cdef cydriver.CUdeviceptr* cydptrs = NULL
+    dptrs = [] if dptrs is None else dptrs
     try:
-        dptrs = [] if dptrs is None else dptrs
         if not all(isinstance(_x, (CUdeviceptr,)) for _x in dptrs):
             raise TypeError("Argument 'dptrs' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
         if len(dptrs) > 1:
@@ -38336,7 +38346,6 @@ def cuMemPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list[CUdevicep
         cysizes = sizes
         if count > <size_t>len(dptrs): raise RuntimeError("List is too small: " + str(len(dptrs)) + " < " + str(count))
         if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
-        prefetchLocs = [] if prefetchLocs is None else prefetchLocs
         if not all(isinstance(_x, (CUmemLocation,)) for _x in prefetchLocs):
             raise TypeError("Argument 'prefetchLocs' is not instance of type (expected tuple[cydriver.CUmemLocation,] or list[cydriver.CUmemLocation,]")
         if len(prefetchLocs) > 1:
@@ -38424,8 +38433,8 @@ def cuMemDiscardBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list[CUdevicept
     cdef cydriver.CUstream cyhStream
     cdef vector[size_t] cysizes
     cdef cydriver.CUdeviceptr* cydptrs = NULL
+    dptrs = [] if dptrs is None else dptrs
     try:
-        dptrs = [] if dptrs is None else dptrs
         if not all(isinstance(_x, (CUdeviceptr,)) for _x in dptrs):
             raise TypeError("Argument 'dptrs' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
         if len(dptrs) > 1:
@@ -38536,10 +38545,11 @@ def cuMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list
     cdef cydriver.CUstream cyhStream
     cdef vector[size_t] cyprefetchLocIdxs
     cdef cydriver.CUmemLocation* cyprefetchLocs = NULL
+    prefetchLocs = [] if prefetchLocs is None else prefetchLocs
     cdef vector[size_t] cysizes
     cdef cydriver.CUdeviceptr* cydptrs = NULL
+    dptrs = [] if dptrs is None else dptrs
     try:
-        dptrs = [] if dptrs is None else dptrs
         if not all(isinstance(_x, (CUdeviceptr,)) for _x in dptrs):
             raise TypeError("Argument 'dptrs' is not instance of type (expected tuple[cydriver.CUdeviceptr,] or list[cydriver.CUdeviceptr,]")
         if len(dptrs) > 1:
@@ -38556,7 +38566,6 @@ def cuMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[CUdeviceptr] | list
         cysizes = sizes
         if count > <size_t>len(dptrs): raise RuntimeError("List is too small: " + str(len(dptrs)) + " < " + str(count))
         if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
-        prefetchLocs = [] if prefetchLocs is None else prefetchLocs
         if not all(isinstance(_x, (CUmemLocation,)) for _x in prefetchLocs):
             raise TypeError("Argument 'prefetchLocs' is not instance of type (expected tuple[cydriver.CUmemLocation,] or list[cydriver.CUmemLocation,]")
         if len(prefetchLocs) > 1:
@@ -38811,7 +38820,9 @@ def cuMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : Opt
     :py:obj:`~.cuMemRangeGetAttribute`, :py:obj:`~.cuMemAdvise`, :py:obj:`~.cuMemPrefetchAsync`, :py:obj:`~.cudaMemRangeGetAttributes`
     """
     cdef cydriver.CUdeviceptr cydevPtr
+
     cdef vector[cydriver.CUmem_range_attribute] cyattributes
+    attributes = [] if attributes is None else attributes
     cdef vector[size_t] cydataSizes
     cdef _InputVoidPtrPtrHelper voidStarHelperdata
     cdef void** cyvoidStarHelper_ptr
@@ -38821,7 +38832,6 @@ def cuMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : Opt
     if not all(isinstance(_x, (int)) for _x in dataSizes):
         raise TypeError("Argument 'dataSizes' is not instance of type (expected tuple[int] or list[int]")
     cydataSizes = dataSizes
-    attributes = [] if attributes is None else attributes
     if not all(isinstance(_x, (CUmem_range_attribute)) for _x in attributes):
         raise TypeError("Argument 'attributes' is not instance of type (expected tuple[cydriver.CUmem_range_attribute] or list[cydriver.CUmem_range_attribute]")
     cyattributes = attributes
@@ -38974,9 +38984,10 @@ def cuPointerGetAttributes(unsigned int numAttributes, attributes : Optional[tup
     cdef cydriver.CUdeviceptr cyptr
     cdef _InputVoidPtrPtrHelper voidStarHelperdata
     cdef void** cyvoidStarHelper_ptr
+
     cdef vector[cydriver.CUpointer_attribute] cyattributes
-    if numAttributes > len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
     attributes = [] if attributes is None else attributes
+    if numAttributes > len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
     if not all(isinstance(_x, (CUpointer_attribute)) for _x in attributes):
         raise TypeError("Argument 'attributes' is not instance of type (expected tuple[cydriver.CUpointer_attribute] or list[cydriver.CUpointer_attribute]")
     cyattributes = attributes
@@ -39725,7 +39736,9 @@ def cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies : Optional[tuple[C
     """
     cdef cydriver.CUstreamCaptureMode cymode
     cdef cydriver.CUgraphEdgeData* cydependencyData = NULL
+    dependencyData = [] if dependencyData is None else dependencyData
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef cydriver.CUstream cyhStream
     try:
@@ -39743,7 +39756,6 @@ def cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies : Optional[tuple[C
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -39755,7 +39767,6 @@ def cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies : Optional[tuple[C
                     cydependencies[idx] = <cydriver.CUgraphNode>(<CUgraphNode>dependencies[idx])._pvt_ptr[0]
         elif len(dependencies) == 1:
             cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
-        dependencyData = [] if dependencyData is None else dependencyData
         if not all(isinstance(_x, (CUgraphEdgeData,)) for _x in dependencyData):
             raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cydriver.CUgraphEdgeData,] or list[cydriver.CUgraphEdgeData,]")
         if len(dependencyData) > 1:
@@ -40115,7 +40126,9 @@ def cuStreamUpdateCaptureDependencies(hStream, dependencies : Optional[tuple[CUg
     :py:obj:`~.cuStreamBeginCapture`, :py:obj:`~.cuStreamGetCaptureInfo`
     """
     cdef cydriver.CUgraphEdgeData* cydependencyData = NULL
+    dependencyData = [] if dependencyData is None else dependencyData
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUstream cyhStream
     try:
         if hStream is None:
@@ -40125,7 +40138,6 @@ def cuStreamUpdateCaptureDependencies(hStream, dependencies : Optional[tuple[CUg
         else:
             phStream = int(CUstream(hStream))
         cyhStream = <cydriver.CUstream><void_ptr>phStream
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -40137,7 +40149,6 @@ def cuStreamUpdateCaptureDependencies(hStream, dependencies : Optional[tuple[CUg
                     cydependencies[idx] = <cydriver.CUgraphNode>(<CUgraphNode>dependencies[idx])._pvt_ptr[0]
         elif len(dependencies) == 1:
             cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
-        dependencyData = [] if dependencyData is None else dependencyData
         if not all(isinstance(_x, (CUgraphEdgeData,)) for _x in dependencyData):
             raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cydriver.CUgraphEdgeData,] or list[cydriver.CUgraphEdgeData,]")
         if len(dependencyData) > 1:
@@ -41535,9 +41546,10 @@ def cuSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemap
     """
     cdef cydriver.CUstream cystream
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* cyparamsArray = NULL
+    paramsArray = [] if paramsArray is None else paramsArray
     cdef cydriver.CUexternalSemaphore* cyextSemArray = NULL
+    extSemArray = [] if extSemArray is None else extSemArray
     try:
-        extSemArray = [] if extSemArray is None else extSemArray
         if not all(isinstance(_x, (CUexternalSemaphore,)) for _x in extSemArray):
             raise TypeError("Argument 'extSemArray' is not instance of type (expected tuple[cydriver.CUexternalSemaphore,] or list[cydriver.CUexternalSemaphore,]")
         if len(extSemArray) > 1:
@@ -41549,7 +41561,6 @@ def cuSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemap
                     cyextSemArray[idx] = <cydriver.CUexternalSemaphore>(<CUexternalSemaphore>extSemArray[idx])._pvt_ptr[0]
         elif len(extSemArray) == 1:
             cyextSemArray = <cydriver.CUexternalSemaphore*>(<CUexternalSemaphore>extSemArray[0])._pvt_ptr
-        paramsArray = [] if paramsArray is None else paramsArray
         if not all(isinstance(_x, (CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS,)) for _x in paramsArray):
             raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS,] or list[cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS,]")
         if len(paramsArray) > 1:
@@ -41667,9 +41678,10 @@ def cuWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemapho
     """
     cdef cydriver.CUstream cystream
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* cyparamsArray = NULL
+    paramsArray = [] if paramsArray is None else paramsArray
     cdef cydriver.CUexternalSemaphore* cyextSemArray = NULL
+    extSemArray = [] if extSemArray is None else extSemArray
     try:
-        extSemArray = [] if extSemArray is None else extSemArray
         if not all(isinstance(_x, (CUexternalSemaphore,)) for _x in extSemArray):
             raise TypeError("Argument 'extSemArray' is not instance of type (expected tuple[cydriver.CUexternalSemaphore,] or list[cydriver.CUexternalSemaphore,]")
         if len(extSemArray) > 1:
@@ -41681,7 +41693,6 @@ def cuWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemapho
                     cyextSemArray[idx] = <cydriver.CUexternalSemaphore>(<CUexternalSemaphore>extSemArray[idx])._pvt_ptr[0]
         elif len(extSemArray) == 1:
             cyextSemArray = <cydriver.CUexternalSemaphore*>(<CUexternalSemaphore>extSemArray[0])._pvt_ptr
-        paramsArray = [] if paramsArray is None else paramsArray
         if not all(isinstance(_x, (CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS,)) for _x in paramsArray):
             raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS,] or list[cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS,]")
         if len(paramsArray) > 1:
@@ -42066,6 +42077,7 @@ def cuStreamBatchMemOp(stream, unsigned int count, paramArray : Optional[tuple[C
     Warning: Improper use of this API may deadlock the application. Synchronization ordering established through this API is not visible to CUDA. CUDA tasks that are (even indirectly) ordered by this API should also have that order expressed with CUDA-visible dependencies such as events. This ensures that the scheduler does not serialize them in an improper order.
     """
     cdef cydriver.CUstreamBatchMemOpParams* cyparamArray = NULL
+    paramArray = [] if paramArray is None else paramArray
     cdef cydriver.CUstream cystream
     try:
         if stream is None:
@@ -42076,7 +42088,6 @@ def cuStreamBatchMemOp(stream, unsigned int count, paramArray : Optional[tuple[C
             pstream = int(CUstream(stream))
         cystream = <cydriver.CUstream><void_ptr>pstream
         if count > len(paramArray): raise RuntimeError("List is too small: " + str(len(paramArray)) + " < " + str(count))
-        paramArray = [] if paramArray is None else paramArray
         if not all(isinstance(_x, (CUstreamBatchMemOpParams,)) for _x in paramArray):
             raise TypeError("Argument 'paramArray' is not instance of type (expected tuple[cydriver.CUstreamBatchMemOpParams,] or list[cydriver.CUstreamBatchMemOpParams,]")
         if len(paramArray) > 1:
@@ -43258,8 +43269,8 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : Optional[tuple[CUDA_
     :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuFuncSetCacheConfig`, :py:obj:`~.cuFuncGetAttribute`, :py:obj:`~.cuLaunchCooperativeKernel`, :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice`
     """
     cdef cydriver.CUDA_LAUNCH_PARAMS* cylaunchParamsList = NULL
+    launchParamsList = [] if launchParamsList is None else launchParamsList
     try:
-        launchParamsList = [] if launchParamsList is None else launchParamsList
         if not all(isinstance(_x, (CUDA_LAUNCH_PARAMS,)) for _x in launchParamsList):
             raise TypeError("Argument 'launchParamsList' is not instance of type (expected tuple[cydriver.CUDA_LAUNCH_PARAMS,] or list[cydriver.CUDA_LAUNCH_PARAMS,]")
         if len(launchParamsList) > 1:
@@ -44079,6 +44090,7 @@ def cuGraphAddKernelNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     """
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44090,7 +44102,6 @@ def cuGraphAddKernelNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -44256,6 +44267,7 @@ def cuGraphAddMemcpyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     cdef cydriver.CUcontext cyctx
     cdef cydriver.CUDA_MEMCPY3D* cycopyParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44267,7 +44279,6 @@ def cuGraphAddMemcpyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -44421,6 +44432,7 @@ def cuGraphAddMemsetNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     cdef cydriver.CUcontext cyctx
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cymemsetParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44432,7 +44444,6 @@ def cuGraphAddMemsetNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -44583,6 +44594,7 @@ def cuGraphAddHostNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list
     """
     cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44594,7 +44606,6 @@ def cuGraphAddHostNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -44741,6 +44752,7 @@ def cuGraphAddChildGraphNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
     """
     cdef cydriver.CUgraph cychildGraph
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44752,7 +44764,6 @@ def cuGraphAddChildGraphNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -44868,6 +44879,7 @@ def cuGraphAddEmptyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | lis
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
     """
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44879,7 +44891,6 @@ def cuGraphAddEmptyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | lis
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -44942,6 +44953,7 @@ def cuGraphAddEventRecordNode(hGraph, dependencies : Optional[tuple[CUgraphNode]
     """
     cdef cydriver.CUevent cyevent
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -44953,7 +44965,6 @@ def cuGraphAddEventRecordNode(hGraph, dependencies : Optional[tuple[CUgraphNode]
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -45111,6 +45122,7 @@ def cuGraphAddEventWaitNode(hGraph, dependencies : Optional[tuple[CUgraphNode] |
     """
     cdef cydriver.CUevent cyevent
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -45122,7 +45134,6 @@ def cuGraphAddEventWaitNode(hGraph, dependencies : Optional[tuple[CUgraphNode] |
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -45279,6 +45290,7 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : Optional[tuple
     """
     cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -45290,7 +45302,6 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : Optional[tuple
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -45442,6 +45453,7 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : Optional[tuple[C
     """
     cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -45453,7 +45465,6 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : Optional[tuple[C
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -45608,6 +45619,7 @@ def cuGraphAddBatchMemOpNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
     """
     cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -45619,7 +45631,6 @@ def cuGraphAddBatchMemOpNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -45884,6 +45895,7 @@ def cuGraphAddMemAllocNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | 
     """
     cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS* cynodeParams_ptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -45895,7 +45907,6 @@ def cuGraphAddMemAllocNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | 
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -46021,6 +46032,7 @@ def cuGraphAddMemFreeNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | l
     """
     cdef cydriver.CUdeviceptr cydptr
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -46032,7 +46044,6 @@ def cuGraphAddMemFreeNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | l
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -47017,8 +47028,11 @@ def cuGraphAddDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CU
     :py:obj:`~.cuGraphRemoveDependencies`, :py:obj:`~.cuGraphGetEdges`, :py:obj:`~.cuGraphNodeGetDependencies`, :py:obj:`~.cuGraphNodeGetDependentNodes`
     """
     cdef cydriver.CUgraphEdgeData* cyedgeData = NULL
+    edgeData = [] if edgeData is None else edgeData
     cdef cydriver.CUgraphNode* cyto = NULL
+    to = [] if to is None else to
     cdef cydriver.CUgraphNode* cyfrom_ = NULL
+    from_ = [] if from_ is None else from_
     cdef cydriver.CUgraph cyhGraph
     try:
         if hGraph is None:
@@ -47028,7 +47042,6 @@ def cuGraphAddDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CU
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        from_ = [] if from_ is None else from_
         if not all(isinstance(_x, (CUgraphNode,)) for _x in from_):
             raise TypeError("Argument 'from_' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(from_) > 1:
@@ -47040,7 +47053,6 @@ def cuGraphAddDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CU
                     cyfrom_[idx] = <cydriver.CUgraphNode>(<CUgraphNode>from_[idx])._pvt_ptr[0]
         elif len(from_) == 1:
             cyfrom_ = <cydriver.CUgraphNode*>(<CUgraphNode>from_[0])._pvt_ptr
-        to = [] if to is None else to
         if not all(isinstance(_x, (CUgraphNode,)) for _x in to):
             raise TypeError("Argument 'to' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(to) > 1:
@@ -47052,7 +47064,6 @@ def cuGraphAddDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list[CU
                     cyto[idx] = <cydriver.CUgraphNode>(<CUgraphNode>to[idx])._pvt_ptr[0]
         elif len(to) == 1:
             cyto = <cydriver.CUgraphNode*>(<CUgraphNode>to[0])._pvt_ptr
-        edgeData = [] if edgeData is None else edgeData
         if not all(isinstance(_x, (CUgraphEdgeData,)) for _x in edgeData):
             raise TypeError("Argument 'edgeData' is not instance of type (expected tuple[cydriver.CUgraphEdgeData,] or list[cydriver.CUgraphEdgeData,]")
         if len(edgeData) > 1:
@@ -47118,8 +47129,11 @@ def cuGraphRemoveDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list
     :py:obj:`~.cuGraphAddDependencies`, :py:obj:`~.cuGraphGetEdges`, :py:obj:`~.cuGraphNodeGetDependencies`, :py:obj:`~.cuGraphNodeGetDependentNodes`
     """
     cdef cydriver.CUgraphEdgeData* cyedgeData = NULL
+    edgeData = [] if edgeData is None else edgeData
     cdef cydriver.CUgraphNode* cyto = NULL
+    to = [] if to is None else to
     cdef cydriver.CUgraphNode* cyfrom_ = NULL
+    from_ = [] if from_ is None else from_
     cdef cydriver.CUgraph cyhGraph
     try:
         if hGraph is None:
@@ -47129,7 +47143,6 @@ def cuGraphRemoveDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        from_ = [] if from_ is None else from_
         if not all(isinstance(_x, (CUgraphNode,)) for _x in from_):
             raise TypeError("Argument 'from_' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(from_) > 1:
@@ -47141,7 +47154,6 @@ def cuGraphRemoveDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list
                     cyfrom_[idx] = <cydriver.CUgraphNode>(<CUgraphNode>from_[idx])._pvt_ptr[0]
         elif len(from_) == 1:
             cyfrom_ = <cydriver.CUgraphNode*>(<CUgraphNode>from_[0])._pvt_ptr
-        to = [] if to is None else to
         if not all(isinstance(_x, (CUgraphNode,)) for _x in to):
             raise TypeError("Argument 'to' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(to) > 1:
@@ -47153,7 +47165,6 @@ def cuGraphRemoveDependencies(hGraph, from_ : Optional[tuple[CUgraphNode] | list
                     cyto[idx] = <cydriver.CUgraphNode>(<CUgraphNode>to[idx])._pvt_ptr[0]
         elif len(to) == 1:
             cyto = <cydriver.CUgraphNode*>(<CUgraphNode>to[0])._pvt_ptr
-        edgeData = [] if edgeData is None else edgeData
         if not all(isinstance(_x, (CUgraphEdgeData,)) for _x in edgeData):
             raise TypeError("Argument 'edgeData' is not instance of type (expected tuple[cydriver.CUgraphEdgeData,] or list[cydriver.CUgraphEdgeData,]")
         if len(edgeData) > 1:
@@ -49102,7 +49113,9 @@ def cuGraphAddNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUg
     """
     cdef cydriver.CUgraphNodeParams* cynodeParams_ptr
     cdef cydriver.CUgraphEdgeData* cydependencyData = NULL
+    dependencyData = [] if dependencyData is None else dependencyData
     cdef cydriver.CUgraphNode* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cydriver.CUgraph cyhGraph
     cdef CUgraphNode phGraphNode
     try:
@@ -49114,7 +49127,6 @@ def cuGraphAddNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUg
         else:
             phGraph = int(CUgraph(hGraph))
         cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cydriver.CUgraphNode,] or list[cydriver.CUgraphNode,]")
         if len(dependencies) > 1:
@@ -49126,7 +49138,6 @@ def cuGraphAddNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUg
                     cydependencies[idx] = <cydriver.CUgraphNode>(<CUgraphNode>dependencies[idx])._pvt_ptr[0]
         elif len(dependencies) == 1:
             cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
-        dependencyData = [] if dependencyData is None else dependencyData
         if not all(isinstance(_x, (CUgraphEdgeData,)) for _x in dependencyData):
             raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cydriver.CUgraphEdgeData,] or list[cydriver.CUgraphEdgeData,]")
         if len(dependencyData) > 1:
@@ -52301,7 +52312,9 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     cdef cydriver.cuuint32_t cypixelsPerColumn
     cdef cydriver.cuuint32_t cychannelsPerPixel
     cdef vector[int] cypixelBoxUpperCorner
+    pixelBoxUpperCorner = [] if pixelBoxUpperCorner is None else pixelBoxUpperCorner
     cdef vector[int] cypixelBoxLowerCorner
+    pixelBoxLowerCorner = [] if pixelBoxLowerCorner is None else pixelBoxLowerCorner
     cdef cydriver.cuuint64_t* cyglobalStrides
     cdef size_t globalStridesLen
     cdef cydriver.cuuint64_t[5] globalStridesStatic
@@ -52346,11 +52359,9 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
             cyglobalStrides = globalStridesStatic
         else:
             raise ValueError("Argument 'globalStrides' too long, must be <= 5")
-        pixelBoxLowerCorner = [] if pixelBoxLowerCorner is None else pixelBoxLowerCorner
         if not all(isinstance(_x, (int)) for _x in pixelBoxLowerCorner):
             raise TypeError("Argument 'pixelBoxLowerCorner' is not instance of type (expected tuple[int] or list[int]")
         cypixelBoxLowerCorner = pixelBoxLowerCorner
-        pixelBoxUpperCorner = [] if pixelBoxUpperCorner is None else pixelBoxUpperCorner
         if not all(isinstance(_x, (int)) for _x in pixelBoxUpperCorner):
             raise TypeError("Argument 'pixelBoxUpperCorner' is not instance of type (expected tuple[int] or list[int]")
         cypixelBoxUpperCorner = pixelBoxUpperCorner
@@ -53063,7 +53074,9 @@ def cuDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[CUatomicOperati
     """
     cdef cydriver.CUdevice cydstDevice
     cdef cydriver.CUdevice cysrcDevice
+
     cdef vector[cydriver.CUatomicOperation] cyoperations
+    operations = [] if operations is None else operations
     cdef unsigned int* cycapabilities = NULL
     pycapabilities = []
     try:
@@ -53071,7 +53084,6 @@ def cuDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[CUatomicOperati
             cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
             if cycapabilities is NULL:
                 raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-        operations = [] if operations is None else operations
         if not all(isinstance(_x, (CUatomicOperation)) for _x in operations):
             raise TypeError("Argument 'operations' is not instance of type (expected tuple[cydriver.CUatomicOperation] or list[cydriver.CUatomicOperation]")
         cyoperations = operations
@@ -54771,10 +54783,10 @@ def cuDevResourceGenerateDesc(resources : Optional[tuple[CUdevResource] | list[C
     :py:obj:`~.cuDevSmResourceSplitByCount`
     """
     cdef cydriver.CUdevResource* cyresources = NULL
+    resources = [] if resources is None else resources
     cdef CUdevResourceDesc phDesc
     try:
         phDesc = CUdevResourceDesc()
-        resources = [] if resources is None else resources
         if not all(isinstance(_x, (CUdevResource,)) for _x in resources):
             raise TypeError("Argument 'resources' is not instance of type (expected tuple[cydriver.CUdevResource,] or list[cydriver.CUdevResource,]")
         if len(resources) > 1:

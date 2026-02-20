@@ -21895,7 +21895,9 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOp
     --------
     :py:obj:`~.cudaDeviceGetAttribute`, :py:obj:`~.cudaDeviceGetP2PAtomicCapabilities`, :py:obj:`~.cuDeviceGeHostAtomicCapabilities`
     """
+
     cdef vector[cyruntime.cudaAtomicOperation] cyoperations
+    operations = [] if operations is None else operations
     cdef unsigned int* cycapabilities = NULL
     pycapabilities = []
     try:
@@ -21903,7 +21905,6 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOp
             cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
             if cycapabilities is NULL:
                 raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-        operations = [] if operations is None else operations
         if not all(isinstance(_x, (cudaAtomicOperation)) for _x in operations):
             raise TypeError("Argument 'operations' is not instance of type (expected tuple[cyruntime.cudaAtomicOperation] or list[cyruntime.cudaAtomicOperation]")
         cyoperations = operations
@@ -22238,7 +22239,9 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOpe
     --------
     :py:obj:`~.cudaDeviceGetP2PAttribute`, :py:obj:`~.cuDeviceGetP2PAttribute`, :py:obj:`~.cuDeviceGetP2PAtomicCapabilities`
     """
+
     cdef vector[cyruntime.cudaAtomicOperation] cyoperations
+    operations = [] if operations is None else operations
     cdef unsigned int* cycapabilities = NULL
     pycapabilities = []
     try:
@@ -22246,7 +22249,6 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOpe
             cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
             if cycapabilities is NULL:
                 raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-        operations = [] if operations is None else operations
         if not all(isinstance(_x, (cudaAtomicOperation)) for _x in operations):
             raise TypeError("Argument 'operations' is not instance of type (expected tuple[cyruntime.cudaAtomicOperation] or list[cyruntime.cudaAtomicOperation]")
         cyoperations = operations
@@ -23569,7 +23571,9 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[c
     """
     cdef cyruntime.cudaStreamCaptureMode cymode
     cdef cyruntime.cudaGraphEdgeData* cydependencyData = NULL
+    dependencyData = [] if dependencyData is None else dependencyData
     cdef cyruntime.cudaGraphNode_t* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cyruntime.cudaStream_t cystream
     try:
@@ -23587,7 +23591,6 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[c
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(dependencies) > 1:
@@ -23599,7 +23602,6 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[c
                     cydependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>dependencies[idx])._pvt_ptr[0]
         elif len(dependencies) == 1:
             cydependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>dependencies[0])._pvt_ptr
-        dependencyData = [] if dependencyData is None else dependencyData
         if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in dependencyData):
             raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
         if len(dependencyData) > 1:
@@ -23957,7 +23959,9 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cu
     :py:obj:`~.cudaStreamBeginCapture`, :py:obj:`~.cudaStreamGetCaptureInfo`,
     """
     cdef cyruntime.cudaGraphEdgeData* cydependencyData = NULL
+    dependencyData = [] if dependencyData is None else dependencyData
     cdef cyruntime.cudaGraphNode_t* cydependencies = NULL
+    dependencies = [] if dependencies is None else dependencies
     cdef cyruntime.cudaStream_t cystream
     try:
         if stream is None:
@@ -23967,7 +23971,6 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cu
         else:
             pstream = int(cudaStream_t(stream))
         cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-        dependencies = [] if dependencies is None else dependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in dependencies):
             raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(dependencies) > 1:
@@ -23979,7 +23982,6 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cu
                     cydependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>dependencies[idx])._pvt_ptr[0]
         elif len(dependencies) == 1:
             cydependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>dependencies[0])._pvt_ptr
-        dependencyData = [] if dependencyData is None else dependencyData
         if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in dependencyData):
             raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
         if len(dependencyData) > 1:
@@ -25014,9 +25016,10 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalS
     """
     cdef cyruntime.cudaStream_t cystream
     cdef cyruntime.cudaExternalSemaphoreSignalParams* cyparamsArray = NULL
+    paramsArray = [] if paramsArray is None else paramsArray
     cdef cyruntime.cudaExternalSemaphore_t* cyextSemArray = NULL
+    extSemArray = [] if extSemArray is None else extSemArray
     try:
-        extSemArray = [] if extSemArray is None else extSemArray
         if not all(isinstance(_x, (cudaExternalSemaphore_t,)) for _x in extSemArray):
             raise TypeError("Argument 'extSemArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphore_t,] or list[cyruntime.cudaExternalSemaphore_t,]")
         if len(extSemArray) > 1:
@@ -25028,7 +25031,6 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalS
                     cyextSemArray[idx] = <cyruntime.cudaExternalSemaphore_t>(<cudaExternalSemaphore_t>extSemArray[idx])._pvt_ptr[0]
         elif len(extSemArray) == 1:
             cyextSemArray = <cyruntime.cudaExternalSemaphore_t*>(<cudaExternalSemaphore_t>extSemArray[0])._pvt_ptr
-        paramsArray = [] if paramsArray is None else paramsArray
         if not all(isinstance(_x, (cudaExternalSemaphoreSignalParams,)) for _x in paramsArray):
             raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphoreSignalParams,] or list[cyruntime.cudaExternalSemaphoreSignalParams,]")
         if len(paramsArray) > 1:
@@ -25145,9 +25147,10 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSem
     """
     cdef cyruntime.cudaStream_t cystream
     cdef cyruntime.cudaExternalSemaphoreWaitParams* cyparamsArray = NULL
+    paramsArray = [] if paramsArray is None else paramsArray
     cdef cyruntime.cudaExternalSemaphore_t* cyextSemArray = NULL
+    extSemArray = [] if extSemArray is None else extSemArray
     try:
-        extSemArray = [] if extSemArray is None else extSemArray
         if not all(isinstance(_x, (cudaExternalSemaphore_t,)) for _x in extSemArray):
             raise TypeError("Argument 'extSemArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphore_t,] or list[cyruntime.cudaExternalSemaphore_t,]")
         if len(extSemArray) > 1:
@@ -25159,7 +25162,6 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSem
                     cyextSemArray[idx] = <cyruntime.cudaExternalSemaphore_t>(<cudaExternalSemaphore_t>extSemArray[idx])._pvt_ptr[0]
         elif len(extSemArray) == 1:
             cyextSemArray = <cyruntime.cudaExternalSemaphore_t*>(<cudaExternalSemaphore_t>extSemArray[0])._pvt_ptr
-        paramsArray = [] if paramsArray is None else paramsArray
         if not all(isinstance(_x, (cudaExternalSemaphoreWaitParams,)) for _x in paramsArray):
             raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphoreWaitParams,] or list[cyruntime.cudaExternalSemaphoreWaitParams,]")
         if len(paramsArray) > 1:
@@ -28272,17 +28274,18 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
     cdef cyruntime.cudaStream_t cystream
     cdef vector[size_t] cyattrsIdxs
     cdef cyruntime.cudaMemcpyAttributes* cyattrs = NULL
+    attrs = [] if attrs is None else attrs
     cdef vector[size_t] cysizes
     cdef _InputVoidPtrPtrHelper voidStarHelpersrcs
     cdef const void** cysrcs_ptr
+    srcs = [] if srcs is None else srcs
     cdef _InputVoidPtrPtrHelper voidStarHelperdsts
     cdef const void** cydsts_ptr
+    dsts = [] if dsts is None else dsts
     try:
-        dsts = [] if dsts is None else dsts
         pylist = [_HelperInputVoidPtr(pydsts) for pydsts in dsts]
         voidStarHelperdsts = _InputVoidPtrPtrHelper(pylist)
         cydsts_ptr = <const void**><void_ptr>voidStarHelperdsts.cptr
-        srcs = [] if srcs is None else srcs
         pylist = [_HelperInputVoidPtr(pysrcs) for pysrcs in srcs]
         voidStarHelpersrcs = _InputVoidPtrPtrHelper(pylist)
         cysrcs_ptr = <const void**><void_ptr>voidStarHelpersrcs.cptr
@@ -28292,7 +28295,6 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
         if count > <size_t>len(dsts): raise RuntimeError("List is too small: " + str(len(dsts)) + " < " + str(count))
         if count > <size_t>len(srcs): raise RuntimeError("List is too small: " + str(len(srcs)) + " < " + str(count))
         if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
-        attrs = [] if attrs is None else attrs
         if not all(isinstance(_x, (cudaMemcpyAttributes,)) for _x in attrs):
             raise TypeError("Argument 'attrs' is not instance of type (expected tuple[cyruntime.cudaMemcpyAttributes,] or list[cyruntime.cudaMemcpyAttributes,]")
         if len(attrs) > 1:
@@ -28427,9 +28429,9 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBa
     """
     cdef cyruntime.cudaStream_t cystream
     cdef cyruntime.cudaMemcpy3DBatchOp* cyopList = NULL
+    opList = [] if opList is None else opList
     try:
         if numOps > <size_t>len(opList): raise RuntimeError("List is too small: " + str(len(opList)) + " < " + str(numOps))
-        opList = [] if opList is None else opList
         if not all(isinstance(_x, (cudaMemcpy3DBatchOp,)) for _x in opList):
             raise TypeError("Argument 'opList' is not instance of type (expected tuple[cyruntime.cudaMemcpy3DBatchOp,] or list[cyruntime.cudaMemcpy3DBatchOp,]")
         if len(opList) > 1:
@@ -29255,11 +29257,12 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : 
     cdef cyruntime.cudaStream_t cystream
     cdef vector[size_t] cyprefetchLocIdxs
     cdef cyruntime.cudaMemLocation* cyprefetchLocs = NULL
+    prefetchLocs = [] if prefetchLocs is None else prefetchLocs
     cdef vector[size_t] cysizes
     cdef _InputVoidPtrPtrHelper voidStarHelperdptrs
     cdef void** cydptrs_ptr
+    dptrs = [] if dptrs is None else dptrs
     try:
-        dptrs = [] if dptrs is None else dptrs
         pylist = [_HelperInputVoidPtr(pydptrs) for pydptrs in dptrs]
         voidStarHelperdptrs = _InputVoidPtrPtrHelper(pylist)
         cydptrs_ptr = <void**><void_ptr>voidStarHelperdptrs.cptr
@@ -29268,7 +29271,6 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : 
         cysizes = sizes
         if count > <size_t>len(dptrs): raise RuntimeError("List is too small: " + str(len(dptrs)) + " < " + str(count))
         if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
-        prefetchLocs = [] if prefetchLocs is None else prefetchLocs
         if not all(isinstance(_x, (cudaMemLocation,)) for _x in prefetchLocs):
             raise TypeError("Argument 'prefetchLocs' is not instance of type (expected tuple[cyruntime.cudaMemLocation,] or list[cyruntime.cudaMemLocation,]")
         if len(prefetchLocs) > 1:
@@ -29455,11 +29457,12 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
     cdef cyruntime.cudaStream_t cystream
     cdef vector[size_t] cyprefetchLocIdxs
     cdef cyruntime.cudaMemLocation* cyprefetchLocs = NULL
+    prefetchLocs = [] if prefetchLocs is None else prefetchLocs
     cdef vector[size_t] cysizes
     cdef _InputVoidPtrPtrHelper voidStarHelperdptrs
     cdef void** cydptrs_ptr
+    dptrs = [] if dptrs is None else dptrs
     try:
-        dptrs = [] if dptrs is None else dptrs
         pylist = [_HelperInputVoidPtr(pydptrs) for pydptrs in dptrs]
         voidStarHelperdptrs = _InputVoidPtrPtrHelper(pylist)
         cydptrs_ptr = <void**><void_ptr>voidStarHelperdptrs.cptr
@@ -29468,7 +29471,6 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
         cysizes = sizes
         if count > <size_t>len(dptrs): raise RuntimeError("List is too small: " + str(len(dptrs)) + " < " + str(count))
         if count > <size_t>len(sizes): raise RuntimeError("List is too small: " + str(len(sizes)) + " < " + str(count))
-        prefetchLocs = [] if prefetchLocs is None else prefetchLocs
         if not all(isinstance(_x, (cudaMemLocation,)) for _x in prefetchLocs):
             raise TypeError("Argument 'prefetchLocs' is not instance of type (expected tuple[cyruntime.cudaMemLocation,] or list[cyruntime.cudaMemLocation,]")
         if len(prefetchLocs) > 1:
@@ -29920,7 +29922,9 @@ def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : O
     """
     cdef _HelperInputVoidPtrStruct cydevPtrHelper
     cdef void* cydevPtr
+
     cdef vector[cyruntime.cudaMemRangeAttribute] cyattributes
+    attributes = [] if attributes is None else attributes
     cdef vector[size_t] cydataSizes
     cdef _InputVoidPtrPtrHelper voidStarHelperdata
     cdef void** cyvoidStarHelper_ptr
@@ -29931,7 +29935,6 @@ def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : O
         if not all(isinstance(_x, (int)) for _x in dataSizes):
             raise TypeError("Argument 'dataSizes' is not instance of type (expected tuple[int] or list[int]")
         cydataSizes = dataSizes
-        attributes = [] if attributes is None else attributes
         if not all(isinstance(_x, (cudaMemRangeAttribute)) for _x in attributes):
             raise TypeError("Argument 'attributes' is not instance of type (expected tuple[cyruntime.cudaMemRangeAttribute] or list[cyruntime.cudaMemRangeAttribute]")
         cyattributes = attributes
@@ -30655,6 +30658,7 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] |
     :py:obj:`~.cuMemPoolSetAccess`, :py:obj:`~.cudaMemPoolGetAccess`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`
     """
     cdef cyruntime.cudaMemAccessDesc* cydescList = NULL
+    descList = [] if descList is None else descList
     cdef cyruntime.cudaMemPool_t cymemPool
     try:
         if memPool is None:
@@ -30664,7 +30668,6 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] |
         else:
             pmemPool = int(cudaMemPool_t(memPool))
         cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
-        descList = [] if descList is None else descList
         if not all(isinstance(_x, (cudaMemAccessDesc,)) for _x in descList):
             raise TypeError("Argument 'descList' is not instance of type (expected tuple[cyruntime.cudaMemAccessDesc,] or list[cyruntime.cudaMemAccessDesc,]")
         if len(descList) > 1:
@@ -32901,6 +32904,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     """
     cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -32912,7 +32916,6 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -33207,6 +33210,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     """
     cdef cyruntime.cudaMemcpy3DParms* cypCopyParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -33218,7 +33222,6 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -33307,6 +33310,7 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode
     cdef _HelperInputVoidPtrStruct cydstHelper
     cdef void* cydst
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -33318,7 +33322,6 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -33533,6 +33536,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     """
     cdef cyruntime.cudaMemsetParams* cypMemsetParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -33544,7 +33548,6 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -33688,6 +33691,7 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] 
     """
     cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -33699,7 +33703,6 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] 
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -33846,6 +33849,7 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[tuple[cudaGraphNo
     """
     cdef cyruntime.cudaGraph_t cychildGraph
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -33857,7 +33861,6 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[tuple[cudaGraphNo
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -33973,6 +33976,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t]
     :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -33984,7 +33988,6 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t]
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -34049,6 +34052,7 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphN
     """
     cdef cyruntime.cudaEvent_t cyevent
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -34060,7 +34064,6 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphN
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -34221,6 +34224,7 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNod
     """
     cdef cyruntime.cudaEvent_t cyevent
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -34232,7 +34236,6 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNod
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -34389,6 +34392,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tup
     """
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -34400,7 +34404,6 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tup
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -34552,6 +34555,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple
     """
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -34563,7 +34567,6 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -34754,6 +34757,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode
     """
     cdef cyruntime.cudaMemAllocNodeParams* cynodeParams_ptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -34765,7 +34769,6 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -34892,6 +34895,7 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_
     cdef _HelperInputVoidPtrStruct cydptrHelper
     cdef void* cydptr
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -34903,7 +34907,6 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -35859,8 +35862,11 @@ def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | li
     :py:obj:`~.cudaGraphRemoveDependencies`, :py:obj:`~.cudaGraphGetEdges`, :py:obj:`~.cudaGraphNodeGetDependencies`, :py:obj:`~.cudaGraphNodeGetDependentNodes`
     """
     cdef cyruntime.cudaGraphEdgeData* cyedgeData = NULL
+    edgeData = [] if edgeData is None else edgeData
     cdef cyruntime.cudaGraphNode_t* cyto = NULL
+    to = [] if to is None else to
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
+    from_ = [] if from_ is None else from_
     cdef cyruntime.cudaGraph_t cygraph
     try:
         if graph is None:
@@ -35870,7 +35876,6 @@ def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | li
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        from_ = [] if from_ is None else from_
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in from_):
             raise TypeError("Argument 'from_' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(from_) > 1:
@@ -35882,7 +35887,6 @@ def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | li
                     cyfrom_[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>from_[idx])._pvt_ptr[0]
         elif len(from_) == 1:
             cyfrom_ = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>from_[0])._pvt_ptr
-        to = [] if to is None else to
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in to):
             raise TypeError("Argument 'to' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(to) > 1:
@@ -35894,7 +35898,6 @@ def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | li
                     cyto[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>to[idx])._pvt_ptr[0]
         elif len(to) == 1:
             cyto = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>to[0])._pvt_ptr
-        edgeData = [] if edgeData is None else edgeData
         if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in edgeData):
             raise TypeError("Argument 'edgeData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
         if len(edgeData) > 1:
@@ -35957,8 +35960,11 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] |
     :py:obj:`~.cudaGraphAddDependencies`, :py:obj:`~.cudaGraphGetEdges`, :py:obj:`~.cudaGraphNodeGetDependencies`, :py:obj:`~.cudaGraphNodeGetDependentNodes`
     """
     cdef cyruntime.cudaGraphEdgeData* cyedgeData = NULL
+    edgeData = [] if edgeData is None else edgeData
     cdef cyruntime.cudaGraphNode_t* cyto = NULL
+    to = [] if to is None else to
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
+    from_ = [] if from_ is None else from_
     cdef cyruntime.cudaGraph_t cygraph
     try:
         if graph is None:
@@ -35968,7 +35974,6 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] |
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        from_ = [] if from_ is None else from_
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in from_):
             raise TypeError("Argument 'from_' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(from_) > 1:
@@ -35980,7 +35985,6 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] |
                     cyfrom_[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>from_[idx])._pvt_ptr[0]
         elif len(from_) == 1:
             cyfrom_ = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>from_[0])._pvt_ptr
-        to = [] if to is None else to
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in to):
             raise TypeError("Argument 'to' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(to) > 1:
@@ -35992,7 +35996,6 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] |
                     cyto[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>to[idx])._pvt_ptr[0]
         elif len(to) == 1:
             cyto = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>to[0])._pvt_ptr
-        edgeData = [] if edgeData is None else edgeData
         if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in edgeData):
             raise TypeError("Argument 'edgeData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
         if len(edgeData) > 1:
@@ -37957,7 +37960,9 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
     """
     cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr
     cdef cyruntime.cudaGraphEdgeData* cydependencyData = NULL
+    dependencyData = [] if dependencyData is None else dependencyData
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
+    pDependencies = [] if pDependencies is None else pDependencies
     cdef cyruntime.cudaGraph_t cygraph
     cdef cudaGraphNode_t pGraphNode
     try:
@@ -37969,7 +37974,6 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
         else:
             pgraph = int(cudaGraph_t(graph))
         cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
-        pDependencies = [] if pDependencies is None else pDependencies
         if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
             raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
         if len(pDependencies) > 1:
@@ -37981,7 +37985,6 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
                     cypDependencies[idx] = <cyruntime.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._pvt_ptr[0]
         elif len(pDependencies) == 1:
             cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
-        dependencyData = [] if dependencyData is None else dependencyData
         if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in dependencyData):
             raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
         if len(dependencyData) > 1:
@@ -38511,31 +38514,33 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues
     cdef void** cylibraryOptionValues_ptr
+    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
+
     cdef vector[cyruntime.cudaLibraryOption] cylibraryOptions
+    libraryOptions = [] if libraryOptions is None else libraryOptions
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues
     cdef void** cyjitOptionsValues_ptr
+    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
+
     cdef vector[cyruntime.cudaJitOption] cyjitOptions
+    jitOptions = [] if jitOptions is None else jitOptions
     cdef _HelperInputVoidPtrStruct cycodeHelper
     cdef void* cycode
     cdef cudaLibrary_t library
     try:
         library = cudaLibrary_t()
         cycode = _helper_input_void_ptr(code, &cycodeHelper)
-        jitOptions = [] if jitOptions is None else jitOptions
         if not all(isinstance(_x, (cudaJitOption)) for _x in jitOptions):
             raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cyruntime.cudaJitOption] or list[cyruntime.cudaJitOption]")
         cyjitOptions = jitOptions
-        jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
         pylist = [_HelperCudaJitOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
         voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
         cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
         if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
         if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-        libraryOptions = [] if libraryOptions is None else libraryOptions
         if not all(isinstance(_x, (cudaLibraryOption)) for _x in libraryOptions):
             raise TypeError("Argument 'libraryOptions' is not instance of type (expected tuple[cyruntime.cudaLibraryOption] or list[cyruntime.cudaLibraryOption]")
         cylibraryOptions = libraryOptions
-        libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
         pylist = [_HelperCudaLibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
         voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
         cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -38622,27 +38627,29 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitO
     """
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues
     cdef void** cylibraryOptionValues_ptr
+    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
+
     cdef vector[cyruntime.cudaLibraryOption] cylibraryOptions
+    libraryOptions = [] if libraryOptions is None else libraryOptions
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues
     cdef void** cyjitOptionsValues_ptr
+    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
+
     cdef vector[cyruntime.cudaJitOption] cyjitOptions
+    jitOptions = [] if jitOptions is None else jitOptions
     cdef cudaLibrary_t library
     library = cudaLibrary_t()
-    jitOptions = [] if jitOptions is None else jitOptions
     if not all(isinstance(_x, (cudaJitOption)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cyruntime.cudaJitOption] or list[cyruntime.cudaJitOption]")
     cyjitOptions = jitOptions
-    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
     pylist = [_HelperCudaJitOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    libraryOptions = [] if libraryOptions is None else libraryOptions
     if not all(isinstance(_x, (cudaLibraryOption)) for _x in libraryOptions):
         raise TypeError("Argument 'libraryOptions' is not instance of type (expected tuple[cyruntime.cudaLibraryOption] or list[cyruntime.cudaLibraryOption]")
     cylibraryOptions = libraryOptions
-    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     pylist = [_HelperCudaLibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -39466,10 +39473,10 @@ def cudaDevResourceGenerateDesc(resources : Optional[tuple[cudaDevResource] | li
     :py:obj:`~.cuDevResourceGenerateDesc`, :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaGreenCtxCreate`
     """
     cdef cyruntime.cudaDevResource* cyresources = NULL
+    resources = [] if resources is None else resources
     cdef cudaDevResourceDesc_t phDesc
     try:
         phDesc = cudaDevResourceDesc_t()
-        resources = [] if resources is None else resources
         if not all(isinstance(_x, (cudaDevResource,)) for _x in resources):
             raise TypeError("Argument 'resources' is not instance of type (expected tuple[cyruntime.cudaDevResource,] or list[cyruntime.cudaDevResource,]")
         if len(resources) > 1:

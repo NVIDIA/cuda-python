@@ -274,16 +274,16 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     :py:obj:`~.nvrtcDestroyProgram`
     """
     cdef vector[const char*] cyincludeNames
+    includeNames = [] if includeNames is None else includeNames
     cdef vector[const char*] cyheaders
+    headers = [] if headers is None else headers
     cdef nvrtcProgram prog
     prog = nvrtcProgram()
     if numHeaders > len(headers): raise RuntimeError("List is too small: " + str(len(headers)) + " < " + str(numHeaders))
     if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " < " + str(numHeaders))
-    headers = [] if headers is None else headers
     if not all(isinstance(_x, (bytes)) for _x in headers):
         raise TypeError("Argument 'headers' is not instance of type (expected tuple[bytes] or list[bytes]")
     cyheaders = headers
-    includeNames = [] if includeNames is None else includeNames
     if not all(isinstance(_x, (bytes)) for _x in includeNames):
         raise TypeError("Argument 'includeNames' is not instance of type (expected tuple[bytes] or list[bytes]")
     cyincludeNames = includeNames
@@ -363,6 +363,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
         - :py:obj:`~.NVRTC_ERROR_CANCELLED`
     """
     cdef vector[const char*] cyoptions
+    options = [] if options is None else options
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
         pprog = 0
@@ -372,7 +373,6 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
         pprog = int(nvrtcProgram(prog))
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
-    options = [] if options is None else options
     if not all(isinstance(_x, (bytes)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected tuple[bytes] or list[bytes]")
     cyoptions = options
