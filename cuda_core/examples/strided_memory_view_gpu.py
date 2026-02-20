@@ -83,7 +83,7 @@ def my_func(arr, work_stream, gpu_ker):
     work_stream.sync()
 
 
-def run():
+def main():
     global my_func
     if not cp:
         return None
@@ -123,4 +123,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    main()

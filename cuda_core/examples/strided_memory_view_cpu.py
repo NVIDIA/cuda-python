@@ -78,7 +78,7 @@ def my_func(arr):
     cpu_func(cpu_prog.cast("int*", view.ptr), size)
 
 
-def run():
+def main():
     global my_func
     if not FFI:
         return
@@ -130,4 +130,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    main()
