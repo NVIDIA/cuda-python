@@ -122,7 +122,7 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
             if ResT is char:
                 obj_i_type = type(obj_i)
                 if obj_i_type is str:
-                    obj_i_bytes = obj_i.encode()
+                    obj_i_bytes = obj_i.encode("utf-8")
                 elif obj_i_type is bytes:
                     obj_i_bytes = obj_i
                 else:
