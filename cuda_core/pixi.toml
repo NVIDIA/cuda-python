@@ -12,6 +12,7 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
+ml_dtypes = "*"
 pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
