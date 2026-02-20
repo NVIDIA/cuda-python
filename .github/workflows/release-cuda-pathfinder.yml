@@ -4,7 +4,7 @@
 
 # One-click release workflow for cuda-pathfinder.
 #
-# Provide a release tag. The workflow validates the tag, finds
+# Provide a release tag. The workflow finds
 # the CI run, creates a draft GitHub release with the standard
 # body, builds versioned docs, uploads source archive + wheels to the
 # release, publishes to TestPyPI, verifies the install, publishes to PyPI,
@@ -30,7 +30,7 @@ defaults:
 
 jobs:
   # --------------------------------------------------------------------------
-  # Validate inputs, find the CI run, create a draft release.
+  # Collect release metadata, find the CI run, create a draft release.
   # --------------------------------------------------------------------------
   prepare:
     runs-on: ubuntu-latest
@@ -49,16 +49,12 @@ jobs:
             exit 1
           fi
 
-      - name: Validate tag input format
+      - name: Set release variables
         id: vars
         env:
           TAG_INPUT: ${{ inputs.tag }}
         run: |
-          if [[ ! "${TAG_INPUT}" =~ ^cuda-pathfinder-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-            echo "::error::Tag must match cuda-pathfinder-vMAJOR.MINOR.PATCH, got: ${TAG_INPUT}"
-            exit 1
-          fi
-          version="${BASH_REMATCH[1]}"
+          version="${TAG_INPUT#cuda-pathfinder-v}"
           {
             echo "tag=${TAG_INPUT}"
             echo "version=${version}"
