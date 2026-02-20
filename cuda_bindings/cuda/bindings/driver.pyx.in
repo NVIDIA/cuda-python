@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version fd3f910. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version c185cc3. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -26111,7 +26111,7 @@ def cuDeviceGetHostAtomicCapabilities(operations : Optional[tuple[CUatomicOperat
         cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
         if cycapabilities is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-    cdef vector[cydriver.CUatomicOperation] cyoperations = [int(pyoperations) for pyoperations in (operations)]
+    cdef vector[cydriver.CUatomicOperation] cyoperations = operations
     if count > len(operations): raise RuntimeError("List is too small: " + str(len(operations)) + " < " + str(count))
     with nogil:
         err = cydriver.cuDeviceGetHostAtomicCapabilities(cycapabilities, cyoperations.data(), count, cydev)
@@ -28374,7 +28374,7 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
     cdef void* cyimage = _helper_input_void_ptr(image, &cyimageHelper)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = options
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -28744,7 +28744,7 @@ def cuLinkCreate(unsigned int numOptions, options : Optional[tuple[CUjit_option]
         raise TypeError("Argument 'options' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = options
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -28824,7 +28824,7 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
     cdef void* cydata = _helper_input_void_ptr(data, &cydataHelper)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = options
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -28895,7 +28895,7 @@ def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigne
     cdef cydriver.CUjitInputType cytypename = int(typename)
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
-    cdef vector[cydriver.CUjit_option] cyoptions = [int(pyoptions) for pyoptions in (options)]
+    cdef vector[cydriver.CUjit_option] cyoptions = options
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(options, optionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperoptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyoptionValues_ptr = <void**><void_ptr>voidStarHelperoptionValues.cptr
@@ -29160,13 +29160,13 @@ def cuLibraryLoadData(code, jitOptions : Optional[tuple[CUjit_option] | list[CUj
     cdef CUlibrary library = CUlibrary()
     cdef _HelperInputVoidPtrStruct cycodeHelper
     cdef void* cycode = _helper_input_void_ptr(code, &cycodeHelper)
-    cdef vector[cydriver.CUjit_option] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
+    cdef vector[cydriver.CUjit_option] cyjitOptions = jitOptions
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = [int(pylibraryOptions) for pylibraryOptions in (libraryOptions)]
+    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = libraryOptions
     pylist = [_HelperCUlibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -29258,13 +29258,13 @@ def cuLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[CUjit_opti
     if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cydriver.CUjit_option] or list[cydriver.CUjit_option]")
     cdef CUlibrary library = CUlibrary()
-    cdef vector[cydriver.CUjit_option] cyjitOptions = [int(pyjitOptions) for pyjitOptions in (jitOptions)]
+    cdef vector[cydriver.CUjit_option] cyjitOptions = jitOptions
     pylist = [_HelperCUjit_option(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperjitOptionsValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyjitOptionsValues_ptr = <void**><void_ptr>voidStarHelperjitOptionsValues.cptr
     if numJitOptions > len(jitOptions): raise RuntimeError("List is too small: " + str(len(jitOptions)) + " < " + str(numJitOptions))
     if numJitOptions > len(jitOptionsValues): raise RuntimeError("List is too small: " + str(len(jitOptionsValues)) + " < " + str(numJitOptions))
-    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = [int(pylibraryOptions) for pylibraryOptions in (libraryOptions)]
+    cdef vector[cydriver.CUlibraryOption] cylibraryOptions = libraryOptions
     pylist = [_HelperCUlibraryOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(libraryOptions, libraryOptionValues)]
     cdef _InputVoidPtrPtrHelper voidStarHelperlibraryOptionValues = _InputVoidPtrPtrHelper(pylist)
     cdef void** cylibraryOptionValues_ptr = <void**><void_ptr>voidStarHelperlibraryOptionValues.cptr
@@ -38566,7 +38566,7 @@ def cuMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : Opt
     cdef _InputVoidPtrPtrHelper voidStarHelperdata = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyvoidStarHelper_ptr = <void**><void_ptr>voidStarHelperdata.cptr
     cdef vector[size_t] cydataSizes = dataSizes
-    cdef vector[cydriver.CUmem_range_attribute] cyattributes = [int(pyattributes) for pyattributes in (attributes)]
+    cdef vector[cydriver.CUmem_range_attribute] cyattributes = attributes
     if numAttributes > <size_t>len(dataSizes): raise RuntimeError("List is too small: " + str(len(dataSizes)) + " < " + str(numAttributes))
     if numAttributes > <size_t>len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
     with nogil:
@@ -38715,7 +38715,7 @@ def cuPointerGetAttributes(unsigned int numAttributes, attributes : Optional[tup
     if not all(isinstance(_x, (CUpointer_attribute)) for _x in attributes):
         raise TypeError("Argument 'attributes' is not instance of type (expected tuple[cydriver.CUpointer_attribute] or list[cydriver.CUpointer_attribute]")
     if numAttributes > len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
-    cdef vector[cydriver.CUpointer_attribute] cyattributes = [int(pyattributes) for pyattributes in (attributes)]
+    cdef vector[cydriver.CUpointer_attribute] cyattributes = attributes
     pylist = [_HelperCUpointer_attribute(pyattributes, 0, is_getter=True) for pyattributes in attributes]
     cdef _InputVoidPtrPtrHelper voidStarHelperdata = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyvoidStarHelper_ptr = <void**><void_ptr>voidStarHelperdata.cptr
@@ -52586,7 +52586,7 @@ def cuDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[CUatomicOperati
         cycapabilities = <unsigned int*>calloc(count, sizeof(unsigned int))
         if cycapabilities is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(count) + 'x' + str(sizeof(unsigned int)))
-    cdef vector[cydriver.CUatomicOperation] cyoperations = [int(pyoperations) for pyoperations in (operations)]
+    cdef vector[cydriver.CUatomicOperation] cyoperations = operations
     if count > len(operations): raise RuntimeError("List is too small: " + str(len(operations)) + " < " + str(count))
     with nogil:
         err = cydriver.cuDeviceGetP2PAtomicCapabilities(cycapabilities, cyoperations.data(), count, cysrcDevice, cydstDevice)
