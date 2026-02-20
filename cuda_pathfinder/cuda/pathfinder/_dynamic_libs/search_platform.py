@@ -191,8 +191,11 @@ class WindowsSearchPlatform:
             return dll_name
         error_messages.append(f"No such file: {file_wild}")
         attachments.append(f'  listdir("{lib_dir}"):')
-        for node in sorted(os.listdir(lib_dir)):
-            attachments.append(f"    {node}")
+        if not os.path.isdir(lib_dir):
+            attachments.append("    DIRECTORY DOES NOT EXIST")
+        else:
+            for node in sorted(os.listdir(lib_dir)):
+                attachments.append(f"    {node}")
         return None
 
 

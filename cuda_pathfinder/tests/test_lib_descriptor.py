@@ -6,7 +6,7 @@ the existing data tables in supported_nvidia_libs.py."""
 
 import pytest
 
-from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     DIRECT_DEPENDENCIES,
     LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
@@ -17,7 +17,6 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SUPPORTED_LINUX_SONAMES,
     SUPPORTED_WINDOWS_DLLS,
 )
-
 
 # ---------------------------------------------------------------------------
 # Registry completeness

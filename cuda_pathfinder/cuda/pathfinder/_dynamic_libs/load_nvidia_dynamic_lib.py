@@ -37,12 +37,10 @@ _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
 # conda, CUDA_HOME, canary) and go straight to system search.
-_DRIVER_ONLY_LIBNAMES = frozenset(
-    name for name, desc in LIB_DESCRIPTORS.items() if desc.strategy == "driver"
-)
+_DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.strategy == "driver")
 
 
-def _load_driver_lib_no_cache(desc: "LibDescriptor") -> LoadedDL:
+def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     """Load an NVIDIA driver library (system-search only).
 
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not

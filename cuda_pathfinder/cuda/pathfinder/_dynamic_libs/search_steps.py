@@ -23,7 +23,7 @@ import glob
 import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import cast
+from typing import NoReturn, cast
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
@@ -60,7 +60,7 @@ class SearchContext:
     def lib_searched_for(self) -> str:
         return cast(str, self.platform.lib_searched_for(self.libname))
 
-    def raise_not_found(self) -> None:
+    def raise_not_found(self) -> NoReturn:
         err = ", ".join(self.error_messages)
         att = "\n".join(self.attachments)
         raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
@@ -76,7 +76,7 @@ def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, an
     for rel_path in rel_dirs:
         for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
             if os.path.isdir(dirname):
-                return dirname
+                return os.path.normpath(dirname)
     return None
 
 
