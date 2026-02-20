@@ -20,6 +20,7 @@ Welcome to the documentation for ``cuda.core``.
 .. toctree::
    :maxdepth: 1
 
+   developer-guide
    conduct
    license
 
