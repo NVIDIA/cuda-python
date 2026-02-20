@@ -72,6 +72,9 @@ extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
 extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
 extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
+// Graphics interop
+extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
+
 // ============================================================================
 // NVRTC function pointers
 //
@@ -104,8 +107,10 @@ using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
+using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const nvvmProgram>;
+
 
 // ============================================================================
 // Context handle functions
@@ -307,6 +312,15 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
 
 // ============================================================================
+// Graphics resource handle functions
+// ============================================================================
+
+// Create an owning graphics resource handle.
+// When the last reference is released, cuGraphicsUnregisterResource is called automatically.
+// Use for CUgraphicsResource handles obtained from cuGraphicsGLRegisterBuffer etc.
+GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource);
+
+// ============================================================================
 // NVRTC Program handle functions
 // ============================================================================
 
@@ -366,6 +380,10 @@ inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -401,6 +419,10 @@ inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphicsResourceHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -462,6 +484,10 @@ inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
 inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
     // NVVM bindings use raw integers, not wrapper classes
     return PyLong_FromSsize_t(as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
 }
 
 }  // namespace cuda_core

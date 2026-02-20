@@ -56,11 +56,15 @@ decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
 decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
+// GL interop pointers
+decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
+
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
 
 // NVVM function pointers (may be null if NVVM is not available)
 NvvmDestroyProgramFn p_nvvmDestroyProgram = nullptr;
+
 
 // ============================================================================
 // GIL management helpers
@@ -804,6 +808,28 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
     auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
     return KernelHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Graphics Resource Handles
+// ============================================================================
+
+namespace {
+struct GraphicsResourceBox {
+    CUgraphicsResource resource;
+};
+}  // namespace
+
+GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource) {
+    auto box = std::shared_ptr<const GraphicsResourceBox>(
+        new GraphicsResourceBox{resource},
+        [](const GraphicsResourceBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphicsUnregisterResource(b->resource);
+            delete b;
+        }
+    );
+    return GraphicsResourceHandle(box, &box->resource);
 }
 
 // ============================================================================
