@@ -4,9 +4,9 @@
 import functools
 import json
 import struct
-import subprocess
 import sys
 
+from cuda.pathfinder._dynamic_libs.canary_probe_subprocess import probe_canary_abs_path_and_print_json
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
     _FindNvidiaDynamicLib,
     derive_ctk_root,
@@ -17,6 +17,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SUPPORTED_WINDOWS_DLLS,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
 if IS_WINDOWS:
     from cuda.pathfinder._dynamic_libs.load_dl_windows import (
@@ -77,21 +78,13 @@ def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     This keeps any side-effects of loading the canary library scoped to the
     child process instead of polluting the current process.
     """
-    cmd = [
-        sys.executable,
-        "-m",
-        "cuda.pathfinder._dynamic_libs.canary_probe_subprocess",
-        libname,
-    ]
     try:
-        result = subprocess.run(  # noqa: S603
-            cmd,
-            check=False,
-            capture_output=True,
-            text=True,
+        result = run_in_spawned_child_process(
+            probe_canary_abs_path_and_print_json,
+            args=(libname,),
             timeout=10.0,
         )
-    except (OSError, subprocess.SubprocessError):
+    except (OSError, RuntimeError):
         return None
     if result.returncode != 0:
         return None

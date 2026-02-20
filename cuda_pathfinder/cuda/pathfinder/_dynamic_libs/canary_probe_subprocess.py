@@ -24,11 +24,15 @@ def _probe_canary_abs_path(libname: str) -> str | None:
     return abs_path
 
 
+def probe_canary_abs_path_and_print_json(libname: str) -> None:
+    print(json.dumps(_probe_canary_abs_path(libname)))  # noqa: T201
+
+
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     if len(args) != 1:
         return 2
-    print(json.dumps(_probe_canary_abs_path(args[0])))  # noqa: T201
+    probe_canary_abs_path_and_print_json(args[0])
     return 0
 
 
