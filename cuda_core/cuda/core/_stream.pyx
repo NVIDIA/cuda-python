@@ -470,18 +470,14 @@ cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
         return <Stream>(arg)
     elif isinstance(arg, GraphBuilder):
         return <Stream>(arg.stream)
-    elif allow_stream_protocol:
-        try:
-            stream = Stream._init(arg)
-        except:
-            pass
-        else:
-            warnings.warn(
-                "Passing foreign stream objects to this function via the "
-                "stream protocol is deprecated. Convert the object explicitly "
-                "using Stream(obj) instead.",
-                stacklevel=2,
-                category=DeprecationWarning,
-            )
-            return <Stream>(stream)
+    elif allow_stream_protocol and hasattr(arg, "__cuda_stream__"):
+        stream = Stream._init(arg)
+        warnings.warn(
+            "Passing foreign stream objects to this function via the "
+            "stream protocol is deprecated. Convert the object explicitly "
+            "using Stream(obj) instead.",
+            stacklevel=2,
+            category=DeprecationWarning,
+        )
+        return <Stream>(stream)
     raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")
