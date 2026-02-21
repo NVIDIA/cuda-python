@@ -106,15 +106,14 @@ jobs:
         run: |
           env
 
-      - name: Install twine
-        run: |
-          pip install twine
+      - name: Install uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
 
       # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
         run: |
           pushd cuda_pathfinder
-          pip wheel -v --no-deps .
+          uv build --wheel --out-dir dist
           popd
 
       - name: List the cuda.pathfinder artifacts directory
@@ -124,22 +123,22 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) cuda_pathfinder/*.whl
-          ls -lahR cuda_pathfinder
+          $CHOWN -R $(whoami) cuda_pathfinder/dist/*.whl
+          ls -lahR cuda_pathfinder/dist
 
       # We only need/want a single pure python wheel, pick linux-64 index 0.
       # This is what we will use for testing & releasing.
       - name: Check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          twine check --strict cuda_pathfinder/*.whl
+          uv tool run twine check --strict cuda_pathfinder/dist/*.whl
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-pathfinder-wheel
-          path: cuda_pathfinder/*.whl
+          path: cuda_pathfinder/dist/*.whl
           if-no-files-found: error
 
       - name: Set up mini CTK
@@ -150,7 +149,10 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        # WAR: v3.3.x has a PATH mangling bug on Windows that causes Git's
+        # /usr/bin/link.exe to shadow MSVC's linker. Pinned to v3.2.1 until
+        # a fixed release is available. See https://github.com/pypa/cibuildwheel/issues/2663
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -194,7 +196,7 @@ jobs:
 
       - name: Check cuda.bindings wheel
         run: |
-          twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          uv tool run twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
@@ -204,7 +206,10 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        # WAR: v3.3.x has a PATH mangling bug on Windows that causes Git's
+        # /usr/bin/link.exe to shadow MSVC's linker. Pinned to v3.2.1 until
+        # a fixed release is available. See https://github.com/pypa/cibuildwheel/issues/2663
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -267,8 +272,7 @@ jobs:
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           pushd cuda_python
-          pip wheel -v --no-deps .
-          twine check --strict *.whl
+          uv build --wheel --out-dir dist
           popd
 
       - name: List the cuda-python artifacts directory
@@ -279,15 +283,20 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) cuda_python/*.whl
-          ls -lahR cuda_python
+          $CHOWN -R $(whoami) cuda_python/dist/*.whl
+          ls -lahR cuda_python/dist
+
+      - name: Check cuda-python wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          uv tool run twine check --strict cuda_python/dist/*.whl
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-python-wheel
-          path: cuda_python/*.whl
+          path: cuda_python/dist/*.whl
           if-no-files-found: error
 
       - name: Set up Python
@@ -310,13 +319,26 @@ jobs:
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
 
-      - name: Install cuda.pathfinder (required for next step)
+      # Create a fresh venv for the matrix Python (differs from the 3.12 used
+      # during the build phase above).
+      - name: Create and activate venv
         run: |
-          pip install cuda_pathfinder/*.whl
+          uv venv
+          echo "${GITHUB_WORKSPACE}/.venv/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.venv/Scripts" >> $GITHUB_PATH
+          echo "VIRTUAL_ENV=${GITHUB_WORKSPACE}/.venv" >> $GITHUB_ENV
+
+      - name: Install test deps and wheels for Cython tests
+        run: |
+          uv pip install cuda_pathfinder/dist/*.whl
+          uv pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          uv pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl
+          pushd cuda_bindings && uv pip install --group test && popd
+          pushd cuda_core && uv pip install --group test && popd
 
       - name: Build cuda.bindings Cython tests
         run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
+          source "${GITHUB_WORKSPACE}/.venv/bin/activate" 2>/dev/null || source "${GITHUB_WORKSPACE}/.venv/Scripts/activate"
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -330,7 +352,7 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl --group ./cuda_core/pyproject.toml:test
+          source "${GITHUB_WORKSPACE}/.venv/bin/activate" 2>/dev/null || source "${GITHUB_WORKSPACE}/.venv/Scripts/activate"
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -383,7 +405,10 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        # WAR: v3.3.x has a PATH mangling bug on Windows that causes Git's
+        # /usr/bin/link.exe to shadow MSVC's linker. Pinned to v3.2.1 until
+        # a fixed release is available. See https://github.com/pypa/cibuildwheel/issues/2663
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -444,15 +469,14 @@ jobs:
 
       - name: Merge cuda.core wheels
         run: |
-          pip install wheel
-          python ci/tools/merge_cuda_core_wheels.py \
+          uv run --no-project --with wheel python ci/tools/merge_cuda_core_wheels.py \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
             "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
             --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
 
       - name: Check cuda.core wheel
         run: |
-          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          uv tool run twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0

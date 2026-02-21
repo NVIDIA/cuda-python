@@ -46,6 +46,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pytest-randomly",
     "pytest-repeat",
     "pytest-randomly",
     "pyglet>=2.1.9",
@@ -70,6 +71,7 @@ include-package-data = false
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.cibuildwheel]
+build-frontend = "build[uv]"
 skip = "*-musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1
