@@ -74,6 +74,57 @@ For example:
 
    $ conda install -c conda-forge cuda-python cuda-version=13
 
+Development environment
+-----------------------
+
+The sections above cover end-user installation. The section below describes a
+repeatable setup for *developing* in this repository (editable installs and
+running tests). It intentionally does not duplicate the canonical install
+instructions.
+
+Development with uv
+~~~~~~~~~~~~~~~~~~~
+
+`uv`_ is a fast Python package and project manager.
+
+.. code-block:: console
+
+   $ git clone https://github.com/NVIDIA/cuda-python
+   $ cd cuda-python/cuda_bindings
+   $ uv venv
+   $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+   $ uv pip install -e . --group test
+
+Run the test suite:
+
+.. code-block:: console
+
+   $ python -m pytest tests
+
+.. _uv: https://docs.astral.sh/uv/
+
+Development with pixi
+~~~~~~~~~~~~~~~~~~~~~
+
+`pixi`_ provides a reproducible development environment via the workspace
+``pixi.toml`` in the repository root.
+
+.. code-block:: console
+
+   $ git clone https://github.com/NVIDIA/cuda-python
+   $ cd cuda-python
+   $ pixi run -e cu13 test-bindings
+
+To run the full repository test matrix (pathfinder → bindings → core):
+
+.. code-block:: console
+
+   $ pixi run -e cu13 test
+
+Use ``-e cu12`` to test against CUDA 12 instead.
+
+.. _pixi: https://pixi.sh/
+
 Installing from Source
 ----------------------
 

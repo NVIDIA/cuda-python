@@ -71,6 +71,56 @@ and likewise use ``cuda-version=13`` for CUDA 13.
 Note that to use ``cuda.core`` with nvJitLink installed from conda-forge requires ``cuda.bindings`` 12.8.0+.
 
 
+Development environment
+-----------------------
+
+The sections above cover end-user installation. The section below focuses on
+a repeatable *development* workflow (editable installs and running tests).
+
+Development with uv
+~~~~~~~~~~~~~~~~~~~
+
+`uv`_ is a fast Python package and project manager. For example, to work on
+``cuda-core`` against CUDA 13:
+
+.. code-block:: console
+
+   $ git clone https://github.com/NVIDIA/cuda-python
+   $ cd cuda-python/cuda_core
+   $ uv venv
+   $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+   $ uv pip install -e .[cu13] --group test
+
+Run tests:
+
+.. code-block:: console
+
+   $ python -m pytest tests
+
+.. _uv: https://docs.astral.sh/uv/
+
+Development with pixi
+~~~~~~~~~~~~~~~~~~~~~
+
+`pixi`_ provides a reproducible development environment across the repository.
+From the repository root:
+
+.. code-block:: console
+
+   $ git clone https://github.com/NVIDIA/cuda-python
+   $ cd cuda-python
+   $ pixi run -e cu13 test-core
+
+To run all repository tests (pathfinder → bindings → core):
+
+.. code-block:: console
+
+   $ pixi run -e cu13 test
+
+Use ``-e cu12`` to test against CUDA 12 instead.
+
+.. _pixi: https://pixi.sh/
+
 Installing from Source
 ----------------------
 
