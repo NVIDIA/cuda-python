@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,26 +9,26 @@ on:
     - cron: '0 0 * * *' # This runs the workflow every day at 12:00 AM UTC
   workflow_dispatch: {}
 
-defaults:
-  run:
-    shell: bash --noprofile --norc -xeuo pipefail {0}
-
 env:
   PY_VER: "3.14"
   CUDA_VER: "13.1.0"
   LOCAL_CTK: "1"
   GPU: "a100"
   DRIVER: "latest"
-  ARCH: "x86_64"
-  HOST_PLATFORM: "linux-64"
 
 jobs:
-  coverage:
-    name: Coverage
+  coverage-linux:
+    name: Coverage (Linux)
     runs-on: "linux-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
       contents: write
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+    env:
+      HOST_PLATFORM: "linux-64"
+      ARCH: "x86_64"
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -50,6 +50,8 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -90,6 +92,26 @@ jobs:
           host-platform: ${{ env.HOST_PLATFORM }}
           cuda-version: ${{ env.CUDA_VER }}
 
+      - name: Patch cuda_bindings for Cython coverage
+        run: |
+          # Patch cuda_bindings setup.py
+          sed -i 's/build_dir=\"build\/cython\",/build_dir=\".\",/' cuda_bindings/setup.py
+
+          # Patch cuda_bindings pyproject.toml - add *.cpp and *.pyx to package-data
+          sed -i 's/"\*" = \["\*\.pxd", "\*\.pxi"\]/"*" = ["*.pxd", "*.pxi", "*.cpp", "*.pyx"]/' cuda_bindings/pyproject.toml
+
+          echo "Applied coverage patches to cuda_bindings"
+
+      - name: Patch cuda_core for Cython coverage
+        run: |
+          # Patch cuda_core build_hooks.py
+          sed -i 's/build_dir=\"build\/cython\",/build_dir=\".\",/' cuda_core/build_hooks.py
+
+          # Patch cuda_core pyproject.toml - add *.pxi, *.cpp, *.pyx to the "*" pattern
+          sed -i 's/"\*" = \["\*\.pxd"\]/"*" = ["*.pxd", "*.pxi", "*.cpp", "*.pyx"]/' cuda_core/pyproject.toml
+
+          echo "Applied coverage patches to cuda_core"
+
       - name: Create venv
         run: |
           python -m venv .venv
@@ -110,41 +132,396 @@ jobs:
 
       - name: Install coverage tools
         run: |
-          .venv/bin/pip install coverage pytest-cov
+          .venv/bin/pip install coverage pytest-cov Cython
 
       - name: Set cuda package install root
         run: |
-          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
+          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; import os; print(os.path.dirname(cuda.__path__[0]))')" >> $GITHUB_ENV
           echo "REPO_ROOT=$(pwd)" >> $GITHUB_ENV
 
       - name: Run cuda.pathfinder tests
+        continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
 
       - name: Run cuda.bindings tests
+        continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
 
       - name: Run cuda.core tests
+        continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
 
-      - name: Generate coverage report
+      - name: Copy Linux coverage file to workspace
         run: |
-          cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/coverage html --rcfile=$REPO_ROOT/.coveragerc
-          $REPO_ROOT/.venv/bin/coverage xml --rcfile=$REPO_ROOT/.coveragerc -o htmlcov/coverage.xml
-          mkdir $REPO_ROOT/docs
-          mv htmlcov $REPO_ROOT/docs/coverage
+          cp $INSTALL_ROOT/.coverage $REPO_ROOT/.coverage.linux
+          echo "Copied .coverage.linux to $REPO_ROOT"
+          ls -lh $REPO_ROOT/.coverage.linux
 
-      - name: Archive code coverage results
+      - name: Upload Linux coverage data
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
-          name: coverage
+          name: coverage-data-linux
+          path: .coverage.linux
+          retention-days: 7
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Upload cuda source code for coverage mapping
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: cuda-source-linux
+          path: ${{ env.INSTALL_ROOT }}/cuda/
+          retention-days: 7
+          if-no-files-found: error
+
+  # Build Windows wheels on GitHub-hosted runner (has VS, no GPU)
+  build-wheel-windows:
+    name: Build Wheels (Windows)
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+    env:
+      HOST_PLATFORM: "win-64"
+      CUDA_PYTHON_COVERAGE: "1"
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ env.PY_VER }}
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: win-64
+          cuda-version: ${{ env.CUDA_VER }}
+
+      - name: Patch cuda_bindings for Cython coverage
+        shell: powershell
+        run: |
+          $setupPath = "cuda_bindings\setup.py"
+          (Get-Content $setupPath -Raw) -replace 'build_dir="build/cython",', 'build_dir=".",' | Set-Content $setupPath -NoNewline
+
+          $pyprojectPath = "cuda_bindings\pyproject.toml"
+          # Add *.cpp and *.pyx to package-data (using capture groups)
+          (Get-Content $pyprojectPath -Raw) -replace '"\*" = \["(\*\.pxd)", "(\*\.pxi)"\]', '"*" = ["$1", "$2", "*.cpp", "*.pyx"]' | Set-Content $pyprojectPath -NoNewline
+
+          echo "Applied coverage patches to cuda_bindings"
+
+      - name: Patch cuda_core for Cython coverage
+        shell: powershell
+        run: |
+          $buildHooksPath = "cuda_core\build_hooks.py"
+          (Get-Content $buildHooksPath -Raw) -replace 'build_dir="build/cython",', 'build_dir=".",' | Set-Content $buildHooksPath -NoNewline
+
+          $pyprojectPath = "cuda_core\pyproject.toml"
+          # Add *.pxi, *.cpp, *.pyx to the "*" pattern (using capture groups)
+          (Get-Content $pyprojectPath -Raw) -replace '"\*" = \["(\*\.pxd)"\]', '"*" = ["$1", "*.pxi", "*.cpp", "*.pyx"]' | Set-Content $pyprojectPath -NoNewline
+
+          echo "Applied coverage patches to cuda_core"
+
+      - name: Create venv
+        run: |
+          python -m venv .venv
+
+      - name: Build and install cuda.pathfinder
+        run: |
+          .venv/Scripts/pip install wheel setuptools Cython
+          .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
+
+      - name: Build cuda.bindings wheel
+        run: |
+          cd cuda_bindings
+          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
+
+      - name: Build cuda.core wheel
+        run: |
+          export PIP_FIND_LINKS="$(pwd)/wheels"
+          export PIP_PRE=1
+          cd cuda_core
+          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
+
+      - name: List wheel artifacts
+        run: |
+          echo "=== Windows wheel artifacts ==="
+          ls -lahR ./wheels/
+
+      - name: Upload Windows wheel artifacts
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: coverage-windows-wheels
+          path: ./wheels/*.whl
+          retention-days: 1
+          if-no-files-found: error
+
+  # Run coverage tests on self-hosted GPU runner (no VS needed, installs pre-built wheels)
+  coverage-windows:
+    name: Coverage (Windows)
+    needs: [build-wheel-windows]
+    runs-on: "windows-amd64-gpu-a100-latest-1"
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      HOST_PLATFORM: "win-64"
+      ARCH: "amd64"
+      CUDA_PYTHON_COVERAGE: "1"
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
+      - name: Update driver
+        shell: powershell
+        env:
+          DRIVER_MODE: "TCC"
+          GPU_TYPE: "a100"
+        run: |
+          ci/tools/install_gpu_driver.ps1
+
+      - name: Ensure GPU is working
+        run: |
+          nvidia-smi
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ env.PY_VER }}
+
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: win-64
+          cuda-version: ${{ env.CUDA_VER }}
+
+      - name: Download Windows wheel artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        with:
+          name: coverage-windows-wheels
+          path: ./wheels/
+
+      - name: List downloaded wheel artifacts
+        run: |
+          echo "=== Downloaded wheel artifacts ==="
+          ls -lahR ./wheels/
+
+      - name: Create venv
+        run: |
+          python -m venv .venv
+
+      - name: Install wheels from build job
+        run: |
+          .venv/Scripts/pip install ./wheels/cuda_pathfinder*.whl
+          echo "Installed cuda.pathfinder"
+
+          .venv/Scripts/pip install ./wheels/cuda_bindings*.whl
+          echo "Installed cuda.bindings"
+
+          .venv/Scripts/pip install ./wheels/cuda_core*.whl
+          echo "Installed cuda.core"
+
+      - name: Install test dependencies and coverage tools
+        run: |
+          .venv/Scripts/pip install -v ./cuda_python_test_helpers
+          .venv/Scripts/pip install coverage pytest-cov Cython
+          .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
+          .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
+
+      - name: Get install root
+        id: install-root
+        run: |
+          INSTALL_ROOT=$(.venv/Scripts/python -c 'import cuda; import os; print(os.path.dirname(cuda.__path__[0]))')
+          echo "INSTALL_ROOT=$INSTALL_ROOT" >> $GITHUB_OUTPUT
+          echo "Install root: $INSTALL_ROOT"
+
+      - name: Run cuda.pathfinder tests
+        continue-on-error: true
+        run: |
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
+
+      - name: Run cuda.bindings tests (with 8MB stack)
+        continue-on-error: true
+        run: |
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          # Run pytest in 8MB stack thread (Cython linetrace requirement)
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" << PYTEST_EOF
+          import os
+          import sys
+          import threading
+          import pytest
+
+          os.chdir(r'${{ steps.install-root.outputs.INSTALL_ROOT }}')
+          threading.stack_size(8 * 1024 * 1024)
+          result = {'code': 1}
+
+          def _run():
+              workspace = os.environ['GITHUB_WORKSPACE']
+              result['code'] = pytest.main([
+                  '-v',
+                  '--cov=./cuda',
+                  '--cov-append',
+                  '--cov-context=test',
+                  f'--cov-config={workspace}/.coveragerc',
+                  f'{workspace}/cuda_bindings/tests'
+              ])
+
+          t = threading.Thread(target=_run)
+          t.start()
+          t.join()
+
+          print(f'Bindings tests exit code: {result["code"]}')
+          # Exit with actual code (continue-on-error handles it)
+          sys.exit(result['code'])
+          PYTEST_EOF
+
+      - name: Run cuda.core tests
+        continue-on-error: true
+        run: |
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_core/tests"
+
+      - name: Copy Windows coverage file to workspace
+        run: |
+          cp "${{ steps.install-root.outputs.INSTALL_ROOT }}/.coverage" "$GITHUB_WORKSPACE/.coverage.windows"
+          echo "Copied .coverage.windows to $GITHUB_WORKSPACE"
+          ls -lh "$GITHUB_WORKSPACE/.coverage.windows"
+
+      - name: Upload Windows coverage data
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: coverage-data-windows
+          path: .coverage.windows
+          retention-days: 7
+          include-hidden-files: true
+          if-no-files-found: error
+
+  combine-and-deploy:
+    name: Combine Coverage and Deploy
+    needs: [coverage-linux, coverage-windows]
+    runs-on: ubuntu-latest
+    if: always()
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ env.PY_VER }}
+
+      - name: Install coverage
+        run: |
+          # .coveragerc enables Cython.Coverage plugin; ensure it's available here too.
+          pip install coverage[toml] Cython
+
+      - name: Download Linux coverage data
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        with:
+          name: coverage-data-linux
+          path: ./
+
+      - name: Download cuda source code
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        with:
+          name: cuda-source-linux
+          path: ./cuda/
+
+      - name: Download Windows coverage data
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        with:
+          name: coverage-data-windows
+          path: ./
+
+      - name: Combine coverage data
+        run: |
+          echo "=== Working directory ==="
+          pwd
+          echo ""
+          echo "=== All files in root ==="
+          ls -la
+          echo ""
+
+          # Verify both Linux and Windows coverage files exist
+          echo "=== Checking coverage files ==="
+
+          if [ ! -f ".coverage.linux" ]; then
+            echo "[ERROR] .coverage.linux not found!"
+            exit 1
+          fi
+          echo "[OK] Found .coverage.linux"
+
+          if [ ! -f ".coverage.windows" ]; then
+            echo "[ERROR] .coverage.windows not found!"
+            exit 1
+          fi
+          echo "[OK] Found .coverage.windows"
+
+          echo "=== Available coverage files ==="
+          ls -lh .coverage.*
+
+          echo "=== Cuda source structure ==="
+          find ./cuda -type d || {
+            echo "[ERROR] No cuda source directory!"
+            exit 1
+          }
+
+          # Combine all .coverage.* files
+          echo ""
+          echo "=== Combining coverage data ==="
+          coverage combine --rcfile=./.coveragerc --keep .coverage.*
+
+          # Generate reports
+          echo ""
+          echo "=== Generating HTML, XML, and text reports ==="
+          coverage html --rcfile=./.coveragerc
+          coverage xml --rcfile=./.coveragerc -o coverage.xml
+          coverage report --rcfile=./.coveragerc
+
+          # Prepare for upload
+          mkdir -p ./docs/coverage
+          mv htmlcov/* ./docs/coverage/
+          mv coverage.xml ./docs/coverage/
+
+          echo ""
+          echo "[SUCCESS] Coverage reports generated successfully"
+
+      - name: Archive combined coverage results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: coverage-combined
           path: docs/coverage/
+          retention-days: 7
+          include-hidden-files: true
 
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
@@ -153,5 +530,5 @@ jobs:
           git-config-email: cuda-python-bot@users.noreply.github.com
           folder: docs/
           target-folder: docs/
-          commit-message: "Deploy coverage: ${{ env.COMMIT_HASH }}"
+          commit-message: "Deploy combined coverage (Linux + Windows): ${{ github.sha }}"
           clean: false
