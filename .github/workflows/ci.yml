@@ -219,8 +219,6 @@ jobs:
       - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
-    with:
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
   checks:
     name: Check job status
