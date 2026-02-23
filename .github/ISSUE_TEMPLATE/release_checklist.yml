@@ -10,7 +10,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This checklist is for cuda-core releases as well as cuda-bindings patches. Please go through this checklist and ensure all tasks are completed. See [RELEASE.md](../RELEASE.md) for detailed guidance on each step.
+        This checklist is for cuda-core releases as well as cuda-bindings patches. Please go through this checklist and ensure all tasks are completed. See [RELEASE-core.md](../RELEASE-core.md) for detailed guidance on each step (cuda.core).
 
   - type: checkboxes
     id: subpackage-tasks
