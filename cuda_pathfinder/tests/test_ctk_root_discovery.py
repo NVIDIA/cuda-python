@@ -13,6 +13,7 @@ from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
+    _resolve_system_loaded_abs_path_in_subprocess,
     _try_ctk_root_canary,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
@@ -138,6 +139,58 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
     cudart_lib = _create_cudart_in_ctk(ctk_root)
 
     assert _FindNvidiaDynamicLib("cudart").try_via_ctk_root(str(ctk_root)) == str(cudart_lib)
+
+
+# ---------------------------------------------------------------------------
+# _resolve_system_loaded_abs_path_in_subprocess
+# ---------------------------------------------------------------------------
+
+
+def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
+    result = mocker.Mock(stdout='"/usr/local/cuda/lib64/libcudart.so.13"\n')
+    mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
+
+    assert _resolve_system_loaded_abs_path_in_subprocess("cudart") == "/usr/local/cuda/lib64/libcudart.so.13"
+
+
+def test_subprocess_probe_returns_none_on_null_payload(mocker):
+    result = mocker.Mock(stdout="null\n")
+    mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
+
+    assert _resolve_system_loaded_abs_path_in_subprocess("cudart") is None
+
+
+def test_subprocess_probe_raises_on_child_failure(mocker):
+    mocker.patch(
+        f"{_MODULE}.run_in_spawned_child_process",
+        side_effect=ChildProcessError("child failed"),
+    )
+    with pytest.raises(ChildProcessError, match="child failed"):
+        _resolve_system_loaded_abs_path_in_subprocess("cudart")
+
+
+def test_subprocess_probe_raises_on_empty_stdout(mocker):
+    result = mocker.Mock(stdout=" \n \n")
+    mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
+
+    with pytest.raises(RuntimeError, match="produced no stdout payload"):
+        _resolve_system_loaded_abs_path_in_subprocess("cudart")
+
+
+def test_subprocess_probe_raises_on_invalid_json_payload(mocker):
+    result = mocker.Mock(stdout="not-json\n")
+    mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
+
+    with pytest.raises(RuntimeError, match="invalid JSON payload"):
+        _resolve_system_loaded_abs_path_in_subprocess("cudart")
+
+
+def test_subprocess_probe_raises_on_unexpected_json_payload(mocker):
+    result = mocker.Mock(stdout='{"path": "/usr/local/cuda/lib64/libcudart.so.13"}\n')
+    mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
+
+    with pytest.raises(RuntimeError, match="unexpected payload"):
+        _resolve_system_loaded_abs_path_in_subprocess("cudart")
 
 
 # ---------------------------------------------------------------------------

@@ -78,28 +78,28 @@ def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     This keeps any side-effects of loading the canary library scoped to the
     child process instead of polluting the current process.
     """
-    try:
-        result = run_in_spawned_child_process(
-            probe_canary_abs_path_and_print_json,
-            args=(libname,),
-            timeout=10.0,
-        )
-    except (OSError, RuntimeError):
-        return None
-    if result.returncode != 0:
-        return None
+    result = run_in_spawned_child_process(
+        probe_canary_abs_path_and_print_json,
+        args=(libname,),
+        timeout=10.0,
+        rethrow=True,
+    )
 
     # Read the final non-empty stdout line in case earlier lines are emitted.
     lines = [line for line in result.stdout.splitlines() if line.strip()]
     if not lines:
-        return None
+        raise RuntimeError(f"Canary probe child process produced no stdout payload for {libname!r}")
     try:
         payload = json.loads(lines[-1])
     except json.JSONDecodeError:
-        return None
+        raise RuntimeError(
+            f"Canary probe child process emitted invalid JSON payload for {libname!r}: {lines[-1]!r}"
+        ) from None
     if isinstance(payload, str):
         return payload
-    return None
+    if payload is None:
+        return None
+    raise RuntimeError(f"Canary probe child process emitted unexpected payload for {libname!r}: {payload!r}")
 
 
 def _try_ctk_root_canary(finder: _FindNvidiaDynamicLib) -> str | None:

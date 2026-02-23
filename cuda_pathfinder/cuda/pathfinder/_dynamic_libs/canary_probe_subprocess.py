@@ -5,7 +5,7 @@
 import json
 import sys
 
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -15,7 +15,10 @@ else:
 
 
 def _probe_canary_abs_path(libname: str) -> str | None:
-    loaded: LoadedDL | None = load_with_system_search(libname)
+    try:
+        loaded: LoadedDL | None = load_with_system_search(libname)
+    except DynamicLibNotFoundError:
+        return None
     if loaded is None:
         return None
     abs_path = loaded.abs_path
