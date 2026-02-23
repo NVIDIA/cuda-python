@@ -561,10 +561,10 @@ on the system <code class="docutils literal notranslate"><span class="pre">PATH<
 <li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
 </ul>
 </li>
-<li><p><strong>CTK root canary probe</strong></p>
+<li><p><strong>CTK root canary probe (discoverable libs only)</strong></p>
 <ul class="simple">
-<li><p>For libraries whose shared object doesn’t reside on the standard
-linker path (e.g. <code class="docutils literal notranslate"><span class="pre">libnvvm.so</span></code> lives under <code class="docutils literal notranslate"><span class="pre">$CTK_ROOT/nvvm/lib64</span></code>),
+<li><p>For selected libraries whose shared object doesn’t reside on the
+standard linker path (currently <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>),
 attempt to discover the CTK installation root by system-loading a
 well-known CTK library (<code class="docutils literal notranslate"><span class="pre">cudart</span></code>) in a subprocess, then derive
 the root from its resolved absolute path.</p></li>
