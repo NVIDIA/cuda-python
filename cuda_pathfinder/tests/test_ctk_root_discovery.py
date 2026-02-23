@@ -148,9 +148,10 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
 
 def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
     result = mocker.Mock(stdout='"/usr/local/cuda/lib64/libcudart.so.13"\n')
-    mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
+    run_mock = mocker.patch(f"{_MODULE}.run_in_spawned_child_process", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") == "/usr/local/cuda/lib64/libcudart.so.13"
+    assert run_mock.call_args.kwargs.get("rethrow") is True
 
 
 def test_subprocess_probe_returns_none_on_null_payload(mocker):
