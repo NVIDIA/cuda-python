@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.driver\_set\_poll\_mode
-============================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: driver_set_poll_mode
