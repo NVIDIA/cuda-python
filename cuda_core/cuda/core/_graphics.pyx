@@ -13,29 +13,34 @@ from cuda.core._resource_handles cimport (
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from enum import IntEnum
-
 from cuda.core._memory import Buffer
 
-__all__ = ['GraphicsResource', 'GraphicsRegisterFlags']
+__all__ = ['GraphicsResource']
+
+_REGISTER_FLAGS = {
+    "none": cydriver.CU_GRAPHICS_REGISTER_FLAGS_NONE,
+    "read_only": cydriver.CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY,
+    "write_discard": cydriver.CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD,
+    "surface_load_store": cydriver.CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST,
+    "texture_gather": cydriver.CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER,
+}
 
 
-class GraphicsRegisterFlags(IntEnum):
-    """Flags for registering a graphics resource with CUDA.
-
-    These flags specify the intended usage when registering a graphics
-    resource (e.g., an OpenGL buffer) for CUDA access.
-    """
-    NONE = cydriver.CU_GRAPHICS_REGISTER_FLAGS_NONE
-    """No hints about how this resource will be used. CUDA may read and write."""
-    READ_ONLY = cydriver.CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY
-    """CUDA will not write to this resource."""
-    WRITE_DISCARD = cydriver.CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD
-    """CUDA will not read from this resource and will write over the entire contents."""
-    SURFACE_LOAD_STORE = cydriver.CU_GRAPHICS_REGISTER_FLAGS_SURFACE_LDST
-    """CUDA will bind this resource to a surface reference."""
-    TEXTURE_GATHER = cydriver.CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER
-    """CUDA will perform texture gather operations on this resource."""
+def _parse_register_flags(flags):
+    if flags is None:
+        return 0
+    if isinstance(flags, str):
+        flags = (flags,)
+    result = 0
+    for f in flags:
+        try:
+            result |= _REGISTER_FLAGS[f]
+        except KeyError:
+            raise ValueError(
+                f"Unknown register flag {f!r}. "
+                f"Valid flags: {', '.join(sorted(_REGISTER_FLAGS))}"
+            ) from None
+    return result
 
 
 class _MappedBufferContext:
@@ -114,16 +119,20 @@ cdef class GraphicsResource:
         )
 
     @classmethod
-    def from_gl_buffer(cls, int gl_buffer, *, int flags=0) -> GraphicsResource:
+    def from_gl_buffer(cls, int gl_buffer, *, flags=None) -> GraphicsResource:
         """Register an OpenGL buffer object for CUDA access.
 
         Parameters
         ----------
         gl_buffer : int
             The OpenGL buffer name (``GLuint``) to register.
-        flags : int, optional
-            Registration flags from :class:`GraphicsRegisterFlags`.
-            Defaults to :attr:`GraphicsRegisterFlags.NONE`.
+        flags : str or sequence of str, optional
+            Registration flags specifying intended usage. Accepted values:
+            ``"none"``, ``"read_only"``, ``"write_discard"``,
+            ``"surface_load_store"``, ``"texture_gather"``.
+            Multiple flags can be combined by passing a sequence
+            (e.g., ``("surface_load_store", "read_only")``).
+            Defaults to ``None`` (no flags).
 
         Returns
         -------
@@ -135,13 +144,16 @@ cdef class GraphicsResource:
         CUDAError
             If the registration fails (e.g., no current GL context, invalid
             buffer name, or operating system error).
+        ValueError
+            If an unknown flag string is provided.
         """
         cdef GraphicsResource self = GraphicsResource.__new__(cls)
         cdef cydriver.CUgraphicsResource resource
         cdef cydriver.GLuint cy_buffer = <cydriver.GLuint>gl_buffer
+        cdef unsigned int cy_flags = _parse_register_flags(flags)
         with nogil:
             HANDLE_RETURN(
-                cydriver.cuGraphicsGLRegisterBuffer(&resource, cy_buffer, <unsigned int>flags)
+                cydriver.cuGraphicsGLRegisterBuffer(&resource, cy_buffer, cy_flags)
             )
         self._handle = create_graphics_resource_handle(resource)
         self._mapped = False
@@ -149,7 +161,7 @@ cdef class GraphicsResource:
 
     @classmethod
     def from_gl_image(
-        cls, int image, int target, *, int flags=0
+        cls, int image, int target, *, flags=None
     ) -> GraphicsResource:
         """Register an OpenGL texture or renderbuffer for CUDA access.
 
@@ -159,9 +171,13 @@ cdef class GraphicsResource:
             The OpenGL texture or renderbuffer name (``GLuint``) to register.
         target : int
             The OpenGL target type (e.g., ``GL_TEXTURE_2D``).
-        flags : int, optional
-            Registration flags from :class:`GraphicsRegisterFlags`.
-            Defaults to :attr:`GraphicsRegisterFlags.NONE`.
+        flags : str or sequence of str, optional
+            Registration flags specifying intended usage. Accepted values:
+            ``"none"``, ``"read_only"``, ``"write_discard"``,
+            ``"surface_load_store"``, ``"texture_gather"``.
+            Multiple flags can be combined by passing a sequence
+            (e.g., ``("surface_load_store", "read_only")``).
+            Defaults to ``None`` (no flags).
 
         Returns
         -------
@@ -172,14 +188,17 @@ cdef class GraphicsResource:
         ------
         CUDAError
             If the registration fails.
+        ValueError
+            If an unknown flag string is provided.
         """
         cdef GraphicsResource self = GraphicsResource.__new__(cls)
         cdef cydriver.CUgraphicsResource resource
         cdef cydriver.GLuint cy_image = <cydriver.GLuint>image
         cdef cydriver.GLenum cy_target = <cydriver.GLenum>target
+        cdef unsigned int cy_flags = _parse_register_flags(flags)
         with nogil:
             HANDLE_RETURN(
-                cydriver.cuGraphicsGLRegisterImage(&resource, cy_image, cy_target, <unsigned int>flags)
+                cydriver.cuGraphicsGLRegisterImage(&resource, cy_image, cy_target, cy_flags)
             )
         self._handle = create_graphics_resource_handle(resource)
         self._mapped = False

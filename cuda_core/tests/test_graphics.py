@@ -14,7 +14,6 @@ import pytest
 from cuda.core import (
     Buffer,
     Device,
-    GraphicsRegisterFlags,
     GraphicsResource,
     StridedMemoryView,
 )
@@ -140,17 +139,33 @@ def _gl_context_and_texture(width=16, height=16):
 
 
 # ---------------------------------------------------------------------------
-# GraphicsRegisterFlags tests
+# Register flags parsing tests
 # ---------------------------------------------------------------------------
 
 
-class TestGraphicsRegisterFlags:
-    def test_enum_values(self):
-        assert int(GraphicsRegisterFlags.NONE) == 0
-        assert int(GraphicsRegisterFlags.READ_ONLY) == 1
-        assert int(GraphicsRegisterFlags.WRITE_DISCARD) == 2
-        assert int(GraphicsRegisterFlags.SURFACE_LOAD_STORE) == 4
-        assert int(GraphicsRegisterFlags.TEXTURE_GATHER) == 8
+class TestRegisterFlags:
+    def test_parse_none(self):
+        from cuda.core._graphics import _parse_register_flags
+
+        assert _parse_register_flags(None) == 0
+
+    def test_parse_single_string(self):
+        from cuda.core._graphics import _parse_register_flags
+
+        assert _parse_register_flags("read_only") == 1
+        assert _parse_register_flags("write_discard") == 2
+
+    def test_parse_combined_flags(self):
+        from cuda.core._graphics import _parse_register_flags
+
+        result = _parse_register_flags(("surface_load_store", "read_only"))
+        assert result == 4 | 1
+
+    def test_parse_invalid_raises(self):
+        from cuda.core._graphics import _parse_register_flags
+
+        with pytest.raises(ValueError, match="Unknown register flag"):
+            _parse_register_flags("bogus")
 
 
 # ---------------------------------------------------------------------------
@@ -179,7 +194,7 @@ class TestFromGLBuffer:
 
     def test_register_write_discard(self):
         with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             assert resource.handle != 0
             resource.close()
 
@@ -212,7 +227,7 @@ class TestFromGLImage:
 class TestMapUnmap:
     def test_map_returns_buffer(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             mapped = resource.map()
             assert resource.is_mapped
             # mapped is a _MappedBufferContext; its .handle and .size delegate to Buffer
@@ -224,7 +239,7 @@ class TestMapUnmap:
 
     def test_context_manager_unmaps(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             with resource.map() as buf:
                 assert isinstance(buf, Buffer)
                 assert resource.is_mapped
@@ -234,7 +249,7 @@ class TestMapUnmap:
 
     def test_context_manager_unmaps_on_exception(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             with pytest.raises(ValueError, match="test error"), resource.map() as _buf:
                 assert resource.is_mapped
                 raise ValueError("test error")
@@ -246,7 +261,7 @@ class TestMapUnmap:
         """End-to-end: register, map, create StridedMemoryView."""
         nbytes = 256 * 4  # 256 float32 elements
         with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             with resource.map() as buf:
                 view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
                 assert view.ptr == int(buf.handle)
@@ -259,7 +274,7 @@ class TestMapUnmap:
             dev = Device(0)
             dev.set_current()
             stream = dev.create_stream()
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             with resource.map(stream=stream) as buf:
                 assert buf.size > 0
             resource.close()
@@ -304,7 +319,7 @@ class TestErrorHandling:
     def test_close_while_mapped(self):
         """close() should unmap before unregistering."""
         with _gl_context_and_buffer() as (gl_buf, nbytes):
-            resource = GraphicsResource.from_gl_buffer(gl_buf, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             resource.map()
             assert resource.is_mapped
             resource.close()  # Should unmap + unregister without error

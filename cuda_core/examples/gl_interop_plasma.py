@@ -64,7 +64,6 @@ import time
 import numpy as np
 from cuda.core import (
     Device,
-    GraphicsRegisterFlags,
     GraphicsResource,
     LaunchConfig,
     Program,
@@ -296,7 +295,7 @@ def main():
     #     THIS IS THE KEY LINE.  GraphicsResource.from_gl_buffer() tells the
     #     CUDA driver "I want to access this OpenGL buffer from CUDA kernels."
     #     WRITE_DISCARD means CUDA will overwrite the entire buffer each frame.
-    resource = GraphicsResource.from_gl_buffer(pbo_id, flags=GraphicsRegisterFlags.WRITE_DISCARD)
+    resource = GraphicsResource.from_gl_buffer(pbo_id, flags="write_discard")
 
     # --- Step 6: Render loop ---
     start_time = time.monotonic()
