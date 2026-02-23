@@ -4,7 +4,8 @@
 # Note: This only covers what is not covered already in test_nvidia_dynamic_libs_load_lib.py
 
 import pytest
-from spawned_process_runner import run_in_spawned_child_process
+
+from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
 
 def child_crashes():
