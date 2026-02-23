@@ -75,8 +75,14 @@ _CTK_ROOT_CANARY_LIBNAMES = ("cudart",)
 def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     """Resolve a library's system-search absolute path in a child process.
 
-    This keeps any side-effects of loading the canary library scoped to the
-    child process instead of polluting the current process.
+    This runs in a spawned (not forked) child process. Spawning is important
+    because it starts from a fresh interpreter state, so the child does not
+    inherit already-loaded CUDA dynamic libraries from the parent process
+    (especially the well-known canary probe library).
+
+    That keeps any side-effects of loading the canary library scoped to the
+    child process instead of polluting the current process, and ensures the
+    canary probe is an independent system-search attempt.
     """
     result = run_in_spawned_child_process(
         probe_canary_abs_path_and_print_json,
