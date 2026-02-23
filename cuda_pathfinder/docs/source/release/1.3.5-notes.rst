@@ -6,7 +6,7 @@
 ``cuda-pathfinder`` 1.3.5 Release notes
 =======================================
 
-Released on Feb 19, 2026
+Released on Feb 23, 2026
 
 Highlights
 ----------
