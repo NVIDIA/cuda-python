@@ -21465,7 +21465,7 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
 
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
-    return (_cudaError_t(err), callback)
+    return (_cudaError_t_SUCCESS, callback)
 {{endif}}
 
 {{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
