@@ -13,6 +13,8 @@ from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
 )
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL, load_dependencies
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
+    _CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
+    _CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES,
     SUPPORTED_LINUX_SONAMES,
     SUPPORTED_WINDOWS_DLLS,
 )
@@ -66,12 +68,6 @@ def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
     )
 
 
-# Libs that reside on the standard linker path in system CTK installs.
-# Used to discover the CTK root when a lib with a non-standard path
-# (e.g. nvvm under $CTK_ROOT/nvvm/lib64) can't be found directly.
-_CTK_ROOT_CANARY_LIBNAMES = ("cudart",)
-
-
 def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     """Resolve a library's system-search absolute path in a child process.
 
@@ -111,15 +107,15 @@ def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
 def _try_ctk_root_canary(finder: _FindNvidiaDynamicLib) -> str | None:
     """Derive the CTK root from a system-installed canary lib.
 
-    For libs like nvvm whose shared object doesn't reside on the standard
-    linker path, we locate a well-known CTK lib that IS on the linker path
-    via system search, derive the CTK installation root from its resolved
-    path, and then look for the target lib relative to that root.
+    For discoverable libs (currently nvvm) whose shared object doesn't reside
+    on the standard linker path, we locate a well-known CTK lib that IS on
+    the linker path via system search, derive the CTK installation root from
+    its resolved path, and then look for the target lib relative to that root.
 
     The canary load is performed in a subprocess to avoid introducing loader
     state into the current process.
     """
-    for canary_libname in _CTK_ROOT_CANARY_LIBNAMES:
+    for canary_libname in _CTK_ROOT_CANARY_ANCHOR_LIBNAMES:
         canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
         if canary_abs_path is None:
             continue
@@ -167,11 +163,14 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         if abs_path is not None:
             found_via = "CUDA_HOME"
         else:
-            # Canary probe: if the direct system search and CUDA_HOME both
-            # failed (e.g. nvvm isn't on the linker path and CUDA_HOME is
-            # unset), try to discover the CTK root by loading a well-known CTK
-            # lib in a subprocess, then look for the target lib relative to
-            # that root.
+            if libname not in _CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES:
+                finder.raise_not_found_error()
+
+            # Canary probe (discoverable libs only): if the direct system
+            # search and CUDA_HOME both failed (e.g. nvvm isn't on the linker
+            # path and CUDA_HOME is unset), try to discover the CTK root by
+            # loading a well-known CTK lib in a subprocess, then look for the
+            # target lib relative to that root.
             abs_path = _try_ctk_root_canary(finder)
             if abs_path is not None:
                 found_via = "system-ctk-root"
@@ -246,10 +245,10 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
            - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
 
-        5. **CTK root canary probe**
+        5. **CTK root canary probe (discoverable libs only)**
 
-           - For libraries whose shared object doesn't reside on the standard
-             linker path (e.g. ``libnvvm.so`` lives under ``$CTK_ROOT/nvvm/lib64``),
+           - For selected libraries whose shared object doesn't reside on the
+             standard linker path (currently ``nvvm``),
              attempt to discover the CTK installation root by system-loading a
              well-known CTK library (``cudart``) in a subprocess, then derive
              the root from its resolved absolute path.

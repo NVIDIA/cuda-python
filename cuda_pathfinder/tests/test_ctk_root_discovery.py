@@ -10,7 +10,7 @@ from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
     _FindNvidiaDynamicLib,
     derive_ctk_root,
 )
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
     _resolve_system_loaded_abs_path_in_subprocess,
@@ -328,3 +328,16 @@ def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
 
     assert result.found_via == "system-ctk-root"
     assert result.abs_path == str(nvvm_lib)
+
+
+@pytest.mark.usefixtures("_isolate_load_cascade")
+def test_non_discoverable_lib_skips_canary_probe(mocker):
+    # Force fallback path for a lib that is not canary-discoverable.
+    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
+    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    canary_probe = mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess")
+
+    with pytest.raises(DynamicLibNotFoundError):
+        _load_lib_no_cache("cublas")
+
+    canary_probe.assert_not_called()

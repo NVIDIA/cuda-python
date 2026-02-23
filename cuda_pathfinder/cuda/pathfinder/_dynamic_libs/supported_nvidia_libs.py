@@ -358,6 +358,13 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
 
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
 
+# CTK root canary probe config:
+# - anchor libs: expected on the standard system loader path and used to derive
+#   CTK root in an isolated child process.
+# - discoverable libs: libs that are allowed to use the CTK-root canary fallback.
+_CTK_ROOT_CANARY_ANCHOR_LIBNAMES = ("cudart",)
+_CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES = ("nvvm",)
+
 # Based on output of toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "cublas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
