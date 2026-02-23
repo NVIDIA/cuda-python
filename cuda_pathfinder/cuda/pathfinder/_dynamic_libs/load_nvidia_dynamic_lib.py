@@ -68,6 +68,7 @@ def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
     )
 
 
+@functools.cache
 def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     """Resolve a library's system-search absolute path in a child process.
 

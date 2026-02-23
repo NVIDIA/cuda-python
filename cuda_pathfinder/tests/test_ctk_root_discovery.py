@@ -22,6 +22,13 @@ _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _FIND_MODULE = "cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib"
 
 
+@pytest.fixture(autouse=True)
+def _clear_canary_subprocess_probe_cache():
+    _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
+    yield
+    _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
+
+
 # ---------------------------------------------------------------------------
 # Platform-aware test helpers
 # ---------------------------------------------------------------------------
