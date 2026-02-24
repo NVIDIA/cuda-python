@@ -135,8 +135,13 @@ cdef inline int prepare_tensor_map_arg(
         vector.vector[void*]& data_addresses,
         TensorMapDescriptor arg,
         const size_t idx) except -1:
+    # Allocate a temporary buffer for the 128-byte CUtensorMap struct.
+    # We copy rather than pointing directly at arg._tensor_map for lifetime
+    # safety: ParamHolder owns and frees its argument buffers independently.
     cdef void* ptr = PyMem_Malloc(sizeof(cydriver.CUtensorMap))
     memcpy(ptr, arg._get_data_ptr(), sizeof(cydriver.CUtensorMap))
+    # data[idx] is tracked so the allocation is freed in ParamHolder.__dealloc__,
+    # data_addresses[idx] is the pointer passed to cuLaunchKernel.
     data_addresses[idx] = ptr
     data[idx] = ptr
     return 0
