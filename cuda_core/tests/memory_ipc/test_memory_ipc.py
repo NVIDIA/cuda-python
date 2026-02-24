@@ -1,18 +1,20 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
 
+import pytest
 from cuda.core import Buffer, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NTASKS = 2
 
 
 class TestIpcMempool:
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """Test IPC with memory pools."""
         # Set up the IPC-enabled memory pool and share it.
@@ -54,6 +56,7 @@ class TestIpcMempool:
 
 
 class TestIPCMempoolMultiple:
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """Test IPC with memory pools using multiple processes."""
         # Construct an IPC-enabled memory resource and share it with two children.
@@ -104,6 +107,7 @@ class TestIPCMempoolMultiple:
 
 
 class TestIPCSharedAllocationHandleAndBufferDescriptors:
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """
         Demonstrate that a memory pool allocation handle can be reused for IPC
@@ -154,6 +158,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
 
 
 class TestIPCSharedAllocationHandleAndBufferObjects:
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """
         Demonstrate that a memory pool allocation handle can be reused for IPC

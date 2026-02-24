@@ -81,15 +81,15 @@ cdef class IPCBufferDescriptor:
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
-    @classmethod
-    def _init(cls, reserved: bytes, size: int):
-        cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(cls)
+    @staticmethod
+    def _init(reserved: bytes, size: int):
+        cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(IPCBufferDescriptor)
         self._payload = reserved
         self._size = size
         return self
 
     def __reduce__(self):
-        return self._init, (self._payload, self._size)
+        return IPCBufferDescriptor._init, (self._payload, self._size)
 
     @property
     def size(self):

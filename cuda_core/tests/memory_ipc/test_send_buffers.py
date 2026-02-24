@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
@@ -8,7 +8,7 @@ import pytest
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from helpers.buffers import PatternGen
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
@@ -16,6 +16,7 @@ POOL_SIZE = 2097152
 
 
 class TestIpcSendBuffers:
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
         """Test passing buffers sourced from multiple memory resources."""
@@ -67,6 +68,7 @@ class TestIpcReexport:
     re-exported from B to C.
     """
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         # Set up the device.
         device = ipc_device

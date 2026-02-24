@@ -37,6 +37,7 @@ from cuda.core._graph import (  # noqa: E402
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
+from cuda.core._graphics import GraphicsResource  # noqa: E402
 from cuda.core._launch_config import LaunchConfig  # noqa: E402
 from cuda.core._launcher import launch  # noqa: E402
 from cuda.core._layout import _StridedLayout  # noqa: E402

@@ -12,7 +12,6 @@ import json
 import os
 
 import pytest
-import spawned_process_runner
 from child_load_nvidia_dynamic_lib_helper import build_child_process_failed_for_libname_message, child_process_func
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
@@ -22,6 +21,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
+from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -134,7 +134,7 @@ def test_real_load_driver_lib(info_summary_append, libname):
     loader path and logs results via INFO for CI/QA inspection.
     """
     timeout = 120 if IS_WINDOWS else 30
-    result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
+    result = run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
 
     def raise_child_process_failed():
         raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
