@@ -103,7 +103,7 @@ def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
             continue
         find = find_via_ctk_root(ctx, ctk_root)
         if find is not None:
-            return find.abs_path
+            return str(find.abs_path)
     return None
 
 

@@ -298,6 +298,7 @@ def _isolate_load_cascade(mocker):
     This lets the ordering tests focus on system-search, CUDA_HOME, and the
     canary probe without needing a real site-packages or conda environment.
     """
+
     # Skip EARLY_FIND_STEPS (site-packages + conda) so tests can focus on
     # system-search, CUDA_HOME and canary behavior.
     def _run_find_steps_with_early_disabled(ctx, steps):
