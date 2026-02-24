@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4720776d"></script>
+    <script src="../_static/documentation_options.js?v=70d8fd07"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.5';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -559,6 +559,15 @@ on the system <code class="docutils literal notranslate"><span class="pre">PATH<
 <li><p><strong>Environment variables</strong></p>
 <ul class="simple">
 <li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
+</ul>
+</li>
+<li><p><strong>CTK root canary probe (discoverable libs only)</strong></p>
+<ul class="simple">
+<li><p>For selected libraries whose shared object doesn’t reside on the
+standard linker path (currently <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>),
+attempt to discover the CTK installation root by system-loading a
+well-known CTK library (<code class="docutils literal notranslate"><span class="pre">cudart</span></code>) in a subprocess, then derive
+the root from its resolved absolute path.</p></li>
 </ul>
 </li>
 </ol>
