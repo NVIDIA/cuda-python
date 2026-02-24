@@ -9,7 +9,8 @@ import pytest
 from child_load_nvidia_dynamic_lib_helper import build_child_process_failed_for_libname_message, child_process_func
 from local_helpers import have_distribution
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
+from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
@@ -69,9 +70,21 @@ def test_runtime_error_on_non_64bit_python(mocker):
         load_nvidia_dynamic_lib("cudart")
 
 
-def test_unsupported_libname_raises_value_error():
-    with pytest.raises(ValueError, match=r"Unsupported library name: 'not_a_real_lib'.*cudart"):
+def test_unknown_libname_raises_dynamic_lib_unknown_error():
+    with pytest.raises(DynamicLibUnknownError, match=r"Unknown library name: 'not_a_real_lib'.*cudart"):
         load_nvidia_dynamic_lib("not_a_real_lib")
+
+
+def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available_error(monkeypatch):
+    load_nvidia_dynamic_lib.cache_clear()
+    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_KNOWN_LIBNAMES", frozenset(("known_but_unavailable",)))
+    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_SUPPORTED_LIBNAMES", frozenset())
+    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_PLATFORM_NAME", "TestOS")
+    with pytest.raises(
+        DynamicLibNotAvailableError,
+        match=r"known_but_unavailable.*not available on TestOS",
+    ):
+        load_nvidia_dynamic_lib("known_but_unavailable")
 
 
 IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {

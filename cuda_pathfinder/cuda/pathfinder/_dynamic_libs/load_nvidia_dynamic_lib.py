@@ -11,7 +11,13 @@ from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
     _FindNvidiaDynamicLib,
     derive_ctk_root,
 )
-from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import (
+    DynamicLibNotAvailableError,
+    DynamicLibNotFoundError,
+    DynamicLibUnknownError,
+    LoadedDL,
+    load_dependencies,
+)
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     _CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     _CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES,
@@ -41,6 +47,8 @@ else:
 _ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
     (SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else SUPPORTED_LINUX_SONAMES).keys()
 )
+_ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(SUPPORTED_LINUX_SONAMES) | frozenset(SUPPORTED_WINDOWS_DLLS)
+_PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
@@ -205,7 +213,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         https://github.com/NVIDIA/cuda-python/issues/1011
 
     Raises:
-        ValueError: If ``libname`` is not a recognized library name.
+        DynamicLibUnknownError: If ``libname`` is not a recognized library name.
+        DynamicLibNotAvailableError: If ``libname`` is recognized but not
+            supported on this platform.
         DynamicLibNotFoundError: If the library cannot be found or loaded.
         RuntimeError: If Python is not 64-bit.
 
@@ -278,6 +288,11 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f" Currently running: {pointer_size_bits}-bit Python"
             f" {sys.version_info.major}.{sys.version_info.minor}"
         )
+    if libname not in _ALL_KNOWN_LIBNAMES:
+        raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
     if libname not in _ALL_SUPPORTED_LIBNAMES:
-        raise ValueError(f"Unsupported library name: {libname!r}. Supported names: {sorted(_ALL_SUPPORTED_LIBNAMES)}")
+        raise DynamicLibNotAvailableError(
+            f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
+            f"Supported names on {_PLATFORM_NAME}: {sorted(_ALL_SUPPORTED_LIBNAMES)}"
+        )
     return _load_lib_no_cache(libname)

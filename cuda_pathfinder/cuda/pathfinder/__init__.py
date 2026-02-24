@@ -7,7 +7,13 @@ from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as find_nvidia_binary_utility,
 )
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES as _SUPPORTED_BINARIES
+from cuda.pathfinder._dynamic_libs.load_dl_common import (
+    DynamicLibNotAvailableError as DynamicLibNotAvailableError,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError as DynamicLibNotFoundError
+from cuda.pathfinder._dynamic_libs.load_dl_common import (
+    DynamicLibUnknownError as DynamicLibUnknownError,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL as LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
