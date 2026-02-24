@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -150,6 +150,55 @@ def _resolve_data_type(view, data_type):
     return tma_dt
 
 
+def _get_validated_view(tensor):
+    """Obtain a device-accessible StridedMemoryView with a 16-byte-aligned pointer."""
+    if isinstance(tensor, StridedMemoryView):
+        view = tensor
+    else:
+        # stream_ptr=-1: no stream synchronization needed because descriptor
+        # creation only reads tensor metadata, it does not move data.
+        view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
+
+    if not view.is_device_accessible:
+        raise ValueError("The tensor must be device-accessible")
+
+    if view.ptr % 16 != 0:
+        raise ValueError(
+            f"Global memory address must be 16-byte aligned, "
+            f"got address 0x{view.ptr:x}")
+
+    return view
+
+
+def _compute_byte_strides(shape, strides, elem_size):
+    """Compute byte strides from element strides or C-contiguous fallback.
+
+    Returns a tuple of byte strides in row-major order.
+    """
+    if strides is not None:
+        return tuple(s * elem_size for s in strides)
+
+    # C-contiguous: compute byte strides from shape, innermost first
+    rank = len(shape)
+    byte_strides = []
+    stride = elem_size
+    for i in range(rank - 1, -1, -1):
+        byte_strides.append(stride)
+        stride *= shape[i]
+    byte_strides.reverse()
+    return tuple(byte_strides)
+
+
+def _validate_element_strides(element_strides, rank):
+    """Validate or default element_strides to all-ones."""
+    if element_strides is not None:
+        if len(element_strides) != rank:
+            raise ValueError(
+                f"element_strides must have {rank} elements, got {len(element_strides)}")
+        return element_strides
+    return (1,) * rank
+
+
 cdef class TensorMapDescriptor:
     """Describes a TMA (Tensor Memory Accelerator) tensor map for Hopper+ GPUs.
 
@@ -171,8 +220,8 @@ cdef class TensorMapDescriptor:
     cdef void* _get_data_ptr(self):
         return <void*>&self._tensor_map
 
-    @staticmethod
-    def from_tiled(tensor, box_dim, *,
+    @classmethod
+    def from_tiled(cls, tensor, box_dim, *,
                    element_strides=None,
                    data_type=None,
                    interleave=TensorMapInterleave.NONE,
@@ -216,39 +265,22 @@ cdef class TensorMapDescriptor:
             If the tensor rank is outside [1, 5], the pointer is not
             16-byte aligned, or dimension/stride constraints are violated.
         """
-        cdef TensorMapDescriptor desc = TensorMapDescriptor.__new__(TensorMapDescriptor)
+        cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-        # Obtain a StridedMemoryView from the tensor
-        if isinstance(tensor, StridedMemoryView):
-            view = tensor
-        else:
-            view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
-
-        if not view.is_device_accessible:
-            raise ValueError("The tensor must be device-accessible")
-
-        # Keep a strong reference to prevent GC
+        view = _get_validated_view(tensor)
         desc._source_ref = tensor
 
-        # Resolve data type
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
         cdef cydriver.CUtensorMapDataType c_data_type = <cydriver.CUtensorMapDataType>c_data_type_int
 
-        # Get tensor metadata
         cdef intptr_t global_address = view.ptr
         shape = view.shape
-        strides = view.strides  # in elements, can be None for C-contiguous
 
         cdef int rank = len(shape)
         if rank < 1 or rank > 5:
             raise ValueError(
                 f"Tensor rank must be between 1 and 5, got {rank}")
-
-        if global_address % 16 != 0:
-            raise ValueError(
-                f"Global memory address must be 16-byte aligned, "
-                f"got address 0x{global_address:x} (misaligned by {global_address % 16} bytes)")
 
         if len(box_dim) != rank:
             raise ValueError(
@@ -260,25 +292,10 @@ cdef class TensorMapDescriptor:
                 raise ValueError(
                     f"box_dim[{i}] must be in [1, 256], got {bd}")
 
-        if element_strides is not None:
-            if len(element_strides) != rank:
-                raise ValueError(
-                    f"element_strides must have {rank} elements, got {len(element_strides)}")
-        else:
-            element_strides = (1,) * rank
+        element_strides = _validate_element_strides(element_strides, rank)
 
-        # Compute byte strides from element strides
         cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
-        if strides is not None:
-            byte_strides = tuple(s * elem_size for s in strides)
-        else:
-            # C-contiguous: strides in bytes, row-major
-            byte_strides = []
-            stride = elem_size
-            for i in range(rank - 1, -1, -1):
-                byte_strides.append(stride)
-                stride *= shape[i]
-            byte_strides.reverse()
+        byte_strides = _compute_byte_strides(shape, view.strides, elem_size)
 
         # Reverse dimensions for column-major cuTensorMap convention
         # Python/DLPack: row-major (dim 0 = outermost)
@@ -335,8 +352,8 @@ cdef class TensorMapDescriptor:
 
         return desc
 
-    @staticmethod
-    def from_im2col(tensor, pixel_box_lower_corner, pixel_box_upper_corner,
+    @classmethod
+    def from_im2col(cls, tensor, pixel_box_lower_corner, pixel_box_upper_corner,
                     channels_per_pixel, pixels_per_column, *,
                     element_strides=None,
                     data_type=None,
@@ -390,17 +407,9 @@ cdef class TensorMapDescriptor:
             If the tensor rank is outside [3, 5], the pointer is not
             16-byte aligned, or other constraints are violated.
         """
-        cdef TensorMapDescriptor desc = TensorMapDescriptor.__new__(TensorMapDescriptor)
+        cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-        # Obtain a StridedMemoryView from the tensor
-        if isinstance(tensor, StridedMemoryView):
-            view = tensor
-        else:
-            view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
-
-        if not view.is_device_accessible:
-            raise ValueError("The tensor must be device-accessible")
-
+        view = _get_validated_view(tensor)
         desc._source_ref = tensor
 
         tma_dt = _resolve_data_type(view, data_type)
@@ -409,17 +418,11 @@ cdef class TensorMapDescriptor:
 
         cdef intptr_t global_address = view.ptr
         shape = view.shape
-        strides = view.strides
 
         cdef int rank = len(shape)
         if rank < 3 or rank > 5:
             raise ValueError(
                 f"Im2col tensor rank must be between 3 and 5, got {rank}")
-
-        if global_address % 16 != 0:
-            raise ValueError(
-                f"Global memory address must be 16-byte aligned, "
-                f"got address 0x{global_address:x}")
 
         cdef int n_spatial = rank - 2
         if len(pixel_box_lower_corner) != n_spatial:
@@ -431,23 +434,10 @@ cdef class TensorMapDescriptor:
                 f"pixel_box_upper_corner must have {n_spatial} elements "
                 f"(rank - 2), got {len(pixel_box_upper_corner)}")
 
-        if element_strides is not None:
-            if len(element_strides) != rank:
-                raise ValueError(
-                    f"element_strides must have {rank} elements, got {len(element_strides)}")
-        else:
-            element_strides = (1,) * rank
+        element_strides = _validate_element_strides(element_strides, rank)
 
         cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
-        if strides is not None:
-            byte_strides = tuple(s * elem_size for s in strides)
-        else:
-            byte_strides = []
-            stride = elem_size
-            for i in range(rank - 1, -1, -1):
-                byte_strides.append(stride)
-                stride *= shape[i]
-            byte_strides.reverse()
+        byte_strides = _compute_byte_strides(shape, view.strides, elem_size)
 
         # Reverse all dimension arrays for column-major convention
         cdef uint64_t[5] c_global_dim
@@ -509,8 +499,8 @@ cdef class TensorMapDescriptor:
 
         return desc
 
-    @staticmethod
-    def from_im2col_wide(tensor, pixel_box_lower_corner_width, pixel_box_upper_corner_width,
+    @classmethod
+    def from_im2col_wide(cls, tensor, pixel_box_lower_corner_width, pixel_box_upper_corner_width,
                          channels_per_pixel, pixels_per_column, *,
                          element_strides=None,
                          data_type=None,
@@ -565,17 +555,9 @@ cdef class TensorMapDescriptor:
             If the tensor rank is outside [3, 5], the pointer is not
             16-byte aligned, or other constraints are violated.
         """
-        cdef TensorMapDescriptor desc = TensorMapDescriptor.__new__(TensorMapDescriptor)
+        cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-        # Obtain a StridedMemoryView from the tensor
-        if isinstance(tensor, StridedMemoryView):
-            view = tensor
-        else:
-            view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
-
-        if not view.is_device_accessible:
-            raise ValueError("The tensor must be device-accessible")
-
+        view = _get_validated_view(tensor)
         desc._source_ref = tensor
 
         tma_dt = _resolve_data_type(view, data_type)
@@ -584,35 +566,16 @@ cdef class TensorMapDescriptor:
 
         cdef intptr_t global_address = view.ptr
         shape = view.shape
-        strides = view.strides
 
         cdef int rank = len(shape)
         if rank < 3 or rank > 5:
             raise ValueError(
                 f"Im2col-wide tensor rank must be between 3 and 5, got {rank}")
 
-        if global_address % 16 != 0:
-            raise ValueError(
-                f"Global memory address must be 16-byte aligned, "
-                f"got address 0x{global_address:x}")
-
-        if element_strides is not None:
-            if len(element_strides) != rank:
-                raise ValueError(
-                    f"element_strides must have {rank} elements, got {len(element_strides)}")
-        else:
-            element_strides = (1,) * rank
+        element_strides = _validate_element_strides(element_strides, rank)
 
         cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
-        if strides is not None:
-            byte_strides = tuple(s * elem_size for s in strides)
-        else:
-            byte_strides = []
-            stride = elem_size
-            for i in range(rank - 1, -1, -1):
-                byte_strides.append(stride)
-                stride *= shape[i]
-            byte_strides.reverse()
+        byte_strides = _compute_byte_strides(shape, view.strides, elem_size)
 
         # Reverse all dimension arrays for column-major convention
         cdef uint64_t[5] c_global_dim
@@ -685,19 +648,9 @@ cdef class TensorMapDescriptor:
             or a :obj:`~cuda.core.StridedMemoryView`. Must refer to
             device-accessible memory with a 16-byte-aligned pointer.
         """
-        if isinstance(tensor, StridedMemoryView):
-            view = tensor
-        else:
-            view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
-
-        if not view.is_device_accessible:
-            raise ValueError("The tensor must be device-accessible")
+        view = _get_validated_view(tensor)
 
         cdef intptr_t global_address = view.ptr
-        if global_address % 16 != 0:
-            raise ValueError(
-                f"Global memory address must be 16-byte aligned, "
-                f"got address 0x{global_address:x}")
 
         with nogil:
             HANDLE_RETURN(cydriver.cuTensorMapReplaceAddress(
