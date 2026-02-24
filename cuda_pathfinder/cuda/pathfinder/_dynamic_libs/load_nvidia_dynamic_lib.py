@@ -1,9 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import functools
 import struct
 import sys
+from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
@@ -13,6 +16,7 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import (
     LoadedDL,
     load_dependencies,
 )
+from cuda.pathfinder._dynamic_libs.platform_loader import LOADER
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
@@ -21,18 +25,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
-if IS_WINDOWS:
-    from cuda.pathfinder._dynamic_libs.load_dl_windows import (
-        check_if_already_loaded_from_elsewhere,
-        load_with_abs_path,
-        load_with_system_search,
-    )
-else:
-    from cuda.pathfinder._dynamic_libs.load_dl_linux import (
-        check_if_already_loaded_from_elsewhere,
-        load_with_abs_path,
-        load_with_system_search,
-    )
+if TYPE_CHECKING:
+    from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
 # (CTK, third-party, driver).
@@ -48,7 +42,7 @@ _DRIVER_ONLY_LIBNAMES = frozenset(
 )
 
 
-def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
+def _load_driver_lib_no_cache(desc: "LibDescriptor") -> LoadedDL:
     """Load an NVIDIA driver library (system-search only).
 
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
@@ -56,23 +50,24 @@ def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
     full CTK search cascade (site-packages, conda, CUDA_HOME, canary) is
     unnecessary.
     """
-    loaded = check_if_already_loaded_from_elsewhere(libname, False)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
     if loaded is not None:
         return loaded
-    loaded = load_with_system_search(libname)
+    loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
         return loaded
     raise DynamicLibNotFoundError(
-        f'"{libname}" is an NVIDIA driver library and can only be found via'
+        f'"{desc.name}" is an NVIDIA driver library and can only be found via'
         f" system search. Ensure the NVIDIA display driver is installed."
     )
 
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
-    if libname in _DRIVER_ONLY_LIBNAMES:
-        return _load_driver_lib_no_cache(libname)
-
     desc = LIB_DESCRIPTORS[libname]
+
+    if libname in _DRIVER_ONLY_LIBNAMES:
+        return _load_driver_lib_no_cache(desc)
+
     ctx = SearchContext(desc)
 
     # Phase 1: Try to find the library file on disk (pip wheels, conda).
@@ -81,22 +76,22 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     # Phase 2: Cross-cutting — already-loaded check and dependency loading.
     # The already-loaded check on Windows uses the "have we found a path?"
     # flag to decide whether to apply AddDllDirectory side-effects.
-    loaded = check_if_already_loaded_from_elsewhere(desc, find is not None)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, find is not None)
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
 
     # Phase 3: Load from found path, or fall back to system search + late find.
     if find is not None:
-        return load_with_abs_path(desc, find.abs_path, find.found_via)
+        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
 
-    loaded = load_with_system_search(desc)
+    loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
         return loaded
 
     find = run_find_steps(ctx, LATE_FIND_STEPS)
     if find is not None:
-        return load_with_abs_path(desc, find.abs_path, find.found_via)
+        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
 
     ctx.raise_not_found()
 
