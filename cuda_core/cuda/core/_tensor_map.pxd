@@ -8,5 +8,6 @@ from cuda.bindings cimport cydriver
 cdef class TensorMapDescriptor:
     cdef cydriver.CUtensorMap _tensor_map
     cdef object _source_ref
+    cdef object _repr_info
 
     cdef void* _get_data_ptr(self)
