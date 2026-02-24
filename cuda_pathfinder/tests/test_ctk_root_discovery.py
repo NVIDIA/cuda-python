@@ -90,6 +90,17 @@ def test_derive_ctk_root_linux_root_level():
     assert _derive_ctk_root_linux("/lib64/libcudart.so.13") == "/"
 
 
+def test_derive_ctk_root_linux_targets_lib64():
+    assert (
+        _derive_ctk_root_linux("/usr/local/cuda-13.1/targets/x86_64-linux/lib64/libcudart.so.13")
+        == "/usr/local/cuda-13.1"
+    )
+
+
+def test_derive_ctk_root_linux_targets_lib():
+    assert _derive_ctk_root_linux("/opt/cuda/targets/sbsa-linux/lib/libcudart.so.12") == "/opt/cuda"
+
+
 def test_derive_ctk_root_windows_ctk13():
     path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0\bin\x64\cudart64_13.dll"
     assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0"

@@ -157,13 +157,20 @@ def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
 
     Standard system CTK layout: ``$CTK_ROOT/lib64/libfoo.so.XX``
     (some installs use ``lib`` instead of ``lib64``).
+    Also handles target-specific layouts:
+    ``$CTK_ROOT/targets/<triple>/lib64/libfoo.so.XX`` (or ``lib``).
 
     Returns None if the path doesn't match a recognized layout.
     """
     lib_dir = os.path.dirname(resolved_lib_path)
     basename = os.path.basename(lib_dir)
     if basename in ("lib64", "lib"):
-        return os.path.dirname(lib_dir)
+        parent = os.path.dirname(lib_dir)
+        grandparent = os.path.dirname(parent)
+        if os.path.basename(grandparent) == "targets":
+            # This corresponds to /.../targets/<triple>/lib{,64}
+            return os.path.dirname(grandparent)
+        return parent
     return None
 
 
