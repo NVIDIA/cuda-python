@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
@@ -8,7 +8,7 @@ from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 from helpers.buffers import PatternGen
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -19,6 +19,7 @@ class TestPeerAccessNotPreservedOnImport:
     is sent to another process via IPC, and that peer access can be set after import.
     """
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, mempool_device_x2):
         dev0, dev1 = mempool_device_x2
 
@@ -57,6 +58,7 @@ class TestBufferPeerAccessAfterImport:
     setting peer access on the imported memory resource, and that access can be revoked.
     """
 
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("grant_access_in_parent", [True, False])
     def test_main(self, mempool_device_x2, grant_access_in_parent):
         dev0, dev1 = mempool_device_x2

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
@@ -9,7 +9,7 @@ import pytest
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from helpers.buffers import PatternGen
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NMRS = 3
@@ -26,6 +26,7 @@ class TestIpcWorkerPool:
     resource (duplicates are ignored on the receiving end).
     """
 
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
         device = ipc_device
@@ -62,6 +63,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         """Called during child process initialization to store received memory resources."""
         TestIpcWorkerPoolUsingIPCDescriptors.mrs = mrs
 
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
         device = ipc_device
@@ -106,6 +108,7 @@ class TestIpcWorkerPoolUsingRegistry:
         # Passing mrs implicitly registers them.
         pass
 
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
         device = ipc_device

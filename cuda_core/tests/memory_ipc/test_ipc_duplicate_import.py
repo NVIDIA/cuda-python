@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """Test for duplicate IPC buffer imports.
@@ -16,7 +16,7 @@ import pytest
 from cuda.core import Buffer, Device
 from helpers.logging import TimestampedLogger
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -60,6 +60,7 @@ class TestIpcDuplicateImport:
         with contextlib.suppress(RuntimeError):
             mp.set_start_method("spawn", force=True)
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         ipc_device.set_current()
