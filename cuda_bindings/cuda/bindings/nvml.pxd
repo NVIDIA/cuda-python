@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1283+gc7bc6fa75. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -342,7 +342,6 @@ cpdef object device_get_grid_licensable_features_v4(intptr_t device)
 cpdef unsigned int get_vgpu_driver_capabilities(int capability) except? 0
 cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability) except? 0
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id)
-cpdef str vgpu_type_get_name(unsigned int vgpu_type_id)
 cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_id) except? 0
 cpdef tuple vgpu_type_get_device_id(unsigned int vgpu_type_id)
 cpdef unsigned long long vgpu_type_get_framebuffer_size(unsigned int vgpu_type_id) except? 0
