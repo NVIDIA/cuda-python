@@ -83,3 +83,16 @@ def test_linux_sonames_look_like_sonames(spec: DescriptorSpec):
 def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
     for dll in spec.windows_dlls:
         assert dll.endswith(".dll"), f"Unexpected Windows DLL format: {dll}"
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
+    for anchor in spec.ctk_root_canary_anchor_libnames:
+        assert anchor in _CATALOG_BY_NAME, f"{spec.name} has unknown canary anchor {anchor!r}"
+        assert _CATALOG_BY_NAME[anchor].strategy == "ctk", f"{spec.name} has non-CTK canary anchor {anchor!r}"
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+def test_only_ctk_libs_define_ctk_root_canary_anchors(spec: DescriptorSpec):
+    if spec.ctk_root_canary_anchor_libnames:
+        assert spec.strategy == "ctk", f"{spec.name} defines canary anchors but is not a CTK lib"

@@ -4,18 +4,17 @@
 
 import json
 
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-
-if IS_WINDOWS:
-    from cuda.pathfinder._dynamic_libs.load_dl_windows import load_with_system_search
-else:
-    from cuda.pathfinder._dynamic_libs.load_dl_linux import load_with_system_search
+from cuda.pathfinder._dynamic_libs.platform_loader import LOADER
 
 
 def _probe_canary_abs_path(libname: str) -> str | None:
+    desc = LIB_DESCRIPTORS.get(libname)
+    if desc is None:
+        raise ValueError(f"Unsupported canary library name: {libname!r}")
     try:
-        loaded: LoadedDL | None = load_with_system_search(libname)
+        loaded: LoadedDL | None = LOADER.load_with_system_search(desc)
     except DynamicLibNotFoundError:
         return None
     if loaded is None:

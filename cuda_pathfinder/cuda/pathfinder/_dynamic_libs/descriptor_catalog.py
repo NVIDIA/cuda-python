@@ -22,6 +22,7 @@ class DescriptorSpec:
     dependencies: tuple[str, ...] = ()
     anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
     anchor_rel_dirs_windows: tuple[str, ...] = ("bin/x64", "bin")
+    ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
 
@@ -72,6 +73,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
         anchor_rel_dirs_linux=("nvvm/lib64",),
         anchor_rel_dirs_windows=("nvvm/bin/*", "nvvm/bin"),
+        ctk_root_canary_anchor_libnames=("cudart",),
     ),
     DescriptorSpec(
         name="cublas",

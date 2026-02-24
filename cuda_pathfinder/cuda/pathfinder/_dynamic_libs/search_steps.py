@@ -96,6 +96,63 @@ def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
     )
 
 
+def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
+    """Derive CTK root from Linux canary path.
+
+    Supports:
+    - ``$CTK_ROOT/lib64/libfoo.so.*``
+    - ``$CTK_ROOT/lib/libfoo.so.*``
+    - ``$CTK_ROOT/targets/<triple>/lib64/libfoo.so.*``
+    - ``$CTK_ROOT/targets/<triple>/lib/libfoo.so.*``
+    """
+    lib_dir = os.path.dirname(resolved_lib_path)
+    basename = os.path.basename(lib_dir)
+    if basename in ("lib64", "lib"):
+        parent = os.path.dirname(lib_dir)
+        grandparent = os.path.dirname(parent)
+        if os.path.basename(grandparent) == "targets":
+            return os.path.dirname(grandparent)
+        return parent
+    return None
+
+
+def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
+    """Derive CTK root from Windows canary path.
+
+    Supports:
+    - ``$CTK_ROOT/bin/x64/foo.dll`` (CTK 13 style)
+    - ``$CTK_ROOT/bin/foo.dll`` (CTK 12 style)
+    """
+    import ntpath
+
+    lib_dir = ntpath.dirname(resolved_lib_path)
+    basename = ntpath.basename(lib_dir).lower()
+    if basename == "x64":
+        parent = ntpath.dirname(lib_dir)
+        if ntpath.basename(parent).lower() == "bin":
+            return ntpath.dirname(parent)
+    elif basename == "bin":
+        return ntpath.dirname(lib_dir)
+    return None
+
+
+def derive_ctk_root(resolved_lib_path: str) -> str | None:
+    """Derive CTK root from a resolved canary library path."""
+    ctk_root = _derive_ctk_root_linux(resolved_lib_path)
+    if ctk_root is not None:
+        return ctk_root
+    return _derive_ctk_root_windows(resolved_lib_path)
+
+
+def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
+    """Find a library under a previously derived CTK root."""
+    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, ctk_root)
+    abs_path = _find_using_lib_dir(ctx, lib_dir)
+    if abs_path is None:
+        return None
+    return FindResult(abs_path, "system-ctk-root")
+
+
 # ---------------------------------------------------------------------------
 # Find steps
 # ---------------------------------------------------------------------------

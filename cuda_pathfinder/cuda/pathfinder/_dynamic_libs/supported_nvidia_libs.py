@@ -51,13 +51,6 @@ LIBNAMES_REQUIRING_RTLD_DEEPBIND = tuple(
     desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_rtld_deepbind and desc.linux_sonames
 )
 
-# CTK root canary probe config:
-# - anchor libs: expected on the standard system loader path and used to derive
-#   CTK root in an isolated child process.
-# - discoverable libs: libs that are allowed to use the CTK-root canary fallback.
-_CTK_ROOT_CANARY_ANCHOR_LIBNAMES = ("cudart",)
-_CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES = ("nvvm",)
-
 # Based on output of toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     desc.name: desc.site_packages_linux for desc in _CTK_DESCRIPTORS if desc.site_packages_linux
