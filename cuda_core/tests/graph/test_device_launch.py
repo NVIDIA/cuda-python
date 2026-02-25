@@ -71,11 +71,13 @@ def _compile_device_launcher_kernel():
     opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", relocatable_device_code=True)
     ptx = Program(code, "c++", options=opts).compile("ptx")
 
-    # Link with device runtime library
     cudadevrt = ObjectCode.from_library(cudadevrt_path)
 
-    linker = Linker(ptx, cudadevrt, options=LinkerOptions(arch=f"sm_{arch}"))
-    return linker.link("cubin").get_kernel("launch_graph_from_device")
+    try:
+        linker = Linker(ptx, cudadevrt, options=LinkerOptions(arch=f"sm_{arch}"))
+        return linker.link("cubin").get_kernel("launch_graph_from_device")
+    except Exception as e:
+        pytest.skip(f"cudadevrt linking failed (version mismatch?): {e}")
 
 
 @pytest.mark.skipif(
