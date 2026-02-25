@@ -1,0 +1,46 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.GpuTopologyLevel
+=================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: GpuTopologyLevel
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: TOPOLOGY_HOSTBRIDGE
+   .. autoattribute:: TOPOLOGY_INTERNAL
+   .. autoattribute:: TOPOLOGY_MULTIPLE
+   .. autoattribute:: TOPOLOGY_NODE
+   .. autoattribute:: TOPOLOGY_SINGLE
+   .. autoattribute:: TOPOLOGY_SYSTEM
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
