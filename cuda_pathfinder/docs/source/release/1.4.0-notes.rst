@@ -18,6 +18,6 @@ Highlights
 
 * Restore backward-compatible exception behavior for
   ``load_nvidia_dynamic_lib()`` argument validation by replacing the short-lived
-  1.3.5 ``ValueError`` behavior with ``DynamicLibNotFoundError`` subclasses:
-  ``DynamicLibUnknownError`` and ``DynamicLibNotAvailableError``.
+  ``ValueError`` introduced in ``1.3.5`` with ``DynamicLibNotFoundError``
+  subclasses: ``DynamicLibUnknownError`` and ``DynamicLibNotAvailableError``.
   (`PR #1688 <https://github.com/NVIDIA/cuda-python/pull/1688>`_)
