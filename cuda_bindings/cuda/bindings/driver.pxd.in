@@ -3211,8 +3211,9 @@ cdef class CUtensorMap_st:
     getPtr()
         Get memory address of class instance
     """
-    cdef cydriver.CUtensorMap_st _pvt_val
+    cdef void* _pvt_buf
     cdef cydriver.CUtensorMap_st* _pvt_ptr
+    cdef bint _owns_buf
 {{endif}}
 {{if 'CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st' in found_struct}}
 

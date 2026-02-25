@@ -6,7 +6,9 @@ from typing import Any, Optional
 import cython
 import ctypes
 from libc.stdlib cimport calloc, malloc, free
+from libc.string cimport memset
 from libc cimport string
+from posix.stdlib cimport posix_memalign
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t, uintptr_t
 from libc.stddef cimport wchar_t
 from libc.limits cimport CHAR_MIN
@@ -18132,14 +18134,25 @@ cdef class CUtensorMap_st:
         Get memory address of class instance
     """
     def __cinit__(self, void_ptr _ptr = 0):
+        cdef int rc
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            rc = posix_memalign(&self._pvt_buf, 64, sizeof(cydriver.CUtensorMap_st))
+            if rc != 0 or self._pvt_buf is NULL:
+                raise MemoryError("Failed to allocate 64-byte aligned CUtensorMap")
+            memset(self._pvt_buf, 0, sizeof(cydriver.CUtensorMap_st))
+            self._pvt_ptr = <cydriver.CUtensorMap_st *>self._pvt_buf
+            self._owns_buf = True
         else:
+            self._pvt_buf = NULL
             self._pvt_ptr = <cydriver.CUtensorMap_st *>_ptr
+            self._owns_buf = False
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
+        if self._owns_buf and self._pvt_buf is not NULL:
+            free(self._pvt_buf)
+            self._pvt_buf = NULL
+            self._pvt_ptr = NULL
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
