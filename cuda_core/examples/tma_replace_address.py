@@ -4,15 +4,20 @@
 
 # ################################################################################
 #
-# This example demonstrates how to use TMA (Tensor Memory Accelerator) descriptors
-# with cuda.core on Hopper+ GPUs (compute capability >= 9.0).
+# This example demonstrates how to use replace_address() to repoint a TMA
+# (Tensor Memory Accelerator) descriptor at a different tensor without
+# rebuilding the descriptor from scratch.
 #
-# TMA enables efficient bulk data movement between global and shared memory using
-# hardware-managed tensor map descriptors. This example shows:
+# The workflow is:
 #
-#   1. Creating a TMA tiled descriptor from a CuPy device array
-#   2. Passing the descriptor to a kernel via launch()
-#   3. Using TMA to load tiles into shared memory (via inline PTX)
+#   1. Create a TMA tiled descriptor and launch a kernel to verify it works
+#   2. Allocate a second tensor with different content
+#   3. Call replace_address() to repoint the same descriptor at the new tensor
+#   4. Re-launch the kernel and verify it reads from the new tensor
+#
+# This is useful when the tensor layout (shape, dtype, tile size) stays the
+# same but the underlying data buffer changes, e.g. double-buffering or
+# iterating over a sequence of same-shaped tensors.
 #
 # Requirements:
 #   - Hopper or later GPU (compute capability >= 9.0)
@@ -147,25 +152,15 @@ mod = prog.compile("cubin")
 ker = mod.get_kernel("tma_copy")
 
 # ---------------------------------------------------------------------------
-# 1) Prepare input data on the device
+# 1) Prepare input data and verify the initial TMA copy
 # ---------------------------------------------------------------------------
 N = 1024
 a = cp.arange(N, dtype=cp.float32)  # [0, 1, 2, ..., N-1]
 output = cp.zeros(N, dtype=cp.float32)
 dev.sync()  # cupy uses its own stream
 
-# ---------------------------------------------------------------------------
-# 2) Create a TMA tiled descriptor
-#    from_tiled() accepts any DLPack / __cuda_array_interface__ object.
-#    The dtype (float32) is inferred automatically from the CuPy array.
-# ---------------------------------------------------------------------------
 tensor_map = TensorMapDescriptor.from_tiled(a, box_dim=(TILE_SIZE,))
 
-# ---------------------------------------------------------------------------
-# 3) Launch the kernel
-#    The TensorMapDescriptor is passed directly as a kernel argument — the
-#    128-byte struct is copied into kernel parameter space automatically.
-# ---------------------------------------------------------------------------
 n_tiles = N // TILE_SIZE
 config = LaunchConfig(grid=n_tiles, block=TILE_SIZE)
 launch(dev.default_stream, config, ker, tensor_map, output.data.ptr, np.int32(N))
@@ -173,3 +168,22 @@ dev.sync()
 
 assert cp.array_equal(output, a), "TMA copy produced incorrect results"
 print(f"TMA copy verified: {N} elements across {n_tiles} tiles")
+
+# ---------------------------------------------------------------------------
+# 2) Demonstrate replace_address()
+#    Create a second tensor with different content, point the *same*
+#    descriptor at it, and re-launch without rebuilding the descriptor.
+# ---------------------------------------------------------------------------
+b = cp.full(N, fill_value=42.0, dtype=cp.float32)
+dev.sync()
+
+tensor_map.replace_address(b)
+
+output2 = cp.zeros(N, dtype=cp.float32)
+dev.sync()
+
+launch(dev.default_stream, config, ker, tensor_map, output2.data.ptr, np.int32(N))
+dev.sync()
+
+assert cp.array_equal(output2, b), "replace_address produced incorrect results"
+print("replace_address verified: descriptor reused with new source tensor")
