@@ -139,6 +139,8 @@ cdef inline int prepare_tensor_map_arg(
     # We copy rather than pointing directly at arg._tensor_map for lifetime
     # safety: ParamHolder owns and frees its argument buffers independently.
     cdef void* ptr = PyMem_Malloc(sizeof(cydriver.CUtensorMap))
+    if ptr is NULL:
+        raise MemoryError("Failed to allocate memory for CUtensorMap")
     memcpy(ptr, arg._get_data_ptr(), sizeof(cydriver.CUtensorMap))
     # data[idx] is tracked so the allocation is freed in ParamHolder.__dealloc__,
     # data_addresses[idx] is the pointer passed to cuLaunchKernel.

@@ -28,14 +28,6 @@ def skip_if_no_tma(dev):
         pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
 
 
-def _alloc_device_tensor(dev, shape, dtype=np.float32, alignment=256):
-    """Allocate a device buffer and return it with proper alignment."""
-    n_elements = 1
-    for s in shape:
-        n_elements *= s
-    buf = dev.allocate(n_elements * np.dtype(dtype).itemsize + alignment)
-    return buf
-
 
 class _DeviceArray:
     """Wrap a Buffer with explicit shape via __cuda_array_interface__.
@@ -177,6 +169,19 @@ class TestTensorMapDescriptorValidation:
                 buf,
                 box_dim=(),
                 data_type=TensorMapDataType.FLOAT32,
+            )
+
+    def test_invalid_rank_six(self, dev, skip_if_no_tma):
+        shape = (2, 2, 2, 2, 2, 2)
+        n_elements = 1
+        for s in shape:
+            n_elements *= s
+        buf = dev.allocate(n_elements * 4)
+        arr = _DeviceArray(buf, shape)
+        with pytest.raises(ValueError, match="rank must be between 1 and 5"):
+            TensorMapDescriptor.from_tiled(
+                arr,
+                box_dim=(2,) * 6,
             )
 
     def test_box_dim_rank_mismatch(self, dev, skip_if_no_tma):
