@@ -1,14 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-
 import numpy as np
-
+import pytest
 from cuda.core import (
     Device,
-    TensorMapDescriptor,
     TensorMapDataType,
+    TensorMapDescriptor,
     TensorMapIm2ColWideMode,
     TensorMapInterleave,
     TensorMapL2Promotion,
@@ -28,7 +26,6 @@ def skip_if_no_tma(dev):
         pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
 
 
-
 class _DeviceArray:
     """Wrap a Buffer with explicit shape via __cuda_array_interface__.
 
@@ -36,6 +33,7 @@ class _DeviceArray:
     we need the tensor to report a proper shape/dtype so the TMA encoder sees
     the correct rank, dimensions, and strides.
     """
+
     def __init__(self, buf, shape, dtype=np.float32):
         self._buf = buf  # prevent GC
         self.__cuda_array_interface__ = {
@@ -225,25 +223,30 @@ class TestTensorMapDescriptorValidation:
 class TestTensorMapDtypeMapping:
     """Test automatic dtype inference from numpy dtypes."""
 
-    @pytest.mark.parametrize("np_dtype,expected_tma_dt", [
-        (np.uint8, TensorMapDataType.UINT8),
-        (np.uint16, TensorMapDataType.UINT16),
-        (np.uint32, TensorMapDataType.UINT32),
-        (np.int32, TensorMapDataType.INT32),
-        (np.uint64, TensorMapDataType.UINT64),
-        (np.int64, TensorMapDataType.INT64),
-        (np.float16, TensorMapDataType.FLOAT16),
-        (np.float32, TensorMapDataType.FLOAT32),
-        (np.float64, TensorMapDataType.FLOAT64),
-    ])
+    @pytest.mark.parametrize(
+        "np_dtype,expected_tma_dt",
+        [
+            (np.uint8, TensorMapDataType.UINT8),
+            (np.uint16, TensorMapDataType.UINT16),
+            (np.uint32, TensorMapDataType.UINT32),
+            (np.int32, TensorMapDataType.INT32),
+            (np.uint64, TensorMapDataType.UINT64),
+            (np.int64, TensorMapDataType.INT64),
+            (np.float16, TensorMapDataType.FLOAT16),
+            (np.float32, TensorMapDataType.FLOAT32),
+            (np.float64, TensorMapDataType.FLOAT64),
+        ],
+    )
     def test_dtype_mapping(self, np_dtype, expected_tma_dt, dev, skip_if_no_tma):
         from cuda.core._tensor_map import _NUMPY_DTYPE_TO_TMA
+
         assert _NUMPY_DTYPE_TO_TMA[np.dtype(np_dtype)] == expected_tma_dt
 
     def test_bfloat16_mapping(self):
         try:
-            from ml_dtypes import bfloat16
             from cuda.core._tensor_map import _NUMPY_DTYPE_TO_TMA
+            from ml_dtypes import bfloat16
+
             assert _NUMPY_DTYPE_TO_TMA[np.dtype(bfloat16)] == TensorMapDataType.BFLOAT16
         except ImportError:
             pytest.skip("ml_dtypes not installed")
