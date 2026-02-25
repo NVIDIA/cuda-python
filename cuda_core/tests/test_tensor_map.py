@@ -373,8 +373,9 @@ class TestTensorMapIm2colWide:
     def test_from_im2col_wide_3d(self, dev, skip_if_no_im2col_wide):
         # 3D tensor: batch=1, width=32, channels=64
         buf = dev.allocate(1 * 32 * 64 * 4)
+        tensor = _DeviceArray(buf, (1, 32, 64))
         desc = TensorMapDescriptor.from_im2col_wide(
-            buf,
+            tensor,
             pixel_box_lower_corner_width=0,
             pixel_box_upper_corner_width=4,
             channels_per_pixel=64,
