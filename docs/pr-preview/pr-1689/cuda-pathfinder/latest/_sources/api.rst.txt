@@ -16,6 +16,8 @@ locating NVIDIA C/C++ header directories, and finding CUDA binary utilities.
    load_nvidia_dynamic_lib
    LoadedDL
    DynamicLibNotFoundError
+   DynamicLibUnknownError
+   DynamicLibNotAvailableError
 
    SUPPORTED_HEADERS_CTK
    SUPPORTED_HEADERS_NON_CTK
