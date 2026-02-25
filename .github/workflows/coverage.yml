@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -82,6 +82,11 @@ jobs:
           # we use self-hosted runners on which setup-python behaves weirdly...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b  # v7.3.0
+        with:
+          activate-environment: true
+
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
@@ -90,53 +95,53 @@ jobs:
           host-platform: ${{ env.HOST_PLATFORM }}
           cuda-version: ${{ env.CUDA_VER }}
 
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
       - name: Build cuda-pathfinder
         run: |
-          .venv/bin/pip install -v ./cuda_pathfinder
+          uv pip install -v ./cuda_pathfinder
+
+      - name: Build cuda-python-test-helpers
+        run: |
+          uv pip install -v ./cuda_python_test_helpers
 
       - name: Build cuda-bindings
         run: |
-          cd cuda_bindings
-          ../.venv/bin/pip install -v . --group test
+          uv pip install -v ./cuda_bindings
+          pushd cuda_bindings && uv pip install --group test && popd
 
       - name: Build cuda-core
         run: |
-          cd cuda_core
-          ../.venv/bin/pip install -v . --group test
+          uv pip install -v ./cuda_core
+          pushd cuda_core && uv pip install --group "test-cu$(cut -d. -f1 <<< $CUDA_VER)" && popd
 
       - name: Install coverage tools
         run: |
-          .venv/bin/pip install coverage pytest-cov
+          uv pip install coverage pytest-cov
 
       - name: Set cuda package install root
         run: |
-          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
+          echo "INSTALL_ROOT=$(python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
           echo "REPO_ROOT=$(pwd)" >> $GITHUB_ENV
 
       - name: Run cuda.pathfinder tests
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
+          pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
 
       - name: Run cuda.bindings tests
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+          pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
 
       - name: Run cuda.core tests
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
+          pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
 
       - name: Generate coverage report
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/coverage html --rcfile=$REPO_ROOT/.coveragerc
-          $REPO_ROOT/.venv/bin/coverage xml --rcfile=$REPO_ROOT/.coveragerc -o htmlcov/coverage.xml
+          coverage html --rcfile=$REPO_ROOT/.coveragerc
+          coverage xml --rcfile=$REPO_ROOT/.coveragerc -o htmlcov/coverage.xml
           mkdir $REPO_ROOT/docs
           mv htmlcov $REPO_ROOT/docs/coverage
 
