@@ -106,6 +106,25 @@ cdef class Program:
         return Program_compile(self, target_type, name_expressions, logs)
 
     @property
+    def pch_status(self) -> str | None:
+        """PCH creation outcome from the most recent :meth:`compile` call.
+
+        Possible values:
+
+        * ``"created"`` — PCH file was written successfully.
+        * ``"not_attempted"`` — PCH creation was not attempted (e.g. the
+          compiler decided not to, or automatic PCH processing skipped it).
+        * ``"failed"`` — an error prevented PCH creation.
+        * ``None`` — PCH was not requested, or the program has not been
+          compiled yet, or the NVRTC bindings are too old to report status.
+
+        When ``create_pch`` is set in :class:`ProgramOptions` and the PCH
+        heap is too small, :meth:`compile` automatically resizes the heap
+        and retries, so ``"created"`` should be the common outcome.
+        """
+        return self._pch_status
+
+    @property
     def backend(self) -> str:
         """Return this Program instance's underlying backend."""
         return self._backend
@@ -477,6 +496,8 @@ def _find_libdevice_path():
     return find_bitcode_lib("device")
 
 
+
+
 cdef inline bint _process_define_macro_inner(list options, object macro) except? -1:
     """Process a single define macro, returning True if successful."""
     if isinstance(macro, str):
@@ -548,6 +569,8 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     self._use_libdevice = False
     self._libdevice_added = False
 
+    self._pch_status = None
+
     if code_type == "c++":
         assert_type(code, str)
         if options.extra_sources is not None:
@@ -562,6 +585,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
                 &nvrtc_prog, code_ptr, name_ptr, 0, NULL, NULL))
         self._h_nvrtc = create_nvrtc_program_handle(nvrtc_prog)
+        self._nvrtc_code = code_bytes
         self._backend = "NVRTC"
         self._linker = None
 
@@ -649,9 +673,15 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     return 0
 
 
-cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
-    """Compile using NVRTC backend and return ObjectCode."""
-    cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
+cdef object _nvrtc_compile_and_extract(
+    cynvrtc.nvrtcProgram prog, str target_type, object name_expressions,
+    object logs, list options_list, str name,
+):
+    """Run nvrtcCompileProgram on *prog* and extract the output.
+
+    This is the inner compile+extract loop, factored out so the PCH
+    auto-retry path can call it on a fresh program handle.
+    """
     cdef size_t output_size = 0
     cdef size_t logsize = 0
     cdef vector[const char*] options_vec
@@ -669,7 +699,6 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
             HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcAddNameExpression(prog, name_ptr))
 
     # Build options array
-    options_list = self._options.as_bytes("nvrtc", target_type)
     options_vec.resize(len(options_list))
     for i in range(len(options_list)):
         options_vec[i] = <const char*>(<bytes>options_list[i])
@@ -716,7 +745,72 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
                 HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetProgramLog(prog, data_ptr))
             logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-    return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=self._options.name)
+    return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=name)
+
+
+cdef bint _has_nvrtc_pch_apis():
+    return hasattr(nvrtc, "nvrtcGetPCHCreateStatus")
+
+
+cdef str _PCH_STATUS_CREATED = "created"
+cdef str _PCH_STATUS_NOT_ATTEMPTED = "not_attempted"
+cdef str _PCH_STATUS_FAILED = "failed"
+
+
+cdef str _read_pch_status(cynvrtc.nvrtcProgram prog):
+    """Query nvrtcGetPCHCreateStatus and translate to a high-level string."""
+    cdef cynvrtc.nvrtcResult err
+    with nogil:
+        err = cynvrtc.nvrtcGetPCHCreateStatus(prog)
+    if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
+        return _PCH_STATUS_CREATED
+    if err == cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED:
+        return None  # sentinel: caller should auto-retry
+    if err == cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED:
+        return _PCH_STATUS_NOT_ATTEMPTED
+    return _PCH_STATUS_FAILED
+
+
+cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
+    """Compile using NVRTC backend and return ObjectCode."""
+    cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
+    cdef list options_list = self._options.as_bytes("nvrtc", target_type)
+
+    result = _nvrtc_compile_and_extract(
+        prog, target_type, name_expressions, logs, options_list, self._options.name,
+    )
+
+    if not self._options.create_pch or not _has_nvrtc_pch_apis():
+        self._pch_status = None
+        return result
+
+    # PCH was requested — check creation status
+    cdef str status = _read_pch_status(prog)
+    if status is not None:
+        self._pch_status = status
+        return result
+
+    # Heap exhausted — auto-resize and retry with a fresh program
+    cdef size_t required = 0
+    with nogil:
+        cynvrtc.nvrtcGetPCHHeapSizeRequired(prog, &required)
+        cynvrtc.nvrtcSetPCHHeapSize(required)
+
+    cdef cynvrtc.nvrtcProgram retry_prog
+    cdef const char* code_ptr = <const char*>self._nvrtc_code
+    cdef const char* name_ptr = <const char*>self._options._name
+    with nogil:
+        HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
+            &retry_prog, code_ptr, name_ptr, 0, NULL, NULL))
+    self._h_nvrtc = create_nvrtc_program_handle(retry_prog)
+
+    result = _nvrtc_compile_and_extract(
+        retry_prog, target_type, name_expressions, logs, options_list, self._options.name,
+    )
+
+    status = _read_pch_status(retry_prog)
+    self._pch_status = status if status is not None else _PCH_STATUS_FAILED
+    return result
 
 
 cdef object Program_compile_nvvm(Program self, str target_type, object logs):
