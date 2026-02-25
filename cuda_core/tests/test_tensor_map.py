@@ -98,8 +98,9 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_2d(self, dev, skip_if_no_tma):
         buf = dev.allocate(64 * 64 * 4)  # 64x64 float32
+        tensor = _DeviceArray(buf, (64, 64))
         desc = TensorMapDescriptor.from_tiled(
-            buf,
+            tensor,
             box_dim=(32, 32),
             data_type=TensorMapDataType.FLOAT32,
         )
@@ -107,8 +108,9 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_3d(self, dev, skip_if_no_tma):
         buf = dev.allocate(16 * 16 * 16 * 4)  # 16x16x16 float32
+        tensor = _DeviceArray(buf, (16, 16, 16))
         desc = TensorMapDescriptor.from_tiled(
-            buf,
+            tensor,
             box_dim=(8, 8, 8),
             data_type=TensorMapDataType.FLOAT32,
         )
@@ -128,8 +130,9 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_with_swizzle(self, dev, skip_if_no_tma):
         buf = dev.allocate(64 * 64 * 4)
+        tensor = _DeviceArray(buf, (64, 64))
         desc = TensorMapDescriptor.from_tiled(
-            buf,
+            tensor,
             box_dim=(32, 32),
             data_type=TensorMapDataType.FLOAT32,
             swizzle=TensorMapSwizzle.SWIZZLE_128B,
@@ -138,8 +141,9 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_with_l2_promotion(self, dev, skip_if_no_tma):
         buf = dev.allocate(64 * 64 * 4)
+        tensor = _DeviceArray(buf, (64, 64))
         desc = TensorMapDescriptor.from_tiled(
-            buf,
+            tensor,
             box_dim=(32, 32),
             data_type=TensorMapDataType.FLOAT32,
             l2_promotion=TensorMapL2Promotion.L2_128B,
@@ -148,8 +152,9 @@ class TestTensorMapDescriptorCreation:
 
     def test_from_tiled_with_oob_fill(self, dev, skip_if_no_tma):
         buf = dev.allocate(64 * 64 * 4)
+        tensor = _DeviceArray(buf, (64, 64))
         desc = TensorMapDescriptor.from_tiled(
-            buf,
+            tensor,
             box_dim=(32, 32),
             data_type=TensorMapDataType.FLOAT32,
             oob_fill=TensorMapOOBFill.NAN_REQUEST_ZERO_FMA,
@@ -162,9 +167,10 @@ class TestTensorMapDescriptorValidation:
 
     def test_invalid_rank_zero(self, dev, skip_if_no_tma):
         buf = dev.allocate(64)
+        tensor = _DeviceArray(buf, ())  # 0-dim tensor
         with pytest.raises(ValueError, match="rank must be between 1 and 5"):
             TensorMapDescriptor.from_tiled(
-                buf,
+                tensor,
                 box_dim=(),
                 data_type=TensorMapDataType.FLOAT32,
             )
@@ -286,8 +292,9 @@ class TestTensorMapIm2col:
     def test_from_im2col_3d(self, dev, skip_if_no_tma):
         # 3D tensor: batch=1, height=32, channels=64
         buf = dev.allocate(1 * 32 * 64 * 4)
+        tensor = _DeviceArray(buf, (1, 32, 64))
         desc = TensorMapDescriptor.from_im2col(
-            buf,
+            tensor,
             pixel_box_lower_corner=(0,),
             pixel_box_upper_corner=(4,),
             channels_per_pixel=64,
@@ -310,9 +317,10 @@ class TestTensorMapIm2col:
 
     def test_from_im2col_corner_rank_mismatch(self, dev, skip_if_no_tma):
         buf = dev.allocate(1 * 32 * 64 * 4)
+        tensor = _DeviceArray(buf, (1, 32, 64))  # 3D: n_spatial = 1
         with pytest.raises(ValueError, match="pixel_box_lower_corner must have 1 elements"):
             TensorMapDescriptor.from_im2col(
-                buf,
+                tensor,
                 pixel_box_lower_corner=(0, 0),
                 pixel_box_upper_corner=(4,),
                 channels_per_pixel=64,
