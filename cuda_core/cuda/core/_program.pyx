@@ -792,7 +792,8 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
         prog, target_type, name_expressions, logs, options_list, self._options.name,
     )
 
-    if not self._options.create_pch or not _has_nvrtc_pch_apis():
+    cdef bint pch_creation_possible = self._options.create_pch or self._options.pch
+    if not pch_creation_possible or not _has_nvrtc_pch_apis():
         self._pch_status = None
         return result
 
