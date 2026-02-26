@@ -16,8 +16,6 @@ cuda.core.Program
    .. automethod:: __init__
    .. automethod:: close
    .. automethod:: compile
-   .. automethod:: get_pch_heap_size
-   .. automethod:: set_pch_heap_size
 
    
    

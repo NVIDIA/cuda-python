@@ -58,8 +58,6 @@ New features
   retries when precompiled header creation fails due to heap exhaustion.
   The ``pch_status`` property reports the PCH creation outcome
   (``"created"``, ``"not_attempted"``, ``"failed"``, or ``None``).
-  ``Program.get_pch_heap_size()`` and ``Program.set_pch_heap_size()``
-  are available for manual heap management.
 
 
 Fixes and enhancements
