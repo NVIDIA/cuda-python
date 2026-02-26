@@ -80,7 +80,7 @@ def _find_dll_using_nvidia_bin_dirs(
 
 def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_dir: str) -> str | None:
     # Resolve paths for the four cases:
-    #    Windows/Linux x nvvm yes/no
+    #    Windows/Linux x nvvm/cupti yes/no
     if IS_WINDOWS:
         if libname == "nvvm":  # noqa: SIM108
             rel_paths = [
@@ -93,8 +93,15 @@ def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_
                 "bin",  # CTK 12
             ]
     else:
-        if libname == "nvvm":  # noqa: SIM108
+        if libname == "nvvm":
             rel_paths = ["nvvm/lib64"]
+        elif libname == "cupti":
+            # cupti is in extras/CUPTI/lib64 for CTK, but in lib for conda
+            # Check if this looks like a CTK root (has extras/CUPTI) or conda (uses linux_lib_dir)
+            if os.path.isdir(os.path.join(anchor_point, "extras", "CUPTI")):
+                rel_paths = ["extras/CUPTI/lib64"]
+            else:
+                rel_paths = [linux_lib_dir]
         else:
             rel_paths = [linux_lib_dir]
 
@@ -128,7 +135,12 @@ def _find_so_using_lib_dir(
     so_name = os.path.join(lib_dir, so_basename)
     if os.path.isfile(so_name):
         return so_name
-    error_messages.append(f"No such file: {so_name}")
+    # Look for a versioned library using glob (e.g., libcupti.so.12, libcupti.so.13)
+    file_wild = so_basename + "*"
+    for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+        if os.path.isfile(so_name):
+            return so_name
+    error_messages.append(f"No such file: {file_wild}")
     attachments.append(f'  listdir("{lib_dir}"):')
     if not os.path.isdir(lib_dir):
         attachments.append("    DIRECTORY DOES NOT EXIST")

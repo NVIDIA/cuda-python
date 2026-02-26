@@ -51,6 +51,7 @@ SUPPORTED_LIBNAMES_COMMON = (
 SUPPORTED_LIBNAMES_LINUX_ONLY = (
     "cufile",
     # "cufile_rdma",  # Requires libmlx5.so
+    "cupti",
 )
 SUPPORTED_LIBNAMES_LINUX = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY
 
@@ -201,6 +202,10 @@ SUPPORTED_LINUX_SONAMES_CTK = {
         "libnvrtc.so.13",
     ),
     "nvvm": ("libnvvm.so.4",),
+    "cupti": (
+        "libcupti.so.12",
+        "libcupti.so.13",
+    ),
 }
 SUPPORTED_LINUX_SONAMES_OTHER = {
     "cublasmp": ("libcublasmp.so.0",),
@@ -363,7 +368,7 @@ LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
 #   CTK root in an isolated child process.
 # - discoverable libs: libs that are allowed to use the CTK-root canary fallback.
 _CTK_ROOT_CANARY_ANCHOR_LIBNAMES = ("cudart",)
-_CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES = ("nvvm",)
+_CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES = ("nvvm", "cupti")
 
 # Based on output of toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
@@ -395,6 +400,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "nvjpeg": ("nvidia/cu13/lib", "nvidia/nvjpeg/lib"),
     "nvrtc": ("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
+    "cupti": ("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
 }
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cublasmp": ("nvidia/cublasmp/cu13/lib", "nvidia/cublasmp/cu12/lib"),
