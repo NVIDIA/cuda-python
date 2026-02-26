@@ -13,6 +13,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
     find_static_lib,
     locate_static_lib,
 )
+from cuda.pathfinder._utils.platform_aware import quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_STATIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -63,7 +64,7 @@ def test_locate_static_lib(info_summary_append, libname):
         info_summary_append(f"{libname}: not found")
         return
 
-    info_summary_append(f"{lib_path=!r}")
+    info_summary_append(f"abs_path={quote_for_shell(lib_path)}")
     _located_static_lib_asserts(located_lib)
     assert os.path.isfile(lib_path)
     assert lib_path == located_lib.abs_path
