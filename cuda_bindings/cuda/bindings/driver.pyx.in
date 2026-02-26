@@ -8,7 +8,6 @@ import ctypes
 from libc.stdlib cimport calloc, malloc, free
 from libc.string cimport memset
 from libc cimport string
-from posix.stdlib cimport posix_memalign
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t, uintptr_t
 from libc.stddef cimport wchar_t
 from libc.limits cimport CHAR_MIN
@@ -18,6 +17,8 @@ from cpython.bytes cimport PyBytes_FromStringAndSize
 from ._internal._fast_enum import FastEnum as _FastEnum
 import cuda.bindings.driver
 from libcpp.map cimport map
+cdef extern from "<cstdlib>" nogil:
+    void *aligned_alloc(size_t alignment, size_t size)
 
 _driver = globals()
 include "_lib/utils.pxi"
@@ -18134,10 +18135,9 @@ cdef class CUtensorMap_st:
         Get memory address of class instance
     """
     def __cinit__(self, void_ptr _ptr = 0):
-        cdef int rc
         if _ptr == 0:
-            rc = posix_memalign(&self._pvt_buf, 64, sizeof(cydriver.CUtensorMap_st))
-            if rc != 0 or self._pvt_buf is NULL:
+            self._pvt_buf = aligned_alloc(64, sizeof(cydriver.CUtensorMap_st))
+            if self._pvt_buf is NULL:
                 raise MemoryError("Failed to allocate 64-byte aligned CUtensorMap")
             memset(self._pvt_buf, 0, sizeof(cydriver.CUtensorMap_st))
             self._pvt_ptr = <cydriver.CUtensorMap_st *>self._pvt_buf
