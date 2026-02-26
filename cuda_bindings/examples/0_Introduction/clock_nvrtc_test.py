@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import platform
-import sys
 
 import numpy as np
 from common import common
