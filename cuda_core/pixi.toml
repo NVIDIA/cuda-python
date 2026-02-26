@@ -108,7 +108,6 @@ cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
-cuda-nvrtc-dev = "*"
 # Using path dependency now that we've added .pth support for Cython .pxd files
 # See build_hooks.py:_add_cython_include_paths_to_pth()
 cuda-bindings = { path = "../cuda_bindings" }
