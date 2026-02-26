@@ -30,7 +30,7 @@ __global__ void vector_add(const T* A,
 
 dev = Device()
 dev.set_current()
-s = dev.create_stream()
+stream = dev.create_stream()
 
 try:
     # prepare program
@@ -39,7 +39,7 @@ try:
     mod = prog.compile("cubin", name_expressions=("vector_add<float>",))
 
     # run in single precision
-    ker = mod.get_kernel("vector_add<float>")
+    kernel = mod.get_kernel("vector_add<float>")
     dtype = cp.float32
 
     # prepare input/output
@@ -49,7 +49,7 @@ try:
     b = rng.random(size, dtype=dtype)
     c = cp.empty_like(a)
 
-    # cupy runs on a different stream from s, so sync before accessing
+    # cupy runs on a different stream from stream, so sync before accessing
     dev.sync()
 
     # prepare launch
@@ -57,11 +57,11 @@ try:
     grid = (size + block - 1) // block
     config = LaunchConfig(grid=grid, block=block)
 
-    # launch kernel on stream s
-    launch(s, config, ker, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
-    s.sync()
+    # launch kernel on stream
+    launch(stream, config, kernel, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
+    stream.sync()
 
     # check result
     assert cp.allclose(c, a + b)
 finally:
-    s.close()
+    stream.close()
