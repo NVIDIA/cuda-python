@@ -28,13 +28,7 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import (  # noqa: E402
     DescriptorSpec,
 )
 
-CATALOG_PATH = (
-    _PATHFINDER_ROOT
-    / "cuda"
-    / "pathfinder"
-    / "_dynamic_libs"
-    / "descriptor_catalog.py"
-)
+CATALOG_PATH = _PATHFINDER_ROOT / "cuda" / "pathfinder" / "_dynamic_libs" / "descriptor_catalog.py"
 
 _DEFAULTS = DescriptorSpec(name="", strategy="ctk")
 
