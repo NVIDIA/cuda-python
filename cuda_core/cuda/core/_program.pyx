@@ -748,8 +748,13 @@ cdef object _nvrtc_compile_and_extract(
     return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=name)
 
 
+cdef int _nvrtc_pch_apis_cached = -1  # -1 = unchecked
+
 cdef bint _has_nvrtc_pch_apis():
-    return hasattr(nvrtc, "nvrtcGetPCHCreateStatus")
+    global _nvrtc_pch_apis_cached
+    if _nvrtc_pch_apis_cached < 0:
+        _nvrtc_pch_apis_cached = hasattr(nvrtc, "nvrtcGetPCHCreateStatus")
+    return _nvrtc_pch_apis_cached
 
 
 cdef str _PCH_STATUS_CREATED = "created"
