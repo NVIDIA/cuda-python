@@ -53,12 +53,11 @@ def _compile_device_launcher_kernel():
 
     Raises pytest.skip if libcudadevrt.a cannot be found.
     """
+    pathfinder = pytest.importorskip("cuda.pathfinder")
     try:
-        from cuda.pathfinder import StaticLibNotFoundError, find_static_lib
-
-        cudadevrt_path = find_static_lib("cudadevrt")
-    except (ImportError, StaticLibNotFoundError):
-        pytest.skip("cudadevrt library not found")
+        cudadevrt_path = pathfinder.find_static_lib("cudadevrt")
+    except pathfinder.StaticLibNotFoundError as e:
+        pytest.skip(f"cudadevrt library not found: {e}")
 
     code = """
     extern "C" __global__ void launch_graph_from_device(cudaGraphExec_t graph) {
