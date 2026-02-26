@@ -115,12 +115,19 @@ cdef class Program:
         * ``"not_attempted"`` — PCH creation was not attempted (e.g. the
           compiler decided not to, or automatic PCH processing skipped it).
         * ``"failed"`` — an error prevented PCH creation.
-        * ``None`` — PCH was not requested, or the program has not been
-          compiled yet, or the NVRTC bindings are too old to report status.
+        * ``None`` — PCH was not requested, the program has not been
+          compiled yet, the backend is not NVRTC (e.g. PTX or NVVM),
+          or the NVRTC bindings are too old to report status.
 
         When ``create_pch`` is set in :class:`ProgramOptions` and the PCH
         heap is too small, :meth:`compile` automatically resizes the heap
         and retries, so ``"created"`` should be the common outcome.
+
+        .. note::
+
+           PCH is only supported for ``code_type="c++"`` programs that
+           use the NVRTC backend. For PTX and NVVM programs this property
+           always returns ``None``.
         """
         return self._pch_status
 
