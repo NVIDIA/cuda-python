@@ -31,7 +31,6 @@ extern "C" __global__ void VecAdd_kernel(const float *A, const float *B, float *
 
 
 def main():
-    print("Vector Addition (Driver API)")
     N = 50000
     nbytes = N * np.dtype(np.float32).itemsize
 
@@ -45,8 +44,9 @@ def main():
         cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice)
     )
     if not uvaSupported:
-        print("Accessing pageable memory directly requires UVA")
-        return
+        import pytest
+
+        pytest.skip("Accessing pageable memory directly requires UVA")
 
     kernelHelper = common.KernelHelper(vectorAddDrv, int(cuDevice))
     _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
@@ -106,9 +106,9 @@ def main():
     checkCudaErrors(cuda.cuMemFree(d_C))
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
-    print("{}".format("Result = PASS" if i + 1 == N else "Result = FAIL"))
     if i + 1 != N:
-        sys.exit(-1)
+        print("Result = FAIL", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -24,15 +24,17 @@ from cuda.core import (
 
 if np.lib.NumpyVersion(np.__version__) < "2.2.5":
     print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
-    sys.exit(0)
+    sys.exit(1)
 
 # prepare include
 cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
 if cuda_path is None:
     print("this demo requires a valid CUDA_PATH environment variable set", file=sys.stderr)
-    sys.exit(0)
+    sys.exit(1)
 cuda_include = os.path.join(cuda_path, "include")
-assert os.path.isdir(cuda_include)
+if not os.path.isdir(cuda_include):
+    print(f"CUDA include directory not found: {cuda_include}", file=sys.stderr)
+    sys.exit(1)
 include_path = [cuda_include]
 cccl_include = os.path.join(cuda_include, "cccl")
 if os.path.isdir(cccl_include):
@@ -80,7 +82,7 @@ if arch < (9, 0):
         "this demo requires compute capability >= 9.0 (since thread block cluster is a hardware feature)",
         file=sys.stderr,
     )
-    sys.exit(0)
+    sys.exit(1)
 arch = "".join(f"{i}" for i in arch)
 
 # prepare program & compile kernel
@@ -133,15 +135,6 @@ print(f"Block dimensions (threads): {tuple(block_dims)}")
 expected_grid_blocks = grid * cluster  # 4 * 2 = 8
 actual_grid_blocks = grid_dims[0]
 
-print("\nVerification:")
-print(f"LaunchConfig specified: grid={grid} clusters, cluster={cluster} blocks/cluster")
-print(f"Expected total blocks: {expected_grid_blocks}")
-print(f"Actual total blocks: {actual_grid_blocks}")
-
-if actual_grid_blocks == expected_grid_blocks:
-    print("✓ Grid conversion is correct!")
-else:
-    print("✗ Grid conversion failed!")
-    sys.exit(1)
-
-print("done!")
+assert actual_grid_blocks == expected_grid_blocks, (
+    f"Grid conversion failed: expected {expected_grid_blocks} total blocks, got {actual_grid_blocks}"
+)

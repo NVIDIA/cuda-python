@@ -237,5 +237,7 @@ def show_device_properties():
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 1, "no command-line arguments expected"
+    if len(sys.argv) != 1:
+        print("no command-line arguments expected", file=sys.stderr)
+        sys.exit(1)
     show_device_properties()

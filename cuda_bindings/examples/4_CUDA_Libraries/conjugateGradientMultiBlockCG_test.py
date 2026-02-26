@@ -198,36 +198,31 @@ sSDKname = "conjugateGradientMultiBlockCG"
 def main():
     tol = 1e-5
 
-    print(f"Starting [{sSDKname}]...\n")
+    import pytest
+
     # WAIVE: Due to bug in NVRTC
     return
 
     if platform.system() == "Darwin":
-        print("conjugateGradientMultiBlockCG is not supported on Mac OSX - waiving sample")
-        return
+        pytest.skip("conjugateGradientMultiBlockCG is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        print("conjugateGradientMultiBlockCG is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("conjugateGradientMultiBlockCG is not supported on ARMv7")
 
     if platform.machine() == "qnx":
-        print("conjugateGradientMultiBlockCG is not supported on QNX - waiving sample")
-        return
+        pytest.skip("conjugateGradientMultiBlockCG is not supported on QNX")
 
     # This will pick the best possible CUDA capable device
     devID = findCudaDevice()
     deviceProp = checkCudaErrors(cudart.cudaGetDeviceProperties(devID))
 
     if not deviceProp.managedMemory:
-        # This sample requires being run on a device that supports Unified Memory
-        print("Unified Memory not supported on this device")
-        return
+        pytest.skip("Unified Memory not supported on this device")
 
     # This sample requires being run on a device that supports Cooperative Kernel
     # Launch
     if not deviceProp.cooperativeLaunch:
-        print(f"\nSelected GPU {devID:%d} does not support Cooperative Kernel Launch, Waiving the run")
-        return
+        pytest.skip(f"Selected GPU {devID} does not support Cooperative Kernel Launch")
 
     # Statistics about the GPU device
     print(
@@ -351,7 +346,6 @@ def main():
     checkCudaErrors(cudart.cudaEventDestroy(stop))
 
     print(f"Test Summary:  Error amount = {err:f}")
-    print("&&&& conjugateGradientMultiBlockCG %s\n" % ("PASSED" if math.sqrt(dot_result_local) < tol else "FAILED"))
-
     if math.sqrt(dot_result_local) >= tol:
-        sys.exit(-1)
+        print("conjugateGradientMultiBlockCG FAILED", file=sys.stderr)
+        sys.exit(1)

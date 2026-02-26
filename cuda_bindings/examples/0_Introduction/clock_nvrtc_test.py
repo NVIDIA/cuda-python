@@ -58,11 +58,10 @@ def elems_to_bytes(nelems, dt):
 
 
 def main():
-    print("CUDA Clock sample")
+    import pytest
 
     if platform.machine() == "armv7l":
-        print("clock_nvrtc is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("clock_nvrtc is not supported on ARMv7")
 
     timer = np.empty(NUM_BLOCKS * 2, dtype="int64")
     hinput = np.empty(NUM_THREADS * 2, dtype="float32")
