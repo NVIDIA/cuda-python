@@ -805,8 +805,8 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
     # Heap exhausted — auto-resize and retry with a fresh program
     cdef size_t required = 0
     with nogil:
-        cynvrtc.nvrtcGetPCHHeapSizeRequired(prog, &required)
-        cynvrtc.nvrtcSetPCHHeapSize(required)
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetPCHHeapSizeRequired(prog, &required))
+        HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcSetPCHHeapSize(required))
 
     cdef cynvrtc.nvrtcProgram retry_prog
     cdef const char* code_ptr = <const char*>self._nvrtc_code
