@@ -797,8 +797,14 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
         self._pch_status = None
         return result
 
-    # PCH was requested — check creation status
-    cdef str status = _read_pch_status(prog)
+    try:
+        status = _read_pch_status(prog)
+    except RuntimeError as e:
+        raise RuntimeError(
+            "PCH was requested but the runtime libnvrtc does not support "
+            "PCH APIs. Update to CUDA toolkit 12.8 or newer."
+        ) from e
+
     if status is not None:
         self._pch_status = status
         return result
