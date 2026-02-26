@@ -6,18 +6,19 @@ respect-gitignore = true
 target-version = "py310"
 
 [format]
+indent-style = "space"
+quote-style = "double"
 docstring-code-format = true
-docstring-code-line-length = 120
+docstring-code-line-length = "dynamic"
 exclude = ["**/_version.py"]
 
 [lint]
 select = [
-  # pycodestyle Error
+  # pycodestyle
   "E",
+  "W",
   # Pyflakes
   "F",
-  # pycodestyle Warning
-  "W",
   # pyupgrade
   "UP",
   # flake8-bugbear
@@ -26,41 +27,107 @@ select = [
   "SIM",
   # isort
   "I",
-  # flake8 bandit
+  # flake8-bandit
   "S",
+  # flake8-unused-arguments
+  "ARG",
+  # flake8-quotes
+  "Q",
+  # pep8-naming
+  "N",
+  # flake8-comprehensions
+  "C4",
+  # flake8-pie
+  "PIE",
+  # flake8-print
+  "T20",
+  # Ruff-specific rules
+  "RUF",
+  # flake8-pytest-style
+  "PT",
+  # flake8-datetimez
+  "DTZ",
 ]
 
 ignore = [
-  "UP007",
-  "E741",   # ambiguous variable name such as I
-  "B007",   # rename unused loop variable to _name
-  "UP035",  # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
-  "UP006",  # leave old-style typing as-is, e.g., Dict is allowed instead of requiring dict
-  "SIM108", # ternary if/else
+  # typing backward compat — support older Python versions
+  "UP006",  # non-pep585-annotation (e.g. Dict vs dict)
+  "UP007",  # non-pep604-annotation (e.g. Union[X, Y] vs X | Y)
+  "UP035",  # deprecated-import from typing
+
+  # security rules too strict for this project
   "S101",   # asserts
-  "S311",   # allow use of the random.* even though many are not cryptographically secure
-  "S404",   # allow importing the subprocess module
-  "B905",   # preserve the default behavior of `zip` without the explicit `strict` argument
+  "S311",   # allow random.* (not cryptographic)
+  "S404",   # allow subprocess imports
+
+  # style preferences
+  "E501",   # line too long (formatter handles what it can; the rest is intentional)
+  "E741",   # ambiguous variable name (I, l, O)
+  "B007",   # unused loop control variable
+  "B905",   # zip without explicit strict
+  "SIM108", # ternary if/else
 ]
 
 exclude = ["**/_version.py"]
+
+[lint.isort]
+known-first-party = ["cuda"]
+combine-as-imports = true
+
+[lint.flake8-quotes]
+inline-quotes = "double"
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "setup.py" = ["F401"]
 
-"cuda_bindings/examples/**" = [
-  "E501", # line too long
+"**/tests/**" = [
+  "T201",    # print
+  "ARG001",  # unused function argument (fixtures)
+  "ARG002",  # unused method argument
+  "RUF059",  # unused unpacked variable (side-effect assignments)
+  "F841",    # unused local variable (side-effect assignments)
+  "E402",    # module-level import not at top of file
+  "N801",    # CUDA naming conventions in tests
+  "N802",
+  "N803",
+  "N806",
+  "N816",
+  "PT006",   # pytest.mark.parametrize names type
+  "PT007",   # pytest.mark.parametrize values type
+  "PT011",   # pytest.raises too broad
+  "PT012",   # pytest.raises with multiple statements
+  "PT014",   # duplicate parametrize test cases
+  "PT018",   # composite assertion
+  "RUF005",  # collection literal concatenation
+  "RUF043",  # pytest.raises ambiguous regex pattern
+  "RUF003",  # ambiguous unicode character in comment
 ]
 
-"cuda_bindings/tests/**" = [
-  "UP022",
-  "E402",  # module level import not at top of file
-  "F841",
-] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+"**/examples/**" = [
+  "T201",    # print
+  "E402",    # module-level import not at top of file
+  "RUF059",  # unused unpacked variable
+]
 
-"cuda_bindings/benchmarks/**" = [
-  "UP022",
-  "E402",  # module level import not at top of file
-  "F841",
-] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+"**/benchmarks/**" = [
+  "T201",    # print
+  "RUF059",  # unused unpacked variable
+  "F841",    # unused local variable
+  "E402",    # module-level import not at top of file
+]
+
+# CUDA bindings mirror C API naming conventions (CamelCase types, camelCase functions)
+"cuda_bindings/**" = [
+  "N801",    # invalid-class-name
+  "N802",    # invalid-function-name
+  "N803",    # invalid-argument-name
+  "N806",    # non-lowercase-variable-in-function
+  "N816",    # mixed-case-variable-in-global-scope
+]
+
+# scripts and build tooling — print is the expected output method
+"toolshed/**" = ["T201"]
+"ci/**" = ["T201"]
+"**/build_hooks.py" = ["T201"]
+"**/docs/**/conf.py" = ["T201", "ARG001"]
