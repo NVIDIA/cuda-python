@@ -28,7 +28,7 @@ def test_devices_are_the_same_architecture(all_devices):
     all_arches = set(nvml.DeviceArch(nvml.device_get_architecture(device)) for device in all_devices)
 
     if len(all_arches) > 1:
-        warnings.warn(  # noqa: B028
+        warnings.warn(
             f"System has devices of multiple architectures ({', '.join(x.name for x in all_arches)}). "
             f" Some tests may be skipped unexpectedly",
             UserWarning,

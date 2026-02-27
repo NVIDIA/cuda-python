@@ -42,7 +42,7 @@ def _gl_context():
             win.switch_to()
         else:
             # Headless EGL path; pyglet will arrange a pbuffer-like headless context
-            from pyglet.gl import headless  # noqa: F401  (import side-effect creates context)
+            from pyglet.gl import headless
 
         # Make a tiny texture so we have a real GL object to register
         from pyglet.gl import gl as _gl
@@ -68,12 +68,12 @@ def _gl_context():
 
             if tex_id.value:
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:  # noqa: S110
+        except Exception:
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
+        except Exception:
             pass
 
 

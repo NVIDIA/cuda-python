@@ -75,7 +75,7 @@ def isSupportedFilesystem():
 
     This uses `findmnt` so the kernel's mount table logic owns the decoding of the filesystem type.
     """
-    fs_type = subprocess.check_output(["findmnt", "-no", "FSTYPE", "-T", os.getcwd()], text=True).strip()  # noqa: S603, S607
+    fs_type = subprocess.check_output(["findmnt", "-no", "FSTYPE", "-T", os.getcwd()], text=True).strip()
     logging.info(f"Current filesystem type (findmnt): {fs_type}")
     return fs_type in ("ext4", "xfs")
 
@@ -85,7 +85,7 @@ def get_tegra_kind():
     """Detect Tegra device kind (Orin/Thor) via nvidia-smi, or None if not Tegra."""
     if not pathlib.Path("/etc/nv_tegra_release").exists():
         return None
-    out = subprocess.check_output(["nvidia-smi"], text=True, stderr=subprocess.STDOUT)  # noqa: S607
+    out = subprocess.check_output(["nvidia-smi"], text=True, stderr=subprocess.STDOUT)
     tegra_kinds_found = []
     for kind in ("Orin", "Thor"):
         if f" {kind} " in out:

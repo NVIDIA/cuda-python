@@ -102,7 +102,7 @@ def nvcc_smoke(tmpdir) -> str:
     with open(src, "w") as f:
         f.write("")
     try:
-        subprocess.run(  # noqa: S603
+        subprocess.run(
             [nvcc, "-c", str(src), "-o", str(out)],
             check=True,
             capture_output=True,
@@ -177,7 +177,7 @@ def OBJECT(arch, tmpdir, nvcc_smoke):
     # compile a temporary CUDA translation unit.
     cmd = [nvcc, "-c", "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")]
     try:
-        subprocess.run(  # noqa: S603
+        subprocess.run(
             cmd,
             check=True,
             capture_output=True,
