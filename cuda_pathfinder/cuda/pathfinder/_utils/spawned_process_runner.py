@@ -124,7 +124,7 @@ def run_in_spawned_child_process(
         try:
             result_queue.close()
             result_queue.join_thread()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         if process.is_alive():
             process.kill()
