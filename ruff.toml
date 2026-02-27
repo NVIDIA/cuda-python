@@ -61,24 +61,25 @@ ignore = [
   "S404",   # allow subprocess imports
 
   # style preferences
+  "C408",   # unnecessary dict/list/tuple call (dict() is fine)
   "E501",   # line too long (formatter handles what it can; the rest is intentional)
   "E741",   # ambiguous variable name (I, l, O)
   "B007",   # unused loop control variable
   "B905",   # zip without explicit strict
   "SIM108", # ternary if/else
+  "RUF005", # collection literal concatenation (list + list is fine)
 ]
 
 exclude = ["**/_version.py"]
 
 [lint.isort]
 known-first-party = ["cuda"]
-combine-as-imports = true
 
 [lint.flake8-quotes]
 inline-quotes = "double"
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"__init__.py" = ["F401", "E402", "F403", "F405"]
 "setup.py" = ["F401"]
 
 "**/tests/**" = [
@@ -88,6 +89,7 @@ inline-quotes = "double"
   "RUF059",  # unused unpacked variable (side-effect assignments)
   "F841",    # unused local variable (side-effect assignments)
   "E402",    # module-level import not at top of file
+  "E702",    # multiple statements on one line (compact test tables)
   "N801",    # CUDA naming conventions in tests
   "N802",
   "N803",
@@ -102,6 +104,7 @@ inline-quotes = "double"
   "RUF005",  # collection literal concatenation
   "RUF043",  # pytest.raises ambiguous regex pattern
   "RUF003",  # ambiguous unicode character in comment
+  "B028",    # no explicit stacklevel in warnings (test code)
 ]
 
 "**/examples/**" = [
@@ -131,3 +134,4 @@ inline-quotes = "double"
 "ci/**" = ["T201"]
 "**/build_hooks.py" = ["T201"]
 "**/docs/**/conf.py" = ["T201", "ARG001"]
+"cuda_pathfinder/**/canary_probe_subprocess.py" = ["T201"]
