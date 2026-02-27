@@ -415,7 +415,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
 
 def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     _, objcode = get_saxpy_kernel_cubin
-    result = pickle.loads(pickle.dumps(objcode))  # noqa: S403, S301
+    result = pickle.loads(pickle.dumps(objcode))
 
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code

@@ -61,13 +61,13 @@ def test_peer_access_property_x2(mempool_device_x2):
     # No access to begin with.
     check(expected=())
     # fmt: off
-    dmr.peer_accessible_by = (0,)            ; check(expected=())    # noqa: E702
-    dmr.peer_accessible_by = (1,)            ; check(expected=(1,))  # noqa: E702
-    dmr.peer_accessible_by = (0, 1)          ; check(expected=(1,))  # noqa: E702
-    dmr.peer_accessible_by = ()              ; check(expected=())    # noqa: E702
-    dmr.peer_accessible_by = [0, 1]          ; check(expected=(1,))  # noqa: E702
-    dmr.peer_accessible_by = set()           ; check(expected=())    # noqa: E702
-    dmr.peer_accessible_by = [1, 1, 1, 1, 1] ; check(expected=(1,))  # noqa: E702
+    dmr.peer_accessible_by = (0,)            ; check(expected=())
+    dmr.peer_accessible_by = (1,)            ; check(expected=(1,))
+    dmr.peer_accessible_by = (0, 1)          ; check(expected=(1,))
+    dmr.peer_accessible_by = ()              ; check(expected=())
+    dmr.peer_accessible_by = [0, 1]          ; check(expected=(1,))
+    dmr.peer_accessible_by = set()           ; check(expected=())
+    dmr.peer_accessible_by = [1, 1, 1, 1, 1] ; check(expected=(1,))
     # fmt: on
 
     with pytest.raises(ValueError, match=r"device_id must be \>\= 0"):

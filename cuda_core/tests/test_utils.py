@@ -584,7 +584,7 @@ def test_from_array_interface_unsupported_strides(init_cuda):
     smv = StridedMemoryView.from_array_interface(b)
     with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
         # TODO: ideally this would raise on construction
-        smv.strides  # noqa: B018
+        smv.strides
 
 
 @pytest.mark.parametrize(
@@ -668,4 +668,4 @@ def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, a
     a = cp.array([1, 2, 3], dtype="bfloat16")
     smv = api(a, stream_ptr=0)
     with pytest.raises(NotImplementedError, match=r"requires `ml_dtypes`"):
-        smv.dtype  # noqa: B018
+        smv.dtype

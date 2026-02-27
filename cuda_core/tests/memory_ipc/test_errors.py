@@ -118,13 +118,13 @@ class TestDanglingBuffer(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self.buffer = mr2.allocate(NBYTES)
-        buffer_s = pickle.dumps(self.buffer)  # noqa: S301
+        buffer_s = pickle.dumps(self.buffer)
         queue.put(buffer_s)  # Note: mr2 not sent
 
     def CHILD_ACTION(self, queue):
         Device().set_current()
         buffer_s = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        pickle.loads(buffer_s)  # noqa: S301
+        pickle.loads(buffer_s)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError

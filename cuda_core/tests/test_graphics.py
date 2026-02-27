@@ -47,7 +47,7 @@ def _gl_context_and_buffer(nbytes=1024):
             win = pyglet.window.Window(visible=False, config=config)
             win.switch_to()
         else:
-            from pyglet.gl import headless  # noqa: F401
+            from pyglet.gl import headless
 
         from pyglet.gl import gl as _gl
 
@@ -66,12 +66,12 @@ def _gl_context_and_buffer(nbytes=1024):
 
             if buf_id is not None and buf_id.value:
                 _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
-        except Exception:  # noqa: S110
+        except Exception:
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
+        except Exception:
             pass
 
 
@@ -98,7 +98,7 @@ def _gl_context_and_texture(width=16, height=16):
             win = pyglet.window.Window(visible=False, config=config)
             win.switch_to()
         else:
-            from pyglet.gl import headless  # noqa: F401
+            from pyglet.gl import headless
 
         from pyglet.gl import gl as _gl
 
@@ -130,12 +130,12 @@ def _gl_context_and_texture(width=16, height=16):
 
             if tex_id is not None and tex_id.value:
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:  # noqa: S110
+        except Exception:
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:  # noqa: S110
+        except Exception:
             pass
 
 

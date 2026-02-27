@@ -389,7 +389,7 @@ class VirtualMemoryResource(MemoryResource):
                 try:
                     (res,) = driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
                     raise_if_driver_error(res)
-                except Exception:  # noqa: S110
+                except Exception:
                     # TODO: consider logging this exception
                     pass
 

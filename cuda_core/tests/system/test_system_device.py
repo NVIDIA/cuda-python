@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# ruff: noqa: E402
 
 from .conftest import skip_if_nvml_unsupported, unsupported_before
 
@@ -40,7 +39,7 @@ def test_devices_are_the_same_architecture():
     all_arches = set(device.arch for device in system.Device.get_all_devices())
 
     if len(all_arches) > 1:
-        warnings.warn(  # noqa: B028
+        warnings.warn(
             f"System has devices of multiple architectures ({', '.join(x.name for x in all_arches)}). "
             f" Some tests may be skipped unexpectedly",
             UserWarning,

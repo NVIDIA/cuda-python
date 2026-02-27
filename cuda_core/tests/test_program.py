@@ -90,7 +90,7 @@ define void @dummy_kernel() {{
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
 
 def _get_libnvvm_version_for_tests():
@@ -196,7 +196,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
     return nvvm_ir_template.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
 
 
@@ -464,7 +464,7 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
     assert program.handle is not None
     obj = program.compile("ptx")
     try:
-        ker = obj.get_kernel("simple")  # noqa: F841
+        ker = obj.get_kernel("simple")
     except CUDAError as e:
         if re.search(r"CUDA_ERROR_UNSUPPORTED_PTX_VERSION", str(e)):
             pytest.xfail("PTX version not supported by current CUDA Driver")
@@ -568,7 +568,7 @@ entry:
 
 !nvvmir.version = !{{!0}}
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     options = ProgramOptions(
         name="multi_module_test",
@@ -621,7 +621,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     helper1_ir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
@@ -634,7 +634,7 @@ entry:
 
 !nvvmir.version = !{{!0}}
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     helper2_ir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
@@ -647,7 +647,7 @@ entry:
 
 !nvvmir.version = !{{!0}}
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     options = ProgramOptions(
         name="nvvm_multi_helper_test",
@@ -671,7 +671,7 @@ entry:
 
 
 @nvvm_available
-def test_bitcode_format(minimal_nvvmir):  # noqa: F811
+def test_bitcode_format(minimal_nvvmir):
     from contextlib import ExitStack, closing
 
     if len(minimal_nvvmir) < 4:

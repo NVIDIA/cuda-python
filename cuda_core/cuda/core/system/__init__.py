@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# ruff: noqa: F403, F405
 
 
 # NOTE: We must maintain that it is always possible to import this module
