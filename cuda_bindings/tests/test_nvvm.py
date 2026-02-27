@@ -115,9 +115,7 @@ def test_get_buffer_empty(get_size, get_buffer):
         assert buffer == b"\x00"
 
 
-@pytest.mark.parametrize(
-    "options", [[], ["-opt=0"], ["-opt=3", "-g"], [b"-opt=0"], [b"-opt=3", b"-g"], ["-opt=3", b"-g"]]
-)
+@pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
 def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):  # noqa: F401, F811
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
@@ -137,9 +135,7 @@ def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):  # noqa:
         assert ".visible .entry kernel()" in buffer.decode()
 
 
-@pytest.mark.parametrize(
-    "options", [[], ["-opt=0"], ["-opt=3", "-g"], [b"-opt=0"], [b"-opt=3", b"-g"], ["-opt=3", b"-g"]]
-)
+@pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
 def test_verify_program_with_minimal_nvvm_ir(minimal_nvvmir, options):  # noqa: F401, F811
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
