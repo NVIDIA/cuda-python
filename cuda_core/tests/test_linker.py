@@ -29,7 +29,7 @@ else:
         pass
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def compile_ptx_functions(init_cuda):
     # Without -rdc (relocatable device code) option, the generated ptx will not included any unreferenced
     # device functions, causing the link to fail
@@ -40,7 +40,7 @@ def compile_ptx_functions(init_cuda):
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def compile_ltoir_functions(init_cuda):
     object_code_a_ltoir = Program(kernel_a, "c++", ProgramOptions(link_time_optimization=True)).compile("ltoir")
     object_code_b_ltoir = Program(device_function_b, "c++", ProgramOptions(link_time_optimization=True)).compile(

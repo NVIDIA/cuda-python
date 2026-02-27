@@ -26,7 +26,6 @@ except ImportError:
     ml_dtypes = None
 import numpy as np
 import pytest
-from pytest import param
 
 from cuda.core import Device
 from cuda.core._dlpack import DLDeviceType
@@ -84,7 +83,7 @@ def convert_strides_to_counts(strides, itemsize):
         np.empty((3, 4), order="F"),
         np.empty((), dtype=np.float16),
         # readonly is fixed recently (numpy/numpy#26501)
-        pytest.param(
+        pytest.pytest.param(
             np.frombuffer(b""),
             marks=pytest.mark.skipif(
                 tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+"
@@ -132,16 +131,16 @@ def gpu_array_samples():
     samples = []
     if cp is not None:
         samples += [
-            pytest.param(cp.empty(3, dtype=cp.complex64), False, id="cupy-complex64"),
-            pytest.param(cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True, id="cupy-float64"),
-            pytest.param(cp.empty((3, 4), order="F"), True, id="cupy-fortran"),
+            pytest.pytest.param(cp.empty(3, dtype=cp.complex64), False, id="cupy-complex64"),
+            pytest.pytest.param(cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True, id="cupy-float64"),
+            pytest.pytest.param(cp.empty((3, 4), order="F"), True, id="cupy-fortran"),
         ]
     # Numba's device_array is the only known array container that does not
     # support DLPack (so that we get to test the CAI coverage).
     if numba_cuda is not None:
         samples += [
-            pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
-            pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
+            pytest.pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
+            pytest.pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
         ]
     return samples
 
@@ -528,38 +527,38 @@ def test_struct_array(init_cuda):
     ("x", "expected_dtype"),
     [
         # 1D arrays with different dtypes
-        param(np.array([1, 2, 3], dtype=np.int32), "int32", id="1d-int32"),
-        param(np.array([1.0, 2.0, 3.0], dtype=np.float64), "float64", id="1d-float64"),
-        param(np.array([1 + 2j, 3 + 4j], dtype=np.complex128), "complex128", id="1d-complex128"),
-        param(np.array([1 + 2j, 3 + 4j, 5 + 6j], dtype=np.complex64), "complex64", id="1d-complex64"),
-        param(np.array([1, 2, 3, 4, 5], dtype=np.uint8), "uint8", id="1d-uint8"),
-        param(np.array([1, 2], dtype=np.int64), "int64", id="1d-int64"),
-        param(np.array([100, 200, 300], dtype=np.int16), "int16", id="1d-int16"),
-        param(np.array([1000, 2000, 3000], dtype=np.uint16), "uint16", id="1d-uint16"),
-        param(np.array([10000, 20000, 30000], dtype=np.uint64), "uint64", id="1d-uint64"),
+        pytest.param(np.array([1, 2, 3], dtype=np.int32), "int32", id="1d-int32"),
+        pytest.param(np.array([1.0, 2.0, 3.0], dtype=np.float64), "float64", id="1d-float64"),
+        pytest.param(np.array([1 + 2j, 3 + 4j], dtype=np.complex128), "complex128", id="1d-complex128"),
+        pytest.param(np.array([1 + 2j, 3 + 4j, 5 + 6j], dtype=np.complex64), "complex64", id="1d-complex64"),
+        pytest.param(np.array([1, 2, 3, 4, 5], dtype=np.uint8), "uint8", id="1d-uint8"),
+        pytest.param(np.array([1, 2], dtype=np.int64), "int64", id="1d-int64"),
+        pytest.param(np.array([100, 200, 300], dtype=np.int16), "int16", id="1d-int16"),
+        pytest.param(np.array([1000, 2000, 3000], dtype=np.uint16), "uint16", id="1d-uint16"),
+        pytest.param(np.array([10000, 20000, 30000], dtype=np.uint64), "uint64", id="1d-uint64"),
         # 2D arrays - C-contiguous
-        param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32), "int32", id="2d-c-int32"),
-        param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32), "float32", id="2d-c-float32"),
+        pytest.param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32), "int32", id="2d-c-int32"),
+        pytest.param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32), "float32", id="2d-c-float32"),
         # 2D arrays - Fortran-contiguous
-        param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32, order="F"), "int32", id="2d-f-int32"),
-        param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64, order="F"), "float64", id="2d-f-float64"),
+        pytest.param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32, order="F"), "int32", id="2d-f-int32"),
+        pytest.param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64, order="F"), "float64", id="2d-f-float64"),
         # 3D arrays
-        param(np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], dtype=np.int32), "int32", id="3d-int32"),
-        param(np.ones((2, 3, 4), dtype=np.float64), "float64", id="3d-float64"),
+        pytest.param(np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], dtype=np.int32), "int32", id="3d-int32"),
+        pytest.param(np.ones((2, 3, 4), dtype=np.float64), "float64", id="3d-float64"),
         # Sliced/strided arrays
-        param(np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)[::2], "int32", id="1d-strided-int32"),
-        param(np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"),
-        param(np.arange(20, dtype=np.int32).reshape(4, 5)[::2, ::2], "int32", id="2d-strided-2x2-int32"),
+        pytest.param(np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)[::2], "int32", id="1d-strided-int32"),
+        pytest.param(np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"),
+        pytest.param(np.arange(20, dtype=np.int32).reshape(4, 5)[::2, ::2], "int32", id="2d-strided-2x2-int32"),
         # Scalar (0-D array)
-        param(np.array(42, dtype=np.int32), "int32", id="scalar-int32"),
-        param(np.array(3.14, dtype=np.float64), "float64", id="scalar-float64"),
+        pytest.param(np.array(42, dtype=np.int32), "int32", id="scalar-int32"),
+        pytest.param(np.array(3.14, dtype=np.float64), "float64", id="scalar-float64"),
         # Empty arrays
-        param(np.array([], dtype=np.int32), "int32", id="empty-1d-int32"),
-        param(np.empty((0, 3), dtype=np.float64), "float64", id="empty-2d-float64"),
+        pytest.param(np.array([], dtype=np.int32), "int32", id="empty-1d-int32"),
+        pytest.param(np.empty((0, 3), dtype=np.float64), "float64", id="empty-2d-float64"),
         # Single element
-        param(np.array([1], dtype=np.int32), "int32", id="single-element"),
+        pytest.param(np.array([1], dtype=np.int32), "int32", id="single-element"),
         # Structured dtype
-        param(np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")]), "V12", id="structured-dtype"),
+        pytest.param(np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")]), "V12", id="structured-dtype"),
     ],
 )
 def test_from_array_interface(x, init_cuda, expected_dtype):
@@ -590,8 +589,8 @@ def test_from_array_interface_unsupported_strides(init_cuda):
 @pytest.mark.parametrize(
     "slices",
     [
-        param((slice(None), slice(None)), id="contiguous"),
-        param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
+        pytest.param((slice(None), slice(None)), id="contiguous"),
+        pytest.param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
     ],
 )
 @pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
@@ -621,8 +620,8 @@ def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
 @pytest.mark.parametrize(
     "slices",
     [
-        param((slice(None), slice(None)), id="contiguous"),
-        param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
+        pytest.param((slice(None), slice(None)), id="contiguous"),
+        pytest.param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
     ],
 )
 @pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
@@ -652,14 +651,14 @@ def test_ml_dtypes_bfloat16_torch_dlpack(init_cuda, slices):
 @pytest.fixture
 def no_ml_dtypes(monkeypatch):
     monkeypatch.setattr("cuda.core._memoryview.bfloat16", None)
-    yield
+    return
 
 
 @pytest.mark.parametrize(
     "api",
     [
-        param(StridedMemoryView.from_dlpack, id="from_dlpack"),
-        param(StridedMemoryView.from_any_interface, id="from_any_interface"),
+        pytest.param(StridedMemoryView.from_dlpack, id="from_dlpack"),
+        pytest.param(StridedMemoryView.from_any_interface, id="from_any_interface"),
     ],
 )
 @pytest.mark.skipif(cp is None, reason="CuPy is not installed")

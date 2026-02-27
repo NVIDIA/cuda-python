@@ -61,7 +61,7 @@ def test_object_code_init_disabled():
         ObjectCode()  # Reject at front door.
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_cubin(init_cuda):
     # prepare program
     prog = Program(SAXPY_KERNEL, code_type="c++")
@@ -73,7 +73,7 @@ def get_saxpy_kernel_cubin(init_cuda):
     return mod.get_kernel("saxpy<float>"), mod
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_ptx(init_cuda):
     # prepare program
     prog = Program(SAXPY_KERNEL, code_type="c++")
@@ -85,7 +85,7 @@ def get_saxpy_kernel_ptx(init_cuda):
     return ptx, mod
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_ltoir(init_cuda):
     # Create LTOIR code using link-time optimization
     prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
