@@ -30,12 +30,12 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 @functools.cache
 def _get_cuda_paths() -> list[str]:
-    CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
-    if not CUDA_PATH:
+    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+    if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    CUDA_PATH = CUDA_PATH.split(os.pathsep)
-    print("CUDA paths:", CUDA_PATH)
-    return CUDA_PATH
+    cuda_path = cuda_path.split(os.pathsep)
+    print("CUDA paths:", cuda_path)
+    return cuda_path
 
 
 @functools.cache

@@ -382,7 +382,7 @@ def _exception_manager(self):
         raise e
 
 
-nvJitLinkHandleT = int
+nvJitLinkHandleT = int  # noqa: N816
 LinkerHandleT = Union[nvJitLinkHandleT, "cuda.bindings.driver.CUlinkState"]
 
 
