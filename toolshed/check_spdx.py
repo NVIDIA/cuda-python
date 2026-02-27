@@ -39,7 +39,7 @@ CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.timezone.utc).year)
 
 def is_staged(filepath):
     # If the file is staged, we need to update it to the current year
-    process = subprocess.run(
+    process = subprocess.run(  # noqa: S603, S607
         ["git", "diff", "--staged", "--", filepath],
         capture_output=True,
         text=True,
