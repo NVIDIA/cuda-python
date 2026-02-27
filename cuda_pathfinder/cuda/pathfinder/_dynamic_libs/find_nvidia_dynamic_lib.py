@@ -82,7 +82,7 @@ def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_
     # Resolve paths for the four cases:
     #    Windows/Linux x nvvm yes/no
     if IS_WINDOWS:
-        if libname == "nvvm":  # noqa: SIM108
+        if libname == "nvvm":
             rel_paths = [
                 "nvvm/bin/*",  # CTK 13
                 "nvvm/bin",  # CTK 12
@@ -93,7 +93,7 @@ def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_
                 "bin",  # CTK 12
             ]
     else:
-        if libname == "nvvm":  # noqa: SIM108
+        if libname == "nvvm":
             rel_paths = ["nvvm/lib64"]
         else:
             rel_paths = [linux_lib_dir]
