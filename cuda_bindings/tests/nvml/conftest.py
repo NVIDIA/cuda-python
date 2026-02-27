@@ -75,7 +75,7 @@ def get_devices(device_info):
 @pytest.fixture
 def all_devices(device_info):
     with NVMLInitializer():
-        yield sorted(list(set(get_devices(device_info))))
+        yield sorted(set(get_devices(device_info)))
 
 
 @pytest.fixture
