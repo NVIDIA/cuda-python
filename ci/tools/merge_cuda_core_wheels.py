@@ -36,7 +36,7 @@ def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> sub
     if cwd:
         print(f"  Working directory: {cwd}")
 
-    result = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)  # noqa: S603
+    result = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
 
     if result.returncode != 0:
         print(f"Command failed with return code {result.returncode}")
