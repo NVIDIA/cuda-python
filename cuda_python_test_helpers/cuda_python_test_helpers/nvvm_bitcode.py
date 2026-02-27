@@ -23,7 +23,7 @@ entry:
 
 !nvvmir.version = !{!1}
 !1 = !{i32 %d, i32 0, i32 %d, i32 0}
-"""  # noqa: E501
+"""
 
 MINIMAL_NVVMIR_BITCODE_STATIC = {
     (1, 3):  # (major, debug_major)
