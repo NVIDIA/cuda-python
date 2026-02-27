@@ -7,13 +7,13 @@ from __future__ import annotations
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     create_graphics_resource_handle,
+    deviceptr_create_with_owner,
     as_cu,
     as_intptr,
 )
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-
-from cuda.core._memory import Buffer
 
 __all__ = ['GraphicsResource']
 
@@ -43,46 +43,17 @@ def _parse_register_flags(flags):
     return result
 
 
-class _MappedBufferContext:
-    """Context manager returned by :meth:`GraphicsResource.map`.
-
-    Wraps a :class:`~cuda.core.Buffer` and ensures the graphics resource
-    is unmapped when the context exits. Can also be used without ``with``
-    by calling :meth:`GraphicsResource.unmap` explicitly.
-    """
-    __slots__ = ('_buffer', '_resource', '_stream')
-
-    def __init__(self, buffer, resource, stream):
-        self._buffer = buffer
-        self._resource = resource
-        self._stream = stream
-
-    def __enter__(self):
-        return self._buffer
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._resource.unmap(stream=self._stream)
-        return False
-
-    # Delegate Buffer attributes so the return value of map() is directly usable
-    @property
-    def handle(self):
-        return self._buffer.handle
-
-    @property
-    def size(self):
-        return self._buffer.size
-
-    def __repr__(self):
-        return repr(self._buffer)
-
-
-cdef class GraphicsResource:
+cdef class GraphicsResource(Buffer):
     """RAII wrapper for a CUDA graphics resource (``CUgraphicsResource``).
 
     A :class:`GraphicsResource` represents an OpenGL buffer or image that has
     been registered for access by CUDA. This enables zero-copy sharing of GPU
     data between CUDA compute kernels and graphics renderers.
+
+    :class:`GraphicsResource` inherits from :class:`~cuda.core.Buffer`, so when
+    mapped it can be used directly anywhere a :class:`~cuda.core.Buffer` is
+    expected. The buffer properties (:attr:`handle`, :attr:`size`) are only
+    valid while the resource is mapped.
 
     The resource is automatically unregistered when :meth:`close` is called or
     when the object is garbage collected.
@@ -92,8 +63,7 @@ cdef class GraphicsResource:
 
     Examples
     --------
-    Register an OpenGL VBO, map it to get a :class:`~cuda.core.Buffer`, and
-    write to it from CUDA:
+    Register an OpenGL VBO, map it to get a buffer, and write to it from CUDA:
 
     .. code-block:: python
 
@@ -107,8 +77,8 @@ cdef class GraphicsResource:
 
     .. code-block:: python
 
-        buf = resource.map(stream=s)
-        # ... launch kernels using buf ...
+        resource.map(stream=s)
+        # ... launch kernels using resource.handle, resource.size ...
         resource.unmap(stream=s)
     """
 
@@ -157,6 +127,7 @@ cdef class GraphicsResource:
             )
         self._handle = create_graphics_resource_handle(resource)
         self._mapped = False
+        self._map_stream = None
         return self
 
     @classmethod
@@ -202,32 +173,32 @@ cdef class GraphicsResource:
             )
         self._handle = create_graphics_resource_handle(resource)
         self._mapped = False
+        self._map_stream = None
         return self
 
-    def map(self, *, stream: Stream | None = None):
+    def map(self, *, stream: Stream):
         """Map this graphics resource for CUDA access.
 
-        After mapping, a CUDA device pointer into the underlying graphics
-        memory is available as a :class:`~cuda.core.Buffer`.
+        After mapping, the CUDA device pointer and size are available via
+        the inherited :attr:`~cuda.core.Buffer.handle` and
+        :attr:`~cuda.core.Buffer.size` properties.
 
         Can be used as a context manager for automatic unmapping::
 
             with resource.map(stream=s) as buf:
+                # buf IS the GraphicsResource, which IS-A Buffer
                 # use buf.handle, buf.size, etc.
             # automatically unmapped here
 
         Parameters
         ----------
-        stream : :class:`~cuda.core.Stream`, optional
-            The CUDA stream on which to perform the mapping. If ``None``,
-            the default stream (``0``) is used.
+        stream : :class:`~cuda.core.Stream`
+            The CUDA stream on which to perform the mapping.
 
         Returns
         -------
-        _MappedBufferContext
-            An object that is both a context manager and provides access
-            to the underlying :class:`~cuda.core.Buffer`. When used with
-            ``with``, the resource is unmapped on exit.
+        GraphicsResource
+            Returns ``self`` (which is a :class:`~cuda.core.Buffer`).
 
         Raises
         ------
@@ -241,12 +212,9 @@ cdef class GraphicsResource:
         if self._mapped:
             raise RuntimeError("GraphicsResource is already mapped")
 
+        cdef Stream s_obj = Stream_accept(stream)
         cdef cydriver.CUgraphicsResource raw = as_cu(self._handle)
-        cdef cydriver.CUstream cy_stream = <cydriver.CUstream>0
-        cdef Stream s_obj = None
-        if stream is not None:
-            s_obj = Stream_accept(stream)
-            cy_stream = as_cu(s_obj._h_stream)
+        cdef cydriver.CUstream cy_stream = as_cu(s_obj._h_stream)
 
         cdef cydriver.CUdeviceptr dev_ptr = 0
         cdef size_t size = 0
@@ -258,20 +226,24 @@ cdef class GraphicsResource:
                 cydriver.cuGraphicsResourceGetMappedPointer(&dev_ptr, &size, raw)
             )
         self._mapped = True
-        buf = Buffer.from_handle(int(dev_ptr), size, owner=self)
-        return _MappedBufferContext(buf, self, stream)
+        # Populate Buffer internals with the mapped device pointer
+        self._h_ptr = deviceptr_create_with_owner(dev_ptr, None)
+        self._size = size
+        self._owner = None
+        self._mem_attrs_inited = False
+        self._map_stream = stream
+        return self
 
-    def unmap(self, *, stream: Stream | None = None):
+    def unmap(self, *, stream: Stream):
         """Unmap this graphics resource, releasing it back to the graphics API.
 
-        After unmapping, the :class:`~cuda.core.Buffer` previously returned
-        by :meth:`map` must not be used.
+        After unmapping, the buffer properties (:attr:`handle`, :attr:`size`)
+        are no longer valid.
 
         Parameters
         ----------
-        stream : :class:`~cuda.core.Stream`, optional
-            The CUDA stream on which to perform the unmapping. If ``None``,
-            the default stream (``0``) is used.
+        stream : :class:`~cuda.core.Stream`
+            The CUDA stream on which to perform the unmapping.
 
         Raises
         ------
@@ -285,34 +257,55 @@ cdef class GraphicsResource:
         if not self._mapped:
             raise RuntimeError("GraphicsResource is not mapped")
 
+        cdef Stream s_obj = Stream_accept(stream)
         cdef cydriver.CUgraphicsResource raw = as_cu(self._handle)
-        cdef cydriver.CUstream cy_stream = <cydriver.CUstream>0
-        if stream is not None:
-            cy_stream = as_cu((<Stream>Stream_accept(stream))._h_stream)
+        cdef cydriver.CUstream cy_stream = as_cu(s_obj._h_stream)
         with nogil:
             HANDLE_RETURN(
                 cydriver.cuGraphicsUnmapResources(1, &raw, cy_stream)
             )
         self._mapped = False
+        # Clear Buffer fields
+        self._h_ptr.reset()
+        self._size = 0
+        self._map_stream = None
 
-    cpdef close(self):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._mapped:
+            self.unmap(stream=self._map_stream)
+        return False
+
+    cpdef close(self, stream=None):
         """Unregister this graphics resource from CUDA.
 
         If the resource is currently mapped, it is unmapped first (on the
         default stream). After closing, the resource cannot be used again.
+
+        Parameters
+        ----------
+        stream : :class:`~cuda.core.Stream`, optional
+            Accepted for compatibility with :meth:`Buffer.close` but not
+            used for the graphics unmap/unregister operations.
         """
         cdef cydriver.CUgraphicsResource raw
         cdef cydriver.CUstream cy_stream
         if not self._handle:
             return
         if self._mapped:
-            # Best-effort unmap before unregister
+            # Best-effort unmap before unregister (use stream 0 as fallback)
             raw = as_cu(self._handle)
             cy_stream = <cydriver.CUstream>0
             with nogil:
                 cydriver.cuGraphicsUnmapResources(1, &raw, cy_stream)
             self._mapped = False
         self._handle.reset()
+        # Clear Buffer fields
+        self._h_ptr.reset()
+        self._size = 0
+        self._map_stream = None
 
     @property
     def is_mapped(self) -> bool:
@@ -320,7 +313,7 @@ cdef class GraphicsResource:
         return self._mapped
 
     @property
-    def handle(self) -> int:
+    def resource_handle(self) -> int:
         """The raw ``CUgraphicsResource`` handle as a Python int."""
         return as_intptr(self._handle)
 
