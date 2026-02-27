@@ -6,7 +6,7 @@ from collections import namedtuple
 import pytest
 
 from cuda.bindings import nvml
-from cuda.bindings._test_helpers.arch_check import unsupported_before
+from cuda.bindings._test_helpers.arch_check import unsupported_before  # noqa: F401
 
 
 class NVMLInitializer:
