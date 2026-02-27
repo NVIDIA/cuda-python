@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._memory_pool cimport _MemPool, _MemPoolOptions
+from cuda.core._memory._memory_pool cimport _MemPool, MP_init_create_pool, MP_init_current_pool
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._utils.cuda_utils cimport (
@@ -23,67 +23,6 @@ import uuid
 import warnings
 
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
-
-
-# Cache to ensure NUMA warning is only raised once per process
-cdef bint _numa_warning_shown = False
-cdef object _lock = threading.Lock()
-
-
-def _check_numa_nodes():
-    """Check if system has multiple NUMA nodes and warn if so."""
-    global _numa_warning_shown
-    if _numa_warning_shown:
-        return
-
-    with _lock:
-        if _numa_warning_shown:
-            return
-
-        if platform.system() != "Linux":
-            _numa_warning_shown = True
-            return
-
-        numa_count = None
-
-        # Try /sys filesystem first (most reliable and doesn't require external tools)
-        try:
-            node_path = "/sys/devices/system/node"
-            if os.path.exists(node_path):
-                # Count directories named "node[0-9]+"
-                nodes = [d for d in os.listdir(node_path) if d.startswith("node") and d[4:].isdigit()]
-                numa_count = len(nodes)
-        except (OSError, PermissionError):
-            pass
-
-        # Fallback to lscpu if /sys check didn't work
-        if numa_count is None:
-            try:
-                result = subprocess.run(
-                    ["lscpu"],
-                    capture_output=True,
-                    text=True,
-                    timeout=1
-                )
-                for line in result.stdout.splitlines():
-                    if line.startswith("NUMA node(s):"):
-                        numa_count = int(line.split(":")[1].strip())
-                        break
-            except (subprocess.SubprocessError, ValueError, FileNotFoundError):
-                pass
-
-        # Warn if multiple NUMA nodes detected
-        if numa_count is not None and numa_count > 1:
-            warnings.warn(
-                f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
-                f"uses location ID 0, which may not work correctly with multiple "
-                f"NUMA nodes.",
-                UserWarning,
-                stacklevel=3
-            )
-
-        _numa_warning_shown = True
-
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
 
@@ -143,30 +82,7 @@ cdef class PinnedMemoryResource(_MemPool):
     """
 
     def __init__(self, options=None):
-        cdef PinnedMemoryResourceOptions opts = check_or_create_options(
-            PinnedMemoryResourceOptions, options, "PinnedMemoryResource options",
-            keep_none=True
-        )
-        cdef _MemPoolOptions opts_base = _MemPoolOptions()
-
-        cdef bint ipc_enabled = False
-        if opts:
-            ipc_enabled = opts.ipc_enabled
-            if ipc_enabled and not _ipc.is_supported():
-                raise RuntimeError(f"IPC is not available on {platform.system()}")
-            if ipc_enabled:
-                # Check for multiple NUMA nodes on Linux
-                _check_numa_nodes()
-            opts_base._max_size = opts.max_size
-            opts_base._use_current = False
-        opts_base._ipc_enabled = ipc_enabled
-        if ipc_enabled:
-            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
-        else:
-            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-        opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-
-        super().__init__(0 if ipc_enabled else -1, opts_base)
+        _PMR_init(self, options)
 
     def __reduce__(self):
         return PinnedMemoryResource.from_registry, (self.uuid,)
@@ -240,6 +156,11 @@ cdef class PinnedMemoryResource(_MemPool):
         return self._ipc_data._alloc_handle
 
     @property
+    def device_id(self) -> int:
+        """Return -1. Pinned memory is host memory and is not associated with a specific device."""
+        return -1
+
+    @property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
@@ -250,6 +171,49 @@ cdef class PinnedMemoryResource(_MemPool):
         return True
 
 
+cdef inline _PMR_init(PinnedMemoryResource self, options):
+    cdef PinnedMemoryResourceOptions opts = check_or_create_options(
+        PinnedMemoryResourceOptions, options, "PinnedMemoryResource options",
+        keep_none=True
+    )
+    cdef bint ipc_enabled = False
+    cdef size_t max_size = 0
+    cdef cydriver.CUmemLocationType loc_type
+    cdef int location_id
+
+    if opts is not None:
+        ipc_enabled = opts.ipc_enabled
+        if ipc_enabled and not _ipc.is_supported():
+            raise RuntimeError(f"IPC is not available on {platform.system()}")
+        if ipc_enabled:
+            _check_numa_nodes()
+        max_size = opts.max_size
+
+    if ipc_enabled:
+        loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+        location_id = 0
+    else:
+        loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+        location_id = -1
+
+    if opts is None:
+        MP_init_current_pool(
+            self,
+            loc_type,
+            location_id,
+            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
+        )
+    else:
+        MP_init_create_pool(
+            self,
+            loc_type,
+            location_id,
+            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
+            ipc_enabled,
+            max_size,
+        )
+
+
 def _deep_reduce_pinned_memory_resource(mr):
     check_multiprocessing_start_method()
     alloc_handle = mr.get_allocation_handle()
@@ -257,3 +221,60 @@ def _deep_reduce_pinned_memory_resource(mr):
 
 
 multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)
+
+
+cdef bint _numa_warning_shown = False
+cdef object _numa_lock = threading.Lock()
+
+
+cdef inline _check_numa_nodes():
+    """Check if system has multiple NUMA nodes and warn if so."""
+    global _numa_warning_shown
+    if _numa_warning_shown:
+        return
+
+    with _numa_lock:
+        if _numa_warning_shown:
+            return
+
+        if platform.system() != "Linux":
+            _numa_warning_shown = True
+            return
+
+        numa_count = None
+
+        # Try /sys filesystem first (most reliable and doesn't require external tools)
+        try:
+            node_path = "/sys/devices/system/node"
+            if os.path.exists(node_path):
+                nodes = [d for d in os.listdir(node_path) if d.startswith("node") and d[4:].isdigit()]
+                numa_count = len(nodes)
+        except (OSError, PermissionError):
+            pass
+
+        # Fallback to lscpu if /sys check didn't work
+        if numa_count is None:
+            try:
+                result = subprocess.run(
+                    ["lscpu"],
+                    capture_output=True,
+                    text=True,
+                    timeout=1
+                )
+                for line in result.stdout.splitlines():
+                    if line.startswith("NUMA node(s):"):
+                        numa_count = int(line.split(":")[1].strip())
+                        break
+            except (subprocess.SubprocessError, ValueError, FileNotFoundError):
+                pass
+
+        if numa_count is not None and numa_count > 1:
+            warnings.warn(
+                f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
+                f"uses location ID 0, which may not work correctly with multiple "
+                f"NUMA nodes.",
+                UserWarning,
+                stacklevel=3
+            )
+
+        _numa_warning_shown = True

@@ -1038,7 +1038,7 @@ def test_pinned_mempool_ipc_basic():
     assert mr.is_ipc_enabled
     assert mr.is_device_accessible
     assert mr.is_host_accessible
-    assert mr.device_id == 0  # IPC-enabled uses location id 0
+    assert mr.device_id == -1  # pinned memory is not device-specific
 
     # Test allocation handle export
     alloc_handle = mr.get_allocation_handle()

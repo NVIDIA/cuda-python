@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool, _MemPoolOptions
+from cuda.core._memory._memory_pool cimport _MemPool, MP_init_create_pool, MP_init_current_pool
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     check_or_create_options,
@@ -64,40 +64,12 @@ cdef class ManagedMemoryResource(_MemPool):
     """
 
     def __init__(self, options=None):
-        cdef ManagedMemoryResourceOptions opts = check_or_create_options(
-            ManagedMemoryResourceOptions, options, "ManagedMemoryResource options",
-            keep_none=True
-        )
-        cdef _MemPoolOptions opts_base = _MemPoolOptions()
+        _MMR_init(self, options)
 
-        cdef int device_id = -1
-        cdef object preferred_location = None
-        if opts:
-            preferred_location = opts.preferred_location
-            if preferred_location is not None:
-                device_id = preferred_location
-            opts_base._use_current = False
-
-        opts_base._ipc_enabled = False  # IPC not supported for managed memory pools
-
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            # Set location based on preferred_location
-            if preferred_location is None:
-                # Let the driver decide
-                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
-            elif device_id == -1:
-                # CPU/host preference
-                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            else:
-                # Device preference
-                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-
-            opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
-
-            super().__init__(device_id, opts_base)
-            _check_concurrent_managed_access()
-        ELSE:
-            raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
+    @property
+    def device_id(self) -> int:
+        """Return -1. Managed memory migrates automatically and is not tied to a specific device."""
+        return -1
 
     @property
     def is_device_accessible(self) -> bool:
@@ -108,6 +80,50 @@ cdef class ManagedMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
+
+
+cdef inline _MMR_init(ManagedMemoryResource self, options):
+    cdef ManagedMemoryResourceOptions opts = check_or_create_options(
+        ManagedMemoryResourceOptions, options, "ManagedMemoryResource options",
+        keep_none=True
+    )
+    cdef int location_id = -1
+    cdef object preferred_location = None
+    cdef cydriver.CUmemLocationType loc_type
+
+    if opts is not None:
+        preferred_location = opts.preferred_location
+        if preferred_location is not None:
+            location_id = preferred_location
+
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        if preferred_location is None:
+            loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
+        elif location_id == -1:
+            loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+        else:
+            loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+
+        if opts is None:
+            MP_init_current_pool(
+                self,
+                loc_type,
+                location_id,
+                cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED,
+            )
+        else:
+            MP_init_create_pool(
+                self,
+                loc_type,
+                location_id,
+                cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED,
+                False,
+                0,
+            )
+
+        _check_concurrent_managed_access()
+    ELSE:
+        raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
 
 
 cdef bint _concurrent_access_warned = False
