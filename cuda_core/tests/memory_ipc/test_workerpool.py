@@ -127,7 +127,7 @@ class TestIpcWorkerPoolUsingRegistry:
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
-        buffer = pickle.loads(buffer_s)
+        buffer = pickle.loads(buffer_s)  # noqa: S301
         pgen = PatternGen(device, NBYTES)
         pgen.fill_buffer(buffer, seed=True)
         buffer.close()

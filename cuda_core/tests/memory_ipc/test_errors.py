@@ -124,7 +124,7 @@ class TestDanglingBuffer(ChildErrorHarness):
     def CHILD_ACTION(self, queue):
         Device().set_current()
         buffer_s = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        pickle.loads(buffer_s)
+        pickle.loads(buffer_s)  # noqa: S301
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError

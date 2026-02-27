@@ -148,7 +148,7 @@ def test_package_contents():
         "VirtualMemoryResource",
     ]
     d = {}
-    exec("from cuda.core._memory import *", d)
+    exec("from cuda.core._memory import *", d)  # noqa: S102
     d = {k: v for k, v in d.items() if not k.startswith("__")}
     assert sorted(expected) == sorted(d.keys())
 

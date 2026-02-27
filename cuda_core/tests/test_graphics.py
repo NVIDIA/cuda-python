@@ -66,12 +66,12 @@ def _gl_context_and_buffer(nbytes=1024):
 
             if buf_id is not None and buf_id.value:
                 _gl.glDeleteBuffers(1, ctypes.byref(buf_id))
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
 
@@ -130,12 +130,12 @@ def _gl_context_and_texture(width=16, height=16):
 
             if tex_id is not None and tex_id.value:
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
 
