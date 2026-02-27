@@ -13,6 +13,7 @@ import os
 import sys
 
 import numpy as np
+
 from cuda.core import (
     Device,
     LaunchConfig,

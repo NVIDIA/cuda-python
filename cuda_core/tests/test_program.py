@@ -6,6 +6,7 @@ import re
 import warnings
 
 import pytest
+
 from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode

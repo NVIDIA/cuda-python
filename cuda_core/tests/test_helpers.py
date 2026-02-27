@@ -5,12 +5,12 @@
 import time
 
 import pytest
-from cuda.core import Device
 from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
+from cuda.core import Device
 from cuda_python_test_helpers import under_compute_sanitizer
 
 ENABLE_LOGGING = False  # Set True for test debugging and development

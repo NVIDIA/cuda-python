@@ -12,6 +12,7 @@ import re
 import weakref
 
 import pytest
+
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
 from cuda.core._program import _can_load_generated_ptx
 

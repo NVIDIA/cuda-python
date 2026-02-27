@@ -9,7 +9,6 @@ from enum import Enum
 
 import numpy as np
 import pytest
-from cuda.core._layout import _StridedLayout
 from helpers.layout import (
     DenseOrder,
     LayoutSpec,
@@ -22,6 +21,8 @@ from helpers.layout import (
     pretty_name,
     random_permutations,
 )
+
+from cuda.core._layout import _StridedLayout
 
 _ITEMSIZES = [1, 2, 4, 8, 16]
 _S = np.s_

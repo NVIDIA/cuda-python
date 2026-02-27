@@ -10,8 +10,9 @@ These tests only run on affected platforms (concurrent_managed_access is False).
 
 import warnings
 
-import cuda.bindings
 import pytest
+
+import cuda.bindings
 from cuda.core import Device, ManagedMemoryResource, ManagedMemoryResourceOptions
 from cuda.core._memory._managed_memory_resource import reset_concurrent_access_warning
 

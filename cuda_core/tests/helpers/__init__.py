@@ -6,7 +6,6 @@ import os
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
-
 from cuda_python_test_helpers import *  # noqa: F403
 
 CUDA_PATH = os.environ.get("CUDA_PATH")

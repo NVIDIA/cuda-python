@@ -12,6 +12,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
+
+from conftest import skipif_need_cuda_headers
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -23,8 +25,6 @@ from cuda.core import (
 )
 from cuda.core._memory import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-
-from conftest import skipif_need_cuda_headers
 
 
 def test_launch_config_init(init_cuda):

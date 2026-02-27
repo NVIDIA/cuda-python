@@ -5,8 +5,9 @@ import ctypes
 import pickle
 import warnings
 
-import cuda.core
 import pytest
+
+import cuda.core
 from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return

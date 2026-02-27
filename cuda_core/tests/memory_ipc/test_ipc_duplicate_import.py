@@ -13,8 +13,9 @@ import contextlib
 import multiprocessing as mp
 
 import pytest
-from cuda.core import Buffer, Device
 from helpers.logging import TimestampedLogger
+
+from cuda.core import Buffer, Device
 
 CHILD_TIMEOUT_SEC = 30
 NBYTES = 64

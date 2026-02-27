@@ -4,8 +4,9 @@
 """Graph options and build mode tests."""
 
 import pytest
-from cuda.core import Device, GraphBuilder, GraphCompleteOptions, GraphDebugPrintOptions, LaunchConfig, launch
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
+
+from cuda.core import Device, GraphBuilder, GraphCompleteOptions, GraphDebugPrintOptions, LaunchConfig, launch
 
 
 def test_graph_dot_print_options(init_cuda, tmp_path):

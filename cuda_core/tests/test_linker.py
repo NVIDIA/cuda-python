@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
+
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core._module import ObjectCode
 from cuda.core._utils.cuda_utils import CUDAError

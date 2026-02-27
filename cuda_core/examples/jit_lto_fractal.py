@@ -25,6 +25,7 @@ import argparse
 import sys
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Linker, LinkerOptions, Program, ProgramOptions, launch
 
 

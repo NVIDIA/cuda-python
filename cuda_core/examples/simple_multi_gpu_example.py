@@ -12,6 +12,7 @@
 import sys
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Program, launch, system
 
 if system.get_num_devices() < 2:

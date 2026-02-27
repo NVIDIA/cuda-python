@@ -15,6 +15,7 @@
 import sys
 
 import torch
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # SAXPY kernel - passing a as a pointer to avoid any type issues

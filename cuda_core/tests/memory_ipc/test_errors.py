@@ -6,6 +6,7 @@ import pickle
 import re
 
 import pytest
+
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
