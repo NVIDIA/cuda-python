@@ -402,7 +402,7 @@ class Linker:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive", "formatted_options", "option_keys")
+        __slots__ = ("const_char_keep_alive", "formatted_options", "handle", "option_keys", "use_nvjitlink")
 
         def __init__(self, program_obj, handle, use_nvjitlink):
             self.handle = handle

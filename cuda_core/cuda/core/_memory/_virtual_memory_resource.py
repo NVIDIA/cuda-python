@@ -22,7 +22,7 @@ from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 
-__all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
+__all__ = ["VirtualMemoryResource", "VirtualMemoryResourceOptions"]
 
 VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "win32_kmt", "fabric"] | None
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
@@ -76,28 +76,28 @@ class VirtualMemoryResourceOptions:
     peer_access: VirtualMemoryAccessTypeT = "rw"
 
     _a = driver.CUmemAccess_flags
-    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
+    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}  # noqa: RUF012
     _h = driver.CUmemAllocationHandleType
-    _handle_types = {
+    _handle_types = {  # noqa: RUF012
         None: _h.CU_MEM_HANDLE_TYPE_NONE,
         "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
         "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT,
         "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC,
     }
     _g = driver.CUmemAllocationGranularity_flags
-    _granularity = {
+    _granularity = {  # noqa: RUF012
         "recommended": _g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED,
         "minimum": _g.CU_MEM_ALLOC_GRANULARITY_MINIMUM,
     }
     _l = driver.CUmemLocationType
-    _location_type = {
+    _location_type = {  # noqa: RUF012
         "device": _l.CU_MEM_LOCATION_TYPE_DEVICE,
         "host": _l.CU_MEM_LOCATION_TYPE_HOST,
         "host_numa": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA,
         "host_numa_current": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
     # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
-    _allocation_type = {"pinned": _a.CU_MEM_ALLOCATION_TYPE_PINNED}
+    _allocation_type = {"pinned": _a.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     ver_major, ver_minor = get_binding_version()
     if ver_major >= 13:
         _allocation_type["managed"] = _a.CU_MEM_ALLOCATION_TYPE_MANAGED
