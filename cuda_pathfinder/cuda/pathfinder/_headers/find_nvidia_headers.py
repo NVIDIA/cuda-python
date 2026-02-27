@@ -103,9 +103,8 @@ def _find_ctk_header_directory(libname: str) -> LocatedHeaderDir | None:
         return hdr_dir
 
     cuda_home = get_cuda_home_or_path()
-    if cuda_home:
-        if result := _locate_based_on_ctk_layout(libname, h_basename, cuda_home):
-            return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
+    if cuda_home and (result := _locate_based_on_ctk_layout(libname, h_basename, cuda_home)):
+        return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
 
     return None
 
