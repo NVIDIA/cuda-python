@@ -67,9 +67,7 @@ cdef class GraphicsResource(Buffer):
 
     .. code-block:: python
 
-        resource = GraphicsResource.from_gl_buffer(vbo)
-
-        with resource.map(stream=s) as buf:
+        with GraphicsResource.from_gl_buffer(vbo, stream=s) as buf:
             view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
             # view.ptr is a CUDA device pointer into the GL buffer
 
@@ -89,7 +87,7 @@ cdef class GraphicsResource(Buffer):
         )
 
     @classmethod
-    def from_gl_buffer(cls, int gl_buffer, *, flags=None) -> GraphicsResource:
+    def from_gl_buffer(cls, int gl_buffer, *, flags=None, stream=None) -> GraphicsResource:
         """Register an OpenGL buffer object for CUDA access.
 
         Parameters
@@ -103,11 +101,18 @@ cdef class GraphicsResource(Buffer):
             Multiple flags can be combined by passing a sequence
             (e.g., ``("surface_load_store", "read_only")``).
             Defaults to ``None`` (no flags).
+        stream : :class:`~cuda.core.Stream`, optional
+            If provided, the resource is immediately mapped on this stream
+            so it can be used directly as a context manager::
+
+                with GraphicsResource.from_gl_buffer(vbo, stream=s) as buf:
+                    view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
 
         Returns
         -------
         GraphicsResource
             A new graphics resource wrapping the registered GL buffer.
+            If *stream* was given, the resource is already mapped.
 
         Raises
         ------
@@ -128,6 +133,8 @@ cdef class GraphicsResource(Buffer):
         self._handle = create_graphics_resource_handle(resource)
         self._mapped = False
         self._map_stream = None
+        if stream is not None:
+            self.map(stream=stream)
         return self
 
     @classmethod

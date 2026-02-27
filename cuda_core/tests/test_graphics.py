@@ -281,6 +281,21 @@ class TestMapUnmap:
                 assert view.is_device_accessible
             resource.close()
 
+    def test_from_gl_buffer_with_stream_context_manager(self):
+        """Register + auto-map via from_gl_buffer(stream=), then create StridedMemoryView."""
+        nbytes = 256 * 4  # 256 float32 elements
+        with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
+            stream = _create_stream()
+            with GraphicsResource.from_gl_buffer(gl_buf, stream=stream) as buf:
+                assert buf.is_mapped
+                assert buf.size == nbytes
+                view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
+                assert view.ptr == int(buf.handle)
+                assert view.shape == (256,)
+                assert view.is_device_accessible
+            assert not buf.is_mapped
+            buf.close()
+
     def test_map_with_stream(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
             stream = _create_stream()
