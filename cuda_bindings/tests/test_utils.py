@@ -109,7 +109,7 @@ def test_get_handle_error(target):
     ],
 )
 def test_cyclical_imports(module):
-    subprocess.check_call(
+    subprocess.check_call(  # noqa: S603
         [sys.executable, Path(__file__).parent / "utils" / "check_cyclical_import.py", f"cuda.bindings.{module}"],
     )
 

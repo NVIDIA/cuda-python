@@ -68,12 +68,12 @@ def _gl_context():
 
             if tex_id.value:
                 _gl.glDeleteTextures(1, ctypes.byref(tex_id))
-        except Exception:
+        except Exception:  # noqa: S110
             pass
         try:
             if win is not None:
                 win.close()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
 

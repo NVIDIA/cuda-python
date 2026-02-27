@@ -25,7 +25,7 @@ def _is_clang(compiler):
     @functools.lru_cache
     def _check(compiler_cxx):
         try:
-            output = subprocess.check_output([*compiler_cxx, "--version"])
+            output = subprocess.check_output([*compiler_cxx, "--version"])  # noqa: S603
         except subprocess.CalledProcessError:
             return False
         lines = output.decode().splitlines()
