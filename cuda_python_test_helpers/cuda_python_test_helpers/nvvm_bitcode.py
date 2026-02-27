@@ -123,7 +123,7 @@ MINIMAL_NVVMIR_BITCODE_STATIC = {
 
 @pytest.fixture(params=("txt", "bitcode_static"))
 def minimal_nvvmir(request):
-    major, minor, debug_major, debug_minor = nvvm.ir_version()
+    major, _minor, debug_major, _debug_minor = nvvm.ir_version()
 
     if request.param == "txt":
         return MINIMAL_NVVMIR_TXT_TEMPLATE % (major, debug_major)
