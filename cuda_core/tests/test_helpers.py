@@ -61,7 +61,7 @@ def test_patterngen_seeds():
     # We test a sampling of values because exhaustive testing is too slow,
     # especially on Windows. See https://github.com/NVIDIA/cuda-python/issues/1455
     pgen = PatternGen(device, NBYTES)
-    for i in (ii for ii in range(0, 256) if ii < 5 or ii % 17 == 0):
+    for i in (ii for ii in range(256) if ii < 5 or ii % 17 == 0):
         pgen.fill_buffer(buffer, seed=i)
         pgen.verify_buffer(buffer, seed=i)
         for j in (jj for jj in range(i + 1, 256) if jj < 5 or jj % 19 == 0):

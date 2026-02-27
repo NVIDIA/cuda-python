@@ -97,7 +97,6 @@ class VirtualMemoryResourceOptions:
         "host_numa_current": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
     # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
-    _a = driver.CUmemAllocationType
     _allocation_type = {"pinned": _a.CU_MEM_ALLOCATION_TYPE_PINNED}
     ver_major, ver_minor = get_binding_version()
     if ver_major >= 13:
