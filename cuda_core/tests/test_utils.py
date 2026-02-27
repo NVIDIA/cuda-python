@@ -547,7 +547,9 @@ def test_struct_array(init_cuda):
         pytest.param(np.ones((2, 3, 4), dtype=np.float64), "float64", id="3d-float64"),
         # Sliced/strided arrays
         pytest.param(np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)[::2], "int32", id="1d-strided-int32"),
-        pytest.param(np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"),
+        pytest.param(
+            np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"
+        ),
         pytest.param(np.arange(20, dtype=np.int32).reshape(4, 5)[::2, ::2], "int32", id="2d-strided-2x2-int32"),
         # Scalar (0-D array)
         pytest.param(np.array(42, dtype=np.int32), "int32", id="scalar-int32"),
