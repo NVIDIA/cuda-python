@@ -554,7 +554,7 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:
+    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:  # noqa: ARG002
         """
         Deallocate memory on the device using CUDA VMM APIs.
         """
