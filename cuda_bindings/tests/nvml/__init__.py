@@ -3,6 +3,7 @@
 
 
 import pytest
+
 from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
 
 if not hardware_supports_nvml():

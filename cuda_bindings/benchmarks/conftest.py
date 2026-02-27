@@ -3,6 +3,7 @@
 
 import numpy as np
 import pytest
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart

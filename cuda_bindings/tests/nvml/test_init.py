@@ -5,6 +5,7 @@ import sys
 import warnings
 
 import pytest
+
 from cuda.bindings import nvml
 
 

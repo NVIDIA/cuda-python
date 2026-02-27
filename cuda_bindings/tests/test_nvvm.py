@@ -6,6 +6,7 @@ import re
 from contextlib import contextmanager
 
 import pytest
+
 from cuda.bindings import nvvm
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)

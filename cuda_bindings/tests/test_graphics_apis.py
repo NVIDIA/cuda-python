@@ -8,6 +8,7 @@ import os
 import sys
 
 import pytest
+
 from cuda.bindings import runtime as cudart
 
 

@@ -6,10 +6,11 @@ import platform
 import shutil
 import textwrap
 
-import cuda.bindings.driver as cuda
-import cuda.bindings.runtime as cudart
 import numpy as np
 import pytest
+
+import cuda.bindings.driver as cuda
+import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
 
 

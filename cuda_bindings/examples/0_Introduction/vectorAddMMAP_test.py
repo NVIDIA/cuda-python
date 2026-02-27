@@ -9,6 +9,7 @@ import sys
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
+
 from cuda.bindings import driver as cuda
 
 vectorAddMMAP = """\
