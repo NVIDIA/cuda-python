@@ -85,7 +85,7 @@ def get_tegra_kind():
     """Detect Tegra device kind (Orin/Thor) via nvidia-smi, or None if not Tegra."""
     if not pathlib.Path("/etc/nv_tegra_release").exists():
         return None
-    out = subprocess.check_output(["nvidia-smi"], text=True, stderr=subprocess.STDOUT)  # noqa: S603, S607
+    out = subprocess.check_output(["nvidia-smi"], text=True, stderr=subprocess.STDOUT)  # noqa: S607
     tegra_kinds_found = []
     for kind in ("Orin", "Thor"):
         if f" {kind} " in out:

@@ -557,8 +557,8 @@ def test_device_get_name(device):
     # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
     import subprocess
 
-    p = subprocess.check_output(  # noqa: S603, S607
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],
+    p = subprocess.check_output(
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
         shell=False,
         stderr=subprocess.PIPE,
     )
