@@ -86,6 +86,7 @@ inline-quotes = "double"
   "T201",    # print
   "ARG001",  # unused function argument (fixtures)
   "ARG002",  # unused method argument
+  "RUF012",  # mutable class default (ctypes _fields_ is standard)
   "RUF059",  # unused unpacked variable (side-effect assignments)
   "F841",    # unused local variable (side-effect assignments)
   "E402",    # module-level import not at top of file
@@ -115,6 +116,7 @@ inline-quotes = "double"
 
 "**/benchmarks/**" = [
   "T201",    # print
+  "RUF012",  # mutable class default (ctypes _fields_ is standard)
   "RUF059",  # unused unpacked variable
   "F841",    # unused local variable
   "E402",    # module-level import not at top of file
