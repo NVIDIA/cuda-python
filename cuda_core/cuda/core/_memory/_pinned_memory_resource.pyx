@@ -15,12 +15,8 @@ from cuda.core._utils.cuda_utils cimport (
 
 from dataclasses import dataclass
 import multiprocessing
-import os
 import platform  # no-cython-lint
-import subprocess
-import threading
 import uuid
-import warnings
 
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
@@ -41,9 +37,22 @@ cdef class PinnedMemoryResourceOptions:
     max_size : int, optional
         Maximum pool size. When set to 0, defaults to a system-dependent value.
         (Default to 0)
+
+    numa_id : int or None, optional
+        Host NUMA node ID for pool placement. When set to None (the default),
+        the behavior depends on ``ipc_enabled``:
+
+        - ``ipc_enabled=False``: OS-managed placement (location type HOST).
+        - ``ipc_enabled=True``: automatically derived from the current CUDA
+          device's ``host_numa_id`` attribute, requiring an active CUDA
+          context.
+
+        When set to a non-negative integer, that NUMA node is used explicitly
+        regardless of ``ipc_enabled`` (location type HOST_NUMA).
     """
     ipc_enabled : bool = False
     max_size : int = 0
+    numa_id : int | None = None
 
 
 cdef class PinnedMemoryResource(_MemPool):
@@ -71,12 +80,10 @@ cdef class PinnedMemoryResource(_MemPool):
     -----
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
-    option. When IPC is enabled, the location type is automatically set to
-    CU_MEM_LOCATION_TYPE_HOST_NUMA instead of CU_MEM_LOCATION_TYPE_HOST,
-    with location ID 0.
-
-    Note: IPC support for pinned memory requires a single NUMA node. A warning
-    is issued if multiple NUMA nodes are detected.
+    option. When IPC is enabled and ``numa_id`` is not specified, the NUMA node
+    is automatically derived from the current CUDA device's ``host_numa_id``
+    attribute, which requires an active CUDA context. If ``numa_id`` is
+    explicitly set, that value is used regardless of ``ipc_enabled``.
 
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
@@ -161,6 +168,11 @@ cdef class PinnedMemoryResource(_MemPool):
         return -1
 
     @property
+    def numa_id(self) -> int:
+        """The host NUMA node ID used for pool placement, or -1 for OS-managed placement."""
+        return self._numa_id
+
+    @property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
@@ -172,6 +184,8 @@ cdef class PinnedMemoryResource(_MemPool):
 
 
 cdef inline _PMR_init(PinnedMemoryResource self, options):
+    from .._device import Device
+
     cdef PinnedMemoryResourceOptions opts = check_or_create_options(
         PinnedMemoryResourceOptions, options, "PinnedMemoryResource options",
         keep_none=True
@@ -179,35 +193,47 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
     cdef bint ipc_enabled = False
     cdef size_t max_size = 0
     cdef cydriver.CUmemLocationType loc_type
-    cdef int location_id
+    cdef int numa_id = -1
 
     if opts is not None:
         ipc_enabled = opts.ipc_enabled
         if ipc_enabled and not _ipc.is_supported():
             raise RuntimeError(f"IPC is not available on {platform.system()}")
-        if ipc_enabled:
-            _check_numa_nodes()
         max_size = opts.max_size
 
-    if ipc_enabled:
+        if opts.numa_id is not None:
+            numa_id = opts.numa_id
+            if numa_id < 0:
+                raise ValueError(f"numa_id must be >= 0, got {numa_id}")
+        elif ipc_enabled:
+            dev = Device()
+            numa_id = dev.properties.host_numa_id
+            if numa_id < 0:
+                raise RuntimeError(
+                    "Cannot determine host NUMA ID for IPC-enabled pinned "
+                    "memory pool. The system may not support NUMA, or no "
+                    "CUDA context is active. Set numa_id explicitly or "
+                    "call Device.set_current() first.")
+
+    if numa_id >= 0:
         loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
-        location_id = 0
     else:
         loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-        location_id = -1
+
+    self._numa_id = numa_id
 
     if opts is None:
         MP_init_current_pool(
             self,
             loc_type,
-            location_id,
+            numa_id,
             cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
         )
     else:
         MP_init_create_pool(
             self,
             loc_type,
-            location_id,
+            numa_id,
             cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
             ipc_enabled,
             max_size,
@@ -221,60 +247,3 @@ def _deep_reduce_pinned_memory_resource(mr):
 
 
 multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)
-
-
-cdef bint _numa_warning_shown = False
-cdef object _numa_lock = threading.Lock()
-
-
-cdef inline _check_numa_nodes():
-    """Check if system has multiple NUMA nodes and warn if so."""
-    global _numa_warning_shown
-    if _numa_warning_shown:
-        return
-
-    with _numa_lock:
-        if _numa_warning_shown:
-            return
-
-        if platform.system() != "Linux":
-            _numa_warning_shown = True
-            return
-
-        numa_count = None
-
-        # Try /sys filesystem first (most reliable and doesn't require external tools)
-        try:
-            node_path = "/sys/devices/system/node"
-            if os.path.exists(node_path):
-                nodes = [d for d in os.listdir(node_path) if d.startswith("node") and d[4:].isdigit()]
-                numa_count = len(nodes)
-        except (OSError, PermissionError):
-            pass
-
-        # Fallback to lscpu if /sys check didn't work
-        if numa_count is None:
-            try:
-                result = subprocess.run(
-                    ["lscpu"],
-                    capture_output=True,
-                    text=True,
-                    timeout=1
-                )
-                for line in result.stdout.splitlines():
-                    if line.startswith("NUMA node(s):"):
-                        numa_count = int(line.split(":")[1].strip())
-                        break
-            except (subprocess.SubprocessError, ValueError, FileNotFoundError):
-                pass
-
-        if numa_count is not None and numa_count > 1:
-            warnings.warn(
-                f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
-                f"uses location ID 0, which may not work correctly with multiple "
-                f"NUMA nodes.",
-                UserWarning,
-                stacklevel=3
-            )
-
-        _numa_warning_shown = True

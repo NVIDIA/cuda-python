@@ -1039,6 +1039,7 @@ def test_pinned_mempool_ipc_basic():
     assert mr.is_device_accessible
     assert mr.is_host_accessible
     assert mr.device_id == -1  # pinned memory is not device-specific
+    assert mr.numa_id >= 0  # IPC requires a concrete NUMA node
 
     # Test allocation handle export
     alloc_handle = mr.get_allocation_handle()
@@ -1070,7 +1071,8 @@ def test_pinned_mempool_ipc_errors():
     options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
     mr = PinnedMemoryResource(options)
     assert not mr.is_ipc_enabled
-    assert mr.device_id == -1  # Non-IPC uses location id -1
+    assert mr.device_id == -1
+    assert mr.numa_id == -1  # Non-IPC uses OS-managed placement
 
     buffer = mr.allocate(64)
     ipc_error_msg = "Memory resource is not IPC-enabled"
@@ -1087,6 +1089,74 @@ def test_pinned_mempool_ipc_errors():
 
     buffer.close()
     mr.close()
+
+
+def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
+    """numa_id defaults to -1 (OS-managed) when IPC is disabled."""
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+
+    mr = PinnedMemoryResource(PinnedMemoryResourceOptions())
+    assert mr.numa_id == -1
+    mr.close()
+
+    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=False))
+    assert mr.numa_id == -1
+    mr.close()
+
+
+def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
+    """numa_id is derived from the current device when IPC is enabled."""
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+
+    if platform.system() == "Windows":
+        pytest.skip("IPC not implemented for Windows")
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    expected_numa_id = device.properties.host_numa_id
+    if expected_numa_id < 0:
+        pytest.skip("System does not support NUMA")
+
+    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=True, max_size=POOL_SIZE))
+    assert mr.numa_id == expected_numa_id
+    mr.close()
+
+
+def test_pinned_mr_numa_id_explicit(init_cuda):
+    """Explicit numa_id is used regardless of ipc_enabled."""
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+
+    host_numa_id = device.properties.host_numa_id
+    if host_numa_id < 0:
+        pytest.skip("System does not support NUMA")
+
+    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=host_numa_id))
+    assert mr.numa_id == host_numa_id
+    mr.close()
+
+    if platform.system() == "Windows":
+        pytest.skip("IPC not implemented for Windows")
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(ipc_enabled=True, numa_id=host_numa_id, max_size=POOL_SIZE))
+    assert mr.numa_id == host_numa_id
+    mr.close()
+
+
+def test_pinned_mr_numa_id_negative_error(init_cuda):
+    """Negative numa_id raises ValueError."""
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+
+    with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-1))
+
+    with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
 @pytest.mark.parametrize("ipc_enabled", [True, False])
