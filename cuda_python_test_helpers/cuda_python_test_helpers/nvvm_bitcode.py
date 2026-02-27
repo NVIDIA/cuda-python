@@ -5,6 +5,7 @@
 import binascii
 
 import pytest
+
 from cuda.bindings import nvvm
 
 MINIMAL_NVVMIR_TXT_TEMPLATE = b"""\
