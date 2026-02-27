@@ -13,8 +13,9 @@ import glob
 import os
 import sys
 
-import cuda.tile as ct
 import cupy
+
+import cuda.tile as ct
 
 
 def _run_sample_cutile_kernel() -> None:
