@@ -216,13 +216,6 @@ cdef class GraphicsResource:
                 # use buf.handle, buf.size, etc.
             # automatically unmapped here
 
-        Or called directly for explicit control::
-
-            mapped = resource.map(stream=s)
-            buf = mapped._buffer  # or use mapped.handle, mapped.size
-            # ... do work ...
-            resource.unmap(stream=s)
-
         Parameters
         ----------
         stream : :class:`~cuda.core.Stream`, optional
