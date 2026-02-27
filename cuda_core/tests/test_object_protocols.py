@@ -340,7 +340,7 @@ def test_equality_basic(fixture_name, request):
     """Object equality: reflexive, not equal to None or other types."""
     obj = request.getfixturevalue(fixture_name)
     assert obj == obj
-    assert obj != None
+    assert obj is not None
     assert obj != "string"
     if hasattr(obj, "handle"):
         assert obj != obj.handle
