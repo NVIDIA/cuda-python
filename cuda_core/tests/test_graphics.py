@@ -47,7 +47,7 @@ def _gl_context_and_buffer(nbytes=1024):
             win = pyglet.window.Window(visible=False, config=config)
             win.switch_to()
         else:
-            from pyglet.gl import headless
+            from pyglet.gl import headless  # noqa: F401
 
         from pyglet.gl import gl as _gl
 
@@ -98,7 +98,7 @@ def _gl_context_and_texture(width=16, height=16):
             win = pyglet.window.Window(visible=False, config=config)
             win.switch_to()
         else:
-            from pyglet.gl import headless
+            from pyglet.gl import headless  # noqa: F401
 
         from pyglet.gl import gl as _gl
 

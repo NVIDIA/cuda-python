@@ -3,6 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.core._memoryview import (
-    StridedMemoryView,
-    args_viewable_as_strided_memory,
+    StridedMemoryView,  # noqa: F401
+    args_viewable_as_strided_memory,  # noqa: F401
 )
