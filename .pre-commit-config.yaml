@@ -19,6 +19,7 @@ repos:
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
+        exclude: ^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$
       - id: ruff-format
 
   - repo: local
