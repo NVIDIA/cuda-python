@@ -294,7 +294,7 @@ def _dense_strides(shape, stride_order):
     return tuple(strides)
 
 
-@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)], ids=str)
+@pytest.mark.parametrize("shape", [(), (2, 3), (10, 10), (10, 13, 11)], ids=str)
 @pytest.mark.parametrize("dtype", [np.dtype(np.int8), np.dtype(np.uint32)], ids=str)
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 @pytest.mark.parametrize("readonly", [True, False])

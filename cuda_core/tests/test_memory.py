@@ -1223,11 +1223,11 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     device.set_current()
 
     if MR is DeviceMemoryResource:
-        mr = MR(device, dict(max_size=POOL_SIZE))
+        mr = MR(device, {"max_size": POOL_SIZE})
     elif MR is PinnedMemoryResource:
-        mr = MR(dict(max_size=POOL_SIZE))
+        mr = MR({"max_size": POOL_SIZE})
     elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_skip(dict())
+        mr = create_managed_memory_resource_or_skip({})
 
     attributes = mr.attributes
     mr.close()

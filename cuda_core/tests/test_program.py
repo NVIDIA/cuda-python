@@ -325,7 +325,7 @@ def test_cpp_program_with_pch_options(init_cuda, tmp_path):
 
     path = str(tmp_path / "test.pch")
 
-    for opts in (dict(create_pch=path), dict(use_pch=path)):
+    for opts in ({"create_pch": path}, {"use_pch": path}):
         options = ProgramOptions(**opts)
         program = Program(code, "c++", options)
         assert program.backend == "NVRTC"

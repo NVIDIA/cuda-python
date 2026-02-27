@@ -319,8 +319,8 @@ def test_device_property_types(property_name, expected_type):
 
 def test_device_properties_complete():
     device = Device()
-    live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
-    tab_props = set(attr for attr, _ in cuda_base_properties)
+    live_props = {attr for attr in dir(device.properties) if not attr.startswith("_")}
+    tab_props = {attr for attr, _ in cuda_base_properties}
 
     excluded_props = set()
     # Exclude CUDA 13+ specific properties when not available

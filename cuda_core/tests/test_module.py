@@ -276,8 +276,8 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_4_prerequis
     members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
 
     arg_info = krn.arguments_info
-    assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members)])
-    assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
+    assert all(actual.offset == expected.offset for actual, expected in zip(arg_info, members))
+    assert all(actual.size == expected.size for actual, expected in zip(arg_info, members))
 
 
 def test_num_args_error_handling(deinit_all_contexts_function, cuda12_4_prerequisite_check):

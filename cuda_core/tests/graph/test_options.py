@@ -38,7 +38,7 @@ def test_graph_dot_print_options(init_cuda, tmp_path):
 
     # Print using all options
     path = bytes(str(tmp_path / "vlad.dot"), "utf-8")
-    options = GraphDebugPrintOptions(**{field: True for field in GraphDebugPrintOptions.__dataclass_fields__})
+    options = GraphDebugPrintOptions(**dict.fromkeys(GraphDebugPrintOptions.__dataclass_fields__, True))
     gb.debug_dot_print(path, options)
 
 

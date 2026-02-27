@@ -36,7 +36,7 @@ def test_devices_are_the_same_architecture():
     # they won't be tested properly.  This tests for the (hopefully rare) case
     # where a system has devices of different architectures and produces a warning.
 
-    all_arches = set(device.arch for device in system.Device.get_all_devices())
+    all_arches = {device.arch for device in system.Device.get_all_devices()}
 
     if len(all_arches) > 1:
         warnings.warn(
@@ -129,7 +129,7 @@ def test_device_cuda_compute_capability():
         cuda_compute_capability = device.cuda_compute_capability
         assert isinstance(cuda_compute_capability, tuple)
         assert len(cuda_compute_capability) == 2
-        assert all([isinstance(i, int) for i in cuda_compute_capability])
+        assert all(isinstance(i, int) for i in cuda_compute_capability)
         assert 3 <= cuda_compute_capability[0] <= 99
         assert 0 <= cuda_compute_capability[1] <= 9
 
@@ -241,13 +241,13 @@ def test_device_uuid():
     [
         {
             "input": [1152920405096267775, 0],
-            "output": [i for i in range(20)] + [i + 40 for i in range(20)],
+            "output": list(range(20)) + [i + 40 for i in range(20)],
         },
         {
             "input": [17293823668613283840, 65535],
             "output": [i + 20 for i in range(20)] + [i + 60 for i in range(20)],
         },
-        {"input": [18446744073709551615, 0], "output": [i for i in range(64)]},
+        {"input": [18446744073709551615, 0], "output": list(range(64))},
         {"input": [0, 18446744073709551615], "output": [i + 64 for i in range(64)]},
     ],
 )
