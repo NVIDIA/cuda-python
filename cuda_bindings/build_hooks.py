@@ -189,7 +189,7 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
             struct_list[key] = _Struct(key, value["members"])
 
         for key, value in struct_list.items():
-            if key.startswith("anon_union") or key.startswith("anon_struct"):
+            if key.startswith(("anon_union", "anon_struct")):
                 continue
 
             found_struct += [key]

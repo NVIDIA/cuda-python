@@ -117,7 +117,7 @@ __global__ void reduceFinal(double *inputVec, double *result,
 def init_input(a, size):
     ctypes.c_float.from_address(a)
     a_list = ctypes.pointer(ctypes.c_float.from_address(a))
-    for i in range(0, size):
+    for i in range(size):
         a_list[i] = rnd.random()
 
 
