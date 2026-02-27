@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# This code was automatically generated with version 12.9.1, generator version 0.3.1.dev1324+gb402107a2. Do not modify it directly.
 
 from ..cycufile cimport *
 
