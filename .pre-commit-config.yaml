@@ -20,6 +20,7 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --show-fixes, --target-version=py39]
+        exclude: ^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$
       - id: ruff-format
 
   - repo: local
