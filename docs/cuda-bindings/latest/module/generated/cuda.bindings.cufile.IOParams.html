@@ -700,10 +700,13 @@ If default-constructed, the instance represents a single struct.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.cufile.IOParams.__init__" title="cuda.bindings.cufile.IOParams.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_buffer</span></code>(buffer)</p></td>
+<td><p>Create an IOParams instance with the memory from the given buffer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
 <td><p>Create an IOParams instance wrapping the given NumPy array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
 <td><p>Create an IOParams instance wrapping the given pointer.</p></td>
 </tr>
 </tbody>
