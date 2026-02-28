@@ -129,7 +129,6 @@ cdef class _HelperKernelParams:
 
 cdef class _HelperInputVoidPtr:
     def __cinit__(self, ptr):
-        self._pyobj_acquired = False
         self._cptr = _helper_input_void_ptr(ptr, &self._helper)
 
     def __dealloc__(self):
