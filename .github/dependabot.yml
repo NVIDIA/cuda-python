@@ -4,7 +4,7 @@
 
 version: 2
 updates:
-  # GitHub Actions updates targeting the default branch (master)
+  # GitHub Actions updates targeting the default branch (main)
   - package-ecosystem: github-actions
     directory: /
     schedule:
