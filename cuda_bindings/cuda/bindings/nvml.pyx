@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1283+gc7bc6fa75. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -35,6 +35,33 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
+
+cdef __from_buffer(buffer, size, lowpp_type):
+    cdef Py_buffer view
+    if cpython.PyObject_GetBuffer(buffer, &view, cpython.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        cpython.PyBuffer_Release(&view)
+
+
+cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+    buffer.buf = <char *>ptr
+    buffer.format = 'b'
+    buffer.internal = NULL
+    buffer.itemsize = 1
+    buffer.len = size
+    buffer.ndim = 1
+    buffer.obj = self
+    buffer.readonly = readonly
+    buffer.shape = &buffer.len
+    buffer.strides = &buffer.itemsize
+    buffer.suboffsets = NULL
 
 
 cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsigned int ver) nogil:
@@ -2074,6 +2101,12 @@ cdef class PciInfoExt_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPciInfoExt_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPciInfoExt_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlPciInfoExt_v1_t *>malloc(sizeof(nvmlPciInfoExt_v1_t))
@@ -2190,6 +2223,11 @@ cdef class PciInfoExt_v1:
         memcpy(<void *>(self._ptr[0].busId), <void *>ptr, 32)
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an PciInfoExt_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPciInfoExt_v1_t), PciInfoExt_v1)
+
+    @staticmethod
     def from_data(data):
         """Create an PciInfoExt_v1 instance wrapping the given NumPy array.
 
@@ -2292,6 +2330,12 @@ cdef class PciInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPciInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPciInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlPciInfo_t *>malloc(sizeof(nvmlPciInfo_t))
@@ -2388,6 +2432,11 @@ cdef class PciInfo:
             raise ValueError("String too long for field bus_id, max length is 31")
         cdef char *ptr = buf
         memcpy(<void *>(self._ptr[0].busId), <void *>ptr, 32)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PciInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPciInfo_t), PciInfo)
 
     @staticmethod
     def from_data(data):
@@ -2487,6 +2536,12 @@ cdef class Utilization:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUtilization_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUtilization_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlUtilization_t *>malloc(sizeof(nvmlUtilization_t))
@@ -2520,6 +2575,11 @@ cdef class Utilization:
         if self._readonly:
             raise ValueError("This Utilization instance is read-only")
         self._ptr[0].memory = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Utilization instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlUtilization_t), Utilization)
 
     @staticmethod
     def from_data(data):
@@ -2620,6 +2680,12 @@ cdef class Memory:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMemory_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlMemory_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlMemory_t *>malloc(sizeof(nvmlMemory_t))
@@ -2664,6 +2730,11 @@ cdef class Memory:
         if self._readonly:
             raise ValueError("This Memory instance is read-only")
         self._ptr[0].used = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Memory instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlMemory_t), Memory)
 
     @staticmethod
     def from_data(data):
@@ -2766,6 +2837,12 @@ cdef class Memory_v2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMemory_v2_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlMemory_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlMemory_v2_t *>malloc(sizeof(nvmlMemory_v2_t))
@@ -2832,6 +2909,11 @@ cdef class Memory_v2:
         if self._readonly:
             raise ValueError("This Memory_v2 instance is read-only")
         self._ptr[0].used = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Memory_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlMemory_v2_t), Memory_v2)
 
     @staticmethod
     def from_data(data):
@@ -2932,6 +3014,12 @@ cdef class BAR1Memory:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlBAR1Memory_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlBAR1Memory_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlBAR1Memory_t *>malloc(sizeof(nvmlBAR1Memory_t))
@@ -2976,6 +3064,11 @@ cdef class BAR1Memory:
         if self._readonly:
             raise ValueError("This BAR1Memory instance is read-only")
         self._ptr[0].bar1Used = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an BAR1Memory instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlBAR1Memory_t), BAR1Memory)
 
     @staticmethod
     def from_data(data):
@@ -3081,6 +3174,12 @@ cdef class ProcessInfo:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: """
@@ -3143,6 +3242,11 @@ cdef class ProcessInfo:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ProcessInfo instance with the memory from the given buffer."""
+        return ProcessInfo.from_data(_numpy.frombuffer(buffer, dtype=process_info_dtype))
 
     @staticmethod
     def from_data(data):
@@ -3252,6 +3356,12 @@ cdef class ProcessDetail_v1:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: Process ID."""
@@ -3325,6 +3435,11 @@ cdef class ProcessDetail_v1:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ProcessDetail_v1 instance with the memory from the given buffer."""
+        return ProcessDetail_v1.from_data(_numpy.frombuffer(buffer, dtype=process_detail_v1_dtype))
 
     @staticmethod
     def from_data(data):
@@ -3433,6 +3548,12 @@ cdef class DeviceAttributes:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAttributes_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDeviceAttributes_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -3546,6 +3667,11 @@ cdef class DeviceAttributes:
         self._ptr[0].memorySizeMB = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an DeviceAttributes instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlDeviceAttributes_t), DeviceAttributes)
+
+    @staticmethod
     def from_data(data):
         """Create an DeviceAttributes instance wrapping the given NumPy array.
 
@@ -3642,6 +3768,12 @@ cdef class C2cModeInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlC2cModeInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlC2cModeInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlC2cModeInfo_v1_t *>malloc(sizeof(nvmlC2cModeInfo_v1_t))
@@ -3664,6 +3796,11 @@ cdef class C2cModeInfo_v1:
         if self._readonly:
             raise ValueError("This C2cModeInfo_v1 instance is read-only")
         self._ptr[0].isC2cEnabled = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an C2cModeInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlC2cModeInfo_v1_t), C2cModeInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -3766,6 +3903,12 @@ cdef class RowRemapperHistogramValues:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRowRemapperHistogramValues_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlRowRemapperHistogramValues_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlRowRemapperHistogramValues_t *>malloc(sizeof(nvmlRowRemapperHistogramValues_t))
@@ -3832,6 +3975,11 @@ cdef class RowRemapperHistogramValues:
         if self._readonly:
             raise ValueError("This RowRemapperHistogramValues instance is read-only")
         self._ptr[0].none = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an RowRemapperHistogramValues instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlRowRemapperHistogramValues_t), RowRemapperHistogramValues)
 
     @staticmethod
     def from_data(data):
@@ -3935,6 +4083,12 @@ cdef class BridgeChipInfo:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def type(self):
         """Union[~_numpy.int32, int]: """
@@ -3975,6 +4129,11 @@ cdef class BridgeChipInfo:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an BridgeChipInfo instance with the memory from the given buffer."""
+        return BridgeChipInfo.from_data(_numpy.frombuffer(buffer, dtype=bridge_chip_info_dtype))
 
     @staticmethod
     def from_data(data):
@@ -4077,6 +4236,12 @@ cdef class Value:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlValue_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlValue_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlValue_t *>malloc(sizeof(nvmlValue_t))
@@ -4165,6 +4330,11 @@ cdef class Value:
         if self._readonly:
             raise ValueError("This Value instance is read-only")
         self._ptr[0].usVal = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Value instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlValue_t), Value)
 
     @staticmethod
     def from_data(data):
@@ -4267,6 +4437,12 @@ cdef class _py_anon_pod0:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod0)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod0), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
@@ -4333,6 +4509,11 @@ cdef class _py_anon_pod0:
         if self._readonly:
             raise ValueError("This _py_anon_pod0 instance is read-only")
         self._ptr[0].target = <nvmlThermalTarget_t><int>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod0 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(_anon_pod0), _py_anon_pod0)
 
     @staticmethod
     def from_data(data):
@@ -4434,6 +4615,12 @@ cdef class CoolerInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlCoolerInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlCoolerInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlCoolerInfo_v1_t *>malloc(sizeof(nvmlCoolerInfo_v1_t))
@@ -4489,6 +4676,11 @@ cdef class CoolerInfo_v1:
         if self._readonly:
             raise ValueError("This CoolerInfo_v1 instance is read-only")
         self._ptr[0].target = <nvmlCoolerTarget_t><int>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an CoolerInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlCoolerInfo_v1_t), CoolerInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -4592,6 +4784,12 @@ cdef class ClkMonFaultInfo:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def clk_api_domain(self):
         """Union[~_numpy.uint32, int]: """
@@ -4632,6 +4830,11 @@ cdef class ClkMonFaultInfo:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ClkMonFaultInfo instance with the memory from the given buffer."""
+        return ClkMonFaultInfo.from_data(_numpy.frombuffer(buffer, dtype=clk_mon_fault_info_dtype))
 
     @staticmethod
     def from_data(data):
@@ -4738,6 +4941,12 @@ cdef class ClockOffset_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlClockOffset_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlClockOffset_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlClockOffset_v1_t *>malloc(sizeof(nvmlClockOffset_v1_t))
@@ -4815,6 +5024,11 @@ cdef class ClockOffset_v1:
         if self._readonly:
             raise ValueError("This ClockOffset_v1 instance is read-only")
         self._ptr[0].maxClockOffsetMHz = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ClockOffset_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlClockOffset_v1_t), ClockOffset_v1)
 
     @staticmethod
     def from_data(data):
@@ -4922,6 +5136,12 @@ cdef class ProcessUtilizationSample:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: """
@@ -5006,6 +5226,11 @@ cdef class ProcessUtilizationSample:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ProcessUtilizationSample instance with the memory from the given buffer."""
+        return ProcessUtilizationSample.from_data(_numpy.frombuffer(buffer, dtype=process_utilization_sample_dtype))
 
     @staticmethod
     def from_data(data):
@@ -5118,6 +5343,12 @@ cdef class ProcessUtilizationInfo_v1:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: CPU Timestamp in microseconds."""
@@ -5224,6 +5455,11 @@ cdef class ProcessUtilizationInfo_v1:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ProcessUtilizationInfo_v1 instance with the memory from the given buffer."""
+        return ProcessUtilizationInfo_v1.from_data(_numpy.frombuffer(buffer, dtype=process_utilization_info_v1_dtype))
 
     @staticmethod
     def from_data(data):
@@ -5336,6 +5572,12 @@ cdef class EccSramErrorStatus_v1:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramErrorStatus_v1_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEccSramErrorStatus_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -5493,6 +5735,11 @@ cdef class EccSramErrorStatus_v1:
         self._ptr[0].bThresholdExceeded = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an EccSramErrorStatus_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlEccSramErrorStatus_v1_t), EccSramErrorStatus_v1)
+
+    @staticmethod
     def from_data(data):
         """Create an EccSramErrorStatus_v1 instance wrapping the given NumPy array.
 
@@ -5595,6 +5842,12 @@ cdef class PlatformInfo_v1:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v1_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPlatformInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -5709,6 +5962,11 @@ cdef class PlatformInfo_v1:
         self._ptr[0].moduleId = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an PlatformInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPlatformInfo_v1_t), PlatformInfo_v1)
+
+    @staticmethod
     def from_data(data):
         """Create an PlatformInfo_v1 instance wrapping the given NumPy array.
 
@@ -5811,6 +6069,12 @@ cdef class PlatformInfo_v2:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPlatformInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -5925,6 +6189,11 @@ cdef class PlatformInfo_v2:
         self._ptr[0].moduleId = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an PlatformInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPlatformInfo_v2_t), PlatformInfo_v2)
+
+    @staticmethod
     def from_data(data):
         """Create an PlatformInfo_v2 instance wrapping the given NumPy array.
 
@@ -6024,6 +6293,12 @@ cdef class _py_anon_pod1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod1)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod1), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
@@ -6079,6 +6354,11 @@ cdef class _py_anon_pod1:
         if self._readonly:
             raise ValueError("This _py_anon_pod1 instance is read-only")
         self._ptr[0].decThreshold = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(_anon_pod1), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -6183,6 +6463,12 @@ cdef class VgpuPlacementList_v2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPlacementList_v2_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPlacementList_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuPlacementList_v2_t *>malloc(sizeof(nvmlVgpuPlacementList_v2_t))
@@ -6246,6 +6532,11 @@ cdef class VgpuPlacementList_v2:
         if self._readonly:
             raise ValueError("This VgpuPlacementList_v2 instance is read-only")
         self._ptr[0].mode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuPlacementList_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuPlacementList_v2_t), VgpuPlacementList_v2)
 
     @staticmethod
     def from_data(data):
@@ -6346,6 +6637,12 @@ cdef class VgpuTypeBar1Info_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeBar1Info_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
@@ -6379,6 +6676,11 @@ cdef class VgpuTypeBar1Info_v1:
         if self._readonly:
             raise ValueError("This VgpuTypeBar1Info_v1 instance is read-only")
         self._ptr[0].bar1Size = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuTypeBar1Info_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuTypeBar1Info_v1_t), VgpuTypeBar1Info_v1)
 
     @staticmethod
     def from_data(data):
@@ -6489,6 +6791,12 @@ cdef class VgpuProcessUtilizationInfo_v1:
         if (not isinstance(other, VgpuProcessUtilizationInfo_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
         return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def process_name(self):
@@ -6618,6 +6926,11 @@ cdef class VgpuProcessUtilizationInfo_v1:
         self._data[key] = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuProcessUtilizationInfo_v1 instance with the memory from the given buffer."""
+        return VgpuProcessUtilizationInfo_v1.from_data(_numpy.frombuffer(buffer, dtype=vgpu_process_utilization_info_v1_dtype))
+
+    @staticmethod
     def from_data(data):
         """Create an VgpuProcessUtilizationInfo_v1 instance wrapping the given NumPy array.
 
@@ -6718,6 +7031,12 @@ cdef class _py_anon_pod2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod2)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod2), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
@@ -6751,6 +7070,11 @@ cdef class _py_anon_pod2:
         if self._readonly:
             raise ValueError("This _py_anon_pod2 instance is read-only")
         self._ptr[0].timeslice = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(_anon_pod2), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -6849,6 +7173,12 @@ cdef class _py_anon_pod3:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod3)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod3), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
@@ -6871,6 +7201,11 @@ cdef class _py_anon_pod3:
         if self._readonly:
             raise ValueError("This _py_anon_pod3 instance is read-only")
         self._ptr[0].timeslice = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(_anon_pod3), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -6978,6 +7313,12 @@ cdef class VgpuSchedulerLogEntry:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def timestamp(self):
         """Union[~_numpy.uint64, int]: """
@@ -7062,6 +7403,11 @@ cdef class VgpuSchedulerLogEntry:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLogEntry instance with the memory from the given buffer."""
+        return VgpuSchedulerLogEntry.from_data(_numpy.frombuffer(buffer, dtype=vgpu_scheduler_log_entry_dtype))
 
     @staticmethod
     def from_data(data):
@@ -7164,6 +7510,12 @@ cdef class _py_anon_pod4:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod4)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod4), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
@@ -7197,6 +7549,11 @@ cdef class _py_anon_pod4:
         if self._readonly:
             raise ValueError("This _py_anon_pod4 instance is read-only")
         self._ptr[0].frequency = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod4 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(_anon_pod4), _py_anon_pod4)
 
     @staticmethod
     def from_data(data):
@@ -7295,6 +7652,12 @@ cdef class _py_anon_pod5:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod5)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod5), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
@@ -7317,6 +7680,11 @@ cdef class _py_anon_pod5:
         if self._readonly:
             raise ValueError("This _py_anon_pod5 instance is read-only")
         self._ptr[0].timeslice = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod5 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(_anon_pod5), _py_anon_pod5)
 
     @staticmethod
     def from_data(data):
@@ -7421,6 +7789,12 @@ cdef class VgpuSchedulerCapabilities:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerCapabilities_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerCapabilities_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -7529,6 +7903,11 @@ cdef class VgpuSchedulerCapabilities:
         self._ptr[0].minAvgFactorForARR = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerCapabilities instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerCapabilities_t), VgpuSchedulerCapabilities)
+
+    @staticmethod
     def from_data(data):
         """Create an VgpuSchedulerCapabilities instance wrapping the given NumPy array.
 
@@ -7631,6 +8010,12 @@ cdef class VgpuLicenseExpiry:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuLicenseExpiry_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuLicenseExpiry_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuLicenseExpiry_t *>malloc(sizeof(nvmlVgpuLicenseExpiry_t))
@@ -7719,6 +8104,11 @@ cdef class VgpuLicenseExpiry:
         if self._readonly:
             raise ValueError("This VgpuLicenseExpiry instance is read-only")
         self._ptr[0].status = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuLicenseExpiry instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuLicenseExpiry_t), VgpuLicenseExpiry)
 
     @staticmethod
     def from_data(data):
@@ -7823,6 +8213,12 @@ cdef class GridLicenseExpiry:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGridLicenseExpiry_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGridLicenseExpiry_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGridLicenseExpiry_t *>malloc(sizeof(nvmlGridLicenseExpiry_t))
@@ -7911,6 +8307,11 @@ cdef class GridLicenseExpiry:
         if self._readonly:
             raise ValueError("This GridLicenseExpiry instance is read-only")
         self._ptr[0].status = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GridLicenseExpiry instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGridLicenseExpiry_t), GridLicenseExpiry)
 
     @staticmethod
     def from_data(data):
@@ -8011,6 +8412,12 @@ cdef class VgpuTypeIdInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeIdInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
@@ -8052,6 +8459,11 @@ cdef class VgpuTypeIdInfo_v1:
         self._ptr[0].vgpuTypeIds = <nvmlVgpuTypeId_t*><intptr_t>(arr.data)
         self._ptr[0].vgpuCount = len(val)
         self._refs["vgpu_type_ids"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuTypeIdInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuTypeIdInfo_v1_t), VgpuTypeIdInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -8152,6 +8564,12 @@ cdef class ActiveVgpuInstanceInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlActiveVgpuInstanceInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
@@ -8193,6 +8611,11 @@ cdef class ActiveVgpuInstanceInfo_v1:
         self._ptr[0].vgpuInstances = <nvmlVgpuInstance_t*><intptr_t>(arr.data)
         self._ptr[0].vgpuCount = len(val)
         self._refs["vgpu_instances"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ActiveVgpuInstanceInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlActiveVgpuInstanceInfo_v1_t), ActiveVgpuInstanceInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -8297,6 +8720,12 @@ cdef class VgpuCreatablePlacementInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuCreatablePlacementInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
@@ -8360,6 +8789,11 @@ cdef class VgpuCreatablePlacementInfo_v1:
         self._ptr[0].placementIds = <unsigned int*><intptr_t>(arr.data)
         self._ptr[0].placementSize = len(val)
         self._refs["placement_ids"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuCreatablePlacementInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), VgpuCreatablePlacementInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -8464,6 +8898,12 @@ cdef class HwbcEntry:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def hwbc_id(self):
         """Union[~_numpy.uint32, int]: """
@@ -8502,6 +8942,11 @@ cdef class HwbcEntry:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an HwbcEntry instance with the memory from the given buffer."""
+        return HwbcEntry.from_data(_numpy.frombuffer(buffer, dtype=hwbc_entry_dtype))
 
     @staticmethod
     def from_data(data):
@@ -8604,6 +9049,12 @@ cdef class LedState:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlLedState_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlLedState_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlLedState_t *>malloc(sizeof(nvmlLedState_t))
@@ -8641,6 +9092,11 @@ cdef class LedState:
         if self._readonly:
             raise ValueError("This LedState instance is read-only")
         self._ptr[0].color = <nvmlLedColor_t><int>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an LedState instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlLedState_t), LedState)
 
     @staticmethod
     def from_data(data):
@@ -8742,6 +9198,12 @@ cdef class UnitInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnitInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUnitInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlUnitInfo_t *>malloc(sizeof(nvmlUnitInfo_t))
@@ -8813,6 +9275,11 @@ cdef class UnitInfo:
             raise ValueError("String too long for field firmware_version, max length is 95")
         cdef char *ptr = buf
         memcpy(<void *>(self._ptr[0].firmwareVersion), <void *>ptr, 96)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an UnitInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlUnitInfo_t), UnitInfo)
 
     @staticmethod
     def from_data(data):
@@ -8914,6 +9381,12 @@ cdef class PSUInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPSUInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPSUInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlPSUInfo_t *>malloc(sizeof(nvmlPSUInfo_t))
@@ -8973,6 +9446,11 @@ cdef class PSUInfo:
         if self._readonly:
             raise ValueError("This PSUInfo instance is read-only")
         self._ptr[0].power = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PSUInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPSUInfo_t), PSUInfo)
 
     @staticmethod
     def from_data(data):
@@ -9076,6 +9554,12 @@ cdef class UnitFanInfo:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def speed(self):
         """Union[~_numpy.uint32, int]: """
@@ -9116,6 +9600,11 @@ cdef class UnitFanInfo:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an UnitFanInfo instance with the memory from the given buffer."""
+        return UnitFanInfo.from_data(_numpy.frombuffer(buffer, dtype=unit_fan_info_dtype))
 
     @staticmethod
     def from_data(data):
@@ -9221,6 +9710,12 @@ cdef class EventData:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventData_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventData_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlEventData_t *>malloc(sizeof(nvmlEventData_t))
@@ -9287,6 +9782,11 @@ cdef class EventData:
         if self._readonly:
             raise ValueError("This EventData instance is read-only")
         self._ptr[0].computeInstanceId = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an EventData instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlEventData_t), EventData)
 
     @staticmethod
     def from_data(data):
@@ -9390,6 +9890,12 @@ cdef class SystemEventData_v1:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def event_type(self):
         """Union[~_numpy.uint64, int]: Information about what specific system event occurred."""
@@ -9430,6 +9936,11 @@ cdef class SystemEventData_v1:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an SystemEventData_v1 instance with the memory from the given buffer."""
+        return SystemEventData_v1.from_data(_numpy.frombuffer(buffer, dtype=system_event_data_v1_dtype))
 
     @staticmethod
     def from_data(data):
@@ -9537,6 +10048,12 @@ cdef class AccountingStats:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlAccountingStats_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlAccountingStats_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlAccountingStats_t *>malloc(sizeof(nvmlAccountingStats_t))
@@ -9614,6 +10131,11 @@ cdef class AccountingStats:
         if self._readonly:
             raise ValueError("This AccountingStats instance is read-only")
         self._ptr[0].isRunning = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an AccountingStats instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlAccountingStats_t), AccountingStats)
 
     @staticmethod
     def from_data(data):
@@ -9723,6 +10245,12 @@ cdef class EncoderSessionInfo:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def session_id(self):
         """Union[~_numpy.uint32, int]: """
@@ -9831,6 +10359,11 @@ cdef class EncoderSessionInfo:
         self._data[key] = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an EncoderSessionInfo instance with the memory from the given buffer."""
+        return EncoderSessionInfo.from_data(_numpy.frombuffer(buffer, dtype=encoder_session_info_dtype))
+
+    @staticmethod
     def from_data(data):
         """Create an EncoderSessionInfo instance wrapping the given NumPy array.
 
@@ -9932,6 +10465,12 @@ cdef class FBCStats:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlFBCStats_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlFBCStats_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlFBCStats_t *>malloc(sizeof(nvmlFBCStats_t))
@@ -9976,6 +10515,11 @@ cdef class FBCStats:
         if self._readonly:
             raise ValueError("This FBCStats instance is read-only")
         self._ptr[0].averageLatency = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an FBCStats instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlFBCStats_t), FBCStats)
 
     @staticmethod
     def from_data(data):
@@ -10088,6 +10632,12 @@ cdef class FBCSessionInfo:
         if (not isinstance(other, FBCSessionInfo)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
         return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def session_id(self):
@@ -10241,6 +10791,11 @@ cdef class FBCSessionInfo:
         self._data[key] = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an FBCSessionInfo instance with the memory from the given buffer."""
+        return FBCSessionInfo.from_data(_numpy.frombuffer(buffer, dtype=fbc_session_info_dtype))
+
+    @staticmethod
     def from_data(data):
         """Create an FBCSessionInfo instance wrapping the given NumPy array.
 
@@ -10341,6 +10896,12 @@ cdef class ConfComputeSystemCaps:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeSystemCaps_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeSystemCaps_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlConfComputeSystemCaps_t *>malloc(sizeof(nvmlConfComputeSystemCaps_t))
@@ -10374,6 +10935,11 @@ cdef class ConfComputeSystemCaps:
         if self._readonly:
             raise ValueError("This ConfComputeSystemCaps instance is read-only")
         self._ptr[0].gpusCaps = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ConfComputeSystemCaps instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlConfComputeSystemCaps_t), ConfComputeSystemCaps)
 
     @staticmethod
     def from_data(data):
@@ -10474,6 +11040,12 @@ cdef class ConfComputeSystemState:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeSystemState_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeSystemState_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlConfComputeSystemState_t *>malloc(sizeof(nvmlConfComputeSystemState_t))
@@ -10518,6 +11090,11 @@ cdef class ConfComputeSystemState:
         if self._readonly:
             raise ValueError("This ConfComputeSystemState instance is read-only")
         self._ptr[0].devToolsMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ConfComputeSystemState instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlConfComputeSystemState_t), ConfComputeSystemState)
 
     @staticmethod
     def from_data(data):
@@ -10620,6 +11197,12 @@ cdef class SystemConfComputeSettings_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlSystemConfComputeSettings_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlSystemConfComputeSettings_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlSystemConfComputeSettings_v1_t *>malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
@@ -10686,6 +11269,11 @@ cdef class SystemConfComputeSettings_v1:
         if self._readonly:
             raise ValueError("This SystemConfComputeSettings_v1 instance is read-only")
         self._ptr[0].multiGpuMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an SystemConfComputeSettings_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlSystemConfComputeSettings_v1_t), SystemConfComputeSettings_v1)
 
     @staticmethod
     def from_data(data):
@@ -10785,6 +11373,12 @@ cdef class ConfComputeMemSizeInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeMemSizeInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeMemSizeInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlConfComputeMemSizeInfo_t *>malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
@@ -10818,6 +11412,11 @@ cdef class ConfComputeMemSizeInfo:
         if self._readonly:
             raise ValueError("This ConfComputeMemSizeInfo instance is read-only")
         self._ptr[0].unprotectedMemSizeKib = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ConfComputeMemSizeInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlConfComputeMemSizeInfo_t), ConfComputeMemSizeInfo)
 
     @staticmethod
     def from_data(data):
@@ -10919,6 +11518,12 @@ cdef class ConfComputeGpuCertificate:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGpuCertificate_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeGpuCertificate_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlConfComputeGpuCertificate_t *>malloc(sizeof(nvmlConfComputeGpuCertificate_t))
@@ -10974,6 +11579,11 @@ cdef class ConfComputeGpuCertificate:
         cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ConfComputeGpuCertificate instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlConfComputeGpuCertificate_t), ConfComputeGpuCertificate)
 
     @staticmethod
     def from_data(data):
@@ -11077,6 +11687,12 @@ cdef class ConfComputeGpuAttestationReport:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGpuAttestationReport_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeGpuAttestationReport_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlConfComputeGpuAttestationReport_t *>malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
@@ -11160,6 +11776,11 @@ cdef class ConfComputeGpuAttestationReport:
         cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ConfComputeGpuAttestationReport instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlConfComputeGpuAttestationReport_t), ConfComputeGpuAttestationReport)
 
     @staticmethod
     def from_data(data):
@@ -11263,6 +11884,12 @@ cdef class GpuFabricInfo_v2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v2_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuFabricInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGpuFabricInfo_v2_t *>malloc(sizeof(nvmlGpuFabricInfo_v2_t))
@@ -11346,6 +11973,11 @@ cdef class GpuFabricInfo_v2:
         if self._readonly:
             raise ValueError("This GpuFabricInfo_v2 instance is read-only")
         self._ptr[0].healthMask = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuFabricInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGpuFabricInfo_v2_t), GpuFabricInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -11446,6 +12078,12 @@ cdef class NvlinkSupportedBwModes_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSupportedBwModes_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
@@ -11490,6 +12128,11 @@ cdef class NvlinkSupportedBwModes_v1:
         cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
         memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkSupportedBwModes_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvlinkSupportedBwModes_v1_t), NvlinkSupportedBwModes_v1)
 
     @staticmethod
     def from_data(data):
@@ -11590,6 +12233,12 @@ cdef class NvlinkGetBwMode_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkGetBwMode_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkGetBwMode_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvlinkGetBwMode_v1_t *>malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
@@ -11634,6 +12283,11 @@ cdef class NvlinkGetBwMode_v1:
         if self._readonly:
             raise ValueError("This NvlinkGetBwMode_v1 instance is read-only")
         self._ptr[0].bwMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkGetBwMode_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvlinkGetBwMode_v1_t), NvlinkGetBwMode_v1)
 
     @staticmethod
     def from_data(data):
@@ -11734,6 +12388,12 @@ cdef class NvlinkSetBwMode_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetBwMode_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetBwMode_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvlinkSetBwMode_v1_t *>malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
@@ -11778,6 +12438,11 @@ cdef class NvlinkSetBwMode_v1:
         if self._readonly:
             raise ValueError("This NvlinkSetBwMode_v1 instance is read-only")
         self._ptr[0].bwMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkSetBwMode_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvlinkSetBwMode_v1_t), NvlinkSetBwMode_v1)
 
     @staticmethod
     def from_data(data):
@@ -11877,6 +12542,12 @@ cdef class VgpuVersion:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuVersion_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuVersion_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuVersion_t *>malloc(sizeof(nvmlVgpuVersion_t))
@@ -11910,6 +12581,11 @@ cdef class VgpuVersion:
         if self._readonly:
             raise ValueError("This VgpuVersion instance is read-only")
         self._ptr[0].maxVersion = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuVersion instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuVersion_t), VgpuVersion)
 
     @staticmethod
     def from_data(data):
@@ -12016,6 +12692,12 @@ cdef class VgpuMetadata:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuMetadata_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuMetadata_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -12141,6 +12823,11 @@ cdef class VgpuMetadata:
         memcpy(<void *>(self._ptr[0].opaqueData), <void *>ptr, 4)
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuMetadata instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuMetadata_t), VgpuMetadata)
+
+    @staticmethod
     def from_data(data):
         """Create an VgpuMetadata instance wrapping the given NumPy array.
 
@@ -12238,6 +12925,12 @@ cdef class VgpuPgpuCompatibility:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPgpuCompatibility_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPgpuCompatibility_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuPgpuCompatibility_t *>malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
@@ -12271,6 +12964,11 @@ cdef class VgpuPgpuCompatibility:
         if self._readonly:
             raise ValueError("This VgpuPgpuCompatibility instance is read-only")
         self._ptr[0].compatibilityLimitCode = <nvmlVgpuPgpuCompatibilityLimitCode_t><int>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuPgpuCompatibility instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuPgpuCompatibility_t), VgpuPgpuCompatibility)
 
     @staticmethod
     def from_data(data):
@@ -12374,6 +13072,12 @@ cdef class GpuInstancePlacement:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def start(self):
         """Union[~_numpy.uint32, int]: """
@@ -12414,6 +13118,11 @@ cdef class GpuInstancePlacement:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuInstancePlacement instance with the memory from the given buffer."""
+        return GpuInstancePlacement.from_data(_numpy.frombuffer(buffer, dtype=gpu_instance_placement_dtype))
 
     @staticmethod
     def from_data(data):
@@ -12526,6 +13235,12 @@ cdef class GpuInstanceProfileInfo_v3:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceProfileInfo_v3_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -12687,6 +13402,11 @@ cdef class GpuInstanceProfileInfo_v3:
         self._ptr[0].capabilities = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuInstanceProfileInfo_v3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGpuInstanceProfileInfo_v3_t), GpuInstanceProfileInfo_v3)
+
+    @staticmethod
     def from_data(data):
         """Create an GpuInstanceProfileInfo_v3 instance wrapping the given NumPy array.
 
@@ -12788,6 +13508,12 @@ cdef class ComputeInstancePlacement:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def start(self):
         """Union[~_numpy.uint32, int]: """
@@ -12828,6 +13554,11 @@ cdef class ComputeInstancePlacement:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ComputeInstancePlacement instance with the memory from the given buffer."""
+        return ComputeInstancePlacement.from_data(_numpy.frombuffer(buffer, dtype=compute_instance_placement_dtype))
 
     @staticmethod
     def from_data(data):
@@ -12938,6 +13669,12 @@ cdef class ComputeInstanceProfileInfo_v2:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceProfileInfo_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -13077,6 +13814,11 @@ cdef class ComputeInstanceProfileInfo_v2:
         memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an ComputeInstanceProfileInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlComputeInstanceProfileInfo_v2_t), ComputeInstanceProfileInfo_v2)
+
+    @staticmethod
     def from_data(data):
         """Create an ComputeInstanceProfileInfo_v2 instance wrapping the given NumPy array.
 
@@ -13183,6 +13925,12 @@ cdef class ComputeInstanceProfileInfo_v3:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceProfileInfo_v3_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -13333,6 +14081,11 @@ cdef class ComputeInstanceProfileInfo_v3:
         self._ptr[0].capabilities = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an ComputeInstanceProfileInfo_v3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlComputeInstanceProfileInfo_v3_t), ComputeInstanceProfileInfo_v3)
+
+    @staticmethod
     def from_data(data):
         """Create an ComputeInstanceProfileInfo_v3 instance wrapping the given NumPy array.
 
@@ -13430,6 +14183,12 @@ cdef class DeviceAddressingMode_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAddressingMode_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDeviceAddressingMode_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlDeviceAddressingMode_v1_t *>malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
@@ -13463,6 +14222,11 @@ cdef class DeviceAddressingMode_v1:
         if self._readonly:
             raise ValueError("This DeviceAddressingMode_v1 instance is read-only")
         self._ptr[0].value = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an DeviceAddressingMode_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlDeviceAddressingMode_v1_t), DeviceAddressingMode_v1)
 
     @staticmethod
     def from_data(data):
@@ -13563,6 +14327,12 @@ cdef class RepairStatus_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRepairStatus_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlRepairStatus_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlRepairStatus_v1_t *>malloc(sizeof(nvmlRepairStatus_v1_t))
@@ -13607,6 +14377,11 @@ cdef class RepairStatus_v1:
         if self._readonly:
             raise ValueError("This RepairStatus_v1 instance is read-only")
         self._ptr[0].bTpcRepairPending = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an RepairStatus_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlRepairStatus_v1_t), RepairStatus_v1)
 
     @staticmethod
     def from_data(data):
@@ -13707,6 +14482,12 @@ cdef class DevicePowerMizerModes_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDevicePowerMizerModes_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDevicePowerMizerModes_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlDevicePowerMizerModes_v1_t *>malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
@@ -13751,6 +14532,11 @@ cdef class DevicePowerMizerModes_v1:
         if self._readonly:
             raise ValueError("This DevicePowerMizerModes_v1 instance is read-only")
         self._ptr[0].supportedPowerMizerModes = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an DevicePowerMizerModes_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlDevicePowerMizerModes_v1_t), DevicePowerMizerModes_v1)
 
     @staticmethod
     def from_data(data):
@@ -13859,6 +14645,12 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def unit(self):
         """Union[~_numpy.uint32, int]: the SRAM unit index"""
@@ -13954,6 +14746,11 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an EccSramUniqueUncorrectedErrorEntry_v1 instance with the memory from the given buffer."""
+        return EccSramUniqueUncorrectedErrorEntry_v1.from_data(_numpy.frombuffer(buffer, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype))
 
     @staticmethod
     def from_data(data):
@@ -14061,6 +14858,12 @@ cdef class GpuFabricInfo_v3:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v3_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuFabricInfo_v3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGpuFabricInfo_v3_t *>malloc(sizeof(nvmlGpuFabricInfo_v3_t))
@@ -14155,6 +14958,11 @@ cdef class GpuFabricInfo_v3:
         if self._readonly:
             raise ValueError("This GpuFabricInfo_v3 instance is read-only")
         self._ptr[0].healthSummary = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuFabricInfo_v3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGpuFabricInfo_v3_t), GpuFabricInfo_v3)
 
     @staticmethod
     def from_data(data):
@@ -14254,6 +15062,12 @@ cdef class NvLinkInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvLinkInfo_v1_t *>malloc(sizeof(nvmlNvLinkInfo_v1_t))
@@ -14287,6 +15101,11 @@ cdef class NvLinkInfo_v1:
         if self._readonly:
             raise ValueError("This NvLinkInfo_v1 instance is read-only")
         self._ptr[0].isNvleEnabled = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvLinkInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvLinkInfo_v1_t), NvLinkInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -14388,6 +15207,12 @@ cdef class NvlinkFirmwareVersion:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareVersion_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareVersion_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvlinkFirmwareVersion_t *>malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
@@ -14443,6 +15268,11 @@ cdef class NvlinkFirmwareVersion:
         if self._readonly:
             raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._ptr[0].subMinor = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkFirmwareVersion instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvlinkFirmwareVersion_t), NvlinkFirmwareVersion)
 
     @staticmethod
     def from_data(data):
@@ -14541,6 +15371,12 @@ cdef class PRMCounterInput_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterInput_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPRMCounterInput_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlPRMCounterInput_v1_t *>malloc(sizeof(nvmlPRMCounterInput_v1_t))
@@ -14563,6 +15399,11 @@ cdef class PRMCounterInput_v1:
         if self._readonly:
             raise ValueError("This PRMCounterInput_v1 instance is read-only")
         self._ptr[0].localPort = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PRMCounterInput_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPRMCounterInput_v1_t), PRMCounterInput_v1)
 
     @staticmethod
     def from_data(data):
@@ -14662,6 +15503,12 @@ cdef class ExcludedDeviceInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlExcludedDeviceInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlExcludedDeviceInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlExcludedDeviceInfo_t *>malloc(sizeof(nvmlExcludedDeviceInfo_t))
@@ -14700,6 +15547,11 @@ cdef class ExcludedDeviceInfo:
             raise ValueError("String too long for field uuid, max length is 79")
         cdef char *ptr = buf
         memcpy(<void *>(self._ptr[0].uuid), <void *>ptr, 80)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ExcludedDeviceInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlExcludedDeviceInfo_t), ExcludedDeviceInfo)
 
     @staticmethod
     def from_data(data):
@@ -14803,6 +15655,12 @@ cdef class ProcessDetailList_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlProcessDetailList_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlProcessDetailList_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlProcessDetailList_v1_t *>malloc(sizeof(nvmlProcessDetailList_v1_t))
@@ -14852,6 +15710,11 @@ cdef class ProcessDetailList_v1:
         self._ptr[0].procArray = <nvmlProcessDetail_v1_t*><intptr_t>(arr._get_ptr())
         self._ptr[0].numProcArrayEntries = len(arr)
         self._refs["proc_array"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ProcessDetailList_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlProcessDetailList_v1_t), ProcessDetailList_v1)
 
     @staticmethod
     def from_data(data):
@@ -14952,6 +15815,12 @@ cdef class BridgeChipHierarchy:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlBridgeChipHierarchy_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlBridgeChipHierarchy_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlBridgeChipHierarchy_t *>malloc(sizeof(nvmlBridgeChipHierarchy_t))
@@ -14980,6 +15849,11 @@ cdef class BridgeChipHierarchy:
         if len(val) == 0:
             return
         memcpy(<void *>&(self._ptr[0].bridgeChipInfo), <void *>(val_._get_ptr()), sizeof(nvmlBridgeChipInfo_t) * self._ptr[0].bridgeCount)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an BridgeChipHierarchy instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlBridgeChipHierarchy_t), BridgeChipHierarchy)
 
     @staticmethod
     def from_data(data):
@@ -15083,6 +15957,12 @@ cdef class Sample:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: """
@@ -15121,6 +16001,11 @@ cdef class Sample:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Sample instance with the memory from the given buffer."""
+        return Sample.from_data(_numpy.frombuffer(buffer, dtype=sample_dtype))
 
     @staticmethod
     def from_data(data):
@@ -15231,6 +16116,12 @@ cdef class VgpuInstanceUtilizationSample:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: """
@@ -15307,6 +16198,11 @@ cdef class VgpuInstanceUtilizationSample:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuInstanceUtilizationSample instance with the memory from the given buffer."""
+        return VgpuInstanceUtilizationSample.from_data(_numpy.frombuffer(buffer, dtype=vgpu_instance_utilization_sample_dtype))
 
     @staticmethod
     def from_data(data):
@@ -15419,6 +16315,12 @@ cdef class VgpuInstanceUtilizationInfo_v1:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: CPU Timestamp in microseconds."""
@@ -15513,6 +16415,11 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuInstanceUtilizationInfo_v1 instance with the memory from the given buffer."""
+        return VgpuInstanceUtilizationInfo_v1.from_data(_numpy.frombuffer(buffer, dtype=vgpu_instance_utilization_info_v1_dtype))
 
     @staticmethod
     def from_data(data):
@@ -15624,6 +16531,12 @@ cdef class FieldValue:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def field_id(self):
         """Union[~_numpy.uint32, int]: """
@@ -15717,6 +16630,11 @@ cdef class FieldValue:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an FieldValue instance with the memory from the given buffer."""
+        return FieldValue.from_data(_numpy.frombuffer(buffer, dtype=field_value_dtype))
 
     @staticmethod
     def from_data(data):
@@ -15820,6 +16738,12 @@ cdef class PRMCounterValue_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterValue_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPRMCounterValue_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlPRMCounterValue_v1_t *>malloc(sizeof(nvmlPRMCounterValue_v1_t))
@@ -15865,6 +16789,11 @@ cdef class PRMCounterValue_v1:
         if self._readonly:
             raise ValueError("This PRMCounterValue_v1 instance is read-only")
         self._ptr[0].outputType = <nvmlValueType_t><int>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PRMCounterValue_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlPRMCounterValue_v1_t), PRMCounterValue_v1)
 
     @staticmethod
     def from_data(data):
@@ -15964,6 +16893,12 @@ cdef class GpuThermalSettings:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuThermalSettings_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuThermalSettings_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGpuThermalSettings_t *>malloc(sizeof(nvmlGpuThermalSettings_t))
@@ -16000,6 +16935,11 @@ cdef class GpuThermalSettings:
         if self._readonly:
             raise ValueError("This GpuThermalSettings instance is read-only")
         self._ptr[0].count = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuThermalSettings instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGpuThermalSettings_t), GpuThermalSettings)
 
     @staticmethod
     def from_data(data):
@@ -16100,6 +17040,12 @@ cdef class ClkMonStatus:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlClkMonStatus_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlClkMonStatus_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlClkMonStatus_t *>malloc(sizeof(nvmlClkMonStatus_t))
@@ -16139,6 +17085,11 @@ cdef class ClkMonStatus:
         if self._readonly:
             raise ValueError("This ClkMonStatus instance is read-only")
         self._ptr[0].bGlobalStatus = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ClkMonStatus instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlClkMonStatus_t), ClkMonStatus)
 
     @staticmethod
     def from_data(data):
@@ -16242,6 +17193,12 @@ cdef class ProcessesUtilizationInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlProcessesUtilizationInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
@@ -16291,6 +17248,11 @@ cdef class ProcessesUtilizationInfo_v1:
         self._ptr[0].procUtilArray = <nvmlProcessUtilizationInfo_v1_t*><intptr_t>(arr._get_ptr())
         self._ptr[0].processSamplesCount = len(arr)
         self._refs["proc_util_array"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ProcessesUtilizationInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlProcessesUtilizationInfo_v1_t), ProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -16391,6 +17353,12 @@ cdef class GpuDynamicPstatesInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuDynamicPstatesInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuDynamicPstatesInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGpuDynamicPstatesInfo_t *>malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
@@ -16427,6 +17395,11 @@ cdef class GpuDynamicPstatesInfo:
         if self._readonly:
             raise ValueError("This GpuDynamicPstatesInfo instance is read-only")
         self._ptr[0].flags = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuDynamicPstatesInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGpuDynamicPstatesInfo_t), GpuDynamicPstatesInfo)
 
     @staticmethod
     def from_data(data):
@@ -16530,6 +17503,12 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
@@ -16579,6 +17558,11 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         self._ptr[0].vgpuProcUtilArray = <nvmlVgpuProcessUtilizationInfo_v1_t*><intptr_t>(arr._get_ptr())
         self._ptr[0].vgpuProcessCount = len(arr)
         self._refs["vgpu_proc_util_array"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuProcessesUtilizationInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), VgpuProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -16674,6 +17658,12 @@ cdef class VgpuSchedulerParams:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerParams_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerParams_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerParams_t *>malloc(sizeof(nvmlVgpuSchedulerParams_t))
@@ -16709,6 +17699,11 @@ cdef class VgpuSchedulerParams:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod3 val_ = val
         memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerParams instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerParams_t), VgpuSchedulerParams)
 
     @staticmethod
     def from_data(data):
@@ -16803,6 +17798,12 @@ cdef class VgpuSchedulerSetParams:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerSetParams_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerSetParams_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerSetParams_t *>malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
@@ -16838,6 +17839,11 @@ cdef class VgpuSchedulerSetParams:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod5 val_ = val
         memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod5) * 1)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerSetParams instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerSetParams_t), VgpuSchedulerSetParams)
 
     @staticmethod
     def from_data(data):
@@ -16938,6 +17944,12 @@ cdef class VgpuLicenseInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuLicenseInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuLicenseInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuLicenseInfo_t *>malloc(sizeof(nvmlVgpuLicenseInfo_t))
@@ -16983,6 +17995,11 @@ cdef class VgpuLicenseInfo:
         if self._readonly:
             raise ValueError("This VgpuLicenseInfo instance is read-only")
         self._ptr[0].currentState = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuLicenseInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuLicenseInfo_t), VgpuLicenseInfo)
 
     @staticmethod
     def from_data(data):
@@ -17090,6 +18107,12 @@ cdef class GridLicensableFeature:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def feature_code(self):
         """Union[~_numpy.int32, int]: """
@@ -17168,6 +18191,11 @@ cdef class GridLicensableFeature:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GridLicensableFeature instance with the memory from the given buffer."""
+        return GridLicensableFeature.from_data(_numpy.frombuffer(buffer, dtype=grid_licensable_feature_dtype))
 
     @staticmethod
     def from_data(data):
@@ -17270,6 +18298,12 @@ cdef class UnitFanSpeeds:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnitFanSpeeds_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUnitFanSpeeds_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlUnitFanSpeeds_t *>malloc(sizeof(nvmlUnitFanSpeeds_t))
@@ -17306,6 +18340,11 @@ cdef class UnitFanSpeeds:
         if self._readonly:
             raise ValueError("This UnitFanSpeeds instance is read-only")
         self._ptr[0].count = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an UnitFanSpeeds instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlUnitFanSpeeds_t), UnitFanSpeeds)
 
     @staticmethod
     def from_data(data):
@@ -17411,6 +18450,12 @@ cdef class VgpuPgpuMetadata:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPgpuMetadata_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPgpuMetadata_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuPgpuMetadata_t *>malloc(sizeof(nvmlVgpuPgpuMetadata_t))
@@ -17508,6 +18553,11 @@ cdef class VgpuPgpuMetadata:
             raise ValueError("String too long for field opaque_data, max length is 3")
         cdef char *ptr = buf
         memcpy(<void *>(self._ptr[0].opaqueData), <void *>ptr, 4)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuPgpuMetadata instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuPgpuMetadata_t), VgpuPgpuMetadata)
 
     @staticmethod
     def from_data(data):
@@ -17609,6 +18659,12 @@ cdef class GpuInstanceInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuInstanceInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGpuInstanceInfo_t *>malloc(sizeof(nvmlGpuInstanceInfo_t))
@@ -17665,6 +18721,11 @@ cdef class GpuInstanceInfo:
         if self._readonly:
             raise ValueError("This GpuInstanceInfo instance is read-only")
         self._ptr[0].profileId = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuInstanceInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGpuInstanceInfo_t), GpuInstanceInfo)
 
     @staticmethod
     def from_data(data):
@@ -17767,6 +18828,12 @@ cdef class ComputeInstanceInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlComputeInstanceInfo_t *>malloc(sizeof(nvmlComputeInstanceInfo_t))
@@ -17834,6 +18901,11 @@ cdef class ComputeInstanceInfo:
         if self._readonly:
             raise ValueError("This ComputeInstanceInfo instance is read-only")
         self._ptr[0].profileId = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ComputeInstanceInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlComputeInstanceInfo_t), ComputeInstanceInfo)
 
     @staticmethod
     def from_data(data):
@@ -17936,6 +19008,12 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
@@ -17974,6 +19052,11 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         self._ptr[0].entries = <nvmlEccSramUniqueUncorrectedErrorEntry_v1_t*><intptr_t>(arr._get_ptr())
         self._ptr[0].entryCount = len(arr)
         self._refs["entries"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an EccSramUniqueUncorrectedErrorCounts_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), EccSramUniqueUncorrectedErrorCounts_v1)
 
     @staticmethod
     def from_data(data):
@@ -18074,6 +19157,12 @@ cdef class NvlinkFirmwareInfo:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareInfo_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareInfo_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvlinkFirmwareInfo_t *>malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
@@ -18110,6 +19199,11 @@ cdef class NvlinkFirmwareInfo:
         if self._readonly:
             raise ValueError("This NvlinkFirmwareInfo instance is read-only")
         self._ptr[0].numValidEntries = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkFirmwareInfo instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvlinkFirmwareInfo_t), NvlinkFirmwareInfo)
 
     @staticmethod
     def from_data(data):
@@ -18214,6 +19308,12 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
@@ -18274,6 +19374,11 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         self._ptr[0].vgpuUtilArray = <nvmlVgpuInstanceUtilizationInfo_v1_t*><intptr_t>(arr._get_ptr())
         self._ptr[0].vgpuInstanceCount = len(arr)
         self._refs["vgpu_util_array"] = arr
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuInstancesUtilizationInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), VgpuInstancesUtilizationInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -18379,6 +19484,12 @@ cdef class PRMCounter_v1:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def counter_id(self):
         """Union[~_numpy.uint32, int]: Counter ID, one of nvmlPRMCounterId_t."""
@@ -18426,6 +19537,11 @@ cdef class PRMCounter_v1:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PRMCounter_v1 instance with the memory from the given buffer."""
+        return PRMCounter_v1.from_data(_numpy.frombuffer(buffer, dtype=prm_counter_v1_dtype))
 
     @staticmethod
     def from_data(data):
@@ -18532,6 +19648,12 @@ cdef class VgpuSchedulerLog:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLog_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLog_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerLog_t *>malloc(sizeof(nvmlVgpuSchedulerLog_t))
@@ -18613,6 +19735,11 @@ cdef class VgpuSchedulerLog:
         if self._readonly:
             raise ValueError("This VgpuSchedulerLog instance is read-only")
         self._ptr[0].entriesCount = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLog instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLog_t), VgpuSchedulerLog)
 
     @staticmethod
     def from_data(data):
@@ -18713,6 +19840,12 @@ cdef class VgpuSchedulerGetState:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerGetState_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerGetState_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerGetState_t *>malloc(sizeof(nvmlVgpuSchedulerGetState_t))
@@ -18758,6 +19891,11 @@ cdef class VgpuSchedulerGetState:
         if self._readonly:
             raise ValueError("This VgpuSchedulerGetState instance is read-only")
         self._ptr[0].arrMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerGetState instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerGetState_t), VgpuSchedulerGetState)
 
     @staticmethod
     def from_data(data):
@@ -18860,6 +19998,12 @@ cdef class VgpuSchedulerStateInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
@@ -18927,6 +20071,11 @@ cdef class VgpuSchedulerStateInfo_v1:
         if self._readonly:
             raise ValueError("This VgpuSchedulerStateInfo_v1 instance is read-only")
         self._ptr[0].arrMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerStateInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v1_t), VgpuSchedulerStateInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -19031,6 +20180,12 @@ cdef class VgpuSchedulerLogInfo_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
@@ -19123,6 +20278,11 @@ cdef class VgpuSchedulerLogInfo_v1:
         if self._readonly:
             raise ValueError("This VgpuSchedulerLogInfo_v1 instance is read-only")
         self._ptr[0].entriesCount = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLogInfo_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v1_t), VgpuSchedulerLogInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -19225,6 +20385,12 @@ cdef class VgpuSchedulerState_v1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v1_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlVgpuSchedulerState_v1_t *>malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
@@ -19292,6 +20458,11 @@ cdef class VgpuSchedulerState_v1:
         if self._readonly:
             raise ValueError("This VgpuSchedulerState_v1 instance is read-only")
         self._ptr[0].enableARRMode = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerState_v1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v1_t), VgpuSchedulerState_v1)
 
     @staticmethod
     def from_data(data):
@@ -19392,6 +20563,12 @@ cdef class GridLicensableFeatures:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGridLicensableFeatures_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGridLicensableFeatures_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlGridLicensableFeatures_t *>malloc(sizeof(nvmlGridLicensableFeatures_t))
@@ -19431,6 +20608,11 @@ cdef class GridLicensableFeatures:
         if self._readonly:
             raise ValueError("This GridLicensableFeatures instance is read-only")
         self._ptr[0].isGridLicenseSupported = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GridLicensableFeatures instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlGridLicensableFeatures_t), GridLicensableFeatures)
 
     @staticmethod
     def from_data(data):
@@ -19531,6 +20713,12 @@ cdef class NvLinkInfo_v2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v2_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <nvmlNvLinkInfo_v2_t *>malloc(sizeof(nvmlNvLinkInfo_v2_t))
@@ -19576,6 +20764,11 @@ cdef class NvLinkInfo_v2:
         if self._readonly:
             raise ValueError("This NvLinkInfo_v2 instance is read-only")
         self._ptr[0].isNvleEnabled = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvLinkInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlNvLinkInfo_v2_t), NvLinkInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -26227,4 +27420,4 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
     with nogil:
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(vgpu_type_name)
+    return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
