@@ -108,9 +108,12 @@ def _find_ctk_header_directory(libname: str) -> LocatedHeaderDir | None:
             return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
 
     # Fallback: typical system install path (matches CuPy's get_cuda_path())
-    if not IS_WINDOWS and os.path.exists('/usr/local/cuda'):
-        if result := _locate_based_on_ctk_layout(libname, h_basename, '/usr/local/cuda'):
-            return LocatedHeaderDir(abs_path=result, found_via="system_default")
+    if (
+        not IS_WINDOWS
+        and os.path.exists("/usr/local/cuda")
+        and (result := _locate_based_on_ctk_layout(libname, h_basename, "/usr/local/cuda"))
+    ):
+        return LocatedHeaderDir(abs_path=result, found_via="system_default")
 
     return None
 
