@@ -83,7 +83,7 @@ def convert_strides_to_counts(strides, itemsize):
         np.empty((3, 4), order="F"),
         np.empty((), dtype=np.float16),
         # readonly is fixed recently (numpy/numpy#26501)
-        pytest.pytest.param(
+        pytest.param(
             np.frombuffer(b""),
             marks=pytest.mark.skipif(
                 tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+"
@@ -131,16 +131,16 @@ def gpu_array_samples():
     samples = []
     if cp is not None:
         samples += [
-            pytest.pytest.param(cp.empty(3, dtype=cp.complex64), False, id="cupy-complex64"),
-            pytest.pytest.param(cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True, id="cupy-float64"),
-            pytest.pytest.param(cp.empty((3, 4), order="F"), True, id="cupy-fortran"),
+            pytest.param(cp.empty(3, dtype=cp.complex64), False, id="cupy-complex64"),
+            pytest.param(cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True, id="cupy-float64"),
+            pytest.param(cp.empty((3, 4), order="F"), True, id="cupy-fortran"),
         ]
     # Numba's device_array is the only known array container that does not
     # support DLPack (so that we get to test the CAI coverage).
     if numba_cuda is not None:
         samples += [
-            pytest.pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
-            pytest.pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
+            pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
+            pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
         ]
     return samples
 
