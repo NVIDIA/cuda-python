@@ -96,11 +96,12 @@ class VirtualMemoryResourceOptions:
         "host_numa": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA,
         "host_numa_current": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
+    _t = driver.CUmemAllocationType
     # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
-    _allocation_type = {"pinned": _a.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
+    _allocation_type = {"pinned": _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     ver_major, ver_minor = get_binding_version()
     if ver_major >= 13:
-        _allocation_type["managed"] = _a.CU_MEM_ALLOCATION_TYPE_MANAGED
+        _allocation_type["managed"] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
     def _access_to_flags(spec: str):
