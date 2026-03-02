@@ -24,4 +24,9 @@ cuda.core.Graph
 
    
    
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: handle
+   
    

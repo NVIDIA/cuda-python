@@ -10,8 +10,33 @@ cuda.core.system.AffinityScope
 
    
    
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
    
 
    
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: NODE
+   .. autoattribute:: SOCKET
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
    
    

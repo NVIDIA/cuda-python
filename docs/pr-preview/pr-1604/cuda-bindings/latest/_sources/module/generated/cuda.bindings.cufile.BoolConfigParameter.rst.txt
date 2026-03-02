@@ -3,4 +3,50 @@
 
 .. currentmodule:: cuda.bindings.cufile
 
-.. autoenum:: BoolConfigParameter
+.. autoclass:: BoolConfigParameter
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BoolConfigParameter.__init__
+      ~BoolConfigParameter.as_integer_ratio
+      ~BoolConfigParameter.bit_count
+      ~BoolConfigParameter.bit_length
+      ~BoolConfigParameter.conjugate
+      ~BoolConfigParameter.from_bytes
+      ~BoolConfigParameter.is_integer
+      ~BoolConfigParameter.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BoolConfigParameter.EXECUTION_PARALLEL_IO
+      ~BoolConfigParameter.FORCE_COMPAT_MODE
+      ~BoolConfigParameter.FORCE_ODIRECT_MODE
+      ~BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE
+      ~BoolConfigParameter.PREFER_IO_URING
+      ~BoolConfigParameter.PROFILE_NVTX
+      ~BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE
+      ~BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY
+      ~BoolConfigParameter.PROPERTIES_USE_POLL_MODE
+      ~BoolConfigParameter.SKIP_TOPOLOGY_DETECTION
+      ~BoolConfigParameter.STREAM_MEMOPS_BYPASS
+      ~BoolConfigParameter.USE_PCIP2PDMA
+      ~BoolConfigParameter.denominator
+      ~BoolConfigParameter.imag
+      ~BoolConfigParameter.name
+      ~BoolConfigParameter.numerator
+      ~BoolConfigParameter.real
+      ~BoolConfigParameter.value
+   
+   

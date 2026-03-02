@@ -3,4 +3,40 @@
 
 .. currentmodule:: cuda.bindings.cufile
 
-.. autoenum:: DriverControlFlags
+.. autoclass:: DriverControlFlags
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DriverControlFlags.__init__
+      ~DriverControlFlags.as_integer_ratio
+      ~DriverControlFlags.bit_count
+      ~DriverControlFlags.bit_length
+      ~DriverControlFlags.conjugate
+      ~DriverControlFlags.from_bytes
+      ~DriverControlFlags.is_integer
+      ~DriverControlFlags.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DriverControlFlags.ALLOW_COMPAT_MODE
+      ~DriverControlFlags.USE_POLL_MODE
+      ~DriverControlFlags.denominator
+      ~DriverControlFlags.imag
+      ~DriverControlFlags.name
+      ~DriverControlFlags.numerator
+      ~DriverControlFlags.real
+      ~DriverControlFlags.value
+   
+   

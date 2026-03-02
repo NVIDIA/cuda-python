@@ -10,8 +10,41 @@ cuda.core.system.ThermalTarget
 
    
    
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
    
 
    
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: ALL
+   .. autoattribute:: BOARD
+   .. autoattribute:: GPU
+   .. autoattribute:: MEMORY
+   .. autoattribute:: NONE
+   .. autoattribute:: POWER_SUPPLY
+   .. autoattribute:: UNKNOWN
+   .. autoattribute:: VCD_BOARD
+   .. autoattribute:: VCD_INLET
+   .. autoattribute:: VCD_OUTLET
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
    
    

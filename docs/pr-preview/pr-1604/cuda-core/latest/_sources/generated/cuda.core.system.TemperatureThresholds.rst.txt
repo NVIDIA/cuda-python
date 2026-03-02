@@ -10,8 +10,40 @@ cuda.core.system.TemperatureThresholds
 
    
    
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
    
 
    
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
+   .. autoattribute:: TEMPERATURE_THRESHOLD_ACOUSTIC_MAX
+   .. autoattribute:: TEMPERATURE_THRESHOLD_ACOUSTIC_MIN
+   .. autoattribute:: TEMPERATURE_THRESHOLD_COUNT
+   .. autoattribute:: TEMPERATURE_THRESHOLD_GPS_CURR
+   .. autoattribute:: TEMPERATURE_THRESHOLD_GPU_MAX
+   .. autoattribute:: TEMPERATURE_THRESHOLD_MEM_MAX
+   .. autoattribute:: TEMPERATURE_THRESHOLD_SHUTDOWN
+   .. autoattribute:: TEMPERATURE_THRESHOLD_SLOWDOWN
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
    
    
