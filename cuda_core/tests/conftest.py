@@ -57,6 +57,12 @@ def skip_if_managed_memory_unsupported(device):
             pytest.skip("Device does not support managed memory pool operations")
     except AttributeError:
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+    try:
+        ManagedMemoryResource()
+    except RuntimeError as e:
+        if "requires CUDA 13.0" in str(e):
+            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+        raise
 
 
 def create_managed_memory_resource_or_skip(*args, **kwargs):

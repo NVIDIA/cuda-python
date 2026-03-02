@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version c185cc3. Do not modify it directly.
+# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -41333,10 +41333,10 @@ def sizeof(objType):
     {{if True}}
     if objType == VdpOutputSurface:
         return sizeof(cyruntime.VdpOutputSurface){{endif}}
-    {{if 'cudaStreamAttrValue' in found_types}}
+    {{if True}}
     if objType == cudaStreamAttrValue:
         return sizeof(cyruntime.cudaStreamAttrValue){{endif}}
-    {{if 'cudaKernelNodeAttrValue' in found_types}}
+    {{if True}}
     if objType == cudaKernelNodeAttrValue:
         return sizeof(cyruntime.cudaKernelNodeAttrValue){{endif}}
     {{if True}}

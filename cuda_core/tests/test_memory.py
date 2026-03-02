@@ -998,6 +998,155 @@ def test_managed_memory_resource_with_options(init_cuda):
     src_buffer.close()
 
 
+def test_managed_memory_resource_preferred_location_default(init_cuda):
+    """preferred_location property returns None when no preference is set."""
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    mr = create_managed_memory_resource_or_skip()
+    assert mr.preferred_location is None
+
+
+def test_managed_memory_resource_preferred_location_device(init_cuda):
+    """preferred_location returns ("device", ordinal) for device preference."""
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    # Legacy style
+    opts = ManagedMemoryResourceOptions(preferred_location=device.device_id)
+    mr = create_managed_memory_resource_or_skip(opts)
+    assert mr.preferred_location == ("device", device.device_id)
+
+    # Explicit style
+    opts = ManagedMemoryResourceOptions(
+        preferred_location=device.device_id,
+        preferred_location_type="device",
+    )
+    mr = create_managed_memory_resource_or_skip(opts)
+    assert mr.preferred_location == ("device", device.device_id)
+
+
+def test_managed_memory_resource_preferred_location_host(init_cuda):
+    """preferred_location returns ("host", None) for host preference."""
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    # Legacy style
+    opts = ManagedMemoryResourceOptions(preferred_location=-1)
+    mr = create_managed_memory_resource_or_skip(opts)
+    assert mr.preferred_location == ("host", None)
+
+    # Explicit style
+    opts = ManagedMemoryResourceOptions(preferred_location_type="host")
+    mr = create_managed_memory_resource_or_skip(opts)
+    assert mr.preferred_location == ("host", None)
+
+
+def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
+    """preferred_location returns ("host_numa", id) for NUMA preference."""
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    numa_id = device.properties.host_numa_id
+    if numa_id < 0:
+        pytest.skip("System does not support NUMA")
+
+    # Auto-resolved from current device
+    opts = ManagedMemoryResourceOptions(preferred_location_type="host_numa")
+    mr = create_managed_memory_resource_or_skip(opts)
+    assert mr.preferred_location == ("host_numa", numa_id)
+
+    # Explicit NUMA node ID
+    opts = ManagedMemoryResourceOptions(
+        preferred_location=numa_id,
+        preferred_location_type="host_numa",
+    )
+    mr = create_managed_memory_resource_or_skip(opts)
+    assert mr.preferred_location == ("host_numa", numa_id)
+
+
+def test_managed_memory_resource_preferred_location_validation(init_cuda):
+    """Invalid preferred_location combinations raise errors."""
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    # Invalid preferred_location_type
+    with pytest.raises(ValueError, match="preferred_location_type must be one of"):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location_type="invalid",
+            )
+        )
+
+    # "device" requires a non-negative int
+    with pytest.raises(ValueError, match="must be a device ordinal"):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location_type="device",
+            )
+        )
+    with pytest.raises(ValueError, match="must be a device ordinal"):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location=-1,
+                preferred_location_type="device",
+            )
+        )
+
+    # "host" requires preferred_location=None
+    with pytest.raises(ValueError, match="must be None"):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location=0,
+                preferred_location_type="host",
+            )
+        )
+
+    # "host_numa" rejects negative IDs
+    with pytest.raises(ValueError, match="must be a NUMA node ID"):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location=-1,
+                preferred_location_type="host_numa",
+            )
+        )
+
+    # Legacy mode rejects invalid negative values
+    with pytest.raises(ValueError, match="preferred_location must be"):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location=-2,
+            )
+        )
+
+
+def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
+    """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
+    from unittest.mock import MagicMock, patch
+
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    mock_dev = MagicMock()
+    mock_dev.properties.host_numa_id = -1
+
+    with (
+        patch("cuda.core._device.Device", return_value=mock_dev),
+        pytest.raises(RuntimeError, match="Cannot determine host NUMA ID"),
+    ):
+        ManagedMemoryResource(
+            ManagedMemoryResourceOptions(
+                preferred_location_type="host_numa",
+            )
+        )
+
+
 def test_mempool_ipc_errors(mempool_device):
     """Test error cases when IPC operations are disabled."""
     device = mempool_device

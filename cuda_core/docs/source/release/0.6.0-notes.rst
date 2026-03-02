@@ -54,6 +54,11 @@ New features
 - Added CUDA version compatibility check at import time to detect mismatches between
   ``cuda.core`` and the installed ``cuda-bindings`` version.
 
+- ``Program.compile()`` now automatically resizes the NVRTC PCH heap and
+  retries when precompiled header creation fails due to heap exhaustion.
+  The ``pch_status`` property reports the PCH creation outcome
+  (``"created"``, ``"not_attempted"``, ``"failed"``, or ``None``).
+
 
 Fixes and enhancements
 ----------------------
