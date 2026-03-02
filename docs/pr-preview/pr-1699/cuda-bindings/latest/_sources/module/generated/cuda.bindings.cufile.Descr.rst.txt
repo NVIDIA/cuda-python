@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Descr.__init__
+      ~Descr.from_buffer
       ~Descr.from_data
       ~Descr.from_ptr
    

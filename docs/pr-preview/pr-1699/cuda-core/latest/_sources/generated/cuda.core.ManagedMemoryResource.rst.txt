@@ -34,6 +34,7 @@ cuda.core.ManagedMemoryResource
    .. autoattribute:: is_host_accessible
    .. autoattribute:: is_ipc_enabled
    .. autoattribute:: is_mapped
+   .. autoattribute:: preferred_location
    .. autoattribute:: uuid
    
    
