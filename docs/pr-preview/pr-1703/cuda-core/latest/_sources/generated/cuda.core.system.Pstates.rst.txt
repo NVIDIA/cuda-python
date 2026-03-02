@@ -1,0 +1,57 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.Pstates
+========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: Pstates
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: PSTATE_0
+   .. autoattribute:: PSTATE_1
+   .. autoattribute:: PSTATE_10
+   .. autoattribute:: PSTATE_11
+   .. autoattribute:: PSTATE_12
+   .. autoattribute:: PSTATE_13
+   .. autoattribute:: PSTATE_14
+   .. autoattribute:: PSTATE_15
+   .. autoattribute:: PSTATE_2
+   .. autoattribute:: PSTATE_3
+   .. autoattribute:: PSTATE_4
+   .. autoattribute:: PSTATE_5
+   .. autoattribute:: PSTATE_6
+   .. autoattribute:: PSTATE_7
+   .. autoattribute:: PSTATE_8
+   .. autoattribute:: PSTATE_9
+   .. autoattribute:: PSTATE_UNKNOWN
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
