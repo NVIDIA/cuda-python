@@ -26,6 +26,7 @@ from ._resource_handles cimport (
     DevicePtrHandle,
     LibraryHandle,
     KernelHandle,
+    GraphicsResourceHandle,
     NvrtcProgramHandle,
     NvvmProgramHandle,
     NvJitLinkHandle,
@@ -96,6 +97,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr) except+ nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
         cydriver.CUdeviceptr ptr, object owner) except+ nogil
+
+    # MR deallocation callback
+    ctypedef void (*MRDeallocCallback)(
+        object mr, cydriver.CUdeviceptr ptr, size_t size,
+        const StreamHandle& stream) noexcept
+    void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
+        MRDeallocCallback cb) noexcept
+    DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
+        cydriver.CUdeviceptr ptr, size_t size, object mr) except+ nogil
+
     DevicePtrHandle deviceptr_import_ipc "cuda_core::deviceptr_import_ipc" (
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
@@ -116,6 +127,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const LibraryHandle& h_library, const char* name) except+ nogil
     KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
         cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+
+    # Graphics resource handles
+    GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
+        cydriver.CUgraphicsResource resource) except+ nogil
 
     # NVRTC Program handles
     NvrtcProgramHandle create_nvrtc_program_handle "cuda_core::create_nvrtc_program_handle" (
@@ -211,6 +226,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
 
+    # Graphics interop
+    void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
+
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
 
@@ -272,6 +290,9 @@ p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 
 # Linker
 p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
+
+# Graphics interop
+p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
 
 # =============================================================================
 # NVRTC function pointer initialization

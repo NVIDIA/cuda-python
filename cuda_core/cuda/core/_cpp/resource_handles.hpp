@@ -95,6 +95,9 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 
+// Graphics interop
+extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
+
 // ============================================================================
 // NVRTC function pointers
 //
@@ -140,10 +143,12 @@ using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
+using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
+
 
 // ============================================================================
 // Context handle functions
@@ -277,6 +282,23 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 
+// Callback type for MemoryResource deallocation.
+// Called from the shared_ptr deleter when a handle created via
+// deviceptr_create_with_mr is destroyed.  The implementation is responsible
+// for converting raw C types to Python objects and calling
+// mr.deallocate(ptr, size, stream).
+using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
+                                   size_t size, const StreamHandle& stream);
+
+// Register the MR deallocation callback.
+void register_mr_dealloc_callback(MRDeallocCallback cb);
+
+// Create a device pointer handle whose destructor calls mr.deallocate()
+// via the registered callback.  The mr's refcount is incremented and
+// decremented when the handle is released.
+// If mr is nullptr, equivalent to deviceptr_create_ref.
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
+
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Note: Does not yet implement reference counting for nvbug 5570902.
@@ -326,6 +348,15 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 // Create a non-owning kernel handle with library dependency.
 // Use for borrowed kernels. The library handle keeps the library alive.
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
+
+// ============================================================================
+// Graphics resource handle functions
+// ============================================================================
+
+// Create an owning graphics resource handle.
+// When the last reference is released, cuGraphicsUnregisterResource is called automatically.
+// Use for CUgraphicsResource handles obtained from cuGraphicsGLRegisterBuffer etc.
+GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource);
 
 // ============================================================================
 // NVRTC Program handle functions
@@ -414,6 +445,10 @@ inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -457,6 +492,10 @@ inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphicsResourceHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -535,6 +574,10 @@ inline PyObject* as_py(const NvJitLinkHandle& h) noexcept {
 
 inline PyObject* as_py(const CuLinkHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUlinkState", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
 }
 
 }  // namespace cuda_core

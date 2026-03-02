@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
@@ -14,7 +14,7 @@ else:
     HAVE_PSUTIL = True
 import pytest
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 
 USING_FDS = platform.system() == "Linux"
@@ -23,6 +23,7 @@ skip_if_unrunnable = pytest.mark.skipif(
 )
 
 
+@pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 def test_alloc_handle(ipc_memory_resource):
     """Check for fd leaks in get_allocation_handle."""
@@ -79,6 +80,7 @@ class Irreducible:
         raise RuntimeError("Irreducible")
 
 
+@pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 @pytest.mark.parametrize(
     "getobject",

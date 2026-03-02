@@ -12,10 +12,12 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
+ml_dtypes = "*"
 pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
+pyglet = "*"
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
@@ -104,6 +106,7 @@ setuptools = ">=80"
 setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
+cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
 # Using path dependency now that we've added .pth support for Cython .pxd files
 # See build_hooks.py:_add_cython_include_paths_to_pth()
@@ -138,7 +141,6 @@ cmd = [
     "--override-ini",
     "norecursedirs=\"\"", # include cython tests (ignore by default config)
 ]
-env = { PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_python_test_helpers" }
 depends-on = [{ task = "build-cython-tests" }]
 
 [target.win-64.tasks.test]
@@ -148,5 +150,4 @@ cmd = [
     "--override-ini",
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]
-env = { PYTHONPATH = '%PIXI_PROJECT_ROOT%\..\cuda_python_test_helpers' }
 depends-on = [{ task = "build-cython-tests" }]

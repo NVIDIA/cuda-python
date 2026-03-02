@@ -59,6 +59,9 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 
+// GL interop pointers
+decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
+
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
 
@@ -572,6 +575,42 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 }
 
 // ============================================================================
+// MemoryResource-owned Device Pointer Handles
+// ============================================================================
+
+static MRDeallocCallback mr_dealloc_cb = nullptr;
+
+void register_mr_dealloc_callback(MRDeallocCallback cb) {
+    mr_dealloc_cb = cb;
+}
+
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
+    if (!mr) {
+        return deviceptr_create_ref(ptr);
+    }
+    // GIL required when mr is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        return deviceptr_create_ref(ptr);
+    }
+    Py_INCREF(mr);
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, StreamHandle{}},
+        [mr, size](DevicePtrBox* b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                if (mr_dealloc_cb) {
+                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                }
+                Py_DECREF(mr);
+            }
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+// ============================================================================
 // IPC Pointer Cache
 // ============================================================================
 // This cache handles duplicate IPC imports, which behave differently depending
@@ -720,7 +759,8 @@ LibraryHandle create_library_handle_from_file(const char* path) {
         new LibraryBox{library},
         [](const LibraryBox* b) {
             GILReleaseGuard gil;
-            p_cuLibraryUnload(b->resource);
+            // TODO: re-enable once LibraryBox tracks its owning context
+            // p_cuLibraryUnload(b->resource);
             delete b;
         }
     );
@@ -738,7 +778,8 @@ LibraryHandle create_library_handle_from_data(const void* data) {
         new LibraryBox{library},
         [](const LibraryBox* b) {
             GILReleaseGuard gil;
-            p_cuLibraryUnload(b->resource);
+            // TODO: re-enable once LibraryBox tracks its owning context
+            // p_cuLibraryUnload(b->resource);
             delete b;
         }
     );
@@ -774,6 +815,28 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
     auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
     return KernelHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Graphics Resource Handles
+// ============================================================================
+
+namespace {
+struct GraphicsResourceBox {
+    CUgraphicsResource resource;
+};
+}  // namespace
+
+GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource) {
+    auto box = std::shared_ptr<const GraphicsResourceBox>(
+        new GraphicsResourceBox{resource},
+        [](const GraphicsResourceBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphicsUnregisterResource(b->resource);
+            delete b;
+        }
+    );
+    return GraphicsResourceHandle(box, &box->resource);
 }
 
 // ============================================================================

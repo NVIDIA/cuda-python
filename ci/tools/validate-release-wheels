@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""Validate downloaded release wheels against the requested release tag."""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+COMPONENT_TO_DISTRIBUTIONS: dict[str, set[str]] = {
+    "cuda-core": {"cuda_core"},
+    "cuda-bindings": {"cuda_bindings"},
+    "cuda-pathfinder": {"cuda_pathfinder"},
+    "cuda-python": {"cuda_python"},
+    "all": {"cuda_core", "cuda_bindings", "cuda_pathfinder", "cuda_python"},
+}
+
+TAG_PATTERNS = (
+    re.compile(r"^v(?P<version>\d+\.\d+\.\d+)"),
+    re.compile(r"^cuda-core-v(?P<version>\d+\.\d+\.\d+)"),
+    re.compile(r"^cuda-pathfinder-v(?P<version>\d+\.\d+\.\d+)"),
+)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Validate that wheel versions match the release tag. "
+            "This rejects dev/local wheel versions for release uploads."
+        )
+    )
+    parser.add_argument("git_tag", help="Release git tag (for example: v13.0.0)")
+    parser.add_argument("component", choices=sorted(COMPONENT_TO_DISTRIBUTIONS.keys()))
+    parser.add_argument("wheel_dir", help="Directory containing wheel files")
+    return parser.parse_args()
+
+
+def version_from_tag(tag: str) -> str:
+    for pattern in TAG_PATTERNS:
+        match = pattern.match(tag)
+        if match:
+            return match.group("version")
+    raise ValueError(
+        "Unsupported git tag format "
+        f"{tag!r}; expected tags beginning with vX.Y.Z, cuda-core-vX.Y.Z, "
+        "or cuda-pathfinder-vX.Y.Z."
+    )
+
+
+def parse_wheel_dist_and_version(path: Path) -> tuple[str, str]:
+    # Wheel name format starts with: {distribution}-{version}-...
+    parts = path.stem.split("-")
+    if len(parts) < 5:
+        raise ValueError(f"Invalid wheel filename format: {path.name}")
+    return parts[0], parts[1]
+
+
+def main() -> int:
+    args = parse_args()
+    expected_version = version_from_tag(args.git_tag)
+    expected_distributions = COMPONENT_TO_DISTRIBUTIONS[args.component]
+    wheel_dir = Path(args.wheel_dir)
+
+    wheels = sorted(wheel_dir.glob("*.whl"))
+    if not wheels:
+        print(f"Error: No wheel files found in {wheel_dir}", file=sys.stderr)
+        return 1
+
+    seen_versions: dict[str, set[str]] = defaultdict(set)
+    errors: list[str] = []
+
+    for wheel in wheels:
+        try:
+            distribution, version = parse_wheel_dist_and_version(wheel)
+        except ValueError as exc:
+            errors.append(str(exc))
+            continue
+
+        if distribution not in expected_distributions:
+            continue
+
+        seen_versions[distribution].add(version)
+
+        if ".dev" in version or "+" in version:
+            errors.append(
+                f"{wheel.name}: wheel version {version!r} contains dev/local markers "
+                "(.dev or +), which is not allowed for release uploads."
+            )
+
+        if version != expected_version:
+            errors.append(
+                f"{wheel.name}: wheel version {version!r} does not match expected "
+                f"release version {expected_version!r} from git tag {args.git_tag!r}."
+            )
+
+    missing_distributions = sorted(expected_distributions - set(seen_versions))
+    if missing_distributions:
+        errors.append("Missing expected component wheels in download set: " + ", ".join(missing_distributions))
+
+    for distribution, versions in sorted(seen_versions.items()):
+        if len(versions) > 1:
+            errors.append(
+                f"Expected one release version for {distribution}, found multiple: " + ", ".join(sorted(versions))
+            )
+
+    if errors:
+        print("Wheel validation failed:", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print(
+        "Validated release wheels for component "
+        f"{args.component} at version {expected_version} from tag {args.git_tag}."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

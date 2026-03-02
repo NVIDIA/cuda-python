@@ -1,6 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
 import platform
 import shutil
 import textwrap
@@ -1138,3 +1139,25 @@ def test_cuDevSmResourceSplit(device, ctx):
     assert len(res) == nb_groups
     # Verify remainder is valid (may be None if no remainder)
     assert rem is not None or len(res) > 0
+
+
+def test_buffer_reference():
+    # Create a host buffer
+    size = int(1024 * np.uint8().itemsize)
+    host = np.full(size, 2).astype(np.uint8)
+
+    # Set the buffer to a struct member
+    memcpyParams = cuda.CUgraphNodeParams()
+    memcpyParams.memcpy.copyParams.dstHost = host
+
+    # Delete the local reference to the host buffer.  The reference in the
+    # struct should keep it alive.
+    del host
+
+    # Create a new numpy array from the pointer and make sure the memory is
+    # intact and hasn't been freed.  If the reference counting in
+    # copyParams.dstHost is incorrect, we will either see over-written memory or
+    # a segmentation fault here.
+    ptr = ctypes.cast(memcpyParams.memcpy.copyParams.dstHost, ctypes.POINTER(ctypes.c_uint8))
+    x = np.ctypeslib.as_array(ptr, shape=(size,))
+    assert np.all(x == 2)

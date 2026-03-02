@@ -11,6 +11,14 @@ class DynamicLibNotFoundError(RuntimeError):
     pass
 
 
+class DynamicLibNotAvailableError(DynamicLibNotFoundError):
+    pass
+
+
+class DynamicLibUnknownError(DynamicLibNotFoundError):
+    pass
+
+
 @dataclass
 class LoadedDL:
     abs_path: str | None

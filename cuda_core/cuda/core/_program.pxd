@@ -14,3 +14,8 @@ cdef class Program:
         Linker _linker
         object _options  # ProgramOptions
         object __weakref__
+        object _compile_lock  # Per-instance lock for compile-time mutation
+        bint _use_libdevice      # Flag for libdevice loading
+        bint _libdevice_added
+        bytes _nvrtc_code       # Source code for NVRTC retry (PCH auto-resize)
+        str _pch_status         # PCH creation outcome after compile

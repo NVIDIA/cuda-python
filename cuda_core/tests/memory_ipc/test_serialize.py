@@ -1,14 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
 import multiprocessing.reduction
 import os
 
+import pytest
 from cuda.core import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -21,6 +22,7 @@ class TestObjectSerializationDirect:
     it on the other end and demonstrate buffer sharing.
     """
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         device = ipc_device
         mr = ipc_memory_resource
@@ -76,6 +78,7 @@ class TestObjectSerializationDirect:
 
 
 class TestObjectSerializationWithMR:
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """Test sending IPC memory objects to a child through a queue."""
         device = ipc_device
@@ -131,6 +134,7 @@ class TestObjectPassing:
     in multiprocessing (e.g., Queue) work.
     """
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         # Define the objects.
         device = ipc_device

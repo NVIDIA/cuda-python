@@ -37,6 +37,7 @@ from cuda.core._graph import (  # noqa: E402
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
+from cuda.core._graphics import GraphicsResource  # noqa: E402
 from cuda.core._launch_config import LaunchConfig  # noqa: E402
 from cuda.core._launcher import launch  # noqa: E402
 from cuda.core._layout import _StridedLayout  # noqa: E402
@@ -61,4 +62,9 @@ from cuda.core._memoryview import (  # noqa: E402
 )
 from cuda.core._module import Kernel, ObjectCode  # noqa: E402
 from cuda.core._program import Program, ProgramOptions  # noqa: E402
-from cuda.core._stream import Stream, StreamOptions  # noqa: E402
+from cuda.core._stream import (  # noqa: E402
+    LEGACY_DEFAULT_STREAM,
+    PER_THREAD_DEFAULT_STREAM,
+    Stream,
+    StreamOptions,
+)

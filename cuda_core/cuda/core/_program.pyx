@@ -10,6 +10,7 @@ This module provides :class:`Program` for compiling source code into
 from __future__ import annotations
 
 from dataclasses import dataclass
+import threading
 from warnings import warn
 
 from cuda.bindings import driver, nvrtc
@@ -103,6 +104,32 @@ cdef class Program:
             The compiled object code.
         """
         return Program_compile(self, target_type, name_expressions, logs)
+
+    @property
+    def pch_status(self) -> str | None:
+        """PCH creation outcome from the most recent :meth:`compile` call.
+
+        Possible values:
+
+        * ``"created"`` — PCH file was written successfully.
+        * ``"not_attempted"`` — PCH creation was not attempted (e.g. the
+          compiler decided not to, or automatic PCH processing skipped it).
+        * ``"failed"`` — an error prevented PCH creation.
+        * ``None`` — PCH was not requested, the program has not been
+          compiled yet, the backend is not NVRTC (e.g. PTX or NVVM),
+          or the NVRTC bindings are too old to report status.
+
+        When ``create_pch`` is set in :class:`ProgramOptions` and the PCH
+        heap is too small, :meth:`compile` automatically resizes the heap
+        and retries, so ``"created"`` should be the common outcome.
+
+        .. note::
+
+           PCH is only supported for ``code_type="c++"`` programs that
+           use the NVRTC backend. For PTX and NVVM programs this property
+           always returns ``None``.
+        """
+        return self._pch_status
 
     @property
     def backend(self) -> str:
@@ -303,6 +330,16 @@ class ProgramOptions:
     instantiate_templates_in_pch : bool, optional
         Control template instantiation in PCH (NVRTC only, CUDA 12.8+).
         Default: False
+    extra_sources : list of 2-tuples or tuple of 2-tuples, optional
+        Additional NVVM IR modules to compile together with the main program, specified as
+        ``((name1, source1), (name2, source2), ...)``. Each name is a string identifier used
+        in diagnostic messages. Each source can be a string (textual LLVM IR) or bytes/bytearray
+        (LLVM bitcode). Only supported for the NVVM backend.
+        Default: None
+    use_libdevice : bool, optional
+        Load NVIDIA's `libdevice <https://docs.nvidia.com/cuda/libdevice-users-guide/>`_
+        math builtins library. Only supported for the NVVM backend.
+        Default: False
     """
 
     name: str | None = "default_program"
@@ -356,6 +393,8 @@ class ProgramOptions:
     pch_verbose: bool | None = None
     pch_messages: bool | None = None
     instantiate_templates_in_pch: bool | None = None
+    extra_sources: list[tuple[str, str | bytes | bytearray]] | tuple[tuple[str, str | bytes | bytearray], ...] | None = None
+    use_libdevice: bool | None = None  # For libdevice execution
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self):
@@ -458,6 +497,13 @@ def _get_nvvm_module():
         _nvvm_module = None
         raise e
 
+def _find_libdevice_path():
+    """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
+    from cuda.pathfinder import find_bitcode_lib
+    return find_bitcode_lib("device")
+
+
+
 
 cdef inline bint _process_define_macro_inner(list options, object macro) except? -1:
     """Process a single define macro, returning True if successful."""
@@ -520,12 +566,23 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     cdef const char* code_ptr
     cdef const char* name_ptr
     cdef size_t code_len
+    cdef bytes module_bytes
+    cdef const char* module_ptr
+    cdef size_t module_len
 
     self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
     code_type = code_type.lower()
+    self._compile_lock = threading.Lock()
+    self._use_libdevice = False
+    self._libdevice_added = False
+
+    self._pch_status = None
 
     if code_type == "c++":
         assert_type(code, str)
+        if options.extra_sources is not None:
+            raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
+
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
         code_ptr = <const char*>code_bytes
@@ -535,11 +592,14 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
                 &nvrtc_prog, code_ptr, name_ptr, 0, NULL, NULL))
         self._h_nvrtc = create_nvrtc_program_handle(nvrtc_prog)
+        self._nvrtc_code = code_bytes
         self._backend = "NVRTC"
         self._linker = None
 
     elif code_type == "ptx":
         assert_type(code, str)
+        if options.extra_sources is not None:
+            raise ValueError("extra_sources is not supported by the PTX backend.")
         self._linker = Linker(
             ObjectCode._init(code.encode(), code_type), options=_translate_program_options(options)
         )
@@ -561,20 +621,74 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._h_nvvm = create_nvvm_program_handle(nvvm_prog)  # RAII from here
         with nogil:
             HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(nvvm_prog, code_ptr, code_len, name_ptr))
+
+        # Add extra modules if provided
+        if options.extra_sources is not None:
+            if not is_sequence(options.extra_sources):
+                raise TypeError(
+                    "extra_sources must be a sequence of 2-tuples: ((name1, source1), (name2, source2), ...)"
+                )
+            for i, module in enumerate(options.extra_sources):
+                if not isinstance(module, tuple) or len(module) != 2:
+                    raise TypeError(
+                        f"Each extra module must be a 2-tuple (name, source)"
+                        f", got {type(module).__name__} at index {i}"
+                    )
+
+                module_name, module_source = module
+
+                if not isinstance(module_name, str):
+                    raise TypeError(f"Module name at index {i} must be a string, got {type(module_name).__name__}")
+
+                if isinstance(module_source, str):
+                    # Textual LLVM IR - encode to UTF-8 bytes
+                    module_source = module_source.encode("utf-8")
+                elif not isinstance(module_source, (bytes, bytearray)):
+                    raise TypeError(
+                        f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
+                        f"or bytearray, got {type(module_source).__name__}"
+                    )
+
+                if len(module_source) == 0:
+                    raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
+
+                # Add the module using NVVM API
+                module_bytes = module_source if isinstance(module_source, bytes) else bytes(module_source)
+                module_ptr = <const char*>module_bytes
+                module_len = len(module_bytes)
+                module_name_bytes = module_name.encode()
+                module_name_ptr = <const char*>module_name_bytes
+
+                with nogil:
+                    HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
+                        nvvm_prog, module_ptr, module_len, module_name_ptr))
+
+        # Store use_libdevice flag
+        if options.use_libdevice:
+            self._use_libdevice = True
+
         self._backend = "NVVM"
         self._linker = None
 
     else:
         supported_code_types = ("c++", "ptx", "nvvm")
         assert code_type not in supported_code_types, f"{code_type=}"
+        if options.use_libdevice:
+            raise ValueError("use_libdevice is only supported by the NVVM backend")
         raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
     return 0
 
 
-cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
-    """Compile using NVRTC backend and return ObjectCode."""
-    cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
+cdef object _nvrtc_compile_and_extract(
+    cynvrtc.nvrtcProgram prog, str target_type, object name_expressions,
+    object logs, list options_list, str name,
+):
+    """Run nvrtcCompileProgram on *prog* and extract the output.
+
+    This is the inner compile+extract loop, factored out so the PCH
+    auto-retry path can call it on a fresh program handle.
+    """
     cdef size_t output_size = 0
     cdef size_t logsize = 0
     cdef vector[const char*] options_vec
@@ -592,7 +706,6 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
             HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcAddNameExpression(prog, name_ptr))
 
     # Build options array
-    options_list = self._options.as_bytes("nvrtc", target_type)
     options_vec.resize(len(options_list))
     for i in range(len(options_list)):
         options_vec[i] = <const char*>(<bytes>options_list[i])
@@ -639,7 +752,84 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
                 HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetProgramLog(prog, data_ptr))
             logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-    return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=self._options.name)
+    return ObjectCode._init(bytes(data), target_type, symbol_mapping=symbol_mapping, name=name)
+
+
+cdef int _nvrtc_pch_apis_cached = -1  # -1 = unchecked
+
+cdef bint _has_nvrtc_pch_apis():
+    global _nvrtc_pch_apis_cached
+    if _nvrtc_pch_apis_cached < 0:
+        _nvrtc_pch_apis_cached = hasattr(nvrtc, "nvrtcGetPCHCreateStatus")
+    return _nvrtc_pch_apis_cached
+
+
+cdef str _PCH_STATUS_CREATED = "created"
+cdef str _PCH_STATUS_NOT_ATTEMPTED = "not_attempted"
+cdef str _PCH_STATUS_FAILED = "failed"
+
+
+cdef str _read_pch_status(cynvrtc.nvrtcProgram prog):
+    """Query nvrtcGetPCHCreateStatus and translate to a high-level string."""
+    cdef cynvrtc.nvrtcResult err
+    with nogil:
+        err = cynvrtc.nvrtcGetPCHCreateStatus(prog)
+    if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
+        return _PCH_STATUS_CREATED
+    if err == cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED:
+        return None  # sentinel: caller should auto-retry
+    if err == cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED:
+        return _PCH_STATUS_NOT_ATTEMPTED
+    return _PCH_STATUS_FAILED
+
+
+cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
+    """Compile using NVRTC backend and return ObjectCode."""
+    cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
+    cdef list options_list = self._options.as_bytes("nvrtc", target_type)
+
+    result = _nvrtc_compile_and_extract(
+        prog, target_type, name_expressions, logs, options_list, self._options.name,
+    )
+
+    cdef bint pch_creation_possible = self._options.create_pch or self._options.pch
+    if not pch_creation_possible or not _has_nvrtc_pch_apis():
+        self._pch_status = None
+        return result
+
+    try:
+        status = _read_pch_status(prog)
+    except RuntimeError as e:
+        raise RuntimeError(
+            "PCH was requested but the runtime libnvrtc does not support "
+            "PCH APIs. Update to CUDA toolkit 12.8 or newer."
+        ) from e
+
+    if status is not None:
+        self._pch_status = status
+        return result
+
+    # Heap exhausted — auto-resize and retry with a fresh program
+    cdef size_t required = 0
+    with nogil:
+        HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetPCHHeapSizeRequired(prog, &required))
+        HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcSetPCHHeapSize(required))
+
+    cdef cynvrtc.nvrtcProgram retry_prog
+    cdef const char* code_ptr = <const char*>self._nvrtc_code
+    cdef const char* name_ptr = <const char*>self._options._name
+    with nogil:
+        HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
+            &retry_prog, code_ptr, name_ptr, 0, NULL, NULL))
+    self._h_nvrtc = create_nvrtc_program_handle(retry_prog)
+
+    result = _nvrtc_compile_and_extract(
+        retry_prog, target_type, name_expressions, logs, options_list, self._options.name,
+    )
+
+    status = _read_pch_status(retry_prog)
+    self._pch_status = status if status is not None else _PCH_STATUS_FAILED
+    return result
 
 
 cdef object Program_compile_nvvm(Program self, str target_type, object logs):
@@ -649,36 +839,52 @@ cdef object Program_compile_nvvm(Program self, str target_type, object logs):
     cdef size_t logsize = 0
     cdef vector[const char*] options_vec
     cdef char* data_ptr = NULL
-
+    cdef bytes libdevice_bytes
+    cdef const char* libdevice_ptr
+    cdef size_t libdevice_len
     # Build options array
     options_list = self._options.as_bytes("nvvm", target_type)
     options_vec.resize(len(options_list))
     for i in range(len(options_list)):
         options_vec[i] = <const char*>(<bytes>options_list[i])
 
-    # Compile
-    with nogil:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
+    # Serialize NVVM program mutation/use per Program instance.
+    with self._compile_lock:
+        with nogil:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmVerifyProgram(prog, <int>options_vec.size(), options_vec.data()))
 
-    # Get compiled result
-    HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResultSize(prog, &output_size))
-    data = bytearray(output_size)
-    data_ptr = <char*>(<bytearray>data)
-    with nogil:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResult(prog, data_ptr))
-
-    # Get compilation log if requested
-    if logs is not None:
-        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLogSize(prog, &logsize))
-        if logsize > 1:
-            log = bytearray(logsize)
-            data_ptr = <char*>(<bytearray>log)
+        # Load libdevice if requested - following numba-cuda.
+        if self._use_libdevice and not self._libdevice_added:
+            libdevice_path = _find_libdevice_path()
+            with open(libdevice_path, "rb") as f:
+                libdevice_bytes = f.read()
+            libdevice_ptr = <const char*>libdevice_bytes
+            libdevice_len = len(libdevice_bytes)
             with nogil:
-                HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLog(prog, data_ptr))
-            logs.write(log.decode("utf-8", errors="backslashreplace"))
+                HANDLE_RETURN_NVVM(prog, cynvvm.nvvmLazyAddModuleToProgram(
+                    prog, libdevice_ptr, libdevice_len, NULL))
+            self._libdevice_added = True
 
-    return ObjectCode._init(bytes(data), target_type, name=self._options.name)
+        with nogil:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmCompileProgram(prog, <int>options_vec.size(), options_vec.data()))
+
+        HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResultSize(prog, &output_size))
+        data = bytearray(output_size)
+        data_ptr = <char*>(<bytearray>data)
+        with nogil:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetCompiledResult(prog, data_ptr))
+
+        # Get compilation log if requested
+        if logs is not None:
+            HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLogSize(prog, &logsize))
+            if logsize > 1:
+                log = bytearray(logsize)
+                data_ptr = <char*>(<bytearray>log)
+                with nogil:
+                    HANDLE_RETURN_NVVM(prog, cynvvm.nvvmGetProgramLog(prog, data_ptr))
+                logs.write(log.decode("utf-8", errors="backslashreplace"))
+
+        return ObjectCode._init(bytes(data), target_type, name=self._options.name)
 
 # Supported target types per backend
 cdef dict SUPPORTED_TARGETS = {

@@ -39,7 +39,7 @@ from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyUnifiedMemoryResource
+from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
 
 from conftest import (
     create_managed_memory_resource_or_skip,
@@ -469,6 +469,49 @@ def test_buffer_external_managed(change_device):
     finally:
         if ptr is not None:
             handle_return(driver.cuMemFree(ptr))
+
+
+def test_mr_deallocate_called_on_close():
+    """Buffer.from_handle(mr=mr) calls mr.deallocate() on close (issue #1619)."""
+    device = Device()
+    device.set_current()
+    mr = TrackingMR()
+    buf = mr.allocate(1024)
+    assert len(mr.active) == 1
+    buf.close()
+    assert len(mr.active) == 0
+
+
+def test_mr_deallocate_called_on_gc():
+    """Buffer.from_handle(mr=mr) calls mr.deallocate() on GC (issue #1619)."""
+    import gc
+
+    device = Device()
+    device.set_current()
+    mr = TrackingMR()
+    buf = mr.allocate(1024)
+    assert len(mr.active) == 1
+    del buf
+    gc.collect()
+    assert len(mr.active) == 0
+
+
+def test_mr_deallocate_receives_stream():
+    """Buffer.close(stream) forwards the stream to mr.deallocate() (issue #1619)."""
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+    received = {}
+
+    class StreamCaptureMR(TrackingMR):
+        def deallocate(self, ptr, size, stream=None):
+            received["stream"] = stream
+            super().deallocate(ptr, size, stream)
+
+    mr = StreamCaptureMR()
+    buf = mr.allocate(1024)
+    buf.close(stream)
+    assert received["stream"].handle == stream.handle
 
 
 def test_memory_resource_and_owner_disallowed():
