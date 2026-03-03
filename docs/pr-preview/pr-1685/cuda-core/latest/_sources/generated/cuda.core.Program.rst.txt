@@ -27,5 +27,6 @@ cuda.core.Program
    
    .. autoproperty:: backend
    .. autoproperty:: handle
+   .. autoproperty:: pch_status
    
    

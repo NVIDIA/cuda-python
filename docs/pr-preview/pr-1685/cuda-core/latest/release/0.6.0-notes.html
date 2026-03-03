@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a37944d8"></script>
+    <script src="../_static/documentation_options.js?v=82fc4792"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev37';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -685,6 +685,10 @@ including <a class="reference internal" href="../generated/cuda.core.Buffer.html
 multi-module NVVM compilation and automatic libdevice loading.</p></li>
 <li><p>Added CUDA version compatibility check at import time to detect mismatches between
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Program.compile()</span></code> now automatically resizes the NVRTC PCH heap and
+retries when precompiled header creation fails due to heap exhaustion.
+The <code class="docutils literal notranslate"><span class="pre">pch_status</span></code> property reports the PCH creation outcome
+(<code class="docutils literal notranslate"><span class="pre">&quot;created&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;not_attempted&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
