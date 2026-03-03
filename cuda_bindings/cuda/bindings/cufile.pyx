@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -35,6 +35,33 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
+
+cdef __from_buffer(buffer, size, lowpp_type):
+    cdef Py_buffer view
+    if cpython.PyObject_GetBuffer(buffer, &view, cpython.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        cpython.PyBuffer_Release(&view)
+
+
+cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+    buffer.buf = <char *>ptr
+    buffer.format = 'b'
+    buffer.internal = NULL
+    buffer.itemsize = 1
+    buffer.len = size
+    buffer.ndim = 1
+    buffer.obj = self
+    buffer.readonly = readonly
+    buffer.shape = &buffer.len
+    buffer.strides = &buffer.itemsize
+    buffer.suboffsets = NULL
 
 ###############################################################################
 # POD
@@ -97,6 +124,12 @@ cdef class _py_anon_pod1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileDescr_t*>NULL).handle), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
@@ -130,6 +163,11 @@ cdef class _py_anon_pod1:
         if self._readonly:
             raise ValueError("This _py_anon_pod1 instance is read-only")
         self._ptr[0].handle = <void *><intptr_t>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof((<CUfileDescr_t*>NULL).handle), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -231,6 +269,12 @@ cdef class _py_anon_pod3:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
@@ -286,6 +330,11 @@ cdef class _py_anon_pod3:
         if self._readonly:
             raise ValueError("This _py_anon_pod3 instance is read-only")
         self._ptr[0].size = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u.batch), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -390,6 +439,12 @@ cdef class IOEvents:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def cookie(self):
         """Union[~_numpy.intp, int]: """
@@ -441,6 +496,11 @@ cdef class IOEvents:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOEvents instance with the memory from the given buffer."""
+        return IOEvents.from_data(_numpy.frombuffer(buffer, dtype=io_events_dtype))
 
     @staticmethod
     def from_data(data):
@@ -543,6 +603,12 @@ cdef class OpCounter:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileOpCounter_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileOpCounter_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <CUfileOpCounter_t *>malloc(sizeof(CUfileOpCounter_t))
@@ -576,6 +642,11 @@ cdef class OpCounter:
         if self._readonly:
             raise ValueError("This OpCounter instance is read-only")
         self._ptr[0].err = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an OpCounter instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileOpCounter_t), OpCounter)
 
     @staticmethod
     def from_data(data):
@@ -706,6 +777,12 @@ cdef class PerGpuStats:
         if (not isinstance(other, PerGpuStats)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
         return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def uuid(self):
@@ -1055,6 +1132,11 @@ cdef class PerGpuStats:
         self._data[key] = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an PerGpuStats instance with the memory from the given buffer."""
+        return PerGpuStats.from_data(_numpy.frombuffer(buffer, dtype=per_gpu_stats_dtype))
+
+    @staticmethod
     def from_data(data):
         """Create an PerGpuStats instance wrapping the given NumPy array.
 
@@ -1160,6 +1242,12 @@ cdef class Descr:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def type(self):
         """Union[~_numpy.int32, int]: """
@@ -1209,6 +1297,11 @@ cdef class Descr:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Descr instance with the memory from the given buffer."""
+        return Descr.from_data(_numpy.frombuffer(buffer, dtype=descr_dtype))
 
     @staticmethod
     def from_data(data):
@@ -1305,6 +1398,12 @@ cdef class _py_anon_pod2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
@@ -1328,6 +1427,11 @@ cdef class _py_anon_pod2:
             raise ValueError("This _py_anon_pod2 instance is read-only")
         cdef _py_anon_pod3 val_ = val
         memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -1467,6 +1571,12 @@ cdef class StatsLevel1:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel1_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -1975,6 +2085,11 @@ cdef class StatsLevel1:
         self._ptr[0].last_batch_write_bytes = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an StatsLevel1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel1_t), StatsLevel1)
+
+    @staticmethod
     def from_data(data):
         """Create an StatsLevel1 instance wrapping the given NumPy array.
 
@@ -2079,6 +2194,12 @@ cdef class IOParams:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def mode(self):
         """Union[~_numpy.int32, int]: """
@@ -2150,6 +2271,11 @@ cdef class IOParams:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOParams instance with the memory from the given buffer."""
+        return IOParams.from_data(_numpy.frombuffer(buffer, dtype=io_params_dtype))
 
     @staticmethod
     def from_data(data):
@@ -2253,6 +2379,12 @@ cdef class StatsLevel2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel2_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <CUfileStatsLevel2_t *>malloc(sizeof(CUfileStatsLevel2_t))
@@ -2310,6 +2442,11 @@ cdef class StatsLevel2:
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an StatsLevel2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel2_t), StatsLevel2)
 
     @staticmethod
     def from_data(data):
@@ -2410,6 +2547,12 @@ cdef class StatsLevel3:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel3_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <CUfileStatsLevel3_t *>malloc(sizeof(CUfileStatsLevel3_t))
@@ -2458,6 +2601,11 @@ cdef class StatsLevel3:
         if self._readonly:
             raise ValueError("This StatsLevel3 instance is read-only")
         self._ptr[0].num_gpus = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an StatsLevel3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel3_t), StatsLevel3)
 
     @staticmethod
     def from_data(data):

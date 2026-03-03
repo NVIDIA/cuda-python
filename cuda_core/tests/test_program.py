@@ -57,6 +57,22 @@ def _get_nvrtc_version_for_tests():
         return None
 
 
+def _has_nvrtc_pch_apis_for_tests():
+    required = (
+        "nvrtcGetPCHHeapSize",
+        "nvrtcSetPCHHeapSize",
+        "nvrtcGetPCHCreateStatus",
+        "nvrtcGetPCHHeapSizeRequired",
+    )
+    return all(hasattr(nvrtc, name) for name in required)
+
+
+nvrtc_pch_available = pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < 12800 or not _has_nvrtc_pch_apis_for_tests(),
+    reason="PCH runtime APIs require NVRTC >= 12.8 bindings",
+)
+
+
 _libnvvm_version = None
 _libnvvm_version_attempted = False
 
@@ -314,6 +330,25 @@ def test_cpp_program_with_pch_options(init_cuda, tmp_path):
         assert program.backend == "NVRTC"
         program.compile("ptx")
         program.close()
+
+
+@nvrtc_pch_available
+def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    pch_path = str(tmp_path / "test.pch")
+    program = Program(code, "c++", ProgramOptions(create_pch=pch_path))
+    assert program.pch_status is None  # not compiled yet
+    program.compile("ptx")
+    assert program.pch_status in ("created", "not_attempted", "failed")
+    program.close()
+
+
+def test_cpp_program_pch_status_none_without_pch(init_cuda):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    program.compile("ptx")
+    assert program.pch_status is None
+    program.close()
 
 
 options = [
