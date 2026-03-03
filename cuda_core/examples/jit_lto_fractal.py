@@ -267,7 +267,7 @@ def main():
             import matplotlib.pyplot as plt
         except ImportError:
             print("this example requires matplotlib installed in order to display the image", file=sys.stderr)
-            sys.exit(0)
+            sys.exit(1)
 
     result_to_display = []
     lib = MockLibrary()
@@ -299,4 +299,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("done!")

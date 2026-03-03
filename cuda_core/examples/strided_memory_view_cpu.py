@@ -23,8 +23,8 @@ import tempfile
 try:
     from cffi import FFI
 except ImportError:
-    print("cffi is not installed, the CPU example will be skipped", file=sys.stderr)
-    FFI = None
+    print("cffi is not installed, this example requires cffi", file=sys.stderr)
+    sys.exit(1)
 import numpy as np
 
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
@@ -81,8 +81,6 @@ def my_func(arr):
 
 def run():
     global my_func
-    if not FFI:
-        return
     # Here is a concrete (very naive!) implementation on CPU:
     cpu_code = string.Template(r"""
     extern "C"

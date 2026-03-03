@@ -17,7 +17,7 @@ from cuda.core import Device, LaunchConfig, Program, launch, system
 
 if system.get_num_devices() < 2:
     print("this example requires at least 2 GPUs", file=sys.stderr)
-    sys.exit(0)
+    sys.exit(1)
 
 dtype = cp.float32
 size = 50000
@@ -124,5 +124,3 @@ assert cp.allclose(c, a + b)
 dev1.set_current()
 stream1.sync()
 assert cp.allclose(z, x - y)
-
-print("done")
