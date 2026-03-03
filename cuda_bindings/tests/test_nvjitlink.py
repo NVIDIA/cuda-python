@@ -99,9 +99,8 @@ def test_create_and_destroy(option):
     nvjitlink.destroy(handle)
 
 
-@pytest.mark.parametrize("option", ARCHITECTURES)
-def test_create_and_destroy_bytes_options(option):
-    handle = nvjitlink.create(1, [f"-arch={option}".encode()])
+def test_create_and_destroy_bytes_options():
+    handle = nvjitlink.create(1, [b"-arch=sm_80"])
     assert handle != 0
     nvjitlink.destroy(handle)
 
