@@ -343,6 +343,7 @@ def main():
     checkCudaErrors(cudart.cudaFree(p))
     checkCudaErrors(cudart.cudaFree(Ax))
     checkCudaErrors(cudart.cudaFree(dot_result))
+    kernelHelper.close()
     checkCudaErrors(cudart.cudaEventDestroy(start))
     checkCudaErrors(cudart.cudaEventDestroy(stop))
 

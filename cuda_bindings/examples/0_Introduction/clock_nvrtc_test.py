@@ -102,6 +102,7 @@ def main():
     checkCudaErrors(cuda.cuMemFree(dinput))
     checkCudaErrors(cuda.cuMemFree(doutput))
     checkCudaErrors(cuda.cuMemFree(dtimer))
+    kernelHelper.close()
 
     avgElapsedClocks = 0.0
 

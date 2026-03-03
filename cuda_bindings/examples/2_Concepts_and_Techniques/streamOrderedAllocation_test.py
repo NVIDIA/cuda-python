@@ -234,6 +234,7 @@ def main():
 
     ret1 = basicStreamOrderedAllocation(dev, nelem, a, b, c)
     ret2 = streamOrderedAllocationPostSync(dev, nelem, a, b, c)
+    kernelHelper.close()
 
     if not ret1 or not ret2:
         sys.exit(1)

@@ -27,6 +27,7 @@ def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):
 
 class KernelHelper:
     def __init__(self, code, devID):
+        self.module = None
         include_dirs = []
         for libname in ("cudart", "cccl"):
             hdr_dir = pathfinder.find_nvidia_header_directory(libname)
@@ -73,16 +74,35 @@ class KernelHelper:
             print(err, file=sys.stderr)
             sys.exit(1)
 
-        if use_cubin:
-            dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))
-            data = b" " * dataSize
-            checkCudaErrors(nvrtc.nvrtcGetCUBIN(prog, data))
-        else:
-            dataSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
-            data = b" " * dataSize
-            checkCudaErrors(nvrtc.nvrtcGetPTX(prog, data))
+            if use_cubin:
+                dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))
+                data = b" " * dataSize
+                checkCudaErrors(nvrtc.nvrtcGetCUBIN(prog, data))
+            else:
+                dataSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
+                data = b" " * dataSize
+                checkCudaErrors(nvrtc.nvrtcGetPTX(prog, data))
+        finally:
+            checkCudaErrors(nvrtc.nvrtcDestroyProgram(prog))
 
         self.module = checkCudaErrors(cuda.cuModuleLoadData(np.char.array(data)))
 
     def getFunction(self, name):
         return checkCudaErrors(cuda.cuModuleGetFunction(self.module, name))
+
+    def close(self):
+        if self.module is not None:
+            checkCudaErrors(cuda.cuModuleUnload(self.module))
+            self.module = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:  # noqa: BLE001
+            pass

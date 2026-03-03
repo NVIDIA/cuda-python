@@ -221,6 +221,9 @@ def main():
 
     # Cleanup and shutdown
     print("Shutting down...")
+    for helper in kernelHelper:
+        if helper is not None:
+            helper.close()
     checkCudaErrors(cudart.cudaEventDestroy(start_event))
     checkCudaErrors(cudart.cudaEventDestroy(stop_event))
     checkCudaErrors(cudart.cudaSetDevice(gpuid[0]))

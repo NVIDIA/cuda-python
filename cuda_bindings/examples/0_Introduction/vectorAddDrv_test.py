@@ -105,6 +105,7 @@ def main():
     checkCudaErrors(cuda.cuMemFree(d_A))
     checkCudaErrors(cuda.cuMemFree(d_B))
     checkCudaErrors(cuda.cuMemFree(d_C))
+    kernelHelper.close()
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
     if i + 1 != N:

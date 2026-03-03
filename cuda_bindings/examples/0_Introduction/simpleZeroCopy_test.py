@@ -161,6 +161,8 @@ def main():
     errorNorm = math.sqrt(errorNorm)
     refNorm = math.sqrt(refNorm)
 
+    kernelHelper.close()
+
     # Memory clean up
 
     print("Releasing CPU memory...")

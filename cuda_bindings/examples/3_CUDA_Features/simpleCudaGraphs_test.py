@@ -357,6 +357,10 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
     checkCudaErrors(cudart.cudaGraphExecDestroy(clonedGraphExec))
     checkCudaErrors(cudart.cudaGraphDestroy(graph))
     checkCudaErrors(cudart.cudaGraphDestroy(clonedGraph))
+    checkCudaErrors(cudart.cudaEventDestroy(memsetEvent2))
+    checkCudaErrors(cudart.cudaEventDestroy(memsetEvent1))
+    checkCudaErrors(cudart.cudaEventDestroy(forkStreamEvent))
+    checkCudaErrors(cudart.cudaStreamDestroy(stream3))
     checkCudaErrors(cudart.cudaStreamDestroy(stream1))
     checkCudaErrors(cudart.cudaStreamDestroy(stream2))
     checkCudaErrors(cudart.cudaStreamDestroy(streamForGraph))
@@ -388,6 +392,7 @@ def main():
 
     cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
     cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
+    kernelHelper.close()
 
     checkCudaErrors(cudart.cudaFree(inputVec_d))
     checkCudaErrors(cudart.cudaFree(outputVec_d))

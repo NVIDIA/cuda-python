@@ -231,6 +231,7 @@ def main():
 
     # Compute & verify reference solution
     testResult = verify(atom_arr_h, numThreads * numBlocks)
+    kernelHelper.close()
 
     if device_prop.pageableMemoryAccess:
         pass

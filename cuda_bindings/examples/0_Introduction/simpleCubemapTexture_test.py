@@ -207,6 +207,7 @@ def main():
     checkCudaErrors(cudart.cudaMemcpy(h_odata, d_data, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
 
     checkCudaErrors(cudart.cudaDestroyTextureObject(tex))
+    kernelHelper.close()
     checkCudaErrors(cudart.cudaFree(d_data))
     checkCudaErrors(cudart.cudaFreeArray(cu_3darray))
 

@@ -1217,6 +1217,7 @@ def main():
     _MatrixMulNaiveLargeChunk = kernelHelper.getFunction(b"MatrixMulNaiveLargeChunk")
 
     matrix_result = MatrixMultiply(dimsA, dimsB, selected_kernel)
+    kernelHelper.close()
 
     if matrix_result != 0:
         sys.exit(1)

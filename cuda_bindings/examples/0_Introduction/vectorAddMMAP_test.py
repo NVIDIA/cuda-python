@@ -291,6 +291,7 @@ def main():
     checkCudaErrors(simpleFreeMultiDeviceMmap(d_A, allocationSize))
     checkCudaErrors(simpleFreeMultiDeviceMmap(d_B, allocationSize))
     checkCudaErrors(simpleFreeMultiDeviceMmap(d_C, allocationSize))
+    kernelHelper.close()
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
 
