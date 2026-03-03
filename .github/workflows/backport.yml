@@ -43,7 +43,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
+        uses: korthout/backport-action@01619ebc9a6e3f6820274221b9956b3e7365000a  # v4.1.0
         with:
           copy_assignees: true
           copy_labels_pattern: true
@@ -67,7 +67,7 @@ jobs:
         run: echo "BACKPORT_BRANCH=${{ inputs.backport-branch }}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
+        uses: korthout/backport-action@01619ebc9a6e3f6820274221b9956b3e7365000a  # v4.1.0
         with:
           copy_assignees: true
           copy_labels_pattern: true
