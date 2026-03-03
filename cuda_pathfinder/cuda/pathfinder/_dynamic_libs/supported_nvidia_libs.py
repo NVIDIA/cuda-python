@@ -13,9 +13,9 @@ from __future__ import annotations
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
-_CTK_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.strategy == "ctk")
-_OTHER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.strategy == "other")
-_DRIVER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.strategy == "driver")
+_CTK_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "ctk")
+_OTHER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "other")
+_DRIVER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "driver")
 _NON_CTK_DESCRIPTORS = _OTHER_DESCRIPTORS + _DRIVER_DESCRIPTORS
 
 SUPPORTED_LIBNAMES_COMMON = tuple(desc.name for desc in _CTK_DESCRIPTORS if desc.linux_sonames and desc.windows_dlls)

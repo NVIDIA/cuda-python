@@ -64,7 +64,7 @@ def run(roots: list[str]) -> None:
     updates: dict[str, dict[str, object]] = {}
     matched: set[str] = set()
     for spec in catalog:
-        if spec.strategy != "ctk":
+        if spec.packaged_with != "ctk":
             continue
         prefix = "lib" + spec.name + ".so"
         found = tuple(sorted(s for s in sonames_found if s.startswith(prefix)))

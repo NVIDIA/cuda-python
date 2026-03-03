@@ -36,7 +36,7 @@ _PLAT_MOD = "cuda.pathfinder._dynamic_libs.search_platform"
 def _make_desc(name: str = "cudart", **overrides) -> LibDescriptor:
     defaults = {
         "name": name,
-        "strategy": "ctk",
+        "packaged_with": "ctk",
         "linux_sonames": ("libcudart.so",),
         "windows_dlls": ("cudart64_12.dll",),
         "site_packages_linux": (os.path.join("nvidia", "cuda_runtime", "lib"),),

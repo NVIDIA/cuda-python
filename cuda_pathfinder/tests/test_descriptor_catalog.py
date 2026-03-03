@@ -16,7 +16,7 @@ import pytest
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, DescriptorSpec
 
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-_VALID_STRATEGIES = {"ctk", "other", "driver"}
+_VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
 _CATALOG_BY_NAME = {spec.name: spec for spec in DESCRIPTOR_CATALOG}
 
 
@@ -31,8 +31,8 @@ def test_name_is_valid_identifier(spec: DescriptorSpec):
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
-def test_strategy_is_valid(spec: DescriptorSpec):
-    assert spec.strategy in _VALID_STRATEGIES
+def test_packaged_with_is_valid(spec: DescriptorSpec):
+    assert spec.packaged_with in _VALID_PACKAGED_WITH_VALUES
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
@@ -53,7 +53,7 @@ def test_no_self_dependency(spec: DescriptorSpec):
 
 @pytest.mark.parametrize(
     "spec",
-    [s for s in DESCRIPTOR_CATALOG if s.strategy == "driver"],
+    [s for s in DESCRIPTOR_CATALOG if s.packaged_with == "driver"],
     ids=lambda s: s.name,
 )
 def test_driver_libs_have_no_site_packages(spec: DescriptorSpec):
@@ -64,7 +64,7 @@ def test_driver_libs_have_no_site_packages(spec: DescriptorSpec):
 
 @pytest.mark.parametrize(
     "spec",
-    [s for s in DESCRIPTOR_CATALOG if s.strategy == "driver"],
+    [s for s in DESCRIPTOR_CATALOG if s.packaged_with == "driver"],
     ids=lambda s: s.name,
 )
 def test_driver_libs_have_no_dependencies(spec: DescriptorSpec):
@@ -89,10 +89,10 @@ def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
 def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
     for anchor in spec.ctk_root_canary_anchor_libnames:
         assert anchor in _CATALOG_BY_NAME, f"{spec.name} has unknown canary anchor {anchor!r}"
-        assert _CATALOG_BY_NAME[anchor].strategy == "ctk", f"{spec.name} has non-CTK canary anchor {anchor!r}"
+        assert _CATALOG_BY_NAME[anchor].packaged_with == "ctk", f"{spec.name} has non-CTK canary anchor {anchor!r}"
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_only_ctk_libs_define_ctk_root_canary_anchors(spec: DescriptorSpec):
     if spec.ctk_root_canary_anchor_libnames:
-        assert spec.strategy == "ctk", f"{spec.name} defines canary anchors but is not a CTK lib"
+        assert spec.packaged_with == "ctk", f"{spec.name} defines canary anchors but is not a CTK lib"

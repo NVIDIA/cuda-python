@@ -30,7 +30,7 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import (  # noqa: E402
 
 CATALOG_PATH = _PATHFINDER_ROOT / "cuda" / "pathfinder" / "_dynamic_libs" / "descriptor_catalog.py"
 
-_DEFAULTS = DescriptorSpec(name="", strategy="ctk")
+_DEFAULTS = DescriptorSpec(name="", packaged_with="ctk")
 
 _SECTION_COMMENTS = {
     "ctk": (
@@ -68,7 +68,7 @@ def _render_spec(spec: DescriptorSpec) -> str:
     lines = [
         "    DescriptorSpec(",
         f"        name={_quote(spec.name)},",
-        f'        strategy="{spec.strategy}",',
+        f'        packaged_with="{spec.packaged_with}",',
     ]
 
     tuple_fields = [
@@ -115,13 +115,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-Strategy = Literal["ctk", "other", "driver"]
+PackagedWith = Literal["ctk", "other", "driver"]
+# Backward-compatible alias for downstream imports.
+Strategy = PackagedWith
 
 
 @dataclass(frozen=True, slots=True)
 class DescriptorSpec:
     name: str
-    strategy: Strategy
+    packaged_with: PackagedWith
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
@@ -138,13 +140,13 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
 '''
 
     body_parts: list[str] = []
-    prev_strategy = None
+    prev_packaged_with = None
     for spec in specs:
-        if spec.strategy != prev_strategy:
-            comment = _SECTION_COMMENTS.get(spec.strategy)
+        if spec.packaged_with != prev_packaged_with:
+            comment = _SECTION_COMMENTS.get(spec.packaged_with)
             if comment is not None:
                 body_parts.append(comment)
-            prev_strategy = spec.strategy
+            prev_packaged_with = spec.packaged_with
         body_parts.append(_render_spec(spec))
 
     footer = ")\n"

@@ -71,7 +71,7 @@ def run(listing_files: list[str]) -> None:
 
     # Longest-prefix-first to avoid ambiguous matches (e.g. "cufftw" before "cufft").
     ctk_names = sorted(
-        (spec.name for spec in catalog if spec.strategy == "ctk"),
+        (spec.name for spec in catalog if spec.packaged_with == "ctk"),
         key=lambda n: (-len(n), n),
     )
 

@@ -82,15 +82,15 @@ def test_requires_rtld_deepbind_match(name):
 
 
 @pytest.mark.parametrize("name", sorted(SUPPORTED_LIBNAMES))
-def test_ctk_libs_have_ctk_strategy(name):
-    assert LIB_DESCRIPTORS[name].strategy == "ctk"
+def test_ctk_libs_have_ctk_packaging(name):
+    assert LIB_DESCRIPTORS[name].packaged_with == "ctk"
 
 
-def test_other_libs_have_other_strategy():
+def test_other_libs_have_other_packaging():
     # Spot-check a few known "other" libs
     for name in ("nccl", "cutensor", "cusparseLt"):
         if name in LIB_DESCRIPTORS:
-            assert LIB_DESCRIPTORS[name].strategy == "other", name
+            assert LIB_DESCRIPTORS[name].packaged_with == "other", name
 
 
 # ---------------------------------------------------------------------------
