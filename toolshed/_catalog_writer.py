@@ -166,7 +166,6 @@ def update_specs(
     updates: dict[str, dict[str, object]],
 ) -> tuple[DescriptorSpec, ...]:
     """Apply field updates to matching specs by name, preserving order."""
-    by_name = {spec.name: spec for spec in catalog}
     result = []
     for spec in catalog:
         if spec.name in updates:

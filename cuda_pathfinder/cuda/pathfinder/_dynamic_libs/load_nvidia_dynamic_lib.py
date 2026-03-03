@@ -36,7 +36,9 @@ if TYPE_CHECKING:
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
 # (CTK, third-party, driver).
 _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
-_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.sonames)
+_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
+    name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
+)
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
