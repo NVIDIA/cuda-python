@@ -49,63 +49,62 @@ def main():
 
         pytest.skip("Accessing pageable memory directly requires UVA")
 
-    kernelHelper = common.KernelHelper(vectorAddDrv, int(cuDevice))
-    _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
+    with common.KernelHelper(vectorAddDrv, int(cuDevice)) as kernelHelper:
+        _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
 
-    # Allocate input vectors h_A and h_B in host memory
-    h_A = np.random.rand(N).astype(dtype=np.float32)
-    h_B = np.random.rand(N).astype(dtype=np.float32)
-    h_C = np.random.rand(N).astype(dtype=np.float32)
+        # Allocate input vectors h_A and h_B in host memory
+        h_A = np.random.rand(N).astype(dtype=np.float32)
+        h_B = np.random.rand(N).astype(dtype=np.float32)
+        h_C = np.random.rand(N).astype(dtype=np.float32)
 
-    # Allocate vectors in device memory
-    d_A = checkCudaErrors(cuda.cuMemAlloc(nbytes))
-    d_B = checkCudaErrors(cuda.cuMemAlloc(nbytes))
-    d_C = checkCudaErrors(cuda.cuMemAlloc(nbytes))
+        # Allocate vectors in device memory
+        d_A = checkCudaErrors(cuda.cuMemAlloc(nbytes))
+        d_B = checkCudaErrors(cuda.cuMemAlloc(nbytes))
+        d_C = checkCudaErrors(cuda.cuMemAlloc(nbytes))
 
-    # Copy vectors from host memory to device memory
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, nbytes))
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, nbytes))
+        # Copy vectors from host memory to device memory
+        checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, nbytes))
+        checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, nbytes))
 
-    if True:
-        # Grid/Block configuration
-        threadsPerBlock = 256
-        blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
+        if True:
+            # Grid/Block configuration
+            threadsPerBlock = 256
+            blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
 
-        kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
+            kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
 
-        # Launch the CUDA kernel
-        checkCudaErrors(
-            cuda.cuLaunchKernel(
-                _VecAdd_kernel,
-                blocksPerGrid,
-                1,
-                1,
-                threadsPerBlock,
-                1,
-                1,
-                0,
-                0,
-                kernelArgs,
-                0,
+            # Launch the CUDA kernel
+            checkCudaErrors(
+                cuda.cuLaunchKernel(
+                    _VecAdd_kernel,
+                    blocksPerGrid,
+                    1,
+                    1,
+                    threadsPerBlock,
+                    1,
+                    1,
+                    0,
+                    0,
+                    kernelArgs,
+                    0,
+                )
             )
-        )
-    else:
-        pass
+        else:
+            pass
 
-    # Copy result from device memory to host memory
-    # h_C contains the result in host memory
-    checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, nbytes))
+        # Copy result from device memory to host memory
+        # h_C contains the result in host memory
+        checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, nbytes))
 
-    for i in range(N):
-        sum_all = h_A[i] + h_B[i]
-        if math.fabs(h_C[i] - sum_all) > 1e-7:
-            break
+        for i in range(N):
+            sum_all = h_A[i] + h_B[i]
+            if math.fabs(h_C[i] - sum_all) > 1e-7:
+                break
 
-    # Free device memory
-    checkCudaErrors(cuda.cuMemFree(d_A))
-    checkCudaErrors(cuda.cuMemFree(d_B))
-    checkCudaErrors(cuda.cuMemFree(d_C))
-    kernelHelper.close()
+        # Free device memory
+        checkCudaErrors(cuda.cuMemFree(d_A))
+        checkCudaErrors(cuda.cuMemFree(d_B))
+        checkCudaErrors(cuda.cuMemFree(d_C))
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
     if i + 1 != N:

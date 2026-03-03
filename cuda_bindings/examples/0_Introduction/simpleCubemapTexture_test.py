@@ -156,58 +156,57 @@ def main():
         f"Covering Cubemap data array of {width}~3 x {num_layers}: Grid size is {dimGrid.x} x {dimGrid.y}, each block has 8 x 8 threads"
     )
 
-    kernelHelper = common.KernelHelper(simpleCubemapTexture, devID)
-    _transformKernel = kernelHelper.getFunction(b"transformKernel")
-    kernelArgs = ((d_data, width, tex), (ctypes.c_void_p, ctypes.c_int, None))
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _transformKernel,
-            dimGrid.x,
-            dimGrid.y,
-            dimGrid.z,  # grid dim
-            dimBlock.x,
-            dimBlock.y,
-            dimBlock.z,  # block dim
-            0,
-            0,  # shared mem and stream
-            kernelArgs,
-            0,
-        )
-    )  # arguments
+    with common.KernelHelper(simpleCubemapTexture, devID) as kernelHelper:
+        _transformKernel = kernelHelper.getFunction(b"transformKernel")
+        kernelArgs = ((d_data, width, tex), (ctypes.c_void_p, ctypes.c_int, None))
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _transformKernel,
+                dimGrid.x,
+                dimGrid.y,
+                dimGrid.z,  # grid dim
+                dimBlock.x,
+                dimBlock.y,
+                dimBlock.z,  # block dim
+                0,
+                0,  # shared mem and stream
+                kernelArgs,
+                0,
+            )
+        )  # arguments
 
-    checkCudaErrors(cudart.cudaDeviceSynchronize())
+        checkCudaErrors(cudart.cudaDeviceSynchronize())
 
-    start = time.time()
+        start = time.time()
 
-    # Execute the kernel
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _transformKernel,
-            dimGrid.x,
-            dimGrid.y,
-            dimGrid.z,  # grid dim
-            dimBlock.x,
-            dimBlock.y,
-            dimBlock.z,  # block dim
-            0,
-            0,  # shared mem and stream
-            kernelArgs,
-            0,
-        )
-    )  # arguments
+        # Execute the kernel
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _transformKernel,
+                dimGrid.x,
+                dimGrid.y,
+                dimGrid.z,  # grid dim
+                dimBlock.x,
+                dimBlock.y,
+                dimBlock.z,  # block dim
+                0,
+                0,  # shared mem and stream
+                kernelArgs,
+                0,
+            )
+        )  # arguments
 
-    checkCudaErrors(cudart.cudaDeviceSynchronize())
-    stop = time.time()
-    print(f"Processing time: {stop - start:.3f} msec")
-    print(f"{cubemap_size / ((stop - start + 1) / 1000.0) / 1e6:.2f} Mtexlookups/sec")
+        checkCudaErrors(cudart.cudaDeviceSynchronize())
+        stop = time.time()
+        print(f"Processing time: {stop - start:.3f} msec")
+        print(f"{cubemap_size / ((stop - start + 1) / 1000.0) / 1e6:.2f} Mtexlookups/sec")
 
-    # Allocate mem for the result on host side
-    h_odata = np.empty_like(h_data)
-    # Copy result from device to host
-    checkCudaErrors(cudart.cudaMemcpy(h_odata, d_data, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
+        # Allocate mem for the result on host side
+        h_odata = np.empty_like(h_data)
+        # Copy result from device to host
+        checkCudaErrors(cudart.cudaMemcpy(h_odata, d_data, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
 
     checkCudaErrors(cudart.cudaDestroyTextureObject(tex))
-    kernelHelper.close()
     checkCudaErrors(cudart.cudaFree(d_data))
     checkCudaErrors(cudart.cudaFreeArray(cu_3darray))
 

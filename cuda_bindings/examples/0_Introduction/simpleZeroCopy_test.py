@@ -124,27 +124,27 @@ def main():
     grid.x = math.ceil(nelem / float(block.x))
     grid.y = 1
     grid.z = 1
-    kernelHelper = common.KernelHelper(simpleZeroCopy, idev)
-    _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
-    kernelArgs = (
-        (d_a, d_b, d_c, nelem),
-        (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
-    )
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _vectorAddGPU,
-            grid.x,
-            grid.y,
-            grid.z,
-            block.x,
-            block.y,
-            block.z,
-            0,
-            cuda.CU_STREAM_LEGACY,
-            kernelArgs,
-            0,
+    with common.KernelHelper(simpleZeroCopy, idev) as kernelHelper:
+        _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
+        kernelArgs = (
+            (d_a, d_b, d_c, nelem),
+            (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
         )
-    )
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _vectorAddGPU,
+                grid.x,
+                grid.y,
+                grid.z,
+                block.x,
+                block.y,
+                block.z,
+                0,
+                cuda.CU_STREAM_LEGACY,
+                kernelArgs,
+                0,
+            )
+        )
     checkCudaErrors(cudart.cudaDeviceSynchronize())
 
     print("> Checking the results from vectorAddGPU() ...")
@@ -160,8 +160,6 @@ def main():
 
     errorNorm = math.sqrt(errorNorm)
     refNorm = math.sqrt(refNorm)
-
-    kernelHelper.close()
 
     # Memory clean up
 
