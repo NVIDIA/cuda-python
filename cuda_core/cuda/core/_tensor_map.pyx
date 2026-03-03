@@ -2,15 +2,38 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport intptr_t, uint32_t, uint64_t
+from libc.stdint cimport intptr_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t
+from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._dlpack cimport kDLInt, kDLUInt, kDLFloat, kDLBfloat, _kDLCUDA
 
 import enum
 
 import numpy
 
 from cuda.core._memoryview import StridedMemoryView
+
+cdef extern from "_cpp/tensor_map_cccl.h":
+    int cuda_core_cccl_make_tma_descriptor_tiled(
+        void* out_tensor_map,
+        void* data,
+        int device_type,
+        int device_id,
+        int ndim,
+        const int64_t* shape,
+        const int64_t* strides,
+        uint8_t dtype_code,
+        uint8_t dtype_bits,
+        uint16_t dtype_lanes,
+        const int* box_sizes,
+        const int* elem_strides,
+        int interleave_layout,
+        int swizzle,
+        int l2_fetch_size,
+        int oob_fill,
+        char* err,
+        size_t err_cap) nogil
 
 
 try:
@@ -80,14 +103,25 @@ class TensorMapOOBFill(enum.IntEnum):
     NAN_REQUEST_ZERO_FMA = cydriver.CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA
 
 
-class TensorMapIm2ColWideMode(enum.IntEnum):
-    """Im2col wide mode for tensor map descriptors.
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    class TensorMapIm2ColWideMode(enum.IntEnum):
+        """Im2col wide mode for tensor map descriptors.
 
-    These correspond to the ``CUtensorMapIm2ColWideMode`` driver enum values.
-    Supported on compute capability 10.0+.
-    """
-    W = cydriver.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W
-    W128 = cydriver.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W128
+        These correspond to the ``CUtensorMapIm2ColWideMode`` driver enum values.
+        Supported on compute capability 10.0+.
+        """
+        W = cydriver.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W
+        W128 = cydriver.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W128
+ELSE:
+    class TensorMapIm2ColWideMode(enum.IntEnum):
+        """Im2col wide mode for tensor map descriptors.
+
+        This enum is always defined for API stability, but the
+        :meth:`TensorMapDescriptor.from_im2col_wide` factory requires a CUDA 13+
+        build and will raise otherwise.
+        """
+        W = 0
+        W128 = 1
 
 
 # Mapping from numpy dtype to TMA data type
@@ -148,6 +182,65 @@ def _resolve_data_type(view, data_type):
             "You may also specify data_type explicitly.")
 
     return tma_dt
+
+
+cdef inline bint _tma_dtype_to_dlpack(
+    object tma_dt,
+    uint8_t* out_code,
+    uint8_t* out_bits,
+    uint16_t* out_lanes,
+) noexcept:
+    if tma_dt == TensorMapDataType.UINT8:
+        out_code[0] = <uint8_t>kDLUInt
+        out_bits[0] = <uint8_t>8
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.UINT16:
+        out_code[0] = <uint8_t>kDLUInt
+        out_bits[0] = <uint8_t>16
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.UINT32:
+        out_code[0] = <uint8_t>kDLUInt
+        out_bits[0] = <uint8_t>32
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.UINT64:
+        out_code[0] = <uint8_t>kDLUInt
+        out_bits[0] = <uint8_t>64
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.INT32:
+        out_code[0] = <uint8_t>kDLInt
+        out_bits[0] = <uint8_t>32
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.INT64:
+        out_code[0] = <uint8_t>kDLInt
+        out_bits[0] = <uint8_t>64
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.FLOAT16:
+        out_code[0] = <uint8_t>kDLFloat
+        out_bits[0] = <uint8_t>16
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.FLOAT32:
+        out_code[0] = <uint8_t>kDLFloat
+        out_bits[0] = <uint8_t>32
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.FLOAT64:
+        out_code[0] = <uint8_t>kDLFloat
+        out_bits[0] = <uint8_t>64
+        out_lanes[0] = <uint16_t>1
+        return True
+    if tma_dt == TensorMapDataType.BFLOAT16:
+        out_code[0] = <uint8_t>kDLBfloat
+        out_bits[0] = <uint8_t>16
+        out_lanes[0] = <uint16_t>1
+        return True
+    return False
 
 
 def _get_validated_view(tensor):
@@ -268,7 +361,11 @@ cdef class TensorMapDescriptor:
         cdef TensorMapDescriptor desc = cls.__new__(cls)
 
         view = _get_validated_view(tensor)
+        # Keep both the original tensor object and the validated view alive.
+        # For DLPack exporters, the view may hold the owning capsule whose
+        # deleter can free the backing allocation when released.
         desc._source_ref = tensor
+        desc._view_ref = view
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -292,7 +389,91 @@ cdef class TensorMapDescriptor:
                 raise ValueError(
                     f"box_dim[{i}] must be in [1, 256], got {bd}")
 
+        cdef bint elem_strides_provided = element_strides is not None
         element_strides = _validate_element_strides(element_strides, rank)
+
+        # Reuse CCCL/libcu++'s DLPack -> CUtensorMap conversion when possible.
+        # This avoids maintaining a second, independent validation/encoding implementation.
+        cdef uint8_t dl_code
+        cdef uint8_t dl_bits
+        cdef uint16_t dl_lanes
+        cdef int64_t c_shape[5]
+        cdef int64_t c_strides[5]
+        cdef int c_box_sizes[5]
+        cdef int c_elem_strides[5]
+        cdef const int64_t* c_strides_ptr
+        cdef const int* c_elem_strides_ptr
+        cdef char errbuf[512]
+        cdef int i_cccl
+        cdef int device_type
+        cdef int c_device_id
+        cdef int c_cccl_interleave_int
+        cdef int c_cccl_swizzle_int
+        cdef int c_cccl_l2_promotion_int
+        cdef int c_cccl_oob_fill_int
+        cdef int rc
+        if _tma_dtype_to_dlpack(tma_dt, &dl_code, &dl_bits, &dl_lanes):
+            c_strides_ptr = NULL
+            c_elem_strides_ptr = NULL
+            errbuf[0] = 0
+
+            for i_cccl in range(rank):
+                c_shape[i_cccl] = <int64_t>shape[i_cccl]
+                c_box_sizes[i_cccl] = <int>box_dim[i_cccl]
+                if elem_strides_provided:
+                    c_elem_strides[i_cccl] = <int>element_strides[i_cccl]
+
+            if view.strides is not None:
+                for i_cccl in range(rank):
+                    c_strides[i_cccl] = <int64_t>view.strides[i_cccl]
+                c_strides_ptr = &c_strides[0]
+
+            if elem_strides_provided:
+                c_elem_strides_ptr = &c_elem_strides[0]
+
+            device_type = <int>_kDLCUDA
+            c_device_id = <int>view.device_id
+            c_cccl_interleave_int = int(interleave)
+            c_cccl_swizzle_int = int(swizzle)
+            c_cccl_l2_promotion_int = int(l2_promotion)
+            c_cccl_oob_fill_int = int(oob_fill)
+
+            with nogil:
+                rc = cuda_core_cccl_make_tma_descriptor_tiled(
+                    <void*>&desc._tensor_map,
+                    <void*>global_address,
+                    device_type,
+                    c_device_id,
+                    rank,
+                    &c_shape[0],
+                    c_strides_ptr,
+                    dl_code,
+                    dl_bits,
+                    dl_lanes,
+                    &c_box_sizes[0],
+                    c_elem_strides_ptr,
+                    c_cccl_interleave_int,
+                    c_cccl_swizzle_int,
+                    c_cccl_l2_promotion_int,
+                    c_cccl_oob_fill_int,
+                    &errbuf[0],
+                    <size_t>sizeof(errbuf),
+                )
+
+            if rc == 0:
+                desc._repr_info = {
+                    "method": "tiled",
+                    "rank": rank,
+                    "data_type": tma_dt,
+                    "swizzle": swizzle,
+                }
+                return desc
+
+            msg = errbuf[:].split(b"\0", 1)[0].decode("utf-8", errors="replace")
+            # If CCCL isn't available at build time, fall back to the direct
+            # driver API path to preserve functionality on older toolchains.
+            if "not available at build time" not in msg:
+                raise ValueError(f"Failed to build TMA descriptor via CCCL: {msg}")
 
         cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
         byte_strides = _compute_byte_strides(shape, view.strides, elem_size)
@@ -411,6 +592,7 @@ cdef class TensorMapDescriptor:
 
         view = _get_validated_view(tensor)
         desc._source_ref = tensor
+        desc._view_ref = view
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -446,6 +628,10 @@ cdef class TensorMapDescriptor:
         cdef int[3] c_pixel_box_lower  # max 3 spatial dims (rank 5 - 2)
         cdef int[3] c_pixel_box_upper
         cdef int i_c
+
+        for i_c in range(3):
+            c_pixel_box_lower[i_c] = 0
+            c_pixel_box_upper[i_c] = 0
 
         for i_c in range(rank):
             c_global_dim[i_c] = <uint64_t>shape[rank - 1 - i_c]
@@ -555,85 +741,90 @@ cdef class TensorMapDescriptor:
             If the tensor rank is outside [3, 5], the pointer is not
             16-byte aligned, or other constraints are violated.
         """
-        cdef TensorMapDescriptor desc = cls.__new__(cls)
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            raise RuntimeError(
+                "TensorMapDescriptor.from_im2col_wide requires a CUDA 13+ build")
+        ELSE:
+            cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-        view = _get_validated_view(tensor)
-        desc._source_ref = tensor
+            view = _get_validated_view(tensor)
+            desc._source_ref = tensor
+            desc._view_ref = view
 
-        tma_dt = _resolve_data_type(view, data_type)
-        cdef int c_data_type_int = int(tma_dt)
-        cdef cydriver.CUtensorMapDataType c_data_type = <cydriver.CUtensorMapDataType>c_data_type_int
+            tma_dt = _resolve_data_type(view, data_type)
+            cdef int c_data_type_int = int(tma_dt)
+            cdef cydriver.CUtensorMapDataType c_data_type = <cydriver.CUtensorMapDataType>c_data_type_int
 
-        cdef intptr_t global_address = view.ptr
-        shape = view.shape
+            cdef intptr_t global_address = view.ptr
+            shape = view.shape
 
-        cdef int rank = len(shape)
-        if rank < 3 or rank > 5:
-            raise ValueError(
-                f"Im2col-wide tensor rank must be between 3 and 5, got {rank}")
+            cdef int rank = len(shape)
+            if rank < 3 or rank > 5:
+                raise ValueError(
+                    f"Im2col-wide tensor rank must be between 3 and 5, got {rank}")
 
-        element_strides = _validate_element_strides(element_strides, rank)
+            element_strides = _validate_element_strides(element_strides, rank)
 
-        cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
-        byte_strides = _compute_byte_strides(shape, view.strides, elem_size)
+            cdef int elem_size = _TMA_DATA_TYPE_SIZE[tma_dt]
+            byte_strides = _compute_byte_strides(shape, view.strides, elem_size)
 
-        # Reverse all dimension arrays for column-major convention
-        cdef uint64_t[5] c_global_dim
-        cdef uint64_t[4] c_global_strides
-        cdef uint32_t[5] c_element_strides
-        cdef int i_c
+            # Reverse all dimension arrays for column-major convention
+            cdef uint64_t[5] c_global_dim
+            cdef uint64_t[4] c_global_strides
+            cdef uint32_t[5] c_element_strides
+            cdef int i_c
 
-        for i_c in range(rank):
-            c_global_dim[i_c] = <uint64_t>shape[rank - 1 - i_c]
-            c_element_strides[i_c] = <uint32_t>element_strides[rank - 1 - i_c]
+            for i_c in range(rank):
+                c_global_dim[i_c] = <uint64_t>shape[rank - 1 - i_c]
+                c_element_strides[i_c] = <uint32_t>element_strides[rank - 1 - i_c]
 
-        for i_c in range(rank - 1):
-            c_global_strides[i_c] = <uint64_t>byte_strides[rank - 2 - i_c]
+            for i_c in range(rank - 1):
+                c_global_strides[i_c] = <uint64_t>byte_strides[rank - 2 - i_c]
 
-        cdef uint32_t c_rank = <uint32_t>rank
-        cdef int c_lower_w = <int>pixel_box_lower_corner_width
-        cdef int c_upper_w = <int>pixel_box_upper_corner_width
-        cdef uint32_t c_channels = <uint32_t>channels_per_pixel
-        cdef uint32_t c_pixels = <uint32_t>pixels_per_column
-        cdef int c_interleave_int = int(interleave)
-        cdef int c_mode_int = int(mode)
-        cdef int c_swizzle_int = int(swizzle)
-        cdef int c_l2_promotion_int = int(l2_promotion)
-        cdef int c_oob_fill_int = int(oob_fill)
-        cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave>c_interleave_int
-        cdef cydriver.CUtensorMapIm2ColWideMode c_mode = <cydriver.CUtensorMapIm2ColWideMode>c_mode_int
-        cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle>c_swizzle_int
-        cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion>c_l2_promotion_int
-        cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill>c_oob_fill_int
+            cdef uint32_t c_rank = <uint32_t>rank
+            cdef int c_lower_w = <int>pixel_box_lower_corner_width
+            cdef int c_upper_w = <int>pixel_box_upper_corner_width
+            cdef uint32_t c_channels = <uint32_t>channels_per_pixel
+            cdef uint32_t c_pixels = <uint32_t>pixels_per_column
+            cdef int c_interleave_int = int(interleave)
+            cdef int c_mode_int = int(mode)
+            cdef int c_swizzle_int = int(swizzle)
+            cdef int c_l2_promotion_int = int(l2_promotion)
+            cdef int c_oob_fill_int = int(oob_fill)
+            cdef cydriver.CUtensorMapInterleave c_interleave = <cydriver.CUtensorMapInterleave>c_interleave_int
+            cdef cydriver.CUtensorMapIm2ColWideMode c_mode = <cydriver.CUtensorMapIm2ColWideMode>c_mode_int
+            cdef cydriver.CUtensorMapSwizzle c_swizzle = <cydriver.CUtensorMapSwizzle>c_swizzle_int
+            cdef cydriver.CUtensorMapL2promotion c_l2_promotion = <cydriver.CUtensorMapL2promotion>c_l2_promotion_int
+            cdef cydriver.CUtensorMapFloatOOBfill c_oob_fill = <cydriver.CUtensorMapFloatOOBfill>c_oob_fill_int
 
-        with nogil:
-            HANDLE_RETURN(cydriver.cuTensorMapEncodeIm2colWide(
-                &desc._tensor_map,
-                c_data_type,
-                c_rank,
-                <void*>global_address,
-                c_global_dim,
-                c_global_strides,
-                c_lower_w,
-                c_upper_w,
-                c_channels,
-                c_pixels,
-                c_element_strides,
-                c_interleave,
-                c_mode,
-                c_swizzle,
-                c_l2_promotion,
-                c_oob_fill,
-            ))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuTensorMapEncodeIm2colWide(
+                    &desc._tensor_map,
+                    c_data_type,
+                    c_rank,
+                    <void*>global_address,
+                    c_global_dim,
+                    c_global_strides,
+                    c_lower_w,
+                    c_upper_w,
+                    c_channels,
+                    c_pixels,
+                    c_element_strides,
+                    c_interleave,
+                    c_mode,
+                    c_swizzle,
+                    c_l2_promotion,
+                    c_oob_fill,
+                ))
 
-        desc._repr_info = {
-            "method": "im2col_wide",
-            "rank": rank,
-            "data_type": tma_dt,
-            "swizzle": swizzle,
-        }
+            desc._repr_info = {
+                "method": "im2col_wide",
+                "rank": rank,
+                "data_type": tma_dt,
+                "swizzle": swizzle,
+            }
 
-        return desc
+            return desc
 
     def replace_address(self, tensor):
         """Replace the global memory address in this tensor map descriptor.
@@ -662,6 +853,7 @@ cdef class TensorMapDescriptor:
         # so we don't drop the old tensor (risking a dangling pointer in the
         # CUtensorMap struct) if the call fails.
         self._source_ref = tensor
+        self._view_ref = view
 
     def __repr__(self):
         info = self._repr_info

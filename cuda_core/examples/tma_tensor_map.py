@@ -25,6 +25,7 @@ import sys
 
 import cupy as cp
 import numpy as np
+
 from cuda.core import (
     Device,
     LaunchConfig,

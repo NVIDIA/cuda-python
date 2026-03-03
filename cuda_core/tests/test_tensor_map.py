@@ -3,6 +3,7 @@
 
 import numpy as np
 import pytest
+
 from cuda.core import (
     Device,
     TensorMapDataType,
@@ -128,6 +129,29 @@ class TestTensorMapDescriptorCreation:
         )
         assert desc is not None
 
+    def test_from_tiled_with_element_strides_buffer(self, dev, skip_if_no_tma):
+        # Use a Buffer input (DLPack path) and explicit element_strides.
+        buf = dev.allocate(1024 * 4)
+        desc = TensorMapDescriptor.from_tiled(
+            buf,
+            box_dim=(64,),
+            element_strides=(2,),
+            data_type=TensorMapDataType.FLOAT32,
+        )
+        assert desc is not None
+
+    def test_from_tiled_with_element_strides_cai(self, dev, skip_if_no_tma):
+        # Use a CAI-style tensor wrapper and explicit element_strides.
+        buf = dev.allocate(64 * 64 * 4)
+        tensor = _DeviceArray(buf, (64, 64))
+        desc = TensorMapDescriptor.from_tiled(
+            tensor,
+            box_dim=(32, 32),
+            element_strides=(2, 1),
+            data_type=TensorMapDataType.FLOAT32,
+        )
+        assert desc is not None
+
     def test_from_tiled_with_swizzle(self, dev, skip_if_no_tma):
         buf = dev.allocate(64 * 64 * 4)
         tensor = _DeviceArray(buf, (64, 64))
@@ -250,8 +274,9 @@ class TestTensorMapDtypeMapping:
 
     def test_bfloat16_mapping(self):
         try:
-            from cuda.core._tensor_map import _NUMPY_DTYPE_TO_TMA
             from ml_dtypes import bfloat16
+
+            from cuda.core._tensor_map import _NUMPY_DTYPE_TO_TMA
 
             assert _NUMPY_DTYPE_TO_TMA[np.dtype(bfloat16)] == TensorMapDataType.BFLOAT16
         except ImportError:
