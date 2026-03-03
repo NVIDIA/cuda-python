@@ -15,9 +15,6 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import (
     DESCRIPTOR_CATALOG,
     DescriptorSpec,
 )
-from cuda.pathfinder._dynamic_libs.descriptor_catalog import (
-    Strategy as Strategy,
-)
 
 # Keep the historical type name for downstream imports.
 LibDescriptor: TypeAlias = DescriptorSpec

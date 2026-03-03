@@ -116,8 +116,6 @@ from dataclasses import dataclass
 from typing import Literal
 
 PackagedWith = Literal["ctk", "other", "driver"]
-# Backward-compatible alias for downstream imports.
-Strategy = PackagedWith
 
 
 @dataclass(frozen=True, slots=True)
