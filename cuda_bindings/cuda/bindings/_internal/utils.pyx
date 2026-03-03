@@ -130,7 +130,7 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
                         f"Expected str or bytes, got {obj_i_type.__name__}")
                 str_len = <size_t>(len(obj_i_bytes)) + 1  # including null termination
                 deref(nested_res_vec)[i].resize(str_len)
-                obj_i_ptr = <char*>obj_i_bytes
+                obj_i_ptr = <char*>(obj_i_bytes)
                 # cast to size_t explicitly to work around a potentially Cython bug
                 deref(nested_res_vec)[i].assign(obj_i_ptr, obj_i_ptr + <size_t>str_len)
             else:
