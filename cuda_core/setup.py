@@ -11,7 +11,7 @@ from setuptools.command.build_ext import build_ext as _build_ext
 nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
 
 
-class build_ext(_build_ext):
+class build_ext(_build_ext):  # noqa: N801
     def build_extensions(self):
         self.parallel = nthreads
         super().build_extensions()

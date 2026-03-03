@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import multiprocessing
 import queue  # for Empty
 import sys
@@ -57,11 +58,8 @@ class ChildProcessWrapper:
             stderr = sys.stderr.getvalue()
             sys.stdout = old_stdout
             sys.stderr = old_stderr
-            try:  # noqa: SIM105
+            with contextlib.suppress(Exception):
                 self.result_queue.put((returncode, stdout, stderr))
-            except Exception:  # noqa: S110
-                # If the queue is broken (e.g., parent gone), best effort logging
-                pass
 
 
 def run_in_spawned_child_process(

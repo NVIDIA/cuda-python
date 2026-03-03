@@ -132,7 +132,7 @@ class GraphBuilder:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("stream", "is_stream_owner", "graph", "conditional_graph", "is_join_required")
+        __slots__ = ("conditional_graph", "graph", "is_join_required", "is_stream_owner", "stream")
 
         def __init__(self, graph_builder_obj, stream_obj, is_stream_owner, conditional_graph, is_join_required):
             self.stream = stream_obj
@@ -161,7 +161,7 @@ class GraphBuilder:
             self.graph = None
             self.conditional_graph = None
 
-    __slots__ = ("__weakref__", "_mnff", "_building_ended")
+    __slots__ = ("__weakref__", "_building_ended", "_mnff")
 
     def __init__(self):
         raise NotImplementedError(

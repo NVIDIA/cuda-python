@@ -77,7 +77,7 @@ def session_setup():
     multiprocessing.set_start_method("spawn", force=True)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def init_cuda():
     # TODO: rename this to e.g. init_context
     device = Device(0)
@@ -108,14 +108,14 @@ def _device_unset_current() -> bool:
     return True
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def deinit_cuda():
     # TODO: rename this to e.g. deinit_context
     yield
     _ = _device_unset_current()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def deinit_all_contexts_function():
     def pop_all_contexts():
         max_iters = 256

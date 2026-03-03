@@ -4,6 +4,7 @@
 
 import numpy as np
 from common.helper_cuda import checkCudaErrors
+
 from cuda import pathfinder
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc

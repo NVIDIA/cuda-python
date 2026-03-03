@@ -4,9 +4,10 @@
 import multiprocessing as mp
 
 import pytest
+from helpers.buffers import PatternGen
+
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
-from helpers.buffers import PatternGen
 
 CHILD_TIMEOUT_SEC = 30
 NBYTES = 64

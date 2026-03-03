@@ -12,6 +12,7 @@ import re
 import weakref
 
 import pytest
+
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
 from cuda.core._program import _can_load_generated_ptx
 
@@ -339,7 +340,7 @@ def test_equality_basic(fixture_name, request):
     """Object equality: reflexive, not equal to None or other types."""
     obj = request.getfixturevalue(fixture_name)
     assert obj == obj
-    assert obj != None  # noqa: E711
+    assert obj is not None
     assert obj != "string"
     if hasattr(obj, "handle"):
         assert obj != obj.handle

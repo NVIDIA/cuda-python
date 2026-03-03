@@ -27,4 +27,4 @@ def _probe_canary_abs_path(libname: str) -> str | None:
 
 
 def probe_canary_abs_path_and_print_json(libname: str) -> None:
-    print(json.dumps(_probe_canary_abs_path(libname)))  # noqa: T201
+    print(json.dumps(_probe_canary_abs_path(libname)))

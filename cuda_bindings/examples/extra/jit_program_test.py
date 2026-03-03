@@ -4,6 +4,7 @@
 import ctypes
 
 import numpy as np
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 
