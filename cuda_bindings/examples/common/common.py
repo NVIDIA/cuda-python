@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+from contextlib import suppress
+
 import numpy as np
 from common.helper_cuda import checkCudaErrors
 
@@ -102,7 +104,5 @@ class KernelHelper:
         self.close()
 
     def __del__(self):
-        try:
+        with suppress(Exception):
             self.close()
-        except Exception:  # noqa: BLE001
-            pass
