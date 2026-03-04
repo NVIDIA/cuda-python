@@ -569,10 +569,9 @@ on the system <code class="docutils literal notranslate"><span class="pre">PATH<
 <li><p><strong>CTK root canary probe (discoverable libs only)</strong></p>
 <ul class="simple">
 <li><p>For selected libraries whose shared object doesn’t reside on the
-standard linker path (currently <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>),
-attempt to discover the CTK installation root by system-loading a
-well-known CTK library (<code class="docutils literal notranslate"><span class="pre">cudart</span></code>) in a subprocess, then derive
-the root from its resolved absolute path.</p></li>
+standard linker path (currently <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>), attempt to derive CTK
+root by system-loading a well-known CTK canary library in a
+subprocess and then searching relative to that root.</p></li>
 </ul>
 </li>
 </ol>
