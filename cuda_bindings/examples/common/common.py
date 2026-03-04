@@ -4,6 +4,7 @@
 
 import numpy as np
 from common.helper_cuda import checkCudaErrors
+
 from cuda import pathfinder
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
@@ -66,9 +67,11 @@ class KernelHelper:
             logSize = checkCudaErrors(nvrtc.nvrtcGetProgramLogSize(prog))
             log = b" " * logSize
             checkCudaErrors(nvrtc.nvrtcGetProgramLog(prog, log))
-            print(log.decode())
-            print(err)
-            exit(-1)
+            import sys
+
+            print(log.decode(), file=sys.stderr)
+            print(err, file=sys.stderr)
+            sys.exit(1)
 
         if use_cubin:
             dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))

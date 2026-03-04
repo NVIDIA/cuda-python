@@ -6,7 +6,7 @@ import os
 import pytest
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(config, items):  # noqa: ARG001
     cuda_home = os.environ.get("CUDA_HOME")
     for item in items:
         nodeid = item.nodeid.replace("\\", "/")

@@ -12,10 +12,32 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
+ml_dtypes = "*"
 pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
+pyglet = "*"
+
+[feature.examples.dependencies]
+cuda-core = { path = "." }
+cffi = "*"
+pyglet = "*"
+
+[feature.examples.target.linux.dependencies]
+cupy = "*"
+pytorch-gpu = "*"
+libgl-devel = "*"
+gxx = "*"
+
+[feature.examples.target.linux-64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+
+[feature.examples.target.linux-aarch64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
+
+[feature.examples.target.win-64.activation.env]
+CUDA_HOME = '%CONDA_PREFIX%\Library'
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
@@ -71,6 +93,7 @@ default = { features = [
 ], solve-group = "default" }
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "default" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
+examples = { features = ["cu13", "examples"], solve-group = "examples" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -104,6 +127,7 @@ setuptools = ">=80"
 setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
+cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
 # Using path dependency now that we've added .pth support for Cython .pxd files
 # See build_hooks.py:_add_cython_include_paths_to_pth()

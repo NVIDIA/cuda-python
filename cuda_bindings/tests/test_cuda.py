@@ -6,10 +6,11 @@ import platform
 import shutil
 import textwrap
 
-import cuda.bindings.driver as cuda
-import cuda.bindings.runtime as cudart
 import numpy as np
 import pytest
+
+import cuda.bindings.driver as cuda
+import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
 
 
@@ -619,7 +620,7 @@ def test_char_range():
     for x in range(-128, 0):
         val.reserved = [x] * 64
         assert val.reserved[0] == 256 + x
-    for x in range(0, 256):
+    for x in range(256):
         val.reserved = [x] * 64
         assert val.reserved[0] == x
 

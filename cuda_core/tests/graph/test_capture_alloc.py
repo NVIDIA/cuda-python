@@ -5,6 +5,9 @@
 """Graph memory resource tests."""
 
 import pytest
+from helpers import IS_WINDOWS, IS_WSL
+from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
+
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -16,8 +19,6 @@ from cuda.core import (
     launch,
 )
 from cuda.core._utils.cuda_utils import CUDAError
-from helpers import IS_WINDOWS, IS_WSL
-from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
 
 def _common_kernels_alloc():

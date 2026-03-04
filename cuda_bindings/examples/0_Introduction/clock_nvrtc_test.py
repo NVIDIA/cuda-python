@@ -6,6 +6,7 @@ import platform
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
+
 from cuda.bindings import driver as cuda
 
 clock_nvrtc = """\
@@ -58,16 +59,15 @@ def elems_to_bytes(nelems, dt):
 
 
 def main():
-    print("CUDA Clock sample")
+    import pytest
 
     if platform.machine() == "armv7l":
-        print("clock_nvrtc is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("clock_nvrtc is not supported on ARMv7")
 
     timer = np.empty(NUM_BLOCKS * 2, dtype="int64")
     hinput = np.empty(NUM_THREADS * 2, dtype="float32")
 
-    for i in range(0, NUM_THREADS * 2):
+    for i in range(NUM_THREADS * 2):
         hinput[i] = i
 
     devID = findCudaDevice()
@@ -105,7 +105,7 @@ def main():
 
     avgElapsedClocks = 0.0
 
-    for i in range(0, NUM_BLOCKS):
+    for i in range(NUM_BLOCKS):
         avgElapsedClocks += timer[i + NUM_BLOCKS] - timer[i]
 
     avgElapsedClocks = avgElapsedClocks / NUM_BLOCKS

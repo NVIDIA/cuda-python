@@ -48,3 +48,6 @@ depends-on = [
     { task = "test-bindings" },
     { task = "test-core" },
 ]
+
+[dependencies]
+ruff = ">=0.15.3,<0.16"

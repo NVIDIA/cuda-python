@@ -14,6 +14,7 @@
 import sys
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute out = a * x + y
@@ -114,5 +115,3 @@ assert cp.allclose(out, a * x + y)
 # cupy cleans up automatically the rest
 buf.close(s)
 s.close()
-
-print("done!")

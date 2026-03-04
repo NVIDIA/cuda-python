@@ -1,6 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import multiprocessing
 import queue  # for Empty
 import sys
@@ -24,13 +25,19 @@ class CompletedProcess:
 
 
 class ChildProcessWrapper:
-    def __init__(self, result_queue, target, args, kwargs):
+    def __init__(
+        self,
+        result_queue: Any,
+        target: Callable[..., None],
+        args: Sequence[Any] | None,
+        kwargs: dict[str, Any] | None,
+    ) -> None:
         self.target = target
         self.args = () if args is None else args
         self.kwargs = {} if kwargs is None else kwargs
         self.result_queue = result_queue
 
-    def __call__(self):
+    def __call__(self) -> None:
         # Capture stdout/stderr
         old_stdout = sys.stdout
         old_stderr = sys.stderr
@@ -51,11 +58,8 @@ class ChildProcessWrapper:
             stderr = sys.stderr.getvalue()
             sys.stdout = old_stdout
             sys.stderr = old_stderr
-            try:  # noqa: SIM105
+            with contextlib.suppress(Exception):
                 self.result_queue.put((returncode, stdout, stderr))
-            except Exception:  # noqa: S110
-                # If the queue is broken (e.g., parent gone), best effort logging
-                pass
 
 
 def run_in_spawned_child_process(

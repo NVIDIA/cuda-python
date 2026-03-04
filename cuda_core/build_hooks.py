@@ -30,12 +30,12 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 @functools.cache
 def _get_cuda_paths() -> list[str]:
-    CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
-    if not CUDA_PATH:
+    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+    if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    CUDA_PATH = CUDA_PATH.split(os.pathsep)
-    print("CUDA paths:", CUDA_PATH)
-    return CUDA_PATH
+    cuda_path = cuda_path.split(os.pathsep)
+    print("CUDA paths:", cuda_path)
+    return cuda_path
 
 
 @functools.cache
@@ -132,7 +132,7 @@ def _build_cuda_core():
 
         return sources
 
-    all_include_dirs = list(os.path.join(root, "include") for root in _get_cuda_paths())
+    all_include_dirs = [os.path.join(root, "include") for root in _get_cuda_paths()]
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not

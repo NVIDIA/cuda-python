@@ -10,9 +10,11 @@
 #
 # ################################################################################
 
+import sys
 import time
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 
@@ -86,7 +88,7 @@ def main():
     # Sync before graph capture
     dev.sync()
 
-    print("Building CUDA graph...")
+    print("Building CUDA graph...", file=sys.stderr)
 
     # Build the graph
     graph_builder = stream.create_graph_builder()
@@ -105,13 +107,11 @@ def main():
     # Complete the graph
     graph = graph_builder.end_building().complete()
 
-    print("Graph built successfully!")
-
     # Upload the graph to the stream
     graph.upload(stream)
 
     # Execute the entire graph with a single launch
-    print("Executing graph...")
+    print("Executing graph...", file=sys.stderr)
     start_time = time.time()
     graph.launch(stream)
     stream.sync()
@@ -125,14 +125,12 @@ def main():
     expected_result2 = expected_result1 * c
     expected_result3 = expected_result2 - a
 
-    print("Verifying results...")
     assert cp.allclose(result1, expected_result1, rtol=1e-5, atol=1e-5), "Result 1 mismatch"
     assert cp.allclose(result2, expected_result2, rtol=1e-5, atol=1e-5), "Result 2 mismatch"
     assert cp.allclose(result3, expected_result3, rtol=1e-5, atol=1e-5), "Result 3 mismatch"
-    print("All results verified successfully!")
 
     # Demonstrate performance benefit by running the same operations without graph
-    print("\nRunning same operations without graph for comparison...")
+    print("\nRunning same operations without graph for comparison...", file=sys.stderr)
 
     # Reset results
     result1.fill(0)
@@ -162,8 +160,6 @@ def main():
     assert cp.allclose(result3, expected_result3, rtol=1e-5, atol=1e-5), "Result 3 mismatch"
 
     cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
-
-    print("\nExample completed successfully!")
 
 
 if __name__ == "__main__":
