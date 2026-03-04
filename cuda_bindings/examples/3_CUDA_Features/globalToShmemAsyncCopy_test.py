@@ -743,8 +743,8 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
     h_C = checkCudaErrors(cudart.cudaMallocHost(mem_size_C))
 
     if h_C == 0:
-        print("Failed to allocate host matri C!")
-        exit(-1)
+        print("Failed to allocate host matrix C!", file=sys.stderr)
+        sys.exit(1)
 
     d_A = checkCudaErrors(cudart.cudaMalloc(mem_size_A))
     d_B = checkCudaErrors(cudart.cudaMalloc(mem_size_B))
@@ -917,7 +917,6 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
             )
         )  # arguments
 
-    print("done")
     checkCudaErrors(cudart.cudaStreamSynchronize(stream))
 
     # Execute the kernel
@@ -1076,7 +1075,6 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
     checkCudaErrors(cudart.cudaMemcpyAsync(h_C, d_C, mem_size_C, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost, stream))
     checkCudaErrors(cudart.cudaStreamSynchronize(stream))
 
-    print("Checking computed result for correctness: ")
     correct = True
 
     # test relative error by the formula
@@ -1091,10 +1089,14 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
         rel_err = abs_err / abs_val / dot_length
 
         if rel_err > eps:
-            print(f"Error! Matrix[{i:.5f}]={h_C_local[i]:.8f} ref={dimsA.x * valB:.8f} err term is > {rel_err}")
+            print(
+                f"Error! Matrix[{i:.5f}]={h_C_local[i]:.8f} ref={dimsA.x * valB:.8f} err term is > {rel_err}",
+                file=sys.stderr,
+            )
             correct = False
 
-    print("Result = PASS" if correct else "Result = FAIL")
+    if not correct:
+        print("Result = FAIL", file=sys.stderr)
 
     # Clean up memory
     checkCudaErrors(cudart.cudaFreeHost(h_A))
@@ -1115,31 +1117,35 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
 
 
 def main():
+    import pytest
+
     common.pytest_skipif_compute_capability_too_low(findCudaDevice(), (7, 0))
 
-    print("[globalToShmemAsyncCopy] - Starting...")
-
     if platform.machine() == "qnx":
-        print("globalToShmemAsyncCopy is not supported on QNX - waiving sample")
-        return
+        pytest.skip("globalToShmemAsyncCopy is not supported on QNX")
 
     version = checkCudaErrors(cuda.cuDriverGetVersion())
     if version < 11010:
-        print("CUDA Toolkit 11.1 or greater is required")
-        return
+        pytest.skip("CUDA Toolkit 11.1 or greater is required")
 
     if checkCmdLineFlag("help") or checkCmdLineFlag("?"):
-        print("Usage device=n (n >= 0 for deviceID)")
-        print("      wA=WidthA hA=HeightA (Width x Height of Matrix A)")
-        print("      wB=WidthB hB=HeightB (Width x Height of Matrix B)")
-        print("      kernel=kernel_number (0 - AsyncCopyMultiStageLargeChunk; 1 - AsyncCopyLargeChunk)")
-        print("                            (2 - AsyncCopyLargeChunkAWBarrier; 3 - AsyncCopyMultiStageSharedState)")
+        print("Usage device=n (n >= 0 for deviceID)", file=sys.stderr)
+        print("      wA=WidthA hA=HeightA (Width x Height of Matrix A)", file=sys.stderr)
+        print("      wB=WidthB hB=HeightB (Width x Height of Matrix B)", file=sys.stderr)
         print(
-            "                            (4 - AsyncCopyMultiStage; 5 - AsyncCopySingleStage; 6 - Naive without memcpy_async)"
+            "      kernel=kernel_number (0 - AsyncCopyMultiStageLargeChunk; 1 - AsyncCopyLargeChunk)", file=sys.stderr
         )
-        print("                            (7 - NaiveLargeChunk without memcpy_async)")
-        print("  Note: Outer matrix dimensions of A & B matrices must be equal.")
-        return
+        print(
+            "                            (2 - AsyncCopyLargeChunkAWBarrier; 3 - AsyncCopyMultiStageSharedState)",
+            file=sys.stderr,
+        )
+        print(
+            "                            (4 - AsyncCopyMultiStage; 5 - AsyncCopySingleStage; 6 - Naive without memcpy_async)",
+            file=sys.stderr,
+        )
+        print("                            (7 - NaiveLargeChunk without memcpy_async)", file=sys.stderr)
+        print("  Note: Outer matrix dimensions of A & B matrices must be equal.", file=sys.stderr)
+        sys.exit(1)
 
     # This will pick the best possible CUDA capable device, otherwise
     # override the device ID based on input provided at the command line
@@ -1170,8 +1176,8 @@ def main():
         dimsB.y = int(getCmdLineArgumentInt("hB="))
 
     if dimsA.x != dimsB.y:
-        print(f"Error: outer matrix dimensions must be equal. ({dimsA.x} != {dimsB.y})")
-        sys.exit(-1)
+        print(f"Error: outer matrix dimensions must be equal. ({dimsA.x} != {dimsB.y})", file=sys.stderr)
+        sys.exit(1)
 
     selected_kernel = kernels.AsyncCopyMultiStageLargeChunk
 
@@ -1181,15 +1187,14 @@ def main():
         if kernel_number < 8:
             selected_kernel = kernels(kernel_number)
         else:
-            print("Error: kernel number should be between 0 to 7, you have entered %d".format())
-            sys.exit(-1)
+            print("Error: kernel number should be between 0 to 7", file=sys.stderr)
+            sys.exit(1)
 
     major = checkCudaErrors(
         cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, devID)
     )
     if major < 7:
-        print("globalToShmemAsyncCopy requires SM 7.0 or higher.  Exiting...")
-        return
+        pytest.skip("globalToShmemAsyncCopy requires SM 7.0 or higher.")
 
     print(f"MatrixA({dimsA.x},{dimsA.y}), MatrixB({dimsB.x},{dimsB.y})")
 
@@ -1214,7 +1219,7 @@ def main():
     matrix_result = MatrixMultiply(dimsA, dimsB, selected_kernel)
 
     if matrix_result != 0:
-        sys.exit(-1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

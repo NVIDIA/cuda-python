@@ -354,7 +354,6 @@ def main():
         resource.close()
 
     pyglet.app.run(interval=0)
-    print("done!")
 
 
 # ======================== GPU code (CUDA + GLSL) ============================

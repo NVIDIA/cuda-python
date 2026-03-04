@@ -62,4 +62,3 @@ s.sync()
 
 # check result
 assert cp.allclose(c, a + b)
-print("done!")

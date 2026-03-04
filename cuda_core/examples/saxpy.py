@@ -115,5 +115,3 @@ assert cp.allclose(out, a * x + y)
 # cupy cleans up automatically the rest
 buf.close(s)
 s.close()
-
-print("done!")

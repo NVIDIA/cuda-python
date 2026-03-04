@@ -28,7 +28,7 @@ from cuda.core import (
 
 if np.__version__ < "2.1.0":
     print("This example requires NumPy 2.1.0 or later", file=sys.stderr)
-    sys.exit(0)
+    sys.exit(1)
 
 # Kernel for memory operations
 code = """
@@ -102,7 +102,7 @@ assert cp.allclose(device_array, device_original + 1.0), "Device memory operatio
 assert cp.allclose(pinned_array, pinned_original * 3.0), "Pinned memory operation failed"
 
 # Copy data between different memory types
-print("\nCopying data between memory types...")
+print("\nCopying data between memory types...", file=sys.stderr)
 
 # Copy from device to pinned memory
 device_buffer.copy_to(pinned_buffer, stream=stream)
@@ -132,5 +132,3 @@ cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 assert device_buffer.handle == 0, "Device buffer should be closed"
 assert pinned_buffer.handle == 0, "Pinned buffer should be closed"
 assert new_device_buffer.handle == 0, "New device buffer should be closed"
-
-print("Memory management example completed!")

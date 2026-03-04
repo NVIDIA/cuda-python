@@ -91,8 +91,9 @@ def main():
         f"CUDA device [{deviceProps.name}] has {deviceProps.multiProcessorCount} Multi-Processors SM {deviceProps.major}.{deviceProps.minor}"
     )
     if deviceProps.major < 2:
-        print("Test requires SM 2.0 or higher for support of Texture Arrays.  Test will exit...")
-        sys.exit()
+        import pytest
+
+        pytest.skip("Test requires SM 2.0 or higher for support of Texture Arrays.")
 
     # Generate input data for layered texture
     width = 64
@@ -209,12 +210,10 @@ def main():
     checkCudaErrors(cudart.cudaFree(d_data))
     checkCudaErrors(cudart.cudaFreeArray(cu_3darray))
 
-    print("Comparing kernel output to expected data")
     MIN_EPSILON_ERROR = 5.0e-3
     if np.max(np.abs(h_odata - h_data_ref)) > MIN_EPSILON_ERROR:
-        print("Failed")
-        sys.exit(-1)
-    print("Passed")
+        print("Failed", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
