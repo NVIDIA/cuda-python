@@ -415,7 +415,7 @@ def _build_cuda_bindings(strip=False):
     _extensions = cythonize(
         extensions,
         nthreads=nthreads,
-        build_dir="build/cython",
+        build_dir="." if compile_for_coverage else "build/cython",
         compiler_directives=cython_directives,
         **extra_cythonize_kwargs,
     )
