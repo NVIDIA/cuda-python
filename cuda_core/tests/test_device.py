@@ -6,8 +6,9 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-import cuda.core
 import pytest
+
+import cuda.core
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
@@ -318,8 +319,8 @@ def test_device_property_types(property_name, expected_type):
 
 def test_device_properties_complete():
     device = Device()
-    live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
-    tab_props = set(attr for attr, _ in cuda_base_properties)
+    live_props = {attr for attr in dir(device.properties) if not attr.startswith("_")}
+    tab_props = {attr for attr, _ in cuda_base_properties}
 
     excluded_props = set()
     # Exclude CUDA 13+ specific properties when not available

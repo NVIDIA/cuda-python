@@ -59,7 +59,6 @@ def exec_launch_failure(obj, number=1):
 
 def child_main_bad():
     """Fails when passed arguments."""
-    pass
 
 
 def exec_reduce_failure(obj, number=1):

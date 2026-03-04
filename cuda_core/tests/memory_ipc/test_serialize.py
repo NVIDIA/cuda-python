@@ -6,8 +6,9 @@ import multiprocessing.reduction
 import os
 
 import pytest
-from cuda.core import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen
+
+from cuda.core import Buffer, Device, DeviceMemoryResource
 
 CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
@@ -158,7 +159,7 @@ class TestObjectPassing:
     def child_main(self, alloc_handle, mr1, buffer_desc, buffer):
         device = Device()
         device.set_current()
-        mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)  # noqa: F841
+        mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         pgen = PatternGen(device, NBYTES)
 
         # Verify initial content

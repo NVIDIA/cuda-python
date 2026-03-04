@@ -8,6 +8,7 @@ import sys
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -165,28 +166,24 @@ def verify(testData, length):
 
 
 def main():
+    import pytest
+
     if os.name == "nt":
-        print("Atomics not supported on Windows")
-        return
+        pytest.skip("Atomics not supported on Windows")
 
     # set device
     dev_id = findCudaDevice()
     device_prop = checkCudaErrors(cudart.cudaGetDeviceProperties(dev_id))
 
     if not device_prop.managedMemory:
-        # This samples requires being run on a device that supports Unified Memory
-        print("Unified Memory not supported on this device")
-        return
+        pytest.skip("Unified Memory not supported on this device")
 
     computeMode = checkCudaErrors(cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeMode, dev_id))
     if computeMode == cudart.cudaComputeMode.cudaComputeModeProhibited:
-        # This sample requires being run with a default or process exclusive mode
-        print("This sample requires a device in either default or process exclusive mode")
-        return
+        pytest.skip("This sample requires a device in either default or process exclusive mode")
 
     if device_prop.major < 6:
-        print("Requires a minimum CUDA compute 6.0 capability, waiving testing.")
-        return
+        pytest.skip("Requires a minimum CUDA compute 6.0 capability")
 
     numThreads = 256
     numBlocks = 64
@@ -240,9 +237,9 @@ def main():
     else:
         checkCudaErrors(cudart.cudaFree(atom_arr))
 
-    print("systemWideAtomics completed, returned {}".format("OK" if testResult else "ERROR!"))
     if not testResult:
-        sys.exit(-1)
+        print("systemWideAtomics completed with errors", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

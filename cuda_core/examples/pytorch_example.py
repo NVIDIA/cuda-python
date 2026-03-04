@@ -15,6 +15,7 @@
 import sys
 
 import torch
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # SAXPY kernel - passing a as a pointer to avoid any type issues
@@ -34,7 +35,7 @@ dev.set_current()
 
 # Get PyTorch's current stream
 pt_stream = torch.cuda.current_stream()
-print(f"PyTorch stream: {pt_stream}")
+print(f"PyTorch stream: {pt_stream}", file=sys.stderr)
 
 
 # Create a wrapper class that implements __cuda_stream__
@@ -81,7 +82,6 @@ launch(s, config, ker, *ker_args)
 
 # check result
 assert torch.allclose(out, a.item() * x + y)
-print("Single precision test passed!")
 
 # let's repeat again with double precision
 ker = mod.get_kernel("saxpy_kernel<double>")
@@ -108,5 +108,3 @@ launch(s, config, ker, *ker_args)
 
 # check result
 assert torch.allclose(out, a * x + y)
-print("Double precision test passed!")
-print("All tests passed successfully!")

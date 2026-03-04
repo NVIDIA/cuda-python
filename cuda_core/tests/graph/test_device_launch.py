@@ -12,6 +12,7 @@ This feature requires:
 
 import numpy as np
 import pytest
+
 from cuda.core import (
     Device,
     GraphCompleteOptions,

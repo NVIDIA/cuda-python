@@ -117,7 +117,7 @@ def flatten_mask2str(mask, ndim):
 
 def random_permutations(rng, perm_len, cutoff_len=3, sample_size=6):
     if perm_len <= cutoff_len:
-        return [perm for perm in itertools.permutations(range(perm_len))]
+        return list(itertools.permutations(range(perm_len)))
     perms = []
     for _ in range(sample_size):
         perm = list(range(perm_len))

@@ -11,6 +11,7 @@ import sys
 
 import numpy as np
 import pytest
+
 from cuda.core import (
     Buffer,
     Device,

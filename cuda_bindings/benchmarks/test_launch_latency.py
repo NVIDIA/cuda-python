@@ -4,10 +4,10 @@
 import ctypes
 
 import pytest
-from cuda.bindings import driver as cuda
 from kernels import kernel_string
 
 from conftest import ASSERT_DRV
+from cuda.bindings import driver as cuda
 
 
 def launch(kernel, stream, args=(), arg_types=()):

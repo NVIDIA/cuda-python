@@ -62,6 +62,7 @@ import sys
 import time
 
 import numpy as np
+
 from cuda.core import (
     Device,
     GraphicsResource,
@@ -353,7 +354,6 @@ def main():
         resource.close()
 
     pyglet.app.run(interval=0)
-    print("done!")
 
 
 # ======================== GPU code (CUDA + GLSL) ============================

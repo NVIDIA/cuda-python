@@ -5,8 +5,9 @@ import pathlib
 import sys
 from importlib.metadata import PackageNotFoundError, distribution
 
-import cuda.bindings.driver as cuda
 import pytest
+
+import cuda.bindings.driver as cuda
 
 # Import shared test helpers for tests across subprojects.
 # PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.

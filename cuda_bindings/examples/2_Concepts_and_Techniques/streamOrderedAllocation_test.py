@@ -11,6 +11,7 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 from common.helper_string import checkCmdLineFlag
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -91,9 +92,6 @@ def basicStreamOrderedAllocation(dev, nelem, a, b, c):
 
     errorNorm = math.sqrt(errorNorm)
     refNorm = math.sqrt(refNorm)
-
-    if errorNorm / refNorm < 1.0e-6:
-        print("basicStreamOrderedAllocation PASSED")
 
     checkCudaErrors(cudart.cudaStreamDestroy(stream))
 
@@ -188,25 +186,23 @@ def streamOrderedAllocationPostSync(dev, nelem, a, b, c):
     errorNorm = math.sqrt(errorNorm)
     refNorm = math.sqrt(refNorm)
 
-    if errorNorm / refNorm < 1.0e-6:
-        print("streamOrderedAllocationPostSync PASSED")
-
     checkCudaErrors(cudart.cudaStreamDestroy(stream))
 
     return errorNorm / refNorm < 1.0e-6
 
 
 def main():
+    import pytest
+
     if platform.system() == "Darwin":
-        print("streamOrderedAllocation is not supported on Mac OSX - waiving sample")
-        return
+        pytest.skip("streamOrderedAllocation is not supported on Mac OSX")
 
     cuda.cuInit(0)
     if checkCmdLineFlag("help"):
-        print("Usage:  streamOrderedAllocation [OPTION]\n")
-        print("Options:")
-        print("  device=[device #]  Specify the device to be used")
-        return
+        print("Usage:  streamOrderedAllocation [OPTION]\n", file=sys.stderr)
+        print("Options:", file=sys.stderr)
+        print("  device=[device #]  Specify the device to be used", file=sys.stderr)
+        sys.exit(1)
 
     dev = findCudaDevice()
 
@@ -218,8 +214,7 @@ def main():
             cudart.cudaDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev)
         )
     if not isMemPoolSupported:
-        print("Waiving execution as device does not support Memory Pools")
-        return
+        pytest.skip("Waiving execution as device does not support Memory Pools")
 
     global _vectorAddGPU
     kernelHelper = common.KernelHelper(streamOrderedAllocation, dev)
@@ -241,7 +236,7 @@ def main():
     ret2 = streamOrderedAllocationPostSync(dev, nelem, a, b, c)
 
     if not ret1 or not ret2:
-        sys.exit(-1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

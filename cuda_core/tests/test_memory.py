@@ -17,6 +17,14 @@ import platform
 import re
 
 import pytest
+from helpers import IS_WINDOWS, supports_ipc_mempool
+from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
+
+from conftest import (
+    create_managed_memory_resource_or_skip,
+    skip_if_managed_memory_unsupported,
+    skip_if_pinned_memory_unsupported,
+)
 from cuda.core import (
     Buffer,
     Device,
@@ -38,14 +46,6 @@ from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
-from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyUnifiedMemoryResource, TrackingMR
-
-from conftest import (
-    create_managed_memory_resource_or_skip,
-    skip_if_managed_memory_unsupported,
-    skip_if_pinned_memory_unsupported,
-)
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -1223,11 +1223,11 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     device.set_current()
 
     if MR is DeviceMemoryResource:
-        mr = MR(device, dict(max_size=POOL_SIZE))
+        mr = MR(device, {"max_size": POOL_SIZE})
     elif MR is PinnedMemoryResource:
-        mr = MR(dict(max_size=POOL_SIZE))
+        mr = MR({"max_size": POOL_SIZE})
     elif MR is ManagedMemoryResource:
-        mr = create_managed_memory_resource_or_skip(dict())
+        mr = create_managed_memory_resource_or_skip({})
 
     attributes = mr.attributes
     mr.close()
