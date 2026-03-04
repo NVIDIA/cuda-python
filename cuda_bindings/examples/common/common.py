@@ -66,15 +66,6 @@ class KernelHelper:
 
         try:
             checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
-        except RuntimeError as err:
-            logSize = checkCudaErrors(nvrtc.nvrtcGetProgramLogSize(prog))
-            log = b" " * logSize
-            checkCudaErrors(nvrtc.nvrtcGetProgramLog(prog, log))
-            import sys
-
-            print(log.decode(), file=sys.stderr)
-            print(err, file=sys.stderr)
-            sys.exit(1)
 
             if use_cubin:
                 dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))
@@ -84,6 +75,15 @@ class KernelHelper:
                 dataSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
                 data = b" " * dataSize
                 checkCudaErrors(nvrtc.nvrtcGetPTX(prog, data))
+        except RuntimeError as err:
+            logSize = checkCudaErrors(nvrtc.nvrtcGetProgramLogSize(prog))
+            log = b" " * logSize
+            checkCudaErrors(nvrtc.nvrtcGetProgramLog(prog, log))
+            import sys
+
+            print(log.decode(), file=sys.stderr)
+            print(err, file=sys.stderr)
+            sys.exit(1)
         finally:
             checkCudaErrors(nvrtc.nvrtcDestroyProgram(prog))
 
