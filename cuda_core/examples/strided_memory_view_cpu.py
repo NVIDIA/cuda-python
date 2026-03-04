@@ -126,9 +126,8 @@ def _run_example(cpu_prog, cpu_func):
 
 def run():
     cpu_prog = _create_cpu_program()
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with _compiled_cpu_func(cpu_prog, temp_dir) as cpu_func:
-            _run_example(cpu_prog, cpu_func)
+    with tempfile.TemporaryDirectory() as temp_dir, _compiled_cpu_func(cpu_prog, temp_dir) as cpu_func:
+        _run_example(cpu_prog, cpu_func)
 
 
 if __name__ == "__main__":
