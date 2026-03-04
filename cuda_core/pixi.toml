@@ -26,7 +26,6 @@ pyglet = "*"
 
 [feature.examples.target.linux.dependencies]
 cupy = "*"
-pytorch = "*"
 pytorch-gpu = "*"
 libgl-devel = "*"
 gxx = "*"
