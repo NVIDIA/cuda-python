@@ -135,20 +135,6 @@ cdef class DeviceMemoryResource(_MemPool):
     def __init__(self, device_id: Device | int, options=None):
         _DMR_init(self, device_id, options)
 
-    def __dealloc__(self):
-        try:
-            self.close()
-        except Exception:
-            pass
-
-    def close(self):
-        """Close the memory resource, revoking peer access before destruction."""
-        # nvbug 5698116: clear peer access before pool destruction; also
-        # needed for non-owned (default) pools to undo modifications.
-        if self._peer_accessible_by:
-            _DMR_set_peer_accessible_by(self, [])
-        super().close()
-
     def __reduce__(self):
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
