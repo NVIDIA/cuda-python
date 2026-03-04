@@ -98,7 +98,7 @@ jobs:
 
       - name: Build cuda-pathfinder
         run: |
-          .venv/bin/pip install -v ./cuda_pathfinder
+          .venv/bin/pip install -v ./cuda_pathfinder --group test
 
       - name: Build cuda-bindings
         run: |
@@ -306,6 +306,7 @@ jobs:
         run: |
           .venv/Scripts/pip install -v ./cuda_python_test_helpers
           .venv/Scripts/pip install coverage pytest-cov Cython
+          .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
