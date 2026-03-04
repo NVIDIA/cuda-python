@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core 0.2.0 Release Notes &#8212; cuda.core</title>
+    <title>cuda.core 0.7.x Release Notes &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.2.0-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.7.x-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,11 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/release/0.2.0-notes.html" />
+    <link rel="canonical" href="docs/release/0.7.x-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core 0.3.0 Release Notes" href="0.3.0-notes.html" />
-    <link rel="prev" title="cuda.core 0.1.1 Release Notes" href="0.1.1-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -246,7 +244,7 @@
 </li>
 
 
-<li class=" current active">
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../release.html">
     Release Notes
   </a>
@@ -435,7 +433,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../release.html">
     Release Notes
   </a>
@@ -572,8 +570,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.5.0-notes.html">0.5.0</a></li>
@@ -583,7 +581,7 @@
 <li class="toctree-l2"><a class="reference internal" href="0.3.2-notes.html">0.3.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.3.1-notes.html">0.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.3.0-notes.html">0.3.0</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.2.0-notes.html">0.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.1.1-notes.html">0.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.1.0-notes.html">0.1.0</a></li>
 </ul>
@@ -622,10 +620,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.7.x Release Notes</span></li>
   </ul>
 </nav>
 </div>
@@ -642,63 +637,35 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-0-2-0-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes<a class="headerlink" href="#cuda-core-0-2-0-release-notes" title="Link to this heading">#</a></h1>
-<p>Released on March 17, 2025</p>
+  <section id="cuda-core-0-7-x-release-notes">
+<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.7.x Release Notes<a class="headerlink" href="#cuda-core-0-7-x-release-notes" title="Link to this heading">#</a></h1>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Add <code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code> to facilitate the passing of runtime compile options to <code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code>.</p></li>
-<li><p>Add pythonic access to <code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code> attributes.</p></li>
-</ul>
+<p>None.</p>
 </section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">stream</span></code> attribute is removed from <code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code>. Instead, the <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object should now be directly passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code> as an argument.</p></li>
-<li><p>The signature for <code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code> is changed by swapping positional arguments, the new signature is now <code class="docutils literal notranslate"><span class="pre">(stream,</span> <span class="pre">config,</span> <span class="pre">kernel,</span> <span class="pre">*kernel_args)</span></code></p></li>
-<li><p>Change <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> from attribute to method.</p></li>
-<li><p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code> method no longer accepts the <code class="docutils literal notranslate"><span class="pre">options</span></code> argument. Instead, you can optionally pass an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code> to the constructor of <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code>.</p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.properties()</span></code> now provides attribute getters instead of a dictionary interface.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">.handle</span></code> attribute of various <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> objects now returns the underlying Python object instead of a (type-erased) Python integer.</p></li>
+<li><p>Building <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> from source now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.0, due to Cython-level
+dependencies on the NVVM and nvJitLink bindings (<code class="docutils literal notranslate"><span class="pre">cynvvm</span></code>, <code class="docutils literal notranslate"><span class="pre">cynvjitlink</span></code>). Pre-built wheels
+are unaffected. The previous minimum was 12.8.0.</p></li>
 </ul>
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Expose <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code> as a public API, which allows loading cubins from memory or disk. For loading other kinds of code types, please continue using <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code>.</p></li>
-<li><p>A C++ helper function <code class="docutils literal notranslate"><span class="pre">get_cuda_native_handle()</span></code> is provided in the new <code class="docutils literal notranslate"><span class="pre">include/utility.cuh</span></code> header to retrive the underlying CUDA C objects (ex: <code class="docutils literal notranslate"><span class="pre">CUstream</span></code>) from a Python object returned by the <code class="docutils literal notranslate"><span class="pre">.handle</span></code> attribute (ex: <code class="xref py py-attr docutils literal notranslate"><span class="pre">Stream.handle</span></code>).</p></li>
-<li><p>For objects such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code> that could dispatch to different backends, a new <code class="docutils literal notranslate"><span class="pre">.backend</span></code> attribute is provided to query this information.</p></li>
-<li><p>Support CUDA <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code> timing. (#481, #498, #508)</p></li>
-<li><p>An <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code> may now be created without recording it to a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> using the <code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_event()</span></code> method.</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code> now supports the additional <code class="docutils literal notranslate"><span class="pre">PTX</span></code> code type. (#317)</p></li>
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.link()</span></code> exceptions now include the original error log. (#423)</p></li>
-<li><p>In a systematic sweep through the cuda.core implementations, many exceptions messages were made more consistent and informative. (#458)</p></li>
-</ul>
+<p>None.</p>
 </section>
 <section id="new-examples">
 <h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">jit_lto_fractal.py</span></code> — Demonstrates just-in-time link-time optimization for fractal generation. (<code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LinkerOptions</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code>) (#475)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">simple_multi_gpu_example.py</span></code> — Example of using multiple GPUs. (<code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code>) (#304)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">show_device_properties.py</span></code> — Displays detailed device properties. (<code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code>) (#474)</p></li>
-</ul>
+<p>None.</p>
 </section>
-<section id="minor-fixes-and-enhancements">
-<h2>Minor fixes and enhancements<a class="headerlink" href="#minor-fixes-and-enhancements" title="Link to this heading">#</a></h2>
+<section id="fixes-and-enhancements">
+<h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>A dangling pointer problem in <code class="docutils literal notranslate"><span class="pre">_linker.py</span></code> was fixed. (#516)</p></li>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">&#64;functools.lru_cache</span></code> decorator for <code class="xref py py-func docutils literal notranslate"><span class="pre">get_binding_version()</span></code>. (#512)</p></li>
-<li><p>Selected <code class="docutils literal notranslate"><span class="pre">.decode()</span></code> were changed to <code class="docutils literal notranslate"><span class="pre">.decode(&quot;utf-8&quot;,</span> <span class="pre">errors=&quot;backslashreplace&quot;)</span></code> to ensure that decoding error messages does not abort the process. (#510)</p></li>
-<li><p>The performance of <code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.compute_capability()</span></code> was improved. (#459)</p></li>
-<li><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code> constructor now issues a warning when falling back to <code class="xref py py-func docutils literal notranslate"><span class="pre">cuLink()</span></code>. (#315)</p></li>
-<li><p>To avoid deprecation warnings, the cuda.bindings imports in the cuda.core implementations were cleaned up. (#404)</p></li>
-</ul>
-</section>
-<section id="test-fixes">
-<h2>Test fixes<a class="headerlink" href="#test-fixes" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Clean up device initialization in some tests. (#507)</p></li>
+<li><p>Reduced Python overhead in <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> by moving compilation and
+linking operations to the C level and releasing the GIL during backend calls. This benefits
+workloads that create many programs or linkers, and enables concurrent compilation in
+multithreaded applications.</p></li>
 </ul>
 </section>
 </section>
@@ -713,24 +680,6 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="0.1.1-notes.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="0.3.0-notes.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -756,8 +705,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-examples">New examples</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-fixes-and-enhancements">Minor fixes and enhancements</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-fixes">Test fixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
   </nav></div>
 
