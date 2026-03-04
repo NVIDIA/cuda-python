@@ -343,7 +343,7 @@ class LinkerOptions:
         formatted_options = []
         option_keys = []
 
-        # allocate 4 KiB each for info/error logs
+        # allocate a fixed-sized buffer for each info/error log
         size = 4194304
         formatted_options.extend((bytearray(size), size, bytearray(size), size))
         option_keys.extend(
