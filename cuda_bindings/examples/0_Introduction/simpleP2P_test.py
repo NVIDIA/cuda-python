@@ -147,28 +147,24 @@ def main():
     print(f"Run kernel on GPU{gpuid[1]}, taking source data from GPU{gpuid[0]} and writing to GPU{gpuid[1]}...")
     checkCudaErrors(cudart.cudaSetDevice(gpuid[1]))
 
-    kernelHelper = [None] * 2
-    _simpleKernel = [None] * 2
-    kernelArgs = [None] * 2
-
-    kernelHelper[1] = common.KernelHelper(simplep2p, gpuid[1])
-    _simpleKernel[1] = kernelHelper[1].getFunction(b"SimpleKernel")
-    kernelArgs[1] = ((g0, g1), (ctypes.c_void_p, ctypes.c_void_p))
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _simpleKernel[1],
-            blocks.x,
-            blocks.y,
-            blocks.z,
-            threads.x,
-            threads.y,
-            threads.z,
-            0,
-            0,
-            kernelArgs[1],
-            0,
+    with common.KernelHelper(simplep2p, gpuid[1]) as kernelHelper:
+        simple_kernel_1 = kernelHelper.getFunction(b"SimpleKernel")
+        kernel_args_1 = ((g0, g1), (ctypes.c_void_p, ctypes.c_void_p))
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                simple_kernel_1,
+                blocks.x,
+                blocks.y,
+                blocks.z,
+                threads.x,
+                threads.y,
+                threads.z,
+                0,
+                0,
+                kernel_args_1,
+                0,
+            )
         )
-    )
 
     checkCudaErrors(cudart.cudaDeviceSynchronize())
 
@@ -176,24 +172,24 @@ def main():
     # output to the GPU 0 buffer
     print(f"Run kernel on GPU{gpuid[0]}, taking source data from GPU{gpuid[1]} and writing to GPU{gpuid[0]}...")
     checkCudaErrors(cudart.cudaSetDevice(gpuid[0]))
-    kernelHelper[0] = common.KernelHelper(simplep2p, gpuid[0])
-    _simpleKernel[0] = kernelHelper[0].getFunction(b"SimpleKernel")
-    kernelArgs[0] = ((g1, g0), (ctypes.c_void_p, ctypes.c_void_p))
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _simpleKernel[0],
-            blocks.x,
-            blocks.y,
-            blocks.z,
-            threads.x,
-            threads.y,
-            threads.z,
-            0,
-            0,
-            kernelArgs[0],
-            0,
+    with common.KernelHelper(simplep2p, gpuid[0]) as kernelHelper:
+        simple_kernel_0 = kernelHelper.getFunction(b"SimpleKernel")
+        kernel_args_0 = ((g1, g0), (ctypes.c_void_p, ctypes.c_void_p))
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                simple_kernel_0,
+                blocks.x,
+                blocks.y,
+                blocks.z,
+                threads.x,
+                threads.y,
+                threads.z,
+                0,
+                0,
+                kernel_args_0,
+                0,
+            )
         )
-    )
 
     checkCudaErrors(cudart.cudaDeviceSynchronize())
 

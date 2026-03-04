@@ -1206,17 +1206,17 @@ def main():
     global _MatrixMulAsyncCopySingleStage
     global _MatrixMulNaive
     global _MatrixMulNaiveLargeChunk
-    kernelHelper = common.KernelHelper(globalToShmemAsyncCopy, devID)
-    _MatrixMulAsyncCopyMultiStageLargeChunk = kernelHelper.getFunction(b"MatrixMulAsyncCopyMultiStageLargeChunk")
-    _MatrixMulAsyncCopyLargeChunk = kernelHelper.getFunction(b"MatrixMulAsyncCopyLargeChunk")
-    _MatrixMulAsyncCopyLargeChunkAWBarrier = kernelHelper.getFunction(b"MatrixMulAsyncCopyLargeChunkAWBarrier")
-    _MatrixMulAsyncCopyMultiStageSharedState = kernelHelper.getFunction(b"MatrixMulAsyncCopyMultiStageSharedState")
-    _MatrixMulAsyncCopyMultiStage = kernelHelper.getFunction(b"MatrixMulAsyncCopyMultiStage")
-    _MatrixMulAsyncCopySingleStage = kernelHelper.getFunction(b"MatrixMulAsyncCopySingleStage")
-    _MatrixMulNaive = kernelHelper.getFunction(b"MatrixMulNaive")
-    _MatrixMulNaiveLargeChunk = kernelHelper.getFunction(b"MatrixMulNaiveLargeChunk")
+    with common.KernelHelper(globalToShmemAsyncCopy, devID) as kernelHelper:
+        _MatrixMulAsyncCopyMultiStageLargeChunk = kernelHelper.getFunction(b"MatrixMulAsyncCopyMultiStageLargeChunk")
+        _MatrixMulAsyncCopyLargeChunk = kernelHelper.getFunction(b"MatrixMulAsyncCopyLargeChunk")
+        _MatrixMulAsyncCopyLargeChunkAWBarrier = kernelHelper.getFunction(b"MatrixMulAsyncCopyLargeChunkAWBarrier")
+        _MatrixMulAsyncCopyMultiStageSharedState = kernelHelper.getFunction(b"MatrixMulAsyncCopyMultiStageSharedState")
+        _MatrixMulAsyncCopyMultiStage = kernelHelper.getFunction(b"MatrixMulAsyncCopyMultiStage")
+        _MatrixMulAsyncCopySingleStage = kernelHelper.getFunction(b"MatrixMulAsyncCopySingleStage")
+        _MatrixMulNaive = kernelHelper.getFunction(b"MatrixMulNaive")
+        _MatrixMulNaiveLargeChunk = kernelHelper.getFunction(b"MatrixMulNaiveLargeChunk")
 
-    matrix_result = MatrixMultiply(dimsA, dimsB, selected_kernel)
+        matrix_result = MatrixMultiply(dimsA, dimsB, selected_kernel)
 
     if matrix_result != 0:
         sys.exit(1)
