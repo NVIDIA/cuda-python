@@ -406,7 +406,8 @@ cdef void* __nvmlDeviceSetRusdSettings_v1 = NULL
 
 
 cdef void* load_library() except* with gil:
-    return dlopen("libnvidia-ml.so.1", RTLD_NOW | RTLD_GLOBAL)
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvml")._handle_uint
+    return <void*>handle
 
 
 cdef int _init_nvml() except -1 nogil:
