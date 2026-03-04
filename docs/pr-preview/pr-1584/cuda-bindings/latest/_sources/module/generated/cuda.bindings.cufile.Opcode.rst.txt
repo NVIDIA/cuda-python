@@ -3,4 +3,40 @@
 
 .. currentmodule:: cuda.bindings.cufile
 
-.. autoenum:: Opcode
+.. autoclass:: Opcode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Opcode.__init__
+      ~Opcode.as_integer_ratio
+      ~Opcode.bit_count
+      ~Opcode.bit_length
+      ~Opcode.conjugate
+      ~Opcode.from_bytes
+      ~Opcode.is_integer
+      ~Opcode.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Opcode.READ
+      ~Opcode.WRITE
+      ~Opcode.denominator
+      ~Opcode.imag
+      ~Opcode.name
+      ~Opcode.numerator
+      ~Opcode.real
+      ~Opcode.value
+   
+   
