@@ -56,6 +56,9 @@ decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
 decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
+// Graph
+decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+
 // GL interop pointers
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
 
@@ -810,6 +813,28 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
 KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
     auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
     return KernelHandle(box, &box->resource);
+}
+
+// ============================================================================
+// Graph Handles
+// ============================================================================
+
+namespace {
+struct GraphBox {
+    CUgraph resource;
+};
+}  // namespace
+
+GraphHandle create_graph_handle(CUgraph graph) {
+    auto box = std::shared_ptr<const GraphBox>(
+        new GraphBox{graph},
+        [](const GraphBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphDestroy(b->resource);
+            delete b;
+        }
+    );
+    return GraphHandle(box, &box->resource);
 }
 
 // ============================================================================
