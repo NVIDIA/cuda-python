@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import pytest
+
 from cuda.bindings import driver, runtime
 from cuda.bindings._internal.utils import get_c_compiler
 from cuda.bindings.utils import get_cuda_native_handle, get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
@@ -75,7 +76,7 @@ def test_ptx_utils(kernel, actual_ptx_ver, min_cuda_ver):
     ),
 )
 def test_get_handle(target):
-    ptr = random.randint(1, 1024)  # noqa: S311
+    ptr = random.randint(1, 1024)
     obj = target(ptr)
     handle = get_cuda_native_handle(obj)
     assert handle == ptr

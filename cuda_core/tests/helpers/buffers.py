@@ -9,12 +9,12 @@ from cuda.core._utils.cuda_utils import driver, handle_return
 from . import libc
 
 __all__ = [
-    "compare_buffer_to_constant",
-    "compare_equal_buffers",
     "DummyUnifiedMemoryResource",
-    "make_scratch_buffer",
     "PatternGen",
     "TrackingMR",
+    "compare_buffer_to_constant",
+    "compare_equal_buffers",
+    "make_scratch_buffer",
 ]
 
 

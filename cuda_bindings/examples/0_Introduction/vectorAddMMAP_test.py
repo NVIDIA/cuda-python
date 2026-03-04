@@ -9,6 +9,7 @@ import sys
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
+
 from cuda.bindings import driver as cuda
 
 vectorAddMMAP = """\
@@ -189,23 +190,19 @@ def simpleFreeMultiDeviceMmap(dptr, size):
 
 
 def main():
-    print("Vector Addition (Driver API)")
+    import pytest
 
     if platform.system() == "Darwin":
-        print("vectorAddMMAP is not supported on Mac OSX - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        print("vectorAddMMAP is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        print("vectorAddMMAP is not supported on aarch64 - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        print("vectorAddMMAP is not supported on sbsa - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on sbsa")
 
     N = 50000
     size = N * np.dtype(np.float32).itemsize
@@ -224,8 +221,7 @@ def main():
     )
     print(f"Device {cuDevice} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {attributeVal}.")
     if not attributeVal:
-        print(f"Device {cuDevice} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
-        return
+        pytest.skip(f"Device {cuDevice} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
 
     # The vector addition happens on cuDevice, so the allocations need to be mapped there.
     mappingDevices = [cuDevice]
@@ -298,9 +294,9 @@ def main():
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
 
-    print("{}".format("Result = PASS" if i + 1 == N else "Result = FAIL"))
     if i + 1 != N:
-        sys.exit(-1)
+        print("Result = FAIL", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

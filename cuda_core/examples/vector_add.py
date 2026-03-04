@@ -10,6 +10,7 @@
 # ################################################################################
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute c = a + b
@@ -61,4 +62,3 @@ s.sync()
 
 # check result
 assert cp.allclose(c, a + b)
-print("done!")

@@ -6,7 +6,6 @@
 # Replace the dictionary below with the output.
 # Also update the CUDA Toolkit version number below.
 
-# ruff: noqa: E501
 # CUDA Toolkit v13.1.0
 DRIVER_CU_RESULT_EXPLANATIONS = {
     0: (

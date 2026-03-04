@@ -176,12 +176,12 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
             CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
             print(f"Found CUDA_VERSION: {CUDA_VERSION}", flush=True)
 
-        found_types += {key for key in parser.defs["types"]}
-        found_types += {key for key in parser.defs["structs"]}
-        found_types += {key for key in parser.defs["unions"]}
-        found_types += {key for key in parser.defs["enums"]}
-        found_functions += {key for key in parser.defs["functions"]}
-        found_values += {key for key in parser.defs["values"]}
+        found_types += set(parser.defs["types"])
+        found_types += set(parser.defs["structs"])
+        found_types += set(parser.defs["unions"])
+        found_types += set(parser.defs["enums"])
+        found_functions += set(parser.defs["functions"])
+        found_values += set(parser.defs["values"])
 
         for key, value in parser.defs["structs"].items():
             struct_list[key] = _Struct(key, value["members"])
@@ -189,7 +189,7 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
             struct_list[key] = _Struct(key, value["members"])
 
         for key, value in struct_list.items():
-            if key.startswith("anon_union") or key.startswith("anon_struct"):
+            if key.startswith(("anon_union", "anon_struct")):
                 continue
 
             found_struct += [key]
@@ -408,14 +408,14 @@ def _build_cuda_bindings(strip=False):
         )
 
     # Cythonize
-    cython_directives = dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True)
+    cython_directives = {"language_level": 3, "embedsignature": True, "binding": True, "freethreading_compatible": True}
     if compile_for_coverage:
         cython_directives["linetrace"] = True
 
     _extensions = cythonize(
         extensions,
         nthreads=nthreads,
-        build_dir="build/cython",
+        build_dir="." if compile_for_coverage else "build/cython",
         compiler_directives=cython_directives,
         **extra_cythonize_kwargs,
     )

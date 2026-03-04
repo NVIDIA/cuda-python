@@ -8,6 +8,7 @@ import sys
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -24,23 +25,19 @@ __global__ void SimpleKernel(float *src, float *dst)
 
 
 def main():
-    print("Starting...")
+    import pytest
 
     if platform.system() == "Darwin":
-        print("simpleP2P is not supported on Mac OSX - waiving sample")
-        return
+        pytest.skip("simpleP2P is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        print("simpleP2P is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("simpleP2P is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        print("simpleP2P is not supported on aarch64 - waiving sample")
-        return
+        pytest.skip("simpleP2P is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        print("simpleP2P is not supported on sbsa - waiving sample")
-        return
+        pytest.skip("simpleP2P is not supported on sbsa")
 
     # Number of GPUs
     print("Checking for multiple GPUs...")
@@ -48,8 +45,7 @@ def main():
     print(f"CUDA-capable device count: {gpu_n}")
 
     if gpu_n < 2:
-        print("Two or more GPUs with Peer-to-Peer access capability are required")
-        return
+        pytest.skip("Two or more GPUs with Peer-to-Peer access capability are required")
 
     prop = [checkCudaErrors(cudart.cudaGetDeviceProperties(i)) for i in range(gpu_n)]
     # Check possibility for peer access
@@ -80,9 +76,7 @@ def main():
             break
 
     if p2pCapableGPUs[0] == -1 or p2pCapableGPUs[1] == -1:
-        print("Two or more GPUs with Peer-to-Peer access capability are required.")
-        print("Peer to Peer access is not available amongst GPUs in the system, waiving test.")
-        return
+        pytest.skip("Peer to Peer access is not available amongst GPUs in the system")
 
     # Use first pair of p2p capable GPUs detected
     gpuid = [p2pCapableGPUs[0], p2pCapableGPUs[1]]
@@ -239,9 +233,8 @@ def main():
         checkCudaErrors(cudart.cudaSetDevice(i))
 
     if error_count != 0:
-        print("Test failed!")
-        sys.exit(-1)
-    print("Test passed!")
+        print("Test failed!", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ import argparse
 import sys
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Linker, LinkerOptions, Program, ProgramOptions, launch
 
 
@@ -75,7 +76,7 @@ class MockLibrary:
 
         # Setup the launch configuration such that each thread will be generating one pixel, and subdivide
         # the problem into 16x16 chunks.
-        self.grid = (self.width / 16, self.height / 16, 1.0)
+        self.grid = (self.width // 16, self.height // 16, 1)
         self.block = (16, 16, 1)
         self.config = LaunchConfig(grid=self.grid, block=self.block)
 
@@ -266,7 +267,7 @@ def main():
             import matplotlib.pyplot as plt
         except ImportError:
             print("this example requires matplotlib installed in order to display the image", file=sys.stderr)
-            sys.exit(0)
+            sys.exit(1)
 
     result_to_display = []
     lib = MockLibrary()
@@ -298,4 +299,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("done!")

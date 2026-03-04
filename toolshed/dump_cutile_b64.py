@@ -13,19 +13,20 @@ import glob
 import os
 import sys
 
-import cuda.tile as ct
 import cupy
+
+import cuda.tile as ct
 
 
 def _run_sample_cutile_kernel() -> None:
     # Import after env var setup so CUDA_TILE_DUMP_BYTECODE is honored.
-    TILE_SIZE = 16
+    tile_size = 16
 
     @ct.kernel
     def vector_add_kernel(a, b, result):
         block_id = ct.bid(0)
-        a_tile = ct.load(a, index=(block_id,), shape=(TILE_SIZE,))
-        b_tile = ct.load(b, index=(block_id,), shape=(TILE_SIZE,))
+        a_tile = ct.load(a, index=(block_id,), shape=(tile_size,))
+        b_tile = ct.load(b, index=(block_id,), shape=(tile_size,))
 
         result_tile = a_tile + b_tile
         ct.store(result, index=(block_id,), tile=result_tile)
@@ -34,7 +35,7 @@ def _run_sample_cutile_kernel() -> None:
     b = cupy.arange(128, dtype="float32")
     result = cupy.zeros_like(a)
 
-    grid = (ct.cdiv(a.shape[0], TILE_SIZE), 1, 1)
+    grid = (ct.cdiv(a.shape[0], tile_size), 1, 1)
     ct.launch(cupy.cuda.get_current_stream(), grid, vector_add_kernel, (a, b, result))
 
     cupy.cuda.get_current_stream().synchronize()

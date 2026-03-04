@@ -7,6 +7,7 @@ import random as rnd
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -116,7 +117,7 @@ __global__ void reduceFinal(double *inputVec, double *result,
 def init_input(a, size):
     ctypes.c_float.from_address(a)
     a_list = ctypes.pointer(ctypes.c_float.from_address(a))
-    for i in range(0, size):
+    for i in range(size):
         a_list[i] = rnd.random()
 
 

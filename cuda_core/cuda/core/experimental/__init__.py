@@ -38,25 +38,25 @@ def _warn_deprecated():
 _warn_deprecated()
 
 
-from cuda.core import system, utils  # noqa: E402
+from cuda.core import system, utils
 
 # Make utils accessible as a submodule for backward compatibility
 __import__("sys").modules[__spec__.name + ".utils"] = utils
 
 
-from cuda.core._device import Device  # noqa: E402
-from cuda.core._event import Event, EventOptions  # noqa: E402
-from cuda.core._graph import (  # noqa: E402
+from cuda.core._device import Device
+from cuda.core._event import Event, EventOptions
+from cuda.core._graph import (
     Graph,
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
-from cuda.core._launch_config import LaunchConfig  # noqa: E402
-from cuda.core._launcher import launch  # noqa: E402
-from cuda.core._layout import _StridedLayout  # noqa: E402
-from cuda.core._linker import Linker, LinkerOptions  # noqa: E402
-from cuda.core._memory import (  # noqa: E402
+from cuda.core._launch_config import LaunchConfig
+from cuda.core._launcher import launch
+from cuda.core._layout import _StridedLayout
+from cuda.core._linker import Linker, LinkerOptions
+from cuda.core._memory import (
     Buffer,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
@@ -70,6 +70,6 @@ from cuda.core._memory import (  # noqa: E402
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core._module import Kernel, ObjectCode  # noqa: E402
-from cuda.core._program import Program, ProgramOptions  # noqa: E402
-from cuda.core._stream import Stream, StreamOptions  # noqa: E402
+from cuda.core._module import Kernel, ObjectCode
+from cuda.core._program import Program, ProgramOptions
+from cuda.core._stream import Stream, StreamOptions
