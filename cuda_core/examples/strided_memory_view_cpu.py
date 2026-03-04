@@ -80,7 +80,7 @@ def my_func(arr):
 
 
 def run():
-    global my_func
+    global my_func, cpu_func, cpu_prog
     # Here is a concrete (very naive!) implementation on CPU:
     cpu_code = string.Template(r"""
     extern "C"
@@ -102,6 +102,7 @@ def run():
         extra_compile_args=["-std=c++11"],
     )
     temp_dir = tempfile.mkdtemp()
+    cpu_func = None
     saved_sys_path = sys.path.copy()
     try:
         cpu_prog.compile(tmpdir=temp_dir)
@@ -123,7 +124,9 @@ def run():
         sys.path = saved_sys_path
         # to allow FFI module to unload, we delete references to
         # to cpu_func
-        del cpu_func, my_func
+        if cpu_func is not None:
+            del cpu_func
+        del cpu_prog, my_func
         # clean up temp directory
         shutil.rmtree(temp_dir)
 

@@ -76,7 +76,7 @@ class MockLibrary:
 
         # Setup the launch configuration such that each thread will be generating one pixel, and subdivide
         # the problem into 16x16 chunks.
-        self.grid = (self.width / 16, self.height / 16, 1.0)
+        self.grid = (self.width // 16, self.height // 16, 1)
         self.block = (16, 16, 1)
         self.config = LaunchConfig(grid=self.grid, block=self.block)
 
