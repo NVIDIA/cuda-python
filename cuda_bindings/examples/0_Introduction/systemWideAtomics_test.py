@@ -206,24 +206,24 @@ def main():
     # To make the AND and XOR tests generate something other than 0...
     atom_arr_h[7] = atom_arr_h[9] = 0xFF
 
-    kernelHelper = common.KernelHelper(systemWideAtomics, dev_id)
-    _atomicKernel = kernelHelper.getFunction(b"atomicKernel")
-    kernelArgs = ((atom_arr,), (ctypes.c_void_p,))
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _atomicKernel,
-            numBlocks,
-            1,
-            1,  # grid dim
-            numThreads,
-            1,
-            1,  # block dim
-            0,
-            cuda.CU_STREAM_LEGACY,  # shared mem and stream
-            kernelArgs,
-            0,
-        )
-    )  # arguments
+    with common.KernelHelper(systemWideAtomics, dev_id) as kernelHelper:
+        _atomicKernel = kernelHelper.getFunction(b"atomicKernel")
+        kernelArgs = ((atom_arr,), (ctypes.c_void_p,))
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _atomicKernel,
+                numBlocks,
+                1,
+                1,  # grid dim
+                numThreads,
+                1,
+                1,  # block dim
+                0,
+                cuda.CU_STREAM_LEGACY,  # shared mem and stream
+                kernelArgs,
+                0,
+            )
+        )  # arguments
     # NOTE: Python doesn't have an equivalent system atomic operations
     # atomicKernel_CPU(atom_arr_h, numBlocks * numThreads)
 
