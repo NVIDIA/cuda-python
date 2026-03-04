@@ -7,12 +7,12 @@ import sys
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors, findCudaDevice
+from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
-systemWideAtomics = """\
+system_wide_atomics = """\
 #define LOOP_NUM 50
 
 extern "C"
@@ -63,21 +63,21 @@ LOOP_NUM = 50
 #! @param reference  reference data, computed but preallocated
 #! @param idata      input data as provided to device
 #! @param len        number of elements in reference / idata
-def verify(testData, length):
+def verify(test_data, length):
     val = 0
 
     for i in range(length * LOOP_NUM):
         val += 10
 
-    if val != testData[0]:
-        print(f"atomicAdd failed val = {val} testData = {testData[0]}")
+    if val != test_data[0]:
+        print(f"atomicAdd failed val = {val} test_data = {test_data[0]}")
         return False
 
     val = 0
     found = False
     for i in range(length):
         # second element should be a member of [0, len)
-        if i == testData[1]:
+        if i == test_data[1]:
             found = True
             break
 
@@ -91,7 +91,7 @@ def verify(testData, length):
         # third element should be len-1
         val = max(val, i)
 
-    if val != testData[2]:
+    if val != test_data[2]:
         print("atomicMax failed")
         return False
 
@@ -100,7 +100,7 @@ def verify(testData, length):
     for i in range(length):
         val = min(val, i)
 
-    if val != testData[3]:
+    if val != test_data[3]:
         print("atomicMin failed")
         return False
 
@@ -110,7 +110,7 @@ def verify(testData, length):
     for i in range(length * LOOP_NUM):
         val = 0 if val >= limit else val + 1
 
-    if val != testData[4]:
+    if val != test_data[4]:
         print("atomicInc failed")
         return False
 
@@ -120,7 +120,7 @@ def verify(testData, length):
     for i in range(length * LOOP_NUM):
         val = limit if (val == 0) or (val > limit) else val - 1
 
-    if val != testData[5]:
+    if val != test_data[5]:
         print("atomicDec failed")
         return False
 
@@ -128,7 +128,7 @@ def verify(testData, length):
 
     for i in range(length):
         # seventh element should be a member of [0, len)
-        if i == testData[6]:
+        if i == test_data[6]:
             found = True
             break
 
@@ -142,13 +142,13 @@ def verify(testData, length):
         # 8th element should be 1
         val &= 2 * i + 7
 
-    if val != testData[7]:
+    if val != test_data[7]:
         print("atomicAnd failed")
         return False
 
     # 9th element should be 0xff
     val = -1
-    if val != testData[8]:
+    if val != test_data[8]:
         print("atomicOr failed")
         return False
 
@@ -158,7 +158,7 @@ def verify(testData, length):
         # 11th element should be 0xff
         val ^= i
 
-    if val != testData[9]:
+    if val != test_data[9]:
         print("atomicXor failed")
         return False
 
@@ -172,72 +172,74 @@ def main():
         pytest.skip("Atomics not supported on Windows")
 
     # set device
-    dev_id = findCudaDevice()
-    device_prop = checkCudaErrors(cudart.cudaGetDeviceProperties(dev_id))
+    dev_id = find_cuda_device()
+    device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(dev_id))
 
     if not device_prop.managedMemory:
         pytest.skip("Unified Memory not supported on this device")
 
-    computeMode = checkCudaErrors(cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeMode, dev_id))
-    if computeMode == cudart.cudaComputeMode.cudaComputeModeProhibited:
+    compute_mode = check_cuda_errors(
+        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeMode, dev_id)
+    )
+    if compute_mode == cudart.cudaComputeMode.cudaComputeModeProhibited:
         pytest.skip("This sample requires a device in either default or process exclusive mode")
 
     if device_prop.major < 6:
         pytest.skip("Requires a minimum CUDA compute 6.0 capability")
 
-    numThreads = 256
-    numBlocks = 64
-    numData = 10
+    num_threads = 256
+    num_blocks = 64
+    num_data = 10
 
     if device_prop.pageableMemoryAccess:
         print("CAN access pageable memory")
-        atom_arr_h = (ctypes.c_int * numData)(0)
+        atom_arr_h = (ctypes.c_int * num_data)(0)
         atom_arr = ctypes.addressof(atom_arr_h)
     else:
         print("CANNOT access pageable memory")
-        atom_arr = checkCudaErrors(
-            cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * numData, cudart.cudaMemAttachGlobal)
+        atom_arr = check_cuda_errors(
+            cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * num_data, cudart.cudaMemAttachGlobal)
         )
-        atom_arr_h = (ctypes.c_int * numData).from_address(atom_arr)
+        atom_arr_h = (ctypes.c_int * num_data).from_address(atom_arr)
 
-    for i in range(numData):
+    for i in range(num_data):
         atom_arr_h[i] = 0
 
     # To make the AND and XOR tests generate something other than 0...
     atom_arr_h[7] = atom_arr_h[9] = 0xFF
 
-    with common.KernelHelper(systemWideAtomics, dev_id) as kernelHelper:
-        _atomicKernel = kernelHelper.getFunction(b"atomicKernel")
-        kernelArgs = ((atom_arr,), (ctypes.c_void_p,))
-        checkCudaErrors(
-            cuda.cuLaunchKernel(
-                _atomicKernel,
-                numBlocks,
-                1,
-                1,  # grid dim
-                numThreads,
-                1,
-                1,  # block dim
-                0,
-                cuda.CU_STREAM_LEGACY,  # shared mem and stream
-                kernelArgs,
-                0,
-            )
-        )  # arguments
+    kernel_helper = common.KernelHelper(system_wide_atomics, dev_id)
+    _atomic_kernel = kernel_helper.get_function(b"atomicKernel")
+    kernel_args = ((atom_arr,), (ctypes.c_void_p,))
+    check_cuda_errors(
+        cuda.cuLaunchKernel(
+            _atomic_kernel,
+            num_blocks,
+            1,
+            1,  # grid dim
+            num_threads,
+            1,
+            1,  # block dim
+            0,
+            cuda.CU_STREAM_LEGACY,  # shared mem and stream
+            kernel_args,
+            0,
+        )
+    )  # arguments
     # NOTE: Python doesn't have an equivalent system atomic operations
     # atomicKernel_CPU(atom_arr_h, numBlocks * numThreads)
 
-    checkCudaErrors(cudart.cudaDeviceSynchronize())
+    check_cuda_errors(cudart.cudaDeviceSynchronize())
 
     # Compute & verify reference solution
-    testResult = verify(atom_arr_h, numThreads * numBlocks)
+    test_result = verify(atom_arr_h, num_threads * num_blocks)
 
     if device_prop.pageableMemoryAccess:
         pass
     else:
-        checkCudaErrors(cudart.cudaFree(atom_arr))
+        check_cuda_errors(cudart.cudaFree(atom_arr))
 
-    if not testResult:
+    if not test_result:
         print("systemWideAtomics completed with errors", file=sys.stderr)
         sys.exit(1)
 

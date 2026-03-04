@@ -4,12 +4,12 @@
 import sys
 
 
-def checkCmdLineFlag(stringRef):
-    return any(stringRef == i and k < len(sys.argv) - 1 for i, k in enumerate(sys.argv))
+def check_cmd_line_flag(string_ref):
+    return any(string_ref == i and k < len(sys.argv) - 1 for i, k in enumerate(sys.argv))
 
 
-def getCmdLineArgumentInt(stringRef):
+def get_cmd_line_argument_int(string_ref):
     for i, k in enumerate(sys.argv):
-        if stringRef == i and k < len(sys.argv) - 1:
+        if string_ref == i and k < len(sys.argv) - 1:
             return sys.argv[k + 1]
     return 0

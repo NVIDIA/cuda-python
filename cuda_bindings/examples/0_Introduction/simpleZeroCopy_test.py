@@ -9,13 +9,13 @@ import sys
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors
-from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
+from common.helper_cuda import check_cuda_errors
+from common.helper_string import check_cmd_line_flag, get_cmd_line_argument_int
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
-simpleZeroCopy = """\
+simple_zero_copy = """\
 extern "C"
 __global__ void vectorAddGPU(float *a, float *b, float *c, int N)
 {
@@ -31,7 +31,7 @@ __global__ void vectorAddGPU(float *a, float *b, float *c, int N)
 
 def main():
     idev = 0
-    bPinGenericMemory = False
+    b_pin_generic_memory = False
 
     import pytest
 
@@ -47,7 +47,7 @@ def main():
     if platform.machine() == "sbsa":
         pytest.skip("simpleZeroCopy is not supported on sbsa")
 
-    if checkCmdLineFlag("help"):
+    if check_cmd_line_flag("help"):
         print("Usage:  simpleZeroCopy [OPTION]\n", file=sys.stderr)
         print("Options:", file=sys.stderr)
         print("  device=[device #]  Specify the device to be used", file=sys.stderr)
@@ -55,50 +55,50 @@ def main():
         sys.exit(1)
 
     # Get the device selected by the user or default to 0, and then set it.
-    if checkCmdLineFlag("device="):
-        deviceCount = cudart.cudaGetDeviceCount()
-        idev = int(getCmdLineArgumentInt("device="))
+    if check_cmd_line_flag("device="):
+        device_count = cudart.cudaGetDeviceCount()
+        idev = int(get_cmd_line_argument_int("device="))
 
-        if idev >= deviceCount or idev < 0:
+        if idev >= device_count or idev < 0:
             print(f"Device number {idev} is invalid, will use default CUDA device 0.")
             idev = 0
 
-    if checkCmdLineFlag("use_generic_memory"):
-        bPinGenericMemory = True
+    if check_cmd_line_flag("use_generic_memory"):
+        b_pin_generic_memory = True
 
-    if bPinGenericMemory:
+    if b_pin_generic_memory:
         print("> Using Generic System Paged Memory (malloc)")
     else:
         print("> Using CUDA Host Allocated (cudaHostAlloc)")
 
-    checkCudaErrors(cudart.cudaSetDevice(idev))
+    check_cuda_errors(cudart.cudaSetDevice(idev))
 
     # Verify the selected device supports mapped memory and set the device flags for mapping host memory.
-    deviceProp = checkCudaErrors(cudart.cudaGetDeviceProperties(idev))
+    device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(idev))
 
-    if not deviceProp.canMapHostMemory:
+    if not device_prop.canMapHostMemory:
         pytest.skip(f"Device {idev} does not support mapping CPU host memory!")
 
-    checkCudaErrors(cudart.cudaSetDeviceFlags(cudart.cudaDeviceMapHost))
+    check_cuda_errors(cudart.cudaSetDeviceFlags(cudart.cudaDeviceMapHost))
 
     # Allocate mapped CPU memory
 
     nelem = 1048576
     num_bytes = nelem * np.dtype(np.float32).itemsize
 
-    if bPinGenericMemory:
+    if b_pin_generic_memory:
         a = np.empty(nelem, dtype=np.float32)
         b = np.empty(nelem, dtype=np.float32)
         c = np.empty(nelem, dtype=np.float32)
 
-        checkCudaErrors(cudart.cudaHostRegister(a, num_bytes, cudart.cudaHostRegisterMapped))
-        checkCudaErrors(cudart.cudaHostRegister(b, num_bytes, cudart.cudaHostRegisterMapped))
-        checkCudaErrors(cudart.cudaHostRegister(c, num_bytes, cudart.cudaHostRegisterMapped))
+        check_cuda_errors(cudart.cudaHostRegister(a, num_bytes, cudart.cudaHostRegisterMapped))
+        check_cuda_errors(cudart.cudaHostRegister(b, num_bytes, cudart.cudaHostRegisterMapped))
+        check_cuda_errors(cudart.cudaHostRegister(c, num_bytes, cudart.cudaHostRegisterMapped))
     else:
         flags = cudart.cudaHostAllocMapped
-        a_ptr = checkCudaErrors(cudart.cudaHostAlloc(num_bytes, flags))
-        b_ptr = checkCudaErrors(cudart.cudaHostAlloc(num_bytes, flags))
-        c_ptr = checkCudaErrors(cudart.cudaHostAlloc(num_bytes, flags))
+        a_ptr = check_cuda_errors(cudart.cudaHostAlloc(num_bytes, flags))
+        b_ptr = check_cuda_errors(cudart.cudaHostAlloc(num_bytes, flags))
+        c_ptr = check_cuda_errors(cudart.cudaHostAlloc(num_bytes, flags))
 
         a = (ctypes.c_float * nelem).from_address(a_ptr)
         b = (ctypes.c_float * nelem).from_address(b_ptr)
@@ -110,9 +110,9 @@ def main():
         b[n] = rnd.random()
 
     # Get the device pointers for the pinned CPU memory mapped into the GPU memory space
-    d_a = checkCudaErrors(cudart.cudaHostGetDevicePointer(a, 0))
-    d_b = checkCudaErrors(cudart.cudaHostGetDevicePointer(b, 0))
-    d_c = checkCudaErrors(cudart.cudaHostGetDevicePointer(c, 0))
+    d_a = check_cuda_errors(cudart.cudaHostGetDevicePointer(a, 0))
+    d_b = check_cuda_errors(cudart.cudaHostGetDevicePointer(b, 0))
+    d_c = check_cuda_errors(cudart.cudaHostGetDevicePointer(c, 0))
 
     # Call the GPU kernel using the CPU pointers residing in CPU mapped memory
     print("> vectorAddGPU kernel will add vectors using mapped CPU memory...")
@@ -124,57 +124,57 @@ def main():
     grid.x = math.ceil(nelem / float(block.x))
     grid.y = 1
     grid.z = 1
-    with common.KernelHelper(simpleZeroCopy, idev) as kernelHelper:
-        _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
-        kernelArgs = (
-            (d_a, d_b, d_c, nelem),
-            (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
+    kernel_helper = common.KernelHelper(simple_zero_copy, idev)
+    _vector_add_gpu = kernel_helper.get_function(b"vectorAddGPU")
+    kernel_args = (
+        (d_a, d_b, d_c, nelem),
+        (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
+    )
+    check_cuda_errors(
+        cuda.cuLaunchKernel(
+            _vector_add_gpu,
+            grid.x,
+            grid.y,
+            grid.z,
+            block.x,
+            block.y,
+            block.z,
+            0,
+            cuda.CU_STREAM_LEGACY,
+            kernel_args,
+            0,
         )
-        checkCudaErrors(
-            cuda.cuLaunchKernel(
-                _vectorAddGPU,
-                grid.x,
-                grid.y,
-                grid.z,
-                block.x,
-                block.y,
-                block.z,
-                0,
-                cuda.CU_STREAM_LEGACY,
-                kernelArgs,
-                0,
-            )
-        )
-    checkCudaErrors(cudart.cudaDeviceSynchronize())
+    )
+    check_cuda_errors(cudart.cudaDeviceSynchronize())
 
     print("> Checking the results from vectorAddGPU() ...")
     # Compare the results
-    errorNorm = 0.0
-    refNorm = 0.0
+    error_norm = 0.0
+    ref_norm = 0.0
 
     for n in range(nelem):
         ref = a[n] + b[n]
         diff = c[n] - ref
-        errorNorm += diff * diff
-        refNorm += ref * ref
+        error_norm += diff * diff
+        ref_norm += ref * ref
 
-    errorNorm = math.sqrt(errorNorm)
-    refNorm = math.sqrt(refNorm)
+    error_norm = math.sqrt(error_norm)
+    ref_norm = math.sqrt(ref_norm)
 
     # Memory clean up
 
     print("Releasing CPU memory...")
 
-    if bPinGenericMemory:
-        checkCudaErrors(cudart.cudaHostUnregister(a))
-        checkCudaErrors(cudart.cudaHostUnregister(b))
-        checkCudaErrors(cudart.cudaHostUnregister(c))
+    if b_pin_generic_memory:
+        check_cuda_errors(cudart.cudaHostUnregister(a))
+        check_cuda_errors(cudart.cudaHostUnregister(b))
+        check_cuda_errors(cudart.cudaHostUnregister(c))
     else:
-        checkCudaErrors(cudart.cudaFreeHost(a))
-        checkCudaErrors(cudart.cudaFreeHost(b))
-        checkCudaErrors(cudart.cudaFreeHost(c))
+        check_cuda_errors(cudart.cudaFreeHost(a))
+        check_cuda_errors(cudart.cudaFreeHost(b))
+        check_cuda_errors(cudart.cudaFreeHost(c))
 
-    if errorNorm / refNorm >= 1.0e-7:
+    if error_norm / ref_norm >= 1.0e-7:
         print("FAILED", file=sys.stderr)
         sys.exit(1)
 
