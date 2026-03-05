@@ -10,7 +10,7 @@ graphs explicitly (as opposed to stream capture). Both approaches produce
 the same public Graph type for execution.
 
 Node hierarchy:
-    Node (base — also used for the virtual root)
+    Node (base — also used for the internal entry point)
     ├── EmptyNode         (synchronization / join point)
     ├── KernelNode        (kernel launch)
     ├── AllocNode         (memory allocation, exposes dptr and bytesize)
@@ -39,6 +39,7 @@ from cuda.core._resource_handles cimport (
     create_graph_handle,
     as_cu,
     as_intptr,
+    as_py,
 )
 from cuda.core._event cimport Event
 from cuda.core._module cimport Kernel
@@ -228,7 +229,7 @@ cdef class GraphDef:
         Returns
         -------
         tuple of Node
-            All nodes in the graph (excluding the virtual root).
+            All nodes in the graph.
         """
         cdef cydriver.CUgraph graph = as_cu(self._h_graph)
         cdef size_t num_nodes = 0
@@ -281,7 +282,7 @@ cdef class GraphDef:
     @property
     def handle(self):
         """Return the underlying CUgraph handle."""
-        return driver.CUgraph(as_intptr(self._h_graph))
+        return as_py(self._h_graph)
 
 
 cdef class Node:
@@ -327,7 +328,7 @@ cdef class Node:
 
     def __repr__(self):
         if self._node == NULL:
-            return "<Node root>"
+            return "<Node entry>"
         return f"<Node handle=0x{<uintptr_t>self._node:x}>"
 
     def __eq__(self, other):
@@ -347,7 +348,7 @@ cdef class Node:
         Returns
         -------
         CUgraphNodeType or None
-            The node type enum value, or None for the virtual root node.
+            The node type enum value, or None for the entry node.
         """
         if self._node == NULL:
             return None
@@ -360,6 +361,16 @@ cdef class Node:
     def graph(self):
         """Return the GraphDef this node belongs to."""
         return GraphDef._from_handle(self._h_graph)
+
+    @property
+    def handle(self):
+        """Return the underlying CUgraphNode handle as an int.
+
+        Returns None for the entry node.
+        """
+        if self._node == NULL:
+            return None
+        return <uintptr_t>self._node
 
     @property
     def pred(self):
@@ -783,7 +794,8 @@ cdef class EmptyNode(Node):
         return n
 
     def __repr__(self):
-        return f"<EmptyNode handle=0x{<uintptr_t>self._node:x}>"
+        cdef Py_ssize_t n = len(self.pred)
+        return f"<EmptyNode with {n} {'pred' if n == 1 else 'preds'}>"
 
 
 cdef class KernelNode(Node):
@@ -831,7 +843,7 @@ cdef class KernelNode(Node):
             params.kern)
 
     def __repr__(self):
-        return f"<KernelNode handle=0x{<uintptr_t>self._node:x}>"
+        return (f"<KernelNode grid={self._grid} block={self._block}>")
 
     @property
     def grid(self):
@@ -926,8 +938,7 @@ cdef class AllocNode(Node):
             <int>params.poolProps.location.id, memory_type, tuple(peer_ids))
 
     def __repr__(self):
-        return (f"<AllocNode handle=0x{<uintptr_t>self._node:x} "
-                f"dptr=0x{self._dptr:x} size={self._bytesize}>")
+        return f"<AllocNode dptr=0x{self._dptr:x} size={self._bytesize}>"
 
     @property
     def dptr(self):
@@ -992,7 +1003,7 @@ cdef class FreeNode(Node):
         return FreeNode._create_with_params(h_graph, node, dptr)
 
     def __repr__(self):
-        return f"<FreeNode handle=0x{<uintptr_t>self._node:x} dptr=0x{self._dptr:x}>"
+        return f"<FreeNode dptr=0x{self._dptr:x}>"
 
     @property
     def dptr(self):
@@ -1047,8 +1058,8 @@ cdef class MemsetNode(Node):
             params.elementSize, params.width, params.height, params.pitch)
 
     def __repr__(self):
-        return (f"<MemsetNode handle=0x{<uintptr_t>self._node:x} "
-                f"dptr=0x{self._dptr:x}>")
+        return (f"<MemsetNode dptr=0x{self._dptr:x} "
+                f"value={self._value} elem={self._element_size}>")
 
     @property
     def dptr(self):
@@ -1109,7 +1120,7 @@ cdef class EventRecordNode(Node):
         return EventRecordNode._create_with_params(h_graph, node, event)
 
     def __repr__(self):
-        return f"<EventRecordNode handle=0x{<uintptr_t>self._node:x}>"
+        return f"<EventRecordNode event=0x{<uintptr_t>self._event:x}>"
 
     @property
     def event(self):
@@ -1145,7 +1156,7 @@ cdef class EventWaitNode(Node):
         return EventWaitNode._create_with_params(h_graph, node, event)
 
     def __repr__(self):
-        return f"<EventWaitNode handle=0x{<uintptr_t>self._node:x}>"
+        return f"<EventWaitNode event=0x{<uintptr_t>self._event:x}>"
 
     @property
     def event(self):

@@ -31,7 +31,7 @@ cdef class GraphDef:
 cdef class Node:
     cdef:
         GraphHandle _h_graph
-        cydriver.CUgraphNode _node  # NULL for root
+        cydriver.CUgraphNode _node  # NULL for entry node
         tuple _pred_cache
         tuple _succ_cache
         object __weakref__

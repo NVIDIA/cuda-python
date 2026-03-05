@@ -222,13 +222,13 @@ def sample_graphdef_alt(init_cuda):
 
 @pytest.fixture
 def sample_root_node(sample_graphdef):
-    """A root Node (virtual, NULL handle)."""
+    """An entry Node (virtual, NULL handle)."""
     return sample_graphdef._entry
 
 
 @pytest.fixture
 def sample_root_node_alt(sample_graphdef_alt):
-    """An alternate root Node from different graph."""
+    """An alternate entry Node from different graph."""
     return sample_graphdef_alt._entry
 
 
@@ -459,14 +459,14 @@ REPR_PATTERNS = [
     ("sample_program_nvvm", r"<Program backend='NVVM'>"),
     # Graph types
     ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
-    ("sample_root_node", r"<Node root>"),
-    ("sample_empty_node", r"<EmptyNode handle=0x[0-9a-f]+>"),
-    ("sample_alloc_node", r"<AllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\d+>"),
-    ("sample_kernel_node", r"<KernelNode handle=0x[0-9a-f]+>"),
-    ("sample_free_node", r"<FreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
-    ("sample_memset_node", r"<MemsetNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
-    ("sample_event_record_node", r"<EventRecordNode handle=0x[0-9a-f]+>"),
-    ("sample_event_wait_node", r"<EventWaitNode handle=0x[0-9a-f]+>"),
+    ("sample_root_node", r"<Node entry>"),
+    ("sample_empty_node", r"<EmptyNode with \d+ preds?>"),
+    ("sample_alloc_node", r"<AllocNode dptr=0x[0-9a-f]+ size=\d+>"),
+    ("sample_kernel_node", r"<KernelNode grid=\(\d+, \d+, \d+\) block=\(\d+, \d+, \d+\)>"),
+    ("sample_free_node", r"<FreeNode dptr=0x[0-9a-f]+>"),
+    ("sample_memset_node", r"<MemsetNode dptr=0x[0-9a-f]+ value=\d+ elem=\d+>"),
+    ("sample_event_record_node", r"<EventRecordNode event=0x[0-9a-f]+>"),
+    ("sample_event_wait_node", r"<EventWaitNode event=0x[0-9a-f]+>"),
 ]
 
 
