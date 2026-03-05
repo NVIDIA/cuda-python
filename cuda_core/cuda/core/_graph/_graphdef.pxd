@@ -19,6 +19,7 @@ cdef class MemcpyNode(Node)
 cdef class ChildGraphNode(Node)
 cdef class EventRecordNode(Node)
 cdef class EventWaitNode(Node)
+cdef class HostCallbackNode(Node)
 
 
 cdef class GraphDef:
@@ -163,3 +164,18 @@ cdef class EventWaitNode(Node):
 
     @staticmethod
     cdef EventWaitNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)
+
+
+cdef class HostCallbackNode(Node):
+    cdef:
+        object _callable
+        cydriver.CUhostFn _fn
+        void* _user_data
+
+    @staticmethod
+    cdef HostCallbackNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                              object callable_obj, cydriver.CUhostFn fn,
+                                              void* user_data)
+
+    @staticmethod
+    cdef HostCallbackNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)

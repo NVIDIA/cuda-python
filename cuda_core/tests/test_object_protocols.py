@@ -372,6 +372,26 @@ def sample_event_wait_node_alt(sample_graphdef, sample_device):
     return sample_graphdef.wait_event(event)
 
 
+@pytest.fixture
+def sample_host_callback_node(sample_graphdef):
+    """A HostCallbackNode."""
+
+    def my_callback():
+        pass
+
+    return sample_graphdef.callback(my_callback)
+
+
+@pytest.fixture
+def sample_host_callback_node_alt(sample_graphdef):
+    """An alternate HostCallbackNode from same graph."""
+
+    def other_callback():
+        pass
+
+    return sample_graphdef.callback(other_callback)
+
+
 # =============================================================================
 # Type groupings
 # =============================================================================
@@ -397,6 +417,7 @@ HASH_TYPES = [
     "sample_child_graph_node",
     "sample_event_record_node",
     "sample_event_wait_node",
+    "sample_host_callback_node",
 ]
 
 # Types with __eq__ support
@@ -420,6 +441,7 @@ EQ_TYPES = [
     "sample_child_graph_node",
     "sample_event_record_node",
     "sample_event_wait_node",
+    "sample_host_callback_node",
 ]
 
 # Types with __weakref__ support
@@ -444,6 +466,7 @@ WEAKREF_TYPES = [
     "sample_child_graph_node",
     "sample_event_record_node",
     "sample_event_wait_node",
+    "sample_host_callback_node",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -468,6 +491,7 @@ SAME_TYPE_PAIRS = [
     ("sample_child_graph_node", "sample_child_graph_node_alt"),
     ("sample_event_record_node", "sample_event_record_node_alt"),
     ("sample_event_wait_node", "sample_event_wait_node_alt"),
+    ("sample_host_callback_node", "sample_host_callback_node_alt"),
 ]
 
 # Types with public from_handle methods and how to create a copy
@@ -515,6 +539,7 @@ REPR_PATTERNS = [
     ("sample_child_graph_node", r"<ChildGraphNode with \d+ subnodes?>"),
     ("sample_event_record_node", r"<EventRecordNode event=0x[0-9a-f]+>"),
     ("sample_event_wait_node", r"<EventWaitNode event=0x[0-9a-f]+>"),
+    ("sample_host_callback_node", r"<HostCallbackNode callback=\w+>"),
 ]
 
 

@@ -19,7 +19,8 @@ Node hierarchy:
     ├── MemcpyNode        (memory copy, exposes dst, src, size)
     ├── ChildGraphNode    (embedded sub-graph)
     ├── EventRecordNode   (record an event)
-    └── EventWaitNode     (wait for an event)
+    ├── EventWaitNode     (wait for an event)
+    └── HostCallbackNode  (host CPU callback)
 """
 
 from dataclasses import dataclass
@@ -28,9 +29,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from cuda.core import Device
 
+from cpython.ref cimport Py_INCREF
+
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
-from libc.string cimport memset as c_memset
+from libc.stdlib cimport malloc, free
+from libc.string cimport memset as c_memset, memcpy as c_memcpy
 
 from libcpp.vector cimport vector
 
@@ -51,6 +55,44 @@ from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 from cuda.core._utils.cuda_utils import driver
+
+
+cdef extern from "Python.h":
+    void _py_decref "Py_DECREF" (void*)
+
+
+cdef void _py_host_trampoline(void* data) noexcept with gil:
+    (<object>data)()
+
+
+cdef void _py_host_destructor(void* data) noexcept with gil:
+    _py_decref(data)
+
+
+cdef void _attach_user_object(
+        cydriver.CUgraph graph, void* ptr,
+        cydriver.CUhostFn destroy) except *:
+    """Create a CUDA user object and transfer ownership to the graph.
+
+    On success the graph owns the resource (via MOVE semantics).
+    On failure the destroy callback is invoked to clean up ptr,
+    then a CUDAError is raised — callers need no try/except.
+    """
+    cdef cydriver.CUuserObject user_obj = NULL
+    cdef cydriver.CUresult ret
+    with nogil:
+        ret = cydriver.cuUserObjectCreate(
+            &user_obj, ptr, destroy, 1,
+            cydriver.CU_USER_OBJECT_NO_DESTRUCTOR_SYNC)
+        if ret == cydriver.CUDA_SUCCESS:
+            ret = cydriver.cuGraphRetainUserObject(
+                graph, user_obj, 1, cydriver.CU_GRAPH_USER_OBJECT_MOVE)
+            if ret != cydriver.CUDA_SUCCESS:
+                cydriver.cuUserObjectRelease(user_obj, 1)
+    if ret != cydriver.CUDA_SUCCESS:
+        if user_obj == NULL:
+            destroy(ptr)
+        HANDLE_RETURN(ret)
 
 
 @dataclass
@@ -201,6 +243,13 @@ cdef class GraphDef:
         """
         return self._entry.wait_event(event)
 
+    def callback(self, fn, *, user_data=None):
+        """Add an entry-point host callback node (no dependencies).
+
+        See :meth:`Node.callback` for full documentation.
+        """
+        return self._entry.callback(fn, user_data=user_data)
+
     def instantiate(self):
         """Instantiate the graph definition into an executable Graph.
 
@@ -341,6 +390,8 @@ cdef class Node:
             return EventRecordNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT:
             return EventWaitNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_HOST:
+            return HostCallbackNode._create_from_driver(h_graph, node)
         else:
             n = Node.__new__(Node)
             (<Node>n)._h_graph = h_graph
@@ -921,6 +972,96 @@ cdef class Node:
         self._succ_cache = None
         return EventWaitNode._create_with_params(self._h_graph, new_node, c_event)
 
+    def callback(self, fn, *, user_data=None):
+        """Add a host callback node depending on this node.
+
+        The callback runs on the host CPU when the graph reaches this node.
+        Two modes are supported:
+
+        - **Python callable**: Pass any callable. The GIL is acquired
+          automatically. The callable must take no arguments; use closures
+          or ``functools.partial`` to bind state.
+        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
+          The function receives a single ``void*`` argument (the
+          ``user_data``). The caller must keep the ctypes wrapper alive
+          for the lifetime of the graph.
+
+        .. warning::
+
+            Callbacks must not call CUDA API functions. Doing so may
+            deadlock or corrupt driver state.
+
+        Parameters
+        ----------
+        fn : callable or ctypes function pointer
+            The callback function.
+        user_data : int or bytes-like, optional
+            Only for ctypes function pointers. If ``int``, passed as a raw
+            pointer (caller manages lifetime). If bytes-like, the data is
+            copied and its lifetime is tied to the graph.
+
+        Returns
+        -------
+        HostCallbackNode
+            A new HostCallbackNode representing the callback.
+        """
+        import ctypes as ct
+
+        cdef cydriver.CUDA_HOST_NODE_PARAMS node_params
+        cdef cydriver.CUgraphNode new_node = NULL
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUgraphNode* deps = NULL
+        cdef size_t num_deps = 0
+        cdef void* c_user_data = NULL
+        cdef object callable_obj = None
+        cdef void* fn_pyobj = NULL
+
+        if self._node != NULL:
+            deps = &self._node
+            num_deps = 1
+
+        if isinstance(fn, ct._CFuncPtr):
+            node_params.fn = <cydriver.CUhostFn><uintptr_t>ct.cast(
+                fn, ct.c_void_p).value
+
+            if user_data is not None:
+                if isinstance(user_data, int):
+                    c_user_data = <void*><uintptr_t>user_data
+                else:
+                    buf = bytes(user_data)
+                    c_user_data = malloc(len(buf))
+                    if c_user_data == NULL:
+                        raise MemoryError(
+                            "failed to allocate user_data buffer")
+                    c_memcpy(c_user_data, <const char*>buf, len(buf))
+                    _attach_user_object(
+                        graph, c_user_data,
+                        <cydriver.CUhostFn>free)
+
+            node_params.userData = c_user_data
+        else:
+            if user_data is not None:
+                raise ValueError(
+                    "user_data is only supported with ctypes "
+                    "function pointers")
+            callable_obj = fn
+            Py_INCREF(fn)
+            fn_pyobj = <void*>fn
+            node_params.fn = <cydriver.CUhostFn>_py_host_trampoline
+            node_params.userData = fn_pyobj
+            _attach_user_object(
+                graph, fn_pyobj,
+                <cydriver.CUhostFn>_py_host_destructor)
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphAddHostNode(
+                &new_node, graph, deps, num_deps, &node_params))
+
+        self._succ_cache = None
+        return HostCallbackNode._create_with_params(
+            self._h_graph, new_node, callable_obj,
+            node_params.fn, node_params.userData)
+
 
 # =============================================================================
 # Node subclasses
@@ -1421,3 +1562,53 @@ cdef class EventWaitNode(Node):
     def event(self):
         """The event being waited on (non-owning wrapper)."""
         return Event._from_handle(self._event)
+
+
+cdef class HostCallbackNode(Node):
+    """A host callback node.
+
+    Properties
+    ----------
+    callback_fn : callable or None
+        The Python callable (None for ctypes function pointer callbacks).
+    """
+
+    @staticmethod
+    cdef HostCallbackNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                              object callable_obj, cydriver.CUhostFn fn,
+                                              void* user_data):
+        """Create from known params (called by callback() builder)."""
+        cdef HostCallbackNode n = HostCallbackNode.__new__(HostCallbackNode)
+        n._h_graph = h_graph
+        n._node = node
+        n._callable = callable_obj
+        n._fn = fn
+        n._user_data = user_data
+        return n
+
+    @staticmethod
+    cdef HostCallbackNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUDA_HOST_NODE_PARAMS params
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphHostNodeGetParams(node, &params))
+
+        cdef object callable_obj = None
+        if params.fn == <cydriver.CUhostFn>_py_host_trampoline:
+            # <object> cast Py_INCREFs — HostCallbackNode holds its own
+            # reference, independent of the user object's reference.
+            callable_obj = <object>params.userData
+
+        return HostCallbackNode._create_with_params(
+            h_graph, node, callable_obj, params.fn, params.userData)
+
+    def __repr__(self):
+        if self._callable is not None:
+            name = getattr(self._callable, '__name__', '?')
+            return f"<HostCallbackNode callback={name}>"
+        return f"<HostCallbackNode cfunc=0x{<uintptr_t>self._fn:x}>"
+
+    @property
+    def callback_fn(self):
+        """The Python callable, or None for ctypes function pointer callbacks."""
+        return self._callable

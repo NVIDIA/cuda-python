@@ -20,6 +20,7 @@ from cuda.core._graph._graphdef import (
     FreeNode,
     GraphAllocOptions,
     GraphDef,
+    HostCallbackNode,
     KernelNode,
     MemcpyNode,
     MemsetNode,
@@ -332,6 +333,29 @@ def _build_memcpy_node(g):
     }
 
 
+def _build_host_callback_node(g):
+    def my_callback():
+        pass
+
+    node = g.callback(my_callback)
+    return node, {
+        "callback_fn": lambda v: v is my_callback,
+    }
+
+
+def _build_host_callback_cfunc_node(g):
+    import ctypes
+
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
+    @CALLBACK
+    def noop(data):
+        pass
+
+    node = g.callback(noop)
+    return node, {}
+
+
 def _build_child_graph_node(g):
     child = GraphDef()
     mod = compile_common_kernels()
@@ -369,6 +393,14 @@ _NODE_SPECS = [
     pytest.param(
         NodeSpec("child_graph", ChildGraphNode, "CU_GRAPH_NODE_TYPE_GRAPH", _build_child_graph_node),
         id="child_graph",
+    ),
+    pytest.param(
+        NodeSpec("host_callback", HostCallbackNode, "CU_GRAPH_NODE_TYPE_HOST", _build_host_callback_node),
+        id="host_callback",
+    ),
+    pytest.param(
+        NodeSpec("host_callback_cfunc", HostCallbackNode, "CU_GRAPH_NODE_TYPE_HOST", _build_host_callback_cfunc_node),
+        id="host_callback_cfunc",
     ),
     pytest.param(
         NodeSpec("event_record", EventRecordNode, "CU_GRAPH_NODE_TYPE_EVENT_RECORD", _build_event_record_node),
@@ -741,6 +773,74 @@ def test_instantiate_and_execute_child_graph(sample_graphdef):
     graph.upload(stream)
     graph.launch(stream)
     stream.sync()
+
+
+def test_instantiate_and_execute_host_callback(sample_graphdef):
+    """Graph with host callback can be executed and callback is invoked."""
+    results = []
+
+    def my_callback():
+        results.append(42)
+
+    sample_graphdef.callback(my_callback)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert results == [42]
+
+
+def test_instantiate_and_execute_host_callback_cfunc(sample_graphdef):
+    """Graph with ctypes function pointer callback can be executed."""
+    import ctypes
+
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    called = [False]
+
+    @CALLBACK
+    def raw_fn(data):
+        called[0] = True
+
+    sample_graphdef.callback(raw_fn)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert called[0]
+
+
+def test_host_callback_cfunc_with_user_data(sample_graphdef):
+    """Host callback with bytes user_data passes data to C function."""
+    import ctypes
+
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    result = [0]
+
+    @CALLBACK
+    def read_byte(data):
+        result[0] = ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
+
+    sample_graphdef.callback(read_byte, user_data=bytes([0xAB]))
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert result[0] == 0xAB
+
+
+def test_host_callback_user_data_rejected_for_python_callable(sample_graphdef):
+    """user_data is rejected for Python callables."""
+    with pytest.raises(ValueError, match="user_data is only supported"):
+        sample_graphdef.callback(lambda: None, user_data=b"hello")
 
 
 def test_instantiate_and_execute_event_record_wait(sample_graphdef):
