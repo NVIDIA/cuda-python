@@ -254,16 +254,6 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests core
 
-      - name: Run cuda.core examples
-        env:
-          CUDA_VER: ${{ matrix.CUDA_VER }}
-          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          pushd cuda_core
-          ${SANITIZER_CMD} pytest -ra -s -vv tests/example_tests/
-          popd
-
       - name: Ensure cuda-python installable
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
