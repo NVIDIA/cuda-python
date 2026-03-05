@@ -12,8 +12,10 @@ import re
 import weakref
 
 import pytest
+from helpers.graph_kernels import compile_common_kernels
 
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
+from cuda.core._graph._graphdef import GraphDef
 from cuda.core._program import _can_load_generated_ptx
 
 # =============================================================================
@@ -200,6 +202,97 @@ def sample_kernel_alt(sample_object_code_alt):
 
 
 # =============================================================================
+# Fixtures - Graph types (GraphDef and Node)
+# =============================================================================
+
+ALLOC_SIZE = 1024
+
+
+@pytest.fixture
+def sample_graphdef(init_cuda):
+    """A sample GraphDef."""
+    return GraphDef()
+
+
+@pytest.fixture
+def sample_graphdef_alt(init_cuda):
+    """An alternate GraphDef (for inequality testing)."""
+    return GraphDef()
+
+
+@pytest.fixture
+def sample_root_node(sample_graphdef):
+    """A root Node (virtual, NULL handle)."""
+    return sample_graphdef.root
+
+
+@pytest.fixture
+def sample_root_node_alt(sample_graphdef_alt):
+    """An alternate root Node from different graph."""
+    return sample_graphdef_alt.root
+
+
+@pytest.fixture
+def sample_empty_node(sample_graphdef):
+    """An EmptyNode created by merging two branches."""
+    a = sample_graphdef.root.alloc(ALLOC_SIZE)
+    b = sample_graphdef.root.alloc(ALLOC_SIZE)
+    return a.join(b)
+
+
+@pytest.fixture
+def sample_empty_node_alt(sample_graphdef):
+    """An alternate EmptyNode from same graph."""
+    c = sample_graphdef.root.alloc(ALLOC_SIZE)
+    d = sample_graphdef.root.alloc(ALLOC_SIZE)
+    return c.join(d)
+
+
+@pytest.fixture
+def sample_alloc_node(sample_graphdef):
+    """An AllocNode."""
+    return sample_graphdef.root.alloc(ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_alloc_node_alt(sample_graphdef):
+    """An alternate AllocNode from same graph."""
+    return sample_graphdef.root.alloc(ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_kernel_node(sample_graphdef, init_cuda):
+    """A KernelNode."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    return sample_graphdef.root.launch(config, kernel)
+
+
+@pytest.fixture
+def sample_kernel_node_alt(sample_graphdef, init_cuda):
+    """An alternate KernelNode from same graph."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    return sample_graphdef.root.launch(config, kernel)
+
+
+@pytest.fixture
+def sample_free_node(sample_graphdef):
+    """A FreeNode."""
+    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    return alloc.free(alloc.dptr)
+
+
+@pytest.fixture
+def sample_free_node_alt(sample_graphdef):
+    """An alternate FreeNode from same graph."""
+    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    return alloc.free(alloc.dptr)
+
+
+# =============================================================================
 # Type groupings
 # =============================================================================
 
@@ -213,6 +306,12 @@ HASH_TYPES = [
     "sample_launch_config",
     "sample_object_code_cubin",
     "sample_kernel",
+    "sample_graphdef",
+    "sample_root_node",
+    "sample_empty_node",
+    "sample_alloc_node",
+    "sample_kernel_node",
+    "sample_free_node",
 ]
 
 # Types with __eq__ support
@@ -225,6 +324,12 @@ EQ_TYPES = [
     "sample_launch_config",
     "sample_object_code_cubin",
     "sample_kernel",
+    "sample_graphdef",
+    "sample_root_node",
+    "sample_empty_node",
+    "sample_alloc_node",
+    "sample_kernel_node",
+    "sample_free_node",
 ]
 
 # Types with __weakref__ support
@@ -238,6 +343,12 @@ WEAKREF_TYPES = [
     "sample_object_code_cubin",
     "sample_kernel",
     "sample_program_nvrtc",
+    "sample_graphdef",
+    "sample_root_node",
+    "sample_empty_node",
+    "sample_alloc_node",
+    "sample_kernel_node",
+    "sample_free_node",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -251,6 +362,12 @@ SAME_TYPE_PAIRS = [
     ("sample_launch_config", "sample_launch_config_alt"),
     ("sample_object_code_cubin", "sample_object_code_alt"),
     ("sample_kernel", "sample_kernel_alt"),
+    ("sample_graphdef", "sample_graphdef_alt"),
+    ("sample_root_node", "sample_root_node_alt"),
+    ("sample_empty_node", "sample_empty_node_alt"),
+    ("sample_alloc_node", "sample_alloc_node_alt"),
+    ("sample_kernel_node", "sample_kernel_node_alt"),
+    ("sample_free_node", "sample_free_node_alt"),
 ]
 
 # Types with public from_handle methods and how to create a copy
@@ -286,6 +403,13 @@ REPR_PATTERNS = [
     ("sample_program_nvrtc", r"<Program backend='NVRTC'>"),
     ("sample_program_ptx", r"<Program backend='(nvJitLink|driver)'>"),
     ("sample_program_nvvm", r"<Program backend='NVVM'>"),
+    # Graph types
+    ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
+    ("sample_root_node", r"<Node root>"),
+    ("sample_empty_node", r"<EmptyNode handle=0x[0-9a-f]+>"),
+    ("sample_alloc_node", r"<AllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\d+>"),
+    ("sample_kernel_node", r"<KernelNode handle=0x[0-9a-f]+>"),
+    ("sample_free_node", r"<FreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
 ]
 
 

@@ -3,235 +3,395 @@
 
 """Tests for explicit CUDA graph construction (GraphDef and Node)."""
 
-import itertools
-import tempfile
-from pathlib import Path
+from collections.abc import Callable
+from dataclasses import dataclass, field
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 
 from cuda.core import Device, LaunchConfig
 from cuda.core._graph import GraphDebugPrintOptions
-from cuda.core._graph._graphdef import GraphAllocOptions, GraphDef, Node
+from cuda.core._graph._graphdef import (
+    AllocNode,
+    EmptyNode,
+    FreeNode,
+    GraphAllocOptions,
+    GraphDef,
+    KernelNode,
+    Node,
+)
 
 ALLOC_SIZE = 1024
 
 
 # =============================================================================
-# Fixtures - Sample objects
+# GraphSpec — representative graph topologies
+# =============================================================================
+
+
+@dataclass
+class GraphSpec:
+    """Describes a graph topology with expected structural properties."""
+
+    name: str
+    graphdef: GraphDef
+    named_nodes: dict = field(default_factory=dict)
+    expected_edges: set = field(default_factory=set)
+    expected_pred: dict = field(default_factory=dict)
+    expected_succ: dict = field(default_factory=dict)
+
+
+def _build_empty():
+    """No nodes, no edges."""
+    return GraphSpec("empty", GraphDef())
+
+
+def _build_single():
+    """One alloc node, no edges."""
+    g = GraphDef()
+    a = g.root.alloc(ALLOC_SIZE)
+    return GraphSpec(
+        "single",
+        g,
+        named_nodes={"a": a},
+        expected_edges=set(),
+        expected_pred={"a": set()},
+        expected_succ={"a": set()},
+    )
+
+
+def _build_chain():
+    """Linear chain: a -> b -> c."""
+    g = GraphDef()
+    a = g.root.alloc(ALLOC_SIZE)
+    b = a.alloc(ALLOC_SIZE)
+    c = b.alloc(ALLOC_SIZE)
+    return GraphSpec(
+        "chain",
+        g,
+        named_nodes={"a": a, "b": b, "c": c},
+        expected_edges={("a", "b"), ("b", "c")},
+        expected_pred={"a": set(), "b": {"a"}, "c": {"b"}},
+        expected_succ={"a": {"b"}, "b": {"c"}, "c": set()},
+    )
+
+
+def _build_fan_out():
+    """One node feeds three: a -> {b, c, d}."""
+    g = GraphDef()
+    a = g.root.alloc(ALLOC_SIZE)
+    b = a.alloc(ALLOC_SIZE)
+    c = a.alloc(ALLOC_SIZE)
+    d = a.alloc(ALLOC_SIZE)
+    return GraphSpec(
+        "fan_out",
+        g,
+        named_nodes={"a": a, "b": b, "c": c, "d": d},
+        expected_edges={("a", "b"), ("a", "c"), ("a", "d")},
+        expected_pred={"a": set(), "b": {"a"}, "c": {"a"}, "d": {"a"}},
+        expected_succ={"a": {"b", "c", "d"}, "b": set(), "c": set(), "d": set()},
+    )
+
+
+def _build_fan_in():
+    """Three entry nodes merge: {a, b, c} -> d (join)."""
+    g = GraphDef()
+    a = g.root.alloc(ALLOC_SIZE)
+    b = g.root.alloc(ALLOC_SIZE)
+    c = g.root.alloc(ALLOC_SIZE)
+    d = a.join(b, c)
+    return GraphSpec(
+        "fan_in",
+        g,
+        named_nodes={"a": a, "b": b, "c": c, "d": d},
+        expected_edges={("a", "d"), ("b", "d"), ("c", "d")},
+        expected_pred={"a": set(), "b": set(), "c": set(), "d": {"a", "b", "c"}},
+        expected_succ={"a": {"d"}, "b": {"d"}, "c": {"d"}, "d": set()},
+    )
+
+
+def _build_diamond():
+    """Diamond: a -> {b, c} -> d (join)."""
+    g = GraphDef()
+    a = g.root.alloc(ALLOC_SIZE)
+    b = a.alloc(ALLOC_SIZE)
+    c = a.alloc(ALLOC_SIZE)
+    d = b.join(c)
+    return GraphSpec(
+        "diamond",
+        g,
+        named_nodes={"a": a, "b": b, "c": c, "d": d},
+        expected_edges={("a", "b"), ("a", "c"), ("b", "d"), ("c", "d")},
+        expected_pred={"a": set(), "b": {"a"}, "c": {"a"}, "d": {"b", "c"}},
+        expected_succ={"a": {"b", "c"}, "b": {"d"}, "c": {"d"}, "d": set()},
+    )
+
+
+def _build_disconnected():
+    """Two independent entry nodes: a, b."""
+    g = GraphDef()
+    a = g.root.alloc(ALLOC_SIZE)
+    b = g.root.alloc(ALLOC_SIZE)
+    return GraphSpec(
+        "disconnected",
+        g,
+        named_nodes={"a": a, "b": b},
+        expected_edges=set(),
+        expected_pred={"a": set(), "b": set()},
+        expected_succ={"a": set(), "b": set()},
+    )
+
+
+_ALL_BUILDERS = [
+    pytest.param(_build_empty, id="empty"),
+    pytest.param(_build_single, id="single"),
+    pytest.param(_build_chain, id="chain"),
+    pytest.param(_build_fan_out, id="fan_out"),
+    pytest.param(_build_fan_in, id="fan_in"),
+    pytest.param(_build_diamond, id="diamond"),
+    pytest.param(_build_disconnected, id="disconnected"),
+]
+
+_NONEMPTY_BUILDERS = [p for p in _ALL_BUILDERS if p.values[0] is not _build_empty]
+
+
+@pytest.fixture(params=_ALL_BUILDERS)
+def graph_spec(request, init_cuda):
+    return request.param()
+
+
+@pytest.fixture(params=_NONEMPTY_BUILDERS)
+def nonempty_graph_spec(request, init_cuda):
+    return request.param()
+
+
+# =============================================================================
+# NodeSpec — representative node types
+# =============================================================================
+
+
+@dataclass
+class NodeSpec:
+    """Describes a node type with expected properties.
+
+    The builder returns (node, expected_attrs) where expected_attrs maps
+    property names to expected values. Callable values are treated as
+    predicates (e.g., ``lambda v: v != 0``).
+    """
+
+    name: str
+    expected_class: type
+    expected_type_name: str
+    builder: Callable[[GraphDef], tuple[Node, dict]]
+
+
+def _build_empty_node(g):
+    a = g.root.alloc(ALLOC_SIZE)
+    b = g.root.alloc(ALLOC_SIZE)
+    return a.join(b), {}
+
+
+def _build_kernel_node(g):
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=(2, 3, 1), block=(32, 4, 1), shmem_size=128)
+    entry = g.root.alloc(ALLOC_SIZE)
+    node = entry.launch(config, kernel)
+    return node, {
+        "grid": (2, 3, 1),
+        "block": (32, 4, 1),
+        "shmem_size": 128,
+        "kernel": kernel,
+        "config": config,
+    }
+
+
+def _build_alloc_node(g):
+    device_id = Device().device_id
+    entry = g.root.alloc(ALLOC_SIZE)
+    node = entry.alloc(ALLOC_SIZE)
+    return node, {
+        "dptr": lambda v: v != 0,
+        "bytesize": ALLOC_SIZE,
+        "device_id": device_id,
+        "memory_type": "device",
+        "peer_access": (),
+        "options": GraphAllocOptions(device=device_id, memory_type="device"),
+    }
+
+
+def _build_alloc_managed_node(g):
+    device_id = Device().device_id
+    options = GraphAllocOptions(memory_type="managed")
+    entry = g.root.alloc(ALLOC_SIZE)
+    node = entry.alloc(ALLOC_SIZE, options)
+    return node, {
+        "dptr": lambda v: v != 0,
+        "bytesize": ALLOC_SIZE,
+        "device_id": device_id,
+        "memory_type": "managed",
+        "peer_access": (),
+        "options": GraphAllocOptions(device=device_id, memory_type="managed"),
+    }
+
+
+def _build_free_node(g):
+    alloc = g.root.alloc(ALLOC_SIZE)
+    node = alloc.free(alloc.dptr)
+    return node, {
+        "dptr": alloc.dptr,
+    }
+
+
+_NODE_SPECS = [
+    pytest.param(NodeSpec("empty", EmptyNode, "CU_GRAPH_NODE_TYPE_EMPTY", _build_empty_node), id="empty"),
+    pytest.param(NodeSpec("kernel", KernelNode, "CU_GRAPH_NODE_TYPE_KERNEL", _build_kernel_node), id="kernel"),
+    pytest.param(NodeSpec("alloc", AllocNode, "CU_GRAPH_NODE_TYPE_MEM_ALLOC", _build_alloc_node), id="alloc"),
+    pytest.param(
+        NodeSpec("alloc_managed", AllocNode, "CU_GRAPH_NODE_TYPE_MEM_ALLOC", _build_alloc_managed_node),
+        id="alloc_managed",
+    ),
+    pytest.param(NodeSpec("free", FreeNode, "CU_GRAPH_NODE_TYPE_MEM_FREE", _build_free_node), id="free"),
+]
+
+
+@pytest.fixture(params=_NODE_SPECS)
+def node_spec(request, init_cuda):
+    spec = request.param
+    g = GraphDef()
+    node, expected_attrs = spec.builder(g)
+    return spec, g, node, expected_attrs
+
+
+# =============================================================================
+# Fixtures
 # =============================================================================
 
 
 @pytest.fixture
 def sample_graphdef(init_cuda):
-    """A sample GraphDef."""
+    """A sample GraphDef for standalone tests."""
     return GraphDef()
 
 
 @pytest.fixture
-def sample_graphdef_alt(init_cuda):
-    """An alternate GraphDef (for inequality testing)."""
-    return GraphDef()
-
-
-@pytest.fixture
-def sample_root_node(sample_graphdef):
-    """A root Node (virtual, NULL handle)."""
-    return sample_graphdef.root
-
-
-@pytest.fixture
-def sample_root_node_alt(sample_graphdef_alt):
-    """An alternate root Node from different graph."""
-    return sample_graphdef_alt.root
-
-
-@pytest.fixture
-def sample_empty_node(sample_graphdef):
-    """An empty Node (join node)."""
-    return sample_graphdef.root.join()
-
-
-@pytest.fixture
-def sample_empty_node_alt(sample_graphdef):
-    """An alternate empty Node from same graph."""
-    return sample_graphdef.root.join()
-
-
-@pytest.fixture
-def sample_alloc_node(sample_graphdef):
-    """An allocation Node."""
-    return sample_graphdef.root.alloc(ALLOC_SIZE)
-
-
-@pytest.fixture
-def sample_alloc_node_alt(sample_graphdef):
-    """An alternate allocation Node from same graph."""
-    return sample_graphdef.root.alloc(ALLOC_SIZE)
-
-
-@pytest.fixture
-def sample_kernel_node(sample_graphdef, init_cuda):
-    """A kernel launch Node."""
-    mod = compile_common_kernels()
-    kernel = mod.get_kernel("empty_kernel")
-    config = LaunchConfig(grid=1, block=1)
-    return sample_graphdef.root.launch(config, kernel)
-
-
-@pytest.fixture
-def dot_file():
+def dot_file(tmp_path):
     """Temporary DOT file path, cleaned up after test."""
-    path = Path(tempfile.mktemp(suffix=".dot"))
+    path = tmp_path / "graph.dot"
     yield path
     path.unlink(missing_ok=True)
 
 
 # =============================================================================
-# Type groupings
-# =============================================================================
-
-# All types that support __hash__
-HASH_TYPES = [
-    "sample_graphdef",
-    "sample_root_node",
-    "sample_empty_node",
-    "sample_alloc_node",
-]
-
-# All types that support __eq__
-EQ_TYPES = [
-    "sample_graphdef",
-    "sample_root_node",
-    "sample_empty_node",
-    "sample_alloc_node",
-]
-
-# All types (for repr testing)
-ALL_TYPES = [
-    "sample_graphdef",
-    "sample_root_node",
-    "sample_empty_node",
-    "sample_alloc_node",
-    "sample_kernel_node",
-]
-
-# Pairs of distinct objects for inequality testing (a != b)
-DISTINCT_PAIRS = [
-    ("sample_graphdef", "sample_graphdef_alt"),
-    ("sample_root_node", "sample_root_node_alt"),
-    ("sample_empty_node", "sample_empty_node_alt"),
-    ("sample_alloc_node", "sample_alloc_node_alt"),
-]
-
-# Repr patterns
-REPR_PATTERNS = [
-    ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
-    ("sample_root_node", r"<Node root>"),
-    ("sample_empty_node", r"<Node handle=0x[0-9a-f]+>"),
-    ("sample_alloc_node", r"<Node handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
-    ("sample_kernel_node", r"<Node handle=0x[0-9a-f]+>"),
-]
-
-
-# =============================================================================
-# Hash tests
+# Topology tests (parameterized over graph specs)
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", HASH_TYPES)
-def test_hash_consistent(fixture_name, request):
-    """Hash is consistent across multiple calls."""
-    obj = request.getfixturevalue(fixture_name)
-    assert hash(obj) == hash(obj)
+def test_node_count(graph_spec):
+    """Graph contains the expected number of nodes."""
+    assert len(graph_spec.graphdef.nodes()) == len(graph_spec.named_nodes)
 
 
-@pytest.mark.parametrize("a_name,b_name", DISTINCT_PAIRS)
-def test_hash_distinct(a_name, b_name, request):
-    """Distinct objects have different hashes."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    assert hash(obj_a) != hash(obj_b)
+def test_nodes_match(nonempty_graph_spec):
+    """nodes() returns exactly the expected nodes."""
+    spec = nonempty_graph_spec
+    assert set(spec.graphdef.nodes()) == set(spec.named_nodes.values())
 
 
-# =============================================================================
-# Equality tests (identity-based)
-# =============================================================================
+def test_edges(graph_spec):
+    """edges() returns exactly the expected edges."""
+    spec = graph_spec
+    node_to_name = {v: k for k, v in spec.named_nodes.items()}
+    actual = {(node_to_name[a], node_to_name[b]) for a, b in spec.graphdef.edges()}
+    assert actual == spec.expected_edges
 
 
-@pytest.mark.parametrize("fixture_name", EQ_TYPES)
-def test_equals_self(fixture_name, request):
-    """Object equals itself."""
-    obj = request.getfixturevalue(fixture_name)
-    assert obj == obj
+def test_pred(nonempty_graph_spec):
+    """Each node has the expected predecessors."""
+    spec = nonempty_graph_spec
+    node_to_name = {v: k for k, v in spec.named_nodes.items()}
+    for name, node in spec.named_nodes.items():
+        actual = {node_to_name[p] for p in node.pred}
+        assert actual == spec.expected_pred[name], f"pred mismatch for node {name}"
 
 
-@pytest.mark.parametrize("fixture_name", EQ_TYPES)
-def test_not_equal_to_other_types(fixture_name, request):
-    """Object not equal to unrelated types."""
-    obj = request.getfixturevalue(fixture_name)
-    assert obj.__eq__("string") is NotImplemented
-    assert obj.__eq__(42) is NotImplemented
-    assert obj.__eq__(None) is NotImplemented
+def test_succ(nonempty_graph_spec):
+    """Each node has the expected successors."""
+    spec = nonempty_graph_spec
+    node_to_name = {v: k for k, v in spec.named_nodes.items()}
+    for name, node in spec.named_nodes.items():
+        actual = {node_to_name[s] for s in node.succ}
+        assert actual == spec.expected_succ[name], f"succ mismatch for node {name}"
 
 
-@pytest.mark.parametrize("a_name,b_name", DISTINCT_PAIRS)
-def test_distinct_objects_not_equal(a_name, b_name, request):
-    """Distinct objects of same type are not equal."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    assert obj_a is not obj_b
-    assert obj_a != obj_b
-
-
-@pytest.mark.parametrize("a_name,b_name", list(itertools.combinations(EQ_TYPES, 2)))
-def test_cross_type_equality_by_identity(a_name, b_name, request):
-    """Cross-type equality: equal iff same object identity."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    if obj_a is obj_b:
-        assert obj_a == obj_b
-    else:
-        assert obj_a != obj_b
+def test_node_graph_property(nonempty_graph_spec):
+    """Every node's .graph property returns the parent GraphDef."""
+    spec = nonempty_graph_spec
+    for name, node in spec.named_nodes.items():
+        assert node.graph == spec.graphdef, f"graph mismatch for node {name}"
 
 
 # =============================================================================
-# Collection usage tests
+# Node type tests (parameterized over node specs)
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", HASH_TYPES)
-def test_usable_in_set(fixture_name, request):
-    """Object can be added to a set."""
-    obj = request.getfixturevalue(fixture_name)
-    s = {obj}
-    assert obj in s
+def test_node_isinstance(node_spec):
+    """Node is an instance of the expected subclass."""
+    spec, g, node, _ = node_spec
+    assert isinstance(node, spec.expected_class)
+    assert isinstance(node, Node)
 
 
-@pytest.mark.parametrize("fixture_name", HASH_TYPES)
-def test_usable_as_dict_key(fixture_name, request):
-    """Object can be used as dictionary key."""
-    obj = request.getfixturevalue(fixture_name)
-    d = {obj: "value"}
-    assert d[obj] == "value"
+def test_node_type_property(node_spec):
+    """Node.type returns the expected CUgraphNodeType."""
+    spec, g, node, _ = node_spec
+    assert node.type.name == spec.expected_type_name
+
+
+def test_node_type_preserved_by_nodes(node_spec):
+    """Node type is preserved when retrieved via graphdef.nodes()."""
+    spec, g, node, _ = node_spec
+    all_nodes = g.nodes()
+    matched = [n for n in all_nodes if n == node]
+    assert len(matched) == 1
+    assert isinstance(matched[0], spec.expected_class)
+
+
+def test_node_type_preserved_by_pred_succ(node_spec):
+    """Node type is preserved when retrieved via pred/succ traversal."""
+    spec, g, node, _ = node_spec
+    for predecessor in node.pred:
+        matched = [s for s in predecessor.succ if s == node]
+        assert len(matched) == 1
+        assert isinstance(matched[0], spec.expected_class)
+
+
+def test_node_attrs(node_spec):
+    """Type-specific attributes have expected values after construction."""
+    spec, g, node, expected_attrs = node_spec
+    if not expected_attrs:
+        pytest.skip("no type-specific attributes")
+    for attr, expected in expected_attrs.items():
+        actual = getattr(node, attr)
+        if callable(expected):
+            assert expected(actual), f"{spec.name}.{attr}: check failed (got {actual})"
+        else:
+            assert actual == expected, f"{spec.name}.{attr}: expected {expected}, got {actual}"
+
+
+def test_node_attrs_preserved_by_nodes(node_spec):
+    """Type-specific attributes survive round-trip through graphdef.nodes()."""
+    spec, g, node, expected_attrs = node_spec
+    if not expected_attrs:
+        pytest.skip("no type-specific attributes")
+    retrieved = next(n for n in g.nodes() if n == node)
+    for attr in expected_attrs:
+        assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
 
 
 # =============================================================================
-# Repr tests
-# =============================================================================
-
-
-@pytest.mark.parametrize("fixture_name,pattern", REPR_PATTERNS)
-def test_repr_format(fixture_name, pattern, request):
-    """repr() matches expected pattern."""
-    import re
-
-    obj = request.getfixturevalue(fixture_name)
-    assert re.fullmatch(pattern, repr(obj))
-
-
-# =============================================================================
-# GraphDef-specific tests
+# GraphDef basics
 # =============================================================================
 
 
@@ -247,70 +407,16 @@ def test_graphdef_root_returns_node(sample_graphdef):
 
 
 def test_graphdef_root_is_virtual(sample_graphdef):
-    """Root node is virtual (no pred/succ)."""
+    """Root node is virtual (no pred/succ, type is None)."""
     root = sample_graphdef.root
     assert root.pred == ()
     assert root.succ == ()
+    assert root.type is None
 
 
 # =============================================================================
-# Node property tests
+# Alloc/free API
 # =============================================================================
-
-
-def test_node_graph_property(sample_graphdef):
-    """Node.graph returns the parent GraphDef."""
-    node = sample_graphdef.root.join()
-    assert node.graph == sample_graphdef
-
-
-def test_node_dptr_zero_for_non_alloc(sample_empty_node):
-    """Non-alloc nodes have dptr=0."""
-    assert sample_empty_node.dptr == 0
-
-
-def test_node_dptr_nonzero_for_alloc(sample_alloc_node):
-    """Alloc nodes have non-zero dptr."""
-    assert sample_alloc_node.dptr != 0
-
-
-# =============================================================================
-# Graph building: join
-# =============================================================================
-
-
-def test_join_from_root(sample_graphdef):
-    """Join from root creates entry node with no predecessors."""
-    node = sample_graphdef.root.join()
-    assert isinstance(node, Node)
-    assert len(node.pred) == 0
-
-
-def test_join_single_dependency(sample_graphdef):
-    """Join from a node creates dependency."""
-    n1 = sample_graphdef.root.join()
-    n2 = n1.join()
-    assert n1 in n2.pred
-    assert len(n2.pred) == 1
-
-
-@pytest.mark.parametrize("num_deps", [2, 3, 5])
-def test_join_multiple_dependencies(sample_graphdef, num_deps):
-    """Join N nodes creates node depending on all."""
-    nodes = [sample_graphdef.root.join() for _ in range(num_deps)]
-    joined = nodes[0].join(*nodes[1:])
-    assert set(joined.pred) == set(nodes)
-
-
-# =============================================================================
-# Graph building: alloc/free
-# =============================================================================
-
-
-def test_alloc_returns_valid_dptr(sample_graphdef):
-    """Alloc returns node with valid device pointer."""
-    node = sample_graphdef.root.alloc(ALLOC_SIZE)
-    assert node.dptr != 0
 
 
 def test_alloc_zero_size_fails(sample_graphdef):
@@ -326,7 +432,6 @@ def test_free_creates_dependency(sample_graphdef):
     alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
     free = alloc.free(alloc.dptr)
     assert alloc in free.pred
-    assert free.dptr == 0
 
 
 def test_alloc_free_chain(sample_graphdef):
@@ -341,16 +446,8 @@ def test_alloc_free_chain(sample_graphdef):
 
 
 # =============================================================================
-# Allocation options
+# Allocation options (error cases, input variants, multi-GPU)
 # =============================================================================
-
-
-@pytest.mark.parametrize("memory_type", ["device", "managed"])
-def test_alloc_memory_type(sample_graphdef, memory_type):
-    """Allocation succeeds for supported memory types."""
-    options = GraphAllocOptions(memory_type=memory_type)
-    node = sample_graphdef.root.alloc(ALLOC_SIZE, options)
-    assert node.dptr != 0
 
 
 def test_alloc_memory_type_invalid(sample_graphdef):
@@ -376,84 +473,26 @@ def test_alloc_device_option(sample_graphdef, device_spec):
 
 
 def test_alloc_peer_access(mempool_device_x2):
-    """Allocation with peer access list succeeds."""
+    """AllocNode.peer_access reflects requested peers."""
     d0, d1 = mempool_device_x2
     g = GraphDef()
     options = GraphAllocOptions(device=d0.device_id, peer_access=[d1.device_id])
     node = g.root.alloc(ALLOC_SIZE, options)
-    assert node.dptr != 0
+    assert d1.device_id in node.peer_access
 
 
 # =============================================================================
-# Graph traversal: nodes, edges, pred, succ
+# Join API
 # =============================================================================
 
 
-def test_empty_graph_has_no_nodes(sample_graphdef):
-    """Empty graph returns no nodes."""
-    assert sample_graphdef.nodes() == ()
-
-
-def test_empty_graph_has_no_edges(sample_graphdef):
-    """Empty graph returns no edges."""
-    assert sample_graphdef.edges() == ()
-
-
-def test_nodes_returns_all_nodes(sample_graphdef):
-    """nodes() returns all added nodes."""
-    n1 = sample_graphdef.root.join()
-    n2 = sample_graphdef.root.join()
-    n3 = n1.join(n2)
-    nodes = sample_graphdef.nodes()
-    assert len(nodes) == 3
-    assert set(nodes) == {n1, n2, n3}
-
-
-def test_edges_returns_dependency_pairs(sample_graphdef):
-    """edges() returns (from, to) pairs for all dependencies."""
-    n1 = sample_graphdef.root.join()
-    n2 = n1.join()
-    edges = sample_graphdef.edges()
-    assert (n1, n2) in edges
-
-
-def test_edges_multiple(sample_graphdef):
-    """edges() with fan-in topology."""
-    n1 = sample_graphdef.root.join()
-    n2 = sample_graphdef.root.join()
-    n3 = n1.join(n2)
-    edges = sample_graphdef.edges()
-    assert len(edges) == 2
-    assert (n1, n3) in edges
-    assert (n2, n3) in edges
-
-
-@pytest.mark.parametrize("direction", ["pred", "succ"])
-def test_traversal_single(sample_graphdef, direction):
-    """Single predecessor/successor relationship."""
-    n1 = sample_graphdef.root.join()
-    n2 = n1.join()
-    if direction == "pred":
-        assert n1 in n2.pred
-        assert len(n2.pred) == 1
-    else:
-        assert n2 in n1.succ
-        assert len(n1.succ) == 1
-
-
-@pytest.mark.parametrize("direction", ["pred", "succ"])
-def test_traversal_multiple(sample_graphdef, direction):
-    """Multiple predecessors/successors."""
-    if direction == "pred":
-        n1 = sample_graphdef.root.join()
-        n2 = sample_graphdef.root.join()
-        n3 = n1.join(n2)
-        assert set(n3.pred) == {n1, n2}
-    else:
-        n1 = sample_graphdef.root.join()
-        n2 = n1.join()
-        n3 = n1.join()
-        assert set(n1.succ) == {n2, n3}
+@pytest.mark.parametrize("num_branches", [2, 3, 5])
+def test_join_merges_branches(sample_graphdef, num_branches):
+    """join() with multiple branches creates correct dependencies."""
+    branches = [sample_graphdef.root.alloc(ALLOC_SIZE) for _ in range(num_branches)]
+    joined = branches[0].join(*branches[1:])
+    assert isinstance(joined, EmptyNode)
+    assert set(joined.pred) == set(branches)
 
 
 # =============================================================================
@@ -461,17 +500,16 @@ def test_traversal_multiple(sample_graphdef, direction):
 # =============================================================================
 
 
-def test_launch_creates_node(sample_graphdef, init_cuda):
-    """launch() creates a kernel node."""
+def test_launch_creates_node(sample_graphdef):
+    """launch() creates a KernelNode."""
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
     node = sample_graphdef.root.launch(config, kernel)
-    assert isinstance(node, Node)
-    assert node.dptr == 0
+    assert isinstance(node, KernelNode)
 
 
-def test_launch_chain_dependencies(sample_graphdef, init_cuda):
+def test_launch_chain_dependencies(sample_graphdef):
     """Chained launches create correct dependencies."""
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
@@ -485,7 +523,7 @@ def test_launch_chain_dependencies(sample_graphdef, init_cuda):
 
 
 # =============================================================================
-# Graph instantiation and execution
+# Instantiation and execution
 # =============================================================================
 
 
@@ -497,13 +535,13 @@ def test_instantiate_empty_graph(sample_graphdef):
 
 def test_instantiate_with_nodes(sample_graphdef):
     """Graph with nodes can be instantiated."""
-    sample_graphdef.root.join()
-    sample_graphdef.root.join()
+    sample_graphdef.root.alloc(ALLOC_SIZE)
+    sample_graphdef.root.alloc(ALLOC_SIZE)
     graph = sample_graphdef.instantiate()
     assert graph is not None
 
 
-def test_instantiate_and_execute_kernel(sample_graphdef, init_cuda):
+def test_instantiate_and_execute_kernel(sample_graphdef):
     """Graph with kernel can be instantiated and executed."""
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
@@ -536,7 +574,7 @@ def test_instantiate_and_execute_alloc_free(sample_graphdef):
 
 def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
     """debug_dot_print writes a DOT file."""
-    sample_graphdef.root.join()
+    sample_graphdef.root.alloc(ALLOC_SIZE)
     sample_graphdef.debug_dot_print(str(dot_file))
     assert dot_file.exists()
     content = dot_file.read_text()
@@ -545,7 +583,7 @@ def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
 
 def test_debug_dot_print_with_options(sample_graphdef, dot_file):
     """debug_dot_print accepts GraphDebugPrintOptions."""
-    sample_graphdef.root.join()
+    sample_graphdef.root.alloc(ALLOC_SIZE)
     options = GraphDebugPrintOptions(verbose=True, handles=True)
     sample_graphdef.debug_dot_print(str(dot_file), options)
     assert dot_file.exists()
@@ -553,6 +591,6 @@ def test_debug_dot_print_with_options(sample_graphdef, dot_file):
 
 def test_debug_dot_print_invalid_options(sample_graphdef, dot_file):
     """debug_dot_print rejects invalid options type."""
-    sample_graphdef.root.join()
+    sample_graphdef.root.alloc(ALLOC_SIZE)
     with pytest.raises(TypeError, match="options must be a GraphDebugPrintOptions"):
         sample_graphdef.debug_dot_print(str(dot_file), "invalid")
