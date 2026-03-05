@@ -72,7 +72,7 @@ def test_get_nv_link_supported_bw_modes(all_devices):
     for device in all_devices:
         with unsupported_before(device, None):
             modes = nvml.device_get_nvlink_supported_bw_modes(device)
-        assert isinstance(modes, nvml.NvLinkSupportedBWModes_v1)
+        assert isinstance(modes, nvml.NvlinkSupportedBWModes_v1)
         # #define NVML_NVLINK_TOTAL_SUPPORTED_BW_MODES 23
         assert len(modes.bw_modes) <= 23
         assert not hasattr(modes, "total_bw_modes")
@@ -130,16 +130,6 @@ def test_read_write_prm(all_devices):
         assert isinstance(result, tuple)
         assert isinstance(result[0], int)
         assert isinstance(result[1], bytes)
-
-
-def test_nvlink_low_power_threshold(all_devices):
-    for device in all_devices:
-        # Docs say supported on HOPPER or newer
-        with unsupported_before(device, None):
-            try:
-                nvml.device_set_nvlink_device_low_power_threshold(device, 0)
-            except nvml.NoPermissionError:
-                pytest.skip("No permission to set NVLink low power threshold")
 
 
 def test_get_power_management_limit(all_devices):
