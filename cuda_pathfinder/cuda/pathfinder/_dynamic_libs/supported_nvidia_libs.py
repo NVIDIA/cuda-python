@@ -25,6 +25,7 @@ SUPPORTED_LIBNAMES_LINUX_ONLY = tuple(
 SUPPORTED_LIBNAMES_WINDOWS_ONLY = tuple(
     desc.name for desc in _CTK_DESCRIPTORS if desc.windows_dlls and not desc.linux_sonames
 )
+
 SUPPORTED_LIBNAMES_LINUX = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY
 SUPPORTED_LIBNAMES_WINDOWS = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_WINDOWS_ONLY
 SUPPORTED_LIBNAMES_ALL = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY + SUPPORTED_LIBNAMES_WINDOWS_ONLY
@@ -48,19 +49,6 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = tuple(
 )
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = tuple(
     desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_rtld_deepbind and desc.linux_sonames
-)
-
-# CTK root canary probe config:
-# - anchor libs: expected on the standard system loader path and used to derive
-#   CTK root in an isolated child process.
-# - discoverable libs: libs that are allowed to use the CTK-root canary fallback.
-# Note: These are derived from the descriptor catalog for backward compatibility.
-# The new code uses desc.ctk_root_canary_anchor_libnames directly from descriptors.
-_CTK_ROOT_CANARY_ANCHOR_LIBNAMES = tuple(
-    desc.ctk_root_canary_anchor_libnames[0] for desc in DESCRIPTOR_CATALOG if desc.ctk_root_canary_anchor_libnames
-)
-_CTK_ROOT_CANARY_DISCOVERABLE_LIBNAMES = tuple(
-    desc.name for desc in DESCRIPTOR_CATALOG if desc.ctk_root_canary_anchor_libnames
 )
 
 # Based on output of toolshed/make_site_packages_libdirs_linux.py
