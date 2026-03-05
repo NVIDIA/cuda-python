@@ -827,12 +827,13 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_li
 namespace {
 struct GraphBox {
     CUgraph resource;
+    GraphHandle h_parent;  // Keeps parent alive for child/branch graphs
 };
 }  // namespace
 
 GraphHandle create_graph_handle(CUgraph graph) {
     auto box = std::shared_ptr<const GraphBox>(
-        new GraphBox{graph},
+        new GraphBox{graph, {}},
         [](const GraphBox* b) {
             GILReleaseGuard gil;
             p_cuGraphDestroy(b->resource);
@@ -842,8 +843,8 @@ GraphHandle create_graph_handle(CUgraph graph) {
     return GraphHandle(box, &box->resource);
 }
 
-GraphHandle create_graph_handle_ref(CUgraph graph) {
-    auto box = std::make_shared<const GraphBox>(GraphBox{graph});
+GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
+    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
     return GraphHandle(box, &box->resource);
 }
 

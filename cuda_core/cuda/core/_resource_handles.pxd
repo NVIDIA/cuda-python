@@ -143,7 +143,7 @@ cdef KernelHandle create_kernel_handle_ref(
 
 # Graph handles
 cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
-cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph) except+ nogil
+cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
 
 # Graphics resource handles
 cdef GraphicsResourceHandle create_graphics_resource_handle(

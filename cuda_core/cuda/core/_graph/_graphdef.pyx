@@ -905,7 +905,7 @@ cdef class Node:
             HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
                 new_node, &embedded_graph))
 
-        cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph)
+        cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph, self._h_graph)
 
         self._succ_cache = None
         return ChildGraphNode._create_with_params(self._h_graph, new_node, h_embedded)
@@ -1475,7 +1475,7 @@ cdef class ChildGraphNode(Node):
         cdef cydriver.CUgraph child_graph = NULL
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(node, &child_graph))
-        cdef GraphHandle h_child = create_graph_handle_ref(child_graph)
+        cdef GraphHandle h_child = create_graph_handle_ref(child_graph, h_graph)
         return ChildGraphNode._create_with_params(h_graph, node, h_child)
 
     def __repr__(self):
