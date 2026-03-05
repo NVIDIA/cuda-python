@@ -97,6 +97,7 @@ cdef StreamHandle get_per_thread_stream() except+ nogil
 # Event handles
 cdef EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) except+ nogil
 cdef EventHandle create_event_handle_noctx(unsigned int flags) except+ nogil
+cdef EventHandle create_event_handle_ref(cydriver.CUevent event) except+ nogil
 cdef EventHandle create_event_handle_ipc(
     const cydriver.CUipcEventHandle& ipc_handle) except+ nogil
 

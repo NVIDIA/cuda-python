@@ -341,6 +341,11 @@ EventHandle create_event_handle_noctx(unsigned int flags) {
     return create_event_handle(ContextHandle{}, flags);
 }
 
+EventHandle create_event_handle_ref(CUevent event) {
+    auto box = std::make_shared<const EventBox>(EventBox{event});
+    return EventHandle(box, &box->resource);
+}
+
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
     GILReleaseGuard gil;
     CUevent event;

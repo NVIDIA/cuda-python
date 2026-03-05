@@ -12,6 +12,7 @@ from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
     create_event_handle,
+    create_event_handle_ref,
     create_event_handle_ipc,
     as_intptr,
     as_cu,
@@ -124,6 +125,41 @@ cdef class Event:
         if opts.ipc_enabled:
             self.get_ipc_descriptor()
         return self
+
+    @staticmethod
+    cdef Event _from_raw_handle(cydriver.CUevent raw_event):
+        """Create a non-owning Event from a raw CUevent (internal use)."""
+        cdef EventHandle h_event = create_event_handle_ref(raw_event)
+        cdef Event self = Event.__new__(Event)
+        self._h_event = h_event
+        self._h_context = ContextHandle()
+        self._timing_disabled = True
+        self._busy_waited = False
+        self._ipc_enabled = False
+        self._ipc_descriptor = None
+        self._device_id = -1
+        return self
+
+    @staticmethod
+    def from_handle(handle) -> Event:
+        """Create a non-owning :obj:`Event` from a foreign event handle.
+
+        Parameters
+        ----------
+        handle : int
+            Event handle representing the address of a foreign
+            event object (CUevent).
+
+        Notes
+        -----
+        The returned Event does not own the underlying CUevent and will
+        not destroy it when garbage collected. This is intended for
+        wrapping events managed by other subsystems (e.g., CUDA graphs).
+        """
+        if not isinstance(handle, int):
+            raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
+        cdef cydriver.CUevent raw = <cydriver.CUevent><void*><size_t>handle
+        return Event._from_raw_handle(raw)
 
     cpdef close(self):
         """Destroy the event.

@@ -182,6 +182,11 @@ EventHandle create_event_handle_noctx(unsigned int flags);
 // Returns empty handle on error (caller must check).
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
 
+// Create a non-owning event handle (references existing event).
+// Use for events that are managed by the CUDA graph or another owner.
+// The event will NOT be destroyed when the handle is released.
+EventHandle create_event_handle_ref(CUevent event);
+
 // ============================================================================
 // Memory pool handle functions
 // ============================================================================

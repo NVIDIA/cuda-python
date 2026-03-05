@@ -70,6 +70,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const ContextHandle& h_ctx, unsigned int flags) except+ nogil
     EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
         unsigned int flags) except+ nogil
+    EventHandle create_event_handle_ref "cuda_core::create_event_handle_ref" (
+        cydriver.CUevent event) except+ nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
         const cydriver.CUipcEventHandle& ipc_handle) except+ nogil
 

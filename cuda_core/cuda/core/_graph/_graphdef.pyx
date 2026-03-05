@@ -11,11 +11,13 @@ the same public Graph type for execution.
 
 Node hierarchy:
     Node (base — also used for the virtual root)
-    ├── EmptyNode    (synchronization / join point)
-    ├── KernelNode   (kernel launch)
-    ├── AllocNode    (memory allocation, exposes dptr and bytesize)
-    ├── FreeNode     (memory free, exposes dptr)
-    └── MemsetNode   (memory set, exposes dptr, value, element_size, etc.)
+    ├── EmptyNode         (synchronization / join point)
+    ├── KernelNode        (kernel launch)
+    ├── AllocNode         (memory allocation, exposes dptr and bytesize)
+    ├── FreeNode          (memory free, exposes dptr)
+    ├── MemsetNode        (memory set, exposes dptr, value, element_size, etc.)
+    ├── EventRecordNode   (record an event)
+    └── EventWaitNode     (wait for an event)
 """
 
 from dataclasses import dataclass
@@ -38,6 +40,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_intptr,
 )
+from cuda.core._event cimport Event
 from cuda.core._module cimport Kernel
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
@@ -261,6 +264,10 @@ cdef class Node:
             return FreeNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMSET:
             return MemsetNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_EVENT_RECORD:
+            return EventRecordNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT:
+            return EventWaitNode._create_from_driver(h_graph, node)
         else:
             n = Node.__new__(Node)
             (<Node>n)._h_graph = h_graph
@@ -646,6 +653,68 @@ cdef class Node:
             self._h_graph, new_node, c_dst,
             val, elem_size, width, height, pitch)
 
+    def record_event(self, event):
+        """Add an event record node depending on this node.
+
+        Parameters
+        ----------
+        event : Event
+            The event to record.
+
+        Returns
+        -------
+        EventRecordNode
+            A new EventRecordNode representing the event record operation.
+        """
+        cdef Event ev = <Event>event
+        cdef cydriver.CUevent c_event = as_cu(ev._h_event)
+        cdef cydriver.CUgraphNode new_node = NULL
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUgraphNode* deps = NULL
+        cdef size_t num_deps = 0
+
+        if self._node != NULL:
+            deps = &self._node
+            num_deps = 1
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphAddEventRecordNode(
+                &new_node, graph, deps, num_deps, c_event))
+
+        self._succ_cache = None
+        return EventRecordNode._create_with_params(self._h_graph, new_node, c_event)
+
+    def wait_event(self, event):
+        """Add an event wait node depending on this node.
+
+        Parameters
+        ----------
+        event : Event
+            The event to wait for.
+
+        Returns
+        -------
+        EventWaitNode
+            A new EventWaitNode representing the event wait operation.
+        """
+        cdef Event ev = <Event>event
+        cdef cydriver.CUevent c_event = as_cu(ev._h_event)
+        cdef cydriver.CUgraphNode new_node = NULL
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUgraphNode* deps = NULL
+        cdef size_t num_deps = 0
+
+        if self._node != NULL:
+            deps = &self._node
+            num_deps = 1
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphAddEventWaitNode(
+                &new_node, graph, deps, num_deps, c_event))
+
+        self._succ_cache = None
+        return EventWaitNode._create_with_params(self._h_graph, new_node, c_event)
+
 
 # =============================================================================
 # Node subclasses
@@ -959,3 +1028,75 @@ cdef class MemsetNode(Node):
     def pitch(self):
         """Pitch in bytes (unused if height is 1)."""
         return self._pitch
+
+
+cdef class EventRecordNode(Node):
+    """An event record node.
+
+    Properties
+    ----------
+    event : Event
+        The event being recorded (non-owning wrapper).
+    """
+
+    @staticmethod
+    cdef EventRecordNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                             cydriver.CUevent event):
+        """Create from known params (called by record_event() builder)."""
+        cdef EventRecordNode n = EventRecordNode.__new__(EventRecordNode)
+        n._h_graph = h_graph
+        n._node = node
+        n._event = event
+        return n
+
+    @staticmethod
+    cdef EventRecordNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUevent event
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphEventRecordNodeGetEvent(node, &event))
+        return EventRecordNode._create_with_params(h_graph, node, event)
+
+    def __repr__(self):
+        return f"<EventRecordNode handle=0x{<uintptr_t>self._node:x}>"
+
+    @property
+    def event(self):
+        """The event being recorded (non-owning wrapper)."""
+        return Event._from_raw_handle(self._event)
+
+
+cdef class EventWaitNode(Node):
+    """An event wait node.
+
+    Properties
+    ----------
+    event : Event
+        The event being waited on (non-owning wrapper).
+    """
+
+    @staticmethod
+    cdef EventWaitNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                           cydriver.CUevent event):
+        """Create from known params (called by wait_event() builder)."""
+        cdef EventWaitNode n = EventWaitNode.__new__(EventWaitNode)
+        n._h_graph = h_graph
+        n._node = node
+        n._event = event
+        return n
+
+    @staticmethod
+    cdef EventWaitNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUevent event
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphEventWaitNodeGetEvent(node, &event))
+        return EventWaitNode._create_with_params(h_graph, node, event)
+
+    def __repr__(self):
+        return f"<EventWaitNode handle=0x{<uintptr_t>self._node:x}>"
+
+    @property
+    def event(self):
+        """The event being waited on (non-owning wrapper)."""
+        return Event._from_raw_handle(self._event)

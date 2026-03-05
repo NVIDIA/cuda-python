@@ -306,6 +306,34 @@ def sample_memset_node_alt(sample_graphdef):
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
+@pytest.fixture
+def sample_event_record_node(sample_graphdef, sample_device):
+    """An EventRecordNode."""
+    event = sample_device.create_event()
+    return sample_graphdef.root.record_event(event)
+
+
+@pytest.fixture
+def sample_event_record_node_alt(sample_graphdef, sample_device):
+    """An alternate EventRecordNode from same graph."""
+    event = sample_device.create_event()
+    return sample_graphdef.root.record_event(event)
+
+
+@pytest.fixture
+def sample_event_wait_node(sample_graphdef, sample_device):
+    """An EventWaitNode."""
+    event = sample_device.create_event()
+    return sample_graphdef.root.wait_event(event)
+
+
+@pytest.fixture
+def sample_event_wait_node_alt(sample_graphdef, sample_device):
+    """An alternate EventWaitNode from same graph."""
+    event = sample_device.create_event()
+    return sample_graphdef.root.wait_event(event)
+
+
 # =============================================================================
 # Type groupings
 # =============================================================================
@@ -327,6 +355,8 @@ HASH_TYPES = [
     "sample_kernel_node",
     "sample_free_node",
     "sample_memset_node",
+    "sample_event_record_node",
+    "sample_event_wait_node",
 ]
 
 # Types with __eq__ support
@@ -346,6 +376,8 @@ EQ_TYPES = [
     "sample_kernel_node",
     "sample_free_node",
     "sample_memset_node",
+    "sample_event_record_node",
+    "sample_event_wait_node",
 ]
 
 # Types with __weakref__ support
@@ -366,6 +398,8 @@ WEAKREF_TYPES = [
     "sample_kernel_node",
     "sample_free_node",
     "sample_memset_node",
+    "sample_event_record_node",
+    "sample_event_wait_node",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -386,6 +420,8 @@ SAME_TYPE_PAIRS = [
     ("sample_kernel_node", "sample_kernel_node_alt"),
     ("sample_free_node", "sample_free_node_alt"),
     ("sample_memset_node", "sample_memset_node_alt"),
+    ("sample_event_record_node", "sample_event_record_node_alt"),
+    ("sample_event_wait_node", "sample_event_wait_node_alt"),
 ]
 
 # Types with public from_handle methods and how to create a copy
@@ -429,6 +465,8 @@ REPR_PATTERNS = [
     ("sample_kernel_node", r"<KernelNode handle=0x[0-9a-f]+>"),
     ("sample_free_node", r"<FreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
     ("sample_memset_node", r"<MemsetNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
+    ("sample_event_record_node", r"<EventRecordNode handle=0x[0-9a-f]+>"),
+    ("sample_event_wait_node", r"<EventWaitNode handle=0x[0-9a-f]+>"),
 ]
 
 

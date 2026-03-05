@@ -14,6 +14,8 @@ from cuda.core._graph import GraphDebugPrintOptions
 from cuda.core._graph._graphdef import (
     AllocNode,
     EmptyNode,
+    EventRecordNode,
+    EventWaitNode,
     FreeNode,
     GraphAllocOptions,
     GraphDef,
@@ -298,6 +300,24 @@ def _build_memset_node_2d(g):
     }
 
 
+def _build_event_record_node(g):
+    event = Device().create_event()
+    entry = g.root.alloc(ALLOC_SIZE)
+    node = entry.record_event(event)
+    return node, {
+        "event": event,
+    }
+
+
+def _build_event_wait_node(g):
+    event = Device().create_event()
+    entry = g.root.alloc(ALLOC_SIZE)
+    node = entry.wait_event(event)
+    return node, {
+        "event": event,
+    }
+
+
 _NODE_SPECS = [
     pytest.param(NodeSpec("empty", EmptyNode, "CU_GRAPH_NODE_TYPE_EMPTY", _build_empty_node), id="empty"),
     pytest.param(NodeSpec("kernel", KernelNode, "CU_GRAPH_NODE_TYPE_KERNEL", _build_kernel_node), id="kernel"),
@@ -315,6 +335,14 @@ _NODE_SPECS = [
         NodeSpec("memset_u32", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_u32), id="memset_u32"
     ),
     pytest.param(NodeSpec("memset_2d", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_2d), id="memset_2d"),
+    pytest.param(
+        NodeSpec("event_record", EventRecordNode, "CU_GRAPH_NODE_TYPE_EVENT_RECORD", _build_event_record_node),
+        id="event_record",
+    ),
+    pytest.param(
+        NodeSpec("event_wait", EventWaitNode, "CU_GRAPH_NODE_TYPE_WAIT_EVENT", _build_event_wait_node),
+        id="event_wait",
+    ),
 ]
 
 
@@ -635,6 +663,19 @@ def test_instantiate_and_execute_memset(sample_graphdef):
     alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
     ms = alloc.memset(alloc.dptr, 0xAB, ALLOC_SIZE)
     ms.free(alloc.dptr)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+
+def test_instantiate_and_execute_event_record_wait(sample_graphdef):
+    """Graph with event record and wait nodes can be executed."""
+    event = Device().create_event()
+    rec = sample_graphdef.root.record_event(event)
+    rec.wait_event(event)
     graph = sample_graphdef.instantiate()
 
     stream = Device().create_stream()
