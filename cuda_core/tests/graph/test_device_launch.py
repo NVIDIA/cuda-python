@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 """Device-side graph launch tests.
@@ -10,11 +10,9 @@ This feature requires:
 - The kernel calling cudaGraphLaunch() must itself be launched from within a graph
 """
 
-import os
-import sys
-
 import numpy as np
 import pytest
+
 from cuda.core import (
     Device,
     GraphCompleteOptions,
@@ -27,30 +25,6 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-
-
-def _find_cudadevrt_library():
-    """Find the CUDA device runtime static library using CUDA_HOME.
-
-    See https://github.com/NVIDIA/cuda-python/issues/716 for future improvements
-    to make this discovery more robust via cuda.pathfinder.
-
-    Returns:
-        Path to libcudadevrt.a (Linux) or cudadevrt.lib (Windows), or None if not found.
-    """
-    cuda_home = os.environ.get("CUDA_HOME") or os.environ.get("CUDA_PATH")
-    if not cuda_home:
-        return None
-
-    if sys.platform == "win32":
-        path = os.path.join(cuda_home, "lib", "x64", "cudadevrt.lib")
-    else:
-        # Try lib64 first (common on Linux), fall back to lib
-        path = os.path.join(cuda_home, "lib64", "libcudadevrt.a")
-        if not os.path.isfile(path):
-            path = os.path.join(cuda_home, "lib", "libcudadevrt.a")
-
-    return path if os.path.isfile(path) else None
 
 
 def _get_device_arch():
@@ -80,9 +54,11 @@ def _compile_device_launcher_kernel():
 
     Raises pytest.skip if libcudadevrt.a cannot be found.
     """
-    cudadevrt_path = _find_cudadevrt_library()
-    if cudadevrt_path is None:
-        pytest.skip("cudadevrt library not found (set CUDA_HOME or CUDA_PATH)")
+    pathfinder = pytest.importorskip("cuda.pathfinder")
+    try:
+        cudadevrt_path = pathfinder.find_static_lib("cudadevrt")
+    except pathfinder.StaticLibNotFoundError as e:
+        pytest.skip(f"cudadevrt library not found: {e}")
 
     code = """
     extern "C" __global__ void launch_graph_from_device(cudaGraphExec_t graph) {

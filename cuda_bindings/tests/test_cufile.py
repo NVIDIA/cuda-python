@@ -12,8 +12,9 @@ import tempfile
 from contextlib import suppress
 from functools import cache
 
-import cuda.bindings.driver as cuda
 import pytest
+
+import cuda.bindings.driver as cuda
 
 cufile = pytest.importorskip("cuda.bindings.cufile")
 

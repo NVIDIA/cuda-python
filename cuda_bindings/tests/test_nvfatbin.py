@@ -8,6 +8,7 @@ import shutil
 import subprocess
 
 import pytest
+
 from cuda.bindings import nvfatbin, nvrtc
 
 ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_100"]

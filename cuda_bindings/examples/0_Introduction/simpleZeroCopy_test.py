@@ -11,6 +11,7 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors
 from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -32,28 +33,26 @@ def main():
     idev = 0
     bPinGenericMemory = False
 
+    import pytest
+
     if platform.system() == "Darwin":
-        print("simpleZeroCopy is not supported on Mac OSX - waiving sample")
-        return
+        pytest.skip("simpleZeroCopy is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        print("simpleZeroCopy is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("simpleZeroCopy is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        print("simpleZeroCopy is not supported on aarch64 - waiving sample")
-        return
+        pytest.skip("simpleZeroCopy is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        print("simpleZeroCopy is not supported on sbsa - waiving sample")
-        return
+        pytest.skip("simpleZeroCopy is not supported on sbsa")
 
     if checkCmdLineFlag("help"):
-        print("Usage:  simpleZeroCopy [OPTION]\n")
-        print("Options:")
-        print("  device=[device #]  Specify the device to be used")
-        print("  use_generic_memory (optional) use generic page-aligned for system memory")
-        return
+        print("Usage:  simpleZeroCopy [OPTION]\n", file=sys.stderr)
+        print("Options:", file=sys.stderr)
+        print("  device=[device #]  Specify the device to be used", file=sys.stderr)
+        print("  use_generic_memory (optional) use generic page-aligned for system memory", file=sys.stderr)
+        sys.exit(1)
 
     # Get the device selected by the user or default to 0, and then set it.
     if checkCmdLineFlag("device="):
@@ -78,8 +77,7 @@ def main():
     deviceProp = checkCudaErrors(cudart.cudaGetDeviceProperties(idev))
 
     if not deviceProp.canMapHostMemory:
-        print(f"Device {idev} does not support mapping CPU host memory!")
-        return
+        pytest.skip(f"Device {idev} does not support mapping CPU host memory!")
 
     checkCudaErrors(cudart.cudaSetDeviceFlags(cudart.cudaDeviceMapHost))
 
@@ -126,27 +124,27 @@ def main():
     grid.x = math.ceil(nelem / float(block.x))
     grid.y = 1
     grid.z = 1
-    kernelHelper = common.KernelHelper(simpleZeroCopy, idev)
-    _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
-    kernelArgs = (
-        (d_a, d_b, d_c, nelem),
-        (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
-    )
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _vectorAddGPU,
-            grid.x,
-            grid.y,
-            grid.z,
-            block.x,
-            block.y,
-            block.z,
-            0,
-            cuda.CU_STREAM_LEGACY,
-            kernelArgs,
-            0,
+    with common.KernelHelper(simpleZeroCopy, idev) as kernelHelper:
+        _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
+        kernelArgs = (
+            (d_a, d_b, d_c, nelem),
+            (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
         )
-    )
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _vectorAddGPU,
+                grid.x,
+                grid.y,
+                grid.z,
+                block.x,
+                block.y,
+                block.z,
+                0,
+                cuda.CU_STREAM_LEGACY,
+                kernelArgs,
+                0,
+            )
+        )
     checkCudaErrors(cudart.cudaDeviceSynchronize())
 
     print("> Checking the results from vectorAddGPU() ...")
@@ -177,9 +175,8 @@ def main():
         checkCudaErrors(cudart.cudaFreeHost(c))
 
     if errorNorm / refNorm >= 1.0e-7:
-        print("FAILED")
-        sys.exit(-1)
-    print("PASSED")
+        print("FAILED", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

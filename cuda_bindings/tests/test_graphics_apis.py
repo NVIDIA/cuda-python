@@ -8,6 +8,7 @@ import os
 import sys
 
 import pytest
+
 from cuda.bindings import runtime as cudart
 
 
@@ -41,7 +42,7 @@ def _gl_context():
             win.switch_to()
         else:
             # Headless EGL path; pyglet will arrange a pbuffer-like headless context
-            from pyglet.gl import headless  # noqa: F401  (import side-effect creates context)
+            from pyglet.gl import headless  # noqa: F401
 
         # Make a tiny texture so we have a real GL object to register
         from pyglet.gl import gl as _gl

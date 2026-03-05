@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -10,7 +10,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This checklist is for cuda-core releases as well as cuda-bindings patches. Please go through this checklist and ensure all tasks are completed.
+        This checklist is for cuda-core releases as well as cuda-bindings patches. Please go through this checklist and ensure all tasks are completed. See [RELEASE-core.md](../RELEASE-core.md) for detailed guidance on each step (cuda.core).
 
   - type: checkboxes
     id: subpackage-tasks
@@ -20,17 +20,13 @@ body:
         - label: File an internal nvbug to communicate test plan & release schedule with QA
         - label: Ensure all pending PRs are reviewed, tested, and merged
         - label: Check (or update if needed) the dependency requirements
-        - label: Create a public rc tag
-        - label: "Point QA to fetch public artifacts (wheels) from the GHA run ID, example: `gh run download 12323257563 -p \"cuda-core*\" -R NVIDIA/cuda-python`"
-        - label: Wait for QA reports and fix any issues found
         - label: "Finalize the doc update, including release notes (\"Note: Touching docstrings/type annotations in code is OK during code freeze, apply your best judgement!\")"
         - label: Update the docs for the new version
         - label: Create a public release tag
         - label: Wait for the tag-triggered CI run to complete, and use that run ID for release workflows
         - label: If any code change happens, rebuild the wheels from the new tag
-        - label: Update the conda recipe & release conda packages
-        - label: Upload conda packages to nvidia channel
         - label: Upload wheels to PyPI
+        - label: Update the conda recipe & release conda packages
         - label: Post-release QA
         - label: Finalize the announcement update
         - label: Send out the announcement internally

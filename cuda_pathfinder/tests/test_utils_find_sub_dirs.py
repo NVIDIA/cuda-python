@@ -89,3 +89,172 @@ def test_find_sub_dirs_sys_path_no_math():
 def test_find_sub_dirs_all_sitepackages_no_match():
     result = find_sub_dirs_all_sitepackages((NONEXISTENT,))
     assert result == []
+
+
+def test_find_sub_dirs_all_sitepackages_venv_order(mocker, tmp_path):
+    """Test that in a venv with --system-site-packages, search order is: venv, user, system.
+
+    This test verifies fix for issue #1716: user-site-packages should come after
+    venv site-packages but before system site-packages.
+    """
+    # Create test directories
+    venv_site = tmp_path / "venv" / "lib" / "python3.12" / "site-packages"
+    user_site = tmp_path / "user" / ".local" / "lib" / "python3.12" / "site-packages"
+    system_site = tmp_path / "system" / "lib" / "python3.12" / "dist-packages"
+
+    venv_site.mkdir(parents=True)
+    user_site.mkdir(parents=True)
+    system_site.mkdir(parents=True)
+
+    # Create a test subdirectory in each
+    test_subdir = ("nvidia", "cuda_runtime", "lib")
+    (venv_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+    (user_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+    (system_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+
+    # Mock site.getsitepackages() to return venv first, then system
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.getsitepackages",
+        return_value=[str(venv_site), str(system_site)],
+    )
+    # Mock user site-packages
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.getusersitepackages",
+        return_value=str(user_site),
+    )
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.ENABLE_USER_SITE",
+        True,
+    )
+    # Mock sys.prefix != sys.base_prefix to simulate venv
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.sys.prefix",
+        str(tmp_path / "venv"),
+    )
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.sys.base_prefix",
+        str(tmp_path / "system"),
+    )
+
+    # Clear cache to ensure mocks take effect
+    from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_cached
+
+    find_sub_dirs_cached.cache_clear()
+
+    result = find_sub_dirs_all_sitepackages(test_subdir)
+
+    # Verify order: venv should come first, then user, then system
+    assert len(result) == 3
+    assert result[0] == str(venv_site / "nvidia" / "cuda_runtime" / "lib")
+    assert result[1] == str(user_site / "nvidia" / "cuda_runtime" / "lib")
+    assert result[2] == str(system_site / "nvidia" / "cuda_runtime" / "lib")
+
+
+def test_find_sub_dirs_all_sitepackages_non_venv_order(mocker, tmp_path):
+    """Test that outside a venv, search order is: user, system.
+
+    This verifies PEP 370 behavior: user-site-packages should come before
+    system site-packages when not in a venv.
+    """
+    # Create test directories
+    user_site = tmp_path / "user" / ".local" / "lib" / "python3.12" / "site-packages"
+    system_site = tmp_path / "system" / "lib" / "python3.12" / "dist-packages"
+
+    user_site.mkdir(parents=True)
+    system_site.mkdir(parents=True)
+
+    # Create a test subdirectory in each
+    test_subdir = ("nvidia", "cuda_runtime", "lib")
+    (user_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+    (system_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+
+    # Mock site.getsitepackages() to return only system site-packages
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.getsitepackages",
+        return_value=[str(system_site)],
+    )
+    # Mock user site-packages
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.getusersitepackages",
+        return_value=str(user_site),
+    )
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.ENABLE_USER_SITE",
+        True,
+    )
+    # Mock sys.prefix == sys.base_prefix to simulate non-venv
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.sys.prefix",
+        str(tmp_path / "system"),
+    )
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.sys.base_prefix",
+        str(tmp_path / "system"),
+    )
+
+    # Clear cache to ensure mocks take effect
+    from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_cached
+
+    find_sub_dirs_cached.cache_clear()
+
+    result = find_sub_dirs_all_sitepackages(test_subdir)
+
+    # Verify order: user should come first, then system
+    assert len(result) == 2
+    assert result[0] == str(user_site / "nvidia" / "cuda_runtime" / "lib")
+    assert result[1] == str(system_site / "nvidia" / "cuda_runtime" / "lib")
+
+
+def test_find_sub_dirs_all_sitepackages_venv_first_match(mocker, tmp_path):
+    """Test that in a venv, venv site-packages is searched first (fixes #1716).
+
+    This test ensures that when a file exists in both venv and user site-packages,
+    the venv version is found first, matching Python's import behavior.
+    """
+    # Create test directories
+    venv_site = tmp_path / "venv" / "lib" / "python3.12" / "site-packages"
+    user_site = tmp_path / "user" / ".local" / "lib" / "python3.12" / "site-packages"
+
+    venv_site.mkdir(parents=True)
+    user_site.mkdir(parents=True)
+
+    # Create the same subdirectory in both
+    test_subdir = ("nvidia", "cuda_runtime", "lib")
+    (venv_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+    (user_site / "nvidia" / "cuda_runtime" / "lib").mkdir(parents=True)
+
+    # Mock site.getsitepackages() to return venv first
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.getsitepackages",
+        return_value=[str(venv_site)],
+    )
+    # Mock user site-packages
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.getusersitepackages",
+        return_value=str(user_site),
+    )
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.site.ENABLE_USER_SITE",
+        True,
+    )
+    # Mock sys.prefix != sys.base_prefix to simulate venv
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.sys.prefix",
+        str(tmp_path / "venv"),
+    )
+    mocker.patch(
+        "cuda.pathfinder._utils.find_sub_dirs.sys.base_prefix",
+        str(tmp_path / "system"),
+    )
+
+    # Clear cache to ensure mocks take effect
+    from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_cached
+
+    find_sub_dirs_cached.cache_clear()
+
+    result = find_sub_dirs_all_sitepackages(test_subdir)
+
+    # Verify venv comes first (this would fail with old code that puts user first)
+    assert len(result) >= 2
+    assert result[0] == str(venv_site / "nvidia" / "cuda_runtime" / "lib")
+    assert result[1] == str(user_site / "nvidia" / "cuda_runtime" / "lib")

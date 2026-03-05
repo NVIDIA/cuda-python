@@ -4,6 +4,7 @@
 
 
 import pytest
+
 from cuda.core import system
 
 SHOULD_SKIP_NVML_TESTS = not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE

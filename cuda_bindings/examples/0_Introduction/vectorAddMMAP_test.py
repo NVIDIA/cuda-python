@@ -9,6 +9,7 @@ import sys
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
+
 from cuda.bindings import driver as cuda
 
 vectorAddMMAP = """\
@@ -189,23 +190,19 @@ def simpleFreeMultiDeviceMmap(dptr, size):
 
 
 def main():
-    print("Vector Addition (Driver API)")
+    import pytest
 
     if platform.system() == "Darwin":
-        print("vectorAddMMAP is not supported on Mac OSX - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        print("vectorAddMMAP is not supported on ARMv7 - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        print("vectorAddMMAP is not supported on aarch64 - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        print("vectorAddMMAP is not supported on sbsa - waiving sample")
-        return
+        pytest.skip("vectorAddMMAP is not supported on sbsa")
 
     N = 50000
     size = N * np.dtype(np.float32).itemsize
@@ -224,8 +221,7 @@ def main():
     )
     print(f"Device {cuDevice} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {attributeVal}.")
     if not attributeVal:
-        print(f"Device {cuDevice} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
-        return
+        pytest.skip(f"Device {cuDevice} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
 
     # The vector addition happens on cuDevice, so the allocations need to be mapped there.
     mappingDevices = [cuDevice]
@@ -236,71 +232,71 @@ def main():
     # Create context
     cuContext = checkCudaErrors(cuda.cuCtxCreate(None, 0, cuDevice))
 
-    kernelHelper = common.KernelHelper(vectorAddMMAP, int(cuDevice))
-    _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
+    with common.KernelHelper(vectorAddMMAP, int(cuDevice)) as kernelHelper:
+        _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
 
-    # Allocate input vectors h_A and h_B in host memory
-    h_A = np.random.rand(size).astype(dtype=np.float32)
-    h_B = np.random.rand(size).astype(dtype=np.float32)
-    h_C = np.random.rand(size).astype(dtype=np.float32)
+        # Allocate input vectors h_A and h_B in host memory
+        h_A = np.random.rand(size).astype(dtype=np.float32)
+        h_B = np.random.rand(size).astype(dtype=np.float32)
+        h_C = np.random.rand(size).astype(dtype=np.float32)
 
-    # Allocate vectors in device memory
-    # note that a call to cuCtxEnablePeerAccess is not needed even though
-    # the backing devices and mapping device are not the same.
-    # This is because the cuMemSetAccess call explicitly specifies
-    # the cross device mapping.
-    # cuMemSetAccess is still subject to the constraints of cuDeviceCanAccessPeer
-    # for cross device mappings (hence why we checked cuDeviceCanAccessPeer earlier).
-    d_A, allocationSize = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
-    d_B, _ = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
-    d_C, _ = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
+        # Allocate vectors in device memory
+        # note that a call to cuCtxEnablePeerAccess is not needed even though
+        # the backing devices and mapping device are not the same.
+        # This is because the cuMemSetAccess call explicitly specifies
+        # the cross device mapping.
+        # cuMemSetAccess is still subject to the constraints of cuDeviceCanAccessPeer
+        # for cross device mappings (hence why we checked cuDeviceCanAccessPeer earlier).
+        d_A, allocationSize = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
+        d_B, _ = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
+        d_C, _ = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
 
-    # Copy vectors from host memory to device memory
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, size))
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, size))
+        # Copy vectors from host memory to device memory
+        checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, size))
+        checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, size))
 
-    # Grid/Block configuration
-    threadsPerBlock = 256
-    blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
+        # Grid/Block configuration
+        threadsPerBlock = 256
+        blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
 
-    kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
+        kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
 
-    # Launch the CUDA kernel
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            _VecAdd_kernel,
-            blocksPerGrid,
-            1,
-            1,
-            threadsPerBlock,
-            1,
-            1,
-            0,
-            0,
-            kernelArgs,
-            0,
+        # Launch the CUDA kernel
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _VecAdd_kernel,
+                blocksPerGrid,
+                1,
+                1,
+                threadsPerBlock,
+                1,
+                1,
+                0,
+                0,
+                kernelArgs,
+                0,
+            )
         )
-    )
 
-    # Copy result from device memory to host memory
-    # h_C contains the result in host memory
-    checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, size))
+        # Copy result from device memory to host memory
+        # h_C contains the result in host memory
+        checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, size))
 
-    # Verify result
-    for i in range(N):
-        sum_all = h_A[i] + h_B[i]
-        if math.fabs(h_C[i] - sum_all) > 1e-7:
-            break
+        # Verify result
+        for i in range(N):
+            sum_all = h_A[i] + h_B[i]
+            if math.fabs(h_C[i] - sum_all) > 1e-7:
+                break
 
-    checkCudaErrors(simpleFreeMultiDeviceMmap(d_A, allocationSize))
-    checkCudaErrors(simpleFreeMultiDeviceMmap(d_B, allocationSize))
-    checkCudaErrors(simpleFreeMultiDeviceMmap(d_C, allocationSize))
+        checkCudaErrors(simpleFreeMultiDeviceMmap(d_A, allocationSize))
+        checkCudaErrors(simpleFreeMultiDeviceMmap(d_B, allocationSize))
+        checkCudaErrors(simpleFreeMultiDeviceMmap(d_C, allocationSize))
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
 
-    print("{}".format("Result = PASS" if i + 1 == N else "Result = FAIL"))
     if i + 1 != N:
-        sys.exit(-1)
+        print("Result = FAIL", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

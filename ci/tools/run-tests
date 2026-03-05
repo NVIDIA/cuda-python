@@ -73,10 +73,13 @@ elif [[ "${test_module}" == "core" ]]; then
   fi
 
   pushd ./cuda_core
+  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     # We already installed cuda-bindings, and all CTK components exist locally,
     # so just install the test dependencies.
-    pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
+    # Constrain cuda-toolkit to match the local CTK version to avoid
+    # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
+    pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
   else
     pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi

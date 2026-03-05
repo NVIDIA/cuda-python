@@ -20,9 +20,10 @@ import sys
 try:
     import cupy as cp
 except ImportError:
-    print("cupy is not installed, the GPU example will be skipped", file=sys.stderr)
-    cp = None
+    print("cupy is not installed, this example requires cupy", file=sys.stderr)
+    sys.exit(1)
 import numpy as np
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 
@@ -85,8 +86,6 @@ def my_func(arr, work_stream, gpu_ker):
 
 def run():
     global my_func
-    if not cp:
-        return None
     # Here is a concrete (very naive!) implementation on GPU:
     gpu_code = string.Template(r"""
     extern "C"

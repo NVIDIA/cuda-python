@@ -7,6 +7,7 @@ import random as rnd
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
@@ -116,7 +117,7 @@ __global__ void reduceFinal(double *inputVec, double *result,
 def init_input(a, size):
     ctypes.c_float.from_address(a)
     a_list = ctypes.pointer(ctypes.c_float.from_address(a))
-    for i in range(0, size):
+    for i in range(size):
         a_list[i] = rnd.random()
 
 
@@ -356,6 +357,10 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
     checkCudaErrors(cudart.cudaGraphExecDestroy(clonedGraphExec))
     checkCudaErrors(cudart.cudaGraphDestroy(graph))
     checkCudaErrors(cudart.cudaGraphDestroy(clonedGraph))
+    checkCudaErrors(cudart.cudaEventDestroy(memsetEvent2))
+    checkCudaErrors(cudart.cudaEventDestroy(memsetEvent1))
+    checkCudaErrors(cudart.cudaEventDestroy(forkStreamEvent))
+    checkCudaErrors(cudart.cudaStreamDestroy(stream3))
     checkCudaErrors(cudart.cudaStreamDestroy(stream1))
     checkCudaErrors(cudart.cudaStreamDestroy(stream2))
     checkCudaErrors(cudart.cudaStreamDestroy(streamForGraph))
@@ -370,23 +375,23 @@ def main():
 
     global _reduce
     global _reduceFinal
-    kernelHelper = common.KernelHelper(simpleCudaGraphs, devID)
-    _reduce = kernelHelper.getFunction(b"reduce")
-    _reduceFinal = kernelHelper.getFunction(b"reduceFinal")
+    with common.KernelHelper(simpleCudaGraphs, devID) as kernelHelper:
+        _reduce = kernelHelper.getFunction(b"reduce")
+        _reduceFinal = kernelHelper.getFunction(b"reduceFinal")
 
-    print(f"{size} elements")
-    print(f"threads per block  = {THREADS_PER_BLOCK}")
-    print(f"Graph Launch iterations = {GRAPH_LAUNCH_ITERATIONS}")
+        print(f"{size} elements")
+        print(f"threads per block  = {THREADS_PER_BLOCK}")
+        print(f"Graph Launch iterations = {GRAPH_LAUNCH_ITERATIONS}")
 
-    inputVec_h = checkCudaErrors(cudart.cudaMallocHost(size * np.dtype(np.float32).itemsize))
-    inputVec_d = checkCudaErrors(cudart.cudaMalloc(size * np.dtype(np.float32).itemsize))
-    outputVec_d = checkCudaErrors(cudart.cudaMalloc(maxBlocks * np.dtype(np.float64).itemsize))
-    result_d = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float64).itemsize))
+        inputVec_h = checkCudaErrors(cudart.cudaMallocHost(size * np.dtype(np.float32).itemsize))
+        inputVec_d = checkCudaErrors(cudart.cudaMalloc(size * np.dtype(np.float32).itemsize))
+        outputVec_d = checkCudaErrors(cudart.cudaMalloc(maxBlocks * np.dtype(np.float64).itemsize))
+        result_d = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float64).itemsize))
 
-    init_input(inputVec_h, size)
+        init_input(inputVec_h, size)
 
-    cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
-    cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
+        cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
+        cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
 
     checkCudaErrors(cudart.cudaFree(inputVec_d))
     checkCudaErrors(cudart.cudaFree(outputVec_d))
