@@ -5,16 +5,18 @@ import site
 
 import pytest
 
-from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_mod
+from cuda.pathfinder._dynamic_libs import search_steps as steps_mod
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
     _resolve_system_loaded_abs_path_in_subprocess,
 )
+from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
-_FIND_MODULE = "cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib"
+_STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
 
 
 @pytest.fixture(autouse=True)
@@ -85,15 +87,15 @@ def test_cupti_found_in_site_packages_cuda12(tmp_path, mocker, monkeypatch):
 
     # Mock site-packages discovery
     monkeypatch.setattr(site, "getsitepackages", lambda: [str(site_packages)])
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_with_conda_prefix", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -115,15 +117,15 @@ def test_cupti_found_in_site_packages_cuda13(tmp_path, mocker, monkeypatch):
 
     # Mock site-packages discovery
     monkeypatch.setattr(site, "getsitepackages", lambda: [str(site_packages)])
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_with_conda_prefix", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -150,15 +152,27 @@ def test_cupti_found_in_conda(tmp_path, mocker, monkeypatch):
 
     # Mock conda discovery
     monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_site_packages", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+
+    # Disable site-packages search
+    def _run_find_steps_without_site_packages(ctx, steps):
+        if steps is EARLY_FIND_STEPS:
+            # Skip site-packages, only run conda
+            from cuda.pathfinder._dynamic_libs.search_steps import find_in_conda
+
+            result = find_in_conda(ctx)
+            return result
+        return steps_mod.run_find_steps(ctx, steps)
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_without_site_packages)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -179,16 +193,21 @@ def test_cupti_found_via_cuda_home(tmp_path, mocker):
     ctk_root = tmp_path / "cuda-13.1"
     cupti_lib = _create_cupti_in_ctk(ctk_root)
 
-    # Mock CUDA_HOME discovery
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_site_packages", return_value=None)
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_with_conda_prefix", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    # Mock CUDA_HOME discovery - disable early find steps
+    def _run_find_steps_without_early(ctx, steps):
+        if steps is EARLY_FIND_STEPS:
+            return None
+        return steps_mod.run_find_steps(ctx, steps)
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_without_early)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=str(ctk_root))
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=str(ctk_root))
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -211,20 +230,23 @@ def test_cupti_found_via_canary_probe(tmp_path, mocker):
     _create_cudart_in_ctk(ctk_root)
     cupti_lib = _create_cupti_in_ctk(ctk_root)
 
-    # Mock canary probe discovery
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_site_packages", return_value=None)
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_with_conda_prefix", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    # Mock canary probe discovery - disable all early/late find steps
+    def _run_find_steps_disabled(ctx, steps):
+        return None
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_disabled)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(ctk_root),
     )
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -238,15 +260,15 @@ def test_cupti_not_found_raises_error(mocker):
     if IS_WINDOWS:
         pytest.skip("Windows support for cupti not yet implemented")
 
-    from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-
     # Mock all search paths to return None
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_site_packages", return_value=None)
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_with_conda_prefix", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    def _run_find_steps_disabled(ctx, steps):
+        return None
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_disabled)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=None,
@@ -282,14 +304,15 @@ def test_cupti_search_order_site_packages_before_conda(tmp_path, mocker, monkeyp
     # Mock discovery
     monkeypatch.setattr(site, "getsitepackages", lambda: [str(site_packages)])
     monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -312,16 +335,26 @@ def test_cupti_search_order_conda_before_cuda_home(tmp_path, mocker, monkeypatch
     ctk_root = tmp_path / "cuda-13.1"
     _create_cupti_in_ctk(ctk_root)
 
-    # Mock discovery
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_site_packages", return_value=None)
+    # Mock discovery - disable site-packages, enable conda
+    def _run_find_steps_without_site_packages(ctx, steps):
+        if steps is EARLY_FIND_STEPS:
+            # Skip site-packages, only run conda
+            from cuda.pathfinder._dynamic_libs.search_steps import find_in_conda
+
+            result = find_in_conda(ctx)
+            return result
+        return steps_mod.run_find_steps(ctx, steps)
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_without_site_packages)
     monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=str(ctk_root))
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=str(ctk_root))
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
@@ -342,20 +375,25 @@ def test_cupti_search_order_cuda_home_before_canary(tmp_path, mocker):
     _create_cudart_in_ctk(canary_root)
     _create_cupti_in_ctk(canary_root)
 
-    # Mock discovery
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_site_packages", return_value=None)
-    mocker.patch.object(_FindNvidiaDynamicLib, "try_with_conda_prefix", return_value=None)
-    mocker.patch(f"{_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
+    # Mock discovery - disable early find steps
+    def _run_find_steps_without_early(ctx, steps):
+        if steps is load_mod.EARLY_FIND_STEPS:
+            return None
+        return steps_mod.run_find_steps(ctx, steps)
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_without_early)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
-    mocker.patch(f"{_MODULE}.load_with_system_search", return_value=None)
-    mocker.patch(f"{_FIND_MODULE}.get_cuda_home_or_path", return_value=str(cuda_home_root))
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=str(cuda_home_root))
     canary_mock = mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(canary_root),
     )
-    mocker.patch(
-        f"{_MODULE}.load_with_abs_path",
-        side_effect=lambda _libname, path, via: _make_loaded_dl(path, via),
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
     )
 
     result = _load_lib_no_cache("cupti")
