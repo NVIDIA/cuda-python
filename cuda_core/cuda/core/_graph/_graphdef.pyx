@@ -28,11 +28,7 @@ Node hierarchy:
         └── SwitchNode    (switch conditional, N branches)
 """
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from cuda.core import Device
+from __future__ import annotations
 
 from cpython.ref cimport Py_INCREF
 
@@ -45,21 +41,46 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
+from cuda.core._event cimport Event
+from cuda.core._kernel_arg_handler cimport ParamHolder
+from cuda.core._launch_config cimport LaunchConfig
+from cuda.core._module cimport Kernel
 from cuda.core._resource_handles cimport (
     GraphHandle,
-    create_graph_handle,
-    create_graph_handle_ref,
     as_cu,
     as_intptr,
     as_py,
+    create_graph_handle,
+    create_graph_handle_ref,
 )
-from cuda.core._event cimport Event
-from cuda.core._module cimport Kernel
-from cuda.core._launch_config cimport LaunchConfig
-from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
+from dataclasses import dataclass
+
+from cuda.core import Device
 from cuda.core._utils.cuda_utils import driver, handle_return
+
+__all__ = [
+    "Condition",
+    "GraphAllocOptions",
+    "GraphDef",
+    "Node",
+    "EmptyNode",
+    "KernelNode",
+    "AllocNode",
+    "FreeNode",
+    "MemsetNode",
+    "MemcpyNode",
+    "ChildGraphNode",
+    "EventRecordNode",
+    "EventWaitNode",
+    "HostCallbackNode",
+    "ConditionalNode",
+    "IfNode",
+    "IfElseNode",
+    "WhileNode",
+    "SwitchNode",
+]
 
 
 cdef bint _has_cuGraphNodeGetParams = False
@@ -121,19 +142,19 @@ cdef class Condition:
     runtime by device code via ``cudaGraphSetConditional``.
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Condition handle=0x{<unsigned long long>self._c_handle:x}>"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Condition):
             return NotImplemented
         return self._c_handle == (<Condition>other)._c_handle
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(<unsigned long long>self._c_handle)
 
     @property
-    def handle(self):
+    def handle(self) -> int:
         """The raw CUgraphConditionalHandle as an int."""
         return <unsigned long long>self._c_handle
 
@@ -256,54 +277,54 @@ cdef class GraphDef:
         g._h_graph = h_graph
         return g
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<GraphDef handle=0x{as_intptr(self._h_graph):x}>"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, GraphDef):
             return NotImplemented
         return as_intptr(self._h_graph) == as_intptr((<GraphDef>other)._h_graph)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(as_intptr(self._h_graph))
 
     @property
-    def _entry(self):
+    def _entry(self) -> Node:
         """Return the internal entry-point Node (no dependencies)."""
         cdef Node n = Node.__new__(Node)
         n._h_graph = self._h_graph
         n._node = NULL
         return n
 
-    def alloc(self, size_t size, options: GraphAllocOptions | None = None):
+    def alloc(self, size_t size, options: GraphAllocOptions | None = None) -> AllocNode:
         """Add an entry-point memory allocation node (no dependencies).
 
         See :meth:`Node.alloc` for full documentation.
         """
         return self._entry.alloc(size, options)
 
-    def free(self, dptr):
+    def free(self, dptr) -> FreeNode:
         """Add an entry-point memory free node (no dependencies).
 
         See :meth:`Node.free` for full documentation.
         """
         return self._entry.free(dptr)
 
-    def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0):
+    def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0) -> MemsetNode:
         """Add an entry-point memset node (no dependencies).
 
         See :meth:`Node.memset` for full documentation.
         """
         return self._entry.memset(dst, value, width, height, pitch)
 
-    def launch(self, config, kernel, *args):
+    def launch(self, config, kernel, *args) -> KernelNode:
         """Add an entry-point kernel launch node (no dependencies).
 
         See :meth:`Node.launch` for full documentation.
         """
         return self._entry.launch(config, kernel, *args)
 
-    def join(self, *nodes):
+    def join(self, *nodes) -> EmptyNode:
         """Create an empty node that depends on all given nodes.
 
         Parameters
@@ -318,42 +339,42 @@ cdef class GraphDef:
         """
         return self._entry.join(*nodes)
 
-    def memcpy(self, dst, src, size_t size):
+    def memcpy(self, dst, src, size_t size) -> MemcpyNode:
         """Add an entry-point memcpy node (no dependencies).
 
         See :meth:`Node.memcpy` for full documentation.
         """
         return self._entry.memcpy(dst, src, size)
 
-    def embed(self, child):
+    def embed(self, child: GraphDef) -> ChildGraphNode:
         """Add an entry-point child graph node (no dependencies).
 
         See :meth:`Node.embed` for full documentation.
         """
         return self._entry.embed(child)
 
-    def record_event(self, event):
+    def record_event(self, event: Event) -> EventRecordNode:
         """Add an entry-point event record node (no dependencies).
 
         See :meth:`Node.record_event` for full documentation.
         """
         return self._entry.record_event(event)
 
-    def wait_event(self, event):
+    def wait_event(self, event: Event) -> EventWaitNode:
         """Add an entry-point event wait node (no dependencies).
 
         See :meth:`Node.wait_event` for full documentation.
         """
         return self._entry.wait_event(event)
 
-    def callback(self, fn, *, user_data=None):
+    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
         """Add an entry-point host callback node (no dependencies).
 
         See :meth:`Node.callback` for full documentation.
         """
         return self._entry.callback(fn, user_data=user_data)
 
-    def create_condition(self, default_value=None):
+    def create_condition(self, default_value: int | None = None) -> Condition:
         """Create a condition variable for use with conditional nodes.
 
         The returned :class:`Condition` object is passed to conditional-node
@@ -390,28 +411,28 @@ cdef class GraphDef:
         cond._c_handle = c_handle
         return cond
 
-    def if_cond(self, condition):
+    def if_cond(self, condition: Condition) -> IfNode:
         """Add an entry-point if-conditional node (no dependencies).
 
         See :meth:`Node.if_cond` for full documentation.
         """
         return self._entry.if_cond(condition)
 
-    def if_else(self, condition):
+    def if_else(self, condition: Condition) -> IfElseNode:
         """Add an entry-point if-else conditional node (no dependencies).
 
         See :meth:`Node.if_else` for full documentation.
         """
         return self._entry.if_else(condition)
 
-    def while_loop(self, condition):
+    def while_loop(self, condition: Condition) -> WhileNode:
         """Add an entry-point while-loop conditional node (no dependencies).
 
         See :meth:`Node.while_loop` for full documentation.
         """
         return self._entry.while_loop(condition)
 
-    def switch(self, condition, unsigned int count):
+    def switch(self, condition: Condition, unsigned int count) -> SwitchNode:
         """Add an entry-point switch conditional node (no dependencies).
 
         See :meth:`Node.switch` for full documentation.
@@ -433,7 +454,7 @@ cdef class GraphDef:
             driver.CUgraph(as_intptr(self._h_graph)), 0))
         return Graph._init(graph_exec)
 
-    def debug_dot_print(self, path: str, options=None):
+    def debug_dot_print(self, path: str, options=None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.
 
         Parameters
@@ -457,7 +478,7 @@ cdef class GraphDef:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(graph, c_path, flags))
 
-    def nodes(self):
+    def nodes(self) -> tuple:
         """Return all nodes in the graph.
 
         Returns
@@ -481,7 +502,7 @@ cdef class GraphDef:
 
         return tuple(Node._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
 
-    def edges(self):
+    def edges(self) -> tuple:
         """Return all edges in the graph as (from_node, to_node) pairs.
 
         Returns
@@ -514,7 +535,7 @@ cdef class GraphDef:
         )
 
     @property
-    def handle(self):
+    def handle(self) -> int:
         """Return the underlying CUgraph handle."""
         return as_py(self._h_graph)
 
@@ -568,19 +589,19 @@ cdef class Node:
             (<Node>n)._node = node
             return n
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self._node == NULL:
             return "<Node entry>"
         return f"<Node handle=0x{<uintptr_t>self._node:x}>"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Node):
             return NotImplemented
         cdef Node o = <Node>other
         return (as_intptr(self._h_graph) == as_intptr(o._h_graph) and
                 self._node == o._node)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((as_intptr(self._h_graph), <uintptr_t>self._node))
 
     @property
@@ -600,12 +621,12 @@ cdef class Node:
         return driver.CUgraphNodeType(<int>node_type)
 
     @property
-    def graph(self):
+    def graph(self) -> GraphDef:
         """Return the GraphDef this node belongs to."""
         return GraphDef._from_handle(self._h_graph)
 
     @property
-    def handle(self):
+    def handle(self) -> int | None:
         """Return the underlying CUgraphNode handle as an int.
 
         Returns None for the entry node.
@@ -615,7 +636,7 @@ cdef class Node:
         return <uintptr_t>self._node
 
     @property
-    def pred(self):
+    def pred(self) -> tuple:
         """Return the predecessor nodes (dependencies) of this node.
 
         Results are cached since a node's dependencies are immutable
@@ -652,7 +673,7 @@ cdef class Node:
         return self._pred_cache
 
     @property
-    def succ(self):
+    def succ(self) -> tuple:
         """Return the successor nodes (dependents) of this node.
 
         Results are cached and automatically invalidated when new
@@ -688,7 +709,7 @@ cdef class Node:
         self._succ_cache = tuple(Node._create(self._h_graph, deps[i]) for i in range(num_deps))
         return self._succ_cache
 
-    def launch(self, config, kernel, *args):
+    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
         Parameters
@@ -741,7 +762,7 @@ cdef class Node:
             conf.grid, conf.block, conf.shmem_size,
             node_params.kern)
 
-    def join(self, *nodes):
+    def join(self, *nodes: Node) -> EmptyNode:
         """Create an empty node that depends on this node and all given nodes.
 
         This is used to synchronize multiple branches of execution.
@@ -781,7 +802,7 @@ cdef class Node:
             (<Node>other)._succ_cache = None
         return EmptyNode._create_impl(self._h_graph, new_node)
 
-    def alloc(self, size_t size, options: GraphAllocOptions | None = None):
+    def alloc(self, size_t size, options: GraphAllocOptions | None = None) -> AllocNode:
         """Add a memory allocation node depending on this node.
 
         Parameters
@@ -869,7 +890,7 @@ cdef class Node:
             self._h_graph, new_node, alloc_params.dptr, size,
             device_id, memory_type, tuple(peer_ids))
 
-    def free(self, dptr):
+    def free(self, dptr: int) -> FreeNode:
         """Add a memory free node depending on this node.
 
         Parameters
@@ -898,7 +919,7 @@ cdef class Node:
         self._succ_cache = None
         return FreeNode._create_with_params(self._h_graph, new_node, c_dptr)
 
-    def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0):
+    def memset(self, dst: int, value, size_t width, size_t height=1, size_t pitch=0) -> MemsetNode:
         """Add a memset node depending on this node.
 
         Parameters
@@ -957,7 +978,7 @@ cdef class Node:
             self._h_graph, new_node, c_dst,
             val, elem_size, width, height, pitch)
 
-    def memcpy(self, dst, src, size_t size):
+    def memcpy(self, dst: int, src: int, size_t size) -> MemcpyNode:
         """Add a memcpy node depending on this node.
 
         Copies ``size`` bytes from ``src`` to ``dst``. Memory types are
@@ -1038,7 +1059,7 @@ cdef class Node:
             self._h_graph, new_node, c_dst, c_src, size,
             c_dst_type, c_src_type)
 
-    def embed(self, child):
+    def embed(self, child: GraphDef) -> ChildGraphNode:
         """Add a child graph node depending on this node.
 
         Embeds a clone of the given graph definition as a sub-graph node.
@@ -1080,7 +1101,7 @@ cdef class Node:
         self._succ_cache = None
         return ChildGraphNode._create_with_params(self._h_graph, new_node, h_embedded)
 
-    def record_event(self, event):
+    def record_event(self, event: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
 
         Parameters
@@ -1111,7 +1132,7 @@ cdef class Node:
         self._succ_cache = None
         return EventRecordNode._create_with_params(self._h_graph, new_node, c_event)
 
-    def wait_event(self, event):
+    def wait_event(self, event: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
 
         Parameters
@@ -1142,7 +1163,7 @@ cdef class Node:
         self._succ_cache = None
         return EventWaitNode._create_with_params(self._h_graph, new_node, c_event)
 
-    def callback(self, fn, *, user_data=None):
+    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.
@@ -1232,7 +1253,7 @@ cdef class Node:
             self._h_graph, new_node, callable_obj,
             node_params.fn, node_params.userData)
 
-    def if_cond(self, condition):
+    def if_cond(self, condition: Condition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to
@@ -1252,7 +1273,7 @@ cdef class Node:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 1, IfNode)
 
-    def if_else(self, condition):
+    def if_else(self, condition: Condition) -> IfElseNode:
         """Add an if-else conditional node depending on this node.
 
         Two body graphs: the first executes when the condition is
@@ -1273,7 +1294,7 @@ cdef class Node:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 2, IfElseNode)
 
-    def while_loop(self, condition):
+    def while_loop(self, condition: Condition) -> WhileNode:
         """Add a while-loop conditional node depending on this node.
 
         The body graph executes repeatedly while the condition
@@ -1293,7 +1314,7 @@ cdef class Node:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_WHILE, 1, WhileNode)
 
-    def switch(self, condition, unsigned int count):
+    def switch(self, condition: Condition, unsigned int count) -> SwitchNode:
         """Add a switch conditional node depending on this node.
 
         The condition value selects which branch to execute. If the
@@ -1331,7 +1352,7 @@ cdef class EmptyNode(Node):
         n._node = node
         return n
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         cdef Py_ssize_t n = len(self.pred)
         return f"<EmptyNode with {n} {'pred' if n == 1 else 'preds'}>"
 
@@ -1380,31 +1401,31 @@ cdef class KernelNode(Node):
             params.sharedMemBytes,
             params.kern)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f"<KernelNode grid={self._grid} block={self._block}>")
 
     @property
-    def grid(self):
+    def grid(self) -> tuple:
         """Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ)."""
         return self._grid
 
     @property
-    def block(self):
+    def block(self) -> tuple:
         """Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ)."""
         return self._block
 
     @property
-    def shmem_size(self):
+    def shmem_size(self) -> int:
         """Dynamic shared memory size in bytes."""
         return self._shmem_size
 
     @property
-    def kernel(self):
+    def kernel(self) -> Kernel:
         """The Kernel object for this launch node."""
         return Kernel.from_handle(<uintptr_t>self._kern)
 
     @property
-    def config(self):
+    def config(self) -> LaunchConfig:
         """A LaunchConfig reconstructed from this node's grid, block, and shmem_size.
 
         Note: cluster dimensions and cooperative_launch are not preserved
@@ -1475,36 +1496,36 @@ cdef class AllocNode(Node):
             h_graph, node, params.dptr, params.bytesize,
             <int>params.poolProps.location.id, memory_type, tuple(peer_ids))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<AllocNode dptr=0x{self._dptr:x} size={self._bytesize}>"
 
     @property
-    def dptr(self):
+    def dptr(self) -> int:
         """The device pointer for the allocation."""
         return self._dptr
 
     @property
-    def bytesize(self):
+    def bytesize(self) -> int:
         """The number of bytes allocated."""
         return self._bytesize
 
     @property
-    def device_id(self):
+    def device_id(self) -> int:
         """The device on which the allocation was made."""
         return self._device_id
 
     @property
-    def memory_type(self):
+    def memory_type(self) -> str:
         """The type of memory: ``"device"``, ``"host"``, or ``"managed"``."""
         return self._memory_type
 
     @property
-    def peer_access(self):
+    def peer_access(self) -> tuple:
         """Device IDs with read-write access to this allocation."""
         return self._peer_access
 
     @property
-    def options(self):
+    def options(self) -> GraphAllocOptions:
         """A GraphAllocOptions reconstructed from this node's parameters."""
         return GraphAllocOptions(
             device=self._device_id,
@@ -1540,11 +1561,11 @@ cdef class FreeNode(Node):
             HANDLE_RETURN(cydriver.cuGraphMemFreeNodeGetParams(node, &dptr))
         return FreeNode._create_with_params(h_graph, node, dptr)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<FreeNode dptr=0x{self._dptr:x}>"
 
     @property
-    def dptr(self):
+    def dptr(self) -> int:
         """The device pointer being freed."""
         return self._dptr
 
@@ -1595,37 +1616,37 @@ cdef class MemsetNode(Node):
             h_graph, node, params.dst, params.value,
             params.elementSize, params.width, params.height, params.pitch)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f"<MemsetNode dptr=0x{self._dptr:x} "
                 f"value={self._value} elem={self._element_size}>")
 
     @property
-    def dptr(self):
+    def dptr(self) -> int:
         """The destination device pointer."""
         return self._dptr
 
     @property
-    def value(self):
+    def value(self) -> int:
         """The fill value."""
         return self._value
 
     @property
-    def element_size(self):
+    def element_size(self) -> int:
         """Element size in bytes (1, 2, or 4)."""
         return self._element_size
 
     @property
-    def width(self):
+    def width(self) -> int:
         """Width of the row in elements."""
         return self._width
 
     @property
-    def height(self):
+    def height(self) -> int:
         """Number of rows."""
         return self._height
 
     @property
-    def pitch(self):
+    def pitch(self) -> int:
         """Pitch in bytes (unused if height is 1)."""
         return self._pitch
 
@@ -1681,24 +1702,24 @@ cdef class MemcpyNode(Node):
             h_graph, node, dst, src, params.WidthInBytes,
             params.dstMemoryType, params.srcMemoryType)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         cdef str dt = "H" if self._dst_type == cydriver.CU_MEMORYTYPE_HOST else "D"
         cdef str st = "H" if self._src_type == cydriver.CU_MEMORYTYPE_HOST else "D"
         return (f"<MemcpyNode dst=0x{self._dst:x}({dt}) "
                 f"src=0x{self._src:x}({st}) size={self._size}>")
 
     @property
-    def dst(self):
+    def dst(self) -> int:
         """The destination pointer."""
         return self._dst
 
     @property
-    def src(self):
+    def src(self) -> int:
         """The source pointer."""
         return self._src
 
     @property
-    def size(self):
+    def size(self) -> int:
         """The number of bytes copied."""
         return self._size
 
@@ -1731,7 +1752,7 @@ cdef class ChildGraphNode(Node):
         cdef GraphHandle h_child = create_graph_handle_ref(child_graph, h_graph)
         return ChildGraphNode._create_with_params(h_graph, node, h_child)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         cdef cydriver.CUgraph g = as_cu(self._h_child_graph)
         cdef size_t num_nodes = 0
         with nogil:
@@ -1740,7 +1761,7 @@ cdef class ChildGraphNode(Node):
         return f"<ChildGraphNode with {n} {'subnode' if n == 1 else 'subnodes'}>"
 
     @property
-    def child_graph(self):
+    def child_graph(self) -> GraphDef:
         """The embedded graph definition (non-owning wrapper)."""
         return GraphDef._from_handle(self._h_child_graph)
 
@@ -1772,11 +1793,11 @@ cdef class EventRecordNode(Node):
             HANDLE_RETURN(cydriver.cuGraphEventRecordNodeGetEvent(node, &event))
         return EventRecordNode._create_with_params(h_graph, node, event)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<EventRecordNode event=0x{<uintptr_t>self._event:x}>"
 
     @property
-    def event(self):
+    def event(self) -> Event:
         """The event being recorded (non-owning wrapper)."""
         return Event._from_handle(self._event)
 
@@ -1808,11 +1829,11 @@ cdef class EventWaitNode(Node):
             HANDLE_RETURN(cydriver.cuGraphEventWaitNodeGetEvent(node, &event))
         return EventWaitNode._create_with_params(h_graph, node, event)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<EventWaitNode event=0x{<uintptr_t>self._event:x}>"
 
     @property
-    def event(self):
+    def event(self) -> Event:
         """The event being waited on (non-owning wrapper)."""
         return Event._from_handle(self._event)
 
@@ -1855,7 +1876,7 @@ cdef class HostCallbackNode(Node):
         return HostCallbackNode._create_with_params(
             h_graph, node, callable_obj, params.fn, params.userData)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self._callable is not None:
             name = getattr(self._callable, '__name__', '?')
             return f"<HostCallbackNode callback={name}>"
@@ -1938,16 +1959,16 @@ cdef class ConditionalNode(Node):
         n._branches = branches
         return n
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<ConditionalNode>"
 
     @property
-    def condition(self):
+    def condition(self) -> Condition | None:
         """The condition variable controlling execution."""
         return self._condition
 
     @property
-    def cond_type(self):
+    def cond_type(self) -> str | None:
         """The conditional type as a string: 'if', 'while', or 'switch'.
 
         Returns None when reconstructed from the driver pre-CUDA 13.2,
@@ -1963,7 +1984,7 @@ cdef class ConditionalNode(Node):
             return "switch"
 
     @property
-    def branches(self):
+    def branches(self) -> tuple:
         """The body graphs for each branch as a tuple of GraphDef.
 
         Returns an empty tuple when reconstructed from the driver
@@ -1975,11 +1996,11 @@ cdef class ConditionalNode(Node):
 cdef class IfNode(ConditionalNode):
     """An if-conditional node (1 branch, executes when condition is non-zero)."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<IfNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
 
     @property
-    def then(self):
+    def then(self) -> GraphDef:
         """The 'then' branch graph."""
         return self._branches[0]
 
@@ -1987,16 +2008,16 @@ cdef class IfNode(ConditionalNode):
 cdef class IfElseNode(ConditionalNode):
     """An if-else conditional node (2 branches)."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<IfElseNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
 
     @property
-    def then(self):
+    def then(self) -> GraphDef:
         """The 'then' branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
-    def else_(self):
+    def else_(self) -> GraphDef:
         """The 'else' branch graph (executed when condition is zero)."""
         return self._branches[1]
 
@@ -2004,11 +2025,11 @@ cdef class IfElseNode(ConditionalNode):
 cdef class WhileNode(ConditionalNode):
     """A while-loop conditional node (1 branch, repeats while condition is non-zero)."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<WhileNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
 
     @property
-    def body(self):
+    def body(self) -> GraphDef:
         """The loop body graph."""
         return self._branches[0]
 
@@ -2016,7 +2037,7 @@ cdef class WhileNode(ConditionalNode):
 cdef class SwitchNode(ConditionalNode):
     """A switch conditional node (N branches, selected by condition value)."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         cdef Py_ssize_t n = len(self._branches)
         return (f"<SwitchNode condition=0x{<unsigned long long>self._condition._c_handle:x}"
                 f" with {n} {'branch' if n == 1 else 'branches'}>")
