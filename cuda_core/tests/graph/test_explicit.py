@@ -20,6 +20,7 @@ from cuda.core._graph._graphdef import (
     GraphAllocOptions,
     GraphDef,
     KernelNode,
+    MemcpyNode,
     MemsetNode,
     Node,
 )
@@ -318,6 +319,18 @@ def _build_event_wait_node(g):
     }
 
 
+def _build_memcpy_node(g):
+    src_alloc = g.alloc(ALLOC_SIZE)
+    dst_alloc = g.alloc(ALLOC_SIZE)
+    dep = g.join(src_alloc, dst_alloc)
+    node = dep.memcpy(dst_alloc.dptr, src_alloc.dptr, ALLOC_SIZE)
+    return node, {
+        "dst": dst_alloc.dptr,
+        "src": src_alloc.dptr,
+        "size": ALLOC_SIZE,
+    }
+
+
 _NODE_SPECS = [
     pytest.param(NodeSpec("empty", EmptyNode, "CU_GRAPH_NODE_TYPE_EMPTY", _build_empty_node), id="empty"),
     pytest.param(NodeSpec("kernel", KernelNode, "CU_GRAPH_NODE_TYPE_KERNEL", _build_kernel_node), id="kernel"),
@@ -335,6 +348,10 @@ _NODE_SPECS = [
         NodeSpec("memset_u32", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_u32), id="memset_u32"
     ),
     pytest.param(NodeSpec("memset_2d", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_2d), id="memset_2d"),
+    pytest.param(
+        NodeSpec("memcpy", MemcpyNode, "CU_GRAPH_NODE_TYPE_MEMCPY", _build_memcpy_node),
+        id="memcpy",
+    ),
     pytest.param(
         NodeSpec("event_record", EventRecordNode, "CU_GRAPH_NODE_TYPE_EVENT_RECORD", _build_event_record_node),
         id="event_record",
@@ -665,6 +682,30 @@ def test_instantiate_and_execute_memset(sample_graphdef):
     graph.upload(stream)
     graph.launch(stream)
     stream.sync()
+
+
+def test_instantiate_and_execute_memcpy(sample_graphdef):
+    """Graph with alloc/memset/memcpy/free can be executed and data is copied."""
+    import ctypes
+
+    src_alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    dst_alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    dep = sample_graphdef.join(src_alloc, dst_alloc)
+    ms = dep.memset(src_alloc.dptr, 0xAB, ALLOC_SIZE)
+    cp = ms.memcpy(dst_alloc.dptr, src_alloc.dptr, ALLOC_SIZE)
+    cp.free(src_alloc.dptr)
+
+    graph = sample_graphdef.instantiate()
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    host_buf = (ctypes.c_ubyte * ALLOC_SIZE)()
+    from cuda.bindings import driver as drv
+
+    drv.cuMemcpyDtoH(host_buf, dst_alloc.dptr, ALLOC_SIZE)
+    assert all(b == 0xAB for b in host_buf)
 
 
 def test_instantiate_and_execute_event_record_wait(sample_graphdef):

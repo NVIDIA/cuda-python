@@ -16,6 +16,7 @@ Node hierarchy:
     ├── AllocNode         (memory allocation, exposes dptr and bytesize)
     ├── FreeNode          (memory free, exposes dptr)
     ├── MemsetNode        (memory set, exposes dptr, value, element_size, etc.)
+    ├── MemcpyNode        (memory copy, exposes dst, src, size)
     ├── EventRecordNode   (record an event)
     └── EventWaitNode     (wait for an event)
 """
@@ -170,6 +171,13 @@ cdef class GraphDef:
         """
         return self._entry.join(*nodes)
 
+    def memcpy(self, dst, src, size_t size):
+        """Add an entry-point memcpy node (no dependencies).
+
+        See :meth:`Node.memcpy` for full documentation.
+        """
+        return self._entry.memcpy(dst, src, size)
+
     def record_event(self, event):
         """Add an entry-point event record node (no dependencies).
 
@@ -316,6 +324,8 @@ cdef class Node:
             return FreeNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMSET:
             return MemsetNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMCPY:
+            return MemcpyNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_EVENT_RECORD:
             return EventRecordNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT:
@@ -715,6 +725,87 @@ cdef class Node:
             self._h_graph, new_node, c_dst,
             val, elem_size, width, height, pitch)
 
+    def memcpy(self, dst, src, size_t size):
+        """Add a memcpy node depending on this node.
+
+        Copies ``size`` bytes from ``src`` to ``dst``. Memory types are
+        auto-detected via the driver, so both device and pinned host
+        pointers are supported.
+
+        Parameters
+        ----------
+        dst : int
+            Destination pointer (device or pinned host).
+        src : int
+            Source pointer (device or pinned host).
+        size : int
+            Number of bytes to copy.
+
+        Returns
+        -------
+        MemcpyNode
+            A new MemcpyNode representing the copy operation.
+        """
+        cdef cydriver.CUdeviceptr c_dst = <cydriver.CUdeviceptr>dst
+        cdef cydriver.CUdeviceptr c_src = <cydriver.CUdeviceptr>src
+
+        cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
+        cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
+        cdef cydriver.CUresult ret
+        with nogil:
+            ret = cydriver.cuPointerGetAttribute(
+                &dst_mem_type,
+                cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+                c_dst)
+            if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
+                HANDLE_RETURN(ret)
+            ret = cydriver.cuPointerGetAttribute(
+                &src_mem_type,
+                cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+                c_src)
+            if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
+                HANDLE_RETURN(ret)
+
+        cdef cydriver.CUmemorytype c_dst_type = <cydriver.CUmemorytype>dst_mem_type
+        cdef cydriver.CUmemorytype c_src_type = <cydriver.CUmemorytype>src_mem_type
+
+        cdef cydriver.CUDA_MEMCPY3D params
+        c_memset(&params, 0, sizeof(params))
+
+        params.srcMemoryType = c_src_type
+        params.dstMemoryType = c_dst_type
+        if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
+            params.srcHost = <const void*><uintptr_t>c_src
+        else:
+            params.srcDevice = c_src
+        if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
+            params.dstHost = <void*><uintptr_t>c_dst
+        else:
+            params.dstDevice = c_dst
+        params.WidthInBytes = size
+        params.Height = 1
+        params.Depth = 1
+
+        cdef cydriver.CUgraphNode new_node = NULL
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUgraphNode* deps = NULL
+        cdef size_t num_deps = 0
+
+        if self._node != NULL:
+            deps = &self._node
+            num_deps = 1
+
+        cdef cydriver.CUcontext ctx = NULL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
+                &new_node, graph, deps, num_deps, &params, ctx))
+
+        self._succ_cache = None
+        return MemcpyNode._create_with_params(
+            self._h_graph, new_node, c_dst, c_src, size,
+            c_dst_type, c_src_type)
+
     def record_event(self, event):
         """Add an event record node depending on this node.
 
@@ -1090,6 +1181,79 @@ cdef class MemsetNode(Node):
     def pitch(self):
         """Pitch in bytes (unused if height is 1)."""
         return self._pitch
+
+
+cdef class MemcpyNode(Node):
+    """A memory copy node.
+
+    Properties
+    ----------
+    dst : int
+        The destination pointer.
+    src : int
+        The source pointer.
+    size : int
+        The number of bytes copied.
+    """
+
+    @staticmethod
+    cdef MemcpyNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src,
+                                        size_t size, cydriver.CUmemorytype dst_type,
+                                        cydriver.CUmemorytype src_type):
+        """Create from known params (called by memcpy() builder)."""
+        cdef MemcpyNode n = MemcpyNode.__new__(MemcpyNode)
+        n._h_graph = h_graph
+        n._node = node
+        n._dst = dst
+        n._src = src
+        n._size = size
+        n._dst_type = dst_type
+        n._src_type = src_type
+        return n
+
+    @staticmethod
+    cdef MemcpyNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUDA_MEMCPY3D params
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(node, &params))
+
+        cdef cydriver.CUdeviceptr dst
+        cdef cydriver.CUdeviceptr src
+        if params.dstMemoryType == cydriver.CU_MEMORYTYPE_HOST:
+            dst = <cydriver.CUdeviceptr><uintptr_t>params.dstHost
+        else:
+            dst = params.dstDevice
+        if params.srcMemoryType == cydriver.CU_MEMORYTYPE_HOST:
+            src = <cydriver.CUdeviceptr><uintptr_t>params.srcHost
+        else:
+            src = params.srcDevice
+
+        return MemcpyNode._create_with_params(
+            h_graph, node, dst, src, params.WidthInBytes,
+            params.dstMemoryType, params.srcMemoryType)
+
+    def __repr__(self):
+        cdef str dt = "H" if self._dst_type == cydriver.CU_MEMORYTYPE_HOST else "D"
+        cdef str st = "H" if self._src_type == cydriver.CU_MEMORYTYPE_HOST else "D"
+        return (f"<MemcpyNode dst=0x{self._dst:x}({dt}) "
+                f"src=0x{self._src:x}({st}) size={self._size}>")
+
+    @property
+    def dst(self):
+        """The destination pointer."""
+        return self._dst
+
+    @property
+    def src(self):
+        """The source pointer."""
+        return self._src
+
+    @property
+    def size(self):
+        """The number of bytes copied."""
+        return self._size
 
 
 cdef class EventRecordNode(Node):

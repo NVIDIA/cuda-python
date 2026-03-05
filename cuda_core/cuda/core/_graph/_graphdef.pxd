@@ -15,6 +15,7 @@ cdef class KernelNode(Node)
 cdef class AllocNode(Node)
 cdef class FreeNode(Node)
 cdef class MemsetNode(Node)
+cdef class MemcpyNode(Node)
 cdef class EventRecordNode(Node)
 cdef class EventWaitNode(Node)
 
@@ -107,6 +108,24 @@ cdef class MemsetNode(Node):
 
     @staticmethod
     cdef MemsetNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)
+
+
+cdef class MemcpyNode(Node):
+    cdef:
+        cydriver.CUdeviceptr _dst
+        cydriver.CUdeviceptr _src
+        size_t _size
+        cydriver.CUmemorytype _dst_type
+        cydriver.CUmemorytype _src_type
+
+    @staticmethod
+    cdef MemcpyNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src,
+                                        size_t size, cydriver.CUmemorytype dst_type,
+                                        cydriver.CUmemorytype src_type)
+
+    @staticmethod
+    cdef MemcpyNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)
 
 
 cdef class EventRecordNode(Node):
