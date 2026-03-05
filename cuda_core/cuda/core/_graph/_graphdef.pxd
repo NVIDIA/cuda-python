@@ -14,6 +14,7 @@ cdef class EmptyNode(Node)
 cdef class KernelNode(Node)
 cdef class AllocNode(Node)
 cdef class FreeNode(Node)
+cdef class MemsetNode(Node)
 
 
 cdef class GraphDef:
@@ -85,3 +86,22 @@ cdef class FreeNode(Node):
 
     @staticmethod
     cdef FreeNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)
+
+
+cdef class MemsetNode(Node):
+    cdef:
+        cydriver.CUdeviceptr _dptr
+        unsigned int _value
+        unsigned int _element_size
+        size_t _width
+        size_t _height
+        size_t _pitch
+
+    @staticmethod
+    cdef MemsetNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                        cydriver.CUdeviceptr dptr, unsigned int value,
+                                        unsigned int element_size, size_t width,
+                                        size_t height, size_t pitch)
+
+    @staticmethod
+    cdef MemsetNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)

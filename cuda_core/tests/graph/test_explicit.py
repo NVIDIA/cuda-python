@@ -18,6 +18,7 @@ from cuda.core._graph._graphdef import (
     GraphAllocOptions,
     GraphDef,
     KernelNode,
+    MemsetNode,
     Node,
 )
 
@@ -243,6 +244,60 @@ def _build_free_node(g):
     }
 
 
+def _build_memset_node(g):
+    alloc = g.root.alloc(ALLOC_SIZE)
+    node = alloc.memset(alloc.dptr, 42, ALLOC_SIZE)
+    return node, {
+        "dptr": alloc.dptr,
+        "value": 42,
+        "element_size": 1,
+        "width": ALLOC_SIZE,
+        "height": 1,
+        "pitch": 0,
+    }
+
+
+def _build_memset_node_u16(g):
+    alloc = g.root.alloc(ALLOC_SIZE)
+    node = alloc.memset(alloc.dptr, b"\xab\xcd", ALLOC_SIZE // 2)
+    return node, {
+        "dptr": alloc.dptr,
+        "value": int.from_bytes(b"\xab\xcd", byteorder="little"),
+        "element_size": 2,
+        "width": ALLOC_SIZE // 2,
+        "height": 1,
+        "pitch": 0,
+    }
+
+
+def _build_memset_node_u32(g):
+    alloc = g.root.alloc(ALLOC_SIZE)
+    node = alloc.memset(alloc.dptr, b"\x01\x02\x03\x04", ALLOC_SIZE // 4)
+    return node, {
+        "dptr": alloc.dptr,
+        "value": int.from_bytes(b"\x01\x02\x03\x04", byteorder="little"),
+        "element_size": 4,
+        "width": ALLOC_SIZE // 4,
+        "height": 1,
+        "pitch": 0,
+    }
+
+
+def _build_memset_node_2d(g):
+    rows = 4
+    cols = ALLOC_SIZE // rows
+    alloc = g.root.alloc(ALLOC_SIZE)
+    node = alloc.memset(alloc.dptr, 0xFF, cols, height=rows, pitch=cols)
+    return node, {
+        "dptr": alloc.dptr,
+        "value": 0xFF,
+        "element_size": 1,
+        "width": cols,
+        "height": rows,
+        "pitch": cols,
+    }
+
+
 _NODE_SPECS = [
     pytest.param(NodeSpec("empty", EmptyNode, "CU_GRAPH_NODE_TYPE_EMPTY", _build_empty_node), id="empty"),
     pytest.param(NodeSpec("kernel", KernelNode, "CU_GRAPH_NODE_TYPE_KERNEL", _build_kernel_node), id="kernel"),
@@ -252,6 +307,14 @@ _NODE_SPECS = [
         id="alloc_managed",
     ),
     pytest.param(NodeSpec("free", FreeNode, "CU_GRAPH_NODE_TYPE_MEM_FREE", _build_free_node), id="free"),
+    pytest.param(NodeSpec("memset", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node), id="memset"),
+    pytest.param(
+        NodeSpec("memset_u16", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_u16), id="memset_u16"
+    ),
+    pytest.param(
+        NodeSpec("memset_u32", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_u32), id="memset_u32"
+    ),
+    pytest.param(NodeSpec("memset_2d", MemsetNode, "CU_GRAPH_NODE_TYPE_MEMSET", _build_memset_node_2d), id="memset_2d"),
 ]
 
 
@@ -559,6 +622,19 @@ def test_instantiate_and_execute_alloc_free(sample_graphdef):
     """Graph with alloc/free can be executed."""
     alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
     alloc.free(alloc.dptr)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+
+def test_instantiate_and_execute_memset(sample_graphdef):
+    """Graph with alloc/memset/free can be executed."""
+    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    ms = alloc.memset(alloc.dptr, 0xAB, ALLOC_SIZE)
+    ms.free(alloc.dptr)
     graph = sample_graphdef.instantiate()
 
     stream = Device().create_stream()

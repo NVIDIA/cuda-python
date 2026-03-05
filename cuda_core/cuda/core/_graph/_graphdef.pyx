@@ -14,7 +14,8 @@ Node hierarchy:
     ├── EmptyNode    (synchronization / join point)
     ├── KernelNode   (kernel launch)
     ├── AllocNode    (memory allocation, exposes dptr and bytesize)
-    └── FreeNode     (memory free, exposes dptr)
+    ├── FreeNode     (memory free, exposes dptr)
+    └── MemsetNode   (memory set, exposes dptr, value, element_size, etc.)
 """
 
 from dataclasses import dataclass
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
-from libc.string cimport memset
+from libc.string cimport memset as c_memset
 
 from libcpp.vector cimport vector
 
@@ -40,7 +41,7 @@ from cuda.core._resource_handles cimport (
 from cuda.core._module cimport Kernel
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 from cuda.core._utils.cuda_utils import driver
 
@@ -258,6 +259,8 @@ cdef class Node:
             return AllocNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEM_FREE:
             return FreeNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMSET:
+            return MemsetNode._create_from_driver(h_graph, node)
         else:
             n = Node.__new__(Node)
             (<Node>n)._h_graph = h_graph
@@ -523,7 +526,7 @@ cdef class Node:
         if options is not None and options.memory_type is not None:
             memory_type = options.memory_type
 
-        memset(&alloc_params, 0, sizeof(alloc_params))
+        c_memset(&alloc_params, 0, sizeof(alloc_params))
         alloc_params.poolProps.handleTypes = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
         alloc_params.bytesize = size
 
@@ -583,6 +586,65 @@ cdef class Node:
 
         self._succ_cache = None
         return FreeNode._create_with_params(self._h_graph, new_node, c_dptr)
+
+    def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0):
+        """Add a memset node depending on this node.
+
+        Parameters
+        ----------
+        dst : int
+            Destination device pointer.
+        value : int or buffer-protocol object
+            Fill value. int for 1-byte fill (range [0, 256)),
+            or buffer-protocol object of 1, 2, or 4 bytes.
+        width : int
+            Width of the row in elements.
+        height : int, optional
+            Number of rows (default 1).
+        pitch : int, optional
+            Pitch of destination in bytes (default 0, unused if height is 1).
+
+        Returns
+        -------
+        MemsetNode
+            A new MemsetNode representing the memset operation.
+        """
+        cdef unsigned int val
+        cdef unsigned int elem_size
+        val, elem_size = _parse_fill_value(value)
+
+        cdef cydriver.CUDA_MEMSET_NODE_PARAMS memset_params
+        cdef cydriver.CUgraphNode new_node = NULL
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUgraphNode* deps = NULL
+        cdef size_t num_deps = 0
+
+        if self._node != NULL:
+            deps = &self._node
+            num_deps = 1
+
+        cdef cydriver.CUdeviceptr c_dst = <cydriver.CUdeviceptr>dst
+        cdef cydriver.CUcontext ctx = NULL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+
+        c_memset(&memset_params, 0, sizeof(memset_params))
+        memset_params.dst = c_dst
+        memset_params.value = val
+        memset_params.elementSize = elem_size
+        memset_params.width = width
+        memset_params.height = height
+        memset_params.pitch = pitch
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphAddMemsetNode(
+                &new_node, graph, deps, num_deps,
+                &memset_params, ctx))
+
+        self._succ_cache = None
+        return MemsetNode._create_with_params(
+            self._h_graph, new_node, c_dst,
+            val, elem_size, width, height, pitch)
 
 
 # =============================================================================
@@ -816,3 +878,84 @@ cdef class FreeNode(Node):
     def dptr(self):
         """The device pointer being freed."""
         return self._dptr
+
+
+cdef class MemsetNode(Node):
+    """A memory set node.
+
+    Properties
+    ----------
+    dptr : int
+        The destination device pointer.
+    value : int
+        The fill value.
+    element_size : int
+        Element size in bytes (1, 2, or 4).
+    width : int
+        Width of the row in elements.
+    height : int
+        Number of rows.
+    pitch : int
+        Pitch in bytes (unused if height is 1).
+    """
+
+    @staticmethod
+    cdef MemsetNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                        cydriver.CUdeviceptr dptr, unsigned int value,
+                                        unsigned int element_size, size_t width,
+                                        size_t height, size_t pitch):
+        """Create from known params (called by memset() builder)."""
+        cdef MemsetNode n = MemsetNode.__new__(MemsetNode)
+        n._h_graph = h_graph
+        n._node = node
+        n._dptr = dptr
+        n._value = value
+        n._element_size = element_size
+        n._width = width
+        n._height = height
+        n._pitch = pitch
+        return n
+
+    @staticmethod
+    cdef MemsetNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUDA_MEMSET_NODE_PARAMS params
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(node, &params))
+        return MemsetNode._create_with_params(
+            h_graph, node, params.dst, params.value,
+            params.elementSize, params.width, params.height, params.pitch)
+
+    def __repr__(self):
+        return (f"<MemsetNode handle=0x{<uintptr_t>self._node:x} "
+                f"dptr=0x{self._dptr:x}>")
+
+    @property
+    def dptr(self):
+        """The destination device pointer."""
+        return self._dptr
+
+    @property
+    def value(self):
+        """The fill value."""
+        return self._value
+
+    @property
+    def element_size(self):
+        """Element size in bytes (1, 2, or 4)."""
+        return self._element_size
+
+    @property
+    def width(self):
+        """Width of the row in elements."""
+        return self._width
+
+    @property
+    def height(self):
+        """Number of rows."""
+        return self._height
+
+    @property
+    def pitch(self):
+        """Pitch in bytes (unused if height is 1)."""
+        return self._pitch

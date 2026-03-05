@@ -292,6 +292,20 @@ def sample_free_node_alt(sample_graphdef):
     return alloc.free(alloc.dptr)
 
 
+@pytest.fixture
+def sample_memset_node(sample_graphdef):
+    """A MemsetNode."""
+    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_memset_node_alt(sample_graphdef):
+    """An alternate MemsetNode from same graph."""
+    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+
+
 # =============================================================================
 # Type groupings
 # =============================================================================
@@ -312,6 +326,7 @@ HASH_TYPES = [
     "sample_alloc_node",
     "sample_kernel_node",
     "sample_free_node",
+    "sample_memset_node",
 ]
 
 # Types with __eq__ support
@@ -330,6 +345,7 @@ EQ_TYPES = [
     "sample_alloc_node",
     "sample_kernel_node",
     "sample_free_node",
+    "sample_memset_node",
 ]
 
 # Types with __weakref__ support
@@ -349,6 +365,7 @@ WEAKREF_TYPES = [
     "sample_alloc_node",
     "sample_kernel_node",
     "sample_free_node",
+    "sample_memset_node",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -368,6 +385,7 @@ SAME_TYPE_PAIRS = [
     ("sample_alloc_node", "sample_alloc_node_alt"),
     ("sample_kernel_node", "sample_kernel_node_alt"),
     ("sample_free_node", "sample_free_node_alt"),
+    ("sample_memset_node", "sample_memset_node_alt"),
 ]
 
 # Types with public from_handle methods and how to create a copy
@@ -410,6 +428,7 @@ REPR_PATTERNS = [
     ("sample_alloc_node", r"<AllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\d+>"),
     ("sample_kernel_node", r"<KernelNode handle=0x[0-9a-f]+>"),
     ("sample_free_node", r"<FreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
+    ("sample_memset_node", r"<MemsetNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
 ]
 
 
