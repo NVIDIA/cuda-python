@@ -13,6 +13,7 @@ import weakref
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.misc import try_create_condition
 
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
 from cuda.core._graph._graphdef import GraphDef
@@ -392,6 +393,74 @@ def sample_host_callback_node_alt(sample_graphdef):
     return sample_graphdef.callback(other_callback)
 
 
+@pytest.fixture
+def sample_condition(sample_graphdef):
+    """A Condition object."""
+    return try_create_condition(sample_graphdef)
+
+
+@pytest.fixture
+def sample_condition_alt(sample_graphdef):
+    """An alternate Condition from same graph."""
+    return try_create_condition(sample_graphdef)
+
+
+@pytest.fixture
+def sample_if_node(sample_graphdef):
+    """An IfNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_cond(condition)
+
+
+@pytest.fixture
+def sample_if_node_alt(sample_graphdef):
+    """An alternate IfNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_cond(condition)
+
+
+@pytest.fixture
+def sample_if_else_node(sample_graphdef):
+    """An IfElseNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_else(condition)
+
+
+@pytest.fixture
+def sample_if_else_node_alt(sample_graphdef):
+    """An alternate IfElseNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_else(condition)
+
+
+@pytest.fixture
+def sample_while_node(sample_graphdef):
+    """A WhileNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.while_loop(condition)
+
+
+@pytest.fixture
+def sample_while_node_alt(sample_graphdef):
+    """An alternate WhileNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.while_loop(condition)
+
+
+@pytest.fixture
+def sample_switch_node(sample_graphdef):
+    """A SwitchNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.switch(condition, 3)
+
+
+@pytest.fixture
+def sample_switch_node_alt(sample_graphdef):
+    """An alternate SwitchNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.switch(condition, 3)
+
+
 # =============================================================================
 # Type groupings
 # =============================================================================
@@ -407,6 +476,7 @@ HASH_TYPES = [
     "sample_object_code_cubin",
     "sample_kernel",
     "sample_graphdef",
+    "sample_condition",
     "sample_root_node",
     "sample_empty_node",
     "sample_alloc_node",
@@ -418,6 +488,10 @@ HASH_TYPES = [
     "sample_event_record_node",
     "sample_event_wait_node",
     "sample_host_callback_node",
+    "sample_if_node",
+    "sample_if_else_node",
+    "sample_while_node",
+    "sample_switch_node",
 ]
 
 # Types with __eq__ support
@@ -431,6 +505,7 @@ EQ_TYPES = [
     "sample_object_code_cubin",
     "sample_kernel",
     "sample_graphdef",
+    "sample_condition",
     "sample_root_node",
     "sample_empty_node",
     "sample_alloc_node",
@@ -442,6 +517,10 @@ EQ_TYPES = [
     "sample_event_record_node",
     "sample_event_wait_node",
     "sample_host_callback_node",
+    "sample_if_node",
+    "sample_if_else_node",
+    "sample_while_node",
+    "sample_switch_node",
 ]
 
 # Types with __weakref__ support
@@ -450,6 +529,7 @@ WEAKREF_TYPES = [
     "sample_stream",
     "sample_event",
     "sample_context",
+    "sample_condition",
     "sample_buffer",
     "sample_launch_config",
     "sample_object_code_cubin",
@@ -467,6 +547,10 @@ WEAKREF_TYPES = [
     "sample_event_record_node",
     "sample_event_wait_node",
     "sample_host_callback_node",
+    "sample_if_node",
+    "sample_if_else_node",
+    "sample_while_node",
+    "sample_switch_node",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -481,6 +565,7 @@ SAME_TYPE_PAIRS = [
     ("sample_object_code_cubin", "sample_object_code_alt"),
     ("sample_kernel", "sample_kernel_alt"),
     ("sample_graphdef", "sample_graphdef_alt"),
+    ("sample_condition", "sample_condition_alt"),
     ("sample_root_node", "sample_root_node_alt"),
     ("sample_empty_node", "sample_empty_node_alt"),
     ("sample_alloc_node", "sample_alloc_node_alt"),
@@ -492,6 +577,10 @@ SAME_TYPE_PAIRS = [
     ("sample_event_record_node", "sample_event_record_node_alt"),
     ("sample_event_wait_node", "sample_event_wait_node_alt"),
     ("sample_host_callback_node", "sample_host_callback_node_alt"),
+    ("sample_if_node", "sample_if_node_alt"),
+    ("sample_if_else_node", "sample_if_else_node_alt"),
+    ("sample_while_node", "sample_while_node_alt"),
+    ("sample_switch_node", "sample_switch_node_alt"),
 ]
 
 # Types with public from_handle methods and how to create a copy
@@ -529,6 +618,7 @@ REPR_PATTERNS = [
     ("sample_program_nvvm", r"<Program backend='NVVM'>"),
     # Graph types
     ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
+    ("sample_condition", r"<Condition handle=0x[0-9a-f]+>"),
     ("sample_root_node", r"<Node entry>"),
     ("sample_empty_node", r"<EmptyNode with \d+ preds?>"),
     ("sample_alloc_node", r"<AllocNode dptr=0x[0-9a-f]+ size=\d+>"),
@@ -540,6 +630,10 @@ REPR_PATTERNS = [
     ("sample_event_record_node", r"<EventRecordNode event=0x[0-9a-f]+>"),
     ("sample_event_wait_node", r"<EventWaitNode event=0x[0-9a-f]+>"),
     ("sample_host_callback_node", r"<HostCallbackNode callback=\w+>"),
+    ("sample_if_node", r"<IfNode condition=0x[0-9a-f]+>"),
+    ("sample_if_else_node", r"<IfElseNode condition=0x[0-9a-f]+>"),
+    ("sample_while_node", r"<WhileNode condition=0x[0-9a-f]+>"),
+    ("sample_switch_node", r"<SwitchNode condition=0x[0-9a-f]+ with \d+ branches?>"),
 ]
 
 

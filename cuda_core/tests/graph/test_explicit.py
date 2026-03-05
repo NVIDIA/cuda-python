@@ -8,12 +8,14 @@ from dataclasses import dataclass, field
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
 from cuda.core._graph import GraphDebugPrintOptions
 from cuda.core._graph._graphdef import (
     AllocNode,
     ChildGraphNode,
+    ConditionalNode,
     EmptyNode,
     EventRecordNode,
     EventWaitNode,
@@ -21,10 +23,14 @@ from cuda.core._graph._graphdef import (
     GraphAllocOptions,
     GraphDef,
     HostCallbackNode,
+    IfElseNode,
+    IfNode,
     KernelNode,
     MemcpyNode,
     MemsetNode,
     Node,
+    SwitchNode,
+    WhileNode,
 )
 
 ALLOC_SIZE = 1024
@@ -189,6 +195,12 @@ class NodeSpec:
     expected_class: type
     expected_type_name: str
     builder: Callable[[GraphDef], tuple[Node, dict]]
+    reconstructed_class: type | None = None
+
+    @property
+    def roundtrip_class(self):
+        """Class expected after reconstruction from the driver."""
+        return self.reconstructed_class or self.expected_class
 
 
 def _build_empty_node(g):
@@ -369,6 +381,50 @@ def _build_child_graph_node(g):
     }
 
 
+def _build_if_cond_node(g):
+    condition = try_create_condition(g)
+    node = g.if_cond(condition)
+    return node, {
+        "condition": condition,
+        "cond_type": "if",
+        "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
+        "then": lambda v: isinstance(v, GraphDef),
+    }
+
+
+def _build_if_else_node(g):
+    condition = try_create_condition(g)
+    node = g.if_else(condition)
+    return node, {
+        "condition": condition,
+        "cond_type": "if",
+        "branches": lambda v: isinstance(v, tuple) and len(v) == 2,
+        "then": lambda v: isinstance(v, GraphDef),
+        "else_": lambda v: isinstance(v, GraphDef),
+    }
+
+
+def _build_while_loop_node(g):
+    condition = try_create_condition(g)
+    node = g.while_loop(condition)
+    return node, {
+        "condition": condition,
+        "cond_type": "while",
+        "branches": lambda v: isinstance(v, tuple) and len(v) == 1,
+        "body": lambda v: isinstance(v, GraphDef),
+    }
+
+
+def _build_switch_node(g):
+    condition = try_create_condition(g)
+    node = g.switch(condition, 3)
+    return node, {
+        "condition": condition,
+        "cond_type": "switch",
+        "branches": lambda v: isinstance(v, tuple) and len(v) == 3,
+    }
+
+
 _NODE_SPECS = [
     pytest.param(NodeSpec("empty", EmptyNode, "CU_GRAPH_NODE_TYPE_EMPTY", _build_empty_node), id="empty"),
     pytest.param(NodeSpec("kernel", KernelNode, "CU_GRAPH_NODE_TYPE_KERNEL", _build_kernel_node), id="kernel"),
@@ -409,6 +465,46 @@ _NODE_SPECS = [
     pytest.param(
         NodeSpec("event_wait", EventWaitNode, "CU_GRAPH_NODE_TYPE_WAIT_EVENT", _build_event_wait_node),
         id="event_wait",
+    ),
+    pytest.param(
+        NodeSpec(
+            "if_cond",
+            IfNode,
+            "CU_GRAPH_NODE_TYPE_CONDITIONAL",
+            _build_if_cond_node,
+            reconstructed_class=ConditionalNode,
+        ),
+        id="if_cond",
+    ),
+    pytest.param(
+        NodeSpec(
+            "if_else",
+            IfElseNode,
+            "CU_GRAPH_NODE_TYPE_CONDITIONAL",
+            _build_if_else_node,
+            reconstructed_class=ConditionalNode,
+        ),
+        id="if_else",
+    ),
+    pytest.param(
+        NodeSpec(
+            "while_loop",
+            WhileNode,
+            "CU_GRAPH_NODE_TYPE_CONDITIONAL",
+            _build_while_loop_node,
+            reconstructed_class=ConditionalNode,
+        ),
+        id="while_loop",
+    ),
+    pytest.param(
+        NodeSpec(
+            "switch",
+            SwitchNode,
+            "CU_GRAPH_NODE_TYPE_CONDITIONAL",
+            _build_switch_node,
+            reconstructed_class=ConditionalNode,
+        ),
+        id="switch",
     ),
 ]
 
@@ -513,7 +609,7 @@ def test_node_type_preserved_by_nodes(node_spec):
     all_nodes = g.nodes()
     matched = [n for n in all_nodes if n == node]
     assert len(matched) == 1
-    assert isinstance(matched[0], spec.expected_class)
+    assert isinstance(matched[0], spec.roundtrip_class)
 
 
 def test_node_type_preserved_by_pred_succ(node_spec):
@@ -522,7 +618,7 @@ def test_node_type_preserved_by_pred_succ(node_spec):
     for predecessor in node.pred:
         matched = [s for s in predecessor.succ if s == node]
         assert len(matched) == 1
-        assert isinstance(matched[0], spec.expected_class)
+        assert isinstance(matched[0], spec.roundtrip_class)
 
 
 def test_node_attrs(node_spec):
@@ -543,6 +639,8 @@ def test_node_attrs_preserved_by_nodes(node_spec):
     spec, g, node, expected_attrs = node_spec
     if not expected_attrs:
         pytest.skip("no type-specific attributes")
+    if spec.reconstructed_class is not None:
+        pytest.skip("reconstructed type differs — attrs not preserved")
     retrieved = next(n for n in g.nodes() if n == node)
     for attr in expected_attrs:
         assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
@@ -854,6 +952,124 @@ def test_instantiate_and_execute_event_record_wait(sample_graphdef):
     graph.upload(stream)
     graph.launch(stream)
     stream.sync()
+
+
+# =============================================================================
+# Conditional nodes
+# =============================================================================
+
+
+def _skip_unless_cc_90():
+    if Device(0).compute_capability < (9, 0):
+        pytest.skip("Conditional node execution requires CC >= 9.0 (Hopper)")
+
+
+def test_instantiate_and_execute_if_cond(sample_graphdef):
+    """If-conditional node: body executes only when condition is non-zero."""
+    _skip_unless_cc_90()
+    import ctypes
+
+    from helpers.graph_kernels import compile_conditional_kernels
+
+    condition = sample_graphdef.create_condition(default_value=0)
+    mod = compile_conditional_kernels(int)
+    set_handle = mod.get_kernel("set_handle")
+    add_one = mod.get_kernel("add_one")
+
+    alloc = sample_graphdef.alloc(ctypes.sizeof(ctypes.c_int))
+    ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
+    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition.handle, 1)
+    if_node = setter.if_cond(condition)
+    if_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+
+    graph = sample_graphdef.instantiate()
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    result = (ctypes.c_int * 1)()
+    from cuda.bindings import driver as drv
+
+    drv.cuMemcpyDtoH(result, alloc.dptr, ctypes.sizeof(ctypes.c_int))
+    assert result[0] == 1
+
+
+def test_instantiate_and_execute_if_else(sample_graphdef):
+    """If-else node: then or else branch executes based on condition."""
+    _skip_unless_cc_90()
+    import ctypes
+
+    from helpers.graph_kernels import compile_conditional_kernels
+
+    condition = sample_graphdef.create_condition(default_value=0)
+    mod = compile_conditional_kernels(int)
+    set_handle = mod.get_kernel("set_handle")
+    add_one = mod.get_kernel("add_one")
+
+    alloc = sample_graphdef.alloc(ctypes.sizeof(ctypes.c_int))
+    ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
+    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition.handle, 0)
+    ie_node = setter.if_else(condition)
+    ie_node.then.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+    n1 = ie_node.else_.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+    n1.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+
+    graph = sample_graphdef.instantiate()
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    result = (ctypes.c_int * 1)()
+    from cuda.bindings import driver as drv
+
+    drv.cuMemcpyDtoH(result, alloc.dptr, ctypes.sizeof(ctypes.c_int))
+    assert result[0] == 2
+
+
+def test_instantiate_and_execute_switch(sample_graphdef):
+    """Switch node: selected branch executes based on condition value."""
+    _skip_unless_cc_90()
+    import ctypes
+
+    from helpers.graph_kernels import compile_conditional_kernels
+
+    condition = sample_graphdef.create_condition(default_value=0)
+    mod = compile_conditional_kernels(int)
+    set_handle = mod.get_kernel("set_handle")
+    add_one = mod.get_kernel("add_one")
+
+    alloc = sample_graphdef.alloc(ctypes.sizeof(ctypes.c_int))
+    ms = alloc.memset(alloc.dptr, 0, ctypes.sizeof(ctypes.c_int))
+    setter = ms.launch(LaunchConfig(grid=1, block=1), set_handle, condition.handle, 2)
+    sw_node = setter.switch(condition, 4)
+    for branch in sw_node.branches:
+        branch.launch(LaunchConfig(grid=1, block=1), add_one, alloc.dptr)
+
+    graph = sample_graphdef.instantiate()
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    result = (ctypes.c_int * 1)()
+    from cuda.bindings import driver as drv
+
+    drv.cuMemcpyDtoH(result, alloc.dptr, ctypes.sizeof(ctypes.c_int))
+    assert result[0] == 1
+
+
+def test_conditional_node_type_preserved_by_nodes(sample_graphdef):
+    """Conditional nodes appear as ConditionalNode base when read back from graph."""
+    condition = try_create_condition(sample_graphdef)
+    if_node = sample_graphdef.if_cond(condition)
+    assert isinstance(if_node, IfNode)
+
+    all_nodes = sample_graphdef.nodes()
+    matched = [n for n in all_nodes if n == if_node]
+    assert len(matched) == 1
+    assert isinstance(matched[0], ConditionalNode)
 
 
 # =============================================================================

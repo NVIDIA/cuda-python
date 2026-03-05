@@ -20,7 +20,12 @@ Node hierarchy:
     ├── ChildGraphNode    (embedded sub-graph)
     ├── EventRecordNode   (record an event)
     ├── EventWaitNode     (wait for an event)
-    └── HostCallbackNode  (host CPU callback)
+    ├── HostCallbackNode  (host CPU callback)
+    └── ConditionalNode   (conditional execution — base for reconstruction)
+        ├── IfNode        (if-then conditional, 1 branch)
+        ├── IfElseNode    (if-then-else conditional, 2 branches)
+        ├── WhileNode     (while-loop conditional, 1 branch)
+        └── SwitchNode    (switch conditional, N branches)
 """
 
 from dataclasses import dataclass
@@ -93,6 +98,92 @@ cdef void _attach_user_object(
         if user_obj == NULL:
             destroy(ptr)
         HANDLE_RETURN(ret)
+
+
+cdef class Condition:
+    """Wraps a CUgraphConditionalHandle.
+
+    Created by :meth:`GraphDef.create_condition` and passed to
+    conditional-node builder methods (``if_cond``, ``if_else``,
+    ``while_loop``, ``switch``). The underlying value is set at
+    runtime by device code via ``cudaGraphSetConditional``.
+    """
+
+    def __repr__(self):
+        return f"<Condition handle=0x{<unsigned long long>self._c_handle:x}>"
+
+    def __eq__(self, other):
+        if not isinstance(other, Condition):
+            return NotImplemented
+        return self._c_handle == (<Condition>other)._c_handle
+
+    def __hash__(self):
+        return hash(<unsigned long long>self._c_handle)
+
+    @property
+    def handle(self):
+        """The raw CUgraphConditionalHandle as an int."""
+        return <unsigned long long>self._c_handle
+
+
+cdef ConditionalNode _make_conditional_node(
+        Node pred,
+        Condition condition,
+        cydriver.CUgraphConditionalNodeType cond_type,
+        unsigned int size,
+        type node_cls):
+    if not isinstance(condition, Condition):
+        raise TypeError(
+            f"condition must be a Condition object (from "
+            f"GraphDef.create_condition()), got {type(condition).__name__}")
+    cdef cydriver.CUgraphNodeParams params
+    cdef cydriver.CUgraphNode new_node = NULL
+    cdef vector[cydriver.CUgraph] branch_graphs
+    branch_graphs.resize(size)
+
+    c_memset(&params, 0, sizeof(params))
+    params.type = cydriver.CU_GRAPH_NODE_TYPE_CONDITIONAL
+    params.conditional.handle = condition._c_handle
+    params.conditional.type = cond_type
+    params.conditional.size = size
+    params.conditional.phGraph_out = branch_graphs.data()
+
+    cdef cydriver.CUcontext ctx = NULL
+    cdef cydriver.CUgraph graph = as_cu(pred._h_graph)
+    cdef cydriver.CUgraphNode* deps = NULL
+    cdef size_t num_deps = 0
+
+    if pred._node != NULL:
+        deps = &pred._node
+        num_deps = 1
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+    params.conditional.ctx = ctx
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuGraphAddNode(
+            &new_node, graph, deps, NULL, num_deps, &params))
+
+    cdef list branch_list = []
+    cdef unsigned int i
+    cdef cydriver.CUgraph bg
+    cdef GraphHandle h_branch
+    for i in range(size):
+        bg = branch_graphs[i]
+        h_branch = create_graph_handle_ref(bg, pred._h_graph)
+        branch_list.append(GraphDef._from_handle(h_branch))
+    cdef tuple branches = tuple(branch_list)
+
+    cdef ConditionalNode n = node_cls.__new__(node_cls)
+    n._h_graph = pred._h_graph
+    n._node = new_node
+    n._condition = condition
+    n._cond_type = cond_type
+    n._branches = branches
+
+    pred._succ_cache = None
+    return n
 
 
 @dataclass
@@ -250,6 +341,71 @@ cdef class GraphDef:
         """
         return self._entry.callback(fn, user_data=user_data)
 
+    def create_condition(self, default_value=None):
+        """Create a condition variable for use with conditional nodes.
+
+        The returned :class:`Condition` object is passed to conditional-node
+        builder methods. Its value is controlled at runtime by device code
+        via ``cudaGraphSetConditional``.
+
+        Parameters
+        ----------
+        default_value : int, optional
+            The default value to assign to the condition.
+            If None, no default is assigned.
+
+        Returns
+        -------
+        Condition
+            A condition variable for controlling conditional execution.
+        """
+        cdef cydriver.CUgraphConditionalHandle c_handle
+        cdef unsigned int flags = 0
+        cdef unsigned int default_val = 0
+
+        if default_value is not None:
+            default_val = <unsigned int>default_value
+            flags = cydriver.CU_GRAPH_COND_ASSIGN_DEFAULT
+
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUcontext ctx = NULL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            HANDLE_RETURN(cydriver.cuGraphConditionalHandleCreate(
+                &c_handle, graph, ctx, default_val, flags))
+
+        cdef Condition cond = Condition.__new__(Condition)
+        cond._c_handle = c_handle
+        return cond
+
+    def if_cond(self, condition):
+        """Add an entry-point if-conditional node (no dependencies).
+
+        See :meth:`Node.if_cond` for full documentation.
+        """
+        return self._entry.if_cond(condition)
+
+    def if_else(self, condition):
+        """Add an entry-point if-else conditional node (no dependencies).
+
+        See :meth:`Node.if_else` for full documentation.
+        """
+        return self._entry.if_else(condition)
+
+    def while_loop(self, condition):
+        """Add an entry-point while-loop conditional node (no dependencies).
+
+        See :meth:`Node.while_loop` for full documentation.
+        """
+        return self._entry.while_loop(condition)
+
+    def switch(self, condition, unsigned int count):
+        """Add an entry-point switch conditional node (no dependencies).
+
+        See :meth:`Node.switch` for full documentation.
+        """
+        return self._entry.switch(condition, count)
+
     def instantiate(self):
         """Instantiate the graph definition into an executable Graph.
 
@@ -392,6 +548,17 @@ cdef class Node:
             return EventWaitNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_HOST:
             return HostCallbackNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_CONDITIONAL:
+            # TODO(CUDA 13.2): Use cuGraphNodeGetParams to reconstruct
+            # ConditionalNode subtype (IfNode, IfElseNode, WhileNode, SwitchNode).
+            # Until then, falls through to ConditionalNode base with no params.
+            n = ConditionalNode.__new__(ConditionalNode)
+            (<ConditionalNode>n)._h_graph = h_graph
+            (<ConditionalNode>n)._node = node
+            (<ConditionalNode>n)._condition = None
+            (<ConditionalNode>n)._cond_type = cydriver.CU_GRAPH_COND_TYPE_IF
+            (<ConditionalNode>n)._branches = ()
+            return n
         else:
             n = Node.__new__(Node)
             (<Node>n)._h_graph = h_graph
@@ -1062,6 +1229,89 @@ cdef class Node:
             self._h_graph, new_node, callable_obj,
             node_params.fn, node_params.userData)
 
+    def if_cond(self, condition):
+        """Add an if-conditional node depending on this node.
+
+        The body graph executes only when the condition evaluates to
+        a non-zero value at runtime.
+
+        Parameters
+        ----------
+        condition : Condition
+            Condition from :meth:`GraphDef.create_condition`.
+
+        Returns
+        -------
+        IfNode
+            A new IfNode with one branch accessible via ``.then``.
+        """
+        return _make_conditional_node(
+            self, condition,
+            cydriver.CU_GRAPH_COND_TYPE_IF, 1, IfNode)
+
+    def if_else(self, condition):
+        """Add an if-else conditional node depending on this node.
+
+        Two body graphs: the first executes when the condition is
+        non-zero, the second when it is zero.
+
+        Parameters
+        ----------
+        condition : Condition
+            Condition from :meth:`GraphDef.create_condition`.
+
+        Returns
+        -------
+        IfElseNode
+            A new IfElseNode with branches accessible via
+            ``.then`` and ``.else_``.
+        """
+        return _make_conditional_node(
+            self, condition,
+            cydriver.CU_GRAPH_COND_TYPE_IF, 2, IfElseNode)
+
+    def while_loop(self, condition):
+        """Add a while-loop conditional node depending on this node.
+
+        The body graph executes repeatedly while the condition
+        evaluates to a non-zero value.
+
+        Parameters
+        ----------
+        condition : Condition
+            Condition from :meth:`GraphDef.create_condition`.
+
+        Returns
+        -------
+        WhileNode
+            A new WhileNode with body accessible via ``.body``.
+        """
+        return _make_conditional_node(
+            self, condition,
+            cydriver.CU_GRAPH_COND_TYPE_WHILE, 1, WhileNode)
+
+    def switch(self, condition, unsigned int count):
+        """Add a switch conditional node depending on this node.
+
+        The condition value selects which branch to execute. If the
+        value is out of range, no branch executes.
+
+        Parameters
+        ----------
+        condition : Condition
+            Condition from :meth:`GraphDef.create_condition`.
+        count : int
+            Number of switch cases (branches).
+
+        Returns
+        -------
+        SwitchNode
+            A new SwitchNode with branches accessible via ``.branches``.
+        """
+        return _make_conditional_node(
+            self, condition,
+            cydriver.CU_GRAPH_COND_TYPE_SWITCH, count, SwitchNode)
+
 
 # =============================================================================
 # Node subclasses
@@ -1612,3 +1862,106 @@ cdef class HostCallbackNode(Node):
     def callback_fn(self):
         """The Python callable, or None for ctypes function pointer callbacks."""
         return self._callable
+
+
+cdef class ConditionalNode(Node):
+    """Base class for conditional graph nodes.
+
+    When created via builder methods (if_cond, if_else, while_loop, switch),
+    a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
+    returned. When reconstructed from the driver (pre-CUDA 13.2), this
+    base class is used as a fallback since the driver does not yet expose
+    a getter for conditional node parameters.
+
+    Properties
+    ----------
+    condition : Condition
+        The condition variable controlling execution.
+    cond_type : str
+        The conditional type ("if", "while", or "switch").
+    branches : tuple of GraphDef
+        The body graphs for each branch.
+    """
+
+    def __repr__(self):
+        return "<ConditionalNode>"
+
+    @property
+    def condition(self):
+        """The condition variable controlling execution."""
+        return self._condition
+
+    @property
+    def cond_type(self):
+        """The conditional type as a string: 'if', 'while', or 'switch'.
+
+        Returns None when reconstructed from the driver pre-CUDA 13.2,
+        as the conditional type cannot be determined.
+        """
+        if self._condition is None:
+            return None
+        if self._cond_type == cydriver.CU_GRAPH_COND_TYPE_IF:
+            return "if"
+        elif self._cond_type == cydriver.CU_GRAPH_COND_TYPE_WHILE:
+            return "while"
+        else:
+            return "switch"
+
+    @property
+    def branches(self):
+        """The body graphs for each branch as a tuple of GraphDef.
+
+        Returns an empty tuple when reconstructed from the driver
+        pre-CUDA 13.2.
+        """
+        return self._branches
+
+
+cdef class IfNode(ConditionalNode):
+    """An if-conditional node (1 branch, executes when condition is non-zero)."""
+
+    def __repr__(self):
+        return f"<IfNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
+
+    @property
+    def then(self):
+        """The 'then' branch graph."""
+        return self._branches[0]
+
+
+cdef class IfElseNode(ConditionalNode):
+    """An if-else conditional node (2 branches)."""
+
+    def __repr__(self):
+        return f"<IfElseNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
+
+    @property
+    def then(self):
+        """The 'then' branch graph (executed when condition is non-zero)."""
+        return self._branches[0]
+
+    @property
+    def else_(self):
+        """The 'else' branch graph (executed when condition is zero)."""
+        return self._branches[1]
+
+
+cdef class WhileNode(ConditionalNode):
+    """A while-loop conditional node (1 branch, repeats while condition is non-zero)."""
+
+    def __repr__(self):
+        return f"<WhileNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
+
+    @property
+    def body(self):
+        """The loop body graph."""
+        return self._branches[0]
+
+
+cdef class SwitchNode(ConditionalNode):
+    """A switch conditional node (N branches, selected by condition value)."""
+
+    def __repr__(self):
+        cdef Py_ssize_t n = len(self._branches)
+        return (f"<SwitchNode condition=0x{<unsigned long long>self._condition._c_handle:x}"
+                f" with {n} {'branch' if n == 1 else 'branches'}>")

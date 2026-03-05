@@ -8,6 +8,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport GraphHandle
 
 
+cdef class Condition
 cdef class GraphDef
 cdef class Node
 cdef class EmptyNode(Node)
@@ -20,6 +21,17 @@ cdef class ChildGraphNode(Node)
 cdef class EventRecordNode(Node)
 cdef class EventWaitNode(Node)
 cdef class HostCallbackNode(Node)
+cdef class ConditionalNode(Node)
+cdef class IfNode(ConditionalNode)
+cdef class IfElseNode(ConditionalNode)
+cdef class WhileNode(ConditionalNode)
+cdef class SwitchNode(ConditionalNode)
+
+
+cdef class Condition:
+    cdef:
+        cydriver.CUgraphConditionalHandle _c_handle
+        object __weakref__
 
 
 cdef class GraphDef:
@@ -179,3 +191,26 @@ cdef class HostCallbackNode(Node):
 
     @staticmethod
     cdef HostCallbackNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)
+
+
+cdef class ConditionalNode(Node):
+    cdef:
+        Condition _condition
+        cydriver.CUgraphConditionalNodeType _cond_type
+        tuple _branches  # tuple of GraphDef (non-owning wrappers)
+
+
+cdef class IfNode(ConditionalNode):
+    pass
+
+
+cdef class IfElseNode(ConditionalNode):
+    pass
+
+
+cdef class WhileNode(ConditionalNode):
+    pass
+
+
+cdef class SwitchNode(ConditionalNode):
+    pass
