@@ -17,6 +17,7 @@ Node hierarchy:
     ├── FreeNode          (memory free, exposes dptr)
     ├── MemsetNode        (memory set, exposes dptr, value, element_size, etc.)
     ├── MemcpyNode        (memory copy, exposes dst, src, size)
+    ├── ChildGraphNode    (embedded sub-graph)
     ├── EventRecordNode   (record an event)
     └── EventWaitNode     (wait for an event)
 """
@@ -38,6 +39,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     GraphHandle,
     create_graph_handle,
+    create_graph_handle_ref,
     as_cu,
     as_intptr,
     as_py,
@@ -177,6 +179,13 @@ cdef class GraphDef:
         See :meth:`Node.memcpy` for full documentation.
         """
         return self._entry.memcpy(dst, src, size)
+
+    def embed(self, child):
+        """Add an entry-point child graph node (no dependencies).
+
+        See :meth:`Node.embed` for full documentation.
+        """
+        return self._entry.embed(child)
 
     def record_event(self, event):
         """Add an entry-point event record node (no dependencies).
@@ -326,6 +335,8 @@ cdef class Node:
             return MemsetNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMCPY:
             return MemcpyNode._create_from_driver(h_graph, node)
+        elif node_type == cydriver.CU_GRAPH_NODE_TYPE_GRAPH:
+            return ChildGraphNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_EVENT_RECORD:
             return EventRecordNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT:
@@ -806,6 +817,48 @@ cdef class Node:
             self._h_graph, new_node, c_dst, c_src, size,
             c_dst_type, c_src_type)
 
+    def embed(self, child):
+        """Add a child graph node depending on this node.
+
+        Embeds a clone of the given graph definition as a sub-graph node.
+        The child graph must not contain allocation, free, or conditional
+        nodes.
+
+        Parameters
+        ----------
+        child : GraphDef
+            The graph definition to embed (will be cloned).
+
+        Returns
+        -------
+        ChildGraphNode
+            A new ChildGraphNode representing the embedded sub-graph.
+        """
+        cdef GraphDef child_def = <GraphDef>child
+        cdef cydriver.CUgraph child_graph = as_cu(child_def._h_graph)
+        cdef cydriver.CUgraphNode new_node = NULL
+        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef cydriver.CUgraphNode* deps = NULL
+        cdef size_t num_deps = 0
+
+        if self._node != NULL:
+            deps = &self._node
+            num_deps = 1
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphAddChildGraphNode(
+                &new_node, graph, deps, num_deps, child_graph))
+
+        cdef cydriver.CUgraph embedded_graph = NULL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
+                new_node, &embedded_graph))
+
+        cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph)
+
+        self._succ_cache = None
+        return ChildGraphNode._create_with_params(self._h_graph, new_node, h_embedded)
+
     def record_event(self, event):
         """Add an event record node depending on this node.
 
@@ -1254,6 +1307,48 @@ cdef class MemcpyNode(Node):
     def size(self):
         """The number of bytes copied."""
         return self._size
+
+
+cdef class ChildGraphNode(Node):
+    """A child graph (sub-graph) node.
+
+    Properties
+    ----------
+    child_graph : GraphDef
+        The embedded graph definition (non-owning wrapper).
+    """
+
+    @staticmethod
+    cdef ChildGraphNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+                                            GraphHandle h_child_graph):
+        """Create from known params (called by embed() builder)."""
+        cdef ChildGraphNode n = ChildGraphNode.__new__(ChildGraphNode)
+        n._h_graph = h_graph
+        n._node = node
+        n._h_child_graph = h_child_graph
+        return n
+
+    @staticmethod
+    cdef ChildGraphNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraph child_graph = NULL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(node, &child_graph))
+        cdef GraphHandle h_child = create_graph_handle_ref(child_graph)
+        return ChildGraphNode._create_with_params(h_graph, node, h_child)
+
+    def __repr__(self):
+        cdef cydriver.CUgraph g = as_cu(self._h_child_graph)
+        cdef size_t num_nodes = 0
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphGetNodes(g, NULL, &num_nodes))
+        cdef Py_ssize_t n = <Py_ssize_t>num_nodes
+        return f"<ChildGraphNode with {n} {'subnode' if n == 1 else 'subnodes'}>"
+
+    @property
+    def child_graph(self):
+        """The embedded graph definition (non-owning wrapper)."""
+        return GraphDef._from_handle(self._h_child_graph)
 
 
 cdef class EventRecordNode(Node):

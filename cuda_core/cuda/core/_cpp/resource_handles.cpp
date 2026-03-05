@@ -842,6 +842,11 @@ GraphHandle create_graph_handle(CUgraph graph) {
     return GraphHandle(box, &box->resource);
 }
 
+GraphHandle create_graph_handle_ref(CUgraph graph) {
+    auto box = std::make_shared<const GraphBox>(GraphBox{graph});
+    return GraphHandle(box, &box->resource);
+}
+
 // ============================================================================
 // Graphics Resource Handles
 // ============================================================================

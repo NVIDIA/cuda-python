@@ -325,6 +325,26 @@ def sample_memcpy_node_alt(sample_graphdef):
 
 
 @pytest.fixture
+def sample_child_graph_node(sample_graphdef):
+    """A ChildGraphNode."""
+    child = GraphDef()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    child.launch(LaunchConfig(grid=1, block=1), kernel)
+    return sample_graphdef.embed(child)
+
+
+@pytest.fixture
+def sample_child_graph_node_alt(sample_graphdef):
+    """An alternate ChildGraphNode from same graph."""
+    child = GraphDef()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    child.launch(LaunchConfig(grid=1, block=1), kernel)
+    return sample_graphdef.embed(child)
+
+
+@pytest.fixture
 def sample_event_record_node(sample_graphdef, sample_device):
     """An EventRecordNode."""
     event = sample_device.create_event()
@@ -374,6 +394,7 @@ HASH_TYPES = [
     "sample_free_node",
     "sample_memset_node",
     "sample_memcpy_node",
+    "sample_child_graph_node",
     "sample_event_record_node",
     "sample_event_wait_node",
 ]
@@ -396,6 +417,7 @@ EQ_TYPES = [
     "sample_free_node",
     "sample_memset_node",
     "sample_memcpy_node",
+    "sample_child_graph_node",
     "sample_event_record_node",
     "sample_event_wait_node",
 ]
@@ -419,6 +441,7 @@ WEAKREF_TYPES = [
     "sample_free_node",
     "sample_memset_node",
     "sample_memcpy_node",
+    "sample_child_graph_node",
     "sample_event_record_node",
     "sample_event_wait_node",
 ]
@@ -442,6 +465,7 @@ SAME_TYPE_PAIRS = [
     ("sample_free_node", "sample_free_node_alt"),
     ("sample_memset_node", "sample_memset_node_alt"),
     ("sample_memcpy_node", "sample_memcpy_node_alt"),
+    ("sample_child_graph_node", "sample_child_graph_node_alt"),
     ("sample_event_record_node", "sample_event_record_node_alt"),
     ("sample_event_wait_node", "sample_event_wait_node_alt"),
 ]
@@ -488,6 +512,7 @@ REPR_PATTERNS = [
     ("sample_free_node", r"<FreeNode dptr=0x[0-9a-f]+>"),
     ("sample_memset_node", r"<MemsetNode dptr=0x[0-9a-f]+ value=\d+ elem=\d+>"),
     ("sample_memcpy_node", r"<MemcpyNode dst=0x[0-9a-f]+\([DH]\) src=0x[0-9a-f]+\([DH]\) size=\d+>"),
+    ("sample_child_graph_node", r"<ChildGraphNode with \d+ subnodes?>"),
     ("sample_event_record_node", r"<EventRecordNode event=0x[0-9a-f]+>"),
     ("sample_event_wait_node", r"<EventWaitNode event=0x[0-9a-f]+>"),
 ]

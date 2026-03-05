@@ -13,6 +13,7 @@ from cuda.core import Device, LaunchConfig
 from cuda.core._graph import GraphDebugPrintOptions
 from cuda.core._graph._graphdef import (
     AllocNode,
+    ChildGraphNode,
     EmptyNode,
     EventRecordNode,
     EventWaitNode,
@@ -331,6 +332,19 @@ def _build_memcpy_node(g):
     }
 
 
+def _build_child_graph_node(g):
+    child = GraphDef()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    child.launch(config, kernel)
+    child.launch(config, kernel)
+    node = g.embed(child)
+    return node, {
+        "child_graph": lambda v: isinstance(v, GraphDef) and len(v.nodes()) == 2,
+    }
+
+
 _NODE_SPECS = [
     pytest.param(NodeSpec("empty", EmptyNode, "CU_GRAPH_NODE_TYPE_EMPTY", _build_empty_node), id="empty"),
     pytest.param(NodeSpec("kernel", KernelNode, "CU_GRAPH_NODE_TYPE_KERNEL", _build_kernel_node), id="kernel"),
@@ -351,6 +365,10 @@ _NODE_SPECS = [
     pytest.param(
         NodeSpec("memcpy", MemcpyNode, "CU_GRAPH_NODE_TYPE_MEMCPY", _build_memcpy_node),
         id="memcpy",
+    ),
+    pytest.param(
+        NodeSpec("child_graph", ChildGraphNode, "CU_GRAPH_NODE_TYPE_GRAPH", _build_child_graph_node),
+        id="child_graph",
     ),
     pytest.param(
         NodeSpec("event_record", EventRecordNode, "CU_GRAPH_NODE_TYPE_EVENT_RECORD", _build_event_record_node),
@@ -706,6 +724,23 @@ def test_instantiate_and_execute_memcpy(sample_graphdef):
 
     drv.cuMemcpyDtoH(host_buf, dst_alloc.dptr, ALLOC_SIZE)
     assert all(b == 0xAB for b in host_buf)
+
+
+def test_instantiate_and_execute_child_graph(sample_graphdef):
+    """Graph with embedded child graph can be executed."""
+    child = GraphDef()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    child.launch(config, kernel)
+
+    sample_graphdef.embed(child)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
 
 
 def test_instantiate_and_execute_event_record_wait(sample_graphdef):

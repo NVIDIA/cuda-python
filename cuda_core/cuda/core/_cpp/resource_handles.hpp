@@ -329,6 +329,11 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_li
 // The caller must have already created the graph via cuGraphCreate.
 GraphHandle create_graph_handle(CUgraph graph);
 
+// Create a non-owning graph handle (references existing graph).
+// Use for graphs that are managed by a child graph node or another owner.
+// The graph will NOT be destroyed when the handle is released.
+GraphHandle create_graph_handle_ref(CUgraph graph);
+
 // ============================================================================
 // Graphics resource handle functions
 // ============================================================================
