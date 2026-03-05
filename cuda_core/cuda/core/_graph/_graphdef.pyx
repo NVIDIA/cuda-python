@@ -59,7 +59,19 @@ from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils import driver, handle_return
+
+
+cdef bint _has_cuGraphNodeGetParams = False
+cdef bint _version_checked = False
+
+cdef bint _check_node_get_params():
+    global _has_cuGraphNodeGetParams, _version_checked
+    if not _version_checked:
+        ver = handle_return(driver.cuDriverGetVersion())
+        _has_cuGraphNodeGetParams = ver >= 13020
+        _version_checked = True
+    return _has_cuGraphNodeGetParams
 
 
 cdef extern from "Python.h":
@@ -549,16 +561,7 @@ cdef class Node:
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_HOST:
             return HostCallbackNode._create_from_driver(h_graph, node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_CONDITIONAL:
-            # TODO(CUDA 13.2): Use cuGraphNodeGetParams to reconstruct
-            # ConditionalNode subtype (IfNode, IfElseNode, WhileNode, SwitchNode).
-            # Until then, falls through to ConditionalNode base with no params.
-            n = ConditionalNode.__new__(ConditionalNode)
-            (<ConditionalNode>n)._h_graph = h_graph
-            (<ConditionalNode>n)._node = node
-            (<ConditionalNode>n)._condition = None
-            (<ConditionalNode>n)._cond_type = cydriver.CU_GRAPH_COND_TYPE_IF
-            (<ConditionalNode>n)._branches = ()
-            return n
+            return ConditionalNode._create_from_driver(h_graph, node)
         else:
             n = Node.__new__(Node)
             (<Node>n)._h_graph = h_graph
@@ -1869,19 +1872,71 @@ cdef class ConditionalNode(Node):
 
     When created via builder methods (if_cond, if_else, while_loop, switch),
     a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
-    returned. When reconstructed from the driver (pre-CUDA 13.2), this
-    base class is used as a fallback since the driver does not yet expose
-    a getter for conditional node parameters.
+    returned. When reconstructed from the driver on CUDA 13.2+, the
+    correct subclass is determined via cuGraphNodeGetParams. On older
+    drivers, this base class is used as a fallback.
 
     Properties
     ----------
-    condition : Condition
-        The condition variable controlling execution.
-    cond_type : str
-        The conditional type ("if", "while", or "switch").
+    condition : Condition or None
+        The condition variable controlling execution (None pre-13.2).
+    cond_type : str or None
+        The conditional type ("if", "while", or "switch"; None pre-13.2).
     branches : tuple of GraphDef
-        The body graphs for each branch.
+        The body graphs for each branch (empty pre-13.2).
     """
+
+    @staticmethod
+    cdef ConditionalNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+        cdef ConditionalNode n
+        if not _check_node_get_params():
+            n = ConditionalNode.__new__(ConditionalNode)
+            n._h_graph = h_graph
+            n._node = node
+            n._condition = None
+            n._cond_type = cydriver.CU_GRAPH_COND_TYPE_IF
+            n._branches = ()
+            return n
+
+        params = handle_return(driver.cuGraphNodeGetParams(
+            <uintptr_t>node))
+        cond_params = params.conditional
+        cdef int cond_type_int = int(cond_params.type)
+        cdef unsigned int size = int(cond_params.size)
+
+        cdef Condition condition = Condition.__new__(Condition)
+        condition._c_handle = <cydriver.CUgraphConditionalHandle>(
+            <unsigned long long>int(cond_params.handle))
+
+        cdef list branch_list = []
+        cdef unsigned int i
+        cdef GraphHandle h_branch
+        if cond_params.phGraph_out is not None:
+            for i in range(size):
+                h_branch = create_graph_handle_ref(
+                    <cydriver.CUgraph><uintptr_t>int(cond_params.phGraph_out[i]),
+                    h_graph)
+                branch_list.append(GraphDef._from_handle(h_branch))
+        cdef tuple branches = tuple(branch_list)
+
+        cdef type cls
+        if cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_IF:
+            if size == 1:
+                cls = IfNode
+            else:
+                cls = IfElseNode
+        elif cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_WHILE:
+            cls = WhileNode
+        else:
+            cls = SwitchNode
+
+        n = cls.__new__(cls)
+        n._h_graph = h_graph
+        n._node = node
+        n._condition = condition
+        n._cond_type = <cydriver.CUgraphConditionalNodeType>cond_type_int
+        n._branches = branches
+        return n
 
     def __repr__(self):
         return "<ConditionalNode>"

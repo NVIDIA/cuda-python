@@ -199,6 +199,9 @@ cdef class ConditionalNode(Node):
         cydriver.CUgraphConditionalNodeType _cond_type
         tuple _branches  # tuple of GraphDef (non-owning wrappers)
 
+    @staticmethod
+    cdef ConditionalNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node)
+
 
 cdef class IfNode(ConditionalNode):
     pass

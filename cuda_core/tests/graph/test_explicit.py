@@ -36,6 +36,15 @@ from cuda.core._graph._graphdef import (
 ALLOC_SIZE = 1024
 
 
+def _driver_has_node_get_params():
+    from cuda.bindings import driver as drv
+
+    return drv.cuDriverGetVersion()[1] >= 13020
+
+
+_HAS_NODE_GET_PARAMS = _driver_has_node_get_params()
+
+
 # =============================================================================
 # GraphSpec — representative graph topologies
 # =============================================================================
@@ -472,7 +481,7 @@ _NODE_SPECS = [
             IfNode,
             "CU_GRAPH_NODE_TYPE_CONDITIONAL",
             _build_if_cond_node,
-            reconstructed_class=ConditionalNode,
+            reconstructed_class=IfNode if _HAS_NODE_GET_PARAMS else ConditionalNode,
         ),
         id="if_cond",
     ),
@@ -482,7 +491,7 @@ _NODE_SPECS = [
             IfElseNode,
             "CU_GRAPH_NODE_TYPE_CONDITIONAL",
             _build_if_else_node,
-            reconstructed_class=ConditionalNode,
+            reconstructed_class=IfElseNode if _HAS_NODE_GET_PARAMS else ConditionalNode,
         ),
         id="if_else",
     ),
@@ -492,7 +501,7 @@ _NODE_SPECS = [
             WhileNode,
             "CU_GRAPH_NODE_TYPE_CONDITIONAL",
             _build_while_loop_node,
-            reconstructed_class=ConditionalNode,
+            reconstructed_class=WhileNode if _HAS_NODE_GET_PARAMS else ConditionalNode,
         ),
         id="while_loop",
     ),
@@ -502,7 +511,7 @@ _NODE_SPECS = [
             SwitchNode,
             "CU_GRAPH_NODE_TYPE_CONDITIONAL",
             _build_switch_node,
-            reconstructed_class=ConditionalNode,
+            reconstructed_class=SwitchNode if _HAS_NODE_GET_PARAMS else ConditionalNode,
         ),
         id="switch",
     ),
@@ -639,7 +648,7 @@ def test_node_attrs_preserved_by_nodes(node_spec):
     spec, g, node, expected_attrs = node_spec
     if not expected_attrs:
         pytest.skip("no type-specific attributes")
-    if spec.reconstructed_class is not None:
+    if spec.roundtrip_class != spec.expected_class:
         pytest.skip("reconstructed type differs — attrs not preserved")
     retrieved = next(n for n in g.nodes() if n == node)
     for attr in expected_attrs:
