@@ -141,10 +141,12 @@ class LinuxSearchPlatform:
         error_messages: list[str],
         attachments: list[str],
     ) -> str | None:
+        # Most libraries have both unversioned and versioned files/symlinks (exact match first)
         so_name = os.path.join(lib_dir, lib_searched_for)
         if os.path.isfile(so_name):
             return so_name
-        # Look for a versioned library using glob (e.g., libcupti.so.12, libcupti.so.13)
+        # Some libraries only exist as versioned files (e.g., libcupti.so.13 in conda),
+        # so the glob fallback is needed
         file_wild = lib_searched_for + "*"
         for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
             if os.path.isfile(so_name):
