@@ -52,7 +52,7 @@ def _build_empty():
 def _build_single():
     """One alloc node, no edges."""
     g = GraphDef()
-    a = g.root.alloc(ALLOC_SIZE)
+    a = g.alloc(ALLOC_SIZE)
     return GraphSpec(
         "single",
         g,
@@ -66,7 +66,7 @@ def _build_single():
 def _build_chain():
     """Linear chain: a -> b -> c."""
     g = GraphDef()
-    a = g.root.alloc(ALLOC_SIZE)
+    a = g.alloc(ALLOC_SIZE)
     b = a.alloc(ALLOC_SIZE)
     c = b.alloc(ALLOC_SIZE)
     return GraphSpec(
@@ -82,7 +82,7 @@ def _build_chain():
 def _build_fan_out():
     """One node feeds three: a -> {b, c, d}."""
     g = GraphDef()
-    a = g.root.alloc(ALLOC_SIZE)
+    a = g.alloc(ALLOC_SIZE)
     b = a.alloc(ALLOC_SIZE)
     c = a.alloc(ALLOC_SIZE)
     d = a.alloc(ALLOC_SIZE)
@@ -99,10 +99,10 @@ def _build_fan_out():
 def _build_fan_in():
     """Three entry nodes merge: {a, b, c} -> d (join)."""
     g = GraphDef()
-    a = g.root.alloc(ALLOC_SIZE)
-    b = g.root.alloc(ALLOC_SIZE)
-    c = g.root.alloc(ALLOC_SIZE)
-    d = a.join(b, c)
+    a = g.alloc(ALLOC_SIZE)
+    b = g.alloc(ALLOC_SIZE)
+    c = g.alloc(ALLOC_SIZE)
+    d = g.join(a, b, c)
     return GraphSpec(
         "fan_in",
         g,
@@ -116,7 +116,7 @@ def _build_fan_in():
 def _build_diamond():
     """Diamond: a -> {b, c} -> d (join)."""
     g = GraphDef()
-    a = g.root.alloc(ALLOC_SIZE)
+    a = g.alloc(ALLOC_SIZE)
     b = a.alloc(ALLOC_SIZE)
     c = a.alloc(ALLOC_SIZE)
     d = b.join(c)
@@ -133,8 +133,8 @@ def _build_diamond():
 def _build_disconnected():
     """Two independent entry nodes: a, b."""
     g = GraphDef()
-    a = g.root.alloc(ALLOC_SIZE)
-    b = g.root.alloc(ALLOC_SIZE)
+    a = g.alloc(ALLOC_SIZE)
+    b = g.alloc(ALLOC_SIZE)
     return GraphSpec(
         "disconnected",
         g,
@@ -189,16 +189,16 @@ class NodeSpec:
 
 
 def _build_empty_node(g):
-    a = g.root.alloc(ALLOC_SIZE)
-    b = g.root.alloc(ALLOC_SIZE)
-    return a.join(b), {}
+    a = g.alloc(ALLOC_SIZE)
+    b = g.alloc(ALLOC_SIZE)
+    return g.join(a, b), {}
 
 
 def _build_kernel_node(g):
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=(2, 3, 1), block=(32, 4, 1), shmem_size=128)
-    entry = g.root.alloc(ALLOC_SIZE)
+    entry = g.alloc(ALLOC_SIZE)
     node = entry.launch(config, kernel)
     return node, {
         "grid": (2, 3, 1),
@@ -211,7 +211,7 @@ def _build_kernel_node(g):
 
 def _build_alloc_node(g):
     device_id = Device().device_id
-    entry = g.root.alloc(ALLOC_SIZE)
+    entry = g.alloc(ALLOC_SIZE)
     node = entry.alloc(ALLOC_SIZE)
     return node, {
         "dptr": lambda v: v != 0,
@@ -226,7 +226,7 @@ def _build_alloc_node(g):
 def _build_alloc_managed_node(g):
     device_id = Device().device_id
     options = GraphAllocOptions(memory_type="managed")
-    entry = g.root.alloc(ALLOC_SIZE)
+    entry = g.alloc(ALLOC_SIZE)
     node = entry.alloc(ALLOC_SIZE, options)
     return node, {
         "dptr": lambda v: v != 0,
@@ -239,7 +239,7 @@ def _build_alloc_managed_node(g):
 
 
 def _build_free_node(g):
-    alloc = g.root.alloc(ALLOC_SIZE)
+    alloc = g.alloc(ALLOC_SIZE)
     node = alloc.free(alloc.dptr)
     return node, {
         "dptr": alloc.dptr,
@@ -247,7 +247,7 @@ def _build_free_node(g):
 
 
 def _build_memset_node(g):
-    alloc = g.root.alloc(ALLOC_SIZE)
+    alloc = g.alloc(ALLOC_SIZE)
     node = alloc.memset(alloc.dptr, 42, ALLOC_SIZE)
     return node, {
         "dptr": alloc.dptr,
@@ -260,7 +260,7 @@ def _build_memset_node(g):
 
 
 def _build_memset_node_u16(g):
-    alloc = g.root.alloc(ALLOC_SIZE)
+    alloc = g.alloc(ALLOC_SIZE)
     node = alloc.memset(alloc.dptr, b"\xab\xcd", ALLOC_SIZE // 2)
     return node, {
         "dptr": alloc.dptr,
@@ -273,7 +273,7 @@ def _build_memset_node_u16(g):
 
 
 def _build_memset_node_u32(g):
-    alloc = g.root.alloc(ALLOC_SIZE)
+    alloc = g.alloc(ALLOC_SIZE)
     node = alloc.memset(alloc.dptr, b"\x01\x02\x03\x04", ALLOC_SIZE // 4)
     return node, {
         "dptr": alloc.dptr,
@@ -288,7 +288,7 @@ def _build_memset_node_u32(g):
 def _build_memset_node_2d(g):
     rows = 4
     cols = ALLOC_SIZE // rows
-    alloc = g.root.alloc(ALLOC_SIZE)
+    alloc = g.alloc(ALLOC_SIZE)
     node = alloc.memset(alloc.dptr, 0xFF, cols, height=rows, pitch=cols)
     return node, {
         "dptr": alloc.dptr,
@@ -302,7 +302,7 @@ def _build_memset_node_2d(g):
 
 def _build_event_record_node(g):
     event = Device().create_event()
-    entry = g.root.alloc(ALLOC_SIZE)
+    entry = g.alloc(ALLOC_SIZE)
     node = entry.record_event(event)
     return node, {
         "event": event,
@@ -311,7 +311,7 @@ def _build_event_record_node(g):
 
 def _build_event_wait_node(g):
     event = Device().create_event()
-    entry = g.root.alloc(ALLOC_SIZE)
+    entry = g.alloc(ALLOC_SIZE)
     node = entry.wait_event(event)
     return node, {
         "event": event,
@@ -492,17 +492,13 @@ def test_graphdef_handle_valid(sample_graphdef):
     assert int(sample_graphdef.handle) != 0
 
 
-def test_graphdef_root_returns_node(sample_graphdef):
-    """GraphDef.root returns a Node instance."""
-    assert isinstance(sample_graphdef.root, Node)
-
-
-def test_graphdef_root_is_virtual(sample_graphdef):
-    """Root node is virtual (no pred/succ, type is None)."""
-    root = sample_graphdef.root
-    assert root.pred == ()
-    assert root.succ == ()
-    assert root.type is None
+def test_graphdef_entry_is_virtual(sample_graphdef):
+    """Internal entry node is virtual (no pred/succ, type is None)."""
+    entry = sample_graphdef._entry
+    assert isinstance(entry, Node)
+    assert entry.pred == ()
+    assert entry.succ == ()
+    assert entry.type is None
 
 
 # =============================================================================
@@ -515,19 +511,19 @@ def test_alloc_zero_size_fails(sample_graphdef):
     from cuda.core._utils.cuda_utils import CUDAError
 
     with pytest.raises(CUDAError):
-        sample_graphdef.root.alloc(0)
+        sample_graphdef.alloc(0)
 
 
 def test_free_creates_dependency(sample_graphdef):
     """Free node depends on its predecessor."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     free = alloc.free(alloc.dptr)
     assert alloc in free.pred
 
 
 def test_alloc_free_chain(sample_graphdef):
     """Alloc and free can be chained."""
-    a1 = sample_graphdef.root.alloc(ALLOC_SIZE)
+    a1 = sample_graphdef.alloc(ALLOC_SIZE)
     a2 = a1.alloc(ALLOC_SIZE)
     f2 = a2.free(a2.dptr)
     f1 = f2.free(a1.dptr)
@@ -545,7 +541,7 @@ def test_alloc_memory_type_invalid(sample_graphdef):
     """Invalid memory type raises ValueError."""
     options = GraphAllocOptions(memory_type="invalid")
     with pytest.raises(ValueError, match="Invalid memory_type"):
-        sample_graphdef.root.alloc(ALLOC_SIZE, options)
+        sample_graphdef.alloc(ALLOC_SIZE, options)
 
 
 @pytest.mark.parametrize(
@@ -559,7 +555,7 @@ def test_alloc_device_option(sample_graphdef, device_spec):
     """Device can be specified as int or Device object."""
     device = Device()
     options = GraphAllocOptions(device=device_spec(device))
-    node = sample_graphdef.root.alloc(ALLOC_SIZE, options)
+    node = sample_graphdef.alloc(ALLOC_SIZE, options)
     assert node.dptr != 0
 
 
@@ -568,7 +564,7 @@ def test_alloc_peer_access(mempool_device_x2):
     d0, d1 = mempool_device_x2
     g = GraphDef()
     options = GraphAllocOptions(device=d0.device_id, peer_access=[d1.device_id])
-    node = g.root.alloc(ALLOC_SIZE, options)
+    node = g.alloc(ALLOC_SIZE, options)
     assert d1.device_id in node.peer_access
 
 
@@ -580,8 +576,8 @@ def test_alloc_peer_access(mempool_device_x2):
 @pytest.mark.parametrize("num_branches", [2, 3, 5])
 def test_join_merges_branches(sample_graphdef, num_branches):
     """join() with multiple branches creates correct dependencies."""
-    branches = [sample_graphdef.root.alloc(ALLOC_SIZE) for _ in range(num_branches)]
-    joined = branches[0].join(*branches[1:])
+    branches = [sample_graphdef.alloc(ALLOC_SIZE) for _ in range(num_branches)]
+    joined = sample_graphdef.join(*branches)
     assert isinstance(joined, EmptyNode)
     assert set(joined.pred) == set(branches)
 
@@ -596,7 +592,7 @@ def test_launch_creates_node(sample_graphdef):
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
-    node = sample_graphdef.root.launch(config, kernel)
+    node = sample_graphdef.launch(config, kernel)
     assert isinstance(node, KernelNode)
 
 
@@ -605,7 +601,7 @@ def test_launch_chain_dependencies(sample_graphdef):
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
-    n1 = sample_graphdef.root.launch(config, kernel)
+    n1 = sample_graphdef.launch(config, kernel)
     n2 = n1.launch(config, kernel)
     n3 = n2.launch(config, kernel)
     assert n1 in n2.pred
@@ -626,8 +622,8 @@ def test_instantiate_empty_graph(sample_graphdef):
 
 def test_instantiate_with_nodes(sample_graphdef):
     """Graph with nodes can be instantiated."""
-    sample_graphdef.root.alloc(ALLOC_SIZE)
-    sample_graphdef.root.alloc(ALLOC_SIZE)
+    sample_graphdef.alloc(ALLOC_SIZE)
+    sample_graphdef.alloc(ALLOC_SIZE)
     graph = sample_graphdef.instantiate()
     assert graph is not None
 
@@ -637,7 +633,7 @@ def test_instantiate_and_execute_kernel(sample_graphdef):
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
-    sample_graphdef.root.launch(config, kernel)
+    sample_graphdef.launch(config, kernel)
     graph = sample_graphdef.instantiate()
 
     stream = Device().create_stream()
@@ -648,7 +644,7 @@ def test_instantiate_and_execute_kernel(sample_graphdef):
 
 def test_instantiate_and_execute_alloc_free(sample_graphdef):
     """Graph with alloc/free can be executed."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     alloc.free(alloc.dptr)
     graph = sample_graphdef.instantiate()
 
@@ -660,7 +656,7 @@ def test_instantiate_and_execute_alloc_free(sample_graphdef):
 
 def test_instantiate_and_execute_memset(sample_graphdef):
     """Graph with alloc/memset/free can be executed."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     ms = alloc.memset(alloc.dptr, 0xAB, ALLOC_SIZE)
     ms.free(alloc.dptr)
     graph = sample_graphdef.instantiate()
@@ -674,7 +670,7 @@ def test_instantiate_and_execute_memset(sample_graphdef):
 def test_instantiate_and_execute_event_record_wait(sample_graphdef):
     """Graph with event record and wait nodes can be executed."""
     event = Device().create_event()
-    rec = sample_graphdef.root.record_event(event)
+    rec = sample_graphdef.record_event(event)
     rec.wait_event(event)
     graph = sample_graphdef.instantiate()
 
@@ -691,7 +687,7 @@ def test_instantiate_and_execute_event_record_wait(sample_graphdef):
 
 def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
     """debug_dot_print writes a DOT file."""
-    sample_graphdef.root.alloc(ALLOC_SIZE)
+    sample_graphdef.alloc(ALLOC_SIZE)
     sample_graphdef.debug_dot_print(str(dot_file))
     assert dot_file.exists()
     content = dot_file.read_text()
@@ -700,7 +696,7 @@ def test_debug_dot_print_creates_file(sample_graphdef, dot_file):
 
 def test_debug_dot_print_with_options(sample_graphdef, dot_file):
     """debug_dot_print accepts GraphDebugPrintOptions."""
-    sample_graphdef.root.alloc(ALLOC_SIZE)
+    sample_graphdef.alloc(ALLOC_SIZE)
     options = GraphDebugPrintOptions(verbose=True, handles=True)
     sample_graphdef.debug_dot_print(str(dot_file), options)
     assert dot_file.exists()
@@ -708,6 +704,6 @@ def test_debug_dot_print_with_options(sample_graphdef, dot_file):
 
 def test_debug_dot_print_invalid_options(sample_graphdef, dot_file):
     """debug_dot_print rejects invalid options type."""
-    sample_graphdef.root.alloc(ALLOC_SIZE)
+    sample_graphdef.alloc(ALLOC_SIZE)
     with pytest.raises(TypeError, match="options must be a GraphDebugPrintOptions"):
         sample_graphdef.debug_dot_print(str(dot_file), "invalid")

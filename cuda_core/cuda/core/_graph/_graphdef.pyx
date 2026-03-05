@@ -119,16 +119,69 @@ cdef class GraphDef:
         return hash(as_intptr(self._h_graph))
 
     @property
-    def root(self):
-        """Return the root Node for this graph.
-
-        The root node has no dependencies. Operations added from the root
-        will be entry points to the graph.
-        """
+    def _entry(self):
+        """Return the internal entry-point Node (no dependencies)."""
         cdef Node n = Node.__new__(Node)
         n._h_graph = self._h_graph
         n._node = NULL
         return n
+
+    def alloc(self, size_t size, options: GraphAllocOptions | None = None):
+        """Add an entry-point memory allocation node (no dependencies).
+
+        See :meth:`Node.alloc` for full documentation.
+        """
+        return self._entry.alloc(size, options)
+
+    def free(self, dptr):
+        """Add an entry-point memory free node (no dependencies).
+
+        See :meth:`Node.free` for full documentation.
+        """
+        return self._entry.free(dptr)
+
+    def memset(self, dst, value, size_t width, size_t height=1, size_t pitch=0):
+        """Add an entry-point memset node (no dependencies).
+
+        See :meth:`Node.memset` for full documentation.
+        """
+        return self._entry.memset(dst, value, width, height, pitch)
+
+    def launch(self, config, kernel, *args):
+        """Add an entry-point kernel launch node (no dependencies).
+
+        See :meth:`Node.launch` for full documentation.
+        """
+        return self._entry.launch(config, kernel, *args)
+
+    def join(self, *nodes):
+        """Create an empty node that depends on all given nodes.
+
+        Parameters
+        ----------
+        *nodes : Node
+            Nodes to merge.
+
+        Returns
+        -------
+        EmptyNode
+            A new EmptyNode that depends on all input nodes.
+        """
+        return self._entry.join(*nodes)
+
+    def record_event(self, event):
+        """Add an entry-point event record node (no dependencies).
+
+        See :meth:`Node.record_event` for full documentation.
+        """
+        return self._entry.record_event(event)
+
+    def wait_event(self, event):
+        """Add an entry-point event wait node (no dependencies).
+
+        See :meth:`Node.wait_event` for full documentation.
+        """
+        return self._entry.wait_event(event)
 
     def instantiate(self):
         """Instantiate the graph definition into an executable Graph.
@@ -234,11 +287,9 @@ cdef class GraphDef:
 cdef class Node:
     """Base class for all graph nodes.
 
-    Nodes are created by calling methods on other Nodes. Each method
-    returns a new Node subclass that depends on the current node(s).
-
-    The root node (obtained from GraphDef.root) is a base Node with a
-    NULL internal handle, representing graph entry points.
+    Nodes are created by calling builder methods on GraphDef (for
+    entry-point nodes with no dependencies) or on other Nodes (for
+    nodes that depend on a predecessor).
     """
 
     @staticmethod
@@ -1063,7 +1114,7 @@ cdef class EventRecordNode(Node):
     @property
     def event(self):
         """The event being recorded (non-owning wrapper)."""
-        return Event._from_raw_handle(self._event)
+        return Event._from_handle(self._event)
 
 
 cdef class EventWaitNode(Node):
@@ -1099,4 +1150,4 @@ cdef class EventWaitNode(Node):
     @property
     def event(self):
         """The event being waited on (non-owning wrapper)."""
-        return Event._from_raw_handle(self._event)
+        return Event._from_handle(self._event)

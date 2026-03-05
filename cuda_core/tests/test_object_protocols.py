@@ -223,41 +223,41 @@ def sample_graphdef_alt(init_cuda):
 @pytest.fixture
 def sample_root_node(sample_graphdef):
     """A root Node (virtual, NULL handle)."""
-    return sample_graphdef.root
+    return sample_graphdef._entry
 
 
 @pytest.fixture
 def sample_root_node_alt(sample_graphdef_alt):
     """An alternate root Node from different graph."""
-    return sample_graphdef_alt.root
+    return sample_graphdef_alt._entry
 
 
 @pytest.fixture
 def sample_empty_node(sample_graphdef):
     """An EmptyNode created by merging two branches."""
-    a = sample_graphdef.root.alloc(ALLOC_SIZE)
-    b = sample_graphdef.root.alloc(ALLOC_SIZE)
-    return a.join(b)
+    a = sample_graphdef.alloc(ALLOC_SIZE)
+    b = sample_graphdef.alloc(ALLOC_SIZE)
+    return sample_graphdef.join(a, b)
 
 
 @pytest.fixture
 def sample_empty_node_alt(sample_graphdef):
     """An alternate EmptyNode from same graph."""
-    c = sample_graphdef.root.alloc(ALLOC_SIZE)
-    d = sample_graphdef.root.alloc(ALLOC_SIZE)
-    return c.join(d)
+    c = sample_graphdef.alloc(ALLOC_SIZE)
+    d = sample_graphdef.alloc(ALLOC_SIZE)
+    return sample_graphdef.join(c, d)
 
 
 @pytest.fixture
 def sample_alloc_node(sample_graphdef):
     """An AllocNode."""
-    return sample_graphdef.root.alloc(ALLOC_SIZE)
+    return sample_graphdef.alloc(ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_alloc_node_alt(sample_graphdef):
     """An alternate AllocNode from same graph."""
-    return sample_graphdef.root.alloc(ALLOC_SIZE)
+    return sample_graphdef.alloc(ALLOC_SIZE)
 
 
 @pytest.fixture
@@ -266,7 +266,7 @@ def sample_kernel_node(sample_graphdef, init_cuda):
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
-    return sample_graphdef.root.launch(config, kernel)
+    return sample_graphdef.launch(config, kernel)
 
 
 @pytest.fixture
@@ -275,34 +275,34 @@ def sample_kernel_node_alt(sample_graphdef, init_cuda):
     mod = compile_common_kernels()
     kernel = mod.get_kernel("empty_kernel")
     config = LaunchConfig(grid=1, block=1)
-    return sample_graphdef.root.launch(config, kernel)
+    return sample_graphdef.launch(config, kernel)
 
 
 @pytest.fixture
 def sample_free_node(sample_graphdef):
     """A FreeNode."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     return alloc.free(alloc.dptr)
 
 
 @pytest.fixture
 def sample_free_node_alt(sample_graphdef):
     """An alternate FreeNode from same graph."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     return alloc.free(alloc.dptr)
 
 
 @pytest.fixture
 def sample_memset_node(sample_graphdef):
     """A MemsetNode."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memset_node_alt(sample_graphdef):
     """An alternate MemsetNode from same graph."""
-    alloc = sample_graphdef.root.alloc(ALLOC_SIZE)
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
@@ -310,28 +310,28 @@ def sample_memset_node_alt(sample_graphdef):
 def sample_event_record_node(sample_graphdef, sample_device):
     """An EventRecordNode."""
     event = sample_device.create_event()
-    return sample_graphdef.root.record_event(event)
+    return sample_graphdef.record_event(event)
 
 
 @pytest.fixture
 def sample_event_record_node_alt(sample_graphdef, sample_device):
     """An alternate EventRecordNode from same graph."""
     event = sample_device.create_event()
-    return sample_graphdef.root.record_event(event)
+    return sample_graphdef.record_event(event)
 
 
 @pytest.fixture
 def sample_event_wait_node(sample_graphdef, sample_device):
     """An EventWaitNode."""
     event = sample_device.create_event()
-    return sample_graphdef.root.wait_event(event)
+    return sample_graphdef.wait_event(event)
 
 
 @pytest.fixture
 def sample_event_wait_node_alt(sample_graphdef, sample_device):
     """An alternate EventWaitNode from same graph."""
     event = sample_device.create_event()
-    return sample_graphdef.root.wait_event(event)
+    return sample_graphdef.wait_event(event)
 
 
 # =============================================================================

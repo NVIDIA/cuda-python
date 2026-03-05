@@ -127,7 +127,7 @@ cdef class Event:
         return self
 
     @staticmethod
-    cdef Event _from_raw_handle(cydriver.CUevent raw_event):
+    cdef Event _from_handle(cydriver.CUevent raw_event):
         """Create a non-owning Event from a raw CUevent (internal use)."""
         cdef EventHandle h_event = create_event_handle_ref(raw_event)
         cdef Event self = Event.__new__(Event)
@@ -159,7 +159,7 @@ cdef class Event:
         if not isinstance(handle, int):
             raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
         cdef cydriver.CUevent raw = <cydriver.CUevent><void*><size_t>handle
-        return Event._from_raw_handle(raw)
+        return Event._from_handle(raw)
 
     cpdef close(self):
         """Destroy the event.
