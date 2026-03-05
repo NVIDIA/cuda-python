@@ -50,61 +50,64 @@ class PyTorchStreamWrapper:
 
 s = dev.create_stream(PyTorchStreamWrapper(pt_stream))
 
-# prepare program
-program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
-prog = Program(code, code_type="c++", options=program_options)
-mod = prog.compile(
-    "cubin",
-    logs=sys.stdout,
-    name_expressions=("saxpy_kernel<float>", "saxpy_kernel<double>"),
-)
+try:
+    # prepare program
+    program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile(
+        "cubin",
+        logs=sys.stdout,
+        name_expressions=("saxpy_kernel<float>", "saxpy_kernel<double>"),
+    )
 
-# Run in single precision
-ker = mod.get_kernel("saxpy_kernel<float>")
-dtype = torch.float32
+    # Run in single precision
+    ker = mod.get_kernel("saxpy_kernel<float>")
+    dtype = torch.float32
 
-# prepare input/output
-size = 64
-# Use a single element tensor for 'a'
-a = torch.tensor([10.0], dtype=dtype, device="cuda")
-x = torch.rand(size, dtype=dtype, device="cuda")
-y = torch.rand(size, dtype=dtype, device="cuda")
-out = torch.empty_like(x)
+    # prepare input/output
+    size = 64
+    # Use a single element tensor for 'a'
+    a = torch.tensor([10.0], dtype=dtype, device="cuda")
+    x = torch.rand(size, dtype=dtype, device="cuda")
+    y = torch.rand(size, dtype=dtype, device="cuda")
+    out = torch.empty_like(x)
 
-# prepare launch
-block = 32
-grid = int((size + block - 1) // block)
-config = LaunchConfig(grid=grid, block=block)
-ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+    # prepare launch
+    block = 32
+    grid = int((size + block - 1) // block)
+    config = LaunchConfig(grid=grid, block=block)
+    ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 
-# launch kernel on our stream
-launch(s, config, ker, *ker_args)
+    # launch kernel on our stream
+    launch(s, config, ker, *ker_args)
 
-# check result
-assert torch.allclose(out, a.item() * x + y)
+    # check result
+    assert torch.allclose(out, a.item() * x + y)
 
-# let's repeat again with double precision
-ker = mod.get_kernel("saxpy_kernel<double>")
-dtype = torch.float64
+    # let's repeat again with double precision
+    ker = mod.get_kernel("saxpy_kernel<double>")
+    dtype = torch.float64
 
-# prepare input
-size = 128
-# Use a single element tensor for 'a'
-a = torch.tensor([42.0], dtype=dtype, device="cuda")
-x = torch.rand(size, dtype=dtype, device="cuda")
-y = torch.rand(size, dtype=dtype, device="cuda")
+    # prepare input
+    size = 128
+    # Use a single element tensor for 'a'
+    a = torch.tensor([42.0], dtype=dtype, device="cuda")
+    x = torch.rand(size, dtype=dtype, device="cuda")
+    y = torch.rand(size, dtype=dtype, device="cuda")
 
-# prepare output
-out = torch.empty_like(x)
+    # prepare output
+    out = torch.empty_like(x)
 
-# prepare launch
-block = 64
-grid = int((size + block - 1) // block)
-config = LaunchConfig(grid=grid, block=block)
-ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+    # prepare launch
+    block = 64
+    grid = int((size + block - 1) // block)
+    config = LaunchConfig(grid=grid, block=block)
+    ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 
-# launch kernel on PyTorch's stream
-launch(s, config, ker, *ker_args)
+    # launch kernel on PyTorch's stream
+    launch(s, config, ker, *ker_args)
 
-# check result
-assert torch.allclose(out, a * x + y)
+    # check result
+    assert torch.allclose(out, a * x + y)
+finally:
+    s.close()
