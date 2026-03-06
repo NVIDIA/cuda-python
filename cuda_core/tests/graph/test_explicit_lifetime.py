@@ -22,7 +22,6 @@ from cuda.core._graph._graphdef import (
     KernelNode,
 )
 
-
 # =============================================================================
 # Conditional body graph lifetime
 # =============================================================================
@@ -153,7 +152,7 @@ def test_nested_child_graph_lifetime(init_cuda):
 
     middle_ref = outer_node.child_graph
     middle_nodes = middle_ref.nodes()
-    child_node = [n for n in middle_nodes if isinstance(n, ChildGraphNode)][0]
+    child_node = next(n for n in middle_nodes if isinstance(n, ChildGraphNode))
     grandchild = child_node.child_graph
 
     del outer, outer_node, middle, inner, middle_ref, middle_nodes, child_node
@@ -279,17 +278,14 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
     rec = g.record_event(event)
     rec.wait_event(event)
 
-    cloned_cu_graph = handle_return(
-        driver.cuGraphClone(driver.CUgraph(g.handle)))
+    cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
 
     del event, g, rec
     gc.collect()
 
     graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
     stream = dev.create_stream()
-    handle_return(
-        driver.cuGraphLaunch(
-            graph_exec, driver.CUstream(int(stream.handle))))
+    handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
     stream.sync()
 
 
@@ -348,17 +344,14 @@ def test_kernel_survives_graph_clone_and_execution(init_cuda):
     g = GraphDef()
     g.launch(config, kernel)
 
-    cloned_cu_graph = handle_return(
-        driver.cuGraphClone(driver.CUgraph(g.handle)))
+    cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
 
     del kernel, mod, g
     gc.collect()
 
     graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
     stream = dev.create_stream()
-    handle_return(
-        driver.cuGraphLaunch(
-            graph_exec, driver.CUstream(int(stream.handle))))
+    handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
     stream.sync()
 
 

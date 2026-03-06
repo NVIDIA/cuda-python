@@ -19,7 +19,6 @@ from cuda.core._resource_handles cimport (
     KernelHandle,
     create_library_handle_from_file,
     create_library_handle_from_data,
-    create_library_handle_ref,
     create_kernel_handle,
     create_kernel_handle_ref,
     get_kernel_library,

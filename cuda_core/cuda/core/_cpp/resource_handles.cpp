@@ -881,6 +881,13 @@ struct KernelBox {
 };
 }  // namespace
 
+static const KernelBox* get_box(const KernelHandle& h) {
+    const CUkernel* p = h.get();
+    return reinterpret_cast<const KernelBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(KernelBox, resource)
+    );
+}
+
 static HandleRegistry<CUkernel, KernelHandle> kernel_registry;
 
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
@@ -906,11 +913,7 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel) {
 
 LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
     if (!h) return {};
-    const CUkernel* p = h.get();
-    auto* box = reinterpret_cast<const KernelBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(KernelBox, resource)
-    );
-    return box->h_library;
+    return get_box(h)->h_library;
 }
 
 // ============================================================================
@@ -942,25 +945,25 @@ GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) 
 }
 
 namespace {
-struct NodeBox {
+struct GraphNodeBox {
     CUgraphNode resource;
     GraphHandle h_graph;
 };
 }  // namespace
 
-static const NodeBox* get_box(const NodeHandle& h) {
+static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     const CUgraphNode* p = h.get();
-    return reinterpret_cast<const NodeBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(NodeBox, resource)
+    return reinterpret_cast<const GraphNodeBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(GraphNodeBox, resource)
     );
 }
 
-NodeHandle create_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
-    auto box = std::make_shared<const NodeBox>(NodeBox{node, h_graph});
-    return NodeHandle(box, &box->resource);
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
+    auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
+    return GraphNodeHandle(box, &box->resource);
 }
 
-GraphHandle node_get_graph(const NodeHandle& h) noexcept {
+GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
     return h ? get_box(h)->h_graph : GraphHandle{};
 }
 

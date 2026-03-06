@@ -141,10 +141,20 @@ class LinuxSearchPlatform:
         error_messages: list[str],
         attachments: list[str],
     ) -> str | None:
+        # Most libraries have both unversioned and versioned files/symlinks (exact match first)
         so_name = os.path.join(lib_dir, lib_searched_for)
         if os.path.isfile(so_name):
             return so_name
-        error_messages.append(f"No such file: {so_name}")
+        # Some libraries only exist as versioned files (e.g., libcupti.so.13 in conda),
+        # so the glob fallback is needed
+        file_wild = lib_searched_for + "*"
+        # Only one match is expected, but to ensure deterministic behavior in unexpected
+        # situations, and to be internally consistent, we sort in reverse order with the
+        # intent to return the newest version first.
+        for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild)), reverse=True):
+            if os.path.isfile(so_name):
+                return so_name
+        error_messages.append(f"No such file: {file_wild}")
         attachments.append(f'  listdir("{lib_dir}"):')
         if not os.path.isdir(lib_dir):
             attachments.append("    DIRECTORY DOES NOT EXIST")

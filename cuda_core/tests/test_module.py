@@ -538,11 +538,9 @@ def test_kernel_from_handle_foreign_kernel(init_cuda):
     cubin = mod.code
     sym_map = mod.symbol_mapping
 
-    cu_lib = handle_return(
-        driver.cuLibraryLoadData(cubin, [], [], 0, [], [], 0))
+    cu_lib = handle_return(driver.cuLibraryLoadData(cubin, [], [], 0, [], [], 0))
     mangled = sym_map["saxpy<float>"]
-    cu_kernel = handle_return(
-        driver.cuLibraryGetKernel(cu_lib, mangled))
+    cu_kernel = handle_return(driver.cuLibraryGetKernel(cu_lib, mangled))
     handle = int(cu_kernel)
 
     k = Kernel.from_handle(handle)

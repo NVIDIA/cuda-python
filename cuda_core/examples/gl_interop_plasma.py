@@ -94,8 +94,8 @@ def setup_cuda(kernel_source):
     dev.set_current()
     stream = dev.create_stream()
 
-    opts = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
-    prog = Program(kernel_source, code_type="c++", options=opts)
+    program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
+    prog = Program(kernel_source, code_type="c++", options=program_options)
     mod = prog.compile("cubin")
     kernel = mod.get_kernel("plasma")
 

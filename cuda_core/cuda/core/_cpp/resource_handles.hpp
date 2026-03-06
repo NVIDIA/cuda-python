@@ -147,7 +147,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphHandle = std::shared_ptr<const CUgraph>;
-using NodeHandle = std::shared_ptr<const CUgraphNode>;
+using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
@@ -398,10 +398,10 @@ GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
 // Create a node handle. Nodes are owned by their parent graph (not
 // independently destroyable). The GraphHandle dependency ensures the
 // graph outlives any node reference.
-NodeHandle create_node_handle(CUgraphNode node, const GraphHandle& h_graph);
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph);
 
 // Extract the owning graph handle from a node handle.
-GraphHandle node_get_graph(const NodeHandle& h) noexcept;
+GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept;
 
 // ============================================================================
 // Graphics resource handle functions
@@ -503,7 +503,7 @@ inline CUgraph as_cu(const GraphHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUgraphNode as_cu(const NodeHandle& h) noexcept {
+inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -561,7 +561,7 @@ inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const NodeHandle& h) noexcept {
+inline std::intptr_t as_intptr(const GraphNodeHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -630,6 +630,13 @@ inline PyObject* as_py(const KernelHandle& h) noexcept {
 
 inline PyObject* as_py(const GraphHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
+    if (!as_intptr(h)) {
+        Py_RETURN_NONE;
+    }
+    return detail::make_py("cuda.bindings.driver", "CUgraphNode", as_intptr(h));
 }
 
 inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {

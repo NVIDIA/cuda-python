@@ -27,7 +27,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUlibrary] LibraryHandle
     ctypedef shared_ptr[const cydriver.CUkernel] KernelHandle
     ctypedef shared_ptr[const cydriver.CUgraph] GraphHandle
-    ctypedef shared_ptr[const cydriver.CUgraphNode] NodeHandle
+    ctypedef shared_ptr[const cydriver.CUgraphNode] GraphNodeHandle
     ctypedef shared_ptr[const cydriver.CUgraphicsResource] GraphicsResourceHandle
     ctypedef shared_ptr[const cynvrtc.nvrtcProgram] NvrtcProgramHandle
 
@@ -51,7 +51,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
     cydriver.CUgraph as_cu(GraphHandle h) noexcept nogil
-    cydriver.CUgraphNode as_cu(NodeHandle h) noexcept nogil
+    cydriver.CUgraphNode as_cu(GraphNodeHandle h) noexcept nogil
     cydriver.CUgraphicsResource as_cu(GraphicsResourceHandle h) noexcept nogil
     cynvrtc.nvrtcProgram as_cu(NvrtcProgramHandle h) noexcept nogil
     cynvvm.nvvmProgram as_cu(NvvmProgramHandle h) noexcept nogil
@@ -67,7 +67,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(LibraryHandle h) noexcept nogil
     intptr_t as_intptr(KernelHandle h) noexcept nogil
     intptr_t as_intptr(GraphHandle h) noexcept nogil
-    intptr_t as_intptr(NodeHandle h) noexcept nogil
+    intptr_t as_intptr(GraphNodeHandle h) noexcept nogil
     intptr_t as_intptr(GraphicsResourceHandle h) noexcept nogil
     intptr_t as_intptr(NvrtcProgramHandle h) noexcept nogil
     intptr_t as_intptr(NvvmProgramHandle h) noexcept nogil
@@ -83,6 +83,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(LibraryHandle h)
     object as_py(KernelHandle h)
     object as_py(GraphHandle h)
+    object as_py(GraphNodeHandle h)
     object as_py(GraphicsResourceHandle h)
     object as_py(NvrtcProgramHandle h)
     object as_py(NvvmProgramHandle h)
@@ -176,8 +177,8 @@ cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
 cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
 
 # Graph node handles
-cdef NodeHandle create_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
-cdef GraphHandle node_get_graph(const NodeHandle& h) noexcept nogil
+cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
+cdef GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept nogil
 
 # Graphics resource handles
 cdef GraphicsResourceHandle create_graphics_resource_handle(
