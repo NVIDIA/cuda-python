@@ -17,6 +17,22 @@ cuda-version = "13.1.*"
 [feature.bench.dependencies]
 python = "3.14.*"
 pyperf = "*"
+pytest = "*"
+pytest-benchmark = "*"
+numpy = "*"
+
+[feature.cpp-bench.dependencies]
+cmake = "*"
+ninja = "*"
+cxx-compiler = "*"
+cuda-cudart-dev = "*"
+
+[feature.cpp-bench.target.linux-64.dependencies]
+cuda-crt-dev_linux-64 = "*"
+cuda-driver-dev_linux-64 = "*"
+
+[feature.cpp-bench.target.linux-64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
 
 [feature.bindings-wheel.dependencies]
 cuda-bindings = "==13.1.0"
@@ -25,8 +41,30 @@ cuda-bindings = "==13.1.0"
 cuda-bindings = { path = ".." }
 
 [environments]
-wheel = { features = ["cu13", "bench", "bindings-wheel"] }
-source = { features = ["cu13", "bench", "bindings-source"] }
+wheel = { features = ["cu13", "bench", "cpp-bench", "bindings-wheel"] }
+source = { features = ["cu13", "bench", "cpp-bench", "bindings-source"] }
 
 [target.linux.tasks.bench]
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
+
+[target.linux.tasks.bench-legacy]
+cmd = "pytest --benchmark-only --override-ini 'addopts=' $PIXI_PROJECT_ROOT/pytest-legacy/"
+
+[target.linux.tasks.bench-cpp-configure]
+cmd = [
+    "cmake",
+    "-S",
+    "$PIXI_PROJECT_ROOT/cpp",
+    "-B",
+    "$PIXI_PROJECT_ROOT/.build/cpp",
+    "-G",
+    "Ninja",
+]
+
+[target.linux.tasks.bench-cpp-build]
+cmd = ["cmake", "--build", "$PIXI_PROJECT_ROOT/.build/cpp"]
+depends-on = [{ task = "bench-cpp-configure" }]
+
+[target.linux.tasks.bench-cpp]
+cmd = ["$PIXI_PROJECT_ROOT/.build/cpp/bench_pointer_attributes_cpp"]
+depends-on = [{ task = "bench-cpp-build" }]

@@ -6,6 +6,7 @@ import argparse
 import importlib.util
 import inspect
 import sys
+import time
 from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
@@ -16,7 +17,7 @@ import pyperf
 BENCH_DIR = Path(__file__).resolve().parent.parent
 
 
-def _load_module(module_path: Path) -> ModuleType:
+def load_module(module_path: Path) -> ModuleType:
     module_name = f"cuda_bindings_bench_{module_path.stem}"
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     if spec is None or spec.loader is None:
@@ -26,30 +27,42 @@ def _load_module(module_path: Path) -> ModuleType:
     return module
 
 
-def _benchmark_id(module_name: str, function_name: str) -> str:
+def benchmark_id(module_name: str, function_name: str) -> str:
     module_suffix = module_name.removeprefix("bench_")
     suffix = function_name.removeprefix("bench_")
     return f"bindings.{module_suffix}.{suffix}"
 
 
-def _discover_registry() -> dict[str, Callable[[], None]]:
+def make_time_func(fn: Callable[[], None]) -> Callable[[int], float]:
+    """Wrap a bench_ function into a pyperf bench_time_func compatible callable."""
+
+    def time_func(loops: int) -> float:
+        t0 = time.perf_counter()
+        for _ in range(loops):
+            fn()
+        return time.perf_counter() - t0
+
+    return time_func
+
+
+def discover_benchmarks() -> dict[str, Callable[[], None]]:
     registry: dict[str, Callable[[], None]] = {}
     for module_path in sorted(BENCH_DIR.glob("bench_*.py")):
-        module = _load_module(module_path)
+        module = load_module(module_path)
         module_name = module_path.stem
         for function_name, function in inspect.getmembers(module, inspect.isfunction):
             if not function_name.startswith("bench_"):
                 continue
             if function.__module__ != module.__name__:
                 continue
-            benchmark_id = _benchmark_id(module_name, function_name)
+            benchmark = benchmark_id(module_name, function_name)
             if benchmark_id in registry:
                 raise ValueError(f"Duplicate benchmark ID discovered: {benchmark_id}")
-            registry[benchmark_id] = function
+            registry[benchmark] = function
     return registry
 
 
-def _parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
+def parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         "--benchmark",
@@ -67,10 +80,10 @@ def _parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 
 
 def main() -> None:
-    parsed, remaining_argv = _parse_args(sys.argv[1:])
+    parsed, remaining_argv = parse_args(sys.argv[1:])
     sys.argv = [sys.argv[0], *remaining_argv]
 
-    registry = _discover_registry()
+    registry = discover_benchmarks()
     if not registry:
         raise RuntimeError(f"No benchmark functions found in {BENCH_DIR}")
 
@@ -84,14 +97,16 @@ def main() -> None:
         if missing:
             known = ", ".join(sorted(registry))
             unknown = ", ".join(missing)
-            raise ValueError(f"Unknown benchmark(s): {unknown}. Known benchmarks: {known}")
+            raise ValueError(
+                f"Unknown benchmark(s): {unknown}. Known benchmarks: {known}"
+            )
         benchmark_ids = parsed.benchmark
     else:
         benchmark_ids = sorted(registry)
 
     runner = pyperf.Runner()
     for benchmark_id in benchmark_ids:
-        runner.bench_func(benchmark_id, registry[benchmark_id])
+        runner.bench_time_func(benchmark_id, make_time_func(registry[benchmark_id]))
 
 
 if __name__ == "__main__":

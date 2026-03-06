@@ -1,0 +1,10 @@
+# Build artifacts
+.build/
+__pycache__/
+
+# Benchmark results
+*.json
+.benchmarks/
+
+# Pixi environments
+.pixi/

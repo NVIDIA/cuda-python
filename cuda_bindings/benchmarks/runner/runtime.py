@@ -40,7 +40,7 @@ def alloc_persistent(size: int) -> int:
     return ptr
 
 
-def _cleanup() -> None:
+def cleanup() -> None:
     global _ctx
     for ptr in reversed(_persistent_ptrs):
         (err,) = cuda.cuMemFree(ptr)
@@ -54,4 +54,4 @@ def _cleanup() -> None:
     _ctx = None
 
 
-atexit.register(_cleanup)
+atexit.register(cleanup)
