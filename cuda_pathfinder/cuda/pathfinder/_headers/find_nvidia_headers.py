@@ -103,10 +103,7 @@ def _find_ctk_header_directory_via_canary(libname: str, h_basename: str) -> str 
     absolute library path, then search the expected CTK include layout under
     that root.
     """
-    try:
-        canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess("cudart")
-    except (ChildProcessError, RuntimeError):
-        return None
+    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess("cudart")
     if canary_abs_path is None:
         return None
     ctk_root = derive_ctk_root(canary_abs_path)

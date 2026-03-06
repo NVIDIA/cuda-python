@@ -203,15 +203,7 @@ def test_locate_ctk_headers_cuda_home_takes_priority_over_canary(tmp_path, monke
 
 
 @pytest.mark.usefixtures("clear_locate_nvidia_header_cache")
-@pytest.mark.parametrize(
-    "probe_kwargs",
-    (
-        {"return_value": None},
-        {"side_effect": RuntimeError("canary probe failed")},
-    ),
-    ids=("canary-unavailable", "canary-unusable"),
-)
-def test_locate_ctk_headers_canary_miss_paths_are_non_fatal(monkeypatch, mocker, probe_kwargs):
+def test_locate_ctk_headers_canary_miss_paths_are_non_fatal(monkeypatch, mocker):
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_HOME", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
@@ -219,8 +211,26 @@ def test_locate_ctk_headers_canary_miss_paths_are_non_fatal(monkeypatch, mocker,
     mocker.patch.object(
         find_nvidia_headers_module,
         "_resolve_system_loaded_abs_path_in_subprocess",
-        **probe_kwargs,
+        return_value=None,
     )
 
     assert locate_nvidia_header_directory("cudart") is None
     assert find_nvidia_header_directory("cudart") is None
+
+
+@pytest.mark.usefixtures("clear_locate_nvidia_header_cache")
+def test_locate_ctk_headers_canary_probe_errors_are_not_masked(monkeypatch, mocker):
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    mocker.patch.object(
+        find_nvidia_headers_module,
+        "_resolve_system_loaded_abs_path_in_subprocess",
+        side_effect=RuntimeError("canary probe failed"),
+    )
+
+    with pytest.raises(RuntimeError, match="canary probe failed"):
+        locate_nvidia_header_directory("cudart")
+    with pytest.raises(RuntimeError, match="canary probe failed"):
+        find_nvidia_header_directory("cudart")
