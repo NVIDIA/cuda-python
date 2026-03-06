@@ -11,7 +11,7 @@ from cuda.pathfinder import DynamicLibNotFoundError, optional_cuda_import
 
 def test_optional_cuda_import_returns_module_when_available(monkeypatch):
     fake_module = types.SimpleNamespace(__name__="cuda.bindings.nvvm")
-    monkeypatch.setattr(optional_import_mod.importlib, "import_module", lambda name: fake_module)
+    monkeypatch.setattr(optional_import_mod.importlib, "import_module", lambda _name: fake_module)
 
     result = optional_cuda_import("cuda.bindings.nvvm")
 
