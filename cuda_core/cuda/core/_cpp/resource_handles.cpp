@@ -321,10 +321,44 @@ StreamHandle get_per_thread_stream() {
 namespace {
 struct EventBox {
     CUevent resource;
+    bool timing_disabled;
+    bool busy_waited;
+    bool ipc_enabled;
+    int device_id;
+    ContextHandle h_context;
 };
 }  // namespace
 
-EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) {
+static const EventBox* get_box(const EventHandle& h) {
+    const CUevent* p = h.get();
+    return reinterpret_cast<const EventBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(EventBox, resource)
+    );
+}
+
+bool get_event_timing_disabled(const EventHandle& h) noexcept {
+    return h ? get_box(h)->timing_disabled : true;
+}
+
+bool get_event_busy_waited(const EventHandle& h) noexcept {
+    return h ? get_box(h)->busy_waited : false;
+}
+
+bool get_event_ipc_enabled(const EventHandle& h) noexcept {
+    return h ? get_box(h)->ipc_enabled : false;
+}
+
+int get_event_device_id(const EventHandle& h) noexcept {
+    return h ? get_box(h)->device_id : -1;
+}
+
+ContextHandle get_event_context(const EventHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
+}
+
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
+                                bool timing_disabled, bool busy_waited,
+                                bool ipc_enabled, int device_id) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -332,7 +366,7 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) 
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event},
+        new EventBox{event, timing_disabled, busy_waited, ipc_enabled, device_id, h_ctx},
         [h_ctx](const EventBox* b) {
             GILReleaseGuard gil;
             p_cuEventDestroy(b->resource);
@@ -343,15 +377,16 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) 
 }
 
 EventHandle create_event_handle_noctx(unsigned int flags) {
-    return create_event_handle(ContextHandle{}, flags);
+    return create_event_handle(ContextHandle{}, flags, true, false, false, -1);
 }
 
 EventHandle create_event_handle_ref(CUevent event) {
-    auto box = std::make_shared<const EventBox>(EventBox{event});
+    auto box = std::make_shared<const EventBox>(EventBox{event, true, false, false, -1, {}});
     return EventHandle(box, &box->resource);
 }
 
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
+                                    bool busy_waited) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -359,7 +394,7 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event},
+        new EventBox{event, true, busy_waited, true, -1, {}},
         [](const EventBox* b) {
             GILReleaseGuard gil;
             p_cuEventDestroy(b->resource);

@@ -10,12 +10,7 @@ cdef class Event:
 
     cdef:
         EventHandle _h_event
-        ContextHandle _h_context
-        bint _timing_disabled
-        bint _busy_waited
-        bint _ipc_enabled
         object _ipc_descriptor
-        int _device_id
         object __weakref__
 
     @staticmethod
