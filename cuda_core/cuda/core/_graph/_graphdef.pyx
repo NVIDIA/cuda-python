@@ -171,15 +171,12 @@ cdef ConditionalNode _make_conditional_node(
             f"GraphDef.create_condition()), got {type(condition).__name__}")
     cdef cydriver.CUgraphNodeParams params
     cdef cydriver.CUgraphNode new_node = NULL
-    cdef vector[cydriver.CUgraph] branch_graphs
-    branch_graphs.resize(size)
 
     c_memset(&params, 0, sizeof(params))
     params.type = cydriver.CU_GRAPH_NODE_TYPE_CONDITIONAL
     params.conditional.handle = condition._c_handle
     params.conditional.type = cond_type
     params.conditional.size = size
-    params.conditional.phGraph_out = branch_graphs.data()
 
     cdef cydriver.CUcontext ctx = NULL
     cdef cydriver.CUgraph graph = as_cu(pred._h_graph)
@@ -198,12 +195,14 @@ cdef ConditionalNode _make_conditional_node(
         HANDLE_RETURN(cydriver.cuGraphAddNode(
             &new_node, graph, deps, NULL, num_deps, &params))
 
+    # cuGraphAddNode sets phGraph_out to an internal array of body
+    # graphs (it replaces the pointer, not writing into a caller array).
     cdef list branch_list = []
     cdef unsigned int i
     cdef cydriver.CUgraph bg
     cdef GraphHandle h_branch
     for i in range(size):
-        bg = branch_graphs[i]
+        bg = params.conditional.phGraph_out[i]
         h_branch = create_graph_handle_ref(bg, pred._h_graph)
         branch_list.append(GraphDef._from_handle(h_branch))
     cdef tuple branches = tuple(branch_list)
