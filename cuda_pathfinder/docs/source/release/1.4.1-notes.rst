@@ -33,11 +33,6 @@ Highlights
   libraries: site-packages, Conda, then CUDA_HOME/CUDA_PATH.
   (`PR #1690 <https://github.com/NVIDIA/cuda-python/pull/1690>`_)
 
-* Add ``optional_cuda_import()`` to support robust optional imports of CUDA
-  Python modules. It returns ``None`` when the requested module is absent or a
-  probe hits ``DynamicLibNotFoundError``, while still re-raising unrelated
-  ``ModuleNotFoundError`` exceptions (for missing transitive dependencies).
-
 * Fix site-packages search order for virtual environments created with
   ``--system-site-packages``. The search now correctly prioritizes the venv's
   site-packages before user-site-packages, conforming to PEP 405.
