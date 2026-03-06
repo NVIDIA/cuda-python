@@ -1,0 +1,6 @@
+﻿cuda.core.\_memory.\_buffer.DevicePointerT
+==========================================
+
+.. currentmodule:: cuda.core._memory._buffer
+
+.. autodata:: DevicePointerT
