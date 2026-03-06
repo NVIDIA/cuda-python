@@ -1,0 +1,42 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 0.7.x Release Notes
+=================================
+
+
+Highlights
+----------
+
+None.
+
+
+Breaking Changes
+----------------
+
+- Building ``cuda.core`` from source now requires ``cuda-bindings`` >= 12.9.0, due to Cython-level
+  dependencies on the NVVM and nvJitLink bindings (``cynvvm``, ``cynvjitlink``). Pre-built wheels
+  are unaffected. The previous minimum was 12.8.0.
+
+
+New features
+------------
+
+None.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- Reduced Python overhead in :class:`Program` and :class:`Linker` by moving compilation and
+  linking operations to the C level and releasing the GIL during backend calls. This benefits
+  workloads that create many programs or linkers, and enables concurrent compilation in
+  multithreaded applications.

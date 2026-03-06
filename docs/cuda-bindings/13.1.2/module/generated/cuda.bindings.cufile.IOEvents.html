@@ -33,7 +33,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
@@ -697,10 +697,13 @@ If default-constructed, the instance represents a single struct.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.cufile.IOEvents.__init__" title="cuda.bindings.cufile.IOEvents.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_buffer</span></code>(buffer)</p></td>
+<td><p>Create an IOEvents instance with the memory from the given buffer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
 <td><p>Create an IOEvents instance wrapping the given NumPy array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
 <td><p>Create an IOEvents instance wrapping the given pointer.</p></td>
 </tr>
 </tbody>
