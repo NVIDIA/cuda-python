@@ -9,7 +9,6 @@ from enum import Enum
 
 import numpy as np
 import pytest
-from cuda.core._layout import _StridedLayout
 from helpers.layout import (
     DenseOrder,
     LayoutSpec,
@@ -22,6 +21,8 @@ from helpers.layout import (
     pretty_name,
     random_permutations,
 )
+
+from cuda.core._layout import _StridedLayout
 
 _ITEMSIZES = [1, 2, 4, 8, 16]
 _S = np.s_
@@ -161,7 +162,7 @@ def _cmp_slice_offset(
     "layout_spec",
     [
         LayoutSpec(shape, py_rng.choice(_ITEMSIZES), stride_order)
-        for shape in [tuple(), (5,), (7, 9), (2, 3, 4)]
+        for shape in [(), (5,), (7, 9), (2, 3, 4)]
         for stride_order in random_permutations(py_rng, len(shape))
     ],
     ids=pretty_name,
@@ -182,7 +183,7 @@ def test_dense_with_permutation_as_stride_order(layout_spec):
     [
         LayoutSpec(shape, py_rng.choice(_ITEMSIZES), stride_order, perm=permutation)
         for shape in [
-            tuple(),
+            (),
             (1,),
             (2, 3),
             (5, 6, 7),
@@ -232,7 +233,7 @@ class PermutedErr(Enum):
             error_msg,
         )
         for shape, permutation, error_msg in [
-            (tuple(), (5,), PermutedErr.WRONG_LEN),
+            ((), (5,), PermutedErr.WRONG_LEN),
             ((1,), (0, 0), PermutedErr.WRONG_LEN),
             ((2, 5, 3), (1, 0, 1), PermutedErr.REPEATED_AXIS),
             ((5, 6, 7), (1, 3, 0), PermutedErr.OUT_OF_RANGE),
@@ -263,7 +264,7 @@ class SliceErr(Enum):
             error_msg,
         )
         for shape, slices, error_msg in [
-            (tuple(), tuple(), None),
+            ((), (), None),
             ((12,), _S[:], None),
             ((13,), _S[::-1], None),
             ((13,), [_S[::-1], _S[::-1]], None),
@@ -338,12 +339,12 @@ class ReshapeErr(Enum):
             error_msg,
         )
         for shape, permutation, slices, new_shape, error_msg in [
-            (tuple(), None, None, tuple(), None),
-            (tuple(), None, None, (1,), None),
-            (tuple(), None, None, (-1,), None),
-            (tuple(), None, None, (1, -1, 1), None),
+            ((), None, None, (), None),
+            ((), None, None, (1,), None),
+            ((), None, None, (-1,), None),
+            ((), None, None, (1, -1, 1), None),
             ((1,), None, None, (-1,), None),
-            ((1,), None, None, tuple(), None),
+            ((1,), None, None, (), None),
             ((12,), None, _S[:], (12,), None),
             ((12,), None, None, (11,), ReshapeErr.VOLUME_MISMATCH),
             ((12,), None, _S[1:], (11,), None),
@@ -470,7 +471,7 @@ def test_reshape(layout_spec, new_shape, error_msg):
             NamedParam("axes_range", axes_range),
         )
         for shape, permutation, slices, expected_shape, expected_strides, expected_axis_mask, axes_range in [
-            (tuple(), None, None, (1,), (1,), "", None),
+            ((), None, None, (1,), (1,), "", None),
             ((12,), None, _S[:], (12,), (1,), "0", None),
             ((1, 2, 3, 4, 5), None, None, (120,), (1,), "01111", None),
             ((1, 2, 3, 0, 5), None, None, (0,), (0,), "01111", None),
@@ -543,14 +544,14 @@ def test_flatten(
         )
         for layout_spec_0, layout_spec_1, expected_layout_spec_0, expected_layout_spec_1 in [
             (
-                LayoutSpec(tuple(), 2, DenseOrder.C),
-                LayoutSpec(tuple(), 4, DenseOrder.C),
+                LayoutSpec((), 2, DenseOrder.C),
+                LayoutSpec((), 4, DenseOrder.C),
                 LayoutSpec((1,), 2, DenseOrder.C),
                 LayoutSpec((1,), 4, DenseOrder.C),
             ),
             (
-                LayoutSpec(tuple(), 2, DenseOrder.IMPLICIT_C),
-                LayoutSpec(tuple(), 4, DenseOrder.IMPLICIT_C),
+                LayoutSpec((), 2, DenseOrder.IMPLICIT_C),
+                LayoutSpec((), 4, DenseOrder.IMPLICIT_C),
                 LayoutSpec((1,), 2, DenseOrder.C),
                 LayoutSpec((1,), 4, DenseOrder.C),
             ),
@@ -651,7 +652,7 @@ def test_flatten_together(
             ),
         )
         for shape, permutation, slices in [
-            (tuple(), None, None),
+            ((), None, None),
             ((12,), None, None),
             ((1, 5, 4, 3), None, None),
             ((1, 5, 1, 4, 3), None, _S[:, -1:, :]),
@@ -696,7 +697,7 @@ def test_squeezed(layout_spec):
             NamedParam("axes", axes),
         )
         for shape, slices in [
-            (tuple(), None),
+            ((), None),
             ((7,), None),
             ((4, 5, 7, 11), _S[1:-1, ::-1, 2:-1, ::3]),
         ]
@@ -812,9 +813,9 @@ def test_packed_unpacked(
             NamedParam("new_shape", new_shape),
         )
         for shape, slices, new_shape in [
-            (tuple(), None, tuple()),
-            (tuple(), None, (1,)),
-            (tuple(), None, (17, 1, 5)),
+            ((), None, ()),
+            ((), None, (1,)),
+            ((), None, (17, 1, 5)),
             ((1,), None, (5,)),
             ((1,), None, (3, 5, 2)),
             ((7,), None, (7,)),
@@ -874,7 +875,7 @@ def test_broadcast_layout(
             NamedParam("new_stride_order", new_stride_order),
         )
         for shape, permutation, slices in [
-            (tuple(), None, None),
+            ((), None, None),
             ((1,), None, None),
             ((7,), None, None),
             ((7,), None, _S[3:6]),

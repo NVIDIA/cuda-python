@@ -5,8 +5,9 @@
 
 import numpy as np
 import pytest
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
+
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 
 
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")

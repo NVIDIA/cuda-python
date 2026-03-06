@@ -4,6 +4,8 @@
 import ctypes
 
 import pytest
+
+import helpers
 from cuda.core import (
     LaunchConfig,
     LegacyPinnedMemoryResource,
@@ -11,8 +13,6 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-
-import helpers
 
 
 class LatchKernel:

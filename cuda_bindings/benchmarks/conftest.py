@@ -3,6 +3,7 @@
 
 import numpy as np
 import pytest
+
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
@@ -22,7 +23,7 @@ def ASSERT_DRV(err):
         raise RuntimeError(f"Unknown error type: {err}")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def init_cuda():
     # Initialize
     (err,) = cuda.cuInit(0)
@@ -44,7 +45,7 @@ def init_cuda():
     ASSERT_DRV(err)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def load_module():
     module = None
 

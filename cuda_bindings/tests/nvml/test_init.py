@@ -5,6 +5,7 @@ import sys
 import warnings
 
 import pytest
+
 from cuda.bindings import nvml
 
 
@@ -24,10 +25,10 @@ def test_devices_are_the_same_architecture(all_devices):
     # they won't be tested properly.  This tests for the (hopefully rare) case
     # where a system has devices of different architectures and produces a warning.
 
-    all_arches = set(nvml.DeviceArch(nvml.device_get_architecture(device)) for device in all_devices)
+    all_arches = {nvml.DeviceArch(nvml.device_get_architecture(device)) for device in all_devices}
 
     if len(all_arches) > 1:
-        warnings.warn(  # noqa: B028
+        warnings.warn(
             f"System has devices of multiple architectures ({', '.join(x.name for x in all_arches)}). "
             f" Some tests may be skipped unexpectedly",
             UserWarning,

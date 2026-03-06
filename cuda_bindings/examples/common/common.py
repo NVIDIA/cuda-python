@@ -2,8 +2,11 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+from contextlib import suppress
+
 import numpy as np
 from common.helper_cuda import checkCudaErrors
+
 from cuda import pathfinder
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
@@ -26,6 +29,7 @@ def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):
 
 class KernelHelper:
     def __init__(self, code, devID):
+        self.module = None
         include_dirs = []
         for libname in ("cudart", "cccl"):
             hdr_dir = pathfinder.find_nvidia_header_directory(libname)
@@ -62,24 +66,43 @@ class KernelHelper:
 
         try:
             checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
+
+            if use_cubin:
+                dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))
+                data = b" " * dataSize
+                checkCudaErrors(nvrtc.nvrtcGetCUBIN(prog, data))
+            else:
+                dataSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
+                data = b" " * dataSize
+                checkCudaErrors(nvrtc.nvrtcGetPTX(prog, data))
         except RuntimeError as err:
             logSize = checkCudaErrors(nvrtc.nvrtcGetProgramLogSize(prog))
             log = b" " * logSize
             checkCudaErrors(nvrtc.nvrtcGetProgramLog(prog, log))
-            print(log.decode())
-            print(err)
-            exit(-1)
+            import sys
 
-        if use_cubin:
-            dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))
-            data = b" " * dataSize
-            checkCudaErrors(nvrtc.nvrtcGetCUBIN(prog, data))
-        else:
-            dataSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
-            data = b" " * dataSize
-            checkCudaErrors(nvrtc.nvrtcGetPTX(prog, data))
+            print(log.decode(), file=sys.stderr)
+            print(err, file=sys.stderr)
+            sys.exit(1)
+        finally:
+            checkCudaErrors(nvrtc.nvrtcDestroyProgram(prog))
 
         self.module = checkCudaErrors(cuda.cuModuleLoadData(np.char.array(data)))
 
     def getFunction(self, name):
         return checkCudaErrors(cuda.cuModuleGetFunction(self.module, name))
+
+    def close(self):
+        if self.module is not None:
+            checkCudaErrors(cuda.cuModuleUnload(self.module))
+            self.module = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()

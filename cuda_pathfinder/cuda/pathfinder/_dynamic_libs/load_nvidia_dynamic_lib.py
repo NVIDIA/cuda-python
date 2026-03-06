@@ -1,46 +1,53 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import functools
+import json
 import struct
 import sys
+from typing import TYPE_CHECKING
 
-from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL, load_dependencies
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    SUPPORTED_LINUX_SONAMES,
-    SUPPORTED_WINDOWS_DLLS,
+from cuda.pathfinder._dynamic_libs.canary_probe_subprocess import probe_canary_abs_path_and_print_json
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
+from cuda.pathfinder._dynamic_libs.load_dl_common import (
+    DynamicLibNotAvailableError,
+    DynamicLibNotFoundError,
+    DynamicLibUnknownError,
+    LoadedDL,
+    load_dependencies,
+)
+from cuda.pathfinder._dynamic_libs.platform_loader import LOADER
+from cuda.pathfinder._dynamic_libs.search_steps import (
+    EARLY_FIND_STEPS,
+    LATE_FIND_STEPS,
+    SearchContext,
+    derive_ctk_root,
+    find_via_ctk_root,
+    run_find_steps,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
-if IS_WINDOWS:
-    from cuda.pathfinder._dynamic_libs.load_dl_windows import (
-        check_if_already_loaded_from_elsewhere,
-        load_with_abs_path,
-        load_with_system_search,
-    )
-else:
-    from cuda.pathfinder._dynamic_libs.load_dl_linux import (
-        check_if_already_loaded_from_elsewhere,
-        load_with_abs_path,
-        load_with_system_search,
-    )
+if TYPE_CHECKING:
+    from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
-# (CTK, third-party, driver).  Built from the platform-appropriate soname/DLL
-# registry so that platform-specific libs (e.g. cufile on Linux) are included
-# only where they apply.
+# (CTK, third-party, driver).
+_ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
 _ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
-    (SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else SUPPORTED_LINUX_SONAMES).keys()
+    name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
 )
+_PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
 # conda, CUDA_HOME, canary) and go straight to system search.
-_DRIVER_ONLY_LIBNAMES = frozenset(("cuda", "nvml"))
+_DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
 
 
-def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
+def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     """Load an NVIDIA driver library (system-search only).
 
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
@@ -48,55 +55,97 @@ def _load_driver_lib_no_cache(libname: str) -> LoadedDL:
     full CTK search cascade (site-packages, conda, CUDA_HOME, canary) is
     unnecessary.
     """
-    loaded = check_if_already_loaded_from_elsewhere(libname, False)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
     if loaded is not None:
         return loaded
-    loaded = load_with_system_search(libname)
+    loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
         return loaded
     raise DynamicLibNotFoundError(
-        f'"{libname}" is an NVIDIA driver library and can only be found via'
+        f'"{desc.name}" is an NVIDIA driver library and can only be found via'
         f" system search. Ensure the NVIDIA display driver is installed."
     )
 
 
+@functools.cache
+def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
+    """Resolve a canary library's absolute path in a spawned child process."""
+    result = run_in_spawned_child_process(
+        probe_canary_abs_path_and_print_json,
+        args=(libname,),
+        timeout=10.0,
+        rethrow=True,
+    )
+
+    # Use the final non-empty line in case earlier output lines are emitted.
+    lines = [line for line in result.stdout.splitlines() if line.strip()]
+    if not lines:
+        raise RuntimeError(f"Canary probe child process produced no stdout payload for {libname!r}")
+    try:
+        payload = json.loads(lines[-1])
+    except json.JSONDecodeError:
+        raise RuntimeError(
+            f"Canary probe child process emitted invalid JSON payload for {libname!r}: {lines[-1]!r}"
+        ) from None
+    if isinstance(payload, str):
+        return payload
+    if payload is None:
+        return None
+    raise RuntimeError(f"Canary probe child process emitted unexpected payload for {libname!r}: {payload!r}")
+
+
+def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
+    """Try CTK-root canary fallback for descriptor-configured libraries."""
+    for canary_libname in ctx.desc.ctk_root_canary_anchor_libnames:
+        canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
+        if canary_abs_path is None:
+            continue
+        ctk_root = derive_ctk_root(canary_abs_path)
+        if ctk_root is None:
+            continue
+        find = find_via_ctk_root(ctx, ctk_root)
+        if find is not None:
+            return str(find.abs_path)
+    return None
+
+
 def _load_lib_no_cache(libname: str) -> LoadedDL:
+    desc = LIB_DESCRIPTORS[libname]
+
     if libname in _DRIVER_ONLY_LIBNAMES:
-        return _load_driver_lib_no_cache(libname)
+        return _load_driver_lib_no_cache(desc)
 
-    finder = _FindNvidiaDynamicLib(libname)
-    abs_path = finder.try_site_packages()
-    if abs_path is not None:
-        found_via = "site-packages"
-    else:
-        abs_path = finder.try_with_conda_prefix()
-        if abs_path is not None:
-            found_via = "conda"
+    ctx = SearchContext(desc)
 
-    # If the library was already loaded by someone else, reproduce any OS-specific
-    # side-effects we would have applied on a direct absolute-path load (e.g.,
-    # AddDllDirectory on Windows for libs that require it).
-    loaded = check_if_already_loaded_from_elsewhere(libname, abs_path is not None)
+    # Phase 1: Try to find the library file on disk (pip wheels, conda).
+    find = run_find_steps(ctx, EARLY_FIND_STEPS)
 
-    # Load dependencies regardless of who loaded the primary lib first.
-    # Doing this *after* the side-effect ensures dependencies resolve consistently
-    # relative to the actually loaded location.
-    load_dependencies(libname, load_nvidia_dynamic_lib)
-
+    # Phase 2: Cross-cutting — already-loaded check and dependency loading.
+    # The already-loaded check on Windows uses the "have we found a path?"
+    # flag to decide whether to apply AddDllDirectory side-effects.
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, find is not None)
+    load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
 
-    if abs_path is None:
-        loaded = load_with_system_search(libname)
-        if loaded is not None:
-            return loaded
-        abs_path = finder.try_with_cuda_home()
-        if abs_path is None:
-            finder.raise_not_found_error()
-        else:
-            found_via = "CUDA_HOME"
+    # Phase 3: Load from found path, or fall back to system search + late find.
+    if find is not None:
+        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
 
-    return load_with_abs_path(libname, abs_path, found_via)
+    loaded = LOADER.load_with_system_search(desc)
+    if loaded is not None:
+        return loaded
+
+    find = run_find_steps(ctx, LATE_FIND_STEPS)
+    if find is not None:
+        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
+
+    if desc.ctk_root_canary_anchor_libnames:
+        canary_abs_path = _try_ctk_root_canary(ctx)
+        if canary_abs_path is not None:
+            return LOADER.load_with_abs_path(desc, canary_abs_path, "system-ctk-root")
+
+    ctx.raise_not_found()
 
 
 @functools.cache
@@ -123,7 +172,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         https://github.com/NVIDIA/cuda-python/issues/1011
 
     Raises:
-        ValueError: If ``libname`` is not a recognized library name.
+        DynamicLibUnknownError: If ``libname`` is not a recognized library name.
+        DynamicLibNotAvailableError: If ``libname`` is recognized but not
+            supported on this platform.
         DynamicLibNotFoundError: If the library cannot be found or loaded.
         RuntimeError: If Python is not 64-bit.
 
@@ -164,6 +215,13 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
            - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
 
+        5. **CTK root canary probe (discoverable libs only)**
+
+           - For selected libraries whose shared object doesn't reside on the
+             standard linker path (currently ``nvvm``), attempt to derive CTK
+             root by system-loading a well-known CTK canary library in a
+             subprocess and then searching relative to that root.
+
     **Driver libraries** (``"cuda"``, ``"nvml"``):
 
         These are part of the NVIDIA display driver (not the CUDA Toolkit) and
@@ -188,6 +246,11 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f" Currently running: {pointer_size_bits}-bit Python"
             f" {sys.version_info.major}.{sys.version_info.minor}"
         )
+    if libname not in _ALL_KNOWN_LIBNAMES:
+        raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
     if libname not in _ALL_SUPPORTED_LIBNAMES:
-        raise ValueError(f"Unsupported library name: {libname!r}. Supported names: {sorted(_ALL_SUPPORTED_LIBNAMES)}")
+        raise DynamicLibNotAvailableError(
+            f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
+            f"Supported names on {_PLATFORM_NAME}: {sorted(_ALL_SUPPORTED_LIBNAMES)}"
+        )
     return _load_lib_no_cache(libname)

@@ -7,7 +7,8 @@ requires = [
     "cython>=3.2,<3.3",
     "pyclibrary>=0.1.7",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "build_hooks"
+backend-path = ["."]
 
 [project]
 name = "cuda-bindings"
@@ -46,6 +47,7 @@ test = [
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
     "pytest-repeat",
+    "pytest-randomly",
     "pyglet>=2.1.9",
 ]
 
