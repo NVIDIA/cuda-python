@@ -582,10 +582,26 @@ def test_from_array_interface_unsupported_strides(init_cuda):
     # Create an array with strides that aren't a multiple of itemsize
     x = np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")])
     b = x["b"]
-    smv = StridedMemoryView.from_array_interface(b)
     with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
-        # TODO: ideally this would raise on construction
-        smv.strides  # noqa: B018
+        StridedMemoryView.from_array_interface(b)
+
+
+def test_from_cuda_array_interface_unsupported_strides(init_cuda):
+    cai_obj = type(
+        "UnsupportedStridesCAI",
+        (),
+        {
+            "__cuda_array_interface__": {
+                "shape": (2,),
+                "strides": (10,),
+                "typestr": "<f8",
+                "data": (0, False),
+                "version": 3,
+            }
+        },
+    )()
+    with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
+        StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
 
 
 @pytest.mark.parametrize(
