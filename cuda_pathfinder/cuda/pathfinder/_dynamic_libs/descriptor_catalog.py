@@ -266,6 +266,29 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcufile.so.0",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cufile/lib"),
     ),
+    DescriptorSpec(
+        name="cupti",
+        packaged_with="ctk",
+        linux_sonames=("libcupti.so.12", "libcupti.so.13"),
+        windows_dlls=(
+            "cupti64_2025.4.1.dll",
+            "cupti64_2025.3.1.dll",
+            "cupti64_2025.2.1.dll",
+            "cupti64_2025.1.1.dll",
+            "cupti64_2024.3.2.dll",
+            "cupti64_2024.2.1.dll",
+            "cupti64_2024.1.1.dll",
+            "cupti64_2023.3.1.dll",
+            "cupti64_2023.2.2.dll",
+            "cupti64_2023.1.1.dll",
+            "cupti64_2022.4.1.dll",
+        ),
+        site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
+        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_cupti/bin"),
+        anchor_rel_dirs_linux=("extras/CUPTI/lib64", "lib"),
+        anchor_rel_dirs_windows=("extras/CUPTI/lib64", "bin"),
+        ctk_root_canary_anchor_libnames=("cudart",),
+    ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged libraries
     # -----------------------------------------------------------------------
