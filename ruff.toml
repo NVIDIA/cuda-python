@@ -123,13 +123,15 @@ inline-quotes = "double"
 ]
 
 # CUDA bindings mirror C API naming conventions (CamelCase types, camelCase functions)
-"cuda_bindings/**" = [
+# Keep examples opted-in to enforce naming conventions in example-local identifiers.
+"cuda_bindings/{benchmarks,cuda,docs,tests}/**" = [
   "N801",    # invalid-class-name
   "N802",    # invalid-function-name
   "N803",    # invalid-argument-name
   "N806",    # non-lowercase-variable-in-function
   "N816",    # mixed-case-variable-in-global-scope
 ]
+"cuda_bindings/{build_hooks.py,setup.py}" = ["N801", "N802", "N803", "N806", "N816"]
 
 # scripts and build tooling — print is the expected output method
 "toolshed/**" = ["T201"]

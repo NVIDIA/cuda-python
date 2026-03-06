@@ -9,7 +9,7 @@ from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 
 
-def ASSERT_DRV(err):
+def assert_drv(err):
     if isinstance(err, cuda.CUresult):
         if err != cuda.CUresult.CUDA_SUCCESS:
             raise RuntimeError(f"Cuda Error: {err}")
@@ -35,31 +35,31 @@ void saxpy(float a, float *x, float *y, float *out, size_t n)
 def main():
     # Init
     (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
     # Device
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
+    err, cu_device = cuda.cuDeviceGet(0)
+    assert_drv(err)
 
     # Ctx
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
+    err, context = cuda.cuCtxCreate(None, 0, cu_device)
+    assert_drv(err)
 
     # Create program
     err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, None, None)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
     # Get target architecture
     err, major = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice
+        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cu_device
     )
-    ASSERT_DRV(err)
+    assert_drv(err)
     err, minor = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice
+        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cu_device
     )
-    ASSERT_DRV(err)
+    assert_drv(err)
     err, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
-    ASSERT_DRV(err)
+    assert_drv(err)
     use_cubin = nvrtc_minor >= 1
     prefix = "sm" if use_cubin else "compute"
     arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
@@ -67,82 +67,80 @@ def main():
     # Compile program
     opts = [b"--fmad=false", arch_arg]
     (err,) = nvrtc.nvrtcCompileProgram(prog, len(opts), opts)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
     # Get log from compilation
-    err, logSize = nvrtc.nvrtcGetProgramLogSize(prog)
-    ASSERT_DRV(err)
-    log = b" " * logSize
+    err, log_size = nvrtc.nvrtcGetProgramLogSize(prog)
+    assert_drv(err)
+    log = b" " * log_size
     (err,) = nvrtc.nvrtcGetProgramLog(prog, log)
-    ASSERT_DRV(err)
+    assert_drv(err)
     print(log.decode())
 
     # Get data from compilation
     if use_cubin:
-        err, dataSize = nvrtc.nvrtcGetCUBINSize(prog)
-        ASSERT_DRV(err)
-        data = b" " * dataSize
+        err, data_size = nvrtc.nvrtcGetCUBINSize(prog)
+        assert_drv(err)
+        data = b" " * data_size
         (err,) = nvrtc.nvrtcGetCUBIN(prog, data)
-        ASSERT_DRV(err)
+        assert_drv(err)
     else:
-        err, dataSize = nvrtc.nvrtcGetPTXSize(prog)
-        ASSERT_DRV(err)
-        data = b" " * dataSize
+        err, data_size = nvrtc.nvrtcGetPTXSize(prog)
+        assert_drv(err)
+        data = b" " * data_size
         (err,) = nvrtc.nvrtcGetPTX(prog, data)
-        ASSERT_DRV(err)
-    (err,) = nvrtc.nvrtcDestroyProgram(prog)
-    ASSERT_DRV(err)
+        assert_drv(err)
 
     # Load data as module data and retrieve function
     data = np.char.array(data)
     err, module = cuda.cuModuleLoadData(data)
-    ASSERT_DRV(err)
+    assert_drv(err)
     err, kernel = cuda.cuModuleGetFunction(module, b"saxpy")
-    ASSERT_DRV(err)
+    assert_drv(err)
 
     # Test the kernel
-    NUM_THREADS = 128
-    NUM_BLOCKS = 32
+    num_threads = 128
+    num_blocks = 32
 
     a = np.float32(2.0)
-    n = np.array(NUM_THREADS * NUM_BLOCKS, dtype=np.uint32)
-    bufferSize = n * a.itemsize
+    n = np.array(num_threads * num_blocks, dtype=np.uint32)
+    buffer_size = n * a.itemsize
 
-    err, dX = cuda.cuMemAlloc(bufferSize)
-    ASSERT_DRV(err)
-    err, dY = cuda.cuMemAlloc(bufferSize)
-    ASSERT_DRV(err)
-    err, dOut = cuda.cuMemAlloc(bufferSize)
-    ASSERT_DRV(err)
+    err, d_x = cuda.cuMemAlloc(buffer_size)
+    assert_drv(err)
+    err, d_y = cuda.cuMemAlloc(buffer_size)
+    assert_drv(err)
+    err, d_out = cuda.cuMemAlloc(buffer_size)
+    assert_drv(err)
 
-    hX = np.random.rand(n).astype(dtype=np.float32)
-    hY = np.random.rand(n).astype(dtype=np.float32)
-    hOut = np.zeros(n).astype(dtype=np.float32)
+    h_x = np.random.rand(n).astype(dtype=np.float32)
+    h_y = np.random.rand(n).astype(dtype=np.float32)
+    h_out = np.zeros(n).astype(dtype=np.float32)
 
     err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
-    (err,) = cuda.cuMemcpyHtoDAsync(dX, hX, bufferSize, stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemcpyHtoDAsync(dY, hY, bufferSize, stream)
-    ASSERT_DRV(err)
+    (err,) = cuda.cuMemcpyHtoDAsync(d_x, h_x, buffer_size, stream)
+    assert_drv(err)
+    (err,) = cuda.cuMemcpyHtoDAsync(d_y, h_y, buffer_size, stream)
+    assert_drv(err)
 
     (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
     # Assert values are different before running kernel
-    hZ = a * hX + hY
-    if np.allclose(hOut, hZ):
+    h_z = a * h_x + h_y
+    if np.allclose(h_out, h_z):
         raise ValueError("Error inside tolerence for host-device vectors")
 
-    arg_values = (a, dX, dY, dOut, n)
+    arg_values = (a, d_x, d_y, d_out, n)
     arg_types = (ctypes.c_float, None, None, None, ctypes.c_size_t)
     (err,) = cuda.cuLaunchKernel(
         kernel,
-        NUM_BLOCKS,
+        num_blocks,
         1,
         1,  # grid dim
-        NUM_THREADS,
+        num_threads,
         1,
         1,  # block dim
         0,
@@ -150,32 +148,32 @@ def main():
         (arg_values, arg_types),
         0,
     )  # arguments
-    ASSERT_DRV(err)
+    assert_drv(err)
 
-    (err,) = cuda.cuMemcpyDtoHAsync(hOut, dOut, bufferSize, stream)
-    ASSERT_DRV(err)
+    (err,) = cuda.cuMemcpyDtoHAsync(h_out, d_out, buffer_size, stream)
+    assert_drv(err)
     (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
     # Assert values are same after running kernel
-    hZ = a * hX + hY
-    if not np.allclose(hOut, hZ):
+    h_z = a * h_x + h_y
+    if not np.allclose(h_out, h_z):
         raise ValueError("Error outside tolerence for host-device vectors")
 
     (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
-    (err,) = cuda.cuMemFree(dX)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(dY)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(dOut)
-    ASSERT_DRV(err)
+    (err,) = cuda.cuMemFree(d_x)
+    assert_drv(err)
+    (err,) = cuda.cuMemFree(d_y)
+    assert_drv(err)
+    (err,) = cuda.cuMemFree(d_out)
+    assert_drv(err)
 
     (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    assert_drv(err)
     (err,) = cuda.cuCtxDestroy(context)
-    ASSERT_DRV(err)
+    assert_drv(err)
 
 
 if __name__ == "__main__":

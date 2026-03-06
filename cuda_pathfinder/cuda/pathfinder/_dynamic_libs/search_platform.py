@@ -148,7 +148,10 @@ class LinuxSearchPlatform:
         # Some libraries only exist as versioned files (e.g., libcupti.so.13 in conda),
         # so the glob fallback is needed
         file_wild = lib_searched_for + "*"
-        for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+        # Only one match is expected, but to ensure deterministic behavior in unexpected
+        # situations, and to be internally consistent, we sort in reverse order with the
+        # intent to return the newest version first.
+        for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild)), reverse=True):
             if os.path.isfile(so_name):
                 return so_name
         error_messages.append(f"No such file: {file_wild}")

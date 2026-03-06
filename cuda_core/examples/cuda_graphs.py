@@ -84,9 +84,9 @@ def main():
         result3 = cp.empty_like(a)
 
         # Prepare launch configuration
-        block_size = 256
-        grid_size = (size + block_size - 1) // block_size
-        config = LaunchConfig(grid=grid_size, block=block_size)
+        block = 256
+        grid = (size + block - 1) // block
+        config = LaunchConfig(grid=grid, block=block)
 
         # Sync before graph capture
         dev.sync()
