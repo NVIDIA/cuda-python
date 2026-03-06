@@ -8,6 +8,10 @@ import glob
 import os
 from dataclasses import dataclass
 
+from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
+    _resolve_system_loaded_abs_path_in_subprocess,
+)
+from cuda.pathfinder._dynamic_libs.search_steps import derive_ctk_root
 from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
@@ -91,6 +95,23 @@ def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool)
     return None
 
 
+def _find_ctk_header_directory_via_canary(libname: str, h_basename: str) -> str | None:
+    """Try CTK header lookup via CTK-root canary probing.
+
+    Uses the same canary as dynamic-library CTK-root discovery: system-load
+    ``cudart`` in a spawned child process, derive CTK root from the resolved
+    absolute library path, then search the expected CTK include layout under
+    that root.
+    """
+    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess("cudart")
+    if canary_abs_path is None:
+        return None
+    ctk_root = derive_ctk_root(canary_abs_path)
+    if ctk_root is None:
+        return None
+    return _locate_based_on_ctk_layout(libname, h_basename, ctk_root)
+
+
 def _find_ctk_header_directory(libname: str) -> LocatedHeaderDir | None:
     h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
@@ -105,6 +126,9 @@ def _find_ctk_header_directory(libname: str) -> LocatedHeaderDir | None:
     cuda_home = get_cuda_home_or_path()
     if cuda_home and (result := _locate_based_on_ctk_layout(libname, h_basename, cuda_home)):
         return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
+
+    if result := _find_ctk_header_directory_via_canary(libname, h_basename):
+        return LocatedHeaderDir(abs_path=result, found_via="system-ctk-root")
 
     return None
 
@@ -139,6 +163,12 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
         3. **CUDA Toolkit environment variables**
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+
+        4. **CTK root canary probe**
+
+           - Probe a system-loaded ``cudart`` in a spawned child process,
+             derive the CTK root from the resolved library path, then search
+             CTK include layout under that root.
     """
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
@@ -195,6 +225,12 @@ def find_nvidia_header_directory(libname: str) -> str | None:
         3. **CUDA Toolkit environment variables**
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+
+        4. **CTK root canary probe**
+
+           - Probe a system-loaded ``cudart`` in a spawned child process,
+             derive the CTK root from the resolved library path, then search
+             CTK include layout under that root.
     """
     found = locate_nvidia_header_directory(libname)
     return found.abs_path if found else None

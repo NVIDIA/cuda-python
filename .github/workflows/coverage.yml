@@ -98,7 +98,8 @@ jobs:
 
       - name: Build cuda-pathfinder
         run: |
-          .venv/bin/pip install -v ./cuda_pathfinder --group test
+          cd cuda_pathfinder
+          ../.venv/bin/pip install -v . --group test
 
       - name: Build cuda-bindings
         run: |

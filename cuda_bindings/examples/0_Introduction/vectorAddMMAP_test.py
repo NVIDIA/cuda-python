@@ -8,11 +8,11 @@ import sys
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
+from common.helper_cuda import check_cuda_errors, find_cuda_device_drv
 
 from cuda.bindings import driver as cuda
 
-vectorAddMMAP = """\
+vector_add_mmap = """\
 /* Vector addition: C = A + B.
  *
  * This sample is a very basic sample that implements element by element
@@ -36,35 +36,35 @@ def round_up(x, y):
     return int((x - 1) / y + 1) * y
 
 
-def getBackingDevices(cuDevice):
-    num_devices = checkCudaErrors(cuda.cuDeviceGetCount())
+def get_backing_devices(cu_device):
+    num_devices = check_cuda_errors(cuda.cuDeviceGetCount())
 
-    backingDevices = [cuDevice]
+    backing_devices = [cu_device]
     for dev in range(num_devices):
         # The mapping device is already in the backingDevices vector
-        if int(dev) == int(cuDevice):
+        if int(dev) == int(cu_device):
             continue
 
         # Only peer capable devices can map each others memory
-        capable = checkCudaErrors(cuda.cuDeviceCanAccessPeer(cuDevice, dev))
+        capable = check_cuda_errors(cuda.cuDeviceCanAccessPeer(cu_device, dev))
         if not capable:
             continue
 
         # The device needs to support virtual address management for the required apis to work
-        attributeVal = checkCudaErrors(
+        attribute_val = check_cuda_errors(
             cuda.cuDeviceGetAttribute(
                 cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
-                cuDevice,
+                cu_device,
             )
         )
-        if attributeVal == 0:
+        if attribute_val == 0:
             continue
 
-        backingDevices.append(cuda.CUdevice(dev))
-    return backingDevices
+        backing_devices.append(cuda.CUdevice(dev))
+    return backing_devices
 
 
-def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
+def simple_malloc_multi_device_mmap(size, resident_devices, mapping_devices, align=0):
     min_granularity = 0
 
     # Setup the properties common for all the chunks
@@ -77,7 +77,7 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
 
     # Get the minimum granularity needed for the resident devices
     # (the max of the minimum granularity of each participating device)
-    for device in residentDevices:
+    for device in resident_devices:
         prop.location.id = device
         status, granularity = cuda.cuMemGetAllocationGranularity(
             prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
@@ -89,7 +89,7 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
 
     # Get the minimum granularity needed for the accessing devices
     # (the max of the minimum granularity of each participating device)
-    for device in mappingDevices:
+    for device in mapping_devices:
         prop.location.id = device
         status, granularity = cuda.cuMemGetAllocationGranularity(
             prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
@@ -103,28 +103,28 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
     # Essentially size = N * residentDevices.size() * min_granularity is the requirement,
     # since each piece of the allocation will be stripeSize = N * min_granularity
     # and the min_granularity requirement applies to each stripeSize piece of the allocation.
-    size = round_up(size, len(residentDevices) * min_granularity)
-    stripeSize = size / len(residentDevices)
+    size = round_up(size, len(resident_devices) * min_granularity)
+    stripe_size = size / len(resident_devices)
 
     # Return the rounded up size to the caller for use in the free
-    allocationSize = size
+    allocation_size = size
 
     # Reserve the required contiguous VA space for the allocations
     status, dptr = cuda.cuMemAddressReserve(size, align, cuda.CUdeviceptr(0), 0)
     if status != cuda.CUresult.CUDA_SUCCESS:
-        simpleFreeMultiDeviceMmap(dptr, size)
+        simple_free_multi_device_mmap(dptr, size)
         return status, None, None
 
     # Create and map the backings on each gpu
     # note: reusing CUmemAllocationProp prop from earlier with prop.type & prop.location.type already specified.
-    for idx in range(len(residentDevices)):
+    for idx in range(len(resident_devices)):
         # Set the location for this chunk to this device
-        prop.location.id = residentDevices[idx]
+        prop.location.id = resident_devices[idx]
 
         # Create the allocation as a pinned allocation on this device
-        status, allocationHandle = cuda.cuMemCreate(stripeSize, prop, 0)
+        status, allocation_handle = cuda.cuMemCreate(stripe_size, prop, 0)
         if status != cuda.CUresult.CUDA_SUCCESS:
-            simpleFreeMultiDeviceMmap(dptr, size)
+            simple_free_multi_device_mmap(dptr, size)
             return status, None, None
 
         # Assign the chunk to the appropriate VA range and release the handle.
@@ -132,10 +132,10 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
         # Since we do not need to make any other mappings of this memory or export it,
         # we no longer need and can release the allocationHandle.
         # The allocation will be kept live until it is unmapped.
-        (status,) = cuda.cuMemMap(int(dptr) + (stripeSize * idx), stripeSize, 0, allocationHandle, 0)
+        (status,) = cuda.cuMemMap(int(dptr) + (stripe_size * idx), stripe_size, 0, allocation_handle, 0)
 
         # the handle needs to be released even if the mapping failed.
-        (status2,) = cuda.cuMemRelease(allocationHandle)
+        (status2,) = cuda.cuMemRelease(allocation_handle)
         if status != cuda.CUresult.CUDA_SUCCESS:
             # cuMemRelease should not have failed here
             # as the handle was just allocated successfully
@@ -144,31 +144,31 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
 
         # Cleanup in case of any mapping failures.
         if status != cuda.CUresult.CUDA_SUCCESS:
-            simpleFreeMultiDeviceMmap(dptr, size)
+            simple_free_multi_device_mmap(dptr, size)
             return status, None, None
 
     # Each accessDescriptor will describe the mapping requirement for a single device
-    accessDescriptors = [cuda.CUmemAccessDesc()] * len(mappingDevices)
+    access_descriptors = [cuda.CUmemAccessDesc()] * len(mapping_devices)
 
     # Prepare the access descriptor array indicating where and how the backings should be visible.
-    for idx in range(len(mappingDevices)):
+    for idx in range(len(mapping_devices)):
         # Specify which device we are adding mappings for.
-        accessDescriptors[idx].location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        accessDescriptors[idx].location.id = mappingDevices[idx]
+        access_descriptors[idx].location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        access_descriptors[idx].location.id = mapping_devices[idx]
 
         # Specify both read and write access.
-        accessDescriptors[idx].flags = cuda.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        access_descriptors[idx].flags = cuda.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
     # Apply the access descriptors to the whole VA range.
-    (status,) = cuda.cuMemSetAccess(dptr, size, accessDescriptors, len(accessDescriptors))
+    (status,) = cuda.cuMemSetAccess(dptr, size, access_descriptors, len(access_descriptors))
     if status != cuda.CUresult.CUDA_SUCCESS:
-        simpleFreeMultiDeviceMmap(dptr, size)
+        simple_free_multi_device_mmap(dptr, size)
         return status, None, None
 
-    return (status, dptr, allocationSize)
+    return (status, dptr, allocation_size)
 
 
-def simpleFreeMultiDeviceMmap(dptr, size):
+def simple_free_multi_device_mmap(dptr, size):
     # Unmap the mapped virtual memory region
     # Since the handles to the mapped backing stores have already been released
     # by cuMemRelease, and these are the only/last mappings referencing them,
@@ -204,97 +204,97 @@ def main():
     if platform.machine() == "sbsa":
         pytest.skip("vectorAddMMAP is not supported on sbsa")
 
-    N = 50000
-    size = N * np.dtype(np.float32).itemsize
+    n = 50000
+    size = n * np.dtype(np.float32).itemsize
 
     # Initialize
-    checkCudaErrors(cuda.cuInit(0))
+    check_cuda_errors(cuda.cuInit(0))
 
-    cuDevice = findCudaDeviceDRV()
+    cu_device = find_cuda_device_drv()
 
     # Check that the selected device supports virtual address management
-    attributeVal = checkCudaErrors(
+    attribute_val = check_cuda_errors(
         cuda.cuDeviceGetAttribute(
             cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
-            cuDevice,
+            cu_device,
         )
     )
-    print(f"Device {cuDevice} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {attributeVal}.")
-    if not attributeVal:
-        pytest.skip(f"Device {cuDevice} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
+    print(f"Device {cu_device} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {attribute_val}.")
+    if not attribute_val:
+        pytest.skip(f"Device {cu_device} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
 
     # The vector addition happens on cuDevice, so the allocations need to be mapped there.
-    mappingDevices = [cuDevice]
+    mapping_devices = [cu_device]
 
     # Collect devices accessible by the mapping device (cuDevice) into the backingDevices vector.
-    backingDevices = getBackingDevices(cuDevice)
+    backing_devices = get_backing_devices(cu_device)
 
     # Create context
-    cuContext = checkCudaErrors(cuda.cuCtxCreate(None, 0, cuDevice))
+    cu_context = check_cuda_errors(cuda.cuCtxCreate(None, 0, cu_device))
 
-    with common.KernelHelper(vectorAddMMAP, int(cuDevice)) as kernelHelper:
-        _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
+    kernel_helper = common.KernelHelper(vector_add_mmap, int(cu_device))
+    _vec_add_kernel = kernel_helper.get_function(b"VecAdd_kernel")
 
-        # Allocate input vectors h_A and h_B in host memory
-        h_A = np.random.rand(size).astype(dtype=np.float32)
-        h_B = np.random.rand(size).astype(dtype=np.float32)
-        h_C = np.random.rand(size).astype(dtype=np.float32)
+    # Allocate input vectors h_A and h_B in host memory
+    h_a = np.random.rand(size).astype(dtype=np.float32)
+    h_b = np.random.rand(size).astype(dtype=np.float32)
+    h_c = np.random.rand(size).astype(dtype=np.float32)
 
-        # Allocate vectors in device memory
-        # note that a call to cuCtxEnablePeerAccess is not needed even though
-        # the backing devices and mapping device are not the same.
-        # This is because the cuMemSetAccess call explicitly specifies
-        # the cross device mapping.
-        # cuMemSetAccess is still subject to the constraints of cuDeviceCanAccessPeer
-        # for cross device mappings (hence why we checked cuDeviceCanAccessPeer earlier).
-        d_A, allocationSize = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
-        d_B, _ = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
-        d_C, _ = checkCudaErrors(simpleMallocMultiDeviceMmap(size, backingDevices, mappingDevices))
+    # Allocate vectors in device memory
+    # note that a call to cuCtxEnablePeerAccess is not needed even though
+    # the backing devices and mapping device are not the same.
+    # This is because the cuMemSetAccess call explicitly specifies
+    # the cross device mapping.
+    # cuMemSetAccess is still subject to the constraints of cuDeviceCanAccessPeer
+    # for cross device mappings (hence why we checked cuDeviceCanAccessPeer earlier).
+    d_a, allocation_size = check_cuda_errors(simple_malloc_multi_device_mmap(size, backing_devices, mapping_devices))
+    d_b, _ = check_cuda_errors(simple_malloc_multi_device_mmap(size, backing_devices, mapping_devices))
+    d_c, _ = check_cuda_errors(simple_malloc_multi_device_mmap(size, backing_devices, mapping_devices))
 
-        # Copy vectors from host memory to device memory
-        checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, size))
-        checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, size))
+    # Copy vectors from host memory to device memory
+    check_cuda_errors(cuda.cuMemcpyHtoD(d_a, h_a, size))
+    check_cuda_errors(cuda.cuMemcpyHtoD(d_b, h_b, size))
 
-        # Grid/Block configuration
-        threadsPerBlock = 256
-        blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
+    # Grid/Block configuration
+    threads_per_block = 256
+    blocks_per_grid = (n + threads_per_block - 1) / threads_per_block
 
-        kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
+    kernel_args = ((d_a, d_b, d_c, n), (None, None, None, ctypes.c_int))
 
-        # Launch the CUDA kernel
-        checkCudaErrors(
-            cuda.cuLaunchKernel(
-                _VecAdd_kernel,
-                blocksPerGrid,
-                1,
-                1,
-                threadsPerBlock,
-                1,
-                1,
-                0,
-                0,
-                kernelArgs,
-                0,
-            )
+    # Launch the CUDA kernel
+    check_cuda_errors(
+        cuda.cuLaunchKernel(
+            _vec_add_kernel,
+            blocks_per_grid,
+            1,
+            1,
+            threads_per_block,
+            1,
+            1,
+            0,
+            0,
+            kernel_args,
+            0,
         )
+    )
 
-        # Copy result from device memory to host memory
-        # h_C contains the result in host memory
-        checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, size))
+    # Copy result from device memory to host memory
+    # h_C contains the result in host memory
+    check_cuda_errors(cuda.cuMemcpyDtoH(h_c, d_c, size))
 
-        # Verify result
-        for i in range(N):
-            sum_all = h_A[i] + h_B[i]
-            if math.fabs(h_C[i] - sum_all) > 1e-7:
-                break
+    # Verify result
+    for i in range(n):
+        sum_all = h_a[i] + h_b[i]
+        if math.fabs(h_c[i] - sum_all) > 1e-7:
+            break
 
-        checkCudaErrors(simpleFreeMultiDeviceMmap(d_A, allocationSize))
-        checkCudaErrors(simpleFreeMultiDeviceMmap(d_B, allocationSize))
-        checkCudaErrors(simpleFreeMultiDeviceMmap(d_C, allocationSize))
+    check_cuda_errors(simple_free_multi_device_mmap(d_a, allocation_size))
+    check_cuda_errors(simple_free_multi_device_mmap(d_b, allocation_size))
+    check_cuda_errors(simple_free_multi_device_mmap(d_c, allocation_size))
 
-    checkCudaErrors(cuda.cuCtxDestroy(cuContext))
+    check_cuda_errors(cuda.cuCtxDestroy(cu_context))
 
-    if i + 1 != N:
+    if i + 1 != n:
         print("Result = FAIL", file=sys.stderr)
         sys.exit(1)
 
