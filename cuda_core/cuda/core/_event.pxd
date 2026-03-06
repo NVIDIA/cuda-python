@@ -22,6 +22,6 @@ cdef class Event:
     cdef Event _init(type cls, int device_id, ContextHandle h_context, options, bint is_free)
 
     @staticmethod
-    cdef Event _from_handle(cydriver.CUevent raw_event)
+    cdef Event _from_handle(EventHandle h_event)
 
     cpdef close(self)

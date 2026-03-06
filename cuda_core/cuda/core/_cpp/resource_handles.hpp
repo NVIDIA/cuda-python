@@ -147,6 +147,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphHandle = std::shared_ptr<const CUgraph>;
+using NodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
@@ -374,6 +375,18 @@ GraphHandle create_graph_handle(CUgraph graph);
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
 
 // ============================================================================
+// Graph node handle functions
+// ============================================================================
+
+// Create a node handle. Nodes are owned by their parent graph (not
+// independently destroyable). The GraphHandle dependency ensures the
+// graph outlives any node reference.
+NodeHandle create_node_handle(CUgraphNode node, const GraphHandle& h_graph);
+
+// Extract the owning graph handle from a node handle.
+GraphHandle node_get_graph(const NodeHandle& h) noexcept;
+
+// ============================================================================
 // Graphics resource handle functions
 // ============================================================================
 
@@ -473,6 +486,10 @@ inline CUgraph as_cu(const GraphHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraphNode as_cu(const NodeHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -524,6 +541,10 @@ inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const NodeHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 

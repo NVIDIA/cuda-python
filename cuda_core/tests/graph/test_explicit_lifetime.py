@@ -14,7 +14,7 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
-from cuda.core import LaunchConfig
+from cuda.core import Device, EventOptions, LaunchConfig
 from cuda.core._graph._graphdef import (
     ChildGraphNode,
     ConditionalNode,
@@ -159,3 +159,157 @@ def test_nested_child_graph_lifetime(init_cuda):
     gc.collect()
 
     assert len(grandchild.nodes()) == 1
+
+
+# =============================================================================
+# Event lifetime — event nodes should keep the Event alive
+# =============================================================================
+
+
+def test_event_record_node_keeps_event_alive(init_cuda):
+    """EventRecordNode should keep the Event alive after original is deleted."""
+    dev = Device()
+    g = GraphDef()
+    alloc = g.alloc(1024)
+
+    event = dev.create_event(EventOptions(enable_timing=False))
+    node = alloc.record_event(event)
+
+    del event
+    gc.collect()
+
+    retrieved = node.event
+    assert retrieved.is_done is True
+
+
+def test_event_wait_node_keeps_event_alive(init_cuda):
+    """EventWaitNode should keep the Event alive after original is deleted."""
+    dev = Device()
+    g = GraphDef()
+    alloc = g.alloc(1024)
+
+    event = dev.create_event(EventOptions(enable_timing=False))
+    node = alloc.wait_event(event)
+
+    del event
+    gc.collect()
+
+    retrieved = node.event
+    assert retrieved.is_done is True
+
+
+def test_event_survives_graph_instantiation_and_execution(init_cuda):
+    """Graph with event nodes executes correctly after original Event is deleted."""
+    dev = Device()
+    g = GraphDef()
+
+    event = dev.create_event(EventOptions(enable_timing=False))
+    rec = g.record_event(event)
+    rec.wait_event(event)
+
+    del event
+    gc.collect()
+
+    graph = g.instantiate()
+    stream = dev.create_stream()
+    graph.launch(stream)
+    stream.sync()
+
+
+def test_event_survives_graph_clone_and_execution(init_cuda):
+    """Cloned graph with event nodes executes after original Event is deleted.
+
+    This is the critical test for CUDA User Objects: a graph clone does
+    not inherit Python-level references, so only user objects (which
+    propagate through cuGraphClone) can keep the event alive.
+    """
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    dev = Device()
+    g = GraphDef()
+
+    event = dev.create_event(EventOptions(enable_timing=False))
+    rec = g.record_event(event)
+    rec.wait_event(event)
+
+    cloned_cu_graph = handle_return(
+        driver.cuGraphClone(driver.CUgraph(g.handle)))
+
+    del event, g, rec
+    gc.collect()
+
+    graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
+    stream = dev.create_stream()
+    handle_return(
+        driver.cuGraphLaunch(
+            graph_exec, driver.CUstream(int(stream.handle))))
+    stream.sync()
+
+
+# =============================================================================
+# Kernel lifetime — kernel nodes should keep the Kernel/Module alive
+# =============================================================================
+
+
+def test_kernel_node_keeps_kernel_alive(init_cuda):
+    """KernelNode should keep the Kernel alive after original is deleted."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+
+    g = GraphDef()
+    node = g.launch(config, kernel)
+
+    del kernel, mod
+    gc.collect()
+
+    retrieved = node.kernel
+    assert retrieved.attributes.max_threads_per_block() > 0
+
+
+def test_kernel_survives_graph_instantiation_and_execution(init_cuda):
+    """Graph with kernel node executes correctly after Kernel/Module is deleted."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+
+    g = GraphDef()
+    g.launch(config, kernel)
+
+    del kernel, mod
+    gc.collect()
+
+    graph = g.instantiate()
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+
+
+def test_kernel_survives_graph_clone_and_execution(init_cuda):
+    """Cloned graph with kernel node executes after Kernel/Module is deleted.
+
+    Validates that CUDA User Objects keep the kernel's library alive
+    through graph cloning (where Python-level references are lost).
+    """
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    dev = Device()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+
+    g = GraphDef()
+    g.launch(config, kernel)
+
+    cloned_cu_graph = handle_return(
+        driver.cuGraphClone(driver.CUgraph(g.handle)))
+
+    del kernel, mod, g
+    gc.collect()
+
+    graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
+    stream = dev.create_stream()
+    handle_return(
+        driver.cuGraphLaunch(
+            graph_exec, driver.CUstream(int(stream.handle))))
+    stream.sync()

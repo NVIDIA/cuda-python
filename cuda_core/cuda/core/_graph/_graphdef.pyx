@@ -46,12 +46,20 @@ from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
 from cuda.core._resource_handles cimport (
+    EventHandle,
     GraphHandle,
+    KernelHandle,
+    LibraryHandle,
+    NodeHandle,
     as_cu,
     as_intptr,
     as_py,
+    create_event_handle_ref,
     create_graph_handle,
     create_graph_handle_ref,
+    create_kernel_handle_ref,
+    create_node_handle,
+    node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
@@ -105,6 +113,16 @@ cdef void _py_host_trampoline(void* data) noexcept with gil:
 
 cdef void _py_host_destructor(void* data) noexcept with gil:
     _py_decref(data)
+
+
+cdef void _destroy_event_handle_copy(void* ptr) noexcept nogil:
+    cdef EventHandle* p = <EventHandle*>ptr
+    del p
+
+
+cdef void _destroy_kernel_handle_copy(void* ptr) noexcept nogil:
+    cdef KernelHandle* p = <KernelHandle*>ptr
+    del p
 
 
 cdef void _attach_user_object(
@@ -179,12 +197,13 @@ cdef ConditionalNode _make_conditional_node(
     params.conditional.size = size
 
     cdef cydriver.CUcontext ctx = NULL
-    cdef cydriver.CUgraph graph = as_cu(pred._h_graph)
+    cdef GraphHandle h_graph = node_get_graph(pred._h_node)
+    cdef cydriver.CUgraphNode pred_node = as_cu(pred._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
 
-    if pred._node != NULL:
-        deps = &pred._node
+    if pred_node != NULL:
+        deps = &pred_node
         num_deps = 1
 
     with nogil:
@@ -193,7 +212,7 @@ cdef ConditionalNode _make_conditional_node(
 
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddNode(
-            &new_node, graph, deps, NULL, num_deps, &params))
+            &new_node, as_cu(h_graph), deps, NULL, num_deps, &params))
 
     # cuGraphAddNode sets phGraph_out to an internal array of body
     # graphs (it replaces the pointer, not writing into a caller array).
@@ -203,13 +222,12 @@ cdef ConditionalNode _make_conditional_node(
     cdef GraphHandle h_branch
     for i in range(size):
         bg = params.conditional.phGraph_out[i]
-        h_branch = create_graph_handle_ref(bg, pred._h_graph)
+        h_branch = create_graph_handle_ref(bg, h_graph)
         branch_list.append(GraphDef._from_handle(h_branch))
     cdef tuple branches = tuple(branch_list)
 
     cdef ConditionalNode n = node_cls.__new__(node_cls)
-    n._h_graph = pred._h_graph
-    n._node = new_node
+    n._h_node = create_node_handle(new_node, h_graph)
     n._condition = condition
     n._cond_type = cond_type
     n._branches = branches
@@ -291,8 +309,7 @@ cdef class GraphDef:
     def _entry(self) -> Node:
         """Return the internal entry-point Node (no dependencies)."""
         cdef Node n = Node.__new__(Node)
-        n._h_graph = self._h_graph
-        n._node = NULL
+        n._h_node = create_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
         return n
 
     def alloc(self, size_t size, options: GraphAllocOptions | None = None) -> AllocNode:
@@ -399,12 +416,11 @@ cdef class GraphDef:
             default_val = <unsigned int>default_value
             flags = cydriver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
         cdef cydriver.CUcontext ctx = NULL
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
             HANDLE_RETURN(cydriver.cuGraphConditionalHandleCreate(
-                &c_handle, graph, ctx, default_val, flags))
+                &c_handle, as_cu(self._h_graph), ctx, default_val, flags))
 
         cdef Condition cond = Condition.__new__(Condition)
         cond._c_handle = c_handle
@@ -471,11 +487,10 @@ cdef class GraphDef:
                 raise TypeError("options must be a GraphDebugPrintOptions instance")
             flags = options._to_flags()
 
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
         cdef bytes path_bytes = path.encode('utf-8')
         cdef const char* c_path = path_bytes
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(graph, c_path, flags))
+            HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(as_cu(self._h_graph), c_path, flags))
 
     def nodes(self) -> tuple:
         """Return all nodes in the graph.
@@ -485,11 +500,10 @@ cdef class GraphDef:
         tuple of Node
             All nodes in the graph.
         """
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
         cdef size_t num_nodes = 0
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(graph, NULL, &num_nodes))
+            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), NULL, &num_nodes))
 
         if num_nodes == 0:
             return ()
@@ -497,7 +511,7 @@ cdef class GraphDef:
         cdef vector[cydriver.CUgraphNode] nodes_vec
         nodes_vec.resize(num_nodes)
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(graph, nodes_vec.data(), &num_nodes))
+            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
         return tuple(Node._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
 
@@ -510,11 +524,10 @@ cdef class GraphDef:
             Each element is a (from_node, to_node) pair representing
             a dependency edge in the graph.
         """
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
         cdef size_t num_edges = 0
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetEdges(graph, NULL, NULL, NULL, &num_edges))
+            HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, NULL, &num_edges))
 
         if num_edges == 0:
             return ()
@@ -525,7 +538,7 @@ cdef class GraphDef:
         to_nodes.resize(num_edges)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphGetEdges(
-                graph, from_nodes.data(), to_nodes.data(), NULL, &num_edges))
+                as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), NULL, &num_edges))
 
         return tuple(
             (Node._create(self._h_graph, from_nodes[i]),
@@ -552,56 +565,55 @@ cdef class Node:
         """Factory: dispatch to the right subclass based on node type."""
         if node == NULL:
             n = Node.__new__(Node)
-            (<Node>n)._h_graph = h_graph
-            (<Node>n)._node = NULL
+            (<Node>n)._h_node = create_node_handle(node, h_graph)
             return n
 
+        cdef NodeHandle h_node = create_node_handle(node, h_graph)
         cdef cydriver.CUgraphNodeType node_type
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetType(node, &node_type))
 
         if node_type == cydriver.CU_GRAPH_NODE_TYPE_EMPTY:
-            return EmptyNode._create_impl(h_graph, node)
+            return EmptyNode._create_impl(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_KERNEL:
-            return KernelNode._create_from_driver(h_graph, node)
+            return KernelNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEM_ALLOC:
-            return AllocNode._create_from_driver(h_graph, node)
+            return AllocNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEM_FREE:
-            return FreeNode._create_from_driver(h_graph, node)
+            return FreeNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMSET:
-            return MemsetNode._create_from_driver(h_graph, node)
+            return MemsetNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_MEMCPY:
-            return MemcpyNode._create_from_driver(h_graph, node)
+            return MemcpyNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_GRAPH:
-            return ChildGraphNode._create_from_driver(h_graph, node)
+            return ChildGraphNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_EVENT_RECORD:
-            return EventRecordNode._create_from_driver(h_graph, node)
+            return EventRecordNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT:
-            return EventWaitNode._create_from_driver(h_graph, node)
+            return EventWaitNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_HOST:
-            return HostCallbackNode._create_from_driver(h_graph, node)
+            return HostCallbackNode._create_from_driver(h_node)
         elif node_type == cydriver.CU_GRAPH_NODE_TYPE_CONDITIONAL:
-            return ConditionalNode._create_from_driver(h_graph, node)
+            return ConditionalNode._create_from_driver(h_node)
         else:
             n = Node.__new__(Node)
-            (<Node>n)._h_graph = h_graph
-            (<Node>n)._node = node
+            (<Node>n)._h_node = h_node
             return n
 
     def __repr__(self) -> str:
-        if self._node == NULL:
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
             return "<Node entry>"
-        return f"<Node handle=0x{<uintptr_t>self._node:x}>"
+        return f"<Node handle=0x{<uintptr_t>node:x}>"
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Node):
             return NotImplemented
         cdef Node o = <Node>other
-        return (as_intptr(self._h_graph) == as_intptr(o._h_graph) and
-                self._node == o._node)
+        return as_intptr(self._h_node) == as_intptr(o._h_node)
 
     def __hash__(self) -> int:
-        return hash((as_intptr(self._h_graph), <uintptr_t>self._node))
+        return hash(as_intptr(self._h_node))
 
     @property
     def type(self):
@@ -612,17 +624,18 @@ cdef class Node:
         CUgraphNodeType or None
             The node type enum value, or None for the entry node.
         """
-        if self._node == NULL:
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
             return None
         cdef cydriver.CUgraphNodeType node_type
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetType(self._node, &node_type))
+            HANDLE_RETURN(cydriver.cuGraphNodeGetType(node, &node_type))
         return driver.CUgraphNodeType(<int>node_type)
 
     @property
     def graph(self) -> GraphDef:
         """Return the GraphDef this node belongs to."""
-        return GraphDef._from_handle(self._h_graph)
+        return GraphDef._from_handle(node_get_graph(self._h_node))
 
     @property
     def handle(self) -> int | None:
@@ -630,9 +643,10 @@ cdef class Node:
 
         Returns None for the entry node.
         """
-        if self._node == NULL:
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
             return None
-        return <uintptr_t>self._node
+        return <uintptr_t>node
 
     @property
     def pred(self) -> tuple:
@@ -649,12 +663,12 @@ cdef class Node:
         if self._pred_cache is not None:
             return self._pred_cache
 
-        if self._node == NULL:
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
             self._pred_cache = ()
             return self._pred_cache
 
         cdef size_t num_deps = 0
-        cdef cydriver.CUgraphNode node = self._node
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetDependencies(node, NULL, NULL, &num_deps))
@@ -668,7 +682,8 @@ cdef class Node:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetDependencies(node, deps.data(), NULL, &num_deps))
 
-        self._pred_cache = tuple(Node._create(self._h_graph, deps[i]) for i in range(num_deps))
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        self._pred_cache = tuple(Node._create(h_graph, deps[i]) for i in range(num_deps))
         return self._pred_cache
 
     @property
@@ -686,12 +701,12 @@ cdef class Node:
         if self._succ_cache is not None:
             return self._succ_cache
 
-        if self._node == NULL:
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
             self._succ_cache = ()
             return self._succ_cache
 
         cdef size_t num_deps = 0
-        cdef cydriver.CUgraphNode node = self._node
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetDependentNodes(node, NULL, NULL, &num_deps))
@@ -705,7 +720,8 @@ cdef class Node:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetDependentNodes(node, deps.data(), NULL, &num_deps))
 
-        self._succ_cache = tuple(Node._create(self._h_graph, deps[i]) for i in range(num_deps))
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        self._succ_cache = tuple(Node._create(h_graph, deps[i]) for i in range(num_deps))
         return self._succ_cache
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
@@ -731,12 +747,13 @@ cdef class Node:
 
         cdef cydriver.CUDA_KERNEL_NODE_PARAMS node_params
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         node_params.kern = as_cu(ker._h_kernel)
@@ -753,13 +770,17 @@ cdef class Node:
         node_params.ctx = <cydriver.CUcontext>NULL
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphAddKernelNode(&new_node, graph, deps, num_deps, &node_params))
+            HANDLE_RETURN(cydriver.cuGraphAddKernelNode(
+                &new_node, as_cu(h_graph), deps, num_deps, &node_params))
+
+        _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
+                            <cydriver.CUhostFn>_destroy_kernel_handle_copy)
 
         self._succ_cache = None
         return KernelNode._create_with_params(
-            self._h_graph, new_node,
+            create_node_handle(new_node, h_graph),
             conf.grid, conf.block, conf.shmem_size,
-            node_params.kern)
+            ker._h_kernel)
 
     def join(self, *nodes: Node) -> EmptyNode:
         """Create an empty node that depends on this node and all given nodes.
@@ -778,28 +799,30 @@ cdef class Node:
         """
         cdef vector[cydriver.CUgraphNode] deps
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
         cdef Node other
         cdef cydriver.CUgraphNode* deps_ptr = NULL
         cdef size_t num_deps = 0
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
 
-        if self._node != NULL:
-            deps.push_back(self._node)
+        if pred_node != NULL:
+            deps.push_back(pred_node)
         for other in nodes:
-            if (<Node>other)._node != NULL:
-                deps.push_back((<Node>other)._node)
+            if as_cu((<Node>other)._h_node) != NULL:
+                deps.push_back(as_cu((<Node>other)._h_node))
 
         num_deps = deps.size()
         if num_deps > 0:
             deps_ptr = deps.data()
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphAddEmptyNode(&new_node, graph, deps_ptr, num_deps))
+            HANDLE_RETURN(cydriver.cuGraphAddEmptyNode(
+                &new_node, as_cu(h_graph), deps_ptr, num_deps))
 
         self._succ_cache = None
         for other in nodes:
             (<Node>other)._succ_cache = None
-        return EmptyNode._create_impl(self._h_graph, new_node)
+        return EmptyNode._create_impl(create_node_handle(new_node, h_graph))
 
     def alloc(self, size_t size, options: GraphAllocOptions | None = None) -> AllocNode:
         """Add a memory allocation node depending on this node.
@@ -829,12 +852,13 @@ cdef class Node:
 
         cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS alloc_params
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         cdef vector[cydriver.CUmemAccessDesc] access_descs
@@ -882,11 +906,12 @@ cdef class Node:
             alloc_params.accessDescCount = access_descs.size()
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphAddMemAllocNode(&new_node, graph, deps, num_deps, &alloc_params))
+            HANDLE_RETURN(cydriver.cuGraphAddMemAllocNode(
+                &new_node, as_cu(h_graph), deps, num_deps, &alloc_params))
 
         self._succ_cache = None
         return AllocNode._create_with_params(
-            self._h_graph, new_node, alloc_params.dptr, size,
+            create_node_handle(new_node, h_graph), alloc_params.dptr, size,
             device_id, memory_type, tuple(peer_ids))
 
     def free(self, dptr: int) -> FreeNode:
@@ -903,20 +928,22 @@ cdef class Node:
             A new FreeNode representing the free operation.
         """
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
         cdef cydriver.CUdeviceptr c_dptr = <cydriver.CUdeviceptr>dptr
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphAddMemFreeNode(&new_node, graph, deps, num_deps, c_dptr))
+            HANDLE_RETURN(cydriver.cuGraphAddMemFreeNode(
+                &new_node, as_cu(h_graph), deps, num_deps, c_dptr))
 
         self._succ_cache = None
-        return FreeNode._create_with_params(self._h_graph, new_node, c_dptr)
+        return FreeNode._create_with_params(create_node_handle(new_node, h_graph), c_dptr)
 
     def memset(self, dst: int, value, size_t width, size_t height=1, size_t pitch=0) -> MemsetNode:
         """Add a memset node depending on this node.
@@ -946,12 +973,13 @@ cdef class Node:
 
         cdef cydriver.CUDA_MEMSET_NODE_PARAMS memset_params
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         cdef cydriver.CUdeviceptr c_dst = <cydriver.CUdeviceptr>dst
@@ -969,12 +997,12 @@ cdef class Node:
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphAddMemsetNode(
-                &new_node, graph, deps, num_deps,
+                &new_node, as_cu(h_graph), deps, num_deps,
                 &memset_params, ctx))
 
         self._succ_cache = None
         return MemsetNode._create_with_params(
-            self._h_graph, new_node, c_dst,
+            create_node_handle(new_node, h_graph), c_dst,
             val, elem_size, width, height, pitch)
 
     def memcpy(self, dst: int, src: int, size_t size) -> MemcpyNode:
@@ -1039,23 +1067,24 @@ cdef class Node:
         params.Depth = 1
 
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         cdef cydriver.CUcontext ctx = NULL
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
             HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
-                &new_node, graph, deps, num_deps, &params, ctx))
+                &new_node, as_cu(h_graph), deps, num_deps, &params, ctx))
 
         self._succ_cache = None
         return MemcpyNode._create_with_params(
-            self._h_graph, new_node, c_dst, c_src, size,
+            create_node_handle(new_node, h_graph), c_dst, c_src, size,
             c_dst_type, c_src_type)
 
     def embed(self, child: GraphDef) -> ChildGraphNode:
@@ -1076,29 +1105,30 @@ cdef class Node:
             A new ChildGraphNode representing the embedded sub-graph.
         """
         cdef GraphDef child_def = <GraphDef>child
-        cdef cydriver.CUgraph child_graph = as_cu(child_def._h_graph)
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphAddChildGraphNode(
-                &new_node, graph, deps, num_deps, child_graph))
+                &new_node, as_cu(h_graph), deps, num_deps, as_cu(child_def._h_graph)))
 
         cdef cydriver.CUgraph embedded_graph = NULL
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
                 new_node, &embedded_graph))
 
-        cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph, self._h_graph)
+        cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph, h_graph)
 
         self._succ_cache = None
-        return ChildGraphNode._create_with_params(self._h_graph, new_node, h_embedded)
+        return ChildGraphNode._create_with_params(
+            create_node_handle(new_node, h_graph), h_embedded)
 
     def record_event(self, event: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
@@ -1114,22 +1144,26 @@ cdef class Node:
             A new EventRecordNode representing the event record operation.
         """
         cdef Event ev = <Event>event
-        cdef cydriver.CUevent c_event = as_cu(ev._h_event)
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphAddEventRecordNode(
-                &new_node, graph, deps, num_deps, c_event))
+                &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
+
+        _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
+                            <cydriver.CUhostFn>_destroy_event_handle_copy)
 
         self._succ_cache = None
-        return EventRecordNode._create_with_params(self._h_graph, new_node, c_event)
+        return EventRecordNode._create_with_params(
+            create_node_handle(new_node, h_graph), ev._h_event)
 
     def wait_event(self, event: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
@@ -1145,22 +1179,26 @@ cdef class Node:
             A new EventWaitNode representing the event wait operation.
         """
         cdef Event ev = <Event>event
-        cdef cydriver.CUevent c_event = as_cu(ev._h_event)
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphAddEventWaitNode(
-                &new_node, graph, deps, num_deps, c_event))
+                &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
+
+        _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
+                            <cydriver.CUhostFn>_destroy_event_handle_copy)
 
         self._succ_cache = None
-        return EventWaitNode._create_with_params(self._h_graph, new_node, c_event)
+        return EventWaitNode._create_with_params(
+            create_node_handle(new_node, h_graph), ev._h_event)
 
     def callback(self, fn, *, user_data=None) -> HostCallbackNode:
         """Add a host callback node depending on this node.
@@ -1199,15 +1237,16 @@ cdef class Node:
 
         cdef cydriver.CUDA_HOST_NODE_PARAMS node_params
         cdef cydriver.CUgraphNode new_node = NULL
-        cdef cydriver.CUgraph graph = as_cu(self._h_graph)
+        cdef GraphHandle h_graph = node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
         cdef void* c_user_data = NULL
         cdef object callable_obj = None
         cdef void* fn_pyobj = NULL
 
-        if self._node != NULL:
-            deps = &self._node
+        if pred_node != NULL:
+            deps = &pred_node
             num_deps = 1
 
         if isinstance(fn, ct._CFuncPtr):
@@ -1225,7 +1264,7 @@ cdef class Node:
                             "failed to allocate user_data buffer")
                     c_memcpy(c_user_data, <const char*>buf, len(buf))
                     _attach_user_object(
-                        graph, c_user_data,
+                        as_cu(h_graph), c_user_data,
                         <cydriver.CUhostFn>free)
 
             node_params.userData = c_user_data
@@ -1240,16 +1279,16 @@ cdef class Node:
             node_params.fn = <cydriver.CUhostFn>_py_host_trampoline
             node_params.userData = fn_pyobj
             _attach_user_object(
-                graph, fn_pyobj,
+                as_cu(h_graph), fn_pyobj,
                 <cydriver.CUhostFn>_py_host_destructor)
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphAddHostNode(
-                &new_node, graph, deps, num_deps, &node_params))
+                &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
         self._succ_cache = None
         return HostCallbackNode._create_with_params(
-            self._h_graph, new_node, callable_obj,
+            create_node_handle(new_node, h_graph), callable_obj,
             node_params.fn, node_params.userData)
 
     def if_cond(self, condition: Condition) -> IfNode:
@@ -1345,10 +1384,9 @@ cdef class EmptyNode(Node):
     """A synchronization / join node with no operation."""
 
     @staticmethod
-    cdef EmptyNode _create_impl(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef EmptyNode _create_impl(NodeHandle h_node):
         cdef EmptyNode n = EmptyNode.__new__(EmptyNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         return n
 
     def __repr__(self) -> str:
@@ -1374,31 +1412,33 @@ cdef class KernelNode(Node):
     """
 
     @staticmethod
-    cdef KernelNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef KernelNode _create_with_params(NodeHandle h_node,
                                         tuple grid, tuple block, unsigned int shmem_size,
-                                        cydriver.CUkernel kern):
+                                        KernelHandle h_kernel):
         """Create from known params (called by launch() builder)."""
         cdef KernelNode n = KernelNode.__new__(KernelNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._grid = grid
         n._block = block
         n._shmem_size = shmem_size
-        n._kern = kern
+        n._h_kernel = h_kernel
         return n
 
     @staticmethod
-    cdef KernelNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef KernelNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUDA_KERNEL_NODE_PARAMS params
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphKernelNodeGetParams(node, &params))
+        cdef LibraryHandle empty_lib
+        cdef KernelHandle h_kernel = create_kernel_handle_ref(params.kern, empty_lib)
         return KernelNode._create_with_params(
-            h_graph, node,
+            h_node,
             (params.gridDimX, params.gridDimY, params.gridDimZ),
             (params.blockDimX, params.blockDimY, params.blockDimZ),
             params.sharedMemBytes,
-            params.kern)
+            h_kernel)
 
     def __repr__(self) -> str:
         return (f"<KernelNode grid={self._grid} block={self._block}>")
@@ -1421,7 +1461,7 @@ cdef class KernelNode(Node):
     @property
     def kernel(self) -> Kernel:
         """The Kernel object for this launch node."""
-        return Kernel.from_handle(<uintptr_t>self._kern)
+        return Kernel._from_obj(self._h_kernel)
 
     @property
     def config(self) -> LaunchConfig:
@@ -1454,13 +1494,12 @@ cdef class AllocNode(Node):
     """
 
     @staticmethod
-    cdef AllocNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef AllocNode _create_with_params(NodeHandle h_node,
                                        cydriver.CUdeviceptr dptr, size_t bytesize,
                                        int device_id, str memory_type, tuple peer_access):
         """Create from known params (called by alloc() builder)."""
         cdef AllocNode n = AllocNode.__new__(AllocNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._dptr = dptr
         n._bytesize = bytesize
         n._device_id = device_id
@@ -1469,8 +1508,9 @@ cdef class AllocNode(Node):
         return n
 
     @staticmethod
-    cdef AllocNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef AllocNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS params
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemAllocNodeGetParams(node, &params))
@@ -1492,7 +1532,7 @@ cdef class AllocNode(Node):
             peer_ids.append(<int>params.accessDescs[i].location.id)
 
         return AllocNode._create_with_params(
-            h_graph, node, params.dptr, params.bytesize,
+            h_node, params.dptr, params.bytesize,
             <int>params.poolProps.location.id, memory_type, tuple(peer_ids))
 
     def __repr__(self) -> str:
@@ -1543,22 +1583,22 @@ cdef class FreeNode(Node):
     """
 
     @staticmethod
-    cdef FreeNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef FreeNode _create_with_params(NodeHandle h_node,
                                       cydriver.CUdeviceptr dptr):
         """Create from known params (called by free() builder)."""
         cdef FreeNode n = FreeNode.__new__(FreeNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._dptr = dptr
         return n
 
     @staticmethod
-    cdef FreeNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef FreeNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUdeviceptr dptr
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemFreeNodeGetParams(node, &dptr))
-        return FreeNode._create_with_params(h_graph, node, dptr)
+        return FreeNode._create_with_params(h_node, dptr)
 
     def __repr__(self) -> str:
         return f"<FreeNode dptr=0x{self._dptr:x}>"
@@ -1589,14 +1629,13 @@ cdef class MemsetNode(Node):
     """
 
     @staticmethod
-    cdef MemsetNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef MemsetNode _create_with_params(NodeHandle h_node,
                                         cydriver.CUdeviceptr dptr, unsigned int value,
                                         unsigned int element_size, size_t width,
                                         size_t height, size_t pitch):
         """Create from known params (called by memset() builder)."""
         cdef MemsetNode n = MemsetNode.__new__(MemsetNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._dptr = dptr
         n._value = value
         n._element_size = element_size
@@ -1606,13 +1645,14 @@ cdef class MemsetNode(Node):
         return n
 
     @staticmethod
-    cdef MemsetNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef MemsetNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUDA_MEMSET_NODE_PARAMS params
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(node, &params))
         return MemsetNode._create_with_params(
-            h_graph, node, params.dst, params.value,
+            h_node, params.dst, params.value,
             params.elementSize, params.width, params.height, params.pitch)
 
     def __repr__(self) -> str:
@@ -1664,14 +1704,13 @@ cdef class MemcpyNode(Node):
     """
 
     @staticmethod
-    cdef MemcpyNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef MemcpyNode _create_with_params(NodeHandle h_node,
                                         cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src,
                                         size_t size, cydriver.CUmemorytype dst_type,
                                         cydriver.CUmemorytype src_type):
         """Create from known params (called by memcpy() builder)."""
         cdef MemcpyNode n = MemcpyNode.__new__(MemcpyNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._dst = dst
         n._src = src
         n._size = size
@@ -1680,8 +1719,9 @@ cdef class MemcpyNode(Node):
         return n
 
     @staticmethod
-    cdef MemcpyNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef MemcpyNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUDA_MEMCPY3D params
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(node, &params))
@@ -1698,7 +1738,7 @@ cdef class MemcpyNode(Node):
             src = params.srcDevice
 
         return MemcpyNode._create_with_params(
-            h_graph, node, dst, src, params.WidthInBytes,
+            h_node, dst, src, params.WidthInBytes,
             params.dstMemoryType, params.srcMemoryType)
 
     def __repr__(self) -> str:
@@ -1733,23 +1773,24 @@ cdef class ChildGraphNode(Node):
     """
 
     @staticmethod
-    cdef ChildGraphNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef ChildGraphNode _create_with_params(NodeHandle h_node,
                                             GraphHandle h_child_graph):
         """Create from known params (called by embed() builder)."""
         cdef ChildGraphNode n = ChildGraphNode.__new__(ChildGraphNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._h_child_graph = h_child_graph
         return n
 
     @staticmethod
-    cdef ChildGraphNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef ChildGraphNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUgraph child_graph = NULL
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(node, &child_graph))
+        cdef GraphHandle h_graph = node_get_graph(h_node)
         cdef GraphHandle h_child = create_graph_handle_ref(child_graph, h_graph)
-        return ChildGraphNode._create_with_params(h_graph, node, h_child)
+        return ChildGraphNode._create_with_params(h_node, h_child)
 
     def __repr__(self) -> str:
         cdef cydriver.CUgraph g = as_cu(self._h_child_graph)
@@ -1771,34 +1812,35 @@ cdef class EventRecordNode(Node):
     Properties
     ----------
     event : Event
-        The event being recorded (non-owning wrapper).
+        The event being recorded.
     """
 
     @staticmethod
-    cdef EventRecordNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
-                                             cydriver.CUevent event):
+    cdef EventRecordNode _create_with_params(NodeHandle h_node,
+                                             EventHandle h_event):
         """Create from known params (called by record_event() builder)."""
         cdef EventRecordNode n = EventRecordNode.__new__(EventRecordNode)
-        n._h_graph = h_graph
-        n._node = node
-        n._event = event
+        n._h_node = h_node
+        n._h_event = h_event
         return n
 
     @staticmethod
-    cdef EventRecordNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef EventRecordNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUevent event
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphEventRecordNodeGetEvent(node, &event))
-        return EventRecordNode._create_with_params(h_graph, node, event)
+        cdef EventHandle h_event = create_event_handle_ref(event)
+        return EventRecordNode._create_with_params(h_node, h_event)
 
     def __repr__(self) -> str:
-        return f"<EventRecordNode event=0x{<uintptr_t>self._event:x}>"
+        return f"<EventRecordNode event=0x{as_intptr(self._h_event):x}>"
 
     @property
     def event(self) -> Event:
-        """The event being recorded (non-owning wrapper)."""
-        return Event._from_handle(self._event)
+        """The event being recorded."""
+        return Event._from_handle(self._h_event)
 
 
 cdef class EventWaitNode(Node):
@@ -1807,34 +1849,35 @@ cdef class EventWaitNode(Node):
     Properties
     ----------
     event : Event
-        The event being waited on (non-owning wrapper).
+        The event being waited on.
     """
 
     @staticmethod
-    cdef EventWaitNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
-                                           cydriver.CUevent event):
+    cdef EventWaitNode _create_with_params(NodeHandle h_node,
+                                           EventHandle h_event):
         """Create from known params (called by wait_event() builder)."""
         cdef EventWaitNode n = EventWaitNode.__new__(EventWaitNode)
-        n._h_graph = h_graph
-        n._node = node
-        n._event = event
+        n._h_node = h_node
+        n._h_event = h_event
         return n
 
     @staticmethod
-    cdef EventWaitNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef EventWaitNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUevent event
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphEventWaitNodeGetEvent(node, &event))
-        return EventWaitNode._create_with_params(h_graph, node, event)
+        cdef EventHandle h_event = create_event_handle_ref(event)
+        return EventWaitNode._create_with_params(h_node, h_event)
 
     def __repr__(self) -> str:
-        return f"<EventWaitNode event=0x{<uintptr_t>self._event:x}>"
+        return f"<EventWaitNode event=0x{as_intptr(self._h_event):x}>"
 
     @property
     def event(self) -> Event:
-        """The event being waited on (non-owning wrapper)."""
-        return Event._from_handle(self._event)
+        """The event being waited on."""
+        return Event._from_handle(self._h_event)
 
 
 cdef class HostCallbackNode(Node):
@@ -1847,33 +1890,31 @@ cdef class HostCallbackNode(Node):
     """
 
     @staticmethod
-    cdef HostCallbackNode _create_with_params(GraphHandle h_graph, cydriver.CUgraphNode node,
+    cdef HostCallbackNode _create_with_params(NodeHandle h_node,
                                               object callable_obj, cydriver.CUhostFn fn,
                                               void* user_data):
         """Create from known params (called by callback() builder)."""
         cdef HostCallbackNode n = HostCallbackNode.__new__(HostCallbackNode)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._callable = callable_obj
         n._fn = fn
         n._user_data = user_data
         return n
 
     @staticmethod
-    cdef HostCallbackNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef HostCallbackNode _create_from_driver(NodeHandle h_node):
         """Create by fetching params from the driver (called by _create factory)."""
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         cdef cydriver.CUDA_HOST_NODE_PARAMS params
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphHostNodeGetParams(node, &params))
 
         cdef object callable_obj = None
         if params.fn == <cydriver.CUhostFn>_py_host_trampoline:
-            # <object> cast Py_INCREFs — HostCallbackNode holds its own
-            # reference, independent of the user object's reference.
             callable_obj = <object>params.userData
 
         return HostCallbackNode._create_with_params(
-            h_graph, node, callable_obj, params.fn, params.userData)
+            h_node, callable_obj, params.fn, params.userData)
 
     def __repr__(self) -> str:
         if self._callable is not None:
@@ -1907,17 +1948,17 @@ cdef class ConditionalNode(Node):
     """
 
     @staticmethod
-    cdef ConditionalNode _create_from_driver(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef ConditionalNode _create_from_driver(NodeHandle h_node):
         cdef ConditionalNode n
         if not _check_node_get_params():
             n = ConditionalNode.__new__(ConditionalNode)
-            n._h_graph = h_graph
-            n._node = node
+            n._h_node = h_node
             n._condition = None
             n._cond_type = cydriver.CU_GRAPH_COND_TYPE_IF
             n._branches = ()
             return n
 
+        cdef cydriver.CUgraphNode node = as_cu(h_node)
         params = handle_return(driver.cuGraphNodeGetParams(
             <uintptr_t>node))
         cond_params = params.conditional
@@ -1928,6 +1969,7 @@ cdef class ConditionalNode(Node):
         condition._c_handle = <cydriver.CUgraphConditionalHandle>(
             <unsigned long long>int(cond_params.handle))
 
+        cdef GraphHandle h_graph = node_get_graph(h_node)
         cdef list branch_list = []
         cdef unsigned int i
         cdef GraphHandle h_branch
@@ -1951,8 +1993,7 @@ cdef class ConditionalNode(Node):
             cls = SwitchNode
 
         n = cls.__new__(cls)
-        n._h_graph = h_graph
-        n._node = node
+        n._h_node = h_node
         n._condition = condition
         n._cond_type = <cydriver.CUgraphConditionalNodeType>cond_type_int
         n._branches = branches

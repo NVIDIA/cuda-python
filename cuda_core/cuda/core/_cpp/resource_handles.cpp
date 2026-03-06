@@ -853,6 +853,29 @@ GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) 
     return GraphHandle(box, &box->resource);
 }
 
+namespace {
+struct NodeBox {
+    CUgraphNode resource;
+    GraphHandle h_graph;
+};
+}  // namespace
+
+static const NodeBox* get_box(const NodeHandle& h) {
+    const CUgraphNode* p = h.get();
+    return reinterpret_cast<const NodeBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(NodeBox, resource)
+    );
+}
+
+NodeHandle create_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
+    auto box = std::make_shared<const NodeBox>(NodeBox{node, h_graph});
+    return NodeHandle(box, &box->resource);
+}
+
+GraphHandle node_get_graph(const NodeHandle& h) noexcept {
+    return h ? get_box(h)->h_graph : GraphHandle{};
+}
+
 // ============================================================================
 // Graphics Resource Handles
 // ============================================================================
