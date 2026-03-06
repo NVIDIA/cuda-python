@@ -49,7 +49,6 @@ from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
     KernelHandle,
-    LibraryHandle,
     NodeHandle,
     as_cu,
     as_intptr,
@@ -1431,8 +1430,7 @@ cdef class KernelNode(Node):
         cdef cydriver.CUDA_KERNEL_NODE_PARAMS params
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphKernelNodeGetParams(node, &params))
-        cdef LibraryHandle empty_lib
-        cdef KernelHandle h_kernel = create_kernel_handle_ref(params.kern, empty_lib)
+        cdef KernelHandle h_kernel = create_kernel_handle_ref(params.kern)
         return KernelNode._create_with_params(
             h_node,
             (params.gridDimX, params.gridDimY, params.gridDimZ),
@@ -1461,7 +1459,7 @@ cdef class KernelNode(Node):
     @property
     def kernel(self) -> Kernel:
         """The Kernel object for this launch node."""
-        return Kernel._from_obj(self._h_kernel)
+        return Kernel._from_handle(self._h_kernel)
 
     @property
     def config(self) -> LaunchConfig:

@@ -14,11 +14,12 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
-from cuda.core import Device, EventOptions, LaunchConfig
+from cuda.core import Device, EventOptions, Kernel, LaunchConfig
 from cuda.core._graph._graphdef import (
     ChildGraphNode,
     ConditionalNode,
     GraphDef,
+    KernelNode,
 )
 
 
@@ -358,4 +359,53 @@ def test_kernel_survives_graph_clone_and_execution(init_cuda):
     handle_return(
         driver.cuGraphLaunch(
             graph_exec, driver.CUstream(int(stream.handle))))
+    stream.sync()
+
+
+# =============================================================================
+# Kernel handle recovery — from_handle and graph node reconstruction
+# =============================================================================
+
+
+def test_kernel_from_handle_recovers_library(init_cuda):
+    """Kernel.from_handle on a cuda.core-created kernel recovers the library
+    dependency, keeping it alive after the original objects are deleted."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    handle = int(kernel.handle)
+
+    reconstructed = Kernel.from_handle(handle)
+
+    del kernel, mod
+    gc.collect()
+
+    assert reconstructed.attributes.max_threads_per_block() > 0
+
+
+def test_kernel_node_reconstruction_preserves_validity(init_cuda):
+    """A KernelNode reconstructed via DAG traversal has a valid kernel,
+    kept alive by user objects and existing node references."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+
+    g = GraphDef()
+    kernel_node = g.launch(config, kernel)
+    # Chain a second node so we can reconstruct the kernel node via pred
+    event = Device().create_event()
+    successor = kernel_node.record_event(event)
+
+    del kernel, mod
+    gc.collect()
+
+    # Reconstruct the kernel node through DAG traversal
+    # successor.pred -> Node._create -> KernelNode._create_from_driver
+    # -> create_kernel_handle_ref -> handle recovery
+    reconstructed = successor.pred[0]
+    assert isinstance(reconstructed, KernelNode)
+    assert reconstructed.kernel.attributes.max_threads_per_block() > 0
+
+    graph = g.instantiate()
+    stream = Device().create_stream()
+    graph.launch(stream)
     stream.sync()

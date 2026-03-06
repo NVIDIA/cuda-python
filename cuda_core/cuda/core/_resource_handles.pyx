@@ -143,7 +143,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     KernelHandle create_kernel_handle "cuda_core::create_kernel_handle" (
         const LibraryHandle& h_library, const char* name) except+ nogil
     KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
-        cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+        cydriver.CUkernel kernel) except+ nogil
+    LibraryHandle get_kernel_library "cuda_core::get_kernel_library" (
+        const KernelHandle& h) noexcept nogil
 
     # Graph handles
     GraphHandle create_graph_handle "cuda_core::create_graph_handle" (

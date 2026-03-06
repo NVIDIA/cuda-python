@@ -367,9 +367,14 @@ LibraryHandle create_library_handle_ref(CUlibrary library);
 // Returns empty handle on error (caller must check).
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name);
 
-// Create a non-owning kernel handle with library dependency.
-// Use for borrowed kernels. The library handle keeps the library alive.
-KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
+// Create a kernel handle from a raw CUkernel.
+// If the kernel is already managed (in the registry), returns the owning
+// handle with library dependency. Otherwise returns a non-owning ref.
+KernelHandle create_kernel_handle_ref(CUkernel kernel);
+
+// Get the library handle associated with a kernel (from KernelBox).
+// Returns empty handle if the kernel has no library dependency.
+LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 
 // ============================================================================
 // Graph handle functions

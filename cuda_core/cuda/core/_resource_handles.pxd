@@ -168,8 +168,8 @@ cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) except+
 
 # Kernel handles
 cdef KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) except+ nogil
-cdef KernelHandle create_kernel_handle_ref(
-    cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+cdef KernelHandle create_kernel_handle_ref(cydriver.CUkernel kernel) except+ nogil
+cdef LibraryHandle get_kernel_library(const KernelHandle& h) noexcept nogil
 
 # Graph handles
 cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil

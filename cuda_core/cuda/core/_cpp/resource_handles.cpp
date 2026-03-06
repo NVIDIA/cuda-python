@@ -877,9 +877,11 @@ LibraryHandle create_library_handle_ref(CUlibrary library) {
 namespace {
 struct KernelBox {
     CUkernel resource;
-    LibraryHandle h_library;  // Keeps library alive
+    LibraryHandle h_library;
 };
 }  // namespace
+
+static HandleRegistry<CUkernel, KernelHandle> kernel_registry;
 
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
     GILReleaseGuard gil;
@@ -888,12 +890,27 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
         return {};
     }
 
-    return create_kernel_handle_ref(kernel, h_library);
+    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
+    KernelHandle h(box, &box->resource);
+    kernel_registry.register_handle(kernel, h);
+    return h;
 }
 
-KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
-    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
+KernelHandle create_kernel_handle_ref(CUkernel kernel) {
+    if (auto h = kernel_registry.lookup(kernel)) {
+        return h;
+    }
+    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, {}});
     return KernelHandle(box, &box->resource);
+}
+
+LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
+    if (!h) return {};
+    const CUkernel* p = h.get();
+    auto* box = reinterpret_cast<const KernelBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(KernelBox, resource)
+    );
+    return box->h_library;
 }
 
 // ============================================================================
