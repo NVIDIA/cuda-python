@@ -662,9 +662,8 @@ def _decide_nvjitlink_or_driver() -> bool:
         if _nvjitlink_has_version_symbol(nvjitlink):
             _use_nvjitlink_backend = True
             return False  # Use nvjitlink
-        warn_detail = "too old (<12.3)"
         warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
+            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
             f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
         )
 
