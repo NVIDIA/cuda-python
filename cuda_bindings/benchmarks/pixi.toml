@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+preview = ["pixi-build"]
+channel-priority = "disabled"
+
+[feature.cu13.system-requirements]
+cuda = "13"
+
+[feature.cu13.dependencies]
+cuda-version = "13.1.*"
+
+[feature.bench.dependencies]
+python = "3.14.*"
+pyperf = "*"
+
+[feature.bindings-wheel.dependencies]
+cuda-bindings = "==13.1.0"
+
+[feature.bindings-source.dependencies]
+cuda-bindings = { path = ".." }
+
+[environments]
+wheel = { features = ["cu13", "bench", "bindings-wheel"] }
+source = { features = ["cu13", "bench", "bindings-source"] }
