@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -163,7 +163,7 @@ def _build_cuda_core():
         ext_modules,
         verbose=True,
         language_level=3,
-        build_dir="build/cython",
+        build_dir="." if COMPILE_FOR_COVERAGE else "build/cython",
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,

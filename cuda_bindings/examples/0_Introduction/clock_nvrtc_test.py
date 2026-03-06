@@ -71,37 +71,37 @@ def main():
         hinput[i] = i
 
     devID = findCudaDevice()
-    kernelHelper = common.KernelHelper(clock_nvrtc, devID)
-    kernel_addr = kernelHelper.getFunction(b"timedReduction")
+    with common.KernelHelper(clock_nvrtc, devID) as kernelHelper:
+        kernel_addr = kernelHelper.getFunction(b"timedReduction")
 
-    dinput = checkCudaErrors(cuda.cuMemAlloc(hinput.nbytes))
-    doutput = checkCudaErrors(cuda.cuMemAlloc(elems_to_bytes(NUM_BLOCKS, np.float32)))
-    dtimer = checkCudaErrors(cuda.cuMemAlloc(timer.nbytes))
-    checkCudaErrors(cuda.cuMemcpyHtoD(dinput, hinput, hinput.nbytes))
+        dinput = checkCudaErrors(cuda.cuMemAlloc(hinput.nbytes))
+        doutput = checkCudaErrors(cuda.cuMemAlloc(elems_to_bytes(NUM_BLOCKS, np.float32)))
+        dtimer = checkCudaErrors(cuda.cuMemAlloc(timer.nbytes))
+        checkCudaErrors(cuda.cuMemcpyHtoD(dinput, hinput, hinput.nbytes))
 
-    args = ((dinput, doutput, dtimer), (None, None, None))
-    shared_memory_nbytes = elems_to_bytes(2 * NUM_THREADS, np.float32)
+        args = ((dinput, doutput, dtimer), (None, None, None))
+        shared_memory_nbytes = elems_to_bytes(2 * NUM_THREADS, np.float32)
 
-    grid_dims = (NUM_BLOCKS, 1, 1)
-    block_dims = (NUM_THREADS, 1, 1)
+        grid_dims = (NUM_BLOCKS, 1, 1)
+        block_dims = (NUM_THREADS, 1, 1)
 
-    checkCudaErrors(
-        cuda.cuLaunchKernel(
-            kernel_addr,
-            *grid_dims,  # grid dim
-            *block_dims,  # block dim
-            shared_memory_nbytes,
-            0,  # shared mem, stream
-            args,
-            0,
-        )
-    )  # arguments
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                kernel_addr,
+                *grid_dims,  # grid dim
+                *block_dims,  # block dim
+                shared_memory_nbytes,
+                0,  # shared mem, stream
+                args,
+                0,
+            )
+        )  # arguments
 
-    checkCudaErrors(cuda.cuCtxSynchronize())
-    checkCudaErrors(cuda.cuMemcpyDtoH(timer, dtimer, timer.nbytes))
-    checkCudaErrors(cuda.cuMemFree(dinput))
-    checkCudaErrors(cuda.cuMemFree(doutput))
-    checkCudaErrors(cuda.cuMemFree(dtimer))
+        checkCudaErrors(cuda.cuCtxSynchronize())
+        checkCudaErrors(cuda.cuMemcpyDtoH(timer, dtimer, timer.nbytes))
+        checkCudaErrors(cuda.cuMemFree(dinput))
+        checkCudaErrors(cuda.cuMemFree(doutput))
+        checkCudaErrors(cuda.cuMemFree(dtimer))
 
     avgElapsedClocks = 0.0
 

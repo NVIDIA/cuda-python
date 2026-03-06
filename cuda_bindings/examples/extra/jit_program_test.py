@@ -90,6 +90,8 @@ def main():
         data = b" " * dataSize
         (err,) = nvrtc.nvrtcGetPTX(prog, data)
         ASSERT_DRV(err)
+    (err,) = nvrtc.nvrtcDestroyProgram(prog)
+    ASSERT_DRV(err)
 
     # Load data as module data and retrieve function
     data = np.char.array(data)

@@ -217,23 +217,23 @@ def main():
         pytest.skip("Waiving execution as device does not support Memory Pools")
 
     global _vectorAddGPU
-    kernelHelper = common.KernelHelper(streamOrderedAllocation, dev)
-    _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
+    with common.KernelHelper(streamOrderedAllocation, dev) as kernelHelper:
+        _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
 
-    # Allocate CPU memory
-    nelem = 1048576
-    nelem * np.dtype(np.float32).itemsize
+        # Allocate CPU memory
+        nelem = 1048576
+        nelem * np.dtype(np.float32).itemsize
 
-    a = np.zeros(nelem, dtype="float32")
-    b = np.zeros(nelem, dtype="float32")
-    c = np.zeros(nelem, dtype="float32")
-    # Initialize the vectors
-    for i in range(nelem):
-        a[i] = rnd.random()
-        b[i] = rnd.random()
+        a = np.zeros(nelem, dtype="float32")
+        b = np.zeros(nelem, dtype="float32")
+        c = np.zeros(nelem, dtype="float32")
+        # Initialize the vectors
+        for i in range(nelem):
+            a[i] = rnd.random()
+            b[i] = rnd.random()
 
-    ret1 = basicStreamOrderedAllocation(dev, nelem, a, b, c)
-    ret2 = streamOrderedAllocationPostSync(dev, nelem, a, b, c)
+        ret1 = basicStreamOrderedAllocation(dev, nelem, a, b, c)
+        ret2 = streamOrderedAllocationPostSync(dev, nelem, a, b, c)
 
     if not ret1 or not ret2:
         sys.exit(1)

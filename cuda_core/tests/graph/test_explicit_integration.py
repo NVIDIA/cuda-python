@@ -256,33 +256,30 @@ def _run_heat_graph(dev, k_heat, k_countdown, host_ptr):
     m_ctr = a_ctr.memset(a_ctr.dptr, np.int32(_HEAT_ITERS), 1)
 
     # Phase 3 — Boundary conditions (child graph)
-    p = g.join(m_curr, m_next, m_ctr) \
-            .embed(GraphDef()
-                .memset(a_curr.dptr, np.float32(_HEAT_T_LEFT), 1)
-                .memset(
-                    a_curr.dptr + (_HEAT_N - 1) * SIZEOF_FLOAT,
-                    np.float32(_HEAT_T_RIGHT),
-                    1,
-                )
-                .graph
-              ) \
-            .record_event(event_start) \
-
+    p = (
+        g.join(m_curr, m_next, m_ctr)
+        .embed(
+            GraphDef()
+            .memset(a_curr.dptr, np.float32(_HEAT_T_LEFT), 1)
+            .memset(
+                a_curr.dptr + (_HEAT_N - 1) * SIZEOF_FLOAT,
+                np.float32(_HEAT_T_RIGHT),
+                1,
+            )
+            .graph
+        )
+        .record_event(event_start)
+    )
     # Phase 4 — Iterate
     loop = p.while_loop(condition)
-    loop.body.launch(heat_cfg, k_heat, a_next.dptr, a_curr.dptr,
-                     np.int32(_HEAT_N), _HEAT_ALPHA) \
-             .memcpy(a_curr.dptr, a_next.dptr, _HEAT_N * SIZEOF_FLOAT) \
-             .launch(tick_cfg, k_countdown, condition.handle, a_ctr.dptr)
+    loop.body.launch(heat_cfg, k_heat, a_next.dptr, a_curr.dptr, np.int32(_HEAT_N), _HEAT_ALPHA).memcpy(
+        a_curr.dptr, a_next.dptr, _HEAT_N * SIZEOF_FLOAT
+    ).launch(tick_cfg, k_countdown, condition.handle, a_ctr.dptr)
 
     # Phase 5 — After loop: timing end, readback, verify, free memory
-    loop.wait_event(event_start) \
-        .record_event(event_end) \
-        .memcpy(host_ptr, a_curr.dptr, _HEAT_N * SIZEOF_FLOAT) \
-        .callback(capture_result) \
-        .free(a_curr.dptr) \
-        .free(a_next.dptr) \
-        .free(a_ctr.dptr)
+    loop.wait_event(event_start).record_event(event_end).memcpy(host_ptr, a_curr.dptr, _HEAT_N * SIZEOF_FLOAT).callback(
+        capture_result
+    ).free(a_curr.dptr).free(a_next.dptr).free(a_ctr.dptr)
 
     # Phase 6 — Instantiate, launch, verify
     graph = g.instantiate()

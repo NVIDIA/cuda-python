@@ -76,9 +76,12 @@ class MockLibrary:
 
         # Setup the launch configuration such that each thread will be generating one pixel, and subdivide
         # the problem into 16x16 chunks.
-        self.grid = (self.width / 16, self.height / 16, 1.0)
+        self.grid = (self.width // 16, self.height // 16, 1)
         self.block = (16, 16, 1)
         self.config = LaunchConfig(grid=self.grid, block=self.block)
+
+    def close(self):
+        self.stream.close()
 
     def link(self, user_code, target_type):
         if target_type == "ltoir":
@@ -271,30 +274,32 @@ def main():
 
     result_to_display = []
     lib = MockLibrary()
+    try:
+        # Process mandelbrot option
+        if args.target in ("mandelbrot", "all"):
+            # The library will compile and link their main kernel with the provided Mandelbrot kernel
+            kernel = lib.link(code_mandelbrot, args.format)
+            result = lib.run(kernel)
+            result_to_display.append((result, "Mandelbrot"))
 
-    # Process mandelbrot option
-    if args.target in ("mandelbrot", "all"):
-        # The library will compile and link their main kernel with the provided Mandelbrot kernel
-        kernel = lib.link(code_mandelbrot, args.format)
-        result = lib.run(kernel)
-        result_to_display.append((result, "Mandelbrot"))
+        # Process julia option
+        if args.target in ("julia", "all"):
+            # Likewise, the same library can be configured to instead use the provided Julia kernel
+            kernel = lib.link(code_julia, args.format)
+            result = lib.run(kernel)
+            result_to_display.append((result, "Julia"))
 
-    # Process julia option
-    if args.target in ("julia", "all"):
-        # Likewise, the same library can be configured to instead use the provided Julia kernel
-        kernel = lib.link(code_julia, args.format)
-        result = lib.run(kernel)
-        result_to_display.append((result, "Julia"))
-
-    # Display the generated images if requested
-    if args.display:
-        fig = plt.figure()
-        for i, (image, title) in enumerate(result_to_display):
-            axs = fig.add_subplot(len(result_to_display), 1, i + 1)
-            axs.imshow(image)
-            axs.set_title(title)
-            axs.axis("off")
-        plt.show()
+        # Display the generated images if requested
+        if args.display:
+            fig = plt.figure()
+            for i, (image, title) in enumerate(result_to_display):
+                axs = fig.add_subplot(len(result_to_display), 1, i + 1)
+                axs.imshow(image)
+                axs.set_title(title)
+                axs.axis("off")
+            plt.show()
+    finally:
+        lib.close()
 
 
 if __name__ == "__main__":

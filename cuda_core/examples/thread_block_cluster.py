@@ -105,37 +105,48 @@ config = LaunchConfig(grid=grid, cluster=cluster, block=block)
 # allocate pinned memory to store kernel results
 pinned_mr = LegacyPinnedMemoryResource()
 element_size = np.dtype(np.uint32).itemsize
+grid_buffer = None
+cluster_buffer = None
+block_buffer = None
 
-# allocate 3 uint32 values each for grid, cluster, and block dimensions
-grid_buffer = pinned_mr.allocate(3 * element_size)
-cluster_buffer = pinned_mr.allocate(3 * element_size)
-block_buffer = pinned_mr.allocate(3 * element_size)
+try:
+    # allocate 3 uint32 values each for grid, cluster, and block dimensions
+    grid_buffer = pinned_mr.allocate(3 * element_size)
+    cluster_buffer = pinned_mr.allocate(3 * element_size)
+    block_buffer = pinned_mr.allocate(3 * element_size)
 
-# create NumPy arrays from the pinned memory
-grid_dims = np.from_dlpack(grid_buffer).view(dtype=np.uint32)
-cluster_dims = np.from_dlpack(cluster_buffer).view(dtype=np.uint32)
-block_dims = np.from_dlpack(block_buffer).view(dtype=np.uint32)
+    # create NumPy arrays from the pinned memory
+    grid_dims = np.from_dlpack(grid_buffer).view(dtype=np.uint32)
+    cluster_dims = np.from_dlpack(cluster_buffer).view(dtype=np.uint32)
+    block_dims = np.from_dlpack(block_buffer).view(dtype=np.uint32)
 
-# initialize arrays to zero
-grid_dims[:] = 0
-cluster_dims[:] = 0
-block_dims[:] = 0
+    # initialize arrays to zero
+    grid_dims[:] = 0
+    cluster_dims[:] = 0
+    block_dims[:] = 0
 
-# launch kernel on the default stream
-launch(dev.default_stream, config, ker, grid_buffer, cluster_buffer, block_buffer)
-dev.sync()
+    # launch kernel on the default stream
+    launch(dev.default_stream, config, ker, grid_buffer, cluster_buffer, block_buffer)
+    dev.sync()
 
-# verify results
-print("\nResults stored in pinned memory:")
-print(f"Grid dimensions (blocks): {tuple(grid_dims)}")
-print(f"Cluster dimensions: {tuple(cluster_dims)}")
-print(f"Block dimensions (threads): {tuple(block_dims)}")
+    # verify results
+    print("\nResults stored in pinned memory:")
+    print(f"Grid dimensions (blocks): {tuple(grid_dims)}")
+    print(f"Cluster dimensions: {tuple(cluster_dims)}")
+    print(f"Block dimensions (threads): {tuple(block_dims)}")
 
-# verify that grid conversion worked correctly:
-# LaunchConfig(grid=4, cluster=2) should result in 8 total blocks (4 clusters * 2 blocks/cluster)
-expected_grid_blocks = grid * cluster  # 4 * 2 = 8
-actual_grid_blocks = grid_dims[0]
+    # verify that grid conversion worked correctly:
+    # LaunchConfig(grid=4, cluster=2) should result in 8 total blocks (4 clusters * 2 blocks/cluster)
+    expected_grid_blocks = grid * cluster  # 4 * 2 = 8
+    actual_grid_blocks = grid_dims[0]
 
-assert actual_grid_blocks == expected_grid_blocks, (
-    f"Grid conversion failed: expected {expected_grid_blocks} total blocks, got {actual_grid_blocks}"
-)
+    assert actual_grid_blocks == expected_grid_blocks, (
+        f"Grid conversion failed: expected {expected_grid_blocks} total blocks, got {actual_grid_blocks}"
+    )
+finally:
+    if block_buffer is not None:
+        block_buffer.close()
+    if cluster_buffer is not None:
+        cluster_buffer.close()
+    if grid_buffer is not None:
+        grid_buffer.close()
