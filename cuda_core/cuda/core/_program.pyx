@@ -14,6 +14,7 @@ import threading
 from warnings import warn
 
 from cuda.bindings import driver, nvrtc
+from cuda.pathfinder import optional_cuda_import
 
 from libcpp.vector cimport vector
 
@@ -461,8 +462,8 @@ class ProgramOptions:
 # =============================================================================
 
 # Module-level state for NVVM lazy loading
-cdef object_nvvm_module = None
-cdef bint _nvvm_import_attempted = False
+_nvvm_module = None
+_nvvm_import_attempted = False
 
 
 def _get_nvvm_module():
@@ -484,18 +485,21 @@ def _get_nvvm_module():
                 "Please update cuda-bindings to use NVVM features."
             )
 
-        from cuda.bindings import nvvm
-        from cuda.bindings._internal.nvvm import _inspect_function_pointer
-
-        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
-            raise RuntimeError("NVVM library (libnvvm) is not available in this Python environment. ")
+        nvvm = optional_cuda_import(
+            "cuda.bindings.nvvm",
+            probe_function=lambda module: module.version(),  # probe triggers libnvvm load
+        )
+        if nvvm is None:
+            raise RuntimeError(
+                "NVVM support is unavailable: cuda.bindings.nvvm is missing or libnvvm cannot be loaded."
+            )
 
         _nvvm_module = nvvm
         return _nvvm_module
 
-    except RuntimeError as e:
+    except RuntimeError:
         _nvvm_module = None
-        raise e
+        raise
 
 def _find_libdevice_path():
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
