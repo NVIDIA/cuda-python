@@ -32,7 +32,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-12.9.86-ha770c72_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-12.9.86-h4bc722e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-12.9.86-h4bc722e_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-12.9.79-h7938cbb_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-12.9-h4f385c5_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.2-py314h1807b08_0.conda
@@ -214,6 +213,7 @@ environments:
         build: py314h59f3c06_0
       - conda: ../cuda_bindings
         build: py314h59f3c06_0
+      - conda: ../cuda_pathfinder
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-2_gnu.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/alsa-lib-1.2.15.3-he30d5cf_0.conda
@@ -240,7 +240,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-aarch64-12.9.86-h579c4fd_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-12.9.86-h7b14b0b_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-12.9.86-h7b14b0b_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-profiler-api-12.9.79-h16bee8c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-12.9-h4f385c5_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.2-py314h4c416a3_0.conda
@@ -412,6 +411,7 @@ environments:
         build: py314ha479ada_0
       - conda: ../cuda_bindings
         build: py314ha479ada_0
+      - conda: ../cuda_pathfinder
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/aom-3.9.1-he0c23c2_0.conda
@@ -435,7 +435,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_win-64-12.9.86-h57928b3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-12.9.86-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-12.9.86-h2466b09_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-profiler-api-12.9.79-h57928b3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-12.9-h4f385c5_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.2-py314h344ed54_0.conda
@@ -556,6 +555,7 @@ environments:
         build: py314hae7e39d_0
       - conda: ../cuda_bindings
         build: py314hae7e39d_0
+      - conda: ../cuda_pathfinder
   cu13:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -588,7 +588,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-13.1.115-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.1.115-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-13.1.115-h4bc722e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-13.1.80-h7938cbb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.2-py314h1807b08_0.conda
@@ -770,6 +769,7 @@ environments:
         build: py314h59f3c06_0
       - conda: ../cuda_bindings
         build: py314h59f3c06_0
+      - conda: ../cuda_pathfinder
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-2_gnu.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/alsa-lib-1.2.15.3-he30d5cf_0.conda
@@ -795,7 +795,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-aarch64-13.1.115-h579c4fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-13.1.115-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-13.1.115-h7b14b0b_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-profiler-api-13.1.80-h16bee8c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.2-py314h4c416a3_0.conda
@@ -967,6 +966,7 @@ environments:
         build: py314ha479ada_0
       - conda: ../cuda_bindings
         build: py314ha479ada_0
+      - conda: ../cuda_pathfinder
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/aom-3.9.1-he0c23c2_0.conda
@@ -990,7 +990,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_win-64-13.1.115-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-13.1.115-h2466b09_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-13.1.115-h2466b09_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-profiler-api-13.1.80-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.2-py314h344ed54_0.conda
@@ -1111,6 +1110,7 @@ environments:
         build: py314hae7e39d_0
       - conda: ../cuda_bindings
         build: py314hae7e39d_0
+      - conda: ../cuda_pathfinder
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1143,7 +1143,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-13.1.115-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.1.115-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-13.1.115-h4bc722e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-13.1.80-h7938cbb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.2-py314h1807b08_0.conda
@@ -1325,6 +1324,7 @@ environments:
         build: py314h59f3c06_0
       - conda: ../cuda_bindings
         build: py314h59f3c06_0
+      - conda: ../cuda_pathfinder
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-2_gnu.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/alsa-lib-1.2.15.3-he30d5cf_0.conda
@@ -1350,7 +1350,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-aarch64-13.1.115-h579c4fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-13.1.115-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-13.1.115-h7b14b0b_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-profiler-api-13.1.80-h16bee8c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.2-py314h4c416a3_0.conda
@@ -1522,6 +1521,7 @@ environments:
         build: py314ha479ada_0
       - conda: ../cuda_bindings
         build: py314ha479ada_0
+      - conda: ../cuda_pathfinder
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/aom-3.9.1-he0c23c2_0.conda
@@ -1545,7 +1545,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_win-64-13.1.115-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-13.1.115-h2466b09_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-13.1.115-h2466b09_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-profiler-api-13.1.80-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.2-py314h344ed54_0.conda
@@ -1666,6 +1665,7 @@ environments:
         build: py314hae7e39d_0
       - conda: ../cuda_bindings
         build: py314hae7e39d_0
+      - conda: ../cuda_pathfinder
   examples:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1699,7 +1699,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-13.1.115-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.1.115-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-13.1.115-h4bc722e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.4.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cupy-14.0.1-py314h31ce861_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cupy-core-14.0.1-py314hed3c566_0.conda
@@ -1901,6 +1900,7 @@ environments:
         build: py314h59f3c06_0
       - conda: ../cuda_bindings
         build: py314h59f3c06_0
+      - conda: ../cuda_pathfinder
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-7_kmp_llvm.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/alsa-lib-1.2.15.3-he30d5cf_0.conda
@@ -1929,7 +1929,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-aarch64-13.1.115-h579c4fd_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-13.1.115-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-13.1.115-h7b14b0b_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.4.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cupy-14.0.1-py314h8e5308c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cupy-core-14.0.1-py314h1d6db3a_0.conda
@@ -2124,6 +2123,7 @@ environments:
         build: py314ha479ada_0
       - conda: ../cuda_bindings
         build: py314ha479ada_0
+      - conda: ../cuda_pathfinder
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/win-64/aom-3.9.1-he0c23c2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/bzip2-1.0.8-h0ad9c76_9.conda
@@ -2135,7 +2135,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_win-64-13.1.115-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-13.1.115-h2466b09_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-13.1.115-h2466b09_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.4.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/dav1d-1.2.1-hcfcfb64_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ffmpeg-8.0.1-gpl_hb2d76f6_912.conda
@@ -2223,6 +2222,7 @@ environments:
         build: py314hae7e39d_0
       - conda: ../cuda_bindings
         build: py314hae7e39d_0
+      - conda: ../cuda_pathfinder
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -2823,6 +2823,7 @@ packages:
   - python
   - numpy
   - cuda-bindings
+  - cuda-pathfinder
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
@@ -2833,6 +2834,8 @@ packages:
   sources:
     cuda-bindings:
       path: ../cuda_bindings
+    cuda-pathfinder:
+      path: ../cuda_pathfinder
 - conda: .
   name: cuda-core
   version: 0.5.0
@@ -2845,6 +2848,7 @@ packages:
   - python
   - numpy
   - cuda-bindings
+  - cuda-pathfinder
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
@@ -2855,6 +2859,8 @@ packages:
   sources:
     cuda-bindings:
       path: ../cuda_bindings
+    cuda-pathfinder:
+      path: ../cuda_pathfinder
 - conda: .
   name: cuda-core
   version: 0.5.0
@@ -2869,6 +2875,7 @@ packages:
   - python
   - numpy
   - cuda-bindings
+  - cuda-pathfinder
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   - ucrt >=10.0.20348.0
@@ -2878,6 +2885,8 @@ packages:
   sources:
     cuda-bindings:
       path: ../cuda_bindings
+    cuda-pathfinder:
+      path: ../cuda_pathfinder
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-crt-dev_linux-64-12.9.86-ha770c72_2.conda
   sha256: e6257534c4b4b6b8a1192f84191c34906ab9968c92680fa09f639e7846a87304
   md5: 79d280de61e18010df5997daea4743df
@@ -3879,27 +3888,17 @@ packages:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   size: 41660022
   timestamp: 1768280258661
-- conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.3.3-pyhcf101f3_0.conda
-  sha256: 6f78993b194403725d4602355a8f1fc57f333eff9c3245a66f33e70c75d67163
-  md5: b08fa4a3478526e33a4c08224398d2e5
+- conda: ../cuda_pathfinder
+  name: cuda-pathfinder
+  version: 1.3.4a0
+  build: pyh4616a5c_0
+  subdir: noarch
+  variants:
+    target_platform: noarch
   depends:
   - python >=3.10
-  - cuda-version >=12.0,<14
-  - python
+  - python *
   license: Apache-2.0
-  size: 30869
-  timestamp: 1764891530469
-- conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.4.0-pyhc364b38_0.conda
-  sha256: edf16fdfbcce5bbb445118fd8d070dda8afe36b4b437a94f472fde153bc38151
-  md5: 2d13e524da66b60e6e7d5c6585729ea8
-  depends:
-  - python >=3.10
-  - cuda-version >=12.0,<14
-  - python
-  license: Apache-2.0
-  license_family: APACHE
-  size: 39327
-  timestamp: 1772059437166
 - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-12.9.79-h7938cbb_1.conda
   sha256: 4f679dfbf2bf2d17abb507f31b0176c0e3572337b5005b9e36179948a53988ac
   md5: 90d09865fb37d11d510444e34ebe6a09
