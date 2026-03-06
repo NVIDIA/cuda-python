@@ -2,10 +2,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
-from contextlib import suppress
-
 import numpy as np
-from common.helper_cuda import checkCudaErrors
+from common.helper_cuda import check_cuda_errors
 
 from cuda import pathfinder
 from cuda.bindings import driver as cuda
@@ -13,14 +11,14 @@ from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
 
 
-def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):
+def pytest_skipif_compute_capability_too_low(dev_id, required_cc_major_minor):
     import pytest
 
-    cc_major = checkCudaErrors(
-        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, devID)
+    cc_major = check_cuda_errors(
+        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, dev_id)
     )
-    cc_minor = checkCudaErrors(
-        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, devID)
+    cc_minor = check_cuda_errors(
+        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, dev_id)
     )
     have_cc_major_minor = (cc_major, cc_minor)
     if have_cc_major_minor < required_cc_major_minor:
@@ -28,8 +26,7 @@ def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):
 
 
 class KernelHelper:
-    def __init__(self, code, devID):
-        self.module = None
+    def __init__(self, code, dev_id):
         include_dirs = []
         for libname in ("cudart", "cccl"):
             hdr_dir = pathfinder.find_nvidia_header_directory(libname)
@@ -39,18 +36,18 @@ class KernelHelper:
                 pytest.skip(f'pathfinder.find_nvidia_header_directory("{libname}") returned None')
             include_dirs.append(hdr_dir)
 
-        prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
+        prog = check_cuda_errors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
 
         # Initialize CUDA
-        checkCudaErrors(cudart.cudaFree(0))
+        check_cuda_errors(cudart.cudaFree(0))
 
-        major = checkCudaErrors(
-            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, devID)
+        major = check_cuda_errors(
+            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, dev_id)
         )
-        minor = checkCudaErrors(
-            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, devID)
+        minor = check_cuda_errors(
+            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, dev_id)
         )
-        _, nvrtc_minor = checkCudaErrors(nvrtc.nvrtcVersion())
+        _, nvrtc_minor = check_cuda_errors(nvrtc.nvrtcVersion())
         use_cubin = nvrtc_minor >= 1
         prefix = "sm" if use_cubin else "compute"
         arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
@@ -65,44 +62,27 @@ class KernelHelper:
             opts.append(f"--include-path={inc_dir}".encode())
 
         try:
-            checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
-
-            if use_cubin:
-                dataSize = checkCudaErrors(nvrtc.nvrtcGetCUBINSize(prog))
-                data = b" " * dataSize
-                checkCudaErrors(nvrtc.nvrtcGetCUBIN(prog, data))
-            else:
-                dataSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
-                data = b" " * dataSize
-                checkCudaErrors(nvrtc.nvrtcGetPTX(prog, data))
+            check_cuda_errors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
         except RuntimeError as err:
-            logSize = checkCudaErrors(nvrtc.nvrtcGetProgramLogSize(prog))
-            log = b" " * logSize
-            checkCudaErrors(nvrtc.nvrtcGetProgramLog(prog, log))
+            log_size = check_cuda_errors(nvrtc.nvrtcGetProgramLogSize(prog))
+            log = b" " * log_size
+            check_cuda_errors(nvrtc.nvrtcGetProgramLog(prog, log))
             import sys
 
             print(log.decode(), file=sys.stderr)
             print(err, file=sys.stderr)
             sys.exit(1)
-        finally:
-            checkCudaErrors(nvrtc.nvrtcDestroyProgram(prog))
 
-        self.module = checkCudaErrors(cuda.cuModuleLoadData(np.char.array(data)))
+        if use_cubin:
+            data_size = check_cuda_errors(nvrtc.nvrtcGetCUBINSize(prog))
+            data = b" " * data_size
+            check_cuda_errors(nvrtc.nvrtcGetCUBIN(prog, data))
+        else:
+            data_size = check_cuda_errors(nvrtc.nvrtcGetPTXSize(prog))
+            data = b" " * data_size
+            check_cuda_errors(nvrtc.nvrtcGetPTX(prog, data))
 
-    def getFunction(self, name):
-        return checkCudaErrors(cuda.cuModuleGetFunction(self.module, name))
+        self.module = check_cuda_errors(cuda.cuModuleLoadData(np.char.array(data)))
 
-    def close(self):
-        if self.module is not None:
-            checkCudaErrors(cuda.cuModuleUnload(self.module))
-            self.module = None
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        self.close()
-
-    def __del__(self):
-        with suppress(Exception):
-            self.close()
+    def get_function(self, name):
+        return check_cuda_errors(cuda.cuModuleGetFunction(self.module, name))

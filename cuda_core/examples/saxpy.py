@@ -35,7 +35,7 @@ __global__ void saxpy(const T a,
 
 dev = Device()
 dev.set_current()
-s = dev.create_stream()
+stream = dev.create_stream()
 buf = None
 
 try:
@@ -53,7 +53,7 @@ try:
     )
 
     # run in single precision
-    ker = mod.get_kernel("saxpy<float>")
+    kernel = mod.get_kernel("saxpy<float>")
     dtype = cp.float32
 
     # prepare input/output
@@ -63,24 +63,24 @@ try:
     x = rng.random(size, dtype=dtype)
     y = rng.random(size, dtype=dtype)
     out = cp.empty_like(x)
-    dev.sync()  # cupy runs on a different stream from s, so sync before accessing
+    dev.sync()  # cupy runs on a different stream from stream, so sync before accessing
 
     # prepare launch
     block = 32
     grid = int((size + block - 1) // block)
     config = LaunchConfig(grid=grid, block=block)
-    ker_args = (a, x.data.ptr, y.data.ptr, out.data.ptr, size)
+    kernel_args = (a, x.data.ptr, y.data.ptr, out.data.ptr, size)
 
-    # launch kernel on stream s
-    launch(s, config, ker, *ker_args)
-    s.sync()
+    # launch kernel on stream
+    launch(stream, config, kernel, *kernel_args)
+    stream.sync()
 
     # check result
     assert cp.allclose(out, a * x + y)
 
     # let's repeat again, this time allocates our own out buffer instead of cupy's
     # run in double precision
-    ker = mod.get_kernel("saxpy<double>")
+    kernel = mod.get_kernel("saxpy<double>")
     dtype = cp.float64
 
     # prepare input
@@ -93,18 +93,18 @@ try:
     # prepare output
     buf = dev.allocate(
         size * 8,  # = dtype.itemsize
-        stream=s,
+        stream=stream,
     )
 
     # prepare launch
     block = 64
     grid = int((size + block - 1) // block)
     config = LaunchConfig(grid=grid, block=block)
-    ker_args = (a, x.data.ptr, y.data.ptr, buf, size)
+    kernel_args = (a, x.data.ptr, y.data.ptr, buf, size)
 
-    # launch kernel on stream s
-    launch(s, config, ker, *ker_args)
-    s.sync()
+    # launch kernel on stream
+    launch(stream, config, kernel, *kernel_args)
+    stream.sync()
 
     # check result
     # we wrap output buffer as a cupy array for simplicity
@@ -115,5 +115,5 @@ try:
 finally:
     # cupy cleans up automatically the rest
     if buf is not None:
-        buf.close(s)
-    s.close()
+        buf.close(stream)
+    stream.close()

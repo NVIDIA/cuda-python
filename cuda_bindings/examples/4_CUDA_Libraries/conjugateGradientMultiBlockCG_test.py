@@ -9,12 +9,12 @@ from random import random
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors, findCudaDevice
+from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
-conjugateGradientMultiBlockCG = """\
+conjugate_gradient_multi_block_cg = """\
 #line __LINE__
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
@@ -163,37 +163,37 @@ extern "C" __global__ void gpuConjugateGradient(int *I, int *J, float *val,
 """
 
 
-def genTridiag(I, J, val, N, nz):
-    I[0] = 0
-    J[0] = 0
-    J[1] = 0
+def gen_tridiag(i, j, val, n, nz):
+    i[0] = 0
+    j[0] = 0
+    j[1] = 0
 
     val[0] = float(random()) + 10.0
     val[1] = float(random())
 
-    for i in range(1, N):
+    for i in range(1, n):
         if i > 1:
-            I[i] = I[i - 1] + 3
+            i[i] = i[i - 1] + 3
         else:
-            I[1] = 2
+            i[1] = 2
 
         start = (i - 1) * 3 + 2
-        J[start] = i - 1
-        J[start + 1] = i
+        j[start] = i - 1
+        j[start + 1] = i
 
-        if i < N - 1:
-            J[start + 2] = i + 1
+        if i < n - 1:
+            j[start + 2] = i + 1
 
         val[start] = val[start - 1]
         val[start + 1] = float(random()) + 10.0
 
-        if i < N - 1:
+        if i < n - 1:
             val[start + 2] = float(random())
-    I[N] = nz
+    i[n] = nz
 
 
 THREADS_PER_BLOCK = 512
-sSDKname = "conjugateGradientMultiBlockCG"
+s_sd_kname = "conjugateGradientMultiBlockCG"
 
 
 def main():
@@ -214,139 +214,137 @@ def main():
         pytest.skip("conjugateGradientMultiBlockCG is not supported on QNX")
 
     # This will pick the best possible CUDA capable device
-    devID = findCudaDevice()
-    deviceProp = checkCudaErrors(cudart.cudaGetDeviceProperties(devID))
+    dev_id = find_cuda_device()
+    device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(dev_id))
 
-    if not deviceProp.managedMemory:
+    if not device_prop.managedMemory:
         pytest.skip("Unified Memory not supported on this device")
 
     # This sample requires being run on a device that supports Cooperative Kernel
     # Launch
-    if not deviceProp.cooperativeLaunch:
-        pytest.skip(f"Selected GPU {devID} does not support Cooperative Kernel Launch")
+    if not device_prop.cooperativeLaunch:
+        pytest.skip(f"Selected GPU {dev_id} does not support Cooperative Kernel Launch")
 
     # Statistics about the GPU device
     print(
-        f"> GPU device has {deviceProp.multiProcessorCount:%d} Multi-Processors, SM {deviceProp.major:%d}.{deviceProp.minor:%d} compute capabilities\n"
+        f"> GPU device has {device_prop.multiProcessorCount:%d} Multi-Processors, SM {device_prop.major:%d}.{device_prop.minor:%d} compute capabilities\n"
     )
 
     # Get kernel
-    with common.KernelHelper(conjugateGradientMultiBlockCG, devID) as kernelHelper:
-        _gpuConjugateGradient = kernelHelper.getFunction(b"gpuConjugateGradient")
+    kernel_helper = common.KernelHelper(conjugate_gradient_multi_block_cg, dev_id)
+    _gpu_conjugate_gradient = kernel_helper.get_function(b"gpuConjugateGradient")
 
-        # Generate a random tridiagonal symmetric matrix in CSR format
-        N = 1048576
-        nz = (N - 2) * 3 + 4
+    # Generate a random tridiagonal symmetric matrix in CSR format
+    n = 1048576
+    nz = (n - 2) * 3 + 4
 
-        I = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * (N + 1), cudart.cudaMemAttachGlobal))
-        J = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * nz, cudart.cudaMemAttachGlobal))
-        val = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * nz, cudart.cudaMemAttachGlobal))
-        I_local = (ctypes.c_int * (N + 1)).from_address(I)
-        J_local = (ctypes.c_int * nz).from_address(J)
-        val_local = (ctypes.c_float * nz).from_address(val)
+    i = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * (n + 1), cudart.cudaMemAttachGlobal))
+    j = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * nz, cudart.cudaMemAttachGlobal))
+    val = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * nz, cudart.cudaMemAttachGlobal))
+    i_local = (ctypes.c_int * (n + 1)).from_address(i)
+    j_local = (ctypes.c_int * nz).from_address(j)
+    val_local = (ctypes.c_float * nz).from_address(val)
 
-        genTridiag(I_local, J_local, val_local, N, nz)
+    gen_tridiag(i_local, j_local, val_local, n, nz)
 
-        x = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * N, cudart.cudaMemAttachGlobal))
-        rhs = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * N, cudart.cudaMemAttachGlobal))
-        dot_result = checkCudaErrors(
-            cudart.cudaMallocManaged(np.dtype(np.float64).itemsize, cudart.cudaMemAttachGlobal)
+    x = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * n, cudart.cudaMemAttachGlobal))
+    rhs = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * n, cudart.cudaMemAttachGlobal))
+    dot_result = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float64).itemsize, cudart.cudaMemAttachGlobal))
+    x_local = (ctypes.c_float * n).from_address(x)
+    rhs_local = (ctypes.c_float * n).from_address(rhs)
+    dot_result_local = (ctypes.c_double).from_address(dot_result)
+    dot_result_local = 0
+
+    # temp memory for CG
+    r = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * n, cudart.cudaMemAttachGlobal))
+    p = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * n, cudart.cudaMemAttachGlobal))
+    ax = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * n, cudart.cudaMemAttachGlobal))
+    r_local = (ctypes.c_float * n).from_address(r)
+
+    check_cuda_errors(cudart.cudaDeviceSynchronize())
+
+    start = check_cuda_errors(cudart.cudaEventCreate())
+    stop = check_cuda_errors(cudart.cudaEventCreate())
+
+    for i in range(n):
+        r_local[i] = rhs_local[i] = 1.0
+        x_local[i] = 0.0
+
+    kernel_args_value = (i, j, val, x, ax, p, r, dot_result, nz, n, tol)
+    kernel_args_types = (
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_float,
+    )
+    kernel_args = (kernel_args_value, kernel_args_types)
+
+    s_mem_size = np.dtype(np.float64).itemsize * ((THREADS_PER_BLOCK / 32) + 1)
+    num_threads = THREADS_PER_BLOCK
+    num_blocks_per_sm = check_cuda_errors(
+        cuda.cuOccupancyMaxActiveBlocksPerMultiprocessor(_gpu_conjugate_gradient, num_threads, s_mem_size)
+    )
+    num_sms = device_prop.multiProcessorCount
+    dim_grid = cudart.dim3()
+    dim_grid.x = num_sms * num_blocks_per_sm
+    dim_grid.y = 1
+    dim_grid.z = 1
+    dim_block = cudart.dim3()
+    dim_block.x = THREADS_PER_BLOCK
+    dim_block.y = 1
+    dim_block.z = 1
+
+    check_cuda_errors(cudart.cudaEventRecord(start, 0))
+    check_cuda_errors(
+        cuda.cuLaunchCooperativeKernel(
+            _gpu_conjugate_gradient,
+            dim_grid.x,
+            dim_grid.y,
+            dim_grid.z,
+            dim_block.x,
+            dim_block.y,
+            dim_block.z,
+            0,
+            0,
+            kernel_args,
         )
-        x_local = (ctypes.c_float * N).from_address(x)
-        rhs_local = (ctypes.c_float * N).from_address(rhs)
-        dot_result_local = (ctypes.c_double).from_address(dot_result)
-        dot_result_local = 0
+    )
+    check_cuda_errors(cudart.cudaEventRecord(stop, 0))
+    check_cuda_errors(cudart.cudaDeviceSynchronize())
 
-        # temp memory for CG
-        r = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * N, cudart.cudaMemAttachGlobal))
-        p = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * N, cudart.cudaMemAttachGlobal))
-        Ax = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * N, cudart.cudaMemAttachGlobal))
-        r_local = (ctypes.c_float * N).from_address(r)
+    time = check_cuda_errors(cudart.cudaEventElapsedTime(start, stop))
+    print(f"GPU Final, residual = {math.sqrt(dot_result_local):e}, kernel execution time = {time:f} ms")
 
-        checkCudaErrors(cudart.cudaDeviceSynchronize())
+    err = 0.0
+    for i in range(n):
+        rsum = 0.0
 
-        start = checkCudaErrors(cudart.cudaEventCreate())
-        stop = checkCudaErrors(cudart.cudaEventCreate())
+        for j in range(i_local[i], i_local[i + 1]):
+            rsum += val_local[j] * x_local[j_local[j]]
 
-        for i in range(N):
-            r_local[i] = rhs_local[i] = 1.0
-            x_local[i] = 0.0
+        diff = math.fabs(rsum - rhs_local[i])
 
-        kernelArgs_value = (I, J, val, x, Ax, p, r, dot_result, nz, N, tol)
-        kernelArgs_types = (
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.c_int,
-            ctypes.c_int,
-            ctypes.c_float,
-        )
-        kernelArgs = (kernelArgs_value, kernelArgs_types)
+        if diff > err:
+            err = diff
 
-        sMemSize = np.dtype(np.float64).itemsize * ((THREADS_PER_BLOCK / 32) + 1)
-        numThreads = THREADS_PER_BLOCK
-        numBlocksPerSm = checkCudaErrors(
-            cuda.cuOccupancyMaxActiveBlocksPerMultiprocessor(_gpuConjugateGradient, numThreads, sMemSize)
-        )
-        numSms = deviceProp.multiProcessorCount
-        dimGrid = cudart.dim3()
-        dimGrid.x = numSms * numBlocksPerSm
-        dimGrid.y = 1
-        dimGrid.z = 1
-        dimBlock = cudart.dim3()
-        dimBlock.x = THREADS_PER_BLOCK
-        dimBlock.y = 1
-        dimBlock.z = 1
-
-        checkCudaErrors(cudart.cudaEventRecord(start, 0))
-        checkCudaErrors(
-            cuda.cuLaunchCooperativeKernel(
-                _gpuConjugateGradient,
-                dimGrid.x,
-                dimGrid.y,
-                dimGrid.z,
-                dimBlock.x,
-                dimBlock.y,
-                dimBlock.z,
-                0,
-                0,
-                kernelArgs,
-            )
-        )
-        checkCudaErrors(cudart.cudaEventRecord(stop, 0))
-        checkCudaErrors(cudart.cudaDeviceSynchronize())
-
-        time = checkCudaErrors(cudart.cudaEventElapsedTime(start, stop))
-        print(f"GPU Final, residual = {math.sqrt(dot_result_local):e}, kernel execution time = {time:f} ms")
-
-        err = 0.0
-        for i in range(N):
-            rsum = 0.0
-
-            for j in range(I_local[i], I_local[i + 1]):
-                rsum += val_local[j] * x_local[J_local[j]]
-
-            diff = math.fabs(rsum - rhs_local[i])
-
-            if diff > err:
-                err = diff
-
-        checkCudaErrors(cudart.cudaFree(I))
-        checkCudaErrors(cudart.cudaFree(J))
-        checkCudaErrors(cudart.cudaFree(val))
-        checkCudaErrors(cudart.cudaFree(x))
-        checkCudaErrors(cudart.cudaFree(rhs))
-        checkCudaErrors(cudart.cudaFree(r))
-        checkCudaErrors(cudart.cudaFree(p))
-        checkCudaErrors(cudart.cudaFree(Ax))
-        checkCudaErrors(cudart.cudaFree(dot_result))
-    checkCudaErrors(cudart.cudaEventDestroy(start))
-    checkCudaErrors(cudart.cudaEventDestroy(stop))
+    check_cuda_errors(cudart.cudaFree(i))
+    check_cuda_errors(cudart.cudaFree(j))
+    check_cuda_errors(cudart.cudaFree(val))
+    check_cuda_errors(cudart.cudaFree(x))
+    check_cuda_errors(cudart.cudaFree(rhs))
+    check_cuda_errors(cudart.cudaFree(r))
+    check_cuda_errors(cudart.cudaFree(p))
+    check_cuda_errors(cudart.cudaFree(ax))
+    check_cuda_errors(cudart.cudaFree(dot_result))
+    check_cuda_errors(cudart.cudaEventDestroy(start))
+    check_cuda_errors(cudart.cudaEventDestroy(stop))
 
     print(f"Test Summary:  Error amount = {err:f}")
     if math.sqrt(dot_result_local) >= tol:

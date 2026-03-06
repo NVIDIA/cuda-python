@@ -48,7 +48,7 @@ class PyTorchStreamWrapper:
         return (0, stream_id)  # Return format required by CUDA Python
 
 
-s = dev.create_stream(PyTorchStreamWrapper(pt_stream))
+stream = dev.create_stream(PyTorchStreamWrapper(pt_stream))
 
 try:
     # prepare program
@@ -61,7 +61,7 @@ try:
     )
 
     # Run in single precision
-    ker = mod.get_kernel("saxpy_kernel<float>")
+    kernel = mod.get_kernel("saxpy_kernel<float>")
     dtype = torch.float32
 
     # prepare input/output
@@ -76,16 +76,16 @@ try:
     block = 32
     grid = int((size + block - 1) // block)
     config = LaunchConfig(grid=grid, block=block)
-    ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+    kernel_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 
     # launch kernel on our stream
-    launch(s, config, ker, *ker_args)
+    launch(stream, config, kernel, *kernel_args)
 
     # check result
     assert torch.allclose(out, a.item() * x + y)
 
     # let's repeat again with double precision
-    ker = mod.get_kernel("saxpy_kernel<double>")
+    kernel = mod.get_kernel("saxpy_kernel<double>")
     dtype = torch.float64
 
     # prepare input
@@ -102,12 +102,12 @@ try:
     block = 64
     grid = int((size + block - 1) // block)
     config = LaunchConfig(grid=grid, block=block)
-    ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+    kernel_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 
     # launch kernel on PyTorch's stream
-    launch(s, config, ker, *ker_args)
+    launch(stream, config, kernel, *kernel_args)
 
     # check result
     assert torch.allclose(out, a * x + y)
 finally:
-    s.close()
+    stream.close()

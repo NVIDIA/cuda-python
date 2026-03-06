@@ -5,12 +5,12 @@ import time
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors
+from common.helper_cuda import check_cuda_errors
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
-isoPropagator = """\
+iso_propagator = """\
 extern "C"
 __global__ void injectSource(float *__restrict__ in, float *__restrict__ src, int it)
 {
@@ -177,7 +177,7 @@ def align_ny(ny, blk, nops):
 #
 # this class contains the input params
 #
-class params:
+class Params:
     def __init__(self):
         self.BDIMX = 32  # tiles x y for fd operators
         self.BDIMY = 16
@@ -209,53 +209,53 @@ class params:
 #
 # this class contains all the kernels to be used bu propagator
 #
-class cudaKernels:
+class CudaKernels:
     def __init__(self, cntx):
-        checkCudaErrors(cuda.cuInit(0))
-        checkCudaErrors(cuda.cuCtxSetCurrent(cntx))
-        dev = checkCudaErrors(cuda.cuCtxGetDevice())
+        check_cuda_errors(cuda.cuInit(0))
+        check_cuda_errors(cuda.cuCtxSetCurrent(cntx))
+        dev = check_cuda_errors(cuda.cuCtxGetDevice())
 
-        self.kernelHelper = common.KernelHelper(isoPropagator, int(dev))
+        self.kernel_helper = common.KernelHelper(iso_propagator, int(dev))
 
         # kernel to create a source fnction with some max frequency
-        self.creatSource = self.kernelHelper.getFunction(b"createSource")
+        self.creatSource = self.kernel_helper.get_function(b"createSource")
         # create a velocity to try things: just a sphere on the middle 4500 m/s and 2500 m/s all around
-        self.createVelocity = self.kernelHelper.getFunction(b"createVelocity")
+        self.create_velocity = self.kernel_helper.get_function(b"createVelocity")
 
         # kernel to propagate the wavefield by 1 step in time
-        self.fdPropag = self.kernelHelper.getFunction(b"fwd_3D_orderX2k")
+        self.fdPropag = self.kernel_helper.get_function(b"fwd_3D_orderX2k")
 
         # kernel to propagate the wavefield by 1 step in time
-        self.injectSource = self.kernelHelper.getFunction(b"injectSource")
+        self.inject_source = self.kernel_helper.get_function(b"injectSource")
 
 
 #
 # this class contains: propagator, source creation, velocity creation
 # injection of data and domain exchange
 #
-class propagator:
+class Propagator:
     def __init__(self, params, _dev):
         print("init object for device ", _dev)
         self.dev = _dev
 
-        checkCudaErrors(cuda.cuInit(0))
-        self.cuDevice = checkCudaErrors(cuda.cuDeviceGet(_dev))
-        self.context = checkCudaErrors(cuda.cuCtxCreate(None, 0, self.cuDevice))
+        check_cuda_errors(cuda.cuInit(0))
+        self.cu_device = check_cuda_errors(cuda.cuDeviceGet(_dev))
+        self.context = check_cuda_errors(cuda.cuCtxCreate(None, 0, self.cu_device))
         self.waveOut = 0
         self.waveIn = 0
-        self.streamCenter = checkCudaErrors(cuda.cuStreamCreate(0))
-        self.streamHalo = checkCudaErrors(cuda.cuStreamCreate(0))
-        self.params = params
+        self.streamCenter = check_cuda_errors(cuda.cuStreamCreate(0))
+        self.streamHalo = check_cuda_errors(cuda.cuStreamCreate(0))
+        self.Params = params
 
     def __del__(self):
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
-        checkCudaErrors(cuda.cuStreamDestroy(self.streamHalo))
-        checkCudaErrors(cuda.cuStreamDestroy(self.streamCenter))
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(cuda.cuStreamDestroy(self.streamHalo))
+        check_cuda_errors(cuda.cuStreamDestroy(self.streamCenter))
         if self.waveIn != 0:
-            checkCudaErrors(cuda.cuMemFree(self.waveIn))
+            check_cuda_errors(cuda.cuMemFree(self.waveIn))
         if self.waveOut != 0:
-            checkCudaErrors(cuda.cuMemFree(self.waveOut))
-        checkCudaErrors(cuda.cuCtxDestroy(self.context))
+            check_cuda_errors(cuda.cuMemFree(self.waveOut))
+        check_cuda_errors(cuda.cuCtxDestroy(self.context))
 
     #
     # swap waveIn with waveOut
@@ -275,45 +275,45 @@ class propagator:
     # allocate the device memory
     #
     def allocate(self):
-        nel = self.params.nx * self.params.ny * self.params.nz
+        nel = self.Params.nx * self.Params.ny * self.Params.nz
         n = np.array(nel, dtype=np.uint32)
 
-        bufferSize = n * np.dtype(np.float32).itemsize
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+        buffer_size = n * np.dtype(np.float32).itemsize
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
 
-        self.velocity = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
-        checkCudaErrors(cuda.cuMemsetD32(self.velocity, 0, n))
+        self.velocity = check_cuda_errors(cuda.cuMemAlloc(buffer_size))
+        check_cuda_errors(cuda.cuMemsetD32(self.velocity, 0, n))
 
-        nel += self.params.lead
+        nel += self.Params.lead
         n = np.array(nel, dtype=np.uint32)  ## we need to align at the beginning of the tile
 
-        bufferSize = n * np.dtype(np.float32).itemsize
-        self.waveIn = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
-        checkCudaErrors(cuda.cuMemsetD32(self.waveIn, 0, n))
+        buffer_size = n * np.dtype(np.float32).itemsize
+        self.waveIn = check_cuda_errors(cuda.cuMemAlloc(buffer_size))
+        check_cuda_errors(cuda.cuMemsetD32(self.waveIn, 0, n))
 
-        self.waveOut = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
-        checkCudaErrors(cuda.cuMemsetD32(self.waveOut, 0, n))
+        self.waveOut = check_cuda_errors(cuda.cuMemAlloc(buffer_size))
+        check_cuda_errors(cuda.cuMemsetD32(self.waveOut, 0, n))
 
-        n = np.array(self.params.nt, dtype=np.uint32)
-        bufferSize = n * np.dtype(np.float32).itemsize
-        self.source = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
-        checkCudaErrors(cuda.cuMemsetD32(self.source, 0, n))
+        n = np.array(self.Params.nt, dtype=np.uint32)
+        buffer_size = n * np.dtype(np.float32).itemsize
+        self.source = check_cuda_errors(cuda.cuMemAlloc(buffer_size))
+        check_cuda_errors(cuda.cuMemsetD32(self.source, 0, n))
 
     #
     # create source data
     #
-    def createSource(self, kernel):
+    def create_source(self, kernel):
         print("creating source on device ", self.dev)
 
         buf = np.array([int(self.source)], dtype=np.uint64)
-        nt = np.array(self.params.nt, dtype=np.uint32)
-        dt = np.array(self.params.dt, dtype=np.float32)
-        freq = np.array(self.params.freqMax, dtype=np.float32)
+        nt = np.array(self.Params.nt, dtype=np.uint32)
+        dt = np.array(self.Params.dt, dtype=np.float32)
+        freq = np.array(self.Params.freqMax, dtype=np.float32)
 
         args = [buf, dt, freq, nt]
         argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
-        checkCudaErrors(
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(
             cuda.cuLaunchKernel(
                 kernel.creatSource,
                 1,
@@ -328,34 +328,34 @@ class propagator:
                 0,
             )
         )  # arguments
-        checkCudaErrors(cuda.cuStreamSynchronize(self.streamHalo))
+        check_cuda_errors(cuda.cuStreamSynchronize(self.streamHalo))
 
     #
     # inject source function: ony on the domain 0
     #
-    def injectSource(self, kernel, iter):
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+    def inject_source(self, kernel, iter):
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
 
         if self.dev != 0:
             return
 
         wavein = np.array([int(self.waveIn)], dtype=np.uint64)
         src = np.array([int(self.source)], dtype=np.uint64)
-        offset_sourceInject = (
-            self.params.lead
-            + (int)(self.params.nz / 2) * self.params.nx * self.params.ny
-            + (int)(self.params.ny / 2) * self.params.nx
-            + (int)(self.params.nx / 2)
+        offset_source_inject = (
+            self.Params.lead
+            + (int)(self.Params.nz / 2) * self.Params.nx * self.Params.ny
+            + (int)(self.Params.ny / 2) * self.Params.nx
+            + (int)(self.Params.nx / 2)
         )
-        offset_sourceInject *= np.dtype(np.float32).itemsize
+        offset_source_inject *= np.dtype(np.float32).itemsize
 
         np_it = np.array(iter, dtype=np.uint32)
 
-        args = [wavein + offset_sourceInject, src, np_it]
+        args = [wavein + offset_source_inject, src, np_it]
         argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
-        checkCudaErrors(
+        check_cuda_errors(
             cuda.cuLaunchKernel(
-                kernel.injectSource,
+                kernel.inject_source,
                 1,
                 1,
                 1,  # grid dim
@@ -372,39 +372,39 @@ class propagator:
     #
     # create velocity
     #
-    def createVelocity(self, kernel):
+    def create_velocity(self, kernel):
         print("running create velocity on device ", self.dev)
 
         offset_velocity = (
-            self.params.FD_ORDER * self.params.nx * self.params.ny
-            + self.params.FD_ORDER * self.params.nx
-            + self.params.FD_ORDER
+            self.Params.FD_ORDER * self.Params.nx * self.Params.ny
+            + self.Params.FD_ORDER * self.Params.nx
+            + self.Params.FD_ORDER
         )
         offset_velocity *= np.dtype(np.float32).itemsize
 
         vel = np.array([int(self.velocity)], dtype=np.uint64)
-        dx_dt2 = (self.params.dt * self.params.dt) / (self.params.delta * self.params.delta)
+        dx_dt2 = (self.Params.dt * self.Params.dt) / (self.Params.delta * self.Params.delta)
 
-        stride = self.params.nx * self.params.ny
+        stride = self.Params.nx * self.Params.ny
         np_dx_dt2 = np.array(dx_dt2, dtype=np.float32)
-        np_nz = np.array((self.params.nz - 2 * self.params.FD_ORDER), dtype=np.uint32)
-        np_nx = np.array(self.params.nx, dtype=np.uint32)
+        np_nz = np.array((self.Params.nz - 2 * self.Params.FD_ORDER), dtype=np.uint32)
+        np_nx = np.array(self.Params.nx, dtype=np.uint32)
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [vel + offset_velocity, np_dx_dt2, np_nz, np_nx, np_stride]
         argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
 
         # do halo up
-        checkCudaErrors(
+        check_cuda_errors(
             cuda.cuLaunchKernel(
-                kernel.createVelocity,
-                self.params.blkx,
-                self.params.blky,
+                kernel.create_velocity,
+                self.Params.blkx,
+                self.Params.blky,
                 1,  # grid dim
-                2 * self.params.BDIMX,
-                self.params.BDIMY,
+                2 * self.Params.BDIMX,
+                self.Params.BDIMY,
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
@@ -412,22 +412,22 @@ class propagator:
                 0,
             )
         )  # arguments
-        checkCudaErrors(cuda.cuStreamSynchronize(self.streamHalo))
+        check_cuda_errors(cuda.cuStreamSynchronize(self.streamHalo))
 
     #
     # execute the center part of propagation
     #
-    def executeCenter(self, kernel):
+    def execute_center(self, kernel):
         if verbose_prints:
             print("running center on device ", self.dev)
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
         offset_velocity = (
-            2 * self.params.FD_ORDER * self.params.nx * self.params.ny
-            + self.params.FD_ORDER * self.params.nx
-            + self.params.FD_ORDER
+            2 * self.Params.FD_ORDER * self.Params.nx * self.Params.ny
+            + self.Params.FD_ORDER * self.Params.nx
+            + self.Params.FD_ORDER
         )
 
-        offset_wave = self.params.lead + offset_velocity
+        offset_wave = self.Params.lead + offset_velocity
 
         offset_wave *= np.dtype(np.float32).itemsize
         offset_velocity *= np.dtype(np.float32).itemsize
@@ -436,9 +436,9 @@ class propagator:
         waveout = np.array([int(self.waveOut)], dtype=np.uint64)
 
         vel = np.array([int(self.velocity)], dtype=np.uint64)
-        stride = self.params.nx * self.params.ny
-        np_nz = np.array(self.params.nz - 4 * self.params.FD_ORDER, dtype=np.uint32)
-        np_nx = np.array(self.params.nx, dtype=np.uint32)
+        stride = self.Params.nx * self.Params.ny
+        np_nz = np.array(self.Params.nz - 4 * self.Params.FD_ORDER, dtype=np.uint32)
+        np_nx = np.array(self.Params.nx, dtype=np.uint32)
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [
@@ -452,14 +452,14 @@ class propagator:
         argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         # do center propagation from 2 * fd_order to nz - 2 * fd_order
-        checkCudaErrors(
+        check_cuda_errors(
             cuda.cuLaunchKernel(
                 kernel.fdPropag,
-                self.params.blkx,
-                self.params.blky,
+                self.Params.blkx,
+                self.Params.blky,
                 1,  # grid dim
-                self.params.BDIMX,
-                self.params.BDIMY,
+                self.Params.BDIMX,
+                self.Params.BDIMY,
                 1,  # block dim
                 0,
                 self.streamCenter,  # shared mem and stream
@@ -471,18 +471,18 @@ class propagator:
     #
     # execute the halo part of propagation
     #
-    def executeHalo(self, kernel):
+    def execute_halo(self, kernel):
         if verbose_prints:
             print("running halos on device ", self.dev)
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
 
         offset_velocity = (
-            self.params.FD_ORDER * self.params.nx * self.params.ny
-            + self.params.FD_ORDER * self.params.nx
-            + self.params.FD_ORDER
+            self.Params.FD_ORDER * self.Params.nx * self.Params.ny
+            + self.Params.FD_ORDER * self.Params.nx
+            + self.Params.FD_ORDER
         )
 
-        offset_wave = self.params.lead + offset_velocity
+        offset_wave = self.Params.lead + offset_velocity
 
         offset_wave *= np.dtype(np.float32).itemsize
         offset_velocity *= np.dtype(np.float32).itemsize
@@ -491,9 +491,9 @@ class propagator:
         waveout = np.array([int(self.waveOut)], dtype=np.uint64)
 
         vel = np.array([int(self.velocity)], dtype=np.uint64)
-        stride = self.params.nx * self.params.ny
-        np_nz = np.array(self.params.FD_ORDER, dtype=np.uint32)
-        np_nx = np.array(self.params.nx, dtype=np.uint32)
+        stride = self.Params.nx * self.Params.ny
+        np_nz = np.array(self.Params.FD_ORDER, dtype=np.uint32)
+        np_nx = np.array(self.Params.nx, dtype=np.uint32)
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [
@@ -507,14 +507,14 @@ class propagator:
         argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         # do halo up
-        checkCudaErrors(
+        check_cuda_errors(
             cuda.cuLaunchKernel(
                 kernel.fdPropag,
-                self.params.blkx,
-                self.params.blky,
+                self.Params.blkx,
+                self.Params.blky,
                 1,  # grid dim
-                self.params.BDIMX,
-                self.params.BDIMY,
+                self.Params.BDIMX,
+                self.Params.BDIMY,
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
@@ -525,11 +525,11 @@ class propagator:
 
         # do halo down
         offset_velocity = (
-            (self.params.nz - 2 * self.params.FD_ORDER) * self.params.nx * self.params.ny
-            + self.params.FD_ORDER * self.params.nx
-            + self.params.FD_ORDER
+            (self.Params.nz - 2 * self.Params.FD_ORDER) * self.Params.nx * self.Params.ny
+            + self.Params.FD_ORDER * self.Params.nx
+            + self.Params.FD_ORDER
         )
-        offset_wave = self.params.lead + offset_velocity
+        offset_wave = self.Params.lead + offset_velocity
 
         offset_wave *= np.dtype(np.float32).itemsize
         offset_velocity *= np.dtype(np.float32).itemsize
@@ -543,14 +543,14 @@ class propagator:
             np_stride,
         ]
         argsp = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
-        checkCudaErrors(
+        check_cuda_errors(
             cuda.cuLaunchKernel(
                 kernel.fdPropag,
-                self.params.blkx,
-                self.params.blky,
+                self.Params.blkx,
+                self.Params.blky,
                 1,  # grid dim
-                self.params.BDIMX,
-                self.params.BDIMY,
+                self.Params.BDIMX,
+                self.Params.BDIMY,
                 1,  # block dim
                 0,
                 self.streamHalo,  # shared mem and stream
@@ -562,79 +562,79 @@ class propagator:
     #
     # exchange the halos
     #
-    def exchangeHalo(self, propag):
+    def exchange_halo(self, propag):
         if verbose_prints:
             print("exchange  halos on device ", self.dev, "with dev ", propag.dev)
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
 
         #
         # the following variables don't change
         #
-        nstride = self.params.nx * self.params.ny
+        nstride = self.Params.nx * self.Params.ny
 
-        devS = self.context
-        devD = propag.context
+        dev_s = self.context
+        dev_d = propag.context
 
-        n_exch = self.params.FD_ORDER * nstride
+        n_exch = self.Params.FD_ORDER * nstride
         n_exch *= np.dtype(np.float32).itemsize
 
         if self.dev < propag.dev:
             # exchange up
-            offsetS = self.params.lead + (self.params.nz - 2 * self.params.FD_ORDER) * nstride
-            offsetD = propag.params.lead
+            offset_s = self.Params.lead + (self.Params.nz - 2 * self.Params.FD_ORDER) * nstride
+            offset_d = propag.Params.lead
 
-            offsetS *= np.dtype(np.float32).itemsize
-            offsetD *= np.dtype(np.float32).itemsize
+            offset_s *= np.dtype(np.float32).itemsize
+            offset_d *= np.dtype(np.float32).itemsize
 
-            waveD = cuda.CUdeviceptr(int(propag.waveOut) + offsetD)
-            waveS = cuda.CUdeviceptr(int(self.waveOut) + offsetS)
+            wave_d = cuda.CUdeviceptr(int(propag.waveOut) + offset_d)
+            wave_s = cuda.CUdeviceptr(int(self.waveOut) + offset_s)
 
-            checkCudaErrors(cuda.cuMemcpyPeerAsync(waveD, devD, waveS, devS, n_exch, self.streamHalo))
+            check_cuda_errors(cuda.cuMemcpyPeerAsync(wave_d, dev_d, wave_s, dev_s, n_exch, self.streamHalo))
         else:
             # exchange down
-            offsetS = self.params.lead + self.params.FD_ORDER * nstride
-            offsetD = propag.params.lead + (propag.params.nz - propag.params.FD_ORDER) * nstride
+            offset_s = self.Params.lead + self.Params.FD_ORDER * nstride
+            offset_d = propag.Params.lead + (propag.Params.nz - propag.Params.FD_ORDER) * nstride
 
-            offsetS *= np.dtype(np.float32).itemsize
-            offsetD *= np.dtype(np.float32).itemsize
+            offset_s *= np.dtype(np.float32).itemsize
+            offset_d *= np.dtype(np.float32).itemsize
 
-            waveD = cuda.CUdeviceptr(int(propag.waveOut) + offsetD)
-            waveS = cuda.CUdeviceptr(int(self.waveOut) + offsetS)
+            wave_d = cuda.CUdeviceptr(int(propag.waveOut) + offset_d)
+            wave_s = cuda.CUdeviceptr(int(self.waveOut) + offset_s)
 
-            checkCudaErrors(cuda.cuMemcpyPeerAsync(waveD, devD, waveS, devS, n_exch, self.streamHalo))
+            check_cuda_errors(cuda.cuMemcpyPeerAsync(wave_d, dev_d, wave_s, dev_s, n_exch, self.streamHalo))
 
     #
     # sync stream
     #
-    def syncStream(self, stream):
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
-        checkCudaErrors(cuda.cuStreamSynchronize(stream))
+    def sync_stream(self, stream):
+        check_cuda_errors(cuda.cuCtxSetCurrent(self.context))
+        check_cuda_errors(cuda.cuStreamSynchronize(stream))
 
 
 def main():
-    checkCudaErrors(cuda.cuInit(0))
+    check_cuda_errors(cuda.cuInit(0))
 
     # Number of GPUs
     print("Checking for multiple GPUs...")
-    gpu_n = checkCudaErrors(cuda.cuDeviceGetCount())
+    gpu_n = check_cuda_errors(cuda.cuDeviceGetCount())
     print(f"CUDA-capable device count: {gpu_n}")
 
     if gpu_n < 2:
         print("Two or more GPUs with Peer-to-Peer access capability are required")
         return
 
-    prop = [checkCudaErrors(cudart.cudaGetDeviceProperties(i)) for i in range(gpu_n)]
+    prop = [check_cuda_errors(cudart.cudaGetDeviceProperties(i)) for i in range(gpu_n)]
     # Check possibility for peer access
     print("\nChecking GPU(s) for support of peer to peer memory access...")
 
-    p2pCapableGPUs = [-1, -1]
+    p2p_capable_gp_us = [-1, -1]
     for i in range(gpu_n):
-        p2pCapableGPUs[0] = i
+        p2p_capable_gp_us[0] = i
         for j in range(gpu_n):
             if i == j:
                 continue
-            i_access_j = checkCudaErrors(cudart.cudaDeviceCanAccessPeer(i, j))
-            j_access_i = checkCudaErrors(cudart.cudaDeviceCanAccessPeer(j, i))
+            i_access_j = check_cuda_errors(cudart.cudaDeviceCanAccessPeer(i, j))
+            j_access_i = check_cuda_errors(cudart.cudaDeviceCanAccessPeer(j, i))
             print(
                 "> Peer access from {} (GPU{}) -> {} (GPU{}) : {}\n".format(
                     prop[i].name, i, prop[j].name, j, "Yes" if i_access_j else "No"
@@ -646,23 +646,23 @@ def main():
                 )
             )
             if i_access_j and j_access_i:
-                p2pCapableGPUs[1] = j
+                p2p_capable_gp_us[1] = j
                 break
-        if p2pCapableGPUs[1] != -1:
+        if p2p_capable_gp_us[1] != -1:
             break
 
-    if p2pCapableGPUs[0] == -1 or p2pCapableGPUs[1] == -1:
+    if p2p_capable_gp_us[0] == -1 or p2p_capable_gp_us[1] == -1:
         print("Two or more GPUs with Peer-to-Peer access capability are required.")
         print("Peer to Peer access is not available amongst GPUs in the system, waiving test.")
         return
 
     # Use first pair of p2p capable GPUs detected
-    gpuid = [p2pCapableGPUs[0], p2pCapableGPUs[1]]
+    gpuid = [p2p_capable_gp_us[0], p2p_capable_gp_us[1]]
 
     #
     # init device
     #
-    pars = params()
+    pars = Params()
 
     #
     # create propagators
@@ -674,16 +674,16 @@ def main():
     # create kernels and propagators that are going to be used on device
     #
     for i in gpuid:
-        p = propagator(pars, i)
-        k = cudaKernels(p.context)
+        p = Propagator(pars, i)
+        k = CudaKernels(p.context)
         propags.append(p)
         kerns.append(k)
 
     # allocate resources in device
     for propag, kern in zip(propags, kerns):
         propag.allocate()
-        propag.createSource(kern)
-        propag.createVelocity(kern)
+        propag.create_source(kern)
+        propag.create_velocity(kern)
 
     #
     # loop over time iterations
@@ -691,26 +691,26 @@ def main():
     start = time.time()
     for it in range(pars.nt):
         for propag in propags:
-            propag.syncStream(propag.streamHalo)
+            propag.sync_stream(propag.streamHalo)
 
         for propag, kern in zip(propags, kerns):
-            propag.injectSource(kern, it)
+            propag.inject_source(kern, it)
 
         for propag, kern in zip(propags, kerns):
-            propag.executeHalo(kern)
+            propag.execute_halo(kern)
 
         for propag in propags:
-            propag.syncStream(propag.streamHalo)
+            propag.sync_stream(propag.streamHalo)
 
-        propags[1].exchangeHalo(propags[0])
+        propags[1].exchange_halo(propags[0])
 
-        propags[0].exchangeHalo(propags[1])
+        propags[0].exchange_halo(propags[1])
 
         for propag, kern in zip(propags, kerns):
-            propag.executeCenter(kern)
+            propag.execute_center(kern)
 
         for propag in propags:
-            propag.syncStream(propag.streamCenter)
+            propag.sync_stream(propag.streamCenter)
 
         for propag in propags:
             propag.swap()
@@ -727,19 +727,19 @@ def main():
     #
     nz = 2 * (int)(pars.nz - 2 * pars.FD_ORDER)
     print(" nz= ", nz, " nx= ", pars.nx)
-    hOut = np.zeros((nz, pars.nx), dtype="float32")
+    h_out = np.zeros((nz, pars.nx), dtype="float32")
 
     istart = 0
     for propag in propags:
-        checkCudaErrors(cuda.cuCtxSetCurrent(propag.context))
+        check_cuda_errors(cuda.cuCtxSetCurrent(propag.context))
         offset = pars.lead + pars.FD_ORDER * pars.nx * pars.ny + (int)(pars.ny / 2) * pars.nx
 
         for j in range(pars.nz - 2 * pars.FD_ORDER):
             ptr = cuda.CUdeviceptr(int(propag.waveOut) + offset * 4)
 
-            checkCudaErrors(
+            check_cuda_errors(
                 cuda.cuMemcpyDtoH(
-                    hOut[istart].ctypes.data,
+                    h_out[istart].ctypes.data,
                     ptr,
                     pars.nx * np.dtype(np.float32).itemsize,
                 )
@@ -756,7 +756,7 @@ def main():
     if display_graph:
         nrows = nz
         ncols = pars.nx
-        dbz = hOut
+        dbz = h_out
         dbz = np.reshape(dbz, (nrows, ncols))
 
         ##
