@@ -198,6 +198,52 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     assert retrieved.is_done is True
 
 
+def test_event_record_node_preserves_metadata(init_cuda):
+    """Reconstructed EventRecordNode recovers full Event metadata via reverse lookup."""
+    dev = Device()
+    g = GraphDef()
+
+    event = dev.create_event(EventOptions(enable_timing=True, busy_waited_sync=True))
+    node = g.record_event(event)
+
+    reconstructed = node.event
+    assert reconstructed.is_timing_disabled is False
+    assert reconstructed.is_sync_busy_waited is True
+    assert reconstructed.is_ipc_enabled is False
+    assert reconstructed.device is not None
+
+
+def test_event_wait_node_preserves_metadata(init_cuda):
+    """Reconstructed EventWaitNode recovers full Event metadata via reverse lookup."""
+    dev = Device()
+    g = GraphDef()
+
+    event = dev.create_event(EventOptions(enable_timing=False))
+    node = g.wait_event(event)
+
+    reconstructed = node.event
+    assert reconstructed.is_timing_disabled is True
+    assert reconstructed.is_sync_busy_waited is False
+    assert reconstructed.device is not None
+
+
+def test_event_metadata_survives_gc(init_cuda):
+    """Event metadata is preserved through reverse lookup even after original is GC'd."""
+    dev = Device()
+    g = GraphDef()
+
+    event = dev.create_event(EventOptions(enable_timing=True, busy_waited_sync=True))
+    node = g.record_event(event)
+
+    del event
+    gc.collect()
+
+    retrieved = node.event
+    assert retrieved.is_timing_disabled is False
+    assert retrieved.is_sync_busy_waited is True
+    assert retrieved.is_done is True
+
+
 def test_event_survives_graph_instantiation_and_execution(init_cuda):
     """Graph with event nodes executes correctly after original Event is deleted."""
     dev = Device()

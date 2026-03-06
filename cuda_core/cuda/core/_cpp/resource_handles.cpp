@@ -164,6 +164,49 @@ private:
 }  // namespace
 
 // ============================================================================
+// Handle reverse-lookup registry
+//
+// Maps raw CUDA handles (CUevent, CUkernel, etc.) back to their owning
+// shared_ptr so that _ref constructors can recover full metadata.
+// Uses weak_ptr to avoid preventing destruction.
+// ============================================================================
+
+template<typename Key, typename Handle>
+class HandleRegistry {
+public:
+    void register_handle(Key key, const Handle& h) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        map_[key] = h;
+    }
+
+    void unregister_handle(Key key) noexcept {
+        try {
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto it = map_.find(key);
+            if (it != map_.end() && it->second.expired()) {
+                map_.erase(it);
+            }
+        } catch (...) {}
+    }
+
+    Handle lookup(Key key) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = map_.find(key);
+        if (it != map_.end()) {
+            if (auto h = it->second.lock()) {
+                return h;
+            }
+            map_.erase(it);
+        }
+        return {};
+    }
+
+private:
+    std::mutex mutex_;
+    std::unordered_map<Key, std::weak_ptr<typename Handle::element_type>> map_;
+};
+
+// ============================================================================
 // Thread-local error handling
 // ============================================================================
 
@@ -356,6 +399,8 @@ ContextHandle get_event_context(const EventHandle& h) noexcept {
     return h ? get_box(h)->h_context : ContextHandle{};
 }
 
+static HandleRegistry<CUevent, EventHandle> event_registry;
+
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
                                 bool timing_disabled, bool busy_waited,
                                 bool ipc_enabled, int device_id) {
@@ -368,12 +413,15 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, timing_disabled, busy_waited, ipc_enabled, device_id, h_ctx},
         [h_ctx](const EventBox* b) {
+            event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuEventDestroy(b->resource);
             delete b;
         }
     );
-    return EventHandle(box, &box->resource);
+    EventHandle h(box, &box->resource);
+    event_registry.register_handle(event, h);
+    return h;
 }
 
 EventHandle create_event_handle_noctx(unsigned int flags) {
@@ -381,6 +429,9 @@ EventHandle create_event_handle_noctx(unsigned int flags) {
 }
 
 EventHandle create_event_handle_ref(CUevent event) {
+    if (auto h = event_registry.lookup(event)) {
+        return h;
+    }
     auto box = std::make_shared<const EventBox>(EventBox{event, true, false, false, -1, {}});
     return EventHandle(box, &box->resource);
 }
@@ -396,12 +447,15 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, true, busy_waited, true, -1, {}},
         [](const EventBox* b) {
+            event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuEventDestroy(b->resource);
             delete b;
         }
     );
-    return EventHandle(box, &box->resource);
+    EventHandle h(box, &box->resource);
+    event_registry.register_handle(event, h);
+    return h;
 }
 
 // ============================================================================
