@@ -171,15 +171,15 @@ private:
 // Uses weak_ptr to avoid preventing destruction.
 // ============================================================================
 
-template<typename Key, typename Handle>
+template<typename Key, typename Handle, typename Hash = std::hash<Key>>
 class HandleRegistry {
 public:
-    void register_handle(Key key, const Handle& h) {
+    void register_handle(const Key& key, const Handle& h) {
         std::lock_guard<std::mutex> lock(mutex_);
         map_[key] = h;
     }
 
-    void unregister_handle(Key key) noexcept {
+    void unregister_handle(const Key& key) noexcept {
         try {
             std::lock_guard<std::mutex> lock(mutex_);
             auto it = map_.find(key);
@@ -189,7 +189,7 @@ public:
         } catch (...) {}
     }
 
-    Handle lookup(Key key) {
+    Handle lookup(const Key& key) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
@@ -203,7 +203,7 @@ public:
 
 private:
     std::mutex mutex_;
-    std::unordered_map<Key, std::weak_ptr<typename Handle::element_type>> map_;
+    std::unordered_map<Key, std::weak_ptr<typename Handle::element_type>, Hash> map_;
 };
 
 // ============================================================================
@@ -762,61 +762,43 @@ struct ExportDataKeyHash {
 
 }
 
-static std::mutex ipc_ptr_cache_mutex;
-static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
+static HandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
+static std::mutex ipc_import_mutex;
 
 DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
     if (use_ipc_ptr_cache()) {
-        // Check cache before calling cuMemPoolImportPointer
         ExportDataKey key;
         std::memcpy(&key.data, data, sizeof(key.data));
 
-        std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
+        std::lock_guard<std::mutex> lock(ipc_import_mutex);
 
-        auto it = ipc_ptr_cache.find(key);
-        if (it != ipc_ptr_cache.end()) {
-            if (auto box = it->second.lock()) {
-                // Cache hit - return existing handle
-                return DevicePtrHandle(box, &box->resource);
-            }
-            ipc_ptr_cache.erase(it);  // Expired entry
+        if (auto h = ipc_ptr_cache.lookup(key)) {
+            return h;
         }
 
-        // Cache miss - import the pointer
         GILReleaseGuard gil;
         CUdeviceptr ptr;
         if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
             return {};
         }
 
-        // Create new handle with cache-clearing deleter
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, h_stream},
             [h_pool, key](DevicePtrBox* b) {
+                ipc_ptr_cache.unregister_handle(key);
                 GILReleaseGuard gil;
-                try {
-                    std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
-                    // Only erase if expired - avoids race where another thread
-                    // replaced the entry with a new import before we acquired the lock.
-                    auto it = ipc_ptr_cache.find(key);
-                    if (it != ipc_ptr_cache.end() && it->second.expired()) {
-                        ipc_ptr_cache.erase(it);
-                    }
-                } catch (...) {
-                    // Cache cleanup is best-effort - swallow exceptions in destructor context
-                }
                 p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;
             }
         );
-        ipc_ptr_cache[key] = box;
-        return DevicePtrHandle(box, &box->resource);
+        DevicePtrHandle h(box, &box->resource);
+        ipc_ptr_cache.register_handle(key, h);
+        return h;
 
     } else {
-        // No caching - simple handle creation
         GILReleaseGuard gil;
         CUdeviceptr ptr;
         if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
