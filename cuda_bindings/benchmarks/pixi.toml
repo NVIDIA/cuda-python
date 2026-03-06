@@ -27,3 +27,6 @@ cuda-bindings = { path = ".." }
 [environments]
 wheel = { features = ["cu13", "bench", "bindings-wheel"] }
 source = { features = ["cu13", "bench", "bindings-source"] }
+
+[target.linux.tasks.bench]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
