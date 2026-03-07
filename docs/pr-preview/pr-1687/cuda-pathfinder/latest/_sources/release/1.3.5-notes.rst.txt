@@ -8,12 +8,27 @@
 
 Released on Feb 23, 2026
 
+.. warning::
+
+   ``cuda-pathfinder==1.3.5`` introduced a short-lived backward-incompatible
+   exception regression in ``load_nvidia_dynamic_lib()`` (unsupported
+   library names incorrectly raising ``ValueError``).
+
+   This bug was corrected in ``cuda-pathfinder>=1.4.0``, restoring backward-compatible
+   ``DynamicLibNotFoundError`` subclass behavior while preserving more specific
+   error signaling.
+
+   See `Issue #1684 <https://github.com/NVIDIA/cuda-python/issues/1684>`_ and
+   `PR #1688 <https://github.com/NVIDIA/cuda-python/pull/1688>`_.
+
 Highlights
 ----------
 
 * Add support for loading NVIDIA driver libraries (``"cuda"``, ``"nvml"``)
   via ``load_nvidia_dynamic_lib()``, and reject unsupported library names
-  with ``ValueError``.
+  with ``ValueError`` (**EDIT:** this behavior was
+  `a regression <https://github.com/NVIDIA/cuda-python/issues/1684>`_
+  and was corrected in ``cuda-pathfinder>=1.4.0``).
   (`PR #1602 <https://github.com/NVIDIA/cuda-python/pull/1602>`_)
 
 * Add bitcode library discovery helpers and public API support, including

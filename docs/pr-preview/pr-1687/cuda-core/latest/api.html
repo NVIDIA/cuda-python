@@ -33,7 +33,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ef1b6303"></script>
+    <script src="_static/documentation_options.js?v=6cdcb49f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev16';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev51';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -746,8 +746,8 @@ on other non-blocking streams.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code></a>(code, str code_type, options)</p></td>
 <td><p>Represent a compilation machinery to process programs into <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a>(*object_codes[, options])</p></td>
-<td><p>Represent a linking machinery to link one or multiple object codes into <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a>([options])</p></td>
+<td><p>Represent a linking machinery to link one or more object codes into <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a compiled program to be loaded onto the device.</p></td>
@@ -759,7 +759,7 @@ on other non-blocking streams.</p>
 <td><p>Customizable options for configuring <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions" title="cuda.core.LinkerOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>([name, arch, ...])</p></td>
-<td><p>Customizable <a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a> options.</p></td>
+<td><p>Customizable options for configuring <a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
