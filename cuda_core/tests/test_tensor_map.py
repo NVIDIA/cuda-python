@@ -395,6 +395,31 @@ class TestTensorMapIm2colWide:
         if cc.major < 10:
             pytest.skip("Device does not support im2col-wide (requires compute capability 10.0+)")
 
+        # Some environments in CI exercise this test module with a cuda.core
+        # build that does not include im2col-wide symbols (CUDA < 13 build),
+        # or with driver/GPU combinations that reject im2col-wide descriptor
+        # encoding for otherwise valid inputs. Probe once per test invocation
+        # and skip only for those known unsupported cases.
+        buf = dev.allocate(1 * 32 * 64 * 4)
+        tensor = _DeviceArray(buf, (1, 32, 64))
+        try:
+            TensorMapDescriptor.from_im2col_wide(
+                tensor,
+                pixel_box_lower_corner_width=0,
+                pixel_box_upper_corner_width=4,
+                channels_per_pixel=64,
+                pixels_per_column=4,
+                data_type=TensorMapDataType.FLOAT32,
+            )
+        except RuntimeError as e:
+            if "requires a CUDA 13+ build" in str(e):
+                pytest.skip("Im2col-wide requires cuda.core built with CUDA 13+")
+            raise
+        except Exception as e:
+            if "CUDA_ERROR_INVALID_VALUE" in str(e):
+                pytest.skip("Im2col-wide unsupported on this driver/GPU combination")
+            raise
+
     def test_from_im2col_wide_3d(self, dev, skip_if_no_im2col_wide):
         # 3D tensor: batch=1, width=32, channels=64
         buf = dev.allocate(1 * 32 * 64 * 4)
