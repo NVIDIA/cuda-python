@@ -8,6 +8,7 @@ from importlib.metadata import PackageNotFoundError, distribution
 import pytest
 
 import cuda.bindings.driver as cuda
+from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
 
 # Import shared test helpers for tests across subprojects.
 # PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
@@ -46,3 +47,9 @@ def ctx(device):
     yield ctx
     (err,) = cuda.cuCtxDestroy(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.fixture(scope="session")
+def require_nvml_runtime_or_skip_local():
+    if not hardware_supports_nvml():
+        pytest.skip("NVML runtime is unavailable on this system")

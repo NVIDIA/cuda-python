@@ -25,6 +25,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
+from cuda.core import system as core_system
 from cuda.core._utils.cuda_utils import handle_return
 
 # Import shared test helpers for tests across subprojects.
@@ -57,6 +58,17 @@ def skip_if_managed_memory_unsupported(device):
             pytest.skip("Device does not support managed memory pool operations")
     except AttributeError:
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+
+
+@pytest.fixture(scope="session")
+def require_nvml_runtime_or_skip_local():
+    if not core_system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
+
+    from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
+
+    if not hardware_supports_nvml():
+        pytest.skip("NVML runtime is unavailable on this system")
 
 
 def create_managed_memory_resource_or_skip(*args, **kwargs):
@@ -209,13 +221,15 @@ def _mempool_device_impl(num):
 
 
 @pytest.fixture
-def mempool_device_x2():
+def mempool_device_x2(request):
+    request.getfixturevalue("require_nvml_runtime_or_skip_local")
     """Fixture that provides two devices if available, otherwise skips test."""
     return _mempool_device_impl(2)
 
 
 @pytest.fixture
-def mempool_device_x3():
+def mempool_device_x3(request):
+    request.getfixturevalue("require_nvml_runtime_or_skip_local")
     """Fixture that provides three devices if available, otherwise skips test."""
     return _mempool_device_impl(3)
 

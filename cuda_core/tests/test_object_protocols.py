@@ -146,7 +146,8 @@ def sample_program_nvvm(init_cuda):
 
 
 @pytest.fixture
-def sample_device_alt(init_cuda):
+def sample_device_alt(init_cuda, request):
+    request.getfixturevalue("require_nvml_runtime_or_skip_local")
     """An alternate Device object (requires multi-GPU)."""
     if system.get_num_devices() < 2:
         pytest.skip("requires multi-GPU")

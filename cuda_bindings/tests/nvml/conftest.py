@@ -8,6 +8,8 @@ import pytest
 from cuda.bindings import nvml
 from cuda.bindings._test_helpers.arch_check import unsupported_before  # noqa: F401
 
+pytestmark = pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
+
 
 class NVMLInitializer:
     def __init__(self):
@@ -27,7 +29,8 @@ def nvml_init():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def device_info():
+def device_info(request):
+    request.getfixturevalue("require_nvml_runtime_or_skip_local")
     dev_count = None
     bus_id_to_board_details = {}
 

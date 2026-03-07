@@ -552,6 +552,7 @@ def test_get_error_name_and_string():
     assert s == b"CUDA_ERROR_INVALID_DEVICE"
 
 
+@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 @pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existence needed")
 def test_device_get_name(device):
     # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess

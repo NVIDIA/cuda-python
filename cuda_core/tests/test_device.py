@@ -26,21 +26,9 @@ def cuda_version():
     return _py_major_ver, _driver_ver
 
 
+@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_to_system_device(deinit_cuda):
-    from cuda.core.system import _system
-
     device = Device()
-
-    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-        with pytest.raises(RuntimeError):
-            device.to_system_device()
-        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
-
-    from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
-
-    if not hardware_supports_nvml():
-        pytest.skip("NVML not supported on this platform")
-
     from cuda.core.system import Device as SystemDevice
 
     system_device = device.to_system_device()
@@ -87,6 +75,7 @@ def test_device_alloc_zero_bytes(deinit_cuda):
     assert buffer.device_id == int(device)
 
 
+@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_device_id(deinit_cuda):
     for device in Device.get_all_devices():
         device.set_current()

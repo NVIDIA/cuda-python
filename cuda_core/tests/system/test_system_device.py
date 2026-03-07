@@ -25,7 +25,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 
 @pytest.fixture(autouse=True, scope="module")
 def check_gpu_available():
-    if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
+    if system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 

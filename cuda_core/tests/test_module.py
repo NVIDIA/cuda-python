@@ -131,6 +131,7 @@ def test_get_kernel(init_cuda):
         ("cluster_scheduling_policy_preference", int),
     ],
 )
+@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type):
     kernel, _ = get_saxpy_kernel_cubin
     method = getattr(kernel.attributes, attr)

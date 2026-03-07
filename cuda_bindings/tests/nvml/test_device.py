@@ -25,6 +25,13 @@ def cuda_version_less_than(target):
     return get_cuda_version() < target
 
 
+@pytest.fixture(scope="module")
+def require_cuda_13_1_or_skip(request):
+    request.getfixturevalue("require_nvml_runtime_or_skip_local")
+    if cuda_version_less_than(13010):
+        pytest.skip("Introduced in 13.1")
+
+
 def test_device_capabilities(all_devices):
     for device in all_devices:
         capabilities = nvml.device_get_capabilities(device)
@@ -94,7 +101,7 @@ def test_device_get_performance_modes(all_devices):
         assert isinstance(modes, str)
 
 
-@pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
+@pytest.mark.usefixtures("require_cuda_13_1_or_skip")
 def test_device_get_unrepairable_memory_flag(all_devices):
     for device in all_devices:
         with unsupported_before(device, None):
@@ -109,7 +116,7 @@ def test_device_vgpu_get_heterogeneous_mode(all_devices):
         assert isinstance(mode, int)
 
 
-@pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
+@pytest.mark.usefixtures("require_cuda_13_1_or_skip")
 def test_read_prm_counters(all_devices):
     for device in all_devices:
         counters = nvml.PRMCounter_v1(5)

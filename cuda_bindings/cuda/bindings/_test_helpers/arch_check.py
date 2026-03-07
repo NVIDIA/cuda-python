@@ -2,12 +2,18 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+import os
 from contextlib import contextmanager
 from functools import cache
 
 import pytest
 
 from cuda.bindings import nvml
+from cuda.pathfinder import DynamicLibNotFoundError
+
+
+def _running_in_ci() -> bool:
+    return os.environ.get("CI") is not None
 
 
 @cache
@@ -16,18 +22,27 @@ def hardware_supports_nvml():
     Tries to call the simplest NVML API possible to see if just the basics
     works.  If not we are probably on one of the platforms where NVML is not
     supported at all (e.g. Jetson Orin).
+
+    Runtime-load/init failures are treated as "unsupported" on local/dev
+    machines so NVML test modules skip cleanly.  In CI we re-raise those
+    failures to avoid masking real infrastructure regressions.
     """
-    nvml.init_v2()
+    initialized = False
     try:
+        nvml.init_v2()
+        initialized = True
         nvml.system_get_driver_branch()
     except (nvml.NotSupportedError, nvml.UnknownError):
+        return False
+    except (DynamicLibNotFoundError, nvml.NvmlError):
+        if _running_in_ci():
+            raise
         return False
     else:
         return True
     finally:
-        nvml.shutdown()
-
-
+        if initialized:
+            nvml.shutdown()
 @contextmanager
 def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str | None):
     device_arch = nvml.device_get_architecture(device)
