@@ -142,7 +142,9 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaFuncSetCacheConfig
 .. autofunction:: cuda.bindings.runtime.cudaFuncGetAttributes
 .. autofunction:: cuda.bindings.runtime.cudaFuncSetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaFuncGetParamCount
 .. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc
+.. autofunction:: cuda.bindings.runtime.cudaLaunchHostFunc_v2
 
 Occupancy
 ---------
@@ -209,6 +211,8 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaMemcpyPeerAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpyBatchAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy3DBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyWithAttributesAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DWithAttributesAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DToArrayAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DFromArrayAsync
@@ -586,6 +590,7 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphReleaseUserObject
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddNode
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetParams
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2
@@ -1940,6 +1945,12 @@ Data types used by CUDA Runtime
         This indicates that a kernel launch is requesting resources that can never be satisfied by the current device. Requesting more shared memory per block than the device supports will trigger this error, as will requesting too many threads or blocks. See :py:obj:`~.cudaDeviceProp` for more device limitations.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorVersionTranslation
+
+
+        This indicates that the driver is newer than the runtime version and returned graph node parameter information that the runtime does not understand and is unable to translate.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidPitchValue
 
 
@@ -2645,7 +2656,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorExternalDevice
 
 
-        This indicates that an async error has occurred in a device outside of CUDA. If CUDA was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+        This indicates that an error has occurred in a device outside of GPU. It can be a synchronous error w.r.t. CUDA API or an asynchronous error from the external device. In case of asynchronous error, it means that if cuda was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched. In case of synchronous error, it means that one or more external devices have encountered an error and cannot complete the operation.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidClusterSize
@@ -3041,6 +3052,13 @@ Data types used by CUDA Runtime
 
 
         Transfer references from the caller rather than creating new references.
+
+.. autoclass:: cuda.bindings.runtime.cudaHostTaskSyncMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaHostTaskSyncMode.cudaHostTaskBlocking
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaHostTaskSyncMode.cudaHostTaskSpinWait
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphicsRegisterFlags
 
@@ -4513,6 +4531,42 @@ Data types used by CUDA Runtime
 
         (value type = cuuint64_t) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrAllocationType
+
+
+        (value type = cudaMemAllocationType) The allocation type of the mempool
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrExportHandleTypes
+
+
+        (value type = cudaMemAllocationHandleType) Available export handle types for the mempool. For imported pools this value is always cudaMemHandleTypeNone as an imported pool cannot be re-exported
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocationId
+
+
+        (value type = int) The location id for the mempool. If the location type for this pool is cudaMemLocationTypeInvisible then ID will be cudaInvalidDeviceId
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocationType
+
+
+        (value type = cudaMemLocationType) The location type for the mempool. For imported memory pools where the device is not directly visible to the importing process or pools imported via fabric handles across nodes this will be cudaMemLocationTypeInvisible
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize
+
+
+        (value type = cuuint64_t) Maximum size of the pool in bytes, this value may be higher than what was initially passed to cudaMemPoolCreate due to alignment requirements. A value of 0 indicates no maximum size. For cudaMemAllocationTypeManaged and IPC imported pools this value will be system dependent.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled
+
+
+        (value type = int) Indicates whether the pool has hardware compresssion enabled
+
 .. autoclass:: cuda.bindings.runtime.cudaMemLocationType
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid
@@ -4546,6 +4600,12 @@ Data types used by CUDA Runtime
 
 
         Location is the host NUMA node closest to the current thread's CPU, id is ignored
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvisible
+
+
+        Location is not visible but device is accessible, id is always cudaInvalidDeviceId
 
 .. autoclass:: cuda.bindings.runtime.cudaMemAccessFlags
 
@@ -4905,6 +4965,9 @@ Data types used by CUDA Runtime
 
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill
 
+
+        Lets smCount be a non-multiple of minCoscheduledCount, filling the difference with other SMs.
+
 .. autoclass:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags
 
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling
@@ -5179,6 +5242,31 @@ Data types used by CUDA Runtime
 
         Reserved
 
+.. autoclass:: cuda.bindings.runtime.cudaKernelFunctionType
+
+    .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeUnspecified
+
+
+        CUDA will attempt to deduce the type of the function handle
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeDeviceEntry
+
+
+        Function handle is a device-entry function pointer(i.e. global function pointer)
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeKernel
+
+
+        Function handle is a cudaKernel_t
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeFunction
+
+
+        Function handle is a cudaFunction_t
+
 .. autoclass:: cuda.bindings.runtime.cudaGraphConditionalHandleFlags
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphConditionalHandleFlags.cudaGraphCondAssignDefault
@@ -5331,6 +5419,12 @@ Data types used by CUDA Runtime
 
 
         The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to cudaGraphExecUpdate; Cannot have additional memory allocation or free nodes added.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipInvalid
+
+
+        Invalid ownership flag. Set when params are queried to prevent accidentally reusing the driver-owned graph object
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphDependencyType
 
@@ -5613,6 +5707,44 @@ Data types used by CUDA Runtime
 
         Launch kernels in the remote domain
 
+.. autoclass:: cuda.bindings.runtime.cudaLaunchAttributePortableClusterMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeDefault
+
+
+        The default to use for allowing non-portable cluster size on launch - uses current function attribute for :py:obj:`~.cudaFuncAttributeNonPortableClusterSizeAllowed`
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeRequirePortable
+
+
+        Specifies that the cluster size requested must be a portable size
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeAllowNonPortable
+
+
+        Specifies that the cluster size requested may be a non-portable size
+
+.. autoclass:: cuda.bindings.runtime.cudaSharedMemoryMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault
+
+
+        The default to use for allowing non-portable shared memory size on launch - uses current function attributes for :py:obj:`~.cudaFuncAttributeMaxDynamicSharedMemorySize`
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable
+
+
+        Specifies that the shared memory size requested must be a portable size within :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlock`
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable
+
+
+        Specifies that the shared memory size requested may be a non-portable size up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`
+
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeID
 
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeIgnore
@@ -5735,6 +5867,18 @@ Data types used by CUDA Runtime
          This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
 
          Valid values for :py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode
+
+
+        Valid for graph nodes, launches. This indicates whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for :py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will return :py:obj:`~.cudaErrorInvalidValue`
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode
+
+
+        Valid for graph nodes, launches. This indicates that the kernel launch is allowed to use a non-portable shared memory mode.
 
 .. autoclass:: cuda.bindings.runtime.cudaDeviceNumaConfig
 

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -415,6 +415,14 @@ class cudaError_t(_FastEnum):
         'than the device supports will trigger this error, as will requesting too\n'
         'many threads or blocks. See :py:obj:`~.cudaDeviceProp` for more device\n'
         'limitations.\n'
+    ){{endif}}
+    {{if 'cudaErrorVersionTranslation' in found_values}}
+
+    cudaErrorVersionTranslation = (
+        cyruntime.cudaError.cudaErrorVersionTranslation,
+        'This indicates that the driver is newer than the runtime version and\n'
+        'returned graph node parameter information that the runtime does not\n'
+        'understand and is unable to translate.\n'
     ){{endif}}
     {{if 'cudaErrorInvalidPitchValue' in found_values}}
 
@@ -1346,12 +1354,16 @@ class cudaError_t(_FastEnum):
 
     cudaErrorExternalDevice = (
         cyruntime.cudaError.cudaErrorExternalDevice,
-        'This indicates that an async error has occurred in a device outside of\n'
-        "CUDA. If CUDA was waiting for an external device's signal before consuming\n"
-        'shared data, the external device signaled an error indicating that the data\n'
-        'is not valid for consumption. This leaves the process in an inconsistent\n'
-        'state and any further CUDA work will return the same error. To continue\n'
-        'using CUDA, the process must be terminated and relaunched.\n'
+        'This indicates that an error has occurred in a device outside of GPU. It\n'
+        'can be a synchronous error w.r.t. CUDA API or an asynchronous error from\n'
+        'the external device. In case of asynchronous error, it means that if cuda\n'
+        "was waiting for an external device's signal before consuming shared data,\n"
+        'the external device signaled an error indicating that the data is not valid\n'
+        'for consumption. This leaves the process in an inconsistent state and any\n'
+        'further CUDA work will return the same error. To continue using CUDA, the\n'
+        'process must be terminated and relaunched. In case of synchronous error, it\n'
+        'means that one or more external devices have encountered an error and\n'
+        'cannot complete the operation.\n'
     ){{endif}}
     {{if 'cudaErrorInvalidClusterSize' in found_values}}
 
@@ -1506,6 +1518,66 @@ class cudaLaunchMemSyncDomain(_FastEnum):
     cudaLaunchMemSyncDomainRemote = (
         cyruntime.cudaLaunchMemSyncDomain.cudaLaunchMemSyncDomainRemote,
         'Launch kernels in the remote domain\n'
+    ){{endif}}
+
+{{endif}}
+{{if 'cudaLaunchAttributePortableClusterMode' in found_types}}
+
+class cudaLaunchAttributePortableClusterMode(_FastEnum):
+    """
+    Enum for defining applicability of portable cluster size, used with
+    :py:obj:`~.cudaLaunchKernelEx`
+    """
+    {{if 'cudaLaunchPortableClusterModeDefault' in found_values}}
+
+    cudaLaunchPortableClusterModeDefault = (
+        cyruntime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeDefault,
+        'The default to use for allowing non-portable cluster size on launch - uses\n'
+        'current function attribute for\n'
+        ':py:obj:`~.cudaFuncAttributeNonPortableClusterSizeAllowed`\n'
+    ){{endif}}
+    {{if 'cudaLaunchPortableClusterModeRequirePortable' in found_values}}
+
+    cudaLaunchPortableClusterModeRequirePortable = (
+        cyruntime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeRequirePortable,
+        'Specifies that the cluster size requested must be a portable size\n'
+    ){{endif}}
+    {{if 'cudaLaunchPortableClusterModeAllowNonPortable' in found_values}}
+
+    cudaLaunchPortableClusterModeAllowNonPortable = (
+        cyruntime.cudaLaunchAttributePortableClusterMode.cudaLaunchPortableClusterModeAllowNonPortable,
+        'Specifies that the cluster size requested may be a non-portable size\n'
+    ){{endif}}
+
+{{endif}}
+{{if 'cudaSharedMemoryMode' in found_types}}
+
+class cudaSharedMemoryMode(_FastEnum):
+    """
+    Shared memory related attributes for use with
+    :py:obj:`~.cuLaunchKernelEx`
+    """
+    {{if 'cudaSharedMemoryModeDefault' in found_values}}
+
+    cudaSharedMemoryModeDefault = (
+        cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeDefault,
+        'The default to use for allowing non-portable shared memory size on launch -\n'
+        'uses current function attributes for\n'
+        ':py:obj:`~.cudaFuncAttributeMaxDynamicSharedMemorySize`\n'
+    ){{endif}}
+    {{if 'cudaSharedMemoryModeRequirePortable' in found_values}}
+
+    cudaSharedMemoryModeRequirePortable = (
+        cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeRequirePortable,
+        'Specifies that the shared memory size requested must be a portable size\n'
+        'within :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlock`\n'
+    ){{endif}}
+    {{if 'cudaSharedMemoryModeAllowNonPortable' in found_values}}
+
+    cudaSharedMemoryModeAllowNonPortable = (
+        cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable,
+        'Specifies that the shared memory size requested may be a non-portable size\n'
+        'up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`\n'
     ){{endif}}
 
 {{endif}}
@@ -1737,6 +1809,23 @@ class cudaLaunchAttributeID(_FastEnum):
         ' Valid values for\n'
         ':py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0\n'
         '(disabled) and 1 (enabled).\n'
+    ){{endif}}
+    {{if 'cudaLaunchAttributePortableClusterSizeMode' in found_values}}
+
+    cudaLaunchAttributePortableClusterSizeMode = (
+        cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode,
+        'Valid for graph nodes, launches. This indicates whether the kernel launch\n'
+        'is allowed to use a non-portable cluster size. Valid values for\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for\n'
+        ':py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will\n'
+        'return :py:obj:`~.cudaErrorInvalidValue`\n'
+    ){{endif}}
+    {{if 'cudaLaunchAttributeSharedMemoryMode' in found_values}}
+
+    cudaLaunchAttributeSharedMemoryMode = (
+        cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode,
+        'Valid for graph nodes, launches. This indicates that the kernel launch is\n'
+        'allowed to use a non-portable shared memory mode.\n'
     ){{endif}}
 
 {{endif}}
@@ -3139,6 +3228,18 @@ class cudaUserObjectRetainFlags(_FastEnum):
         cyruntime.cudaUserObjectRetainFlags.cudaGraphUserObjectMove,
         'Transfer references from the caller rather than creating new references.\n'
     ){{endif}}
+
+{{endif}}
+{{if 'cudaHostTaskSyncMode' in found_types}}
+
+class cudaHostTaskSyncMode(_FastEnum):
+    """
+    Flags for host task sync mode
+    """
+    {{if 'cudaHostTaskBlocking' in found_values}}
+    cudaHostTaskBlocking = cyruntime.cudaHostTaskSyncMode.cudaHostTaskBlocking{{endif}}
+    {{if 'cudaHostTaskSpinWait' in found_values}}
+    cudaHostTaskSpinWait = cyruntime.cudaHostTaskSyncMode.cudaHostTaskSpinWait{{endif}}
 
 {{endif}}
 {{if 'cudaGraphicsRegisterFlags' in found_types}}
@@ -4780,6 +4881,54 @@ class cudaMemPoolAttr(_FastEnum):
         'pool that was in use by the application since the last time it was reset.\n'
         'High watermark can only be reset to zero.\n'
     ){{endif}}
+    {{if 'cudaMemPoolAttrAllocationType' in found_values}}
+
+    cudaMemPoolAttrAllocationType = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrAllocationType,
+        '(value type = cudaMemAllocationType) The allocation type of the mempool\n'
+    ){{endif}}
+    {{if 'cudaMemPoolAttrExportHandleTypes' in found_values}}
+
+    cudaMemPoolAttrExportHandleTypes = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrExportHandleTypes,
+        '(value type = cudaMemAllocationHandleType) Available export handle types\n'
+        'for the mempool. For imported pools this value is always\n'
+        'cudaMemHandleTypeNone as an imported pool cannot be re-exported\n'
+    ){{endif}}
+    {{if 'cudaMemPoolAttrLocationId' in found_values}}
+
+    cudaMemPoolAttrLocationId = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrLocationId,
+        '(value type = int) The location id for the mempool. If the location type\n'
+        'for this pool is cudaMemLocationTypeInvisible then ID will be\n'
+        'cudaInvalidDeviceId\n'
+    ){{endif}}
+    {{if 'cudaMemPoolAttrLocationType' in found_values}}
+
+    cudaMemPoolAttrLocationType = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrLocationType,
+        '(value type = cudaMemLocationType) The location type for the mempool. For\n'
+        'imported memory pools where the device is not directly visible to the\n'
+        'importing process or pools imported via fabric handles across nodes this\n'
+        'will be cudaMemLocationTypeInvisible\n'
+    ){{endif}}
+    {{if 'cudaMemPoolAttrMaxPoolSize' in found_values}}
+
+    cudaMemPoolAttrMaxPoolSize = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrMaxPoolSize,
+        '(value type = cuuint64_t) Maximum size of the pool in bytes, this value may\n'
+        'be higher than what was initially passed to cudaMemPoolCreate due to\n'
+        'alignment requirements. A value of 0 indicates no maximum size. For\n'
+        'cudaMemAllocationTypeManaged and IPC imported pools this value will be\n'
+        'system dependent.\n'
+    ){{endif}}
+    {{if 'cudaMemPoolAttrHwDecompressEnabled' in found_values}}
+
+    cudaMemPoolAttrHwDecompressEnabled = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrHwDecompressEnabled,
+        '(value type = int) Indicates whether the pool has hardware compresssion\n'
+        'enabled\n'
+    ){{endif}}
 
 {{endif}}
 {{if 'cudaMemLocationType' in found_types}}
@@ -4821,6 +4970,13 @@ class cudaMemLocationType(_FastEnum):
         cyruntime.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent,
         "Location is the host NUMA node closest to the current thread's CPU, id is\n"
         'ignored\n'
+    ){{endif}}
+    {{if 'cudaMemLocationTypeInvisible' in found_values}}
+
+    cudaMemLocationTypeInvisible = (
+        cyruntime.cudaMemLocationType.cudaMemLocationTypeInvisible,
+        'Location is not visible but device is accessible, id is always\n'
+        'cudaInvalidDeviceId\n'
     ){{endif}}
 
 {{endif}}
@@ -5260,12 +5416,17 @@ class cudaExternalSemaphoreHandleType(_FastEnum):
 
 class cudaDevSmResourceGroup_flags(_FastEnum):
     """
-
+    Flags for a CUdevSmResource group
     """
     {{if 'cudaDevSmResourceGroupDefault' in found_values}}
     cudaDevSmResourceGroupDefault = cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault{{endif}}
     {{if 'cudaDevSmResourceGroupBackfill' in found_values}}
-    cudaDevSmResourceGroupBackfill = cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill{{endif}}
+
+    cudaDevSmResourceGroupBackfill = (
+        cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill,
+        'Lets smCount be a non-multiple of minCoscheduledCount, filling the\n'
+        'difference with other SMs.\n'
+    ){{endif}}
 
 {{endif}}
 {{if 'cudaDevSmResourceSplitByCount_flags' in found_types}}
@@ -5603,6 +5764,39 @@ class cudaCGScope(_FastEnum):
     ){{endif}}
 
 {{endif}}
+{{if 'cudaKernelFunctionType' in found_types}}
+
+class cudaKernelFunctionType(_FastEnum):
+    """
+    CUDA Kernel Function Handle Type
+    """
+    {{if 'cudaKernelFunctionTypeUnspecified' in found_values}}
+
+    cudaKernelFunctionTypeUnspecified = (
+        cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeUnspecified,
+        'CUDA will attempt to deduce the type of the function handle\n'
+    ){{endif}}
+    {{if 'cudaKernelFunctionTypeDeviceEntry' in found_values}}
+
+    cudaKernelFunctionTypeDeviceEntry = (
+        cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeDeviceEntry,
+        'Function handle is a device-entry function pointer(i.e. global function\n'
+        'pointer)\n'
+    ){{endif}}
+    {{if 'cudaKernelFunctionTypeKernel' in found_values}}
+
+    cudaKernelFunctionTypeKernel = (
+        cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeKernel,
+        'Function handle is a cudaKernel_t\n'
+    ){{endif}}
+    {{if 'cudaKernelFunctionTypeFunction' in found_values}}
+
+    cudaKernelFunctionTypeFunction = (
+        cyruntime.cudaKernelFunctionType.cudaKernelFunctionTypeFunction,
+        'Function handle is a cudaFunction_t\n'
+    ){{endif}}
+
+{{endif}}
 {{if 'cudaGraphConditionalHandleFlags' in found_types}}
 
 class cudaGraphConditionalHandleFlags(_FastEnum):
@@ -5763,6 +5957,13 @@ class cudaGraphChildGraphNodeOwnership(_FastEnum):
     """
     Child graph node ownership
     """
+    {{if 'cudaGraphChildGraphOwnershipInvalid' in found_values}}
+
+    cudaGraphChildGraphOwnershipInvalid = (
+        cyruntime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipInvalid,
+        'Invalid ownership flag. Set when params are queried to prevent accidentally\n'
+        'reusing the driver-owned graph object\n'
+    ){{endif}}
     {{if 'cudaGraphChildGraphOwnershipClone' in found_values}}
 
     cudaGraphChildGraphOwnershipClone = (
@@ -6493,6 +6694,23 @@ class cudaStreamAttrID(_FastEnum):
         ':py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0\n'
         '(disabled) and 1 (enabled).\n'
     ){{endif}}
+    {{if 'cudaLaunchAttributePortableClusterSizeMode' in found_values}}
+
+    cudaLaunchAttributePortableClusterSizeMode = (
+        cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode,
+        'Valid for graph nodes, launches. This indicates whether the kernel launch\n'
+        'is allowed to use a non-portable cluster size. Valid values for\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for\n'
+        ':py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will\n'
+        'return :py:obj:`~.cudaErrorInvalidValue`\n'
+    ){{endif}}
+    {{if 'cudaLaunchAttributeSharedMemoryMode' in found_values}}
+
+    cudaLaunchAttributeSharedMemoryMode = (
+        cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode,
+        'Valid for graph nodes, launches. This indicates that the kernel launch is\n'
+        'allowed to use a non-portable shared memory mode.\n'
+    ){{endif}}
 
 {{endif}}
 {{if 'cudaLaunchAttributeID' in found_types}}
@@ -6723,6 +6941,23 @@ class cudaKernelNodeAttrID(_FastEnum):
         ' Valid values for\n'
         ':py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0\n'
         '(disabled) and 1 (enabled).\n'
+    ){{endif}}
+    {{if 'cudaLaunchAttributePortableClusterSizeMode' in found_values}}
+
+    cudaLaunchAttributePortableClusterSizeMode = (
+        cyruntime.cudaLaunchAttributeID.cudaLaunchAttributePortableClusterSizeMode,
+        'Valid for graph nodes, launches. This indicates whether the kernel launch\n'
+        'is allowed to use a non-portable cluster size. Valid values for\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.portableClusterSizeMode` are values for\n'
+        ':py:obj:`~.cudaLaunchAttributePortableClusterMode` Any other value will\n'
+        'return :py:obj:`~.cudaErrorInvalidValue`\n'
+    ){{endif}}
+    {{if 'cudaLaunchAttributeSharedMemoryMode' in found_values}}
+
+    cudaLaunchAttributeSharedMemoryMode = (
+        cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeSharedMemoryMode,
+        'Valid for graph nodes, launches. This indicates that the kernel launch is\n'
+        'allowed to use a non-portable shared memory mode.\n'
     ){{endif}}
 
 {{endif}}
@@ -9352,6 +9587,10 @@ cdef class cudaHostNodeParamsV2:
     userData : Any
         Argument to pass to the function
     {{endif}}
+    {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+    syncMode : unsigned int
+        The synchronization mode to use for the host task
+    {{endif}}
 
     Methods
     -------
@@ -9387,6 +9626,12 @@ cdef class cudaHostNodeParamsV2:
             except ValueError:
                 str_list += ['userData : <ValueError>']
             {{endif}}
+            {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+            try:
+                str_list += ['syncMode : ' + str(self.syncMode)]
+            except ValueError:
+                str_list += ['syncMode : <ValueError>']
+            {{endif}}
             return '\n'.join(str_list)
         else:
             return ''
@@ -9415,6 +9660,14 @@ cdef class cudaHostNodeParamsV2:
     def userData(self, userData):
         self._cyuserData = _HelperInputVoidPtr(userData)
         self._pvt_ptr[0].userData = <void*><void_ptr>self._cyuserData.cptr
+    {{endif}}
+    {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+    @property
+    def syncMode(self):
+        return self._pvt_ptr[0].syncMode
+    @syncMode.setter
+    def syncMode(self, unsigned int syncMode):
+        self._pvt_ptr[0].syncMode = syncMode
     {{endif}}
 {{endif}}
 {{if 'cudaResourceDesc.res.array' in found_struct}}
@@ -10449,6 +10702,10 @@ cdef class cudaFuncAttributes:
         higher cluster sizes that’s not guaranteed to be portable. See
         cudaFuncSetAttribute
     {{endif}}
+    {{if 'cudaFuncAttributes.reserved0' in found_struct}}
+    reserved0 : int
+
+    {{endif}}
     {{if 'cudaFuncAttributes.reserved' in found_struct}}
     reserved : list[int]
         Reserved for future use.
@@ -10568,6 +10825,12 @@ cdef class cudaFuncAttributes:
                 str_list += ['nonPortableClusterSizeAllowed : ' + str(self.nonPortableClusterSizeAllowed)]
             except ValueError:
                 str_list += ['nonPortableClusterSizeAllowed : <ValueError>']
+            {{endif}}
+            {{if 'cudaFuncAttributes.reserved0' in found_struct}}
+            try:
+                str_list += ['reserved0 : ' + str(self.reserved0)]
+            except ValueError:
+                str_list += ['reserved0 : <ValueError>']
             {{endif}}
             {{if 'cudaFuncAttributes.reserved' in found_struct}}
             try:
@@ -10705,6 +10968,14 @@ cdef class cudaFuncAttributes:
     @nonPortableClusterSizeAllowed.setter
     def nonPortableClusterSizeAllowed(self, int nonPortableClusterSizeAllowed):
         self._pvt_ptr[0].nonPortableClusterSizeAllowed = nonPortableClusterSizeAllowed
+    {{endif}}
+    {{if 'cudaFuncAttributes.reserved0' in found_struct}}
+    @property
+    def reserved0(self):
+        return self._pvt_ptr[0].reserved0
+    @reserved0.setter
+    def reserved0(self, int reserved0):
+        self._pvt_ptr[0].reserved0 = reserved0
     {{endif}}
     {{if 'cudaFuncAttributes.reserved' in found_struct}}
     @property
@@ -15619,7 +15890,7 @@ cdef class cudaDevSmResource:
     {{if 'cudaDevSmResource.flags' in found_struct}}
     flags : unsigned int
         The flags set on this SM resource. For available flags see
-        ::cudaDevSmResourceGroup_flags.
+        cudaDevSmResourceGroup_flags.
     {{endif}}
 
     Methods
@@ -16436,7 +16707,15 @@ cdef class cudaKernelNodeParamsV2:
     ----------
     {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
     func : Any
-        Kernel to launch
+        functionType = cudaKernelFucntionTypeDevice
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+    kern : cudaKernel_t
+        functionType = cudaKernelFucntionTypeKernel
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+    cuFunc : cudaFunction_t
+        functionType = cudaKernelFucntionTypeFunction
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
     gridDim : dim3
@@ -16463,6 +16742,10 @@ cdef class cudaKernelNodeParamsV2:
         Context in which to run the kernel. If NULL will try to use the
         current context.
     {{endif}}
+    {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+    functionType : cudaKernelFunctionType
+        Type of handle passed in the func/kern/cuFunc union above
+    {{endif}}
 
     Methods
     -------
@@ -16471,11 +16754,18 @@ cdef class cudaKernelNodeParamsV2:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            self._val_ptr = <cyruntime.cudaKernelNodeParamsV2 *>calloc(1, sizeof(cyruntime.cudaKernelNodeParamsV2))
+            self._pvt_ptr = self._val_ptr
         else:
             self._pvt_ptr = <cyruntime.cudaKernelNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
+        {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+        self._kern = cudaKernel_t(_ptr=<void_ptr>&self._pvt_ptr[0].kern)
+        {{endif}}
+        {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+        self._cuFunc = cudaFunction_t(_ptr=<void_ptr>&self._pvt_ptr[0].cuFunc)
+        {{endif}}
         {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].gridDim)
         {{endif}}
@@ -16486,7 +16776,8 @@ cdef class cudaKernelNodeParamsV2:
         self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
         {{endif}}
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -16497,6 +16788,18 @@ cdef class cudaKernelNodeParamsV2:
                 str_list += ['func : ' + hex(self.func)]
             except ValueError:
                 str_list += ['func : <ValueError>']
+            {{endif}}
+            {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+            try:
+                str_list += ['kern : ' + str(self.kern)]
+            except ValueError:
+                str_list += ['kern : <ValueError>']
+            {{endif}}
+            {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+            try:
+                str_list += ['cuFunc : ' + str(self.cuFunc)]
+            except ValueError:
+                str_list += ['cuFunc : <ValueError>']
             {{endif}}
             {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
             try:
@@ -16534,6 +16837,12 @@ cdef class cudaKernelNodeParamsV2:
             except ValueError:
                 str_list += ['ctx : <ValueError>']
             {{endif}}
+            {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+            try:
+                str_list += ['functionType : ' + str(self.functionType)]
+            except ValueError:
+                str_list += ['functionType : <ValueError>']
+            {{endif}}
             return '\n'.join(str_list)
         else:
             return ''
@@ -16545,6 +16854,40 @@ cdef class cudaKernelNodeParamsV2:
     def func(self, func):
         self._cyfunc = _HelperInputVoidPtr(func)
         self._pvt_ptr[0].func = <void*><void_ptr>self._cyfunc.cptr
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+    @property
+    def kern(self):
+        return self._kern
+    @kern.setter
+    def kern(self, kern):
+        cdef cyruntime.cudaKernel_t cykern
+        if kern is None:
+            cykern = <cyruntime.cudaKernel_t><void_ptr>0
+        elif isinstance(kern, (cudaKernel_t,)):
+            pkern = int(kern)
+            cykern = <cyruntime.cudaKernel_t><void_ptr>pkern
+        else:
+            pkern = int(cudaKernel_t(kern))
+            cykern = <cyruntime.cudaKernel_t><void_ptr>pkern
+        self._kern._pvt_ptr[0] = cykern
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+    @property
+    def cuFunc(self):
+        return self._cuFunc
+    @cuFunc.setter
+    def cuFunc(self, cuFunc):
+        cdef cyruntime.cudaFunction_t cycuFunc
+        if cuFunc is None:
+            cycuFunc = <cyruntime.cudaFunction_t><void_ptr>0
+        elif isinstance(cuFunc, (cudaFunction_t,driver.CUfunction)):
+            pcuFunc = int(cuFunc)
+            cycuFunc = <cyruntime.cudaFunction_t><void_ptr>pcuFunc
+        else:
+            pcuFunc = int(cudaFunction_t(cuFunc))
+            cycuFunc = <cyruntime.cudaFunction_t><void_ptr>pcuFunc
+        self._cuFunc._pvt_ptr[0] = cycuFunc
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
     @property
@@ -16603,6 +16946,14 @@ cdef class cudaKernelNodeParamsV2:
             pctx = int(cudaExecutionContext_t(ctx))
             cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
         self._ctx._pvt_ptr[0] = cyctx
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+    @property
+    def functionType(self):
+        return cudaKernelFunctionType(self._pvt_ptr[0].functionType)
+    @functionType.setter
+    def functionType(self, functionType not None : cudaKernelFunctionType):
+        self._pvt_ptr[0].functionType = int(functionType)
     {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}
@@ -18286,7 +18637,7 @@ cdef class anon_struct16:
 {{endif}}
 {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
 
-cdef class anon_union8:
+cdef class anon_union9:
     """
     Attributes
     ----------
@@ -18391,7 +18742,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-    updateData : anon_union8
+    updateData : anon_union9
         Update data to apply. Which field is used depends on field's value
     {{endif}}
 
@@ -18412,7 +18763,7 @@ cdef class cudaGraphKernelNodeUpdate:
         self._node = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].node)
         {{endif}}
         {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-        self._updateData = anon_union8(_ptr=<void_ptr>self._pvt_ptr)
+        self._updateData = anon_union9(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -18473,8 +18824,8 @@ cdef class cudaGraphKernelNodeUpdate:
     def updateData(self):
         return self._updateData
     @updateData.setter
-    def updateData(self, updateData not None : anon_union8):
-        string.memcpy(&self._pvt_ptr[0].updateData, <cyruntime.anon_union8*><void_ptr>updateData.getPtr(), sizeof(self._pvt_ptr[0].updateData))
+    def updateData(self, updateData not None : anon_union9):
+        string.memcpy(&self._pvt_ptr[0].updateData, <cyruntime.anon_union9*><void_ptr>updateData.getPtr(), sizeof(self._pvt_ptr[0].updateData))
     {{endif}}
 {{endif}}
 {{if 'cudaLaunchMemSyncDomainMap_st' in found_struct}}
@@ -19075,6 +19426,16 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute
         cudaLaunchAttributeNvlinkUtilCentricScheduling.
     {{endif}}
+    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+        Value of launch attribute
+        cudaLaunchAttributePortableClusterSizeMode
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : cudaSharedMemoryMode
+        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
+        cudaSharedMemoryMode for acceptable values.
+    {{endif}}
 
     Methods
     -------
@@ -19211,6 +19572,18 @@ cdef class cudaLaunchAttributeValue:
                 str_list += ['nvlinkUtilCentricScheduling : ' + str(self.nvlinkUtilCentricScheduling)]
             except ValueError:
                 str_list += ['nvlinkUtilCentricScheduling : <ValueError>']
+            {{endif}}
+            {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+            try:
+                str_list += ['portableClusterSizeMode : ' + str(self.portableClusterSizeMode)]
+            except ValueError:
+                str_list += ['portableClusterSizeMode : <ValueError>']
+            {{endif}}
+            {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+            try:
+                str_list += ['sharedMemoryMode : ' + str(self.sharedMemoryMode)]
+            except ValueError:
+                str_list += ['sharedMemoryMode : <ValueError>']
             {{endif}}
             return '\n'.join(str_list)
         else:
@@ -19354,6 +19727,22 @@ cdef class cudaLaunchAttributeValue:
     def nvlinkUtilCentricScheduling(self, unsigned int nvlinkUtilCentricScheduling):
         self._pvt_ptr[0].nvlinkUtilCentricScheduling = nvlinkUtilCentricScheduling
     {{endif}}
+    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+    @property
+    def portableClusterSizeMode(self):
+        return cudaLaunchAttributePortableClusterMode(self._pvt_ptr[0].portableClusterSizeMode)
+    @portableClusterSizeMode.setter
+    def portableClusterSizeMode(self, portableClusterSizeMode not None : cudaLaunchAttributePortableClusterMode):
+        self._pvt_ptr[0].portableClusterSizeMode = int(portableClusterSizeMode)
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+    @property
+    def sharedMemoryMode(self):
+        return cudaSharedMemoryMode(self._pvt_ptr[0].sharedMemoryMode)
+    @sharedMemoryMode.setter
+    def sharedMemoryMode(self, sharedMemoryMode not None : cudaSharedMemoryMode):
+        self._pvt_ptr[0].sharedMemoryMode = int(sharedMemoryMode)
+    {{endif}}
 {{endif}}
 {{if 'cudaLaunchAttribute_st' in found_struct}}
 
@@ -19474,7 +19863,7 @@ cdef class anon_struct22:
 {{endif}}
 {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
 
-cdef class anon_union9:
+cdef class anon_union10:
     """
     Attributes
     ----------
@@ -19534,7 +19923,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    info : anon_union9
+    info : anon_union10
         Information about the notification. `typename` must be checked in
         order to interpret this field.
     {{endif}}
@@ -19553,7 +19942,7 @@ cdef class cudaAsyncNotificationInfo:
     def __init__(self, void_ptr _ptr = 0):
         pass
         {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-        self._info = anon_union9(_ptr=<void_ptr>self._pvt_ptr)
+        self._info = anon_union10(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -19591,8 +19980,8 @@ cdef class cudaAsyncNotificationInfo:
     def info(self):
         return self._info
     @info.setter
-    def info(self, info not None : anon_union9):
-        string.memcpy(&self._pvt_ptr[0].info, <cyruntime.anon_union9*><void_ptr>info.getPtr(), sizeof(self._pvt_ptr[0].info))
+    def info(self, info not None : anon_union10):
+        string.memcpy(&self._pvt_ptr[0].info, <cyruntime.anon_union10*><void_ptr>info.getPtr(), sizeof(self._pvt_ptr[0].info))
     {{endif}}
 {{endif}}
 {{if 'cudaTextureDesc' in found_struct}}
@@ -20025,7 +20414,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union10:
+cdef class anon_union11:
     """
     Attributes
     ----------
@@ -20115,7 +20504,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
     {{if True}}
-    frame : anon_union10
+    frame : anon_union11
 
     {{endif}}
     {{if True}}
@@ -20149,7 +20538,7 @@ cdef class cudaEglFrame_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
         {{if True}}
-        self._frame = anon_union10(_ptr=<void_ptr>self._pvt_ptr)
+        self._frame = anon_union11(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -20197,8 +20586,8 @@ cdef class cudaEglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union10):
-        string.memcpy(&self._pvt_ptr[0].frame, <cyruntime.anon_union10*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
+    def frame(self, frame not None : anon_union11):
+        string.memcpy(&self._pvt_ptr[0].frame, <cyruntime.anon_union11*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
     {{endif}}
     {{if True}}
     @property
@@ -22537,7 +22926,7 @@ def cudaStreamCreate():
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorExternalDevice`
     pStream : :py:obj:`~.cudaStream_t`
         Pointer to new stream identifier
 
@@ -22581,7 +22970,7 @@ def cudaStreamCreateWithFlags(unsigned int flags):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorExternalDevice`
     pStream : :py:obj:`~.cudaStream_t`
         Pointer to new stream identifier
 
@@ -22636,7 +23025,7 @@ def cudaStreamCreateWithPriority(unsigned int flags, int priority):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorExternalDevice`
     pStream : :py:obj:`~.cudaStream_t`
         Pointer to new stream identifier
 
@@ -23019,7 +23408,7 @@ def cudaStreamDestroy(stream):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle` :py:obj:`~.cudaErrorExternalDevice`
 
     See Also
     --------
@@ -25351,6 +25740,38 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
     return (_cudaError_t(err),)
 {{endif}}
 
+{{if 'cudaFuncGetParamCount' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaFuncGetParamCount(func):
+    """ Returns the number of parameters used by the function.
+
+    Queries the number of kernel parameters used by `func` and returns it
+    in `paramCount`.
+
+    Parameters
+    ----------
+    func : Any
+        The function to query
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`,
+    paramCount : int
+        Returns the number of parameters used by the function
+    """
+    cdef _HelperInputVoidPtrStruct cyfuncHelper
+    cdef void* cyfunc = _helper_input_void_ptr(func, &cyfuncHelper)
+    cdef size_t paramCount = 0
+    with nogil:
+        err = cyruntime.cudaFuncGetParamCount(cyfunc, &paramCount)
+    _helper_input_void_ptr_free(&cyfuncHelper)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, paramCount)
+{{endif}}
+
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
 ctypedef struct cudaStreamHostCallbackData_st:
@@ -25460,6 +25881,96 @@ def cudaLaunchHostFunc(stream, fn, userData):
         free(cbData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
 
+    return (_cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaLaunchHostFunc_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaLaunchHostFunc_v2(stream, fn, userData, unsigned int syncMode):
+    """ Enqueues a host function call in a stream.
+
+    Enqueues a host function to run in a stream. The function will be
+    called after currently enqueued work and will block work added after
+    it.
+
+    The host function must not make any CUDA API calls. Attempting to use a
+    CUDA API may result in :py:obj:`~.cudaErrorNotPermitted`, but this is
+    not required. The host function must not perform any synchronization
+    that may depend on outstanding CUDA work not mandated to run earlier.
+    Host functions without a mandated order (such as in independent
+    streams) execute in undefined order and may be serialized.
+
+    For the purposes of Unified Memory, execution makes a number of
+    guarantees:
+
+    - The stream is considered idle for the duration of the function's
+      execution. Thus, for example, the function may always use memory
+      attached to the stream it was enqueued in.
+
+    - The start of execution of the function has the same effect as
+      synchronizing an event recorded in the same stream immediately prior
+      to the function. It thus synchronizes streams which have been
+      "joined" prior to the function.
+
+    - Adding device work to any stream does not have the effect of making
+      the stream active until all preceding host functions and stream
+      callbacks have executed. Thus, for example, a function might use
+      global attached memory even if work has been added to another stream,
+      if the work has been ordered behind the function call with an event.
+
+    - Completion of the function does not cause a stream to become active
+      except as described above. The stream will remain idle if no device
+      work follows the function, and will remain idle across consecutive
+      host functions or stream callbacks without device work in between.
+      Thus, for example, stream synchronization can be done by signaling
+      from a host function at the end of the stream.
+
+    Note that, in constrast to :py:obj:`~.cuStreamAddCallback`, the
+    function will not be called in the event of an error in the CUDA
+    context.
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to enqueue function call in
+    fn : :py:obj:`~.cudaHostFn_t`
+        The function to call once preceding stream operations are complete
+    userData : Any
+        User-specified data to be passed to the function
+    syncMode : unsigned int
+        Sync mode for the host function
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
+
+    See Also
+    --------
+    :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamQuery`, :py:obj:`~.cudaStreamSynchronize`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaStreamDestroy`, :py:obj:`~.cudaMallocManaged`, :py:obj:`~.cudaStreamAttachMemAsync`, :py:obj:`~.cudaStreamAddCallback`, :py:obj:`~.cuLaunchHostFunc`
+    """
+    cdef cyruntime.cudaHostFn_t cyfn
+    if fn is None:
+        pfn = 0
+    elif isinstance(fn, (cudaHostFn_t,)):
+        pfn = int(fn)
+    else:
+        pfn = int(cudaHostFn_t(fn))
+    cyfn = <cyruntime.cudaHostFn_t><void_ptr>pfn
+    cdef cyruntime.cudaStream_t cystream
+    if stream is None:
+        pstream = 0
+    elif isinstance(stream, (cudaStream_t,driver.CUstream)):
+        pstream = int(stream)
+    else:
+        pstream = int(cudaStream_t(stream))
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cdef _HelperInputVoidPtrStruct cyuserDataHelper
+    cdef void* cyuserData = _helper_input_void_ptr(userData, &cyuserDataHelper)
+    with nogil:
+        err = cyruntime.cudaLaunchHostFunc_v2(cystream, cyfn, cyuserData, syncMode)
+    _helper_input_void_ptr_free(&cyuserDataHelper)
     return (_cudaError_t(err),)
 {{endif}}
 
@@ -25826,7 +26337,7 @@ def cudaMalloc(size_t size):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`, :py:obj:`~.cudaErrorExternalDevice`
     devPtr : Any
         Pointer to allocated device memory
 
@@ -25874,7 +26385,7 @@ def cudaMallocHost(size_t size):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`, :py:obj:`~.cudaErrorExternalDevice`
     ptr : Any
         Pointer to allocated host memory
 
@@ -26249,7 +26760,7 @@ def cudaHostAlloc(size_t size, unsigned int flags):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`, :py:obj:`~.cudaErrorExternalDevice`
     pHost : Any
         Device pointer to allocated memory
 
@@ -26369,7 +26880,7 @@ def cudaHostRegister(ptr, size_t size, unsigned int flags):
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`, :py:obj:`~.cudaErrorHostMemoryAlreadyRegistered`, :py:obj:`~.cudaErrorNotSupported`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorMemoryAllocation`, :py:obj:`~.cudaErrorHostMemoryAlreadyRegistered`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorExternalDevice`
 
     See Also
     --------
@@ -28271,6 +28782,114 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBa
         err = cyruntime.cudaMemcpy3DBatchAsync(numOps, cyopList, flags, cystream)
     if len(opList) > 1 and cyopList is not NULL:
         free(cyopList)
+    return (_cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaMemcpyWithAttributesAsync' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMemcpyAttributes], stream):
+    """ 
+
+    Performs asynchronous memory copy operation with the specified
+    attributes.
+
+    Performs asynchronous memory copy operation where `dst` and `src` are
+    the destination and source pointers respectively. `size` specifies the
+    number of bytes to copy. `attr` specifies the attributes for the copy
+    and `hStream` specifies the stream to enqueue the operation in.
+
+    For more information regarding the attributes, please refer to
+    :py:obj:`~.cudaMemcpyAttributes` and it's usage desciption
+    in::cudaMemcpyBatchAsync
+
+    Parameters
+    ----------
+    dst : Any
+        Destination device pointer
+    src : Any
+        Source device pointer
+    size : size_t
+        Number of bytes to copy
+    attr : :py:obj:`~.cudaMemcpyAttributes`
+        Attributes for the copy
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to enqueue the operation in
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaMemcpyBatchAsync`
+    """
+    cdef cyruntime.cudaStream_t cystream
+    if stream is None:
+        pstream = 0
+    elif isinstance(stream, (cudaStream_t,driver.CUstream)):
+        pstream = int(stream)
+    else:
+        pstream = int(cudaStream_t(stream))
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cdef _HelperInputVoidPtrStruct cydstHelper
+    cdef void* cydst = _helper_input_void_ptr(dst, &cydstHelper)
+    cdef _HelperInputVoidPtrStruct cysrcHelper
+    cdef void* cysrc = _helper_input_void_ptr(src, &cysrcHelper)
+    cdef cyruntime.cudaMemcpyAttributes* cyattr_ptr = attr._pvt_ptr if attr is not None else NULL
+    with nogil:
+        err = cyruntime.cudaMemcpyWithAttributesAsync(cydst, cysrc, size, cyattr_ptr, cystream)
+    _helper_input_void_ptr_free(&cydstHelper)
+    _helper_input_void_ptr_free(&cysrcHelper)
+    return (_cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaMemcpy3DWithAttributesAsync' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned long long flags, stream):
+    """ 
+
+    Performs 3D asynchronous memory copy with the specified attributes.
+
+    Performs the copy operation specified in `op`. `flags` specifies the
+    flags for the copy and `hStream` specifies the stream to enqueue the
+    operation in.
+
+    For more information regarding the operation, please refer to
+    :py:obj:`~.cudaMemcpy3DBatchOp` and it's usage desciption
+    in::cudaMemcpy3DBatchAsync
+
+    Parameters
+    ----------
+    op : :py:obj:`~.cudaMemcpy3DBatchOp`
+        Operation to perform
+    flags : unsigned long long
+        Flags for the copy, must be zero now.
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to enqueue the operation in
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaMemcpy3DBatchAsync`
+    """
+    cdef cyruntime.cudaStream_t cystream
+    if stream is None:
+        pstream = 0
+    elif isinstance(stream, (cudaStream_t,driver.CUstream)):
+        pstream = int(stream)
+    else:
+        pstream = int(cudaStream_t(stream))
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cdef cyruntime.cudaMemcpy3DBatchOp* cyop_ptr = op._pvt_ptr if op is not None else NULL
+    with nogil:
+        err = cyruntime.cudaMemcpy3DWithAttributesAsync(cyop_ptr, flags, cystream)
     return (_cudaError_t(err),)
 {{endif}}
 
@@ -30325,6 +30944,37 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
     - :py:obj:`~.cudaMemPoolAttrUsedMemHigh`: (value type = cuuint64_t)
       High watermark of the amount of memory from the pool that was in use
       by the application since the last time it was reset.
+
+    The following properties can be also be queried on imported and default
+    pools:
+
+    - :py:obj:`~.cudaMemPoolAttrAllocationType`: (value type =
+      cudaMemAllocationType) The allocation type of the mempool
+
+    - :py:obj:`~.cudaMemPoolAttrExportHandleTypes`: (value type =
+      cudaMemAllocationHandleType) Available export handle types for the
+      mempool. For imported pools this value is always
+      cudaMemHandleTypeNone as an imported pool cannot be re-exported
+
+    - :py:obj:`~.cudaMemPoolAttrLocationId`: (value type = int) The
+      location id for the mempool. If the location type for this pool is
+      cudaMemLocationTypeInvisible then ID will be cudaInvalidDeviceId.
+
+    - :py:obj:`~.cudaMemPoolAttrLocationType`: (value type =
+      cudaMemLocationType) The location type for the mempool. For imported
+      memory pools where the device is not directly visible to the
+      importing process or pools imported via fabric handles across nodes
+      this will be cudaMemlocataionTypeInvisible.
+
+    - :py:obj:`~.cudaMemPoolAttrMaxPoolSize`: (value type = cuuint64_t)
+      Maximum size of the pool in bytes, this value may be higher than what
+      was initially passed to cuMemPoolCreate due to alignment
+      requirements. A value of 0 indicates no maximum size. For
+      cudaMemAllocationTypeManaged and IPC imported pools this value will
+      be system dependent.
+
+    - :py:obj:`~.cudaMemPoolAttrHwDecompressEnabled`: (value type = int)
+      Indicates whether the pool has hardware compresssion enabled
 
     Parameters
     ----------
@@ -32643,7 +33293,7 @@ def cudaGraphKernelNodeGetParams(node):
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphKernelNodeSetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphKernelNodeSetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -33027,7 +33677,7 @@ def cudaGraphMemcpyNodeGetParams(node):
 
     See Also
     --------
-    :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -33239,7 +33889,7 @@ def cudaGraphMemsetNodeGetParams(node):
 
     See Also
     --------
-    :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -33388,7 +34038,7 @@ def cudaGraphHostNodeGetParams(node):
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchHostFunc`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeSetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchHostFunc`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeSetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -34074,7 +34724,7 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
@@ -34231,7 +34881,7 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
@@ -34424,7 +35074,7 @@ def cudaGraphMemAllocNodeGetParams(node):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -34555,7 +35205,7 @@ def cudaGraphMemFreeNodeGetParams(node):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -34566,9 +35216,8 @@ def cudaGraphMemFreeNodeGetParams(node):
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef void_ptr dptr_out = 0
-    cdef void* cydptr_out_ptr = <void*>&dptr_out
     with nogil:
-        err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, cydptr_out_ptr)
+        err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, <void**>&dptr_out)
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, dptr_out)
@@ -37567,7 +38216,7 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
 
 @cython.embedsignature(True)
 def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
-    """ Update's a graph node's parameters.
+    """ Update a graph node's parameters.
 
     Sets the parameters of graph node `node` to `nodeParams`. The node type
     specified by `nodeParams->type` must match the type of `node`.
@@ -37591,7 +38240,7 @@ def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExecNodeSetParams`
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExecNodeSetParams`
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
@@ -37607,11 +38256,64 @@ def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
     return (_cudaError_t(err),)
 {{endif}}
 
+{{if 'cudaGraphNodeGetParams' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphNodeGetParams(node):
+    """ Returns a graph node's parameters.
+
+    Returns the parameters of graph node `node` in `*nodeParams`.
+
+    Any pointers returned in `*nodeParams` point to driver-owned memory
+    associated with the node. This memory remains valid until the node is
+    destroyed. Any memory pointed to from `*nodeParams` must not be
+    modified.
+
+    The returned parameters are a description of the node, but may not be
+    identical to the struct provided at creation and may not be suitable
+    for direct creation of identical nodes. This is because parameters may
+    be partially unspecified and filled in by the driver at creation, may
+    reference non-copyable handles, or may describe ownership semantics or
+    other parameters that govern behavior of node creation but are not part
+    of the final functional descriptor.
+
+    Parameters
+    ----------
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to get the parameters for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
+    nodeParams : :py:obj:`~.cudaGraphNodeParams`
+        Pointer to return the parameters
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphNodeGetParams`, :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExecNodeSetParams`
+    """
+    cdef cyruntime.cudaGraphNode_t cynode
+    if node is None:
+        pnode = 0
+    elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
+        pnode = int(node)
+    else:
+        pnode = int(cudaGraphNode_t(node))
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cdef cudaGraphNodeParams nodeParams = cudaGraphNodeParams()
+    with nogil:
+        err = cyruntime.cudaGraphNodeGetParams(cynode, <cyruntime.cudaGraphNodeParams*>nodeParams._pvt_ptr)
+    if err != cyruntime.cudaSuccess:
+        return (_cudaError_t(err), None)
+    return (_cudaError_t_SUCCESS, nodeParams)
+{{endif}}
+
 {{if 'cudaGraphExecNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
 def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : Optional[cudaGraphNodeParams]):
-    """ Update's a graph node's parameters in an instantiated graph.
+    """ Update a graph node's parameters in an instantiated graph.
 
     Sets the parameters of a node in an executable graph `graphExec`. The
     node is identified by the corresponding node `node` in the non-

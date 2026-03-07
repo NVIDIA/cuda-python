@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -176,12 +176,12 @@ cdef struct cudaEglPlaneDesc_st:
 
 ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
 
-cdef union anon_union10:
+cdef union anon_union11:
     cudaArray_t pArray[3]
     cudaPitchedPtr pPitch[3]
 
 cdef struct cudaEglFrame_st:
-    anon_union10 frame
+    anon_union11 frame
     cudaEglPlaneDesc planeDesc[3]
     unsigned int planeCount
     cudaEglFrameType frameType
@@ -619,9 +619,19 @@ cdef cudaError_t cudaFuncGetAttributes(cudaFuncAttributes* attr, const void* fun
 cdef cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, int value) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaFuncGetParamCount' in found_functions}}
+
+cdef cudaError_t cudaFuncGetParamCount(const void* func, size_t* paramCount) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
 cdef cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaLaunchHostFunc_v2' in found_functions}}
+
+cdef cudaError_t cudaLaunchHostFunc_v2(cudaStream_t stream, cudaHostFn_t fn, void* userData, unsigned int syncMode) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaFuncSetSharedMemConfig' in found_functions}}
@@ -837,6 +847,16 @@ cdef cudaError_t cudaMemcpyBatchAsync(const void** dsts, const void** srcs, cons
 {{if 'cudaMemcpy3DBatchAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaMemcpyWithAttributesAsync' in found_functions}}
+
+cdef cudaError_t cudaMemcpyWithAttributesAsync(void* dst, const void* src, size_t size, cudaMemcpyAttributes* attr, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaMemcpy3DWithAttributesAsync' in found_functions}}
+
+cdef cudaError_t cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaMemcpy2DAsync' in found_functions}}
@@ -1351,7 +1371,7 @@ cdef cudaError_t cudaGraphAddMemFreeNode(cudaGraphNode_t* pGraphNode, cudaGraph_
 
 {{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
 
-cdef cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void* dptr_out) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void** dptr_out) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaDeviceGraphMemTrim' in found_functions}}
@@ -1592,6 +1612,11 @@ cdef cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph
 {{if 'cudaGraphNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphNodeGetParams' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaGraphExecNodeSetParams' in found_functions}}
@@ -2057,8 +2082,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 13010
+cdef enum: CUDART_VERSION = 13020
 
-cdef enum: __CUDART_API_VERSION = 13010
+cdef enum: __CUDART_API_VERSION = 13020
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3
