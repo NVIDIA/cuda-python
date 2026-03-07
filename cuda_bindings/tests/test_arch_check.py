@@ -3,6 +3,7 @@
 
 
 import pytest
+
 from cuda.bindings import nvml
 from cuda.bindings._test_helpers import arch_check
 from cuda.pathfinder import DynamicLibNotFoundError
