@@ -75,9 +75,16 @@ cuda = "13"
 [feature.cu13.dependencies]
 cuda-version = "13.1.*"
 
-# NOTE: cu12 environment is intentionally omitted because the path dependency
-# to ../cuda_bindings (v13.1) makes it unsolvable locally. For cu12 testing,
-# use conda-forge packages or CI workflows.
+[feature.cu12.system-requirements]
+cuda = "12"
+
+[feature.cu12.dependencies]
+cuda-version = "12.*"
+
+# We keep both cu12 and cu13 because cuda.core works with either major version
+# NOTE: Path dependency to ../cuda_bindings only works for cu13 (local bindings is v13.1)
+#       For cu12 testing, use conda-forge packages: temporarily change path to wildcard
+#       or skip cu12 locally: pixi run -e cu13 test
 [environments]
 default = { features = [
     "cu13",
