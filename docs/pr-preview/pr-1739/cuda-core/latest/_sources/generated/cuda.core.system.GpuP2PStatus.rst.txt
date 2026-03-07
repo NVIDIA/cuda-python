@@ -1,0 +1,48 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.GpuP2PStatus
+=============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: GpuP2PStatus
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: P2P_STATUS_CHIPSET_NOT_SUPPORED
+   .. autoattribute:: P2P_STATUS_CHIPSET_NOT_SUPPORTED
+   .. autoattribute:: P2P_STATUS_DISABLED_BY_REGKEY
+   .. autoattribute:: P2P_STATUS_GPU_NOT_SUPPORTED
+   .. autoattribute:: P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED
+   .. autoattribute:: P2P_STATUS_NOT_SUPPORTED
+   .. autoattribute:: P2P_STATUS_OK
+   .. autoattribute:: P2P_STATUS_UNKNOWN
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
