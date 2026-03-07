@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 13.2.0rc2.dev280+ged01d643e. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -2727,6 +2727,8 @@ class DriverControlFlags(_FastEnum):
     """
     USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
     ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
+    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'Vanilla posix io mode. properties.posix_io_mode')
+    FALLBACK_IO_MODE = (CU_FILE_FALLBACK_IO_MODE, 'Fallback io mode. properties.gds_fallback_io')
 
 class FeatureFlags(_FastEnum):
     """
@@ -2819,6 +2821,8 @@ class ArrayConfigParameter(_FastEnum):
     """
     POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
     POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
+    GPU_BOUNCE_BUFFER_SLAB_SIZE_KB = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_SIZE_KB
+    GPU_BOUNCE_BUFFER_SLAB_COUNT = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_COUNT
 
 class P2PFlags(_FastEnum):
     """
@@ -2952,10 +2956,10 @@ cpdef use_count():
 
 
 cpdef driver_get_properties(intptr_t props):
-    """Gets the Driver session properties.
+    """Gets the Driver session properties If the driver is not opened, it will return the staged/default properties If the driver is opened, it will return the current properties.
 
     Args:
-        props (intptr_t): Properties to set.
+        props (intptr_t): Properties to get.
 
     .. seealso:: `cuFileDriverGetProperties`
     """
@@ -2965,7 +2969,7 @@ cpdef driver_get_properties(intptr_t props):
 
 
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
-    """Sets whether the Read/Write APIs use polling to do IO operations.
+    """Sets whether the Read/Write APIs use polling to do IO operations This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         poll (bint): boolean to indicate whether to use poll mode or not.
@@ -2979,7 +2983,7 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
 
 
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
-    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver.
+    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_direct_io_size (size_t): maximum allowed direct io size in KB.
@@ -2992,7 +2996,7 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
 
 
 cpdef driver_set_max_cache_size(size_t max_cache_size):
-    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering.
+    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_cache_size (size_t): The maximum GPU buffer space per device used for internal use in KB.
@@ -3005,7 +3009,7 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
 
 
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
-    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister``.
+    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister`` This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_pinned_size (size_t): maximum buffer space that is pinned in KB.
