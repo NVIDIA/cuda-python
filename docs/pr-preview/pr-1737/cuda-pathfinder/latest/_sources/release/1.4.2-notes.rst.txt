@@ -1,0 +1,15 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.4.2 Release notes
+=======================================
+
+Highlights
+----------
+
+* Add ``optional_cuda_import()`` to support robust optional imports of CUDA
+  Python modules. It returns ``None`` when the requested module is absent or a
+  probe hits ``DynamicLibNotFoundError``, while still re-raising unrelated
+  ``ModuleNotFoundError`` exceptions (for missing transitive dependencies).
