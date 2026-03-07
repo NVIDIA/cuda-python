@@ -316,6 +316,39 @@ cdef class StridedMemoryView:
         view_buffer_strided(view, self.get_buffer(), layout, dtype, self.readonly)
         return view
 
+    def as_tensor_map(
+        self,
+        box_dim,
+        *,
+        element_strides=None,
+        data_type=None,
+        interleave=None,
+        swizzle=None,
+        l2_promotion=None,
+        oob_fill=None,
+    ):
+        """Create a tiled :obj:`TensorMapDescriptor` from this view.
+
+        This is a convenience wrapper around
+        :meth:`cuda.core._tensor_map.TensorMapDescriptor.from_tiled`.
+        """
+        from cuda.core._tensor_map import TensorMapDescriptor
+
+        kwargs = {}
+        if element_strides is not None:
+            kwargs["element_strides"] = element_strides
+        if data_type is not None:
+            kwargs["data_type"] = data_type
+        if interleave is not None:
+            kwargs["interleave"] = interleave
+        if swizzle is not None:
+            kwargs["swizzle"] = swizzle
+        if l2_promotion is not None:
+            kwargs["l2_promotion"] = l2_promotion
+        if oob_fill is not None:
+            kwargs["oob_fill"] = oob_fill
+        return TensorMapDescriptor.from_tiled(self, box_dim, **kwargs)
+
     def copy_from(
         self, other : StridedMemoryView, stream : Stream,
         allocator = None,

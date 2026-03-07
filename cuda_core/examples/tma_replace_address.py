@@ -36,7 +36,7 @@ from cuda.core import (
     LaunchConfig,
     Program,
     ProgramOptions,
-    TensorMapDescriptor,
+    StridedMemoryView,
     launch,
 )
 
@@ -159,7 +159,7 @@ a = cp.arange(N, dtype=cp.float32)  # [0, 1, 2, ..., N-1]
 output = cp.zeros(N, dtype=cp.float32)
 dev.sync()  # cupy uses its own stream
 
-tensor_map = TensorMapDescriptor.from_tiled(a, box_dim=(TILE_SIZE,))
+tensor_map = StridedMemoryView.from_any_interface(a, stream_ptr=-1).as_tensor_map(box_dim=(TILE_SIZE,))
 
 n_tiles = N // TILE_SIZE
 config = LaunchConfig(grid=n_tiles, block=TILE_SIZE)

@@ -31,7 +31,7 @@ from cuda.core import (
     LaunchConfig,
     Program,
     ProgramOptions,
-    TensorMapDescriptor,
+    StridedMemoryView,
     launch,
 )
 
@@ -47,8 +47,6 @@ if arch < (9, 0):
     )
     sys.exit(0)
 dev.set_current()
-
-arch_str = "".join(f"{i}" for i in arch)
 
 # ---------------------------------------------------------------------------
 # CUDA kernel that uses TMA to load a 1-D tile into shared memory, then
@@ -141,7 +139,7 @@ __global__ void tma_copy(
 prog = Program(
     code,
     code_type="c++",
-    options=ProgramOptions(std="c++17", arch=f"sm_{arch_str}"),
+    options=ProgramOptions(std="c++17", arch=f"sm_{dev.arch}"),
 )
 mod = prog.compile("cubin")
 ker = mod.get_kernel("tma_copy")
@@ -155,11 +153,10 @@ output = cp.zeros(N, dtype=cp.float32)
 dev.sync()  # cupy uses its own stream
 
 # ---------------------------------------------------------------------------
-# 2) Create a TMA tiled descriptor
-#    from_tiled() accepts any DLPack / __cuda_array_interface__ object.
+# 2) Create a TMA tiled descriptor from a StridedMemoryView.
 #    The dtype (float32) is inferred automatically from the CuPy array.
 # ---------------------------------------------------------------------------
-tensor_map = TensorMapDescriptor.from_tiled(a, box_dim=(TILE_SIZE,))
+tensor_map = StridedMemoryView.from_any_interface(a, stream_ptr=-1).as_tensor_map(box_dim=(TILE_SIZE,))
 
 # ---------------------------------------------------------------------------
 # 3) Launch the kernel

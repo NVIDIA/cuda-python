@@ -135,6 +135,7 @@ cdef inline int prepare_tensor_map_arg(
         vector.vector[void*]& data_addresses,
         TensorMapDescriptor arg,
         const size_t idx) except -1:
+    arg._check_context_compat()
     # Allocate a temporary buffer for the 128-byte CUtensorMap struct.
     # We copy rather than pointing directly at arg._tensor_map for lifetime
     # safety: ParamHolder owns and frees its argument buffers independently.
@@ -349,9 +350,6 @@ cdef class ParamHolder:
                     continue
                 elif isinstance(arg, driver.CUgraphConditionalHandle):
                     prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, arg, i)
-                    continue
-                elif isinstance(arg, tensor_map_descriptor_type):
-                    prepare_tensor_map_arg(self.data, self.data_addresses, <TensorMapDescriptor>arg, i)
                     continue
                 # TODO: support ctypes/numpy struct
                 raise TypeError("the argument is of unsupported type: " + str(type(arg)))

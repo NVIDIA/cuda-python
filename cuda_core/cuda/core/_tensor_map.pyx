@@ -263,6 +263,22 @@ def _get_validated_view(tensor):
     return view
 
 
+cdef inline intptr_t _get_current_context_ptr() except? 0:
+    cdef cydriver.CUcontext ctx
+    with nogil:
+        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+    if ctx == NULL:
+        raise RuntimeError("TensorMapDescriptor requires an active CUDA context")
+    return <intptr_t>ctx
+
+
+cdef inline int _get_current_device_id() except -1:
+    cdef cydriver.CUdevice dev
+    with nogil:
+        HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
+    return <int>dev
+
+
 def _compute_byte_strides(shape, strides, elem_size):
     """Compute byte strides from element strides or C-contiguous fallback.
 
@@ -312,6 +328,28 @@ cdef class TensorMapDescriptor:
 
     cdef void* _get_data_ptr(self):
         return <void*>&self._tensor_map
+
+    cdef int _check_context_compat(self) except -1:
+        cdef cydriver.CUcontext current_ctx
+        cdef cydriver.CUdevice current_dev
+        cdef int current_dev_id
+        if self._context == 0 and self._device_id < 0:
+            return 0
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&current_ctx))
+        if current_ctx == NULL:
+            raise RuntimeError("TensorMapDescriptor requires an active CUDA context")
+        if self._context != 0 and <intptr_t>current_ctx != self._context:
+            raise RuntimeError(
+                "TensorMapDescriptor was created in a different CUDA context")
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetDevice(&current_dev))
+        current_dev_id = <int>current_dev
+        if self._device_id >= 0 and current_dev_id != self._device_id:
+            raise RuntimeError(
+                f"TensorMapDescriptor belongs to device {self._device_id}, "
+                f"but current device is {current_dev_id}")
+        return 0
 
     @classmethod
     def from_tiled(cls, tensor, box_dim, *,
@@ -366,6 +404,8 @@ cdef class TensorMapDescriptor:
         # deleter can free the backing allocation when released.
         desc._source_ref = tensor
         desc._view_ref = view
+        desc._context = _get_current_context_ptr()
+        desc._device_id = _get_current_device_id()
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -593,6 +633,8 @@ cdef class TensorMapDescriptor:
         view = _get_validated_view(tensor)
         desc._source_ref = tensor
         desc._view_ref = view
+        desc._context = _get_current_context_ptr()
+        desc._device_id = _get_current_device_id()
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -750,6 +792,8 @@ cdef class TensorMapDescriptor:
             view = _get_validated_view(tensor)
             desc._source_ref = tensor
             desc._view_ref = view
+            desc._context = _get_current_context_ptr()
+            desc._device_id = _get_current_device_id()
 
             tma_dt = _resolve_data_type(view, data_type)
             cdef int c_data_type_int = int(tma_dt)
@@ -839,7 +883,11 @@ cdef class TensorMapDescriptor:
             or a :obj:`~cuda.core.StridedMemoryView`. Must refer to
             device-accessible memory with a 16-byte-aligned pointer.
         """
+        self._check_context_compat()
         view = _get_validated_view(tensor)
+        if view.device_id != self._device_id:
+            raise ValueError(
+                f"replace_address expects tensor on device {self._device_id}, got {view.device_id}")
 
         cdef intptr_t global_address = view.ptr
 

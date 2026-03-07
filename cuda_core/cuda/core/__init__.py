@@ -68,12 +68,4 @@ from cuda.core._stream import (
     Stream,
     StreamOptions,
 )
-from cuda.core._tensor_map import (
-    TensorMapDataType,
-    TensorMapDescriptor,
-    TensorMapIm2ColWideMode,
-    TensorMapInterleave,
-    TensorMapL2Promotion,
-    TensorMapOOBFill,
-    TensorMapSwizzle,
-)
+from cuda.core._tensor_map import TensorMapDescriptor

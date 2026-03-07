@@ -6,8 +6,11 @@ import pytest
 
 from cuda.core import (
     Device,
-    TensorMapDataType,
+    StridedMemoryView,
     TensorMapDescriptor,
+)
+from cuda.core._tensor_map import (
+    TensorMapDataType,
     TensorMapIm2ColWideMode,
     TensorMapInterleave,
     TensorMapL2Promotion,
@@ -102,6 +105,16 @@ class TestTensorMapDescriptorCreation:
         tensor = _DeviceArray(buf, (64, 64))
         desc = TensorMapDescriptor.from_tiled(
             tensor,
+            box_dim=(32, 32),
+            data_type=TensorMapDataType.FLOAT32,
+        )
+        assert desc is not None
+
+    def test_strided_memory_view_as_tensor_map(self, dev, skip_if_no_tma):
+        buf = dev.allocate(64 * 64 * 4)
+        tensor = _DeviceArray(buf, (64, 64))
+        view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
+        desc = view.as_tensor_map(
             box_dim=(32, 32),
             data_type=TensorMapDataType.FLOAT32,
         )
