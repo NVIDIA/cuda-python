@@ -1,6 +1,0 @@
-﻿cuda.bindings.utils.get\_minimal\_required\_cuda\_ver\_from\_ptx\_ver
-=====================================================================
-
-.. currentmodule:: cuda.bindings.utils
-
-.. autofunction:: get_minimal_required_cuda_ver_from_ptx_ver
