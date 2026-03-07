@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES &#8212; cuda.pathfinder</title>
+    <title>cuda.pathfinder.optional_cuda_import &#8212; cuda.pathfinder</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder.optional_cuda_import';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html" />
+    <link rel="canonical" href="docs/generated/cuda.pathfinder.optional_cuda_import.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.pathfinder.load_nvidia_dynamic_lib" href="cuda.pathfinder.load_nvidia_dynamic_lib.html" />
-    <link rel="prev" title="cuda.pathfinder API Reference" href="../api.html" />
+    <link rel="next" title="cuda.pathfinder.LoadedDL" href="cuda.pathfinder.LoadedDL.html" />
+    <link rel="prev" title="cuda.pathfinder.load_nvidia_dynamic_lib" href="cuda.pathfinder.load_nvidia_dynamic_lib.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -394,9 +394,9 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.optional_cuda_import.html">cuda.pathfinder.optional_cuda_import</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.optional_cuda_import</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibUnknownError.html">cuda.pathfinder.DynamicLibUnknownError</a></li>
@@ -466,7 +466,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.pathfinder.optional_cuda_import</span></li>
   </ul>
 </nav>
 </div>
@@ -483,15 +483,34 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-pathfinder-supported-nvidia-libnames">
-<h1>cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES<a class="headerlink" href="#cuda-pathfinder-supported-nvidia-libnames" title="Link to this heading">#</a></h1>
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES">
-<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_NVIDIA_LIBNAMES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cudart',</span> <span class="pre">'nvfatbin',</span> <span class="pre">'nvJitLink',</span> <span class="pre">'nvrtc',</span> <span class="pre">'nvvm',</span> <span class="pre">'cublas',</span> <span class="pre">'cublasLt',</span> <span class="pre">'cufft',</span> <span class="pre">'cufftw',</span> <span class="pre">'curand',</span> <span class="pre">'cusolver',</span> <span class="pre">'cusolverMg',</span> <span class="pre">'cusparse',</span> <span class="pre">'nppc',</span> <span class="pre">'nppial',</span> <span class="pre">'nppicc',</span> <span class="pre">'nppidei',</span> <span class="pre">'nppif',</span> <span class="pre">'nppig',</span> <span class="pre">'nppim',</span> <span class="pre">'nppist',</span> <span class="pre">'nppisu',</span> <span class="pre">'nppitc',</span> <span class="pre">'npps',</span> <span class="pre">'nvblas',</span> <span class="pre">'nvjpeg',</span> <span class="pre">'cupti',</span> <span class="pre">'cufile')</span></em><a class="headerlink" href="#cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES" title="Link to this definition">#</a></dt>
-<dd><p>Built-in immutable sequence.</p>
-<p>If no argument is given, the constructor returns an empty tuple.
-If iterable is specified the tuple is initialized from iterable’s items.</p>
-<p>If the argument is a tuple, the return value is the same object.</p>
+  <section id="cuda-pathfinder-optional-cuda-import">
+<h1>cuda.pathfinder.optional_cuda_import<a class="headerlink" href="#cuda-pathfinder-optional-cuda-import" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.pathfinder.optional_cuda_import">
+<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">optional_cuda_import</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">fully_qualified_modname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">probe_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="(in Python v3.14)"><span class="pre">ModuleType</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="(in Python v3.14)"><span class="pre">ModuleType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.pathfinder.optional_cuda_import" title="Link to this definition">#</a></dt>
+<dd><p>Import an optional CUDA module without masking unrelated import bugs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The imported module if available and the optional probe succeeds,
+otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code> when the requested module is unavailable.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ModuleNotFoundError" title="(in Python v3.14)"><strong>ModuleNotFoundError</strong></a> – If the import fails because a dependency of the
+    target module is missing (instead of the target module itself).</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><strong>Exception</strong></a> – Any exception raised by <code class="docutils literal notranslate"><span class="pre">probe_function</span></code> except
+    <a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html#cuda.pathfinder.DynamicLibNotFoundError" title="cuda.pathfinder.DynamicLibNotFoundError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DynamicLibNotFoundError</span></code></a>, which is treated as “unavailable”.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -507,20 +526,20 @@ If iterable is specified the tuple is initialized from iterable’s items.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../api.html"
+       href="cuda.pathfinder.load_nvidia_dynamic_lib.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</p>
+        <p class="prev-next-title">cuda.pathfinder.load_nvidia_dynamic_lib</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.pathfinder.load_nvidia_dynamic_lib.html"
+       href="cuda.pathfinder.LoadedDL.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.pathfinder.load_nvidia_dynamic_lib</p>
+        <p class="prev-next-title">cuda.pathfinder.LoadedDL</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -545,7 +564,7 @@ If iterable is specified the tuple is initialized from iterable’s items.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES"><code class="docutils literal notranslate"><span class="pre">SUPPORTED_NVIDIA_LIBNAMES</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder.optional_cuda_import"><code class="docutils literal notranslate"><span class="pre">optional_cuda_import()</span></code></a></li>
 </ul>
   </nav></div>
 

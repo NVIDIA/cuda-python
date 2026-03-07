@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.optional\_cuda\_import
+======================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autofunction:: optional_cuda_import
