@@ -43,6 +43,8 @@ def hardware_supports_nvml():
     finally:
         if initialized:
             nvml.shutdown()
+
+
 @contextmanager
 def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str | None):
     device_arch = nvml.device_get_architecture(device)

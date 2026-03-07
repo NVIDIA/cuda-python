@@ -5,9 +5,8 @@ import pathlib
 import sys
 from importlib.metadata import PackageNotFoundError, distribution
 
-import pytest
-
 import cuda.bindings.driver as cuda
+import pytest
 from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
 
 # Import shared test helpers for tests across subprojects.
