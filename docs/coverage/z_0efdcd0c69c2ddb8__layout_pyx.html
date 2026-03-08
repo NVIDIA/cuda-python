@@ -733,7 +733,8 @@
   "li": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[None-None-itemsize or dtype must be specified]|run",
   "mi": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
   "ni": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
-  "oi": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run"
+  "oi": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
+  "pi": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -793,10 +794,10 @@
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__layout_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__buffer_pyx.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 14:26 +0000
+            created at 2026-03-08 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -866,7 +867,7 @@
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">        itemsize : int,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        divide_strides : bool = False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    ) -> None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        self.init_from_tuple(shape, strides, itemsize, divide_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">708 ctx</label></span><span class="ctxs">2dgpgegfgggqgrghgig[f]f^f_f`f{f|f}f~fagbgcgScTcUc3cVc4cWcBc5cCc6c7cXc8cYcDcZc0cEcFcGcUhVhWhXhYhZh0h1h2h3h)d`d% ' M N c ( d ) G H Ac9cucJcA B C D I O P E F J vcKc=e+fMc*cNcLcOcsgtgug; = ? !c#c$ca b 2 3 4 5 6 7 jgkglg_e`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f%h'h4h5h6h1cwc%cxcyc2c'czc/f#g,f?e3gVg4g^eHcIcSbTb(cnc)cscoctcu v fcgcw WghcicjckcXglcmcx YgZgm n kblbmbnbobpbU s V t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , W 0 zbK Ab# BbCb+ $ - 1 DbL X y z -f:f;f.f0g5gTgGggbHg$g%g6g'g7g1g(g)g2g*g7hhbIg8hibjb+gUgJg,ge g h i j Y Q f k Z R l q S r T EbFb=f?f@fPeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$ezgAgfeBgcegedeFhGheeHhheie@e[eKgQg]e%eRgLgjekeMgNgle'eSgOgmePgne(e)e*e*d+e+d,d,e-e.emgngog'f(f)f8 9 . ! / : Pc5f6f7fQcRcpcqcrc8f9f!f#f$f%f}g~gahbh-g.gchdhth/guhvheh:g;gfhwhxhghhh=gihyhjhodpd?gkhqdlhrdMdzhNdsdmhtdudnhvdwdOdxd@gohphydPdAhQdRdzdAdBdCdDdEd[gBhFd]g^g8g@cqhSd_g`g-d[c]cTd^crhUdVd+c,cWdfd_cXd`c9gYd{c-c.c.dZdgd|c}c/d{g|g!gCh:dhd~c;dDh0d=d1dEh?d2did@dad/c3d[dbd:csh]d4djd^d5d6d7dcd_d8ddd9d;c=ckded?cxeyezeAeBeoeCepeDeEe/eFe:eGeHe;eIeJeqeKeLeMereNeOesete{d|dIh}d~daeJhbeKhLhld!d#dGdHd$dId%dJdmdKdMh'dnd(dLdNh0bGb1bUbue2b3b4b5b6b7b8b9b!bHbIb#b$bJb%b'b(b)b*b+bKbVbve,b-bLb.bMb/bWb:b;bNb=b?b@bOb[b]b^b_bPbQb`bXbwe{b|b}b~bacYbRbbcccdcZbec(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibicidieifigihiiijinixgygkioi</span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        self.init_from_tuple(shape, strides, itemsize, divide_strides)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">709 ctx</label></span><span class="ctxs">2dgpgegfgggqgrghgig[f]f^f_f`f{f|f}f~fagbgcgScTcUc3cVc4cWcBc5cCc6c7cXc8cYcDcZc0cEcFcGcUhVhWhXhYhZh0h1h2h3h)d`d% ' M N c ( d ) G H Ac9cucJcA B C D I O P E F J vcKc=e+fMc*cNcLcOcsgtgug; = ? !c#c$ca b 2 3 4 5 6 7 jgkglg_e`e{e|e}e~eafbfcfdfefffgfhfifjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAfBfCfDfEfFfGfHfIfJfKfLfMfNfOfPfQfRfSfTfUfVfWfXfYfZf0f1f2f3f4f%h'h4h5h6h1cwc%cxcyc2c'czc/f#g,f?e3gVg4g^eHcIcSbTb(cnc)cscoctcu v fcgcw WghcicjckcXglcmcx YgZgm n kblbmbnbobpbU s V t @ qb[ ] ^ rb_ ` sbtbubvb{ wb| } ~ abbbcbdbebxbfbo p yb* , W 0 zbK Ab# BbCb+ $ - 1 DbL X y z -f:f;f.f0g5gTgGggbHg$g%g6g'g7g1g(g)g2g*g7hhbIg8hibjb+gUgJg,ge g h i j Y Q f k Z R l q S r T EbFb=f?f@fPeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$ezgAgfeBgcegedeFhGheeHhheie@e[eKgQg]e%eRgLgjekeMgNgle'eSgOgmePgne(e)e*e*d+e+d,d,e-e.emgngog'f(f)f8 9 . ! / : Pc5f6f7fQcRcpcqcrc8f9f!f#f$f%f}g~gahbh-g.gchdhth/guhvheh:g;gfhwhxhghhh=gihyhjhodpd?gkhqdlhrdMdzhNdsdmhtdudnhvdwdOdxd@gohphydPdAhQdRdzdAdBdCdDdEd[gBhFd]g^g8g@cqhSd_g`g-d[c]cTd^crhUdVd+c,cWdfd_cXd`c9gYd{c-c.c.dZdgd|c}c/d{g|g!gCh:dhd~c;dDh0d=d1dEh?d2did@dad/c3d[dbd:csh]d4djd^d5d6d7dcd_d8ddd9d;c=ckded?cxeyezeAeBeoeCepeDeEe/eFe:eGeHe;eIeJeqeKeLeMereNeOesete{d|dIh}d~daeJhbeKhLhld!d#dGdHd$dId%dJdmdKdMh'dnd(dLdNh0bGb1bUbue2b3b4b5b6b7b8b9b!bHbIb#b$bJb%b'b(b)b*b+bKbVbve,b-bLb.bMb/bWb:b;bNb=b?b@bOb[b]b^b_bPbQb`bXbwe{b|b}b~bacYbRbbcccdcZbec(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibicidieifigihiiijinixgygkioipi</span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    def dense(</span>&nbsp;</span><span class="r"></span></p>
@@ -2139,10 +2140,10 @@
         <p>
             <a class="nav" href="z_0efdcd0c69c2ddb8__layout_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_6928e1fc216e3a2e__buffer_pyx.html">&#xbb; next</a>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 14:26 +0000
+            created at 2026-03-08 01:07 +0000
         </p>
     </div>
 </footer>

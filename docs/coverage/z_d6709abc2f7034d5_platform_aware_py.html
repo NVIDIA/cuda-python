@@ -7,13 +7,19 @@
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudart]|run",
-  "b": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvJitLink]|run",
-  "c": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvfatbin]|run",
-  "d": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvrtc]|run",
-  "e": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvvm]|run",
-  "f": "(empty)",
-  "g": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cufile]|run"
+  "a": "tests/test_driver_lib_loading.py::test_real_load_driver_lib[cuda]|run",
+  "b": "tests/test_driver_lib_loading.py::test_real_load_driver_lib[nvml]|run",
+  "c": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
+  "d": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cuda]|run",
+  "e": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cudart]|run",
+  "f": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvJitLink]|run",
+  "g": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvfatbin]|run",
+  "h": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvml]|run",
+  "i": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvrtc]|run",
+  "j": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[nvvm]|run",
+  "k": "(empty)",
+  "l": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cufile]|run",
+  "m": "tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[cupti]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -73,10 +79,10 @@
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_2f3b744c44be98a7__version_py.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_spawned_process_runner_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 14:26 +0000
+            created at 2026-03-08 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -100,25 +106,25 @@
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">def</span> <span class="nam">quote_for_shell</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">6 ctx</label></span><span class="ctxs">1agbcde</span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">12 ctx</label></span><span class="ctxs">1abcdelmfghij</span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">        <span class="com"># This is a relatively heavy import; keep pathfinder lean if possible.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">        <span class="key">from</span> <span class="nam">subprocess</span> <span class="key">import</span> <span class="nam">list2cmdline</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">5 ctx</label></span><span class="ctxs">1abcde</span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">        <span class="key">from</span> <span class="nam">subprocess</span> <span class="key">import</span> <span class="nam">list2cmdline</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="key">return</span> <span class="nam">list2cmdline</span><span class="op">(</span><span class="op">[</span><span class="nam">s</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">5 ctx</label></span><span class="ctxs">1abcde</span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">        <span class="key">return</span> <span class="nam">list2cmdline</span><span class="op">(</span><span class="op">[</span><span class="nam">s</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefghij</span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="key">import</span> <span class="nam">shlex</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">6 ctx</label></span><span class="ctxs">1agbcde</span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="key">import</span> <span class="nam">shlex</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">12 ctx</label></span><span class="ctxs">1abcdelmfghij</span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">return</span> <span class="nam">shlex</span><span class="op">.</span><span class="nam">quote</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">6 ctx</label></span><span class="ctxs">1agbcde</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">return</span> <span class="nam">shlex</span><span class="op">.</span><span class="nam">quote</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">12 ctx</label></span><span class="ctxs">1abcdelmfghij</span></p>
 </main>
 <footer>
     <div class="content">
         <p>
             <a class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_2f3b744c44be98a7__version_py.html">&#xbb; next</a>
+            <a class="nav" href="z_d6709abc2f7034d5_spawned_process_runner_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-02-10 14:26 +0000
+            created at 2026-03-08 01:07 +0000
         </p>
     </div>
 </footer>
