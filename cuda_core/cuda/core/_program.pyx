@@ -479,6 +479,23 @@ class ProgramOptions:
 
     def __repr__(self):
         return f"ProgramOptions(name={self.name!r}, arch={self.arch!r})"
+        
+    def _prepare_extra_sources_bytes(self) -> list[tuple[bytes, bytes]] | None:
+        """Convert extra_sources to bytes format for NVVM."""
+        if self.extra_sources is None:
+            return None
+        
+        result = []
+        for module_name, module_source in self.extra_sources:
+            name_bytes = module_name.encode("utf-8")
+            if isinstance(module_source, str):
+                source_bytes = module_source.encode("utf-8")
+            elif isinstance(module_source, bytearray):
+                source_bytes = bytes(module_source)
+            else:
+                source_bytes = module_source
+            result.append((name_bytes, source_bytes))
+        return result
 
 
 # =============================================================================
@@ -649,21 +666,15 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
         # Add extra modules if provided
         if options.extra_sources is not None:
-            for module_name, module_source in options.extra_sources:
-                if isinstance(module_source, str):
-                    module_source = module_source.encode("utf-8")
-
-                # Add the module using NVVM API
-                module_bytes = module_source if isinstance(module_source, bytes) else bytes(module_source)
+            extra_sources_bytes = options._prepare_extra_sources_bytes()
+            for module_name_bytes, module_bytes in extra_sources_bytes:
                 module_ptr = <const char*>module_bytes
                 module_len = len(module_bytes)
-                module_name_bytes = module_name.encode()
                 module_name_ptr = <const char*>module_name_bytes
-
                 with nogil:
                     HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
                         nvvm_prog, module_ptr, module_len, module_name_ptr))
-
+                        
         # Store use_libdevice flag
         if options.use_libdevice:
             self._use_libdevice = True
