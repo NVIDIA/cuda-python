@@ -479,12 +479,12 @@ class ProgramOptions:
 
     def __repr__(self):
         return f"ProgramOptions(name={self.name!r}, arch={self.arch!r})"
-        
+
     def _prepare_extra_sources_bytes(self) -> list[tuple[bytes, bytes]] | None:
         """Convert extra_sources to bytes format for NVVM."""
         if self.extra_sources is None:
             return None
-        
+
         result = []
         for module_name, module_source in self.extra_sources:
             name_bytes = module_name.encode("utf-8")
@@ -674,7 +674,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
                 with nogil:
                     HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
                         nvvm_prog, module_ptr, module_len, module_name_ptr))
-                        
+
         # Store use_libdevice flag
         if options.use_libdevice:
             self._use_libdevice = True
