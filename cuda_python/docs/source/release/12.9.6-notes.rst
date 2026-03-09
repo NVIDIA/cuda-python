@@ -1,13 +1,13 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-CUDA Python 13.2.0 Release notes
+CUDA Python 12.9.6 Release notes
 ================================
 
 Included components
 -------------------
 
-* `cuda.bindings 13.2.0 <https://nvidia.github.io/cuda-python/cuda-bindings/13.2.0/release/13.2.0-notes.html>`_
+* `cuda.bindings 12.9.6 <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.6/release/12.9.6-notes.html>`_
 * `cuda.pathfinder 1.4.2 <https://nvidia.github.io/cuda-python/cuda-pathfinder/1.4.2/release/1.4.2-notes.html>`_
 
 Known issues
