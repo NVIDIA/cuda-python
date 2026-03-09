@@ -14,7 +14,7 @@ import threading
 from warnings import warn
 
 from cuda.bindings import driver, nvrtc
-from cuda.pathfinder import _optional_cuda_import
+from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 
 from libcpp.vector cimport vector
 
