@@ -57,7 +57,13 @@ Fixes and enhancements
   instead of the NUMA node closest to the active CUDA device. On multi-NUMA
   systems where the device is attached to a non-zero host NUMA node, this could
   cause pool creation or allocation failures. (:issue:`1603`)
+- Fixed :attr:`DeviceMemoryResource.peer_accessible_by` returning stale results when wrapping
+  a non-owned (default) memory pool. The property now always queries the CUDA driver for
+  non-owned pools, so multiple wrappers around the same pool see consistent state. (:issue:`1720`)
 - Reduced Python overhead in :class:`Program` and :class:`Linker` by moving compilation and
   linking operations to the C level and releasing the GIL during backend calls. This benefits
   workloads that create many programs or linkers, and enables concurrent compilation in
   multithreaded applications.
+- Improved optional dependency handling for NVVM and nvJitLink imports so that only genuinely
+  missing optional modules are treated as unavailable; unrelated import failures now surface
+  normally, and ``cuda.core`` now depends directly on ``cuda-pathfinder``.

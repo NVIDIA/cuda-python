@@ -1,14 +1,14 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
+from common.helper_string import check_cmd_line_flag, get_cmd_line_argument_int
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
 
 
-def _cudaGetErrorEnum(error):
+def _cuda_get_error_enum(error):
     if isinstance(error, cuda.CUresult):
         err, name = cuda.cuGetErrorName(error)
         return name if err == cuda.CUresult.CUDA_SUCCESS else "<unknown>"
@@ -20,9 +20,9 @@ def _cudaGetErrorEnum(error):
         raise RuntimeError(f"Unknown error type: {error}")
 
 
-def checkCudaErrors(result):
+def check_cuda_errors(result):
     if result[0].value:
-        raise RuntimeError(f"CUDA error code={result[0].value}({_cudaGetErrorEnum(result[0])})")
+        raise RuntimeError(f"CUDA error code={result[0].value}({_cuda_get_error_enum(result[0])})")
     if len(result) == 1:
         return None
     elif len(result) == 2:
@@ -31,18 +31,18 @@ def checkCudaErrors(result):
         return result[1:]
 
 
-def findCudaDevice():
-    devID = 0
-    if checkCmdLineFlag("device="):
-        devID = getCmdLineArgumentInt("device=")
-    checkCudaErrors(cudart.cudaSetDevice(devID))
-    return devID
+def find_cuda_device():
+    dev_id = 0
+    if check_cmd_line_flag("device="):
+        dev_id = get_cmd_line_argument_int("device=")
+    check_cuda_errors(cudart.cudaSetDevice(dev_id))
+    return dev_id
 
 
-def findCudaDeviceDRV():
-    devID = 0
-    if checkCmdLineFlag("device="):
-        devID = getCmdLineArgumentInt("device=")
-    checkCudaErrors(cuda.cuInit(0))
-    cuDevice = checkCudaErrors(cuda.cuDeviceGet(devID))
-    return cuDevice
+def find_cuda_device_drv():
+    dev_id = 0
+    if check_cmd_line_flag("device="):
+        dev_id = get_cmd_line_argument_int("device=")
+    check_cuda_errors(cuda.cuInit(0))
+    cu_device = check_cuda_errors(cuda.cuDeviceGet(dev_id))
+    return cu_device

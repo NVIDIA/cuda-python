@@ -130,7 +130,7 @@ cdef class DeviceMemoryResource(_MemPool):
 
     def __cinit__(self, *args, **kwargs):
         self._dev_id = cydriver.CU_DEVICE_INVALID
-        self._peer_accessible_by = ()
+        self._peer_accessible_by = None
 
     def __init__(self, device_id: Device | int, options=None):
         _DMR_init(self, device_id, options)
@@ -190,6 +190,7 @@ cdef class DeviceMemoryResource(_MemPool):
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
         from .._device import Device
         mr._dev_id = Device(device_id).device_id
+        mr._peer_accessible_by = ()
         return mr
 
     def get_allocation_handle(self) -> IPCAllocationHandle:
@@ -224,6 +225,10 @@ cdef class DeviceMemoryResource(_MemPool):
         When setting, accepts a sequence of Device objects or device IDs.
         Setting to an empty sequence revokes all peer access.
 
+        For non-owned pools (the default or current device pool), the state
+        is always queried from the driver to reflect changes made by other
+        wrappers or direct driver calls.
+
         Examples
         --------
         >>> dmr = DeviceMemoryResource(0)
@@ -231,6 +236,8 @@ cdef class DeviceMemoryResource(_MemPool):
         >>> assert dmr.peer_accessible_by == (1,)
         >>> dmr.peer_accessible_by = []  # Revoke access
         """
+        if not self._mempool_owned:
+            _DMR_query_peer_access(self)
         return self._peer_accessible_by
 
     @peer_accessible_by.setter
@@ -248,6 +255,29 @@ cdef class DeviceMemoryResource(_MemPool):
         return False
 
 
+cdef inline _DMR_query_peer_access(DeviceMemoryResource self):
+    """Query the driver for the actual peer access state of this pool."""
+    cdef int total
+    cdef cydriver.CUmemAccess_flags flags
+    cdef cydriver.CUmemLocation location
+    cdef list peers = []
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
+
+    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    for dev_id in range(total):
+        if dev_id == self._dev_id:
+            continue
+        location.id = dev_id
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(self._h_pool), &location))
+        if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
+            peers.append(dev_id)
+
+    self._peer_accessible_by = tuple(sorted(peers))
+
+
 cdef inline _DMR_set_peer_accessible_by(DeviceMemoryResource self, devices):
     from .._device import Device
 
@@ -257,6 +287,8 @@ cdef inline _DMR_set_peer_accessible_by(DeviceMemoryResource self, devices):
     cdef list bad = [dev for dev in target_ids if not this_dev.can_access_peer(dev)]
     if bad:
         raise ValueError(f"Device {self._dev_id} cannot access peer(s): {', '.join(map(str, bad))}")
+    if not self._mempool_owned:
+        _DMR_query_peer_access(self)
     cdef set[int] cur_ids = set(self._peer_accessible_by)
     cdef set[int] to_add = target_ids - cur_ids
     cdef set[int] to_rm = cur_ids - target_ids
@@ -314,6 +346,7 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
         self._mempool_owned = False
         MP_raise_release_threshold(self)
     else:
+        self._peer_accessible_by = ()
         MP_init_create_pool(
             self,
             cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,

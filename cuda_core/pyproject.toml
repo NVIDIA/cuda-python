@@ -47,6 +47,8 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA :: 13",
 ]
 dependencies = [
+    # TODO: bump to >=1.4.2 once cuda-pathfinder 1.4.2 is released.
+    "cuda-pathfinder >=1.4.1",
     "numpy",
 ]
 

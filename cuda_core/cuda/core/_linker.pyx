@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import Union
 from warnings import warn
 
+from cuda.pathfinder import optional_cuda_import
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
 from cuda.core._utils.clear_error_support import assert_type
@@ -649,23 +650,20 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    try:
-        __import__("cuda.bindings.nvjitlink")  # availability check
-    except ModuleNotFoundError:
+    nvjitlink_module = optional_cuda_import(
+        "cuda.bindings.nvjitlink",
+        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
+    )
+    if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
         from cuda.bindings._internal import nvjitlink
 
-        try:
-            if _nvjitlink_has_version_symbol(nvjitlink):
-                _use_nvjitlink_backend = True
-                return False  # Use nvjitlink
-        except RuntimeError:
-            warn_detail = "not available"
-        else:
-            warn_detail = "too old (<12.3)"
+        if _nvjitlink_has_version_symbol(nvjitlink):
+            _use_nvjitlink_backend = True
+            return False  # Use nvjitlink
         warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
+            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
             f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
         )
 

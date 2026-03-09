@@ -1096,6 +1096,8 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     buf.exporting_obj = obj
     buf.metadata = cai_data
     buf.dl_tensor = NULL
+    # Validate shape/strides/typestr eagerly so constructor paths fail fast.
+    buf.get_layout()
     buf.ptr, buf.readonly = cai_data["data"]
     buf.is_device_accessible = True
     if buf.ptr != 0:
@@ -1138,6 +1140,8 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     buf.exporting_obj = obj
     buf.metadata = data
     buf.dl_tensor = NULL
+    # Validate shape/strides/typestr eagerly so constructor paths fail fast.
+    buf.get_layout()
     buf.ptr, buf.readonly = data["data"]
     buf.is_device_accessible = False
     buf.device_id = handle_return(driver.cuCtxGetDevice())

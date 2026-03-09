@@ -148,6 +148,7 @@ numpy = "*"
 # Using path dependency now that we've added .pth support for Cython .pxd files
 # See build_hooks.py:_add_cython_include_paths_to_pth()
 cuda-bindings = { path = "../cuda_bindings" }
+cuda-pathfinder = { path = "../cuda_pathfinder" }
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]

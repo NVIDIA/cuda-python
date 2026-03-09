@@ -142,3 +142,32 @@ def test_peer_access_transitions(mempool_device_x3):
         assert dmrs[0].peer_accessible_by == final_state
         verify_state(final_state, pattern_seed)
         pattern_seed += 1
+
+
+def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
+    """Non-owned pools always query the driver for peer access state."""
+    dev0, dev1 = mempool_device_x2
+
+    # Grant peer access via one wrapper; a second wrapper must see it.
+    dmr1 = DeviceMemoryResource(dev0)
+    dmr1.peer_accessible_by = [dev1]
+    dmr2 = DeviceMemoryResource(dev0)
+    assert dev1.device_id in dmr2.peer_accessible_by
+
+    # Revoke via dmr2; dmr1 must reflect the change immediately.
+    dmr2.peer_accessible_by = []
+    assert dmr1.peer_accessible_by == ()
+
+    # Re-grant via dmr1. A fresh wrapper that has never read the
+    # property must still query the driver before computing diffs
+    # in the setter, so setting [] must discover and revoke the access.
+    dmr1.peer_accessible_by = [dev1]
+    dmr3 = DeviceMemoryResource(dev0)
+    assert dmr1.peer_accessible_by == (dev1.device_id,)
+    assert dmr2.peer_accessible_by == (dev1.device_id,)
+    assert dmr3.peer_accessible_by == (dev1.device_id,)
+    dmr3.peer_accessible_by = []
+    assert DeviceMemoryResource(dev0).peer_accessible_by == ()
+    assert dmr1.peer_accessible_by == ()
+    assert dmr2.peer_accessible_by == ()
+    assert dmr3.peer_accessible_by == ()
