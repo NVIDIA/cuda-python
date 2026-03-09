@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ed0d5346"></script>
+    <script src="../_static/documentation_options.js?v=6cdcb49f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev31';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev51';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -978,6 +978,9 @@ from this memory pool.</p>
 allocations from this memory pool.</p>
 <p>When setting, accepts a sequence of Device objects or device IDs.
 Setting to an empty sequence revokes all peer access.</p>
+<p>For non-owned pools (the default or current device pool), the state
+is always queried from the driver to reflect changes made by other
+wrappers or direct driver calls.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span> <span class="o">=</span> <span class="n">DeviceMemoryResource</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Grant access to device 1</span>
