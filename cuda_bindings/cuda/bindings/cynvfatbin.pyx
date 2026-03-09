@@ -53,9 +53,3 @@ cdef nvFatbinResult nvFatbinAddReloc(nvFatbinHandle handle, const void* code, si
 
 cdef nvFatbinResult nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvfatbin._nvFatbinAddTileIR(handle, code, size, identifier, optionsCmdLine)
-
-
-
-
-
-

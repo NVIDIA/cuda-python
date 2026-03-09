@@ -36,9 +36,3 @@ cpdef get(intptr_t handle, buffer)
 cpdef tuple version()
 cpdef add_reloc(intptr_t handle, code, size_t size)
 cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_line)
-
-
-
-
-
-

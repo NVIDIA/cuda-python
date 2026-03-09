@@ -27471,4 +27471,3 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
-
