@@ -6,7 +6,7 @@
 # Replace the dictionary below with the output.
 # Also update the CUDA Toolkit version number below.
 
-# CUDA Toolkit v13.1.0
+# CUDA Toolkit v13.2.0
 RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
@@ -51,6 +51,11 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
         " per block than the device supports will trigger this error, as will"
         " requesting too many threads or blocks. See ::cudaDeviceProp for more"
         " device limitations."
+    ),
+    10: (
+        "This indicates that the driver is newer than the runtime version"
+        " and returned graph node parameter information that the runtime"
+        " does not understand and is unable to translate."
     ),
     12: (
         "This indicates that one or more of the pitch-related parameters passed"
@@ -518,12 +523,15 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
         " changes which violated constraints specific to instantiated graph update."
     ),
     911: (
-        "This indicates that an async error has occurred in a device outside of CUDA."
-        " If CUDA was waiting for an external device's signal before consuming shared data,"
-        " the external device signaled an error indicating that the data is not valid for"
-        " consumption. This leaves the process in an inconsistent state and any further CUDA"
-        " work will return the same error. To continue using CUDA, the process must be"
-        " terminated and relaunched."
+        "This indicates that an error has occurred in a device outside of GPU. It can be a"
+        " synchronous error w.r.t. CUDA API or an asynchronous error from the external device."
+        " In case of asynchronous error, it means that if cuda was waiting for an external device's"
+        " signal before consuming shared data, the external device signaled an error indicating that"
+        " the data is not valid for consumption. This leaves the process in an inconsistent"
+        " state and any further CUDA work will return the same error. To continue using CUDA,"
+        " the process must be terminated and relaunched."
+        " In case of synchronous error, it means that one or more external devices"
+        " have encountered an error and cannot complete the operation."
     ),
     912: ("This indicates that a kernel launch error has occurred due to cluster misconfiguration."),
     913: ("Indiciates a function handle is not loaded when calling an API that requires a loaded function."),
