@@ -6,7 +6,7 @@ from contextlib import contextmanager
 
 import pytest
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 
 @contextmanager

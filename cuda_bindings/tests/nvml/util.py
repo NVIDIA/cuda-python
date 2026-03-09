@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
@@ -6,7 +6,7 @@ import functools
 import platform
 from pathlib import Path
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 current_os = platform.system()
 if current_os == "VMkernel":
