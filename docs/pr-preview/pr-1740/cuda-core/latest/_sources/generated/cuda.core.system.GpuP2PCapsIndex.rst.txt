@@ -1,0 +1,47 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.GpuP2PCapsIndex
+================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: GpuP2PCapsIndex
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: P2P_CAPS_INDEX_ATOMICS
+   .. autoattribute:: P2P_CAPS_INDEX_NVLINK
+   .. autoattribute:: P2P_CAPS_INDEX_PCI
+   .. autoattribute:: P2P_CAPS_INDEX_PROP
+   .. autoattribute:: P2P_CAPS_INDEX_READ
+   .. autoattribute:: P2P_CAPS_INDEX_UNKNOWN
+   .. autoattribute:: P2P_CAPS_INDEX_WRITE
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
