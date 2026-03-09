@@ -35216,8 +35216,9 @@ def cudaGraphMemFreeNodeGetParams(node):
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef void_ptr dptr_out = 0
+    cdef void* cydptr_out_ptr = <void*>&dptr_out
     with nogil:
-        err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, <void**>&dptr_out)
+        err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, cydptr_out_ptr)
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None)
     return (_cudaError_t_SUCCESS, dptr_out)

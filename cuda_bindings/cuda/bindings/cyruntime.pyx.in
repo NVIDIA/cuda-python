@@ -1405,7 +1405,7 @@ cdef cudaError_t cudaGraphAddMemFreeNode(cudaGraphNode_t* pGraphNode, cudaGraph_
 
 {{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
 
-cdef cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void** dptr_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void* dptr_out) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaGraphMemFreeNodeGetParams(node, dptr_out)
 {{endif}}
 

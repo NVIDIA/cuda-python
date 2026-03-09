@@ -1171,7 +1171,7 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
 
-    cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void** dptr_out) nogil
+    cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void* dptr_out) nogil
 
     {{endif}}
     {{if 'cudaDeviceGraphMemTrim' in found_functions}}
