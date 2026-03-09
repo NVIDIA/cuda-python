@@ -47,14 +47,14 @@ def _patch_driver_version(monkeypatch, version=13000):
 def test_get_nvvm_module_reraises_nested_module_not_found(monkeypatch):
     monkeypatch.setattr(_program, "get_binding_version", lambda: (12, 9))
 
-    def fake_optional_cuda_import(modname, probe_function=None):
+    def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvvm"
         assert probe_function is not None
         err = ModuleNotFoundError("No module named 'not_a_real_dependency'")
         err.name = "not_a_real_dependency"
         raise err
 
-    monkeypatch.setattr(_program, "optional_cuda_import", fake_optional_cuda_import)
+    monkeypatch.setattr(_program, "_optional_cuda_import", fake__optional_cuda_import)
 
     with pytest.raises(ModuleNotFoundError, match="not_a_real_dependency") as excinfo:
         _program._get_nvvm_module()
@@ -64,12 +64,12 @@ def test_get_nvvm_module_reraises_nested_module_not_found(monkeypatch):
 def test_get_nvvm_module_reports_missing_nvvm_module(monkeypatch):
     monkeypatch.setattr(_program, "get_binding_version", lambda: (12, 9))
 
-    def fake_optional_cuda_import(modname, probe_function=None):
+    def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvvm"
         assert probe_function is not None
         return None
 
-    monkeypatch.setattr(_program, "optional_cuda_import", fake_optional_cuda_import)
+    monkeypatch.setattr(_program, "_optional_cuda_import", fake__optional_cuda_import)
 
     with pytest.raises(RuntimeError, match="cuda.bindings.nvvm"):
         _program._get_nvvm_module()
@@ -78,12 +78,12 @@ def test_get_nvvm_module_reports_missing_nvvm_module(monkeypatch):
 def test_get_nvvm_module_handles_missing_libnvvm(monkeypatch):
     monkeypatch.setattr(_program, "get_binding_version", lambda: (12, 9))
 
-    def fake_optional_cuda_import(modname, probe_function=None):
+    def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvvm"
         assert probe_function is not None
         return None
 
-    monkeypatch.setattr(_program, "optional_cuda_import", fake_optional_cuda_import)
+    monkeypatch.setattr(_program, "_optional_cuda_import", fake__optional_cuda_import)
 
     with pytest.raises(RuntimeError, match="libnvvm"):
         _program._get_nvvm_module()
@@ -92,14 +92,14 @@ def test_get_nvvm_module_handles_missing_libnvvm(monkeypatch):
 def test_decide_nvjitlink_or_driver_reraises_nested_module_not_found(monkeypatch):
     _patch_driver_version(monkeypatch)
 
-    def fake_optional_cuda_import(modname, probe_function=None):
+    def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvjitlink"
         assert probe_function is not None
         err = ModuleNotFoundError("No module named 'not_a_real_dependency'")
         err.name = "not_a_real_dependency"
         raise err
 
-    monkeypatch.setattr(_linker, "optional_cuda_import", fake_optional_cuda_import)
+    monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
 
     with pytest.raises(ModuleNotFoundError, match="not_a_real_dependency") as excinfo:
         _linker._decide_nvjitlink_or_driver()
@@ -109,12 +109,12 @@ def test_decide_nvjitlink_or_driver_reraises_nested_module_not_found(monkeypatch
 def test_decide_nvjitlink_or_driver_falls_back_when_module_missing(monkeypatch):
     _patch_driver_version(monkeypatch)
 
-    def fake_optional_cuda_import(modname, probe_function=None):
+    def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvjitlink"
         assert probe_function is not None
         return None
 
-    monkeypatch.setattr(_linker, "optional_cuda_import", fake_optional_cuda_import)
+    monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
 
     with pytest.warns(RuntimeWarning, match="cuda.bindings.nvjitlink is not available"):
         use_driver_backend = _linker._decide_nvjitlink_or_driver()

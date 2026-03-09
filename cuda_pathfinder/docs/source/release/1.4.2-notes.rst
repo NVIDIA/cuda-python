@@ -9,7 +9,8 @@
 Highlights
 ----------
 
-* Add ``optional_cuda_import()`` to support robust optional imports of CUDA
-  Python modules. It returns ``None`` when the requested module is absent or a
-  probe hits ``DynamicLibNotFoundError``, while still re-raising unrelated
-  ``ModuleNotFoundError`` exceptions (for missing transitive dependencies).
+* Add ``_optional_cuda_import()`` (private helper) to support robust optional
+  imports of CUDA Python modules. It returns ``None`` when the requested module
+  is absent or a probe hits ``DynamicLibNotFoundError``, while still re-raising
+  unrelated ``ModuleNotFoundError`` exceptions (for missing transitive
+  dependencies).

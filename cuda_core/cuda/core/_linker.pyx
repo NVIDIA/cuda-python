@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from typing import Union
 from warnings import warn
 
-from cuda.pathfinder import optional_cuda_import
+from cuda.pathfinder import _optional_cuda_import
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
 from cuda.core._utils.clear_error_support import assert_type
@@ -650,7 +650,7 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    nvjitlink_module = optional_cuda_import(
+    nvjitlink_module = _optional_cuda_import(
         "cuda.bindings.nvjitlink",
         probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
     )
