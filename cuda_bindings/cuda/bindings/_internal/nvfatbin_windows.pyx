@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.4.1 to 13.1.1, generator version 0.3.1.dev1324+gb402107a2. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -313,9 +313,3 @@ cdef nvFatbinResult _nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, 
             raise FunctionNotFoundError("function nvFatbinAddTileIR is not found")
     return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*, const char*) noexcept nogil>__nvFatbinAddTileIR)(
         handle, code, size, identifier, optionsCmdLine)
-
-
-
-
-
-
