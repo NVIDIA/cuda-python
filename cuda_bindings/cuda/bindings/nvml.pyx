@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -709,11 +709,11 @@ class DeviceGpuRecoveryAction(_FastEnum):
 
     See `nvmlDeviceGpuRecoveryAction_t`.
     """
-    GPU_RECOVERY_ACTION_NONE = NVML_GPU_RECOVERY_ACTION_NONE
-    GPU_RECOVERY_ACTION_GPU_RESET = NVML_GPU_RECOVERY_ACTION_GPU_RESET
-    GPU_RECOVERY_ACTION_NODE_REBOOT = NVML_GPU_RECOVERY_ACTION_NODE_REBOOT
-    GPU_RECOVERY_ACTION_DRAIN_P2P = NVML_GPU_RECOVERY_ACTION_DRAIN_P2P
-    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET
+    GPU_RECOVERY_ACTION_NONE = (NVML_GPU_RECOVERY_ACTION_NONE, 'No action needed.')
+    GPU_RECOVERY_ACTION_GPU_RESET = (NVML_GPU_RECOVERY_ACTION_GPU_RESET, 'Reset Gpu.')
+    GPU_RECOVERY_ACTION_NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
+    GPU_RECOVERY_ACTION_DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
+    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
 
 class FanState(_FastEnum):
     """
@@ -820,6 +820,7 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
     GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
@@ -993,7 +994,56 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
     GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
     GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
-    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1. Note that changing this should also change NVML_GPM_METRICS_GET_VERSION due to struct size change.')
+    GPM_METRIC_SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
+    GPM_METRIC_SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
+    GPM_METRIC_MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
+    GPM_METRIC_DMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE, "The GPU's SM DMMA tensor activity since reboot.")
+    GPM_METRIC_HMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE, "The GPU's SM HMMA tensor activity since reboot.")
+    GPM_METRIC_IMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE, "The GPU's SM IMMA tensor activity since reboot.")
+    GPM_METRIC_DFMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE, "The GPU's SM DFMA tensor activity since reboot.")
+    GPM_METRIC_PCIE_TX = (NVML_GPM_METRIC_PCIE_TX, 'The PCIe TX traffic since reboot.')
+    GPM_METRIC_PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
+    GPM_METRIC_INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
+    GPM_METRIC_FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_TX = (NVML_GPM_METRIC_NVLINK_L1_TX, 'NvLink write for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_RX = (NVML_GPM_METRIC_NVLINK_L2_RX, 'NvLink read for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_TX = (NVML_GPM_METRIC_NVLINK_L2_TX, 'NvLink write for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_RX = (NVML_GPM_METRIC_NVLINK_L3_RX, 'NvLink read for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_TX = (NVML_GPM_METRIC_NVLINK_L3_TX, 'NvLink write for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_RX = (NVML_GPM_METRIC_NVLINK_L4_RX, 'NvLink read for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_TX = (NVML_GPM_METRIC_NVLINK_L4_TX, 'NvLink write for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_RX = (NVML_GPM_METRIC_NVLINK_L5_RX, 'NvLink read for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_TX = (NVML_GPM_METRIC_NVLINK_L5_TX, 'NvLink write for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_RX = (NVML_GPM_METRIC_NVLINK_L6_RX, 'NvLink read for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_TX = (NVML_GPM_METRIC_NVLINK_L6_TX, 'NvLink write for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_RX = (NVML_GPM_METRIC_NVLINK_L7_RX, 'NvLink read for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_TX = (NVML_GPM_METRIC_NVLINK_L7_TX, 'NvLink write for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_RX = (NVML_GPM_METRIC_NVLINK_L8_RX, 'NvLink read for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_TX = (NVML_GPM_METRIC_NVLINK_L8_TX, 'NvLink write for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_RX = (NVML_GPM_METRIC_NVLINK_L9_RX, 'NvLink read for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_TX = (NVML_GPM_METRIC_NVLINK_L9_TX, 'NvLink write for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_RX = (NVML_GPM_METRIC_NVLINK_L10_RX, 'NvLink read for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_TX = (NVML_GPM_METRIC_NVLINK_L10_TX, 'NvLink write for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_RX = (NVML_GPM_METRIC_NVLINK_L11_RX, 'NvLink read for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_TX = (NVML_GPM_METRIC_NVLINK_L11_TX, 'NvLink write for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_RX = (NVML_GPM_METRIC_NVLINK_L12_RX, 'NvLink read for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_TX = (NVML_GPM_METRIC_NVLINK_L12_TX, 'NvLink write for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_RX = (NVML_GPM_METRIC_NVLINK_L13_RX, 'NvLink read for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_TX = (NVML_GPM_METRIC_NVLINK_L13_TX, 'NvLink write for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_RX = (NVML_GPM_METRIC_NVLINK_L14_RX, 'NvLink read for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_TX = (NVML_GPM_METRIC_NVLINK_L14_TX, 'NvLink write for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_RX = (NVML_GPM_METRIC_NVLINK_L15_RX, 'NvLink read for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_TX = (NVML_GPM_METRIC_NVLINK_L15_TX, 'NvLink write for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_RX = (NVML_GPM_METRIC_NVLINK_L16_RX, 'NvLink read for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
+    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
 
 class PowerProfileType(_FastEnum):
     """

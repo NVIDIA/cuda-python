@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -424,6 +424,10 @@ cdef void* __nvmlDeviceReadPRMCounters_v1 = NULL
 cdef void* __nvmlDeviceSetRusdSettings_v1 = NULL
 
 
+cdef uintptr_t load_library() except* with gil:
+    return load_nvidia_dynamic_lib("nvml")._handle_uint
+
+
 cdef int _init_nvml() except -1 nogil:
     global __py_nvml_init
 
@@ -431,7 +435,7 @@ cdef int _init_nvml() except -1 nogil:
     cdef uintptr_t handle
 
     with gil, __symbol_lock:
-        handle = load_nvidia_dynamic_lib("nvml")._handle_uint
+        handle = load_library()
 
         # Load function
         global __nvmlInit_v2
