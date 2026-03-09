@@ -14,7 +14,6 @@ locating NVIDIA C/C++ header directories, and finding CUDA binary utilities.
 
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
-   optional_cuda_import
    LoadedDL
    DynamicLibNotFoundError
    DynamicLibUnknownError

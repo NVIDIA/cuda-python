@@ -14,7 +14,7 @@ import threading
 from warnings import warn
 
 from cuda.bindings import driver, nvrtc
-from cuda.pathfinder import optional_cuda_import
+from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 
 from libcpp.vector cimport vector
 
@@ -485,7 +485,7 @@ def _get_nvvm_module():
                 "Please update cuda-bindings to use NVVM features."
             )
 
-        nvvm = optional_cuda_import(
+        nvvm = _optional_cuda_import(
             "cuda.bindings.nvvm",
             probe_function=lambda module: module.version(),  # probe triggers libnvvm load
         )
