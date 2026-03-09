@@ -347,17 +347,18 @@
   "+d": "tests/test_program.py::test_ptx_program_with_various_options[options0]|run",
   ",d": "tests/test_program.py::test_ptx_program_with_various_options[options1]|run",
   "-d": "tests/test_program.py::test_ptx_program_with_various_options[options2]|run",
-  ".d": "tests/test_program.py::test_ptx_program_with_various_options[options2]|setup",
-  "/d": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
+  ".d": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
+  "/d": "tests/test_program.py::test_ptx_program_with_various_options[options3]|setup",
   ":d": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
   ";d": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
   "=d": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
   "?d": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
   "@d": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
-  "[d": "tests/test_module.py::test_object_code_load_cubin_from_file|run",
-  "]d": "tests/test_module.py::test_object_code_load_cubin|run",
-  "^d": "tests/test_module.py::test_object_code_load_ltoir|run",
-  "_d": "tests/test_program.py::test_nvvm_program_creation_compilation|run"
+  "[d": "tests/test_program.py::test_ptx_program_with_various_options[options8]|setup",
+  "]d": "tests/test_module.py::test_object_code_load_cubin_from_file|run",
+  "^d": "tests/test_module.py::test_object_code_load_cubin|run",
+  "_d": "tests/test_module.py::test_object_code_load_ltoir|run",
+  "`d": "tests/test_program.py::test_nvvm_program_creation_compilation|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -420,7 +421,7 @@
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-08 01:07 +0000
+            created at 2026-03-09 01:05 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -442,13 +443,13 @@
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">def</span> <span class="nam">assert_type</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">    <span class="str">"""Ensure obj is of expected_type, else raise AssertionError with a clear message."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs8"><span class="r"><label for="ctxs8" class="ctx">346 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` JcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhd{ | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbidjdkdldqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcmdncndocodpcpdqcqdrcscrdtcucvcsdwcxcyczcAcBcCcDcEcFcGctdudHcvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)dIc*d+d,d-d.d/d:d;d=d?d@d</span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="nam">expected_type</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs8"><span class="r"><label for="ctxs8" class="ctx">347 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` JcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhd{ | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbidjdkdldqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcmdncndocodpcpdqcqdrcscrdtcucvcsdwcxcyczcAcBcCcDcEcFcGctdudHcvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)dIc*d+d,d-d.d/d:d;d=d?d@d[d</span></p>
     <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Expected type </span><span class="op">{</span><span class="nam">expected_type</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">, but got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs9"><span class="r"><label for="ctxs9" class="ctx">1 ctx</label></span><span class="ctxs">2Ic</span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="key">def</span> <span class="nam">assert_type_str_or_bytes_like</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs12" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">    <span class="str">"""Ensure obj is of type str or bytes, else raise AssertionError with a clear message."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="op">(</span><span class="nam">str</span><span class="op">,</span> <span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">215 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnb[dob]dpb^dqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHc_d</span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">obj</span><span class="op">,</span> <span class="op">(</span><span class="nam">str</span><span class="op">,</span> <span class="nam">bytes</span><span class="op">,</span> <span class="nam">bytearray</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs14"><span class="r"><label for="ctxs14" class="ctx">215 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnb]dob^dpb_dqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHc`d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="key">raise</span> <span class="nam">TypeError</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Expected type str or bytes or bytearray, but got </span><span class="op">{</span><span class="nam">type</span><span class="op">(</span><span class="nam">obj</span><span class="op">)</span><span class="op">.</span><span class="nam">__name__</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -463,7 +464,7 @@
             <a class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-08 01:07 +0000
+            created at 2026-03-09 01:05 +0000
         </p>
     </div>
 </footer>
