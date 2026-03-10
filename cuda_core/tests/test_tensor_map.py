@@ -4,11 +4,15 @@
 import numpy as np
 import pytest
 
+from conftest import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
 from cuda.core import (
     Device,
+    ManagedMemoryResourceOptions,
     StridedMemoryView,
     TensorMapDescriptor,
+    system,
 )
+from cuda.core._dlpack import DLDeviceType
 from cuda.core._tensor_map import (
     TensorMapDataType,
     TensorMapIm2ColWideMode,
@@ -16,6 +20,7 @@ from cuda.core._tensor_map import (
     TensorMapL2Promotion,
     TensorMapOOBFill,
     TensorMapSwizzle,
+    _require_view_device,
 )
 
 
@@ -46,6 +51,15 @@ class _DeviceArray:
             "data": (int(buf.handle), False),
             "version": 3,
         }
+
+
+class _MockTensorMapView:
+    def __init__(self, device_type, device_id):
+        self._device_type = device_type
+        self._device_id = device_id
+
+    def __dlpack_device__(self):
+        return (self._device_type, self._device_id)
 
 
 class TestTensorMapEnums:
@@ -322,6 +336,115 @@ class TestTensorMapReplaceAddress:
         host_arr = np.zeros(1024, dtype=np.float32)
         with pytest.raises(ValueError, match="device-accessible"):
             desc.replace_address(host_arr)
+
+    def test_replace_address_rejects_tensor_from_other_device(self, dev, skip_if_no_tma):
+        if system.get_num_devices() < 2:
+            pytest.skip("requires multi-GPU")
+
+        dev0 = dev
+        dev1 = Device(1)
+
+        dev0.set_current()
+        buf0 = dev0.allocate(1024 * 4)
+        desc = TensorMapDescriptor.from_tiled(
+            buf0,
+            box_dim=(64,),
+            data_type=TensorMapDataType.FLOAT32,
+        )
+
+        dev1.set_current()
+        buf1 = dev1.allocate(1024 * 4)
+        dev0.set_current()
+
+        with pytest.raises(ValueError, match=r"replace_address expects tensor on device 0, got 1"):
+            desc.replace_address(buf1)
+
+    def test_replace_address_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
+        if system.get_num_devices() < 2:
+            pytest.skip("requires multi-GPU")
+
+        dev1 = Device(1)
+        if not dev1.properties.tensor_map_access_supported:
+            pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
+        skip_if_managed_memory_unsupported(dev1)
+
+        dev1.set_current()
+        desc = TensorMapDescriptor.from_tiled(
+            dev1.allocate(1024 * 4),
+            box_dim=(64,),
+            data_type=TensorMapDataType.FLOAT32,
+        )
+
+        mr = create_managed_memory_resource_or_skip(
+            ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        )
+        managed_buf = mr.allocate(1024 * 4)
+
+        desc.replace_address(managed_buf)
+
+
+class TestTensorMapMultiDeviceValidation:
+    """Test multi-device validation for descriptor creation."""
+
+    def test_from_tiled_rejects_tensor_from_other_device(self, init_cuda):
+        if system.get_num_devices() < 2:
+            pytest.skip("requires multi-GPU")
+
+        dev0 = Device(0)
+        dev1 = Device(1)
+
+        dev1.set_current()
+        buf1 = dev1.allocate(1024 * 4)
+        dev0.set_current()
+
+        with pytest.raises(
+            ValueError,
+            match=r"TensorMapDescriptor\.from_tiled expects tensor on device 0, got 1",
+        ):
+            TensorMapDescriptor.from_tiled(
+                buf1,
+                box_dim=(64,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+
+    def test_from_tiled_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
+        if system.get_num_devices() < 2:
+            pytest.skip("requires multi-GPU")
+
+        dev1 = Device(1)
+        if not dev1.properties.tensor_map_access_supported:
+            pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
+        skip_if_managed_memory_unsupported(dev1)
+
+        dev1.set_current()
+        mr = create_managed_memory_resource_or_skip(
+            ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        )
+        managed_buf = mr.allocate(1024 * 4)
+
+        desc = TensorMapDescriptor.from_tiled(
+            managed_buf,
+            box_dim=(64,),
+            data_type=TensorMapDataType.FLOAT32,
+        )
+        assert desc is not None
+
+
+class TestTensorMapDeviceValidation:
+    """Test device validation behavior for tensor-map-compatible views."""
+
+    def test_require_view_device_accepts_same_cuda_device(self):
+        _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDA, 1), 1, "op")
+
+    def test_require_view_device_rejects_different_cuda_device(self):
+        with pytest.raises(ValueError, match=r"op expects tensor on device 0, got 1"):
+            _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDA, 1), 0, "op")
+
+    def test_require_view_device_allows_cuda_host_memory(self):
+        _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDAHost, 0), 1, "op")
+
+    def test_require_view_device_allows_cuda_managed_memory(self):
+        _require_view_device(_MockTensorMapView(DLDeviceType.kDLCUDAManaged, 0), 1, "op")
 
 
 class TestTensorMapIm2col:

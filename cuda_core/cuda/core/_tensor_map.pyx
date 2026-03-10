@@ -263,6 +263,19 @@ def _get_validated_view(tensor):
     return view
 
 
+def _require_view_device(view, expected_device_id, operation):
+    """Ensure device-local tensors match the current CUDA device.
+
+    DLPack reports host/managed CUDA memory as ``kDLCUDAHost`` /
+    ``kDLCUDAManaged`` with ``device_id=0`` regardless of the current device,
+    so only true ``kDLCUDA`` tensors are rejected by device-id mismatch.
+    """
+    device_type, device_id = view.__dlpack_device__()
+    if device_type == _kDLCUDA and device_id != expected_device_id:
+        raise ValueError(
+            f"{operation} expects tensor on device {expected_device_id}, got {device_id}")
+
+
 cdef inline intptr_t _get_current_context_ptr() except? 0:
     cdef cydriver.CUcontext ctx
     with nogil:
@@ -406,6 +419,7 @@ cdef class TensorMapDescriptor:
         desc._view_ref = view
         desc._context = _get_current_context_ptr()
         desc._device_id = _get_current_device_id()
+        _require_view_device(view, desc._device_id, "TensorMapDescriptor.from_tiled")
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -447,6 +461,8 @@ cdef class TensorMapDescriptor:
         cdef int i_cccl
         cdef int device_type
         cdef int c_device_id
+        cdef int dl_device_type
+        cdef int dl_device_id
         cdef int c_cccl_interleave_int
         cdef int c_cccl_swizzle_int
         cdef int c_cccl_l2_promotion_int
@@ -471,8 +487,9 @@ cdef class TensorMapDescriptor:
             if elem_strides_provided:
                 c_elem_strides_ptr = &c_elem_strides[0]
 
-            device_type = <int>_kDLCUDA
-            c_device_id = <int>view.device_id
+            dl_device_type, dl_device_id = view.__dlpack_device__()
+            device_type = dl_device_type
+            c_device_id = dl_device_id
             c_cccl_interleave_int = int(interleave)
             c_cccl_swizzle_int = int(swizzle)
             c_cccl_l2_promotion_int = int(l2_promotion)
@@ -635,6 +652,7 @@ cdef class TensorMapDescriptor:
         desc._view_ref = view
         desc._context = _get_current_context_ptr()
         desc._device_id = _get_current_device_id()
+        _require_view_device(view, desc._device_id, "TensorMapDescriptor.from_im2col")
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -794,6 +812,7 @@ cdef class TensorMapDescriptor:
             desc._view_ref = view
             desc._context = _get_current_context_ptr()
             desc._device_id = _get_current_device_id()
+            _require_view_device(view, desc._device_id, "TensorMapDescriptor.from_im2col_wide")
 
             tma_dt = _resolve_data_type(view, data_type)
             cdef int c_data_type_int = int(tma_dt)
@@ -885,9 +904,7 @@ cdef class TensorMapDescriptor:
         """
         self._check_context_compat()
         view = _get_validated_view(tensor)
-        if view.device_id != self._device_id:
-            raise ValueError(
-                f"replace_address expects tensor on device {self._device_id}, got {view.device_id}")
+        _require_view_device(view, self._device_id, "replace_address")
 
         cdef intptr_t global_address = view.ptr
 
