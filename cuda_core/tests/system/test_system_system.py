@@ -18,8 +18,6 @@ from cuda.core._utils.cuda_utils import handle_return
 
 from .conftest import skip_if_nvml_unsupported
 
-pytestmark = skip_if_nvml_unsupported
-
 
 def test_driver_version():
     driver_version = system.get_driver_version()

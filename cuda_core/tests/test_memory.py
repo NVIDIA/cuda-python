@@ -365,7 +365,6 @@ def test_buffer_external_host():
 
 
 @pytest.mark.parametrize("change_device", [True, False])
-@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_buffer_external_device(change_device):
     n = ccx_system.get_num_devices()
     if n < 1:
@@ -390,7 +389,6 @@ def test_buffer_external_device(change_device):
 
 
 @pytest.mark.parametrize("change_device", [True, False])
-@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_buffer_external_pinned_alloc(change_device):
     n = ccx_system.get_num_devices()
     if n < 1:
@@ -416,7 +414,6 @@ def test_buffer_external_pinned_alloc(change_device):
 
 
 @pytest.mark.parametrize("change_device", [True, False])
-@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_buffer_external_pinned_registered(change_device):
     n = ccx_system.get_num_devices()
     if n < 1:
@@ -450,7 +447,6 @@ def test_buffer_external_pinned_registered(change_device):
 
 
 @pytest.mark.parametrize("change_device", [True, False])
-@pytest.mark.usefixtures("require_nvml_runtime_or_skip_local")
 def test_buffer_external_managed(change_device):
     n = ccx_system.get_num_devices()
     if n < 1:
