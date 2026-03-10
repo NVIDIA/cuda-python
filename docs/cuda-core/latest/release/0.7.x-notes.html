@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=501afa65"></script>
+    <script src="../_static/documentation_options.js?v=f4627e7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev44';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev45';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -653,7 +653,23 @@ are unaffected. The previous minimum was 12.8.0.</p></li>
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<ul class="simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code> option to <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>
+for explicit control over the preferred location kind (<code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>). This enables NUMA-aware managed memory
+pool placement. The existing <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> parameter retains full
+backwards compatibility when <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code> is not set.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.preferred_location" title="cuda.core.ManagedMemoryResource.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ManagedMemoryResource.preferred_location</span></code></a> property to query the
+resolved preferred location of a managed memory pool. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> for no
+preference, or a tuple such as <code class="docutils literal notranslate"><span class="pre">(&quot;device&quot;,</span> <span class="pre">0)</span></code>, <code class="docutils literal notranslate"><span class="pre">(&quot;host&quot;,</span> <span class="pre">None)</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">(&quot;host_numa&quot;,</span> <span class="pre">3)</span></code>.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> option to <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a> for explicit
+control over host NUMA node placement. When <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not set, the NUMA node is automatically derived from the
+current CUDA device.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.numa_id" title="cuda.core.PinnedMemoryResource.numa_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PinnedMemoryResource.numa_id</span></code></a> property to query the host NUMA
+node ID used for pool placement. Returns <code class="docutils literal notranslate"><span class="pre">-1</span></code> for OS-managed placement.</p></li>
+</ul>
 </section>
 <section id="new-examples">
 <h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">#</a></h2>
@@ -662,6 +678,13 @@ are unaffected. The previous minimum was 12.8.0.</p></li>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Fixed IPC-enabled pinned memory pools using a hardcoded NUMA node ID of <code class="docutils literal notranslate"><span class="pre">0</span></code>
+instead of the NUMA node closest to the active CUDA device. On multi-NUMA
+systems where the device is attached to a non-zero host NUMA node, this could
+cause pool creation or allocation failures. (<a href="#id1"><span class="problematic" id="id2">:issue:`1603`</span></a>)</p></li>
+<li><p>Fixed <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by" title="cuda.core.DeviceMemoryResource.peer_accessible_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.peer_accessible_by</span></code></a> returning stale results when wrapping
+a non-owned (default) memory pool. The property now always queries the CUDA driver for
+non-owned pools, so multiple wrappers around the same pool see consistent state. (<a href="#id3"><span class="problematic" id="id4">:issue:`1720`</span></a>)</p></li>
 <li><p>Reduced Python overhead in <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> by moving compilation and
 linking operations to the C level and releasing the GIL during backend calls. This benefits
 workloads that create many programs or linkers, and enables concurrent compilation in
