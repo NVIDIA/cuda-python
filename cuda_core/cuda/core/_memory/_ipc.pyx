@@ -197,6 +197,10 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
     if mr is not None:
+        if not isinstance(mr, cls):
+            raise TypeError(
+                f"Registry contains a {type(mr).__name__} for uuid "
+                f"{uuid}, but {cls.__name__} was requested")
         return mr
 
     # Ensure we have an allocation handle. Duplicate the file descriptor, if
