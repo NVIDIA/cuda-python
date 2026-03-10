@@ -40,3 +40,6 @@ Fixes and enhancements
   linking operations to the C level and releasing the GIL during backend calls. This benefits
   workloads that create many programs or linkers, and enables concurrent compilation in
   multithreaded applications.
+- Improved optional dependency handling for NVVM and nvJitLink imports so that only genuinely
+  missing optional modules are treated as unavailable; unrelated import failures now surface
+  normally, and ``cuda.core`` now depends directly on ``cuda-pathfinder``.

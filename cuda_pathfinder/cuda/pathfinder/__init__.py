@@ -25,6 +25,7 @@ from cuda.pathfinder._headers.find_nvidia_headers import (
     locate_nvidia_header_directory as locate_nvidia_header_directory,
 )
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+from cuda.pathfinder._optional_cuda_import import optional_cuda_import as optional_cuda_import
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     SUPPORTED_BITCODE_LIBS as _SUPPORTED_BITCODE_LIBS,
 )

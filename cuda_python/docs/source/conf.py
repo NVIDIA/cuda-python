@@ -37,6 +37,7 @@ extensions = [
     "myst_nb",
     "enum_tools.autoenum",
     "release_toc",
+    "release_date",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
