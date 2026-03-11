@@ -123,41 +123,22 @@ Pushing the tag triggers a CI run automatically. Monitor it in the
 
 ## Upload wheels to PyPI
 
-This is a two-stage process: first publish to TestPyPI, verify, then
-publish to PyPI.
-
-### Stage 1: TestPyPI
+This is a single `CI: Release` workflow run with two sequential stages:
+publish to TestPyPI, then publish the same wheel set to PyPI.
 
 1. Go to **Actions > CI: Release** and run the workflow with:
    - **Component**: `cuda-core`
    - **The release git tag**: `cuda-core-v0.6.0`
-   - **The GHA run ID that generated validated artifacts**: This is the
-     run ID of the successful tag-triggered CI run from the previous step.
-     You can find it in the URL when viewing the run in the Actions tab
-     (e.g. `https://github.com/NVIDIA/cuda-python/actions/runs/123456789`
-     — the run ID is `123456789`).
-   - **Which wheel index to publish to**: `testpypi`
+
    The workflow automatically looks up the successful tag-triggered CI run
-   for the selected release tag.
+   for the selected release tag. If needed, you can also provide the
+   optional run ID input explicitly.
 
-2. Wait for the workflow to complete.
+2. Wait for the workflow to complete. It will:
+   - publish the selected wheels to TestPyPI
+   - publish the same wheel set to PyPI
 
-3. Verify the TestPyPI upload by installing and running tests from a
-   checked-out copy of the repository:
-
-   ```bash
-   pip install -i https://test.pypi.org/simple/ \
-       --extra-index-url https://pypi.org/simple/ \
-       cuda-core==0.6.0
-   cd cuda_core/tests && pytest
-   ```
-
-### Stage 2: PyPI
-
-Once TestPyPI verification passes, rerun the same workflow with:
-- **Which wheel index to publish to**: `pypi`
-
-After completion, verify:
+3. After completion, verify the final PyPI upload:
 
 ```bash
 pip install cuda-core==0.6.0
