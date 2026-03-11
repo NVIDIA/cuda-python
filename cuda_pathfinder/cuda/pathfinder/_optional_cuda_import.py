@@ -10,7 +10,7 @@ from types import ModuleType
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 
 
-def optional_cuda_import(
+def _optional_cuda_import(
     fully_qualified_modname: str,
     *,
     probe_function: Callable[[ModuleType], object] | None = None,

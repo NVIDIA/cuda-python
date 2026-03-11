@@ -77,19 +77,7 @@ NvJitLinkDestroyFn p_nvJitLinkDestroy = nullptr;
 
 namespace {
 
-#if PY_VERSION_HEX < 0x030D0000
-extern "C" int _Py_IsFinalizing(void);
-#endif
-
-inline bool py_is_finalizing() noexcept {
-#if PY_VERSION_HEX >= 0x030D0000
-    return Py_IsFinalizing();
-#else
-    // Python < 3.13 does not expose Py_IsFinalizing() publicly. Use the private
-    // API that exists in those versions.
-    return _Py_IsFinalizing() != 0;
-#endif
-}
+using cuda_core::detail::py_is_finalizing;
 
 // Helper to release the GIL while calling into the CUDA driver.
 // This guard is *conditional*: if the caller already dropped the GIL,
