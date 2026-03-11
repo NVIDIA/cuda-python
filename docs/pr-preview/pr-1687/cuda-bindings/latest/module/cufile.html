@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0ded8b45"></script>
+    <script src="../_static/documentation_options.js?v=a86adfc4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -502,13 +502,14 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/13.1.2-notes.html">13.1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.3-notes.html">12.9.3</a></li>
@@ -704,19 +705,19 @@ Supported on Linux only.</p>
 <td><p>returns use count of cufile drivers at that moment by the process.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_get_properties.html#cuda.bindings.cufile.driver_get_properties" title="cuda.bindings.cufile.driver_get_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_get_properties</span></code></a>(intptr_t props)</p></td>
-<td><p>Gets the Driver session properties.</p></td>
+<td><p>Gets the Driver session properties If the driver is not opened, it will return the staged/default properties If the driver is opened, it will return the current properties.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_poll_mode.html#cuda.bindings.cufile.driver_set_poll_mode" title="cuda.bindings.cufile.driver_set_poll_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_set_poll_mode</span></code></a>(bool poll, ...)</p></td>
-<td><p>Sets whether the Read/Write APIs use polling to do IO operations.</p></td>
+<td><p>Sets whether the Read/Write APIs use polling to do IO operations This takes place before the driver is opened.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_max_direct_io_size.html#cuda.bindings.cufile.driver_set_max_direct_io_size" title="cuda.bindings.cufile.driver_set_max_direct_io_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_set_max_direct_io_size</span></code></a>(...)</p></td>
-<td><p>Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver.</p></td>
+<td><p>Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_max_cache_size.html#cuda.bindings.cufile.driver_set_max_cache_size" title="cuda.bindings.cufile.driver_set_max_cache_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_set_max_cache_size</span></code></a>(size_t max_cache_size)</p></td>
-<td><p>Control parameter to set maximum GPU memory reserved per device by the library for internal buffering.</p></td>
+<td><p>Control parameter to set maximum GPU memory reserved per device by the library for internal buffering This takes place before the driver is opened.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_max_pinned_mem_size.html#cuda.bindings.cufile.driver_set_max_pinned_mem_size" title="cuda.bindings.cufile.driver_set_max_pinned_mem_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_set_max_pinned_mem_size</span></code></a>(...)</p></td>
-<td><p>Sets maximum buffer space that is pinned in KB for use by <code class="docutils literal notranslate"><span class="pre">cuFileBufRegister</span></code>.</p></td>
+<td><p>Sets maximum buffer space that is pinned in KB for use by <code class="docutils literal notranslate"><span class="pre">cuFileBufRegister</span></code> This takes place before the driver is opened.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.batch_io_set_up.html#cuda.bindings.cufile.batch_io_set_up" title="cuda.bindings.cufile.batch_io_set_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch_io_set_up</span></code></a>(unsigned int nr)</p></td>
 <td><p></p></td>

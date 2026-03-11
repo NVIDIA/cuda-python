@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda-bindings 13.1.2 Release notes &#8212; cuda.bindings</title>
+    <title>cuda-bindings 12.9.6 Release notes &#8212; cuda.bindings</title>
   
   
   
@@ -44,27 +44,27 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0ded8b45"></script>
+    <script src="../_static/documentation_options.js?v=a86adfc4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/13.1.2-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/12.9.6-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
 
-    <link rel="canonical" href="docs/release/13.1.2-notes.html" />
+    <link rel="canonical" href="docs/release/12.9.6-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Installation" href="../install.html" />
-    <link rel="prev" title="cuda-bindings 13.1.1 Release notes" href="13.1.1-notes.html" />
+    <link rel="next" title="cuda-bindings 13.0.0 Release notes" href="13.0.0-notes.html" />
+    <link rel="prev" title="cuda-bindings 12.9.5 Release notes" href="12.9.5-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -502,13 +502,14 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">13.1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.3-notes.html">12.9.3</a></li>
@@ -652,7 +653,7 @@
     
     <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.2 Release notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.6 Release notes</span></li>
   </ul>
 </nav>
 </div>
@@ -669,20 +670,29 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-bindings-13-1-2-release-notes">
-<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.2 Release notes<a class="headerlink" href="#cuda-bindings-13-1-2-release-notes" title="Link to this heading">#</a></h1>
+  <section id="cuda-bindings-12-9-6-release-notes">
+<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.6 Release notes<a class="headerlink" href="#cuda-bindings-12-9-6-release-notes" title="Link to this heading">#</a></h1>
+<p>Released on Mar 11, 2026</p>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">nvFatbin</span></code> bindings. (PR #1467 &lt;<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/pull/1467">NVIDIA/cuda-python#1467</a>&gt;_)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.bindings.nvml</span></code> has graduated from experimental (<code class="docutils literal notranslate"><span class="pre">cuda.bindings._nvml</span></code>)
+to a fully supported public module with extensive handwritten Pythonic API
+coverage spanning ~170 functions across system queries, device discovery,
+memory, power, clocks, utilization, thermals, NVLink, and device configuration.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1524">PR #1524</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1548">PR #1548</a>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">nvFatbin</span></code> bindings.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1467">PR #1467</a>)</p></li>
 <li><p>Performance improvement: <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> now uses a faster <code class="docutils literal notranslate"><span class="pre">enum</span></code>
 implementation, rather than the standard library’s <code class="docutils literal notranslate"><span class="pre">enum.IntEnum</span></code>.
 This leads to much faster import times, and slightly faster attribute access
-times.  (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1581">PR #1581</a>)</p></li>
+times.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1581">PR #1581</a>)</p></li>
+<li><p>Multiple performance improvements cumulatively reducing Python-to-C call
+overhead through faster <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">*</span></code> conversion, faster result returning,
+optimized enum-to-vector conversion, and stack-allocated small arrays.</p></li>
 </ul>
-</section>
-<section id="experimental">
-<h2>Experimental<a class="headerlink" href="#experimental" title="Link to this heading">#</a></h2>
 </section>
 <section id="bugfixes">
 <h2>Bugfixes<a class="headerlink" href="#bugfixes" title="Link to this heading">#</a></h2>
@@ -690,22 +700,38 @@ times.  (<a class="reference external" href="https://github.com/NVIDIA/cuda-pyth
 <li><p>Fixed an issue where the <code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL</span></code> attribute was
 retrieved as an unsigned int, rather than a signed int.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1336">PR #1336</a>)</p></li>
-<li><p>Fixed ABI incompatibility bugs in cuFILE bindings introduced in v13.1.0.</p></li>
+<li><p>Fixed a use-after-free in <code class="docutils literal notranslate"><span class="pre">_HelperInputVoidPtr</span></code> properties when backed by
+Python buffer objects.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1629">PR #1629</a>)</p></li>
 </ul>
 </section>
 <section id="miscellaneous">
 <h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Wheel and installed package sizes significantly reduced (e.g., on a typical Linux x86_64
-build, wheel from ~16.6 MB to ~5.7 MB and installed from ~152 MB to ~23 MB) by excluding
-Cython source files, generated C++ files, and template files from distribution packages.</p></li>
+<li><p>Faster <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">*</span></code> conversion using stack-allocated buffers instead of heap
+allocation.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1616">PR #1616</a>)</p></li>
+<li><p>Faster returning of results from driver, runtime, and NVRTC bindings.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1647">PR #1647</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1656">PR #1656</a>)</p></li>
+<li><p>Faster conversion of enum sequences to vectors by eliminating temporary
+Python objects.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1667">PR #1667</a>)</p></li>
+<li><p>Stack-allocated small numeric arrays in driver bindings, reducing heap
+allocation overhead.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1545">PR #1545</a>)</p></li>
+<li><p>NVML bindings now use <code class="docutils literal notranslate"><span class="pre">cuda_pathfinder</span></code> for library discovery, consistent
+with other CUDA libraries.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1661">PR #1661</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> is no longer required at metadata resolution time (e.g.
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">lock</span></code>); it is only needed at actual build time.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1652">PR #1652</a>)</p></li>
 </ul>
 </section>
 <section id="known-issues">
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Updating from older versions (v12.6.2.post1 and below) via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">cuda-python</span></code> might not work. Please do a clean re-installation by uninstalling <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">cuda-python</span></code> followed by installing <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python</span></code>.</p></li>
-<li><p>The graphics APIs in <code class="docutils literal notranslate"><span class="pre">cuda.bindings.runtime</span></code> are inadvertently disabled in 13.0.2.  Users needing these APIs should update to 13.0.3.</p></li>
 </ul>
 </section>
 </section>
@@ -721,20 +747,20 @@ Cython source files, generated C++ files, and template files from distribution p
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="13.1.1-notes.html"
+       href="12.9.5-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.1.1 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.5 Release notes</p>
       </div>
     </a>
     <a class="right-next"
-       href="../install.html"
+       href="13.0.0-notes.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Installation</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.0.0 Release notes</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -760,7 +786,6 @@ Cython source files, generated C++ files, and template files from distribution p
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experimental">Experimental</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous">Miscellaneous</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
