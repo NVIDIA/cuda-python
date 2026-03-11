@@ -26,6 +26,7 @@ body:
         - label: "Finalize the doc update, including release notes (\"Note: Touching docstrings/type annotations in code is OK during code freeze, apply your best judgement!\")"
         - label: Update the docs for the new version
         - label: Create a public release tag
+        - label: Wait for the tag-triggered CI run to complete, and use that run ID for release workflows
         - label: If any code change happens, rebuild the wheels from the new tag
         - label: Update the conda recipe & release conda packages
         - label: Upload conda packages to nvidia channel
