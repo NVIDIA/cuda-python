@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=501afa65"></script>
+    <script src="../_static/documentation_options.js?v=f4627e7c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev44';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev45';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -112,6 +112,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -663,11 +666,10 @@ host-pinned memory resource does not own the pool (<cite>is_handle_owned</cite> 
 <p class="rubric">Notes</p>
 <p>To create an IPC-Enabled memory resource (MR) that is capable of sharing
 allocations between processes, specify <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> in the initializer
-option. When IPC is enabled, the location type is automatically set to
-CU_MEM_LOCATION_TYPE_HOST_NUMA instead of CU_MEM_LOCATION_TYPE_HOST,
-with location ID 0.</p>
-<p>Note: IPC support for pinned memory requires a single NUMA node. A warning
-is issued if multiple NUMA nodes are detected.</p>
+option. When IPC is enabled and <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not specified, the NUMA node
+is automatically derived from the current CUDA device’s <code class="docutils literal notranslate"><span class="pre">host_numa_id</span></code>
+attribute, which requires an active CUDA context. If <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is
+explicitly set, that value is used regardless of <code class="docutils literal notranslate"><span class="pre">ipc_enabled</span></code>.</p>
 <p>See <a class="reference internal" href="cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> for more details on IPC usage patterns.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
@@ -708,7 +710,7 @@ resource was created for.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.close" title="Link to this definition">#</a></dt>
-<dd><p>Close the device memory resource and destroy the associated memory pool
+<dd><p>Close the memory resource and destroy the associated memory pool
 if owned.</p>
 </dd></dl>
 
@@ -838,10 +840,10 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.device_id">
 <span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.device_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
-<p>The associated device ordinal.</p>
+<p>Return -1. Pinned memory is host memory and is not associated with a specific device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.device_id</p>
+<dd class="field-odd"><p>PinnedMemoryResource.device_id</p>
 </dd>
 </dl>
 </dd></dl>
@@ -920,22 +922,15 @@ another process.  If True, allocation is not permitted.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.peer_accessible_by">
-<span class="sig-name descname"><span class="pre">peer_accessible_by</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.peer_accessible_by" title="Link to this definition">#</a></dt>
-<dd><p>Get or set the devices that can access allocations from this memory
-pool. Access can be modified at any time and affects all allocations
-from this memory pool.</p>
-<p>Returns a tuple of sorted device IDs that currently have peer access to
-allocations from this memory pool.</p>
-<p>When setting, accepts a sequence of Device objects or device IDs.
-Setting to an empty sequence revokes all peer access.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span> <span class="o">=</span> <span class="n">DeviceMemoryResource</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Grant access to device 1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Revoke access</span>
-</pre></div>
-</div>
+<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.numa_id">
+<span class="sig-name descname"><span class="pre">numa_id</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.numa_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The host NUMA node ID used for pool placement, or -1 for OS-managed placement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PinnedMemoryResource.numa_id</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1021,7 +1016,7 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_host_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_ipc_enabled"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_ipc_enabled</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_mapped"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_mapped</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.peer_accessible_by"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.peer_accessible_by</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.numa_id"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.numa_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.uuid"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.uuid</span></code></a></li>
 </ul>
 </li>

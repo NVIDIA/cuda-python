@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=501afa65"></script>
+    <script src="_static/documentation_options.js?v=f4627e7c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev44';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev45';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -109,6 +109,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -3089,10 +3092,10 @@
 </li>
       <li><a href="generated/cuda.core.system.EventType.html#cuda.core.system.EventType.NON_FATAL_POISON_ERROR">NON_FATAL_POISON_ERROR (cuda.core.system.EventType attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.non_portable_cluster_size_allowed">non_portable_cluster_size_allowed() (cuda.core._module.KernelAttributes method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions.nonblocking">nonblocking (cuda.core.StreamOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.EventType.html#cuda.core.system.EventType.NONE">NONE (cuda.core.system.EventType attribute)</a>
@@ -3110,7 +3113,13 @@
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.numa_config">numa_config (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.numa_id">numa_id (cuda.core._device.DeviceProperties attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.numa_id">(cuda.core.PinnedMemoryResource attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions.numa_id">(cuda.core.PinnedMemoryResourceOptions attribute)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.numa_node_id">numa_node_id (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope.numerator">numerator (cuda.core.system.AffinityScope attribute)</a>
@@ -3264,13 +3273,7 @@
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.peer_access">peer_access (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by">peer_accessible_by (cuda.core.DeviceMemoryResource attribute)</a>
-
-      <ul>
-        <li><a href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.peer_accessible_by">(cuda.core.ManagedMemoryResource attribute)</a>
 </li>
-        <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.peer_accessible_by">(cuda.core.PinnedMemoryResource attribute)</a>
-</li>
-      </ul></li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.peers">peers (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="api.html#cuda.core.PER_THREAD_DEFAULT_STREAM">PER_THREAD_DEFAULT_STREAM (in module cuda.core)</a>
@@ -3303,7 +3306,13 @@
         <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.prec_sqrt">(cuda.core.ProgramOptions attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions.preferred_location">preferred_location (cuda.core.ManagedMemoryResourceOptions attribute)</a>
+      <li><a href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.preferred_location">preferred_location (cuda.core.ManagedMemoryResource attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions.preferred_location">(cuda.core.ManagedMemoryResourceOptions attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions.preferred_location_type">preferred_location_type (cuda.core.ManagedMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.preferred_shared_memory_carveout">preferred_shared_memory_carveout() (cuda.core._module.KernelAttributes method)</a>
 </li>
