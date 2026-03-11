@@ -102,12 +102,16 @@ def main() -> int:
 
     missing_distributions = sorted(expected_distributions - set(seen_versions))
     if missing_distributions:
-        errors.append("Missing expected component wheels in download set: " + ", ".join(missing_distributions))
+        errors.append(
+            "Missing expected component wheels in download set: "
+            + ", ".join(missing_distributions)
+        )
 
     for distribution, versions in sorted(seen_versions.items()):
         if len(versions) > 1:
             errors.append(
-                f"Expected one release version for {distribution}, found multiple: " + ", ".join(sorted(versions))
+                f"Expected one release version for {distribution}, found multiple: "
+                + ", ".join(sorted(versions))
             )
 
     if errors:
