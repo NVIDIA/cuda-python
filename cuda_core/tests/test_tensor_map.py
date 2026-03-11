@@ -375,9 +375,7 @@ class TestTensorMapReplaceAddress:
             data_type=TensorMapDataType.FLOAT32,
         )
 
-        mr = create_managed_memory_resource_or_skip(
-            ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
-        )
+        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
         managed_buf = mr.allocate(1024 * 4)
 
         desc.replace_address(managed_buf)
@@ -417,9 +415,7 @@ class TestTensorMapMultiDeviceValidation:
         skip_if_managed_memory_unsupported(dev1)
 
         dev1.set_current()
-        mr = create_managed_memory_resource_or_skip(
-            ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
-        )
+        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
         managed_buf = mr.allocate(1024 * 4)
 
         desc = TensorMapDescriptor.from_tiled(
