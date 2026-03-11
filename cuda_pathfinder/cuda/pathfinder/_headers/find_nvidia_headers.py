@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -6,16 +6,28 @@ from __future__ import annotations
 import functools
 import glob
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
 )
 from cuda.pathfinder._dynamic_libs.search_steps import derive_ctk_root
-from cuda.pathfinder._headers import supported_nvidia_headers
+from cuda.pathfinder._headers.header_descriptor import (
+    HEADER_DESCRIPTORS,
+    platform_include_subdirs,
+    resolve_conda_anchor,
+)
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+
+if TYPE_CHECKING:
+    from cuda.pathfinder._headers.header_descriptor import HeaderDescriptor
+
+# ---------------------------------------------------------------------------
+# Data types
+# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -25,6 +37,14 @@ class LocatedHeaderDir:
 
     def __post_init__(self) -> None:
         self.abs_path = _abs_norm(self.abs_path)
+
+
+#: Type alias for a header find step callable.
+HeaderFindStep = Callable[["HeaderDescriptor"], LocatedHeaderDir | None]
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 
 def _abs_norm(path: str | None) -> str | None:
@@ -37,100 +57,117 @@ def _joined_isfile(dirpath: str, basename: str) -> bool:
     return os.path.isfile(os.path.join(dirpath, basename))
 
 
-def _locate_under_site_packages(sub_dir: str, h_basename: str) -> LocatedHeaderDir | None:
-    # Installed from a wheel
-    hdr_dir: str  # help mypy
-    for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
-        if _joined_isfile(hdr_dir, h_basename):
-            return LocatedHeaderDir(abs_path=hdr_dir, found_via="site-packages")
+def _locate_in_anchor_layout(desc: HeaderDescriptor, anchor_point: str) -> str | None:
+    """Search for a header under *anchor_point* using the descriptor's layout fields."""
+    h_basename = desc.header_basename
+    for rel_dir in desc.anchor_include_rel_dirs:
+        idir = os.path.join(anchor_point, rel_dir)
+        for subdir in platform_include_subdirs(desc):
+            cdir = os.path.join(idir, subdir)
+            if _joined_isfile(cdir, h_basename):
+                return cdir
+        if _joined_isfile(idir, h_basename):
+            return idir
     return None
 
 
-def _locate_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) -> str | None:
-    parts = [anchor_point]
-    if libname == "nvvm":
-        parts.append(libname)
-    parts.append("include")
-    idir = os.path.join(*parts)
-    if libname == "cccl":
-        if IS_WINDOWS:
-            cdir_ctk12 = os.path.join(idir, "targets", "x64")  # conda has this anomaly
-            cdir_ctk13 = os.path.join(cdir_ctk12, "cccl")
-            if _joined_isfile(cdir_ctk13, h_basename):
-                return cdir_ctk13
-            if _joined_isfile(cdir_ctk12, h_basename):
-                return cdir_ctk12
-        cdir = os.path.join(idir, "cccl")  # CTK 13
-        if _joined_isfile(cdir, h_basename):
-            return cdir
-    if _joined_isfile(idir, h_basename):
-        return idir
+# ---------------------------------------------------------------------------
+# Find steps
+# ---------------------------------------------------------------------------
+
+
+def find_in_site_packages(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+    """Search pip wheel install locations."""
+    for sub_dir in desc.site_packages_dirs:
+        hdr_dir: str  # help mypy
+        for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
+            if _joined_isfile(hdr_dir, desc.header_basename):
+                return LocatedHeaderDir(abs_path=hdr_dir, found_via="site-packages")
     return None
 
 
-def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool) -> LocatedHeaderDir | None:
+def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+    """Search ``$CONDA_PREFIX``."""
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
-    if IS_WINDOWS:
-        anchor_point = os.path.join(conda_prefix, "Library")
-        if not os.path.isdir(anchor_point):
-            return None
-    else:
-        if ctk_layout:
-            targets_include_path = glob.glob(os.path.join(conda_prefix, "targets", "*", "include"))
-            if not targets_include_path:
-                return None
-            if len(targets_include_path) != 1:
-                # Conda does not support multiple architectures.
-                # QUESTION(PR#956): Do we want to issue a warning?
-                return None
-            include_path = targets_include_path[0]
-        else:
-            include_path = os.path.join(conda_prefix, "include")
-        anchor_point = os.path.dirname(include_path)
-    found_header_path = _locate_based_on_ctk_layout(libname, h_basename, anchor_point)
+    anchor_point = resolve_conda_anchor(desc, conda_prefix)
+    if anchor_point is None:
+        return None
+    found_header_path = _locate_in_anchor_layout(desc, anchor_point)
     if found_header_path:
         return LocatedHeaderDir(abs_path=found_header_path, found_via="conda")
     return None
 
 
-def _find_ctk_header_directory_via_canary(libname: str, h_basename: str) -> str | None:
+def find_in_cuda_home(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+    """Search ``$CUDA_HOME`` / ``$CUDA_PATH``."""
+    cuda_home = get_cuda_home_or_path()
+    if cuda_home is None:
+        return None
+    result = _locate_in_anchor_layout(desc, cuda_home)
+    if result is not None:
+        return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
+    return None
+
+
+def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Try CTK header lookup via CTK-root canary probing.
 
-    Uses the same canary as dynamic-library CTK-root discovery: system-load
-    ``cudart`` in a spawned child process, derive CTK root from the resolved
-    absolute library path, then search the expected CTK include layout under
-    that root.
+    Skips immediately if the descriptor does not opt in (``use_ctk_root_canary``).
+    Otherwise, system-loads ``cudart`` in a spawned child process, derives
+    CTK root from the resolved library path, and searches the expected include
+    layout under that root.
     """
+    if not desc.use_ctk_root_canary:
+        return None
     canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess("cudart")
     if canary_abs_path is None:
         return None
     ctk_root = derive_ctk_root(canary_abs_path)
     if ctk_root is None:
         return None
-    return _locate_based_on_ctk_layout(libname, h_basename, ctk_root)
-
-
-def _find_ctk_header_directory(libname: str) -> LocatedHeaderDir | None:
-    h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
-    candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
-
-    for cdir in candidate_dirs:
-        if hdr_dir := _locate_under_site_packages(cdir, h_basename):
-            return hdr_dir
-
-    if hdr_dir := _find_based_on_conda_layout(libname, h_basename, True):
-        return hdr_dir
-
-    cuda_home = get_cuda_home_or_path()
-    if cuda_home and (result := _locate_based_on_ctk_layout(libname, h_basename, cuda_home)):
-        return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
-
-    if result := _find_ctk_header_directory_via_canary(libname, h_basename):
+    result = _locate_in_anchor_layout(desc, ctk_root)
+    if result is not None:
         return LocatedHeaderDir(abs_path=result, found_via="system-ctk-root")
-
     return None
+
+
+def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+    """Search system install directories (glob patterns)."""
+    for pattern in desc.system_install_dirs:
+        for hdr_dir in sorted(glob.glob(pattern), reverse=True):
+            if _joined_isfile(hdr_dir, desc.header_basename):
+                return LocatedHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Step sequence and cascade runner
+# ---------------------------------------------------------------------------
+
+#: Unified find steps — each step self-gates based on descriptor fields.
+FIND_STEPS: tuple[HeaderFindStep, ...] = (
+    find_in_site_packages,
+    find_in_conda,
+    find_in_cuda_home,
+    find_via_ctk_root_canary,
+    find_in_system_install_dirs,
+)
+
+
+def run_find_steps(desc: HeaderDescriptor, steps: tuple[HeaderFindStep, ...]) -> LocatedHeaderDir | None:
+    """Run find steps in order, returning the first hit."""
+    for step in steps:
+        result = step(desc)
+        if result is not None:
+            return result
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
 
 
 @functools.cache
@@ -150,51 +187,17 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
         RuntimeError: If ``libname`` is not in the supported set.
 
     Search order:
-        1. **NVIDIA Python wheels**
-
-           - Scan installed distributions (``site-packages``) for header layouts
-             shipped in NVIDIA wheels (e.g., ``cuda-toolkit[nvrtc]``).
-
-        2. **Conda environments**
-
-           - Check Conda-style installation prefixes, which use platform-specific
-             include directory layouts.
-
-        3. **CUDA Toolkit environment variables**
-
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
-
-        4. **CTK root canary probe**
-
-           - Probe a system-loaded ``cudart`` in a spawned child process,
-             derive the CTK root from the resolved library path, then search
-             CTK include layout under that root.
+        1. **NVIDIA Python wheels** — site-packages directories from the descriptor.
+        2. **Conda environments** — platform-specific conda include layouts.
+        3. **CUDA Toolkit environment variables** — ``CUDA_HOME`` / ``CUDA_PATH``.
+        4. **CTK root canary probe** — subprocess canary (descriptors with
+           ``use_ctk_root_canary=True`` only).
+        5. **System install directories** — glob patterns from the descriptor.
     """
-
-    if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
-        return _find_ctk_header_directory(libname)
-
-    h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_NON_CTK.get(libname)
-    if h_basename is None:
+    desc = HEADER_DESCRIPTORS.get(libname)
+    if desc is None:
         raise RuntimeError(f"UNKNOWN {libname=}")
-
-    candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK.get(libname, [])
-
-    for cdir in candidate_dirs:
-        if found_hdr := _locate_under_site_packages(cdir, h_basename):
-            return found_hdr
-
-    if found_hdr := _find_based_on_conda_layout(libname, h_basename, False):
-        return found_hdr
-
-    # Fall back to system install directories
-    candidate_dirs = supported_nvidia_headers.SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname, [])
-    for cdir in candidate_dirs:
-        for hdr_dir in sorted(glob.glob(cdir), reverse=True):
-            if _joined_isfile(hdr_dir, h_basename):
-                # For system installs, we don't have a clear found_via, so use "system"
-                return LocatedHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
-    return None
+    return run_find_steps(desc, FIND_STEPS)
 
 
 def find_nvidia_header_directory(libname: str) -> str | None:
@@ -212,25 +215,12 @@ def find_nvidia_header_directory(libname: str) -> str | None:
         RuntimeError: If ``libname`` is not in the supported set.
 
     Search order:
-        1. **NVIDIA Python wheels**
-
-           - Scan installed distributions (``site-packages``) for header layouts
-             shipped in NVIDIA wheels (e.g., ``cuda-toolkit[nvrtc]``).
-
-        2. **Conda environments**
-
-           - Check Conda-style installation prefixes, which use platform-specific
-             include directory layouts.
-
-        3. **CUDA Toolkit environment variables**
-
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
-
-        4. **CTK root canary probe**
-
-           - Probe a system-loaded ``cudart`` in a spawned child process,
-             derive the CTK root from the resolved library path, then search
-             CTK include layout under that root.
+        1. **NVIDIA Python wheels** — site-packages directories from the descriptor.
+        2. **Conda environments** — platform-specific conda include layouts.
+        3. **CUDA Toolkit environment variables** — ``CUDA_HOME`` / ``CUDA_PATH``.
+        4. **CTK root canary probe** — subprocess canary (descriptors with
+           ``use_ctk_root_canary=True`` only).
+        5. **System install directories** — glob patterns from the descriptor.
     """
     found = locate_nvidia_header_directory(libname)
     return found.abs_path if found else None
