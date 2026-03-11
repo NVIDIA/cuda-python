@@ -15,6 +15,12 @@ on:
     branches:
       - "pull-request/[0-9]+"
       - "12.9.x"
+    tags:
+      # Build release artifacts from tag refs so setuptools-scm resolves exact
+      # release versions instead of .dev+local variants.
+      - "v*"
+      - "cuda-core-v*"
+      - "cuda-pathfinder-v*"
 
 jobs:
   ci-vars:
