@@ -131,14 +131,11 @@ publish to PyPI.
 1. Go to **Actions > CI: Release** and run the workflow with:
    - **Component**: `cuda-core`
    - **The release git tag**: `cuda-core-v0.6.0`
-   - **The GHA run ID that generated validated artifacts**: This is the
-     run ID of the successful tag-triggered CI run from the previous step.
-     You can find it in the URL when viewing the run in the Actions tab
-     (e.g. `https://github.com/NVIDIA/cuda-python/actions/runs/123456789`
-     — the run ID is `123456789`).
    - **build-ctk-ver**: the `cuda.build.version` from
      [`ci/versions.yml`](../ci/versions.yml) (e.g. `13.1.1`)
    - **Which wheel index to publish to**: `testpypi`
+   The workflow automatically looks up the successful tag-triggered CI run
+   for the selected release tag.
 
 2. Wait for the workflow to complete.
 
