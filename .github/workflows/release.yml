@@ -128,10 +128,13 @@ jobs:
       contents: write
     needs:
       - check-tag
+      - determine-run-id
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
       git-tag: ${{ inputs.git-tag }}
+      run-id: ${{ needs.determine-run-id.outputs.run-id }}
+      component: ${{ inputs.component }}
 
   publish-wheels:
     name: Publish wheels
