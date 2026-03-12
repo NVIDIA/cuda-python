@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.op\_status\_error
-======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: op_status_error
