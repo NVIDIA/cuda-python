@@ -506,30 +506,12 @@ if the headers cannot be found.</p>
 </dl>
 <dl class="simple">
 <dt>Search order:</dt><dd><ol class="arabic simple">
-<li><p><strong>NVIDIA Python wheels</strong></p>
-<ul class="simple">
-<li><p>Scan installed distributions (<code class="docutils literal notranslate"><span class="pre">site-packages</span></code>) for header layouts
-shipped in NVIDIA wheels (e.g., <code class="docutils literal notranslate"><span class="pre">cuda-toolkit[nvrtc]</span></code>).</p></li>
-</ul>
-</li>
-<li><p><strong>Conda environments</strong></p>
-<ul class="simple">
-<li><p>Check Conda-style installation prefixes, which use platform-specific
-include directory layouts.</p></li>
-</ul>
-</li>
-<li><p><strong>CUDA Toolkit environment variables</strong></p>
-<ul class="simple">
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
-</ul>
-</li>
-<li><p><strong>CTK root canary probe</strong></p>
-<ul class="simple">
-<li><p>Probe a system-loaded <code class="docutils literal notranslate"><span class="pre">cudart</span></code> in a spawned child process,
-derive the CTK root from the resolved library path, then search
-CTK include layout under that root.</p></li>
-</ul>
-</li>
+<li><p><strong>NVIDIA Python wheels</strong> — site-packages directories from the descriptor.</p></li>
+<li><p><strong>Conda environments</strong> — platform-specific conda include layouts.</p></li>
+<li><p><strong>CUDA Toolkit environment variables</strong> — <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> / <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>.</p></li>
+<li><p><strong>CTK root canary probe</strong> — subprocess canary (descriptors with
+<code class="docutils literal notranslate"><span class="pre">use_ctk_root_canary=True</span></code> only).</p></li>
+<li><p><strong>System install directories</strong> — glob patterns from the descriptor.</p></li>
 </ol>
 </dd>
 </dl>
