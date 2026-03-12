@@ -23,9 +23,11 @@ on:
         description: "The release git tag"
         required: true
         type: string
-      build-ctk-ver:
+      run-id:
+        description: "The GHA run ID that generated validated artifacts (optional - auto-detects successful tag-triggered CI run for git-tag)"
+        required: false
         type: string
-        required: true
+        default: ""
       wheel-dst:
         description: "Which wheel index to publish to?"
         required: true
@@ -112,7 +114,6 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
-      build-ctk-ver: ${{ inputs.build-ctk-ver }}
       component: ${{ inputs.component }}
       git-tag: ${{ inputs.git-tag }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
