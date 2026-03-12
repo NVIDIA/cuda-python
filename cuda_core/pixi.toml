@@ -62,6 +62,9 @@ cuda-crt-dev_win-64 = "*"
 # For finding headers when building the Cython tests
 [feature.cython-tests.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+# Keep cuda.core's Cython tests aligned with the local 13.2 cuda_bindings
+# checkout that root-level testing exercises separately.
+PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_bindings"
 
 [feature.cython-tests.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
@@ -73,7 +76,7 @@ CUDA_HOME = '%CONDA_PREFIX%\Library'
 cuda = "13"
 
 [feature.cu13.dependencies]
-cuda-version = "13.1.*"
+cuda-version = "13.2.*"
 
 [feature.cu12.system-requirements]
 cuda = "12"
@@ -81,10 +84,10 @@ cuda = "12"
 [feature.cu12.dependencies]
 cuda-version = "12.*"
 
-# We keep both cu12 and cu13 because cuda.core works with either major version
-# NOTE: Path dependency to ../cuda_bindings only works for cu13 (local bindings is v13.1)
-#       For cu12 testing, use conda-forge packages: temporarily change path to wildcard
-#       or skip cu12 locally: pixi run -e cu13 test
+# We keep both cu12 and cu13 because cuda.core works with either major version.
+# The core tests resolve cuda-bindings from conda-forge so both environments
+# remain solvable; the local cuda_bindings checkout is exercised by its own
+# package test stage in the repo-level test workflow.
 [environments]
 default = { features = [
     "cu13",
@@ -129,9 +132,9 @@ cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
-# Using path dependency now that we've added .pth support for Cython .pxd files
-# See build_hooks.py:_add_cython_include_paths_to_pth()
-cuda-bindings = { path = "../cuda_bindings" }
+# Build against either supported cuda-bindings major; the repo-level test
+# workflow layers the local cuda_bindings checkout via PYTHONPATH when needed.
+cuda-bindings = ">=12.9,<14"
 
 [package.target.linux-64.host-dependencies]
 cuda-crt-dev_linux-64 = "*"
@@ -145,9 +148,7 @@ cuda-crt-dev_win-64 = "*"
 [package.run-dependencies]
 python = "*"
 numpy = "*"
-# Using path dependency now that we've added .pth support for Cython .pxd files
-# See build_hooks.py:_add_cython_include_paths_to_pth()
-cuda-bindings = { path = "../cuda_bindings" }
+cuda-bindings = ">=12.9,<14"
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
 [target.linux.tasks.build-cython-tests]

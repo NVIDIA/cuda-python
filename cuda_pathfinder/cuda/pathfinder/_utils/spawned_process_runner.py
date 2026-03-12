@@ -3,7 +3,6 @@
 
 import contextlib
 import multiprocessing
-import queue  # for Empty
 import sys
 import traceback
 from collections.abc import Callable, Sequence
@@ -27,7 +26,7 @@ class CompletedProcess:
 class ChildProcessWrapper:
     def __init__(
         self,
-        result_queue: Any,
+        result_conn: Any,
         target: Callable[..., None],
         args: Sequence[Any] | None,
         kwargs: dict[str, Any] | None,
@@ -35,7 +34,7 @@ class ChildProcessWrapper:
         self.target = target
         self.args = () if args is None else args
         self.kwargs = {} if kwargs is None else kwargs
-        self.result_queue = result_queue
+        self.result_conn = result_conn
 
     def __call__(self) -> None:
         # Capture stdout/stderr
@@ -59,7 +58,9 @@ class ChildProcessWrapper:
             sys.stdout = old_stdout
             sys.stderr = old_stderr
             with contextlib.suppress(Exception):
-                self.result_queue.put((returncode, stdout, stderr))
+                self.result_conn.send((returncode, stdout, stderr))
+            with contextlib.suppress(Exception):
+                self.result_conn.close()
 
 
 def run_in_spawned_child_process(
@@ -80,9 +81,10 @@ def run_in_spawned_child_process(
     raises ChildProcessError with the captured stderr.
     """
     ctx = multiprocessing.get_context("spawn")
-    result_queue = ctx.Queue()
-    process = ctx.Process(target=ChildProcessWrapper(result_queue, target, args, kwargs))
+    result_reader, result_writer = ctx.Pipe(duplex=False)
+    process = ctx.Process(target=ChildProcessWrapper(result_writer, target, args, kwargs))
     process.start()
+    result_writer.close()
 
     try:
         process.join(timeout)
@@ -96,8 +98,10 @@ def run_in_spawned_child_process(
             )
         else:
             try:
-                returncode, stdout, stderr = result_queue.get(timeout=1.0)
-            except (queue.Empty, EOFError):
+                if not result_reader.poll(1.0):
+                    raise EOFError
+                returncode, stdout, stderr = result_reader.recv()
+            except EOFError:
                 result = CompletedProcess(
                     returncode=PROCESS_NO_RESULT,
                     stdout="",
@@ -122,8 +126,7 @@ def run_in_spawned_child_process(
 
     finally:
         try:
-            result_queue.close()
-            result_queue.join_thread()
+            result_reader.close()
         except Exception:  # noqa: S110
             pass
         if process.is_alive():
