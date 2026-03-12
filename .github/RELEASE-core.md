@@ -131,8 +131,7 @@ publish to TestPyPI, then publish the same wheel set to PyPI.
    - **The release git tag**: `cuda-core-v0.6.0`
 
    The workflow automatically looks up the successful tag-triggered CI run
-   for the selected release tag. If needed, you can also provide the
-   optional run ID input explicitly.
+   for the selected release tag.
 
 2. Wait for the workflow to complete. It will:
    - publish the selected wheels to TestPyPI

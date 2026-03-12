@@ -52,15 +52,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [[ -n "${{ inputs.run-id }}" ]]; then
-            echo "Using provided run ID: ${{ inputs.run-id }}"
-            echo "run-id=${{ inputs.run-id }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
-            echo "Auto-detected run ID: $RUN_ID"
-            echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
-          fi
+          echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
+          RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+          echo "Auto-detected run ID: $RUN_ID"
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
     runs-on: ubuntu-latest
