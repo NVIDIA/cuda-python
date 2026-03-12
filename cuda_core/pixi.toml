@@ -62,9 +62,6 @@ cuda-crt-dev_win-64 = "*"
 # For finding headers when building the Cython tests
 [feature.cython-tests.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
-# Keep cuda.core's Cython tests aligned with the local 13.2 cuda_bindings
-# checkout that root-level testing exercises separately.
-PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_bindings"
 
 [feature.cython-tests.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
@@ -85,9 +82,8 @@ cuda = "12"
 cuda-version = "12.*"
 
 # We keep both cu12 and cu13 because cuda.core works with either major version.
-# The core tests resolve cuda-bindings from conda-forge so both environments
-# remain solvable; the local cuda_bindings checkout is exercised by its own
-# package test stage in the repo-level test workflow.
+# The local cuda_bindings checkout is wired into the default/cu13 workflow; swap
+# to conda-forge cuda-bindings if you need to validate the cu12 env locally.
 [environments]
 default = { features = [
     "cu13",
@@ -132,9 +128,9 @@ cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
-# Build against either supported cuda-bindings major; the repo-level test
-# workflow layers the local cuda_bindings checkout via PYTHONPATH when needed.
-cuda-bindings = ">=12.9,<14"
+# Keep the local editable cuda_bindings checkout so Cython can resolve its .pxd
+# files via build_hooks.py:_add_cython_include_paths_to_pth().
+cuda-bindings = { path = "../cuda_bindings" }
 
 [package.target.linux-64.host-dependencies]
 cuda-crt-dev_linux-64 = "*"
@@ -148,7 +144,7 @@ cuda-crt-dev_win-64 = "*"
 [package.run-dependencies]
 python = "*"
 numpy = "*"
-cuda-bindings = ">=12.9,<14"
+cuda-bindings = { path = "../cuda_bindings" }
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
 [target.linux.tasks.build-cython-tests]
