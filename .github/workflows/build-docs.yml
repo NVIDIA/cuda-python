@@ -24,7 +24,7 @@ on:
         default: ""
         type: string
       run-id:
-        description: "The GHA run ID that generated validated artifacts"
+        description: "The workflow run ID that produced the artifacts to document"
         required: false
         default: ${{ github.run_id }}
         type: string
@@ -108,91 +108,60 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
+      # Download all wheel artifacts from the given run-id. For a full CI run all
+      # four artifact groups exist; for a single-component release run only that
+      # component's artifact exists.  pattern + merge-multiple produces an empty
+      # directory rather than failing when a named artifact is absent.
       - name: Download cuda-python build artifacts
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
         with:
-          name: cuda-python-wheel
+          pattern: cuda-python-wheel
+          merge-multiple: true
           path: .
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
-      - name: Display structure of downloaded cuda-python artifacts
-        run: |
-          pwd
-          ls -lahR .
-
       - name: Download cuda-pathfinder build artifacts
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
         with:
-          name: cuda-pathfinder-wheel
+          pattern: cuda-pathfinder-wheel
+          merge-multiple: true
           path: ./cuda_pathfinder
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
-      - name: Display structure of downloaded cuda-pathfinder artifacts
-        run: |
-          pwd
-          ls -lahR cuda_pathfinder
-
       - name: Download cuda.bindings build artifacts
-        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
         with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-
-      - name: Download cuda.bindings build artifacts
-        if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
-        with:
-          pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}-*
           merge-multiple: true
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
-      - name: Display structure of downloaded cuda.bindings artifacts
-        run: |
-          pwd
-          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
-
       - name: Download cuda.core build artifacts
-        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
         with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Download cuda.core build artifacts
-        if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
-        with:
-          pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          pattern: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}-*
           merge-multiple: true
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
-      - name: Display structure of downloaded cuda.core build artifacts
+      - name: Display downloaded artifacts
+        run: ls -lahR cuda_pathfinder "$CUDA_BINDINGS_ARTIFACTS_DIR" "$CUDA_CORE_ARTIFACTS_DIR" || true
+
+      - name: Install documentation packages
         run: |
-          pwd
-          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
-
-      - name: Install all packages
-        run: |
-          pushd cuda_pathfinder
-          pip install *.whl
-          popd
-
-          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          pip install *.whl
-          popd
-
-          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install *.whl
-          popd
-
-          pip install cuda_python*.whl
+          shopt -s nullglob
+          pathfinder_wheels=(cuda_pathfinder/*.whl)
+          (( ${#pathfinder_wheels[@]} > 0 )) && pip install "${pathfinder_wheels[@]}"
+          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+          (( ${#bindings_wheels[@]} > 0 )) && pip install "${bindings_wheels[@]}"
+          core_wheels=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+          (( ${#core_wheels[@]} > 0 )) && pip install "${core_wheels[@]}"
+          python_wheels=(cuda_python*.whl)
+          (( ${#python_wheels[@]} > 0 )) && pip install "${python_wheels[@]}"
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
@@ -206,7 +175,7 @@ jobs:
           mkdir -p artifacts/empty_docs
 
       - name: Build all docs
-        if: ${{ inputs.component == 'all' }}
+        if: ${{ inputs.component == '' || inputs.component == 'all' }}
         run: |
           pushd cuda_python/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
@@ -221,7 +190,7 @@ jobs:
           mv cuda_python/docs/build/html/* artifacts/docs/
 
       - name: Build component docs
-        if: ${{ inputs.component != 'all' }}
+        if: ${{ inputs.component != '' && inputs.component != 'all' }}
         run: |
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
           pushd ${COMPONENT}/docs/

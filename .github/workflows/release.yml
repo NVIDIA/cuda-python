@@ -1,12 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 name: "CI: Release"
 
-# Manually-triggered release workflow. Creates a release draft if one doesn't exist
-# for the given tag, or uses an existing draft, then publishes the selected wheels
-# to TestPyPI followed by PyPI.
+# Manually-triggered release workflow. Builds release artifacts from the tag in
+# this workflow run after verifying the tagged commit already passed main CI,
+# then publishes the selected wheels to TestPyPI followed by PyPI.
 
 on:
   workflow_dispatch:
@@ -18,132 +18,196 @@ on:
         options:
           - cuda-core
           - cuda-bindings
-          - cuda-pathfinder
-          - cuda-python
-          - all
       git-tag:
         description: "The release git tag"
         required: true
         type: string
-      run-id:
-        description: "The GHA run ID that generated validated artifacts (optional - auto-detects successful tag-triggered CI run for git-tag)"
-        required: false
-        type: string
-        default: ""
 
 defaults:
   run:
     shell: bash --noprofile --norc -xeuo pipefail {0}
 
 jobs:
-  determine-run-id:
+  prepare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
-      run-id: ${{ steps.lookup-run-id.outputs.run-id }}
+      target-component: ${{ steps.plan.outputs.target-component }}
+      run-id: ${{ steps.plan.outputs.run-id }}
+      cuda-build-ver: ${{ steps.cuda.outputs.cuda-build-ver }}
+      cuda-prev-build-ver: ${{ steps.cuda.outputs.cuda-prev-build-ver }}
     steps:
-      - name: Checkout Source
+      - name: Verify running on default branch
+        run: |
+          if [[ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ]]; then
+            echo "::error::This workflow must be triggered from the default branch (${{ github.event.repository.default_branch }}). Got: ${{ github.ref_name }}."
+            exit 1
+          fi
+
+      - name: Validate component and tag combination
+        id: plan
+        env:
+          COMPONENT_INPUT: ${{ inputs.component }}
+          TAG_INPUT: ${{ inputs.git-tag }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          case "${TAG_INPUT}" in
+            v*)
+              if [[ "${COMPONENT_INPUT}" != "cuda-bindings" ]]; then
+                echo "::error::Tag ${TAG_INPUT} only supports cuda-bindings releases (cuda-python is built alongside cuda-bindings)."
+                exit 1
+              fi
+              ;;
+            cuda-core-v*)
+              if [[ "${COMPONENT_INPUT}" != "cuda-core" ]]; then
+                echo "::error::Tag ${TAG_INPUT} only supports cuda-core releases."
+                exit 1
+              fi
+              ;;
+            *)
+              echo "::error::Unsupported tag ${TAG_INPUT}. Use the dedicated cuda-pathfinder release workflow for cuda-pathfinder tags."
+              exit 1
+              ;;
+          esac
+
+          {
+            echo "target-component=${COMPONENT_INPUT}"
+            echo "run-id=${RUN_ID}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout source at release tag
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
-          # fetch-depth: 0 is required so the lookup-run-id script can access all git tags
           fetch-depth: 0
+          ref: refs/tags/${{ inputs.git-tag }}
 
-      - name: Determine Run ID
-        id: lookup-run-id
+      - name: Verify release tag preconditions
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-          RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
-          echo "Auto-detected run ID: $RUN_ID"
-          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          ./ci/tools/verify-release-commit "${{ inputs.git-tag }}" "${{ github.repository }}" "${{ github.event.repository.default_branch }}"
 
-  check-tag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          fetch-depth: 0
+      - name: Read CUDA build versions
+        id: cuda
+        run: |
+          cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
+          cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
+          {
+            echo "cuda-build-ver=${cuda_build_ver}"
+            echo "cuda-prev-build-ver=${cuda_prev_build_ver}"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Check or create draft release for the tag
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mapfile -t tags < <(gh release list -R "${{ github.repository }}" --json tagName --jq '.[] | .tagName')
-          mapfile -t is_draft < <(gh release list -R "${{ github.repository }}" --json isDraft --jq '.[] | .isDraft')
-
-          found=0
-          for idx in "${!tags[@]}"; do
-            if [[ "${tags[$idx]}" == "${{ inputs.git-tag }}" ]]; then
-              echo "found existing release for ${{ inputs.git-tag }}"
-              found=1
-              if [[ "${is_draft[$idx]}" != "true" ]]; then
-                echo "the release note is not in draft state"
-                exit 1
-              fi
-              break
-            fi
-          done
-          if [[ "$found" == 0 ]]; then
-            echo "no release found for ${{ inputs.git-tag }}, creating draft release"
-            gh release create "${{ inputs.git-tag }}" --draft --repo "${{ github.repository }}" --title "Release ${{ inputs.git-tag }}" --notes "Release ${{ inputs.git-tag }}"
+          existing_draft=$(gh release view "${{ inputs.git-tag }}" --repo "${{ github.repository }}" --json isDraft --jq '.isDraft' 2>/dev/null || echo "missing")
+          if [[ "${existing_draft}" == "false" ]]; then
+            echo "::error::Release ${{ inputs.git-tag }} already exists and is published."
+            exit 1
           fi
+          if [[ "${existing_draft}" == "true" ]]; then
+            exit 0
+          fi
+          gh release create "${{ inputs.git-tag }}" \
+            --draft \
+            --repo "${{ github.repository }}" \
+            --title "Release ${{ inputs.git-tag }}" \
+            --notes "Release ${{ inputs.git-tag }}"
 
-  doc:
-    name: Build release docs
-    if: ${{ github.repository_owner == 'nvidia' }}
-    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
-    needs:
-      - check-tag
-      - determine-run-id
+  # cuda-bindings releases publish bindings wheels on all platforms; the
+  # reusable workflow also emits the cuda-python metapackage on linux-64.
+  # cuda-core releases still need current-run bindings artifacts as an internal
+  # dependency, so build-bindings runs for both components.
+  build-bindings:
+    needs: prepare
+    if: ${{ inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - linux-64
+          - linux-aarch64
+          - win-64
+    name: Build ${{ matrix.host-platform }}, cuda.bindings
     secrets: inherit
-    uses: ./.github/workflows/build-docs.yml
+    uses: ./.github/workflows/build-wheel.yml
     with:
-      component: ${{ inputs.component }}
-      git-tag: ${{ inputs.git-tag }}
-      run-id: ${{ needs.determine-run-id.outputs.run-id }}
-      is-release: true
+      host-platform: ${{ matrix.host-platform }}
+      cuda-version: ${{ needs.prepare.outputs.cuda-build-ver }}
+      component: cuda-bindings
+      git-ref: refs/tags/${{ inputs.git-tag }}
+
+  build-cuda-core:
+    needs: [prepare, build-bindings]
+    if: ${{ inputs.component == 'cuda-core' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - linux-64
+          - linux-aarch64
+          - win-64
+    name: Build ${{ matrix.host-platform }}, cuda.core
+    secrets: inherit
+    uses: ./.github/workflows/build-cuda-core.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      cuda-version: ${{ needs.prepare.outputs.cuda-build-ver }}
+      prev-cuda-version: ${{ needs.prepare.outputs.cuda-prev-build-ver }}
+      bindings-run-id: ${{ github.run_id }}
+      git-ref: refs/tags/${{ inputs.git-tag }}
 
   upload-archive:
     name: Upload source archive
     permissions:
       contents: write
     needs:
-      - check-tag
-      - determine-run-id
-      - doc
+      - prepare
+      - build-bindings
+      - build-cuda-core
+    if: ${{ always() &&
+            !cancelled() &&
+            needs.prepare.result == 'success' &&
+            needs.build-bindings.result == 'success' &&
+            (inputs.component == 'cuda-bindings' || needs.build-cuda-core.result == 'success') }}
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
       git-tag: ${{ inputs.git-tag }}
-      run-id: ${{ needs.determine-run-id.outputs.run-id }}
+      run-id: ${{ needs.prepare.outputs.run-id }}
       component: ${{ inputs.component }}
 
   publish-testpypi:
     name: Publish wheels to TestPyPI
     runs-on: ubuntu-latest
     needs:
-      - check-tag
-      - determine-run-id
-      - doc
+      - prepare
+      - build-bindings
+      - build-cuda-core
+    if: ${{ always() &&
+            !cancelled() &&
+            needs.prepare.result == 'success' &&
+            needs.build-bindings.result == 'success' &&
+            (inputs.component == 'cuda-bindings' || needs.build-cuda-core.result == 'success') }}
     environment:
       name: testpypi
-      url: https://test.pypi.org/${{ inputs.component != 'all' && format('p/{0}/', inputs.component) || '' }}
+      url: https://test.pypi.org/p/${{ inputs.component }}/
     permissions:
       id-token: write
     steps:
-      - name: Checkout Source
+      - name: Checkout source at release tag
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: refs/tags/${{ inputs.git-tag }}
 
-      - name: Download component wheels
+      - name: Download component wheels from this release run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./ci/tools/download-wheels "${{ needs.determine-run-id.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
+          ./ci/tools/download-wheels "${{ needs.prepare.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
 
       - name: Validate wheel versions for release tag
         run: |
@@ -158,22 +222,25 @@ jobs:
     name: Publish wheels to PyPI
     runs-on: ubuntu-latest
     needs:
-      - determine-run-id
+      - prepare
       - publish-testpypi
     environment:
       name: pypi
-      url: https://pypi.org/${{ inputs.component != 'all' && format('p/{0}/', inputs.component) || '' }}
+      url: https://pypi.org/p/${{ inputs.component }}/
     permissions:
       id-token: write
     steps:
-      - name: Checkout Source
+      - name: Checkout source at release tag
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: refs/tags/${{ inputs.git-tag }}
 
-      - name: Download component wheels
+      - name: Download component wheels from this release run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./ci/tools/download-wheels "${{ needs.determine-run-id.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
+          ./ci/tools/download-wheels "${{ needs.prepare.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
 
       - name: Validate wheel versions for release tag
         run: |
@@ -181,5 +248,3 @@ jobs:
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
-
-  # TODO: add another job to make the release leave the draft state?

@@ -16,9 +16,9 @@ from pathlib import Path
 
 COMPONENT_TO_DISTRIBUTIONS: dict[str, set[str]] = {
     "cuda-core": {"cuda_core"},
-    "cuda-bindings": {"cuda_bindings"},
+    # cuda-python is a pure-Python metapackage always released with cuda-bindings.
+    "cuda-bindings": {"cuda_bindings", "cuda_python"},
     "cuda-pathfinder": {"cuda_pathfinder"},
-    "cuda-python": {"cuda_python"},
     "all": {"cuda_core", "cuda_bindings", "cuda_pathfinder", "cuda_python"},
 }
 
@@ -37,7 +37,11 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("git_tag", help="Release git tag (for example: v13.0.0)")
-    parser.add_argument("component", choices=sorted(COMPONENT_TO_DISTRIBUTIONS.keys()))
+    parser.add_argument(
+        "component",
+        choices=sorted(COMPONENT_TO_DISTRIBUTIONS.keys()),
+        help="Component being released; 'cuda-bindings' implicitly includes cuda-python.",
+    )
     parser.add_argument("wheel_dir", help="Directory containing wheel files")
     return parser.parse_args()
 

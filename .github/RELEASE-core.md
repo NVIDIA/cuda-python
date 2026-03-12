@@ -108,16 +108,14 @@ git push origin cuda-core-v0.6.0
 
 ---
 
-## Wait for the tag-triggered CI run to complete
+## Verify the tagged commit already passed CI on `main`
 
-Pushing the tag triggers a CI run automatically. Monitor it in the
-**Actions** tab on GitHub.
+Before running release, confirm that the tagged commit already has a
+successful `CI` run on `main`. The release workflow now checks this as a
+preflight step, but it is still worth verifying up front.
 
-- **All CI tests should succeed.** If any fail, investigate and rerun as
-  needed.
-- Note the **run ID** of the successful tag-triggered run. The release
-  workflow can auto-detect it from the tag, but you can also provide it
-  explicitly.
+- **All CI tests on `main` should already be green.** If any fail, fix them
+  before tagging or release will be blocked.
 
 ---
 
@@ -129,9 +127,8 @@ publish to TestPyPI, then publish the same wheel set to PyPI.
 1. Go to **Actions > CI: Release** and run the workflow with:
    - **Component**: `cuda-core`
    - **The release git tag**: `cuda-core-v0.6.0`
-
-   The workflow automatically looks up the successful tag-triggered CI run
-   for the selected release tag.
+   The workflow builds the release artifacts directly from the selected tag
+   after verifying that the tagged commit already passed `CI` on `main`.
 
 2. Wait for the workflow to complete. It will:
    - publish the selected wheels to TestPyPI

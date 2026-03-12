@@ -1,0 +1,152 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Reusable workflow: build Cython test extensions for cuda.bindings and cuda.core.
+#
+# Runs after wheel artifacts exist.  Steps: checkout -> download wheels ->
+# setup python -> build Cython tests -> upload.  No CTK, no cibuildwheel.
+
+on:
+  workflow_call:
+    inputs:
+      host-platform:
+        required: true
+        type: string
+      cuda-version:
+        description: "CUDA version the bindings were built against"
+        required: true
+        type: string
+      build-run-id:
+        description: "Run ID that produced the wheel artifacts"
+        required: true
+        type: string
+      git-ref:
+        description: "Git ref to check out (defaults to the caller's ref)"
+        required: false
+        default: ""
+        type: string
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+permissions:
+  contents: read
+
+jobs:
+  build-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+          - "3.14t"
+    name: py${{ matrix.python-version }}
+    runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
+                 (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
+                 (inputs.host-platform == 'win-64' && 'windows-2022') }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.git-ref || github.ref }}
+
+      - name: Capture checked-out commit SHA
+        run: echo "CHECKED_OUT_SHA=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
+
+      - name: Set up MSVC
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set environment variables
+        env:
+          CUDA_VER: ${{ inputs.cuda-version }}
+          HOST_PLATFORM: ${{ inputs.host-platform }}
+          PY_VER: ${{ matrix.python-version }}
+          SHA: ${{ env.CHECKED_OUT_SHA }}
+        run: ./ci/tools/env-vars build
+
+      - name: Dump environment
+        run: env
+
+      - name: Set up Python ${{ matrix.python-version }}
+        id: setup-python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Verify free-threaded build
+        if: ${{ endsWith(matrix.python-version, 't') }}
+        run: python -c 'import sys; assert not sys._is_gil_enabled()'
+
+      - name: Set up Python include paths
+        run: |
+          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+            echo "CPLUS_INCLUDE_PATH=${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> "${GITHUB_ENV}"
+          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+            echo "CL=/I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\"" >> "${GITHUB_ENV}"
+          fi
+          echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> "${GITHUB_ENV}"
+
+      - name: Download cuda-pathfinder wheel
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
+        with:
+          name: cuda-pathfinder-wheel
+          path: cuda_pathfinder
+          run-id: ${{ inputs.build-run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Download cuda.bindings wheels
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.build-run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Download cuda.core wheels
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3  # v8.0.0
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.build-run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Install cuda.pathfinder
+        run: pip install cuda_pathfinder/*.whl
+
+      - name: Build cuda.bindings Cython tests
+        run: |
+          pip install "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/*.whl \
+            --group ./cuda_bindings/pyproject.toml:test
+          pushd "${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}"
+          bash build_tests.sh
+          popd
+
+      - name: Upload cuda.bindings Cython tests
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          if-no-files-found: error
+
+      - name: Build cuda.core Cython tests
+        run: |
+          pip install "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/*.whl \
+            --group ./cuda_core/pyproject.toml:test
+          pushd "${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}"
+          bash build_tests.sh
+          popd
+
+      - name: Upload cuda.core Cython tests
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          if-no-files-found: error

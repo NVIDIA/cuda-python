@@ -32,13 +32,23 @@ fi
 
 echo "Downloading wheels for component: $COMPONENT from run: $RUN_ID"
 
-# Download component wheels using the same logic as release.yml
-if [[ "$COMPONENT" == "all" ]]; then
-    # Download all component patterns
-    gh run download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY"
-else
-    gh run download "$RUN_ID" -p "${COMPONENT}*" -R "$REPOSITORY"
-fi
+# Build the list of artifact name patterns to download.
+# cuda-bindings always ships alongside cuda-python (same tag, same run).
+case "$COMPONENT" in
+    cuda-bindings)
+        PATTERNS=("cuda-bindings*" "cuda-python-wheel")
+        ;;
+    all)
+        PATTERNS=("cuda-*")
+        ;;
+    *)
+        PATTERNS=("${COMPONENT}*")
+        ;;
+esac
+
+for pattern in "${PATTERNS[@]}"; do
+    gh run download "$RUN_ID" -p "$pattern" -R "$REPOSITORY" || true
+done
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
@@ -56,16 +66,8 @@ do
         continue
     fi
 
-    # If we're not downloading "all", only process matching component
-    if [[ "$COMPONENT" != "all" && "$p" != ${COMPONENT}* ]]; then
-        continue
-    fi
-
     echo "Processing artifact: $p"
-    # Move wheel files to output directory
-    if [[ -d "$p" ]]; then
-        find "$p" -name "*.whl" -exec mv {} "$OUTPUT_DIR/" \;
-    fi
+    find "$p" -name "*.whl" -exec mv {} "$OUTPUT_DIR/" \;
 done
 
 # Clean up artifact directories

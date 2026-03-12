@@ -11,7 +11,7 @@ on:
         type: string
         required: true
       run-id:
-        description: "The GHA run ID that generated validated artifacts"
+        description: "The workflow run ID that built the release artifacts"
         type: string
         required: true
       component:

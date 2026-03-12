@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Note: This name is referred to in the test job, so make sure any changes are sync'd up!
-# Further this is referencing a run in the backport branch to fetch old bindings.
+# Note: This name is referred to in build-cuda-core.yml when fetching backport-branch
+# bindings artifacts, so keep it in sync with any renames.
 name: "CI"
 
 concurrency:
@@ -15,12 +15,6 @@ on:
     branches:
       - "pull-request/[0-9]+"
       - "main"
-    tags:
-      # Build release artifacts from tag refs so setuptools-scm resolves exact
-      # release versions instead of .dev+local variants.
-      - "v*"
-      - "cuda-core-v*"
-      - "cuda-pathfinder-v*"
   schedule:
     # every 24 hours at midnight UTC
     - cron: "0 0 * * *"
@@ -32,18 +26,16 @@ jobs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
       - name: Get CUDA build versions
         id: get-vars
         run: |
           cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
-
+          echo "cuda_build_ver=${cuda_build_ver}" >> "${GITHUB_OUTPUT}"
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
-          echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
+          echo "cuda_prev_build_ver=${cuda_prev_build_ver}" >> "${GITHUB_OUTPUT}"
 
   should-skip:
     runs-on: ubuntu-latest
@@ -51,8 +43,7 @@ jobs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
@@ -68,160 +59,142 @@ jobs:
             skip=false
             doc_only=false
           fi
-          echo "skip=${skip}" >> "$GITHUB_OUTPUT"
-          echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
+          echo "skip=${skip}" >> "${GITHUB_OUTPUT}"
+          echo "doc_only=${doc_only}" >> "${GITHUB_OUTPUT}"
 
-  # NOTE: Build jobs are intentionally split by platform rather than using a single
-  # matrix. This allows each test job to depend only on its corresponding build,
-  # so faster platforms can proceed through build & test without waiting for slower
-  # ones. Keep these job definitions textually identical except for:
-  #   - host-platform value
-  #   - if: condition (build-linux-64 omits doc-only check since it's needed for docs)
-  build-linux-64:
-    needs:
-      - ci-vars
-      - should-skip
+  # ---------------------------------------------------------------------------
+  # Wheel builds.
+  # ---------------------------------------------------------------------------
+
+  # Pure-Python pathfinder is built on linux-64 only. The bindings build also
+  # emits the cuda-python metapackage on linux-64.
+  build-pathfinder:
+    needs: [ci-vars, should-skip]
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: linux-64
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      component: cuda-pathfinder
+
+  build-bindings:
+    needs: [ci-vars, should-skip]
     strategy:
       fail-fast: false
       matrix:
-        host-platform:
-          - linux-64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+        host-platform: ${{ fromJSON(fromJSON(needs.should-skip.outputs.doc-only) && '["linux-64"]' || '["linux-64","linux-aarch64","win-64"]') }}
+    name: Build ${{ matrix.host-platform }}, cuda.bindings, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      component: cuda-bindings
 
-  # See build-linux-64 for why build jobs are split by platform.
-  build-linux-aarch64:
-    needs:
-      - ci-vars
-      - should-skip
+  # cuda.core needs the current-run bindings artifacts; its reusable workflow
+  # handles the current/previous CUDA split and final merge internally.
+  build-cuda-core:
+    needs: [ci-vars, should-skip, build-bindings]
     strategy:
       fail-fast: false
       matrix:
-        host-platform:
-          - linux-aarch64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+        host-platform: ${{ fromJSON(fromJSON(needs.should-skip.outputs.doc-only) && '["linux-64"]' || '["linux-64","linux-aarch64","win-64"]') }}
+    name: Build ${{ matrix.host-platform }}, cuda.core, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     secrets: inherit
-    uses: ./.github/workflows/build-wheel.yml
+    uses: ./.github/workflows/build-cuda-core.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+      bindings-run-id: ${{ github.run_id }}
 
-  # See build-linux-64 for why build jobs are split by platform.
-  build-windows:
-    needs:
-      - ci-vars
-      - should-skip
-    strategy:
-      fail-fast: false
-      matrix:
-        host-platform:
-          - win-64
-    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
-    secrets: inherit
-    uses: ./.github/workflows/build-wheel.yml
-    with:
-      host-platform: ${{ matrix.host-platform }}
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-
-  # NOTE: Test jobs are split by platform for the same reason as build jobs (see
-  # build-linux-64). Keep these job definitions textually identical except for:
-  #   - host-platform value
-  #   - build job under needs:
-  #   - uses: (test-wheel-linux.yml vs test-wheel-windows.yml)
-  test-linux-64:
+  # Cython test artifacts depend on the merged cuda.core wheels plus the
+  # bindings/pathfinder artifacts from this same CI run.
+  build-cython-tests:
+    needs: [ci-vars, should-skip, build-pathfinder, build-bindings, build-cuda-core]
     strategy:
       fail-fast: false
       matrix:
         host-platform:
           - linux-64
-    name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
-    permissions:
-      contents: read  # This is required for actions/checkout
-    needs:
-      - ci-vars
-      - should-skip
-      - build-linux-64
-    secrets: inherit
-    uses: ./.github/workflows/test-wheel-linux.yml
-    with:
-      build-type: pull-request
-      host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
-
-  # See test-linux-64 for why test jobs are split by platform.
-  test-linux-aarch64:
-    strategy:
-      fail-fast: false
-      matrix:
-        host-platform:
           - linux-aarch64
-    name: Test ${{ matrix.host-platform }}
+          - win-64
+    name: Build Cython tests ${{ matrix.host-platform }}
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.skip) &&
+            !fromJSON(needs.should-skip.outputs.doc-only) }}
+    secrets: inherit
+    uses: ./.github/workflows/build-cython-tests.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      build-run-id: ${{ github.run_id }}
+
+  # ---------------------------------------------------------------------------
+  # Tests consume artifacts from the current CI run after the build matrices
+  # finish. They remain split by platform because linux and windows use
+  # different reusable test workflows.
+  # ---------------------------------------------------------------------------
+
+  test-linux-64:
+    needs: [ci-vars, should-skip, build-pathfinder, build-bindings, build-cuda-core, build-cython-tests]
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
-      contents: read  # This is required for actions/checkout
-    needs:
-      - ci-vars
-      - should-skip
-      - build-linux-aarch64
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
       build-type: pull-request
-      host-platform: ${{ matrix.host-platform }}
+      host-platform: linux-64
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1 }}
 
-  # See test-linux-64 for why test jobs are split by platform.
-  test-windows:
-    strategy:
-      fail-fast: false
-      matrix:
-        host-platform:
-          - win-64
-    name: Test ${{ matrix.host-platform }}
+  test-linux-aarch64:
+    needs: [ci-vars, should-skip, build-pathfinder, build-bindings, build-cuda-core, build-cython-tests]
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
-      contents: read  # This is required for actions/checkout
-    needs:
-      - ci-vars
-      - should-skip
-      - build-windows
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: pull-request
+      host-platform: linux-aarch64
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1 }}
+
+  test-windows:
+    needs: [ci-vars, should-skip, build-pathfinder, build-bindings, build-cuda-core, build-cython-tests]
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    permissions:
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
       build-type: pull-request
-      host-platform: ${{ matrix.host-platform }}
+      host-platform: win-64
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
+      nruns: ${{ (github.event_name == 'schedule' && 100) || 1 }}
 
+  # ---------------------------------------------------------------------------
+  # Docs: needs linux-64 artifacts only.
+  # ---------------------------------------------------------------------------
   doc:
     name: Docs
     if: ${{ github.repository_owner == 'nvidia' }}
-    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
       contents: write
       pull-requests: write
-    needs:
-      - ci-vars
-      - build-linux-64
+    needs: [ci-vars, build-pathfinder, build-bindings, build-cuda-core]
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
-    with:
-      is-release: ${{ github.ref_type == 'tag' }}
 
+  # ---------------------------------------------------------------------------
+  # Final gate: checked by branch protection.
+  # ---------------------------------------------------------------------------
   checks:
     name: Check job status
     if: always()
@@ -240,20 +213,6 @@ jobs:
           # see https://docs.github.com/en/actions/reference/workflows-and-actions/expressions#always
           # and https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
           # for why this cannot be encoded in the job-level `if:` field
-          #
-          # TL; DR: `$REASONS`
-          #
-          # The intersection of skipped-as-success and required status checks
-          # creates a scenario where if you DON'T `always()` run this job, the
-          # status check UI will block merging and if you DO `always()` run and
-          # a dependency is _cancelled_ (due to a critical failure, which is
-          # somehow not considered a failure ¯\_(ツ)_/¯) then the critically
-          # failing job(s) will timeout causing a cancellation here and the
-          # build to succeed which we don't want (originally this was just
-          # 'exit 0')
-          #
-          # Note: When [doc-only] is in PR title, test jobs are intentionally
-          # skipped and should not cause failure.
           doc_only=${{ needs.should-skip.outputs.doc-only }}
           if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
             exit 1

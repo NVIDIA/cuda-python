@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Verify that a release tag points to a commit already validated by main CI.
+
+set -euo pipefail
+
+if [[ $# -lt 3 ]]; then
+    echo "Usage: $0 <git-tag> <repository> <default-branch> [workflow-name]" >&2
+    echo "  git-tag: The release git tag to verify" >&2
+    echo "  repository: The GitHub repository (e.g. NVIDIA/cuda-python)" >&2
+    echo "  default-branch: The branch releases must come from (e.g. main)" >&2
+    echo "  workflow-name: Optional workflow name to check (default: CI)" >&2
+    exit 1
+fi
+
+GIT_TAG="${1}"
+REPOSITORY="${2}"
+DEFAULT_BRANCH="${3}"
+WORKFLOW_NAME="${4:-CI}"
+
+if [[ -z "${GH_TOKEN:-}" ]]; then
+    echo "Error: GH_TOKEN environment variable is required" >&2
+    exit 1
+fi
+
+for exe in gh jq git; do
+    if ! command -v "${exe}" >/dev/null 2>&1; then
+        echo "Error: ${exe} is required but not installed" >&2
+        exit 1
+    fi
+done
+
+if ! COMMIT_SHA=$(git rev-parse "${GIT_TAG}^{commit}"); then
+    echo "Error: Could not resolve git tag '${GIT_TAG}' to a commit SHA" >&2
+    exit 1
+fi
+
+echo "Resolved tag '${GIT_TAG}' to commit ${COMMIT_SHA}" >&2
+
+git fetch origin "${DEFAULT_BRANCH}" --depth=1 >/dev/null 2>&1
+
+if ! git merge-base --is-ancestor "${COMMIT_SHA}" "origin/${DEFAULT_BRANCH}"; then
+    echo "Error: Tag '${GIT_TAG}' does not point at a commit reachable from origin/${DEFAULT_BRANCH}" >&2
+    exit 1
+fi
+
+RUN_DATA=$(gh run list \
+    --repo "${REPOSITORY}" \
+    --branch "${DEFAULT_BRANCH}" \
+    --commit "${COMMIT_SHA}" \
+    --workflow "${WORKFLOW_NAME}" \
+    --json databaseId,conclusion,status,event,headBranch,createdAt,url \
+    --limit 20)
+
+RUN_ID=$(echo "${RUN_DATA}" | jq -r --arg branch "${DEFAULT_BRANCH}" '
+    map(select(.conclusion == "success" and .event == "push" and .headBranch == $branch))
+    | sort_by(.createdAt)
+    | reverse
+    | .[0].databaseId // empty
+')
+
+if [[ -z "${RUN_ID}" ]]; then
+    echo "Error: No successful '${WORKFLOW_NAME}' run found on ${DEFAULT_BRANCH} for commit ${COMMIT_SHA}" >&2
+    echo "Release tags must point at commits already validated on ${DEFAULT_BRANCH}." >&2
+    echo "" >&2
+    echo "Candidate runs for that commit:" >&2
+    echo "${RUN_DATA}" | jq -r '.[] | "\(.databaseId): branch=\(.headBranch // "null"), event=\(.event // "null"), conclusion=\(.conclusion // "null"), status=\(.status // "null"), createdAt=\(.createdAt // "null")"' >&2
+    exit 1
+fi
+
+echo "Verified ${DEFAULT_BRANCH} CI run ${RUN_ID} for commit ${COMMIT_SHA}" >&2
+echo "${COMMIT_SHA}"
