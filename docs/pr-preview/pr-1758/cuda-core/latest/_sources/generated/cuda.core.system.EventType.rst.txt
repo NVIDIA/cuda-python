@@ -1,0 +1,55 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.EventType
+==========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: EventType
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: CLOCK
+   .. autoattribute:: DOUBLE_BIT_ECC_ERROR
+   .. autoattribute:: DRAM_RETIREMENT_EVENT
+   .. autoattribute:: DRAM_RETIREMENT_FAILURE
+   .. autoattribute:: FATAL_POISON_ERROR
+   .. autoattribute:: GPU_RECOVERY_ACTION
+   .. autoattribute:: GPU_UNAVAILABLE_ERROR
+   .. autoattribute:: MIG_CONFIG_CHANGE
+   .. autoattribute:: NONE
+   .. autoattribute:: NON_FATAL_POISON_ERROR
+   .. autoattribute:: POWER_SOURCE_CHANGE
+   .. autoattribute:: PSTATE
+   .. autoattribute:: SINGLE_BIT_ECC_ERROR
+   .. autoattribute:: SINGLE_BIT_ECC_ERROR_STORM
+   .. autoattribute:: XID_CRITICAL_ERROR
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
