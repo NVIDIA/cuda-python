@@ -517,8 +517,24 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
 
 // as_py() - convert handle to Python wrapper object (returns new reference)
 namespace detail {
+
+#if PY_VERSION_HEX < 0x030D0000
+extern "C" int _Py_IsFinalizing(void);
+#endif
+
+inline bool py_is_finalizing() noexcept {
+#if PY_VERSION_HEX >= 0x030D0000
+    return Py_IsFinalizing();
+#else
+    return _Py_IsFinalizing() != 0;
+#endif
+}
+
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
 inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
+    if (py_is_finalizing()) {
+        Py_RETURN_NONE;
+    }
     PyObject* mod = PyImport_ImportModule(module_name);
     if (!mod) return nullptr;
     PyObject* cls = PyObject_GetAttrString(mod, class_name);

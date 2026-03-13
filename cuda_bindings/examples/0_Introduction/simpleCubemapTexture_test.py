@@ -7,12 +7,12 @@ import time
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors, findCudaDevice
+from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 
-simpleCubemapTexture = """\
+simple_cubemap_texture = """\
 extern "C"
 __global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)
 {
@@ -83,14 +83,14 @@ __global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t t
 
 def main():
     # Use command-line specified CUDA device, otherwise use device with highest Gflops/s
-    devID = findCudaDevice()
+    dev_id = find_cuda_device()
 
     # Get number of SMs on this GPU
-    deviceProps = checkCudaErrors(cudart.cudaGetDeviceProperties(devID))
+    device_props = check_cuda_errors(cudart.cudaGetDeviceProperties(dev_id))
     print(
-        f"CUDA device [{deviceProps.name}] has {deviceProps.multiProcessorCount} Multi-Processors SM {deviceProps.major}.{deviceProps.minor}"
+        f"CUDA device [{device_props.name}] has {device_props.multiProcessorCount} Multi-Processors SM {device_props.major}.{device_props.minor}"
     )
-    if deviceProps.major < 2:
+    if device_props.major < 2:
         import pytest
 
         pytest.skip("Test requires SM 2.0 or higher for support of Texture Arrays.")
@@ -107,15 +107,15 @@ def main():
     h_data_ref = np.repeat(np.arange(num_layers, dtype=h_data.dtype), cubemap_size) - h_data
 
     # Allocate device memory for result
-    d_data = checkCudaErrors(cudart.cudaMalloc(size))
+    d_data = check_cuda_errors(cudart.cudaMalloc(size))
 
     # Allocate array and copy image data
-    channelDesc = checkCudaErrors(
+    channel_desc = check_cuda_errors(
         cudart.cudaCreateChannelDesc(32, 0, 0, 0, cudart.cudaChannelFormatKind.cudaChannelFormatKindFloat)
     )
-    cu_3darray = checkCudaErrors(
+    cu_3darray = check_cuda_errors(
         cudart.cudaMalloc3DArray(
-            channelDesc,
+            channel_desc,
             cudart.make_cudaExtent(width, width, num_faces),
             cudart.cudaArrayCubemap,
         )
@@ -128,90 +128,90 @@ def main():
     myparms.dstArray = cu_3darray
     myparms.extent = cudart.make_cudaExtent(width, width, num_faces)
     myparms.kind = cudart.cudaMemcpyKind.cudaMemcpyHostToDevice
-    checkCudaErrors(cudart.cudaMemcpy3D(myparms))
+    check_cuda_errors(cudart.cudaMemcpy3D(myparms))
 
-    texRes = cudart.cudaResourceDesc()
-    texRes.resType = cudart.cudaResourceType.cudaResourceTypeArray
-    texRes.res.array.array = cu_3darray
+    tex_res = cudart.cudaResourceDesc()
+    tex_res.resType = cudart.cudaResourceType.cudaResourceTypeArray
+    tex_res.res.array.array = cu_3darray
 
-    texDescr = cudart.cudaTextureDesc()
-    texDescr.normalizedCoords = True
-    texDescr.filterMode = cudart.cudaTextureFilterMode.cudaFilterModeLinear
-    texDescr.addressMode[0] = cudart.cudaTextureAddressMode.cudaAddressModeWrap
-    texDescr.addressMode[1] = cudart.cudaTextureAddressMode.cudaAddressModeWrap
-    texDescr.addressMode[2] = cudart.cudaTextureAddressMode.cudaAddressModeWrap
-    texDescr.readMode = cudart.cudaTextureReadMode.cudaReadModeElementType
+    tex_descr = cudart.cudaTextureDesc()
+    tex_descr.normalizedCoords = True
+    tex_descr.filterMode = cudart.cudaTextureFilterMode.cudaFilterModeLinear
+    tex_descr.addressMode[0] = cudart.cudaTextureAddressMode.cudaAddressModeWrap
+    tex_descr.addressMode[1] = cudart.cudaTextureAddressMode.cudaAddressModeWrap
+    tex_descr.addressMode[2] = cudart.cudaTextureAddressMode.cudaAddressModeWrap
+    tex_descr.readMode = cudart.cudaTextureReadMode.cudaReadModeElementType
 
-    tex = checkCudaErrors(cudart.cudaCreateTextureObject(texRes, texDescr, None))
-    dimBlock = cudart.dim3()
-    dimBlock.x = 8
-    dimBlock.y = 8
-    dimBlock.z = 1
-    dimGrid = cudart.dim3()
-    dimGrid.x = width / dimBlock.x
-    dimGrid.y = width / dimBlock.y
-    dimGrid.z = 1
+    tex = check_cuda_errors(cudart.cudaCreateTextureObject(tex_res, tex_descr, None))
+    dim_block = cudart.dim3()
+    dim_block.x = 8
+    dim_block.y = 8
+    dim_block.z = 1
+    dim_grid = cudart.dim3()
+    dim_grid.x = width / dim_block.x
+    dim_grid.y = width / dim_block.y
+    dim_grid.z = 1
 
     print(
-        f"Covering Cubemap data array of {width}~3 x {num_layers}: Grid size is {dimGrid.x} x {dimGrid.y}, each block has 8 x 8 threads"
+        f"Covering Cubemap data array of {width}~3 x {num_layers}: Grid size is {dim_grid.x} x {dim_grid.y}, each block has 8 x 8 threads"
     )
 
-    with common.KernelHelper(simpleCubemapTexture, devID) as kernelHelper:
-        _transformKernel = kernelHelper.getFunction(b"transformKernel")
-        kernelArgs = ((d_data, width, tex), (ctypes.c_void_p, ctypes.c_int, None))
-        checkCudaErrors(
-            cuda.cuLaunchKernel(
-                _transformKernel,
-                dimGrid.x,
-                dimGrid.y,
-                dimGrid.z,  # grid dim
-                dimBlock.x,
-                dimBlock.y,
-                dimBlock.z,  # block dim
-                0,
-                0,  # shared mem and stream
-                kernelArgs,
-                0,
-            )
-        )  # arguments
+    kernel_helper = common.KernelHelper(simple_cubemap_texture, dev_id)
+    _transform_kernel = kernel_helper.get_function(b"transformKernel")
+    kernel_args = ((d_data, width, tex), (ctypes.c_void_p, ctypes.c_int, None))
+    check_cuda_errors(
+        cuda.cuLaunchKernel(
+            _transform_kernel,
+            dim_grid.x,
+            dim_grid.y,
+            dim_grid.z,  # grid dim
+            dim_block.x,
+            dim_block.y,
+            dim_block.z,  # block dim
+            0,
+            0,  # shared mem and stream
+            kernel_args,
+            0,
+        )
+    )  # arguments
 
-        checkCudaErrors(cudart.cudaDeviceSynchronize())
+    check_cuda_errors(cudart.cudaDeviceSynchronize())
 
-        start = time.time()
+    start = time.time()
 
-        # Execute the kernel
-        checkCudaErrors(
-            cuda.cuLaunchKernel(
-                _transformKernel,
-                dimGrid.x,
-                dimGrid.y,
-                dimGrid.z,  # grid dim
-                dimBlock.x,
-                dimBlock.y,
-                dimBlock.z,  # block dim
-                0,
-                0,  # shared mem and stream
-                kernelArgs,
-                0,
-            )
-        )  # arguments
+    # Execute the kernel
+    check_cuda_errors(
+        cuda.cuLaunchKernel(
+            _transform_kernel,
+            dim_grid.x,
+            dim_grid.y,
+            dim_grid.z,  # grid dim
+            dim_block.x,
+            dim_block.y,
+            dim_block.z,  # block dim
+            0,
+            0,  # shared mem and stream
+            kernel_args,
+            0,
+        )
+    )  # arguments
 
-        checkCudaErrors(cudart.cudaDeviceSynchronize())
-        stop = time.time()
-        print(f"Processing time: {stop - start:.3f} msec")
-        print(f"{cubemap_size / ((stop - start + 1) / 1000.0) / 1e6:.2f} Mtexlookups/sec")
+    check_cuda_errors(cudart.cudaDeviceSynchronize())
+    stop = time.time()
+    print(f"Processing time: {stop - start:.3f} msec")
+    print(f"{cubemap_size / ((stop - start + 1) / 1000.0) / 1e6:.2f} Mtexlookups/sec")
 
-        # Allocate mem for the result on host side
-        h_odata = np.empty_like(h_data)
-        # Copy result from device to host
-        checkCudaErrors(cudart.cudaMemcpy(h_odata, d_data, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
+    # Allocate mem for the result on host side
+    h_odata = np.empty_like(h_data)
+    # Copy result from device to host
+    check_cuda_errors(cudart.cudaMemcpy(h_odata, d_data, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
 
-    checkCudaErrors(cudart.cudaDestroyTextureObject(tex))
-    checkCudaErrors(cudart.cudaFree(d_data))
-    checkCudaErrors(cudart.cudaFreeArray(cu_3darray))
+    check_cuda_errors(cudart.cudaDestroyTextureObject(tex))
+    check_cuda_errors(cudart.cudaFree(d_data))
+    check_cuda_errors(cudart.cudaFreeArray(cu_3darray))
 
-    MIN_EPSILON_ERROR = 5.0e-3
-    if np.max(np.abs(h_odata - h_data_ref)) > MIN_EPSILON_ERROR:
+    min_epsilon_error = 5.0e-3
+    if np.max(np.abs(h_odata - h_data_ref)) > min_epsilon_error:
         print("Failed", file=sys.stderr)
         sys.exit(1)
 

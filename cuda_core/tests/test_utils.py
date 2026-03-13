@@ -582,10 +582,53 @@ def test_from_array_interface_unsupported_strides(init_cuda):
     # Create an array with strides that aren't a multiple of itemsize
     x = np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")])
     b = x["b"]
-    smv = StridedMemoryView.from_array_interface(b)
     with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
-        # TODO: ideally this would raise on construction
-        smv.strides  # noqa: B018
+        StridedMemoryView.from_array_interface(b)
+
+
+def _make_cuda_array_interface_obj(*, shape, strides, typestr="<f8", data=(0, False), version=3):
+    return type(
+        "SyntheticCAI",
+        (),
+        {
+            "__cuda_array_interface__": {
+                "shape": shape,
+                "strides": strides,
+                "typestr": typestr,
+                "data": data,
+                "version": version,
+            }
+        },
+    )()
+
+
+def test_from_cuda_array_interface_unsupported_strides(init_cuda):
+    cai_obj = _make_cuda_array_interface_obj(shape=(2,), strides=(10,))
+    with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
+        StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
+
+
+def test_from_cuda_array_interface_zero_strides(init_cuda):
+    cai_obj = _make_cuda_array_interface_obj(shape=(1, 1), strides=(0, 0))
+    smv = StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
+    assert smv.shape == (1, 1)
+    assert smv.strides == (0, 0)
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_from_cuda_array_interface_negative_strides(init_cuda):
+    x = cp.arange(4, dtype=cp.float64)[::-1]
+    smv = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(x), stream_ptr=-1)
+    assert smv.shape == x.shape
+    assert smv.strides == (-1,)
+
+
+def test_from_cuda_array_interface_empty_array(init_cuda):
+    cai_obj = _make_cuda_array_interface_obj(shape=(0, 3), strides=(24, 8))
+    smv = StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
+    assert smv.size == 0
+    assert smv.shape == (0, 3)
+    assert smv.strides == (3, 1)
 
 
 @pytest.mark.parametrize(

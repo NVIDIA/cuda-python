@@ -6,7 +6,7 @@ import random as rnd
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors, findCudaDevice
+from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
@@ -14,7 +14,7 @@ from cuda.bindings import runtime as cudart
 THREADS_PER_BLOCK = 512
 GRAPH_LAUNCH_ITERATIONS = 3
 
-simpleCudaGraphs = """\
+simple_cuda_graphs = """\
 #include <cooperative_groups.h>
 #include <cuda_runtime.h>
 
@@ -121,185 +121,185 @@ def init_input(a, size):
         a_list[i] = rnd.random()
 
 
-def cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, numOfBlocks):
+def cuda_graphs_manual(input_vec_h, input_vec_d, output_vec_d, result_d, input_size, num_of_blocks):
     result_h = ctypes.c_double(0.0)
-    nodeDependencies = []
+    node_dependencies = []
 
-    streamForGraph = checkCudaErrors(cudart.cudaStreamCreate())
+    stream_for_graph = check_cuda_errors(cudart.cudaStreamCreate())
 
-    kernelNodeParams = cuda.CUDA_KERNEL_NODE_PARAMS()
-    memcpyParams = cudart.cudaMemcpy3DParms()
-    memsetParams = cudart.cudaMemsetParams()
+    kernel_node_params = cuda.CUDA_KERNEL_NODE_PARAMS()
+    memcpy_params = cudart.cudaMemcpy3DParms()
+    memset_params = cudart.cudaMemsetParams()
 
-    memcpyParams.srcArray = None
-    memcpyParams.srcPos = cudart.make_cudaPos(0, 0, 0)
-    memcpyParams.srcPtr = cudart.make_cudaPitchedPtr(
-        inputVec_h, np.dtype(np.float32).itemsize * inputSize, inputSize, 1
+    memcpy_params.srcArray = None
+    memcpy_params.srcPos = cudart.make_cudaPos(0, 0, 0)
+    memcpy_params.srcPtr = cudart.make_cudaPitchedPtr(
+        input_vec_h, np.dtype(np.float32).itemsize * input_size, input_size, 1
     )
-    memcpyParams.dstArray = None
-    memcpyParams.dstPos = cudart.make_cudaPos(0, 0, 0)
-    memcpyParams.dstPtr = cudart.make_cudaPitchedPtr(
-        inputVec_d, np.dtype(np.float32).itemsize * inputSize, inputSize, 1
+    memcpy_params.dstArray = None
+    memcpy_params.dstPos = cudart.make_cudaPos(0, 0, 0)
+    memcpy_params.dstPtr = cudart.make_cudaPitchedPtr(
+        input_vec_d, np.dtype(np.float32).itemsize * input_size, input_size, 1
     )
-    memcpyParams.extent = cudart.make_cudaExtent(np.dtype(np.float32).itemsize * inputSize, 1, 1)
-    memcpyParams.kind = cudart.cudaMemcpyKind.cudaMemcpyHostToDevice
+    memcpy_params.extent = cudart.make_cudaExtent(np.dtype(np.float32).itemsize * input_size, 1, 1)
+    memcpy_params.kind = cudart.cudaMemcpyKind.cudaMemcpyHostToDevice
 
-    memsetParams.dst = outputVec_d
-    memsetParams.value = 0
-    memsetParams.pitch = 0
-    memsetParams.elementSize = np.dtype(np.float32).itemsize  # elementSize can be max 4 bytes
-    memsetParams.width = numOfBlocks * 2
-    memsetParams.height = 1
+    memset_params.dst = output_vec_d
+    memset_params.value = 0
+    memset_params.pitch = 0
+    memset_params.elementSize = np.dtype(np.float32).itemsize  # elementSize can be max 4 bytes
+    memset_params.width = num_of_blocks * 2
+    memset_params.height = 1
 
-    graph = checkCudaErrors(cudart.cudaGraphCreate(0))
+    graph = check_cuda_errors(cudart.cudaGraphCreate(0))
 
-    memcpyNode = checkCudaErrors(cudart.cudaGraphAddMemcpyNode(graph, None, 0, memcpyParams))
-    memsetNode = checkCudaErrors(cudart.cudaGraphAddMemsetNode(graph, None, 0, memsetParams))
+    memcpy_node = check_cuda_errors(cudart.cudaGraphAddMemcpyNode(graph, None, 0, memcpy_params))
+    memset_node = check_cuda_errors(cudart.cudaGraphAddMemsetNode(graph, None, 0, memset_params))
 
-    nodeDependencies.append(memsetNode)
-    nodeDependencies.append(memcpyNode)
+    node_dependencies.append(memset_node)
+    node_dependencies.append(memcpy_node)
 
-    kernelArgs = (
-        (inputVec_d, outputVec_d, inputSize, numOfBlocks),
+    kernel_args = (
+        (input_vec_d, output_vec_d, input_size, num_of_blocks),
         (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_uint),
     )
 
-    kernelNodeParams.func = _reduce
-    kernelNodeParams.gridDimX = numOfBlocks
-    kernelNodeParams.gridDimY = kernelNodeParams.gridDimZ = 1
-    kernelNodeParams.blockDimX = THREADS_PER_BLOCK
-    kernelNodeParams.blockDimY = kernelNodeParams.blockDimZ = 1
-    kernelNodeParams.sharedMemBytes = 0
-    kernelNodeParams.kernelParams = kernelArgs
+    kernel_node_params.func = _reduce
+    kernel_node_params.gridDimX = num_of_blocks
+    kernel_node_params.gridDimY = kernel_node_params.gridDimZ = 1
+    kernel_node_params.blockDimX = THREADS_PER_BLOCK
+    kernel_node_params.blockDimY = kernel_node_params.blockDimZ = 1
+    kernel_node_params.sharedMemBytes = 0
+    kernel_node_params.kernelParams = kernel_args
     # kernelNodeParams.extra = None
 
-    kernelNode = checkCudaErrors(
-        cuda.cuGraphAddKernelNode(graph, nodeDependencies, len(nodeDependencies), kernelNodeParams)
+    kernel_node = check_cuda_errors(
+        cuda.cuGraphAddKernelNode(graph, node_dependencies, len(node_dependencies), kernel_node_params)
     )
 
-    nodeDependencies.clear()
-    nodeDependencies.append(kernelNode)
+    node_dependencies.clear()
+    node_dependencies.append(kernel_node)
 
-    memsetParams = cudart.cudaMemsetParams()
-    memsetParams.dst = result_d
-    memsetParams.value = 0
-    memsetParams.elementSize = np.dtype(np.float32).itemsize
-    memsetParams.width = 2
-    memsetParams.height = 1
-    memsetNode = checkCudaErrors(cudart.cudaGraphAddMemsetNode(graph, None, 0, memsetParams))
+    memset_params = cudart.cudaMemsetParams()
+    memset_params.dst = result_d
+    memset_params.value = 0
+    memset_params.elementSize = np.dtype(np.float32).itemsize
+    memset_params.width = 2
+    memset_params.height = 1
+    memset_node = check_cuda_errors(cudart.cudaGraphAddMemsetNode(graph, None, 0, memset_params))
 
-    nodeDependencies.append(memsetNode)
+    node_dependencies.append(memset_node)
 
-    kernelNodeParams = cuda.CUDA_KERNEL_NODE_PARAMS()
-    kernelNodeParams.func = _reduceFinal
-    kernelNodeParams.gridDimX = kernelNodeParams.gridDimY = kernelNodeParams.gridDimZ = 1
-    kernelNodeParams.blockDimX = THREADS_PER_BLOCK
-    kernelNodeParams.blockDimY = kernelNodeParams.blockDimZ = 1
-    kernelNodeParams.sharedMemBytes = 0
-    kernelArgs2 = (
-        (outputVec_d, result_d, numOfBlocks),
+    kernel_node_params = cuda.CUDA_KERNEL_NODE_PARAMS()
+    kernel_node_params.func = _reduceFinal
+    kernel_node_params.gridDimX = kernel_node_params.gridDimY = kernel_node_params.gridDimZ = 1
+    kernel_node_params.blockDimX = THREADS_PER_BLOCK
+    kernel_node_params.blockDimY = kernel_node_params.blockDimZ = 1
+    kernel_node_params.sharedMemBytes = 0
+    kernel_args2 = (
+        (output_vec_d, result_d, num_of_blocks),
         (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint),
     )
-    kernelNodeParams.kernelParams = kernelArgs2
+    kernel_node_params.kernelParams = kernel_args2
     # kernelNodeParams.extra = None
 
-    kernelNode = checkCudaErrors(
-        cuda.cuGraphAddKernelNode(graph, nodeDependencies, len(nodeDependencies), kernelNodeParams)
+    kernel_node = check_cuda_errors(
+        cuda.cuGraphAddKernelNode(graph, node_dependencies, len(node_dependencies), kernel_node_params)
     )
 
-    nodeDependencies.clear()
-    nodeDependencies.append(kernelNode)
+    node_dependencies.clear()
+    node_dependencies.append(kernel_node)
 
-    memcpyParams = cudart.cudaMemcpy3DParms()
+    memcpy_params = cudart.cudaMemcpy3DParms()
 
-    memcpyParams.srcArray = None
-    memcpyParams.srcPos = cudart.make_cudaPos(0, 0, 0)
-    memcpyParams.srcPtr = cudart.make_cudaPitchedPtr(result_d, np.dtype(np.float64).itemsize, 1, 1)
-    memcpyParams.dstArray = None
-    memcpyParams.dstPos = cudart.make_cudaPos(0, 0, 0)
-    memcpyParams.dstPtr = cudart.make_cudaPitchedPtr(result_h, np.dtype(np.float64).itemsize, 1, 1)
-    memcpyParams.extent = cudart.make_cudaExtent(np.dtype(np.float64).itemsize, 1, 1)
-    memcpyParams.kind = cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
-    memcpyNode = checkCudaErrors(
-        cudart.cudaGraphAddMemcpyNode(graph, nodeDependencies, len(nodeDependencies), memcpyParams)
+    memcpy_params.srcArray = None
+    memcpy_params.srcPos = cudart.make_cudaPos(0, 0, 0)
+    memcpy_params.srcPtr = cudart.make_cudaPitchedPtr(result_d, np.dtype(np.float64).itemsize, 1, 1)
+    memcpy_params.dstArray = None
+    memcpy_params.dstPos = cudart.make_cudaPos(0, 0, 0)
+    memcpy_params.dstPtr = cudart.make_cudaPitchedPtr(result_h, np.dtype(np.float64).itemsize, 1, 1)
+    memcpy_params.extent = cudart.make_cudaExtent(np.dtype(np.float64).itemsize, 1, 1)
+    memcpy_params.kind = cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
+    memcpy_node = check_cuda_errors(
+        cudart.cudaGraphAddMemcpyNode(graph, node_dependencies, len(node_dependencies), memcpy_params)
     )
 
-    nodeDependencies.clear()
-    nodeDependencies.append(memcpyNode)
+    node_dependencies.clear()
+    node_dependencies.append(memcpy_node)
 
     # WIP: Host nodes
 
-    nodes, numNodes = checkCudaErrors(cudart.cudaGraphGetNodes(graph))
-    print(f"\nNum of nodes in the graph created manually = {numNodes}")
+    nodes, num_nodes = check_cuda_errors(cudart.cudaGraphGetNodes(graph))
+    print(f"\nNum of nodes in the graph created manually = {num_nodes}")
 
-    graphExec = checkCudaErrors(cudart.cudaGraphInstantiate(graph, 0))
+    graph_exec = check_cuda_errors(cudart.cudaGraphInstantiate(graph, 0))
 
-    clonedGraph = checkCudaErrors(cudart.cudaGraphClone(graph))
-    clonedGraphExec = checkCudaErrors(cudart.cudaGraphInstantiate(clonedGraph, 0))
+    cloned_graph = check_cuda_errors(cudart.cudaGraphClone(graph))
+    cloned_graph_exec = check_cuda_errors(cudart.cudaGraphInstantiate(cloned_graph, 0))
 
     for _i in range(GRAPH_LAUNCH_ITERATIONS):
-        checkCudaErrors(cudart.cudaGraphLaunch(graphExec, streamForGraph))
+        check_cuda_errors(cudart.cudaGraphLaunch(graph_exec, stream_for_graph))
 
-    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
+    check_cuda_errors(cudart.cudaStreamSynchronize(stream_for_graph))
 
     print("Cloned Graph Output..")
     for _i in range(GRAPH_LAUNCH_ITERATIONS):
-        checkCudaErrors(cudart.cudaGraphLaunch(clonedGraphExec, streamForGraph))
+        check_cuda_errors(cudart.cudaGraphLaunch(cloned_graph_exec, stream_for_graph))
 
-    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
+    check_cuda_errors(cudart.cudaStreamSynchronize(stream_for_graph))
 
-    checkCudaErrors(cudart.cudaGraphExecDestroy(graphExec))
-    checkCudaErrors(cudart.cudaGraphExecDestroy(clonedGraphExec))
-    checkCudaErrors(cudart.cudaGraphDestroy(graph))
-    checkCudaErrors(cudart.cudaGraphDestroy(clonedGraph))
-    checkCudaErrors(cudart.cudaStreamDestroy(streamForGraph))
+    check_cuda_errors(cudart.cudaGraphExecDestroy(graph_exec))
+    check_cuda_errors(cudart.cudaGraphExecDestroy(cloned_graph_exec))
+    check_cuda_errors(cudart.cudaGraphDestroy(graph))
+    check_cuda_errors(cudart.cudaGraphDestroy(cloned_graph))
+    check_cuda_errors(cudart.cudaStreamDestroy(stream_for_graph))
 
 
-def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, numOfBlocks):
+def cuda_graphs_using_stream_capture(input_vec_h, input_vec_d, output_vec_d, result_d, input_size, num_of_blocks):
     result_h = ctypes.c_double(0.0)
 
-    stream1 = checkCudaErrors(cudart.cudaStreamCreate())
-    stream2 = checkCudaErrors(cudart.cudaStreamCreate())
-    stream3 = checkCudaErrors(cudart.cudaStreamCreate())
-    streamForGraph = checkCudaErrors(cudart.cudaStreamCreate())
+    stream1 = check_cuda_errors(cudart.cudaStreamCreate())
+    stream2 = check_cuda_errors(cudart.cudaStreamCreate())
+    stream3 = check_cuda_errors(cudart.cudaStreamCreate())
+    stream_for_graph = check_cuda_errors(cudart.cudaStreamCreate())
 
-    forkStreamEvent = checkCudaErrors(cudart.cudaEventCreate())
-    memsetEvent1 = checkCudaErrors(cudart.cudaEventCreate())
-    memsetEvent2 = checkCudaErrors(cudart.cudaEventCreate())
+    fork_stream_event = check_cuda_errors(cudart.cudaEventCreate())
+    memset_event1 = check_cuda_errors(cudart.cudaEventCreate())
+    memset_event2 = check_cuda_errors(cudart.cudaEventCreate())
 
-    checkCudaErrors(cudart.cudaStreamBeginCapture(stream1, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal))
+    check_cuda_errors(cudart.cudaStreamBeginCapture(stream1, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal))
 
-    checkCudaErrors(cudart.cudaEventRecord(forkStreamEvent, stream1))
-    checkCudaErrors(cudart.cudaStreamWaitEvent(stream2, forkStreamEvent, 0))
-    checkCudaErrors(cudart.cudaStreamWaitEvent(stream3, forkStreamEvent, 0))
+    check_cuda_errors(cudart.cudaEventRecord(fork_stream_event, stream1))
+    check_cuda_errors(cudart.cudaStreamWaitEvent(stream2, fork_stream_event, 0))
+    check_cuda_errors(cudart.cudaStreamWaitEvent(stream3, fork_stream_event, 0))
 
-    checkCudaErrors(
+    check_cuda_errors(
         cudart.cudaMemcpyAsync(
-            inputVec_d,
-            inputVec_h,
-            np.dtype(np.float32).itemsize * inputSize,
+            input_vec_d,
+            input_vec_h,
+            np.dtype(np.float32).itemsize * input_size,
             cudart.cudaMemcpyKind.cudaMemcpyDefault,
             stream1,
         )
     )
 
-    checkCudaErrors(cudart.cudaMemsetAsync(outputVec_d, 0, np.dtype(np.float64).itemsize * numOfBlocks, stream2))
+    check_cuda_errors(cudart.cudaMemsetAsync(output_vec_d, 0, np.dtype(np.float64).itemsize * num_of_blocks, stream2))
 
-    checkCudaErrors(cudart.cudaEventRecord(memsetEvent1, stream2))
+    check_cuda_errors(cudart.cudaEventRecord(memset_event1, stream2))
 
-    checkCudaErrors(cudart.cudaMemsetAsync(result_d, 0, np.dtype(np.float64).itemsize, stream3))
-    checkCudaErrors(cudart.cudaEventRecord(memsetEvent2, stream3))
+    check_cuda_errors(cudart.cudaMemsetAsync(result_d, 0, np.dtype(np.float64).itemsize, stream3))
+    check_cuda_errors(cudart.cudaEventRecord(memset_event2, stream3))
 
-    checkCudaErrors(cudart.cudaStreamWaitEvent(stream1, memsetEvent1, 0))
+    check_cuda_errors(cudart.cudaStreamWaitEvent(stream1, memset_event1, 0))
 
-    kernelArgs = (
-        (inputVec_d, outputVec_d, inputSize, numOfBlocks),
+    kernel_args = (
+        (input_vec_d, output_vec_d, input_size, num_of_blocks),
         (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_uint),
     )
-    checkCudaErrors(
+    check_cuda_errors(
         cuda.cuLaunchKernel(
             _reduce,
-            numOfBlocks,
+            num_of_blocks,
             1,
             1,
             THREADS_PER_BLOCK,
@@ -307,20 +307,20 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
             1,
             0,
             stream1,
-            kernelArgs,
+            kernel_args,
             0,
         )
     )
 
-    checkCudaErrors(cudart.cudaStreamWaitEvent(stream1, memsetEvent2, 0))
+    check_cuda_errors(cudart.cudaStreamWaitEvent(stream1, memset_event2, 0))
 
-    kernelArgs2 = (
-        (outputVec_d, result_d, numOfBlocks),
+    kernel_args2 = (
+        (output_vec_d, result_d, num_of_blocks),
         (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint),
     )
-    checkCudaErrors(cuda.cuLaunchKernel(_reduceFinal, 1, 1, 1, THREADS_PER_BLOCK, 1, 1, 0, stream1, kernelArgs2, 0))
+    check_cuda_errors(cuda.cuLaunchKernel(_reduceFinal, 1, 1, 1, THREADS_PER_BLOCK, 1, 1, 0, stream1, kernel_args2, 0))
 
-    checkCudaErrors(
+    check_cuda_errors(
         cudart.cudaMemcpyAsync(
             result_h,
             result_d,
@@ -332,71 +332,67 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
 
     # WIP: Host nodes
 
-    graph = checkCudaErrors(cudart.cudaStreamEndCapture(stream1))
+    graph = check_cuda_errors(cudart.cudaStreamEndCapture(stream1))
 
-    nodes, numNodes = checkCudaErrors(cudart.cudaGraphGetNodes(graph))
-    print(f"\nNum of nodes in the graph created using stream capture API = {numNodes}")
+    nodes, num_nodes = check_cuda_errors(cudart.cudaGraphGetNodes(graph))
+    print(f"\nNum of nodes in the graph created using stream capture API = {num_nodes}")
 
-    graphExec = checkCudaErrors(cudart.cudaGraphInstantiate(graph, 0))
+    graph_exec = check_cuda_errors(cudart.cudaGraphInstantiate(graph, 0))
 
-    clonedGraph = checkCudaErrors(cudart.cudaGraphClone(graph))
-    clonedGraphExec = checkCudaErrors(cudart.cudaGraphInstantiate(clonedGraph, 0))
+    cloned_graph = check_cuda_errors(cudart.cudaGraphClone(graph))
+    cloned_graph_exec = check_cuda_errors(cudart.cudaGraphInstantiate(cloned_graph, 0))
 
     for _i in range(GRAPH_LAUNCH_ITERATIONS):
-        checkCudaErrors(cudart.cudaGraphLaunch(graphExec, streamForGraph))
+        check_cuda_errors(cudart.cudaGraphLaunch(graph_exec, stream_for_graph))
 
-    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
+    check_cuda_errors(cudart.cudaStreamSynchronize(stream_for_graph))
 
     print("Cloned Graph Output..")
     for _i in range(GRAPH_LAUNCH_ITERATIONS):
-        checkCudaErrors(cudart.cudaGraphLaunch(clonedGraphExec, streamForGraph))
+        check_cuda_errors(cudart.cudaGraphLaunch(cloned_graph_exec, stream_for_graph))
 
-    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
+    check_cuda_errors(cudart.cudaStreamSynchronize(stream_for_graph))
 
-    checkCudaErrors(cudart.cudaGraphExecDestroy(graphExec))
-    checkCudaErrors(cudart.cudaGraphExecDestroy(clonedGraphExec))
-    checkCudaErrors(cudart.cudaGraphDestroy(graph))
-    checkCudaErrors(cudart.cudaGraphDestroy(clonedGraph))
-    checkCudaErrors(cudart.cudaEventDestroy(memsetEvent2))
-    checkCudaErrors(cudart.cudaEventDestroy(memsetEvent1))
-    checkCudaErrors(cudart.cudaEventDestroy(forkStreamEvent))
-    checkCudaErrors(cudart.cudaStreamDestroy(stream3))
-    checkCudaErrors(cudart.cudaStreamDestroy(stream1))
-    checkCudaErrors(cudart.cudaStreamDestroy(stream2))
-    checkCudaErrors(cudart.cudaStreamDestroy(streamForGraph))
+    check_cuda_errors(cudart.cudaGraphExecDestroy(graph_exec))
+    check_cuda_errors(cudart.cudaGraphExecDestroy(cloned_graph_exec))
+    check_cuda_errors(cudart.cudaGraphDestroy(graph))
+    check_cuda_errors(cudart.cudaGraphDestroy(cloned_graph))
+    check_cuda_errors(cudart.cudaStreamDestroy(stream1))
+    check_cuda_errors(cudart.cudaStreamDestroy(stream2))
+    check_cuda_errors(cudart.cudaStreamDestroy(stream_for_graph))
 
 
 def main():
     size = 1 << 24  # number of elements to reduce
-    maxBlocks = 512
+    max_blocks = 512
 
     # This will pick the best possible CUDA capable device
-    devID = findCudaDevice()
+    dev_id = find_cuda_device()
 
     global _reduce
     global _reduceFinal
-    with common.KernelHelper(simpleCudaGraphs, devID) as kernelHelper:
-        _reduce = kernelHelper.getFunction(b"reduce")
-        _reduceFinal = kernelHelper.getFunction(b"reduceFinal")
+    kernel_helper = common.KernelHelper(simple_cuda_graphs, dev_id)
+    _reduce = kernel_helper.get_function(b"reduce")
+    _reduceFinal = kernel_helper.get_function(b"reduceFinal")
 
-        print(f"{size} elements")
-        print(f"threads per block  = {THREADS_PER_BLOCK}")
-        print(f"Graph Launch iterations = {GRAPH_LAUNCH_ITERATIONS}")
+    print(f"{size} elements")
+    print(f"threads per block  = {THREADS_PER_BLOCK}")
+    print(f"Graph Launch iterations = {GRAPH_LAUNCH_ITERATIONS}")
 
-        inputVec_h = checkCudaErrors(cudart.cudaMallocHost(size * np.dtype(np.float32).itemsize))
-        inputVec_d = checkCudaErrors(cudart.cudaMalloc(size * np.dtype(np.float32).itemsize))
-        outputVec_d = checkCudaErrors(cudart.cudaMalloc(maxBlocks * np.dtype(np.float64).itemsize))
-        result_d = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float64).itemsize))
+    input_vec_h = check_cuda_errors(cudart.cudaMallocHost(size * np.dtype(np.float32).itemsize))
+    input_vec_d = check_cuda_errors(cudart.cudaMalloc(size * np.dtype(np.float32).itemsize))
+    output_vec_d = check_cuda_errors(cudart.cudaMalloc(max_blocks * np.dtype(np.float64).itemsize))
+    result_d = check_cuda_errors(cudart.cudaMalloc(np.dtype(np.float64).itemsize))
 
-        init_input(inputVec_h, size)
+    init_input(input_vec_h, size)
 
-        cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
-        cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, size, maxBlocks)
+    cuda_graphs_manual(input_vec_h, input_vec_d, output_vec_d, result_d, size, max_blocks)
+    cuda_graphs_using_stream_capture(input_vec_h, input_vec_d, output_vec_d, result_d, size, max_blocks)
 
-    checkCudaErrors(cudart.cudaFree(inputVec_d))
-    checkCudaErrors(cudart.cudaFree(outputVec_d))
-    checkCudaErrors(cudart.cudaFree(result_d))
-    checkCudaErrors(cudart.cudaFreeHost(inputVec_h))
+    check_cuda_errors(cudart.cudaFree(input_vec_d))
+    check_cuda_errors(cudart.cudaFree(output_vec_d))
+    check_cuda_errors(cudart.cudaFree(result_d))
+    check_cuda_errors(cudart.cudaFreeHost(input_vec_h))
 
 
 if __name__ == "__main__":

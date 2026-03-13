@@ -94,7 +94,7 @@ prog = Program(
     options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_path=include_path),
 )
 mod = prog.compile(target_type="cubin")
-ker = mod.get_kernel("check_cluster_info")
+kernel = mod.get_kernel("check_cluster_info")
 
 # prepare launch config
 grid = 4
@@ -126,7 +126,7 @@ try:
     block_dims[:] = 0
 
     # launch kernel on the default stream
-    launch(dev.default_stream, config, ker, grid_buffer, cluster_buffer, block_buffer)
+    launch(dev.default_stream, config, kernel, grid_buffer, cluster_buffer, block_buffer)
     dev.sync()
 
     # verify results

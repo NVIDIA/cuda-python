@@ -57,7 +57,7 @@ func_sig = f"void {func_name}(int* data, size_t N)"
 # We assume the 0-th argument supports either DLPack or CUDA Array Interface (both
 # of which are supported by StridedMemoryView).
 @args_viewable_as_strided_memory((0,))
-def my_func(arr, work_stream, gpu_ker):
+def my_func(arr, work_stream, kernel):
     # Create a memory view over arr (assumed to be a 1D array of int32). The stream
     # ordering is taken care of, so that arr can be safely accessed on our work
     # stream (ordered after a data stream on which arr is potentially prepared).
@@ -73,7 +73,7 @@ def my_func(arr, work_stream, gpu_ker):
     block = 256
     grid = (size + block - 1) // block
     config = LaunchConfig(grid=grid, block=block)
-    launch(work_stream, config, gpu_ker, view.ptr, np.uint64(size))
+    launch(work_stream, config, kernel, view.ptr, np.uint64(size))
     # Here we're being conservative and synchronize over our work stream,
     # assuming we do not know the data stream; if we know then we could
     # just order the data stream after the work stream here, e.g.
@@ -101,24 +101,24 @@ def run():
     # To know the GPU's compute capability, we need to identify which GPU to use.
     dev = Device(0)
     dev.set_current()
-    gpu_prog = Program(gpu_code, code_type="c++", options=ProgramOptions(arch=f"sm_{dev.arch}", std="c++11"))
-    mod = gpu_prog.compile(target_type="cubin")
-    gpu_ker = mod.get_kernel(func_name)
+    prog = Program(gpu_code, code_type="c++", options=ProgramOptions(arch=f"sm_{dev.arch}", std="c++11"))
+    mod = prog.compile(target_type="cubin")
+    kernel = mod.get_kernel(func_name)
 
-    s = dev.create_stream()
+    stream = dev.create_stream()
     try:
         # Create input array on GPU
         arr_gpu = cp.ones(1024, dtype=cp.int32)
         print(f"before: {arr_gpu[:10]=}")
 
         # Run the workload
-        my_func(arr_gpu, s, gpu_ker)
+        my_func(arr_gpu, stream, kernel)
 
         # Check the result
         print(f"after: {arr_gpu[:10]=}")
         assert cp.allclose(arr_gpu, 1 + cp.arange(1024, dtype=cp.int32))
     finally:
-        s.close()
+        stream.close()
 
 
 if __name__ == "__main__":
