@@ -70,7 +70,7 @@
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_runtime_cuda_error_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-09 01:05 +0000
+            created at 2026-03-13 01:10 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -93,7 +93,7 @@
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="com"># Replace the dictionary below with the output.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="com"># Also update the CUDA Toolkit version number below.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="com"># CUDA Toolkit v13.1.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="com"># CUDA Toolkit v13.2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="nam">DRIVER_CU_RESULT_EXPLANATIONS</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
     <p class="run run2"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">    <span class="num">0</span><span class="op">:</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">        <span class="str">"The API call returned with no errors. In the case of query calls, this"</span>&nbsp;</span><span class="r"></span></p>
@@ -421,25 +421,28 @@
     <p class="run run2"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t">        <span class="str">" changes which violated constraints specific to instantiated graph update."</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t">    <span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t">    <span class="num">911</span><span class="op">:</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t">        <span class="str">"This indicates that an async error has occurred in a device outside of CUDA."</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t">        <span class="str">" If CUDA was waiting for an external device's signal before consuming shared data,"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">        <span class="str">" the external device signaled an error indicating that the data is not valid for"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">        <span class="str">" consumption. This leaves the process in an inconsistent state and any further CUDA"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">        <span class="str">" work will return the same error. To continue using CUDA, the process must be"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">        <span class="str">" terminated and relaunched."</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">    <span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">    <span class="num">912</span><span class="op">:</span> <span class="str">"Indicates a kernel launch error due to cluster misconfiguration."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t">    <span class="num">913</span><span class="op">:</span> <span class="op">(</span><span class="str">"Indiciates a function handle is not loaded when calling an API that requires a loaded function."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t">    <span class="num">914</span><span class="op">:</span> <span class="op">(</span><span class="str">"This error indicates one or more resources passed in are not valid resource types for the operation."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t">    <span class="num">915</span><span class="op">:</span> <span class="op">(</span><span class="str">"This error indicates one or more resources are insufficient or non-applicable for the operation."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t">    <span class="num">916</span><span class="op">:</span> <span class="op">(</span><span class="str">"This error indicates that an error happened during the key rotation sequence."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">    <span class="num">917</span><span class="op">:</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">        <span class="str">"This error indicates that the requested operation is not permitted because the"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="str">" stream is in a detached state. This can occur if the green context associated"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">        <span class="str">" with the stream has been destroyed, limiting the stream's operational capabilities."</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t">    <span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t">    <span class="num">999</span><span class="op">:</span> <span class="str">"This indicates that an unknown internal error has occurred."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t">        <span class="str">"This indicates that an error has occurred in a device outside of GPU. It can be a"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t">        <span class="str">" synchronous error w.r.t. CUDA API or an asynchronous error from the external device."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">        <span class="str">" In case of asynchronous error, it means that if cuda was waiting for an external device's"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">        <span class="str">" signal before consuming shared data, the external device signaled an error indicating that"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">        <span class="str">" the data is not valid for consumption. This leaves the process in an inconsistent"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">        <span class="str">" state and any further CUDA work will return the same error. To continue using CUDA,"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">        <span class="str">" the process must be terminated and relaunched."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">        <span class="str">" In case of synchronous error, it means that one or more external devices"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t">        <span class="str">" have encountered an error and cannot complete the operation."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t">    <span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t">    <span class="num">912</span><span class="op">:</span> <span class="str">"Indicates a kernel launch error due to cluster misconfiguration."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t">    <span class="num">913</span><span class="op">:</span> <span class="op">(</span><span class="str">"Indiciates a function handle is not loaded when calling an API that requires a loaded function."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">    <span class="num">914</span><span class="op">:</span> <span class="op">(</span><span class="str">"This error indicates one or more resources passed in are not valid resource types for the operation."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">    <span class="num">915</span><span class="op">:</span> <span class="op">(</span><span class="str">"This error indicates one or more resources are insufficient or non-applicable for the operation."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">    <span class="num">916</span><span class="op">:</span> <span class="op">(</span><span class="str">"This error indicates that an error happened during the key rotation sequence."</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">    <span class="num">917</span><span class="op">:</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t">        <span class="str">"This error indicates that the requested operation is not permitted because the"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t">        <span class="str">" stream is in a detached state. This can occur if the green context associated"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t">        <span class="str">" with the stream has been destroyed, limiting the stream's operational capabilities."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t">    <span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">    <span class="num">999</span><span class="op">:</span> <span class="str">"This indicates that an unknown internal error has occurred."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -449,7 +452,7 @@
             <a class="nav" href="z_b1c5cc5642be1834_runtime_cuda_error_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-09 01:05 +0000
+            created at 2026-03-13 01:10 +0000
         </p>
     </div>
 </footer>

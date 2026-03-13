@@ -44,26 +44,29 @@
   "I": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
   "J": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
   "K": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvvm]|run",
-  "L": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
-  "M": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options2]|setup",
-  "N": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
-  "O": "tests/test_utils_env_vars.py::test_no_warning_on_windows_case_only_difference|run",
-  "P": "tests/test_utils_env_vars.py::test_no_warning_when_textually_equal_after_normalization|run",
-  "Q": "tests/test_utils_env_vars.py::test_paths_differ_text_only|run",
-  "R": "tests/test_utils_env_vars.py::test_paths_differ_samefile|run",
-  "S": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing|run",
-  "T": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_without_cuda_home|run",
-  "U": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order|run",
-  "V": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_miss_paths_are_non_fatal|run",
-  "W": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_probe_errors_are_not_masked|run",
-  "X": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
-  "Y": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
-  "Z": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_includes_cuda_home_directory_listing|run",
-  "0": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_without_cuda_home|run",
-  "1": "tests/test_find_static_lib.py::test_locate_static_lib_search_order|run",
-  "2": "tests/test_utils_env_vars.py::test_empty_cuda_home_preserved|run",
-  "3": "tests/test_utils_env_vars.py::test_returns_none_when_unset|run",
-  "4": "tests/test_utils_env_vars.py::test_uses_cuda_path_if_home_missing|run"
+  "L": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
+  "M": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutensor]|run",
+  "N": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run",
+  "O": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
+  "P": "tests/test_nvvm.py::test_c_or_v_program_fail_invalid_ir[compile_program]|run",
+  "Q": "tests/test_nvvm.py::test_nvvm_version|run",
+  "R": "tests/test_utils_env_vars.py::test_no_warning_on_windows_case_only_difference|run",
+  "S": "tests/test_utils_env_vars.py::test_no_warning_when_textually_equal_after_normalization|run",
+  "T": "tests/test_utils_env_vars.py::test_paths_differ_text_only|run",
+  "U": "tests/test_utils_env_vars.py::test_paths_differ_samefile|run",
+  "V": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing|run",
+  "W": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_without_cuda_home|run",
+  "X": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order|run",
+  "Y": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_miss_paths_are_non_fatal|run",
+  "Z": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_probe_errors_are_not_masked|run",
+  "0": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
+  "1": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
+  "2": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_includes_cuda_home_directory_listing|run",
+  "3": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_without_cuda_home|run",
+  "4": "tests/test_find_static_lib.py::test_locate_static_lib_search_order|run",
+  "5": "tests/test_utils_env_vars.py::test_empty_cuda_home_preserved|run",
+  "6": "tests/test_utils_env_vars.py::test_returns_none_when_unset|run",
+  "7": "tests/test_utils_env_vars.py::test_uses_cuda_path_if_home_missing|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -126,7 +129,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-09 01:05 +0000
+            created at 2026-03-13 01:10 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -158,28 +161,28 @@
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="str">    2) If still different AND both exist, use os.path.samefile to resolve symlinks/junctions.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="str">    3) Otherwise (nonexistent paths or samefile unavailable), treat as different.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="nam">norm_a</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">44 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPbRQced</span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="nam">norm_b</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">44 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPbRQced</span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="key">if</span> <span class="nam">norm_a</span> <span class="op">==</span> <span class="nam">norm_b</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">44 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPbRQced</span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">39 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="nam">norm_a</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">47 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSbUTced</span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="nam">norm_b</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">47 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSbUTced</span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="key">if</span> <span class="nam">norm_a</span> <span class="op">==</span> <span class="nam">norm_b</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">47 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSbUTced</span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">42 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST</span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">6 ctx</label></span><span class="ctxs">1bRQced</span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">        <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span> <span class="key">and</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">6 ctx</label></span><span class="ctxs">1bRQced</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">6 ctx</label></span><span class="ctxs">1bUTced</span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">        <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span> <span class="key">and</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">6 ctx</label></span><span class="ctxs">1bUTced</span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">            <span class="com"># samefile raises on non-existent paths; only call when both exist.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">            <span class="key">return</span> <span class="key">not</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">samefile</span><span class="op">(</span><span class="nam">a</span><span class="op">,</span> <span class="nam">b</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">4 ctx</label></span><span class="ctxs">1Rced</span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">            <span class="key">return</span> <span class="key">not</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">samefile</span><span class="op">(</span><span class="nam">a</span><span class="op">,</span> <span class="nam">b</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">4 ctx</label></span><span class="ctxs">1Uced</span></p>
     <p class="mis show_mis"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">except</span> <span class="nam">OSError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="com"># Fall through to "different" if samefile isn't applicable/available.</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="com"># If normalized strings differ and we couldn't prove they're the same entry, treat as different.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">2 ctx</label></span><span class="ctxs">1bQ</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">2 ctx</label></span><span class="ctxs">1bT</span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">def</span> <span class="nam">get_cuda_home_or_path</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="nam">cuda_home</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CUDA_HOME"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">55 ctx</label></span><span class="ctxs">1aSTfUghijklmnopqrstuvwxyzABCDEFGHIJKVWXYZ0L1MN2OPbc3e4d</span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="nam">cuda_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CUDA_PATH"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">55 ctx</label></span><span class="ctxs">1aSTfUghijklmnopqrstuvwxyzABCDEFGHIJKVWXYZ0L1MN2OPbc3e4d</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="nam">cuda_home</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CUDA_HOME"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="nam">cuda_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CUDA_PATH"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">and</span> <span class="nam">cuda_path</span> <span class="key">and</span> <span class="nam">_paths_differ</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="nam">cuda_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">55 ctx</label></span><span class="ctxs">1aSTfUghijklmnopqrstuvwxyzABCDEFGHIJKVWXYZ0L1MN2OPbc3e4d</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">and</span> <span class="nam">cuda_path</span> <span class="key">and</span> <span class="nam">_paths_differ</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="nam">cuda_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
     <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="nam">warnings</span><span class="op">.</span><span class="nam">warn</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">3 ctx</label></span><span class="ctxs">1bcd</span></p>
     <p class="run run2"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">            <span class="str">"Both CUDA_HOME and CUDA_PATH are set but differ:\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">            <span class="fst">f"</span><span class="fst">  CUDA_HOME=</span><span class="op">{</span><span class="nam">cuda_home</span><span class="op">}</span><span class="fst">\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
@@ -189,9 +192,9 @@
     <p class="run run2"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">            <span class="nam">stacklevel</span><span class="op">=</span><span class="num">2</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">55 ctx</label></span><span class="ctxs">1aSTfUghijklmnopqrstuvwxyzABCDEFGHIJKVWXYZ0L1MN2OPbc3e4d</span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="key">return</span> <span class="nam">cuda_home</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">48 ctx</label></span><span class="ctxs">1aSfUghijklmnopqrstuvwxyzABCDEFGHIJKXZL1MN2OPbced</span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="key">return</span> <span class="nam">cuda_path</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">7 ctx</label></span><span class="ctxs">1TVWY034</span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="key">return</span> <span class="nam">cuda_home</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">51 ctx</label></span><span class="ctxs">1aVfXghijklmnopqrstuvwxyzABCDEFGHIJK0LMN2O4PQ5RSbced</span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="key">return</span> <span class="nam">cuda_path</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">7 ctx</label></span><span class="ctxs">1WYZ1367</span></p>
 </main>
 <footer>
     <div class="content">
@@ -201,7 +204,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-09 01:05 +0000
+            created at 2026-03-13 01:10 +0000
         </p>
     </div>
 </footer>
