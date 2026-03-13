@@ -1,6 +1,0 @@
-﻿cuda.core.utils.args\_viewable\_as\_strided\_memory
-===================================================
-
-.. currentmodule:: cuda.core.utils
-
-.. autofunction:: args_viewable_as_strided_memory
