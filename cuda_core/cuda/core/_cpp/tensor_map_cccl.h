@@ -5,11 +5,13 @@
 #ifndef CUDA_CORE_TENSOR_MAP_CCCL_H_
 #define CUDA_CORE_TENSOR_MAP_CCCL_H_
 
+#ifdef __cplusplus
+#include <cstddef>
+#include <cstdint>
+extern "C" {
+#else
 #include <stddef.h>
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 // Build a tiled CUtensorMap using CCCL's cuda::make_tma_descriptor (from <cuda/tma>).
