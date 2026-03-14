@@ -376,8 +376,7 @@ class TestTensorMapReplaceAddress:
 
         dev0.set_current()
         buf0 = dev0.allocate(1024 * 4)
-        desc = TensorMapDescriptor.from_tiled(
-            buf0,
+        desc = _as_view(buf0).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
         )
@@ -399,8 +398,7 @@ class TestTensorMapReplaceAddress:
         skip_if_managed_memory_unsupported(dev1)
 
         dev1.set_current()
-        desc = TensorMapDescriptor.from_tiled(
-            dev1.allocate(1024 * 4),
+        desc = _as_view(dev1.allocate(1024 * 4)).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
         )
@@ -427,10 +425,9 @@ class TestTensorMapMultiDeviceValidation:
 
         with pytest.raises(
             ValueError,
-            match=r"TensorMapDescriptor\.from_tiled expects tensor on device 0, got 1",
+            match=r"TensorMapDescriptor\._from_tiled expects tensor on device 0, got 1",
         ):
-            TensorMapDescriptor.from_tiled(
-                buf1,
+            _as_view(buf1).as_tensor_map(
                 box_dim=(64,),
                 data_type=TensorMapDataType.FLOAT32,
             )
@@ -448,8 +445,7 @@ class TestTensorMapMultiDeviceValidation:
         mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
         managed_buf = mr.allocate(1024 * 4)
 
-        desc = TensorMapDescriptor.from_tiled(
-            managed_buf,
+        desc = _as_view(managed_buf).as_tensor_map(
             box_dim=(64,),
             data_type=TensorMapDataType.FLOAT32,
         )
