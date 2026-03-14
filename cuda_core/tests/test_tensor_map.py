@@ -62,6 +62,7 @@ class _MockTensorMapView:
     def __dlpack_device__(self):
         return (self._device_type, self._device_id)
 
+
 def _as_view(obj):
     if isinstance(obj, StridedMemoryView):
         return obj
