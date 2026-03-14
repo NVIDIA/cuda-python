@@ -427,18 +427,6 @@ cdef inline int _get_current_device_id() except -1:
         HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
     return <int>dev
 
-
-cdef inline int _require_view_device(
-    view,
-    int device_id,
-    object caller,
-) except -1:
-    if view.device_id != device_id:
-        raise ValueError(
-            f"{caller} expects tensor on device {device_id}, got {view.device_id}")
-    return 0
-
-
 def _compute_byte_strides(shape, strides, elem_size):
     """Compute byte strides from element strides or C-contiguous fallback.
 
