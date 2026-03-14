@@ -15,6 +15,7 @@ from cuda.core import (
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._tensor_map import (
     TensorMapDataType,
+    TensorMapDescriptorOptions,
     TensorMapIm2ColWideMode,
     TensorMapInterleave,
     TensorMapL2Promotion,
@@ -144,6 +145,38 @@ class TestTensorMapDescriptorCreation:
             data_type=TensorMapDataType.FLOAT32,
         )
         assert desc is not None
+
+    def test_strided_memory_view_as_tensor_map_options(self, dev, skip_if_no_tma):
+        buf = dev.allocate(64 * 64 * 4)
+        tensor = _DeviceArray(buf, (64, 64))
+        view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
+        desc = view.as_tensor_map(
+            options=TensorMapDescriptorOptions(
+                box_dim=(32, 32),
+                data_type=np.float32,
+                swizzle=TensorMapSwizzle.SWIZZLE_128B,
+            )
+        )
+        assert desc is not None
+
+    def test_strided_memory_view_as_tensor_map_options_dict(self, dev, skip_if_no_tma):
+        buf = dev.allocate(1024 * 4)
+        desc = _as_view(buf).as_tensor_map(
+            options={
+                "box_dim": (64,),
+                "data_type": np.float32,
+                "element_strides": (1,),
+            }
+        )
+        assert desc is not None
+
+    def test_strided_memory_view_as_tensor_map_rejects_options_with_kwargs(self, dev, skip_if_no_tma):
+        buf = dev.allocate(1024 * 4)
+        with pytest.raises(TypeError, match="Specify either options or the individual tensor map arguments"):
+            _as_view(buf).as_tensor_map(
+                box_dim=(64,),
+                options=TensorMapDescriptorOptions(box_dim=(64,)),
+            )
 
     def test_from_tiled_3d(self, dev, skip_if_no_tma):
         buf = dev.allocate(16 * 16 * 16 * 4)  # 16x16x16 float32

@@ -9,10 +9,12 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._dlpack cimport kDLInt, kDLUInt, kDLFloat, kDLBfloat, _kDLCUDA
 
 import enum
+from dataclasses import dataclass
 
 import numpy
 
 from cuda.core._memoryview import StridedMemoryView
+from cuda.core._utils.cuda_utils import check_or_create_options
 
 cdef extern from "_cpp/tensor_map_cccl.h":
     int cuda_core_cccl_make_tma_descriptor_tiled(
@@ -124,38 +126,166 @@ ELSE:
         W128 = 1
 
 
+_TMA_DT_UINT8 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT8)
+_TMA_DT_UINT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT16)
+_TMA_DT_UINT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT32)
+_TMA_DT_INT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_INT32)
+_TMA_DT_UINT64 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT64)
+_TMA_DT_INT64 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_INT64)
+_TMA_DT_FLOAT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT16)
+_TMA_DT_FLOAT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT32)
+_TMA_DT_FLOAT64 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT64)
+_TMA_DT_BFLOAT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_BFLOAT16)
+_TMA_DT_FLOAT32_FTZ = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_FLOAT32_FTZ)
+_TMA_DT_TFLOAT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32)
+_TMA_DT_TFLOAT32_FTZ = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ)
+
+
+def _normalize_tensor_map_data_type(data_type):
+    if data_type is None or isinstance(data_type, TensorMapDataType):
+        return data_type
+    try:
+        return numpy.dtype(data_type)
+    except TypeError as e:
+        raise TypeError(
+            "data_type must be a TensorMapDataType or a numpy/ml_dtypes dtype, "
+            f"got {type(data_type)}") from e
+
+
+def _normalize_tensor_map_sequence(name, values):
+    try:
+        values = tuple(values)
+    except TypeError as e:
+        raise TypeError(f"{name} must be a tuple of ints, got {type(values)}") from e
+    for i, value in enumerate(values):
+        if not isinstance(value, int):
+            raise TypeError(f"{name}[{i}] must be an int, got {type(value)}")
+    return values
+
+
+def _require_tensor_map_enum(name, value, enum_type):
+    if not isinstance(value, enum_type):
+        raise TypeError(f"{name} must be a {enum_type.__name__}, got {type(value)}")
+    return value
+
+
+@dataclass
+class TensorMapDescriptorOptions:
+    """Options for :meth:`cuda.core.StridedMemoryView.as_tensor_map`.
+
+    Attributes
+    ----------
+    box_dim : tuple[int, ...]
+        Tile size for each tensor dimension, expressed in elements.
+    element_strides : tuple[int, ...], optional
+        Per-dimension element traversal strides.
+    data_type : object, optional
+        Explicit dtype override. Prefer NumPy or ``ml_dtypes`` dtype objects;
+        :class:`TensorMapDataType` remains accepted for compatibility.
+    interleave : TensorMapInterleave, optional
+        Interleave layout. Default ``NONE``.
+    swizzle : TensorMapSwizzle, optional
+        Swizzle mode. Default ``NONE``.
+    l2_promotion : TensorMapL2Promotion, optional
+        L2 promotion mode. Default ``NONE``.
+    oob_fill : TensorMapOOBFill, optional
+        Out-of-bounds fill mode. Default ``NONE``.
+    """
+
+    box_dim: tuple[int, ...]
+    element_strides: tuple[int, ...] | None = None
+    data_type: object = None
+    interleave: TensorMapInterleave = TensorMapInterleave.NONE
+    swizzle: TensorMapSwizzle = TensorMapSwizzle.NONE
+    l2_promotion: TensorMapL2Promotion = TensorMapL2Promotion.NONE
+    oob_fill: TensorMapOOBFill = TensorMapOOBFill.NONE
+
+    def __post_init__(self):
+        self.box_dim = _normalize_tensor_map_sequence("box_dim", self.box_dim)
+        if self.element_strides is not None:
+            self.element_strides = _normalize_tensor_map_sequence("element_strides", self.element_strides)
+        self.data_type = _normalize_tensor_map_data_type(self.data_type)
+        self.interleave = _require_tensor_map_enum("interleave", self.interleave, TensorMapInterleave)
+        self.swizzle = _require_tensor_map_enum("swizzle", self.swizzle, TensorMapSwizzle)
+        self.l2_promotion = _require_tensor_map_enum("l2_promotion", self.l2_promotion, TensorMapL2Promotion)
+        self.oob_fill = _require_tensor_map_enum("oob_fill", self.oob_fill, TensorMapOOBFill)
+
+
+def _coerce_tensor_map_descriptor_options(
+    box_dim,
+    options,
+    *,
+    element_strides,
+    data_type,
+    interleave,
+    swizzle,
+    l2_promotion,
+    oob_fill,
+):
+    if options is not None:
+        if (
+            box_dim is not None
+            or element_strides is not None
+            or data_type is not None
+            or interleave != TensorMapInterleave.NONE
+            or swizzle != TensorMapSwizzle.NONE
+            or l2_promotion != TensorMapL2Promotion.NONE
+            or oob_fill != TensorMapOOBFill.NONE
+        ):
+            raise TypeError(
+                "Specify either options or the individual tensor map arguments, not both")
+        return check_or_create_options(
+            TensorMapDescriptorOptions,
+            options,
+            "Tensor map descriptor options",
+        )
+
+    if box_dim is None:
+        raise TypeError("box_dim is required unless options is provided")
+
+    return TensorMapDescriptorOptions(
+        box_dim=box_dim,
+        element_strides=element_strides,
+        data_type=data_type,
+        interleave=interleave,
+        swizzle=swizzle,
+        l2_promotion=l2_promotion,
+        oob_fill=oob_fill,
+    )
+
+
 # Mapping from numpy dtype to TMA data type
 _NUMPY_DTYPE_TO_TMA = {
-    numpy.dtype(numpy.uint8): TensorMapDataType.UINT8,
-    numpy.dtype(numpy.uint16): TensorMapDataType.UINT16,
-    numpy.dtype(numpy.uint32): TensorMapDataType.UINT32,
-    numpy.dtype(numpy.int32): TensorMapDataType.INT32,
-    numpy.dtype(numpy.uint64): TensorMapDataType.UINT64,
-    numpy.dtype(numpy.int64): TensorMapDataType.INT64,
-    numpy.dtype(numpy.float16): TensorMapDataType.FLOAT16,
-    numpy.dtype(numpy.float32): TensorMapDataType.FLOAT32,
-    numpy.dtype(numpy.float64): TensorMapDataType.FLOAT64,
+    numpy.dtype(numpy.uint8): _TMA_DT_UINT8,
+    numpy.dtype(numpy.uint16): _TMA_DT_UINT16,
+    numpy.dtype(numpy.uint32): _TMA_DT_UINT32,
+    numpy.dtype(numpy.int32): _TMA_DT_INT32,
+    numpy.dtype(numpy.uint64): _TMA_DT_UINT64,
+    numpy.dtype(numpy.int64): _TMA_DT_INT64,
+    numpy.dtype(numpy.float16): _TMA_DT_FLOAT16,
+    numpy.dtype(numpy.float32): _TMA_DT_FLOAT32,
+    numpy.dtype(numpy.float64): _TMA_DT_FLOAT64,
 }
 
 if ml_bfloat16 is not None:
-    _NUMPY_DTYPE_TO_TMA[numpy.dtype(ml_bfloat16)] = TensorMapDataType.BFLOAT16
+    _NUMPY_DTYPE_TO_TMA[numpy.dtype(ml_bfloat16)] = _TMA_DT_BFLOAT16
 
 
 # Mapping from TMA data type to element size in bytes
 _TMA_DATA_TYPE_SIZE = {
-    TensorMapDataType.UINT8: 1,
-    TensorMapDataType.UINT16: 2,
-    TensorMapDataType.UINT32: 4,
-    TensorMapDataType.INT32: 4,
-    TensorMapDataType.UINT64: 8,
-    TensorMapDataType.INT64: 8,
-    TensorMapDataType.FLOAT16: 2,
-    TensorMapDataType.FLOAT32: 4,
-    TensorMapDataType.FLOAT64: 8,
-    TensorMapDataType.BFLOAT16: 2,
-    TensorMapDataType.FLOAT32_FTZ: 4,
-    TensorMapDataType.TFLOAT32: 4,
-    TensorMapDataType.TFLOAT32_FTZ: 4,
+    _TMA_DT_UINT8: 1,
+    _TMA_DT_UINT16: 2,
+    _TMA_DT_UINT32: 4,
+    _TMA_DT_INT32: 4,
+    _TMA_DT_UINT64: 8,
+    _TMA_DT_INT64: 8,
+    _TMA_DT_FLOAT16: 2,
+    _TMA_DT_FLOAT32: 4,
+    _TMA_DT_FLOAT64: 8,
+    _TMA_DT_BFLOAT16: 2,
+    _TMA_DT_FLOAT32_FTZ: 4,
+    _TMA_DT_TFLOAT32: 4,
+    _TMA_DT_TFLOAT32_FTZ: 4,
 }
 
 
@@ -164,13 +294,8 @@ def _resolve_data_type(view, data_type):
 
     if data_type is not None:
         if isinstance(data_type, TensorMapDataType):
-            return data_type
-        try:
-            dt = numpy.dtype(data_type)
-        except TypeError as e:
-            raise TypeError(
-                "data_type must be a TensorMapDataType or a numpy/ml_dtypes dtype, "
-                f"got {type(data_type)}") from e
+            return int(data_type)
+        dt = _normalize_tensor_map_data_type(data_type)
         tma_dt = _NUMPY_DTYPE_TO_TMA.get(dt)
         if tma_dt is None:
             raise ValueError(
@@ -195,57 +320,57 @@ def _resolve_data_type(view, data_type):
 
 
 cdef inline bint _tma_dtype_to_dlpack(
-    object tma_dt,
+    int tma_dt,
     uint8_t* out_code,
     uint8_t* out_bits,
     uint16_t* out_lanes,
 ) noexcept:
-    if tma_dt == TensorMapDataType.UINT8:
+    if tma_dt == _TMA_DT_UINT8:
         out_code[0] = <uint8_t>kDLUInt
         out_bits[0] = <uint8_t>8
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.UINT16:
+    if tma_dt == _TMA_DT_UINT16:
         out_code[0] = <uint8_t>kDLUInt
         out_bits[0] = <uint8_t>16
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.UINT32:
+    if tma_dt == _TMA_DT_UINT32:
         out_code[0] = <uint8_t>kDLUInt
         out_bits[0] = <uint8_t>32
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.UINT64:
+    if tma_dt == _TMA_DT_UINT64:
         out_code[0] = <uint8_t>kDLUInt
         out_bits[0] = <uint8_t>64
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.INT32:
+    if tma_dt == _TMA_DT_INT32:
         out_code[0] = <uint8_t>kDLInt
         out_bits[0] = <uint8_t>32
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.INT64:
+    if tma_dt == _TMA_DT_INT64:
         out_code[0] = <uint8_t>kDLInt
         out_bits[0] = <uint8_t>64
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.FLOAT16:
+    if tma_dt == _TMA_DT_FLOAT16:
         out_code[0] = <uint8_t>kDLFloat
         out_bits[0] = <uint8_t>16
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.FLOAT32:
+    if tma_dt == _TMA_DT_FLOAT32:
         out_code[0] = <uint8_t>kDLFloat
         out_bits[0] = <uint8_t>32
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.FLOAT64:
+    if tma_dt == _TMA_DT_FLOAT64:
         out_code[0] = <uint8_t>kDLFloat
         out_bits[0] = <uint8_t>64
         out_lanes[0] = <uint16_t>1
         return True
-    if tma_dt == TensorMapDataType.BFLOAT16:
+    if tma_dt == _TMA_DT_BFLOAT16:
         out_code[0] = <uint8_t>kDLBfloat
         out_bits[0] = <uint8_t>16
         out_lanes[0] = <uint16_t>1
@@ -287,8 +412,6 @@ def _require_view_device(view, expected_device_id, operation):
     if device_type == _kDLCUDA and device_id != expected_device_id:
         raise ValueError(
             f"{operation} expects tensor on device {expected_device_id}, got {device_id}")
-
-
 cdef inline intptr_t _get_current_context_ptr() except? 0:
     cdef cydriver.CUcontext ctx
     with nogil:
@@ -397,7 +520,8 @@ cdef class TensorMapDescriptor:
             return Device(self._device_id)
 
     @classmethod
-    def _from_tiled(cls, view, box_dim, *,
+    def _from_tiled(cls, view, box_dim=None, *,
+                   options=None,
                    element_strides=None,
                    data_type=None,
                    interleave=TensorMapInterleave.NONE,
@@ -410,16 +534,21 @@ cdef class TensorMapDescriptor:
         ----------
         view : StridedMemoryView
             A device-accessible view with a 16-byte-aligned pointer.
-        box_dim : tuple of int
+        box_dim : tuple of int, optional
             The size of each tile dimension (in elements). Must have the
             same rank as the tensor and each value must be in [1, 256].
             Specified in the same (row-major) order as the tensor shape.
+            Required unless ``options`` is provided.
+        options : TensorMapDescriptorOptions or mapping, optional
+            Bundled tiled-descriptor options. When provided, do not also pass
+            ``box_dim`` or the individual option kwargs.
         element_strides : tuple of int, optional
             Per-dimension element traversal strides. Default is all 1s.
             Specified in the same (row-major) order as the tensor shape.
-        data_type : TensorMapDataType, optional
-            Explicit data type override. If ``None``, inferred from the
-            tensor's dtype.
+        data_type : dtype-like or TensorMapDataType, optional
+            Explicit dtype override. If ``None``, inferred from the tensor's
+            dtype. Prefer NumPy or ``ml_dtypes`` dtype objects; the enum is
+            accepted for compatibility.
         interleave : TensorMapInterleave
             Interleave layout. Default ``NONE``.
         swizzle : TensorMapSwizzle
@@ -441,6 +570,24 @@ cdef class TensorMapDescriptor:
         """
         cdef TensorMapDescriptor desc = cls.__new__(cls)
 
+        opts = _coerce_tensor_map_descriptor_options(
+            box_dim,
+            options,
+            element_strides=element_strides,
+            data_type=data_type,
+            interleave=interleave,
+            swizzle=swizzle,
+            l2_promotion=l2_promotion,
+            oob_fill=oob_fill,
+        )
+        box_dim = opts.box_dim
+        element_strides = opts.element_strides
+        data_type = opts.data_type
+        interleave = opts.interleave
+        swizzle = opts.swizzle
+        l2_promotion = opts.l2_promotion
+        oob_fill = opts.oob_fill
+
         _validate_tensor_map_view(view)
         # Keep both the original tensor object and the validated view alive.
         # For DLPack exporters, the view may hold the owning capsule whose
@@ -452,7 +599,7 @@ cdef class TensorMapDescriptor:
         _require_view_device(view, desc._device_id, "TensorMapDescriptor._from_tiled")
 
         tma_dt = _resolve_data_type(view, data_type)
-        cdef int c_data_type_int = int(tma_dt)
+        cdef int c_data_type_int = tma_dt
         cdef cydriver.CUtensorMapDataType c_data_type = <cydriver.CUtensorMapDataType>c_data_type_int
 
         cdef intptr_t global_address = view.ptr
@@ -551,7 +698,7 @@ cdef class TensorMapDescriptor:
                 desc._repr_info = {
                     "method": "tiled",
                     "rank": rank,
-                    "data_type": tma_dt,
+                    "data_type": TensorMapDataType(tma_dt),
                     "swizzle": swizzle,
                 }
                 return desc
@@ -614,7 +761,7 @@ cdef class TensorMapDescriptor:
         desc._repr_info = {
             "method": "tiled",
             "rank": rank,
-            "data_type": tma_dt,
+            "data_type": TensorMapDataType(tma_dt),
             "swizzle": swizzle,
         }
 
@@ -651,9 +798,10 @@ cdef class TensorMapDescriptor:
             Number of pixels per column.
         element_strides : tuple of int, optional
             Per-dimension element traversal strides. Default is all 1s.
-        data_type : TensorMapDataType, optional
-            Explicit data type override. If ``None``, inferred from the
-            tensor's dtype.
+        data_type : dtype-like or TensorMapDataType, optional
+            Explicit dtype override. If ``None``, inferred from the tensor's
+            dtype. Prefer NumPy or ``ml_dtypes`` dtype objects; the enum is
+            accepted for compatibility.
         interleave : TensorMapInterleave
             Interleave layout. Default ``NONE``.
         swizzle : TensorMapSwizzle
@@ -683,7 +831,7 @@ cdef class TensorMapDescriptor:
         _require_view_device(view, desc._device_id, "TensorMapDescriptor._from_im2col")
 
         tma_dt = _resolve_data_type(view, data_type)
-        cdef int c_data_type_int = int(tma_dt)
+        cdef int c_data_type_int = tma_dt
         cdef cydriver.CUtensorMapDataType c_data_type = <cydriver.CUtensorMapDataType>c_data_type_int
 
         cdef intptr_t global_address = view.ptr
@@ -767,7 +915,7 @@ cdef class TensorMapDescriptor:
         desc._repr_info = {
             "method": "im2col",
             "rank": rank,
-            "data_type": tma_dt,
+            "data_type": TensorMapDataType(tma_dt),
             "swizzle": swizzle,
         }
 
@@ -803,9 +951,10 @@ cdef class TensorMapDescriptor:
             Number of pixels per column.
         element_strides : tuple of int, optional
             Per-dimension element traversal strides. Default is all 1s.
-        data_type : TensorMapDataType, optional
-            Explicit data type override. If ``None``, inferred from the
-            tensor's dtype.
+        data_type : dtype-like or TensorMapDataType, optional
+            Explicit dtype override. If ``None``, inferred from the tensor's
+            dtype. Prefer NumPy or ``ml_dtypes`` dtype objects; the enum is
+            accepted for compatibility.
         interleave : TensorMapInterleave
             Interleave layout. Default ``NONE``.
         mode : TensorMapIm2ColWideMode
@@ -841,7 +990,7 @@ cdef class TensorMapDescriptor:
             _require_view_device(view, desc._device_id, "TensorMapDescriptor._from_im2col_wide")
 
             tma_dt = _resolve_data_type(view, data_type)
-            cdef int c_data_type_int = int(tma_dt)
+            cdef int c_data_type_int = tma_dt
             cdef cydriver.CUtensorMapDataType c_data_type = <cydriver.CUtensorMapDataType>c_data_type_int
 
             cdef intptr_t global_address = view.ptr
@@ -909,7 +1058,7 @@ cdef class TensorMapDescriptor:
             desc._repr_info = {
                 "method": "im2col_wide",
                 "rank": rank,
-                "data_type": tma_dt,
+                "data_type": TensorMapDataType(tma_dt),
                 "swizzle": swizzle,
             }
 
