@@ -117,7 +117,7 @@ ELSE:
         """Im2col wide mode for tensor map descriptors.
 
         This enum is always defined for API stability, but the
-        :meth:`TensorMapDescriptor.from_im2col_wide` factory requires a CUDA 13+
+        :meth:`TensorMapDescriptor._from_im2col_wide` factory requires a CUDA 13+
         build and will raise otherwise.
         """
         W = 0
@@ -163,10 +163,20 @@ def _resolve_data_type(view, data_type):
     """Resolve the TMA data type from an explicit value or the view's dtype."""
 
     if data_type is not None:
-        if not isinstance(data_type, TensorMapDataType):
+        if isinstance(data_type, TensorMapDataType):
+            return data_type
+        try:
+            dt = numpy.dtype(data_type)
+        except TypeError as e:
             raise TypeError(
-                f"data_type must be a TensorMapDataType, got {type(data_type)}")
-        return data_type
+                "data_type must be a TensorMapDataType or a numpy/ml_dtypes dtype, "
+                f"got {type(data_type)}") from e
+        tma_dt = _NUMPY_DTYPE_TO_TMA.get(dt)
+        if tma_dt is None:
+            raise ValueError(
+                f"Unsupported dtype {dt} for TMA; "
+                f"supported dtypes: {list(_NUMPY_DTYPE_TO_TMA.keys())}.")
+        return tma_dt
 
     dt = view.dtype
     if dt is None:
@@ -243,6 +253,17 @@ cdef inline bint _tma_dtype_to_dlpack(
     return False
 
 
+cdef inline int _validate_tensor_map_view(view) except -1:
+    if not view.is_device_accessible:
+        raise ValueError("The tensor must be device-accessible")
+
+    if view.ptr % 16 != 0:
+        raise ValueError(
+            f"Global memory address must be 16-byte aligned, "
+            f"got address 0x{view.ptr:x}")
+    return 0
+
+
 def _get_validated_view(tensor):
     """Obtain a device-accessible StridedMemoryView with a 16-byte-aligned pointer."""
     if isinstance(tensor, StridedMemoryView):
@@ -251,15 +272,7 @@ def _get_validated_view(tensor):
         # stream_ptr=-1: no stream synchronization needed because descriptor
         # creation only reads tensor metadata, it does not move data.
         view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
-
-    if not view.is_device_accessible:
-        raise ValueError("The tensor must be device-accessible")
-
-    if view.ptr % 16 != 0:
-        raise ValueError(
-            f"Global memory address must be 16-byte aligned, "
-            f"got address 0x{view.ptr:x}")
-
+    _validate_tensor_map_view(view)
     return view
 
 
@@ -290,6 +303,17 @@ cdef inline int _get_current_device_id() except -1:
     with nogil:
         HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
     return <int>dev
+
+
+cdef inline int _require_view_device(
+    view,
+    int device_id,
+    object caller,
+) except -1:
+    if view.device_id != device_id:
+        raise ValueError(
+            f"{caller} expects tensor on device {device_id}, got {view.device_id}")
+    return 0
 
 
 def _compute_byte_strides(shape, strides, elem_size):
@@ -328,16 +352,17 @@ cdef class TensorMapDescriptor:
     used by the hardware TMA unit for efficient bulk data movement between
     global and shared memory.
 
-    Instances are created via the class methods :meth:`from_tiled` and
-    :meth:`from_im2col`, and can be passed directly to
-    :func:`~cuda.core.launch` as a kernel argument.
+    Public tiled descriptors are created via
+    :meth:`cuda.core.StridedMemoryView.as_tensor_map`. Specialized
+    ``_from_*`` helpers remain private while this API surface settles, and
+    descriptors can be passed directly to :func:`~cuda.core.launch` as a
+    kernel argument.
     """
 
     def __init__(self):
         raise RuntimeError(
             "TensorMapDescriptor cannot be instantiated directly. "
-            "Use TensorMapDescriptor.from_tiled() or "
-            "TensorMapDescriptor.from_im2col().")
+            "Use StridedMemoryView.as_tensor_map() instead.")
 
     cdef void* _get_data_ptr(self):
         return <void*>&self._tensor_map
@@ -364,22 +389,27 @@ cdef class TensorMapDescriptor:
                 f"but current device is {current_dev_id}")
         return 0
 
+    @property
+    def device(self):
+        """Return the :obj:`~cuda.core.Device` associated with this descriptor."""
+        if self._device_id >= 0:
+            from cuda.core._device import Device
+            return Device(self._device_id)
+
     @classmethod
-    def from_tiled(cls, tensor, box_dim, *,
+    def _from_tiled(cls, view, box_dim, *,
                    element_strides=None,
                    data_type=None,
                    interleave=TensorMapInterleave.NONE,
                    swizzle=TensorMapSwizzle.NONE,
                    l2_promotion=TensorMapL2Promotion.NONE,
                    oob_fill=TensorMapOOBFill.NONE):
-        """Create a tiled TMA descriptor from a tensor object.
+        """Create a tiled TMA descriptor from a validated view.
 
         Parameters
         ----------
-        tensor : object
-            Any object supporting DLPack or ``__cuda_array_interface__``,
-            or a :obj:`~cuda.core.StridedMemoryView`. Must refer to
-            device-accessible memory with a 16-byte-aligned pointer.
+        view : StridedMemoryView
+            A device-accessible view with a 16-byte-aligned pointer.
         box_dim : tuple of int
             The size of each tile dimension (in elements). Must have the
             same rank as the tensor and each value must be in [1, 256].
@@ -411,15 +441,15 @@ cdef class TensorMapDescriptor:
         """
         cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-        view = _get_validated_view(tensor)
+        _validate_tensor_map_view(view)
         # Keep both the original tensor object and the validated view alive.
         # For DLPack exporters, the view may hold the owning capsule whose
         # deleter can free the backing allocation when released.
-        desc._source_ref = tensor
+        desc._source_ref = view.exporting_obj
         desc._view_ref = view
         desc._context = _get_current_context_ptr()
         desc._device_id = _get_current_device_id()
-        _require_view_device(view, desc._device_id, "TensorMapDescriptor.from_tiled")
+        _require_view_device(view, desc._device_id, "TensorMapDescriptor._from_tiled")
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -591,7 +621,7 @@ cdef class TensorMapDescriptor:
         return desc
 
     @classmethod
-    def from_im2col(cls, tensor, pixel_box_lower_corner, pixel_box_upper_corner,
+    def _from_im2col(cls, view, pixel_box_lower_corner, pixel_box_upper_corner,
                     channels_per_pixel, pixels_per_column, *,
                     element_strides=None,
                     data_type=None,
@@ -599,16 +629,14 @@ cdef class TensorMapDescriptor:
                     swizzle=TensorMapSwizzle.NONE,
                     l2_promotion=TensorMapL2Promotion.NONE,
                     oob_fill=TensorMapOOBFill.NONE):
-        """Create an im2col TMA descriptor from a tensor object.
+        """Create an im2col TMA descriptor from a validated view.
 
         Im2col layout is used for convolution-style data access patterns.
 
         Parameters
         ----------
-        tensor : object
-            Any object supporting DLPack or ``__cuda_array_interface__``,
-            or a :obj:`~cuda.core.StridedMemoryView`. Must refer to
-            device-accessible memory with a 16-byte-aligned pointer.
+        view : StridedMemoryView
+            A device-accessible view with a 16-byte-aligned pointer.
         pixel_box_lower_corner : tuple of int
             Lower corner of the pixel bounding box for each spatial
             dimension (rank - 2 elements). Specified in row-major order
@@ -647,12 +675,12 @@ cdef class TensorMapDescriptor:
         """
         cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-        view = _get_validated_view(tensor)
-        desc._source_ref = tensor
+        _validate_tensor_map_view(view)
+        desc._source_ref = view.exporting_obj
         desc._view_ref = view
         desc._context = _get_current_context_ptr()
         desc._device_id = _get_current_device_id()
-        _require_view_device(view, desc._device_id, "TensorMapDescriptor.from_im2col")
+        _require_view_device(view, desc._device_id, "TensorMapDescriptor._from_im2col")
 
         tma_dt = _resolve_data_type(view, data_type)
         cdef int c_data_type_int = int(tma_dt)
@@ -746,7 +774,7 @@ cdef class TensorMapDescriptor:
         return desc
 
     @classmethod
-    def from_im2col_wide(cls, tensor, pixel_box_lower_corner_width, pixel_box_upper_corner_width,
+    def _from_im2col_wide(cls, view, pixel_box_lower_corner_width, pixel_box_upper_corner_width,
                          channels_per_pixel, pixels_per_column, *,
                          element_strides=None,
                          data_type=None,
@@ -755,7 +783,7 @@ cdef class TensorMapDescriptor:
                          swizzle=TensorMapSwizzle.SWIZZLE_128B,
                          l2_promotion=TensorMapL2Promotion.NONE,
                          oob_fill=TensorMapOOBFill.NONE):
-        """Create an im2col-wide TMA descriptor from a tensor object.
+        """Create an im2col-wide TMA descriptor from a validated view.
 
         Im2col-wide layout loads elements exclusively along the W (width)
         dimension. This variant is supported on compute capability 10.0+
@@ -763,10 +791,8 @@ cdef class TensorMapDescriptor:
 
         Parameters
         ----------
-        tensor : object
-            Any object supporting DLPack or ``__cuda_array_interface__``,
-            or a :obj:`~cuda.core.StridedMemoryView`. Must refer to
-            device-accessible memory with a 16-byte-aligned pointer.
+        view : StridedMemoryView
+            A device-accessible view with a 16-byte-aligned pointer.
         pixel_box_lower_corner_width : int
             Lower corner of the pixel bounding box along the W dimension.
         pixel_box_upper_corner_width : int
@@ -803,16 +829,16 @@ cdef class TensorMapDescriptor:
         """
         IF CUDA_CORE_BUILD_MAJOR < 13:
             raise RuntimeError(
-                "TensorMapDescriptor.from_im2col_wide requires a CUDA 13+ build")
+                "TensorMapDescriptor._from_im2col_wide requires a CUDA 13+ build")
         ELSE:
             cdef TensorMapDescriptor desc = cls.__new__(cls)
 
-            view = _get_validated_view(tensor)
-            desc._source_ref = tensor
+            _validate_tensor_map_view(view)
+            desc._source_ref = view.exporting_obj
             desc._view_ref = view
             desc._context = _get_current_context_ptr()
             desc._device_id = _get_current_device_id()
-            _require_view_device(view, desc._device_id, "TensorMapDescriptor.from_im2col_wide")
+            _require_view_device(view, desc._device_id, "TensorMapDescriptor._from_im2col_wide")
 
             tma_dt = _resolve_data_type(view, data_type)
             cdef int c_data_type_int = int(tma_dt)
@@ -917,7 +943,7 @@ cdef class TensorMapDescriptor:
         # Update the source reference only after the driver call succeeds,
         # so we don't drop the old tensor (risking a dangling pointer in the
         # CUtensorMap struct) if the call fails.
-        self._source_ref = tensor
+        self._source_ref = view.exporting_obj
         self._view_ref = view
 
     def __repr__(self):

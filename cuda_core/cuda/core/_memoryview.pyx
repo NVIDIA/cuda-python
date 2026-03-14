@@ -329,8 +329,8 @@ cdef class StridedMemoryView:
     ):
         """Create a tiled :obj:`TensorMapDescriptor` from this view.
 
-        This is a convenience wrapper around
-        :meth:`cuda.core._tensor_map.TensorMapDescriptor.from_tiled`.
+        This is the public entry point for creating tiled tensor map
+        descriptors in ``cuda.core``.
         """
         from cuda.core._tensor_map import TensorMapDescriptor
 
@@ -347,7 +347,7 @@ cdef class StridedMemoryView:
             kwargs["l2_promotion"] = l2_promotion
         if oob_fill is not None:
             kwargs["oob_fill"] = oob_fill
-        return TensorMapDescriptor.from_tiled(self, box_dim, **kwargs)
+        return TensorMapDescriptor._from_tiled(self, box_dim, **kwargs)
 
     def copy_from(
         self, other : StridedMemoryView, stream : Stream,
