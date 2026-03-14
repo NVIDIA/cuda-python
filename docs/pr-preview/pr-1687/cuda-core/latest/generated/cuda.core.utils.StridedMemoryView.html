@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=520cca20"></script>
+    <script src="../_static/documentation_options.js?v=a5431417"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev71';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -760,8 +760,9 @@ it will be the Buffer instance passed to the method.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">box_dim</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">box_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">element_strides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">interleave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -772,8 +773,10 @@ it will be the Buffer instance passed to the method.</p>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.as_tensor_map" title="Link to this definition">#</a></dt>
 <dd><p>Create a tiled <code class="xref py py-obj docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code> from this view.</p>
-<p>This is a convenience wrapper around
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core._tensor_map.TensorMapDescriptor.from_tiled()</span></code>.</p>
+<p>This is the public entry point for creating tiled tensor map
+descriptors in <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. Pass either <code class="docutils literal notranslate"><span class="pre">box_dim</span></code> and the
+individual keyword arguments directly, or provide bundled tiled
+options via <code class="docutils literal notranslate"><span class="pre">options=</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
