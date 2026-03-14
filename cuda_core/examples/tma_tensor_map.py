@@ -22,6 +22,7 @@
 #
 # ################################################################################
 
+import os
 import sys
 
 import cupy as cp
@@ -100,6 +101,25 @@ __global__ void tma_copy(
 }
 """
 
+
+def _get_cccl_include_paths():
+    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    if cuda_path is None:
+        print("This example requires CUDA_PATH or CUDA_HOME to point to a CUDA toolkit.", file=sys.stderr)
+        sys.exit(1)
+
+    cuda_include = os.path.join(cuda_path, "include")
+    if not os.path.isdir(cuda_include):
+        print(f"CUDA include directory not found: {cuda_include}", file=sys.stderr)
+        sys.exit(1)
+
+    include_path = [cuda_include]
+    cccl_include = os.path.join(cuda_include, "cccl")
+    if os.path.isdir(cccl_include):
+        include_path.insert(0, cccl_include)
+    return include_path
+
+
 def main():
     # -----------------------------------------------------------------------
     # Check for Hopper+ GPU
@@ -113,6 +133,7 @@ def main():
         )
         sys.exit(0)
     dev.set_current()
+    include_path = _get_cccl_include_paths()
 
     # -----------------------------------------------------------------------
     # Compile the kernel
@@ -120,7 +141,7 @@ def main():
     prog = Program(
         code,
         code_type="c++",
-        options=ProgramOptions(std="c++17", arch=f"sm_{dev.arch}"),
+        options=ProgramOptions(std="c++17", arch=f"sm_{dev.arch}", include_path=include_path),
     )
     mod = prog.compile("cubin")
     ker = mod.get_kernel("tma_copy")
