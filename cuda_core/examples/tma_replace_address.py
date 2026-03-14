@@ -146,7 +146,7 @@ __global__ void tma_copy(
 prog = Program(
     code,
     code_type="c++",
-    options=ProgramOptions(std="c++17", arch=f"sm_{arch_str}"),
+    options=ProgramOptions(std="c++17", arch=f"sm_{dev.arch}"),
 )
 mod = prog.compile("cubin")
 ker = mod.get_kernel("tma_copy")
