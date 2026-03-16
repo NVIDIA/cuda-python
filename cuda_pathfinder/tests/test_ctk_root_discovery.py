@@ -289,12 +289,10 @@ def test_subprocess_probe_does_not_reenter_calling_script(tmp_path):
     env = os.environ.copy()
     existing_pythonpath = env.get("PYTHONPATH")
     env["PYTHONPATH"] = (
-        str(_PACKAGE_ROOT)
-        if not existing_pythonpath
-        else os.pathsep.join((str(_PACKAGE_ROOT), existing_pythonpath))
+        str(_PACKAGE_ROOT) if not existing_pythonpath else os.pathsep.join((str(_PACKAGE_ROOT), existing_pythonpath))
     )
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + temp script created by this test
         [sys.executable, str(script_path)],
         capture_output=True,
         text=True,

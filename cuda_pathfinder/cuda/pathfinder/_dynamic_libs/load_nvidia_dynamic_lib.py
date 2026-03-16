@@ -96,7 +96,7 @@ def _raise_canary_probe_child_process_error(
 def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     """Resolve a canary library's absolute path in a fresh Python subprocess."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + internal probe module
             [sys.executable, "-m", _CANARY_PROBE_MODULE, libname],
             capture_output=True,
             text=True,
