@@ -30,7 +30,7 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
-_PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+_PACKAGE_ROOT = Path(load_mod.__file__).resolve().parents[3]
 
 
 def _ctx(libname: str = "nvvm") -> SearchContext:
@@ -206,6 +206,7 @@ def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
         text=True,
         timeout=10.0,
         check=False,
+        cwd=_PACKAGE_ROOT,
     )
 
 

@@ -8,6 +8,7 @@ import json
 import struct
 import subprocess
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
@@ -41,6 +42,7 @@ _ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_MODULE = "cuda.pathfinder._dynamic_libs.canary_probe_subprocess"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
+_CANARY_PROBE_IMPORT_ROOT = Path(__file__).resolve().parents[3]
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
@@ -102,6 +104,7 @@ def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
             text=True,
             timeout=_CANARY_PROBE_TIMEOUT_SECONDS,
             check=False,
+            cwd=_CANARY_PROBE_IMPORT_ROOT,
         )
     except subprocess.TimeoutExpired as exc:
         _raise_canary_probe_child_process_error(timeout=exc.timeout, stderr=exc.stderr)
