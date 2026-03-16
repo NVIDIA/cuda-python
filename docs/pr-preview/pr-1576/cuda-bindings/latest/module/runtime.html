@@ -14285,7 +14285,7 @@ does not need the remaining set.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevSmResourceSplit">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDevSmResourceSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">nbGroups,</span> <span class="pre">cudaDevResource</span> <span class="pre">input_:</span> <span class="pre">Optional[cudaDevResource],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags,</span> <span class="pre">cudaDevSmResourceGroupParams</span> <span class="pre">groupParams:</span> <span class="pre">Optional[cudaDevSmResourceGroupParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDevSmResourceSplit" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDevSmResourceSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">nbGroups,</span> <span class="pre">cudaDevResource</span> <span class="pre">input_:</span> <span class="pre">Optional[cudaDevResource],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags,</span> <span class="pre">groupParams:</span> <span class="pre">Optional[tuple[cudaDevSmResourceGroupParams]</span> <span class="pre">|</span> <span class="pre">list[cudaDevSmResourceGroupParams]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDevSmResourceSplit" title="Link to this definition">#</a></dt>
 <dd><p>Splits a <cite>cudaDevResourceTypeSm</cite> resource into structured groups.</p>
 <p>This API will split a resource of <a class="reference internal" href="#cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeSm" title="cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeSm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code></a>
 into <cite>nbGroups</cite> structured device resource groups (the <cite>result</cite> array),
@@ -14382,7 +14382,7 @@ call wherever possible.</p>
 <cite>cudaDevResourceTypeSm</cite> resource.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Flags specifying how the API should behave. The value should be 0
 for now.</p></li>
-<li><p><strong>groupParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaDevSmResourceGroupParams" title="cuda.bindings.runtime.cudaDevSmResourceGroupParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupParams</span></code></a>) – Description of how the SMs should be split and assigned to the
+<li><p><strong>groupParams</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaDevSmResourceGroupParams" title="cuda.bindings.runtime.cudaDevSmResourceGroupParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupParams</span></code></a>]) – Description of how the SMs should be split and assigned to the
 corresponding result entry.</p></li>
 </ul>
 </dd>

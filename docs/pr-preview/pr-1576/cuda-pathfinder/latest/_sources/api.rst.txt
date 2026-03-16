@@ -7,7 +7,11 @@
 =================================
 
 The ``cuda.pathfinder`` module provides utilities for loading NVIDIA dynamic libraries,
-locating NVIDIA C/C++ header directories, and finding CUDA binary utilities.
+locating NVIDIA C/C++ header directories, finding CUDA binary utilities, and locating
+CUDA bitcode and static libraries.
+
+.. NOTE: The source of truth for public APIs is cuda_pathfinder/cuda/pathfinder/__init__.py.
+.. Keep this documentation in sync when adding or removing exports.
 
 .. autosummary::
    :toctree: generated/
@@ -20,8 +24,21 @@ locating NVIDIA C/C++ header directories, and finding CUDA binary utilities.
    DynamicLibNotAvailableError
 
    SUPPORTED_HEADERS_CTK
-   SUPPORTED_HEADERS_NON_CTK
    find_nvidia_header_directory
+   locate_nvidia_header_directory
+   LocatedHeaderDir
 
    SUPPORTED_BINARY_UTILITIES
    find_nvidia_binary_utility
+
+   SUPPORTED_BITCODE_LIBS
+   find_bitcode_lib
+   locate_bitcode_lib
+   LocatedBitcodeLib
+   BitcodeLibNotFoundError
+
+   SUPPORTED_STATIC_LIBS
+   find_static_lib
+   locate_static_lib
+   LocatedStaticLib
+   StaticLibNotFoundError
