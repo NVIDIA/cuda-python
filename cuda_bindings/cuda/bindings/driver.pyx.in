@@ -44,6 +44,8 @@ ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
 ctypedef unsigned long long void_ptr
 
+cdef dict _cu_mem_alloc_managed_concurrent_access_by_device = {}
+
 #: CUDA API version number
 CUDA_VERSION = cydriver.CUDA_VERSION
 
@@ -31212,7 +31214,7 @@ def cuMemHostGetFlags(p):
     return (_CUresult_SUCCESS, pFlags)
 {{endif}}
 
-{{if 'MANUALLYDISABLEDcuMemAllocManaged' in found_functions}}
+{{if 'cuMemAllocManaged' in found_functions}}
 
 @cython.embedsignature(True)
 def cuMemAllocManaged(size_t bytesize, unsigned int flags):
@@ -31341,6 +31343,39 @@ def cuMemAllocManaged(size_t bytesize, unsigned int flags):
     --------
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cuDeviceGetAttribute`, :py:obj:`~.cuStreamAttachMemAsync`, :py:obj:`~.cudaMallocManaged`
     """
+    # WIP-WIP-WIP THIS CODE NEEDS TO BE PORTED TO THE CODE GENERATOR
+    cdef int concurrent_access = 0
+    cdef int device_id = 0
+    cdef cydriver.CUdevice device
+    err = cydriver.cuCtxGetDevice(&device)
+    if err != cydriver.CUDA_SUCCESS:
+        # cuMemAllocManaged would fail with the same error anyway.
+        return (_CUresult(err), None)
+    device_id = <int>device
+    if device_id in _cu_mem_alloc_managed_concurrent_access_by_device:
+        if _cu_mem_alloc_managed_concurrent_access_by_device[device_id] == 0:
+            raise RuntimeError(
+                "cuMemAllocManaged is not supported when "
+                "CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS == 0"
+            )
+    else:
+        err = cydriver.cuDeviceGetAttribute(
+            &concurrent_access,
+            cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS,
+            device,
+        )
+        if err != cydriver.CUDA_SUCCESS:
+            raise RuntimeError(
+                "cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS) failed "
+                f"while validating cuMemAllocManaged: {_CUresult(err)}"
+            )
+        _cu_mem_alloc_managed_concurrent_access_by_device[device_id] = concurrent_access
+        if concurrent_access == 0:
+            raise RuntimeError(
+                "cuMemAllocManaged is not supported when "
+                "CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS == 0"
+            )
+
     cdef CUdeviceptr dptr = CUdeviceptr()
     with nogil:
         err = cydriver.cuMemAllocManaged(<cydriver.CUdeviceptr*>dptr._pvt_ptr, bytesize, flags)
