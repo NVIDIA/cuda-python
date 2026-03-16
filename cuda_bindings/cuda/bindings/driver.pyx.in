@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -55258,7 +55258,7 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
 {{if 'cuDevSmResourceSplit' in found_functions}}
 
 @cython.embedsignature(True)
-def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource], unsigned int flags, groupParams : Optional[CU_DEV_SM_RESOURCE_GROUP_PARAMS]):
+def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource], unsigned int flags, groupParams : Optional[tuple[CU_DEV_SM_RESOURCE_GROUP_PARAMS] | list[CU_DEV_SM_RESOURCE_GROUP_PARAMS]]):
     """ Splits a `CU_DEV_RESOURCE_TYPE_SM` resource into structured groups.
 
     This API will split a resource of :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM`
@@ -55376,7 +55376,7 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
     flags : unsigned int
         Flags specifying how the API should behave. The value should be 0
         for now.
-    groupParams : :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_PARAMS`
+    groupParams : list[:py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_PARAMS`]
         Description of how the SMs should be split and assigned to the
         corresponding result entry.
 
@@ -55395,6 +55395,9 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
     --------
     :py:obj:`~.cuGreenCtxGetDevResource`, :py:obj:`~.cuCtxGetDevResource`, :py:obj:`~.cuDeviceGetDevResource`
     """
+    groupParams = [] if groupParams is None else groupParams
+    if not all(isinstance(_x, (CU_DEV_SM_RESOURCE_GROUP_PARAMS,)) for _x in groupParams):
+        raise TypeError("Argument 'groupParams' is not instance of type (expected tuple[cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS,] or list[cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS,]")
     cdef cydriver.CUdevResource* cyresult = NULL
     pyresult = [CUdevResource() for idx in range(nbGroups)]
     if nbGroups != 0:
@@ -55403,14 +55406,24 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cydriver.CUdevResource)))
     cdef cydriver.CUdevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
     cdef CUdevResource remainder = CUdevResource()
-    cdef cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* cygroupParams_ptr = groupParams._pvt_ptr if groupParams is not None else NULL
+    cdef cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* cygroupParams = NULL
+    if len(groupParams) > 1:
+        cygroupParams = <cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS*> calloc(len(groupParams), sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS))
+        if cygroupParams is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(groupParams)) + 'x' + str(sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS)))
+        for idx in range(len(groupParams)):
+            string.memcpy(&cygroupParams[idx], (<CU_DEV_SM_RESOURCE_GROUP_PARAMS>groupParams[idx])._pvt_ptr, sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS))
+    elif len(groupParams) == 1:
+        cygroupParams = (<CU_DEV_SM_RESOURCE_GROUP_PARAMS>groupParams[0])._pvt_ptr
     with nogil:
-        err = cydriver.cuDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cydriver.CUdevResource*>remainder._pvt_ptr, flags, cygroupParams_ptr)
+        err = cydriver.cuDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cydriver.CUdevResource*>remainder._pvt_ptr, flags, cygroupParams)
     if CUresult(err) == CUresult(0):
         for idx in range(nbGroups):
             string.memcpy((<CUdevResource>pyresult[idx])._pvt_ptr, &cyresult[idx], sizeof(cydriver.CUdevResource))
     if cyresult is not NULL:
         free(cyresult)
+    if len(groupParams) > 1 and cygroupParams is not NULL:
+        free(cygroupParams)
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None, None)
     return (_CUresult_SUCCESS, pyresult, remainder)
