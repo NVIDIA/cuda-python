@@ -61,96 +61,97 @@
   "Z": "tests/test_memory.py::test_mempool_attributes_ownership[DeviceMR]|run",
   "0": "tests/test_memory.py::test_mempool_attributes_repr[DeviceMR]|run",
   "1": "tests/test_utils.py::test_from_buffer[False-C-int8-(2, 3)]|run",
-  "2": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
-  "3": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
-  "4": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
-  "5": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
-  "6": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
-  "7": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
-  "8": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
-  "9": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
-  "!": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
-  "#": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
-  "$": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
-  "%": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
-  "'": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
-  "(": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
-  ")": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
-  "*": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
-  "+": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
-  ",": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
-  "-": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
-  ".": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
-  "/": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
-  ":": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
-  ";": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
-  "=": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-global]|run",
-  "?": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-no_graph]|run",
-  "@": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-relaxed]|run",
-  "[": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-thread_local]|run",
-  "]": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-global]|run",
-  "^": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-no_graph]|run",
-  "_": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-relaxed]|run",
-  "`": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-thread_local]|run",
-  "{": "tests/test_device.py::test_device_alloc_zero_bytes|run",
-  "|": "tests/test_device.py::test_device_alloc|run",
-  "}": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
-  "~": "tests/graph/test_capture_alloc.py::test_dmr_check_capture_state[global]|run",
-  "ab": "tests/graph/test_capture_alloc.py::test_dmr_check_capture_state[relaxed]|run",
-  "bb": "tests/graph/test_capture_alloc.py::test_dmr_check_capture_state[thread_local]|run",
-  "cb": "tests/test_memory.py::test_buffer_external_device[True]|run",
-  "db": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "eb": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|run",
-  "fb": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-<lambda>]|run",
-  "gb": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|run",
-  "hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
-  "ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|run",
-  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|run",
-  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_buffer]|run",
-  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_buffer]|run",
-  "mb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|run",
-  "nb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_buffer]|run",
-  "ob": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|run",
-  "pb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
-  "qb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|run",
-  "rb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|run",
-  "sb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_buffer]|run",
-  "tb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_buffer]|run",
-  "ub": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|run",
-  "vb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_buffer]|run",
-  "wb": "tests/test_object_protocols.py::test_repr_format[sample_buffer-<Buffer ptr=0x[0-9a-f]+ size=\\\\d+>]|run",
-  "xb": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|run",
-  "yb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|run",
-  "zb": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|run",
-  "Ab": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|run",
-  "Bb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|run",
-  "Cb": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|run",
-  "Db": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|run",
-  "Eb": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
-  "Fb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
-  "Gb": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|run",
-  "Hb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
-  "Ib": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|run",
-  "Jb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|run",
-  "Kb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|run",
-  "Lb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|run",
-  "Mb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|run",
-  "Nb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|run",
-  "Ob": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|run",
-  "Pb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|run",
-  "Qb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|run",
-  "Rb": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
-  "Sb": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
-  "Tb": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
-  "Ub": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
-  "Vb": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
-  "Wb": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
-  "Xb": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
-  "Yb": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
-  "Zb": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
-  "0b": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
-  "1b": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
-  "2b": "tests/test_utils.py::test_from_buffer_sliced[C]|run"
+  "2": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
+  "3": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
+  "4": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
+  "5": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
+  "6": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
+  "7": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
+  "8": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
+  "9": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
+  "!": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
+  "#": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
+  "$": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
+  "%": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
+  "'": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
+  "(": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
+  ")": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
+  "*": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
+  "+": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
+  ",": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
+  "-": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
+  ".": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "/": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-global]|run",
+  ":": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-no_graph]|run",
+  ";": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-relaxed]|run",
+  "=": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-thread_local]|run",
+  "?": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-global]|run",
+  "@": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-no_graph]|run",
+  "[": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-relaxed]|run",
+  "]": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-thread_local]|run",
+  "^": "tests/test_device.py::test_device_alloc_zero_bytes|run",
+  "_": "tests/test_device.py::test_device_alloc|run",
+  "`": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
+  "{": "tests/graph/test_capture_alloc.py::test_dmr_check_capture_state[global]|run",
+  "|": "tests/graph/test_capture_alloc.py::test_dmr_check_capture_state[relaxed]|run",
+  "}": "tests/graph/test_capture_alloc.py::test_dmr_check_capture_state[thread_local]|run",
+  "~": "tests/test_memory.py::test_buffer_external_device[False]|run",
+  "ab": "tests/test_memory.py::test_buffer_external_device[True]|run",
+  "bb": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "cb": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|run",
+  "db": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-<lambda>]|run",
+  "eb": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|run",
+  "fb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
+  "gb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_launch_config]|run",
+  "hb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|run",
+  "ib": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_buffer]|run",
+  "jb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_buffer]|run",
+  "kb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_buffer]|run",
+  "lb": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_buffer]|run",
+  "mb": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|run",
+  "nb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
+  "ob": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_launch_config]|run",
+  "pb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|run",
+  "qb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_buffer]|run",
+  "rb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_buffer]|run",
+  "sb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_buffer]|run",
+  "tb": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_buffer]|run",
+  "ub": "tests/test_object_protocols.py::test_repr_format[sample_buffer-<Buffer ptr=0x[0-9a-f]+ size=\\\\d+>]|run",
+  "vb": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|run",
+  "wb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|run",
+  "xb": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|run",
+  "yb": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|run",
+  "zb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|run",
+  "Ab": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|run",
+  "Bb": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|run",
+  "Cb": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
+  "Db": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
+  "Eb": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|run",
+  "Fb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "Gb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|run",
+  "Hb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|run",
+  "Ib": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|run",
+  "Jb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|run",
+  "Kb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|run",
+  "Lb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|run",
+  "Mb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|run",
+  "Nb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|run",
+  "Ob": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|run",
+  "Pb": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
+  "Qb": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
+  "Rb": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
+  "Sb": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
+  "Tb": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
+  "Ub": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
+  "Vb": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
+  "Wb": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
+  "Xb": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
+  "Yb": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
+  "Zb": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
+  "0b": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
+  "1b": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
+  "2b": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
+  "3b": "tests/test_utils.py::test_from_buffer_sliced[C]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -213,7 +214,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__graph_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-15 01:14 +0000
+            created at 2026-03-16 01:38 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -359,11 +360,11 @@
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    def __cinit__(self, *args, **kwargs):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        self._dev_id = cydriver.CU_DEVICE_INVALID</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">        self._peer_accessible_by = None</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">120 ctx</label></span><span class="ctxs">2o ~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        self._dev_id = cydriver.CU_DEVICE_INVALID</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">        self._peer_accessible_by = None</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">118 ctx</label></span><span class="ctxs">2o { | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    def __init__(self, device_id: Device | int, options=None):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        _DMR_init(self, device_id, options)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        _DMR_init(self, device_id, options)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs138" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">        return DeviceMemoryResource.from_registry, (self.uuid,)</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
@@ -433,14 +434,14 @@
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">            The shareable handle for the memory pool.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">28 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbQbKbLbMbf g NbObPbh i j k c d q l r m n </span></p>
+    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">28 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbObIbJbKbf g LbMbNbh i j k c d q l r m n </span></p>
     <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">            raise RuntimeError("Memory resource is not IPC-enabled")</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">1 ctx</label></span><span class="ctxs">1q</span></p>
-    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        return self._ipc_data._alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">27 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbQbKbLbMbf g NbObPbh i j k c d l r m n </span></p>
+    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        return self._ipc_data._alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">27 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbObIbJbKbf g LbMbNbh i j k c d l r m n </span></p>
     <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">    def device_id(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        """The associated device ordinal."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        return self._dev_id</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">75 ctx</label></span><span class="ctxs">2= ? @ [ ] ^ _ ` Fba b Gbe HbIbJbKbLbMbf g NbObPbh i j k c d { | s t p } l m n 1 Rb2 3 4 5 6 7 8 9 ! Sb# TbUb$ % ' Vb( WbXb) YbZb* + 0b, 1b- . 2b/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        return self._dev_id</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">75 ctx</label></span><span class="ctxs">2/ : ; = ? @ [ ] Dba b Ebe FbGbHbIbJbKbf g LbMbNbh i j k c d ^ _ s t p ` l m n 1 PbQbRb2 SbTb3 4 UbVb5 6 Wb7 8 Xb9 YbZb0b1b! # $ % ' 2b( ) * + 3b, - . </span></p>
     <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    def peer_accessible_by(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -477,7 +478,7 @@
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">    def is_device_accessible(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        """Return True. This memory resource provides device-accessible buffers."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">39 ctx</label></span><span class="ctxs">2s t p 1 Rb2 3 4 5 6 7 8 9 ! Sb# TbUb$ % ' Vb( WbXb) YbZb* + 0b, 1b- . 2b/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">39 ctx</label></span><span class="ctxs">2s t p 1 PbQbRb2 SbTb3 4 UbVb5 6 Wb7 8 Xb9 YbZb0b1b! # $ % ' 2b( ) * + 3b, - . </span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    def is_host_accessible(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
@@ -554,27 +555,27 @@
     <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):</span>&nbsp;</span><span class="r"><label for="ctxs326" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs327"><span class="r"><label for="ctxs327" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    cdef int dev_id = Device(device_id).device_id</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    cdef DeviceMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs327"><span class="r"><label for="ctxs327" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    cdef int dev_id = Device(device_id).device_id</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    cdef DeviceMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">        DeviceMemoryResourceOptions, options, "DeviceMemoryResource options",</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">        keep_none=True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    cdef bint ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">    cdef size_t max_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    cdef bint ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">    cdef size_t max_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    self._dev_id = dev_id</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    self._dev_id = dev_id</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="pln"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">    if opts is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs338"><span class="r"><label for="ctxs338" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">    if opts is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs338"><span class="r"><label for="ctxs338" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">        ipc_enabled = opts.ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs339"><span class="r"><label for="ctxs339" class="ctx">50 ctx</label></span><span class="ctxs">1uavbwexyzABCDEFfgGHIhijkcdpJKLMNOPQRSTUVWXYZ0qlrmn</span></p>
     <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">        if ipc_enabled and not _ipc.is_supported():</span>&nbsp;</span><input type="checkbox" id="ctxs340"><span class="r"><label for="ctxs340" class="ctx">50 ctx</label></span><span class="ctxs">1uavbwexyzABCDEFfgGHIhijkcdpJKLMNOPQRSTUVWXYZ0qlrmn</span></p>
     <p class="mis show_mis"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">            raise RuntimeError(f"IPC is not available on {platform.system()}")</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">        max_size = opts.max_size</span>&nbsp;</span><input type="checkbox" id="ctxs342"><span class="r"><label for="ctxs342" class="ctx">50 ctx</label></span><span class="ctxs">1uavbwexyzABCDEFfgGHIhijkcdpJKLMNOPQRSTUVWXYZ0qlrmn</span></p>
     <p class="pln"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">    if opts is None:</span>&nbsp;</span><input type="checkbox" id="ctxs344"><span class="r"><label for="ctxs344" class="ctx">119 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` u a v b w e x y z A B C D E F f g G H I h i j k c d { | cbs t p } J K L M N O P Q R S T U V W X Y Z 0 q dbl r m n ebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">        self._h_pool = get_device_mempool(dev_id)</span>&nbsp;</span><input type="checkbox" id="ctxs345"><span class="r"><label for="ctxs345" class="ctx">69 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` { | cbs t } dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">        self._mempool_owned = False</span>&nbsp;</span><input type="checkbox" id="ctxs346"><span class="r"><label for="ctxs346" class="ctx">69 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` { | cbs t } dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
-    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        MP_raise_release_threshold(self)</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">69 ctx</label></span><span class="ctxs">2~ abbb= ? @ [ ] ^ _ ` { | cbs t } dbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . Eb/ : ; </span></p>
+    <p class="run"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">    if opts is None:</span>&nbsp;</span><input type="checkbox" id="ctxs344"><span class="r"><label for="ctxs344" class="ctx">117 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] u a v b w e x y z A B C D E F f g G H I h i j k c d ^ _ ~ abs t p ` J K L M N O P Q R S T U V W X Y Z 0 q bbl r m n cbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">        self._h_pool = get_device_mempool(dev_id)</span>&nbsp;</span><input type="checkbox" id="ctxs345"><span class="r"><label for="ctxs345" class="ctx">67 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] ^ _ ~ abs t ` bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">        self._mempool_owned = False</span>&nbsp;</span><input type="checkbox" id="ctxs346"><span class="r"><label for="ctxs346" class="ctx">67 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] ^ _ ~ abs t ` bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
+    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        MP_raise_release_threshold(self)</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">67 ctx</label></span><span class="ctxs">2{ | } / : ; = ? @ [ ] ^ _ ~ abs t ` bbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBb1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + Cb, - . </span></p>
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">        self._peer_accessible_by = ()</span>&nbsp;</span><input type="checkbox" id="ctxs349"><span class="r"><label for="ctxs349" class="ctx">50 ctx</label></span><span class="ctxs">1uavbwexyzABCDEFfgGHIhijkcdpJKLMNOPQRSTUVWXYZ0qlrmn</span></p>
     <p class="run"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">        MP_init_create_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs350"><span class="r"><label for="ctxs350" class="ctx">50 ctx</label></span><span class="ctxs">1uavbwexyzABCDEFfgGHIhijkcdpJKLMNOPQRSTUVWXYZ0qlrmn</span></p>
@@ -623,11 +624,11 @@
     <p class="pln"><span class="n"><a id="t393" href="#t393">393</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t394" href="#t394">394</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t395" href="#t395">395</a></span><span class="t"><span class="txt">def _deep_reduce_device_memory_resource(mr):</span>&nbsp;</span><span class="r"><label for="ctxs395" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t396" href="#t396">396</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs396"><span class="r"><label for="ctxs396" class="ctx">25 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbKbLbMbf g NbObPbh i j k c d l m n </span></p>
-    <p class="run"><span class="n"><a id="t397" href="#t397">397</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs397"><span class="r"><label for="ctxs397" class="ctx">25 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbKbLbMbf g NbObPbh i j k c d l m n </span></p>
-    <p class="run"><span class="n"><a id="t398" href="#t398">398</a></span><span class="t"><span class="txt">    device = Device(mr.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs398"><span class="r"><label for="ctxs398" class="ctx">25 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbKbLbMbf g NbObPbh i j k c d l m n </span></p>
-    <p class="run"><span class="n"><a id="t399" href="#t399">399</a></span><span class="t"><span class="txt">    alloc_handle = mr.get_allocation_handle()</span>&nbsp;</span><input type="checkbox" id="ctxs399"><span class="r"><label for="ctxs399" class="ctx">25 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbKbLbMbf g NbObPbh i j k c d l m n </span></p>
-    <p class="run"><span class="n"><a id="t400" href="#t400">400</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (device, alloc_handle)</span>&nbsp;</span><input type="checkbox" id="ctxs400"><span class="r"><label for="ctxs400" class="ctx">25 ctx</label></span><span class="ctxs">2Fba b Gbe HbIbJbKbLbMbf g NbObPbh i j k c d l m n </span></p>
+    <p class="run"><span class="n"><a id="t396" href="#t396">396</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs396"><span class="r"><label for="ctxs396" class="ctx">25 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbIbJbKbf g LbMbNbh i j k c d l m n </span></p>
+    <p class="run"><span class="n"><a id="t397" href="#t397">397</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs397"><span class="r"><label for="ctxs397" class="ctx">25 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbIbJbKbf g LbMbNbh i j k c d l m n </span></p>
+    <p class="run"><span class="n"><a id="t398" href="#t398">398</a></span><span class="t"><span class="txt">    device = Device(mr.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs398"><span class="r"><label for="ctxs398" class="ctx">25 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbIbJbKbf g LbMbNbh i j k c d l m n </span></p>
+    <p class="run"><span class="n"><a id="t399" href="#t399">399</a></span><span class="t"><span class="txt">    alloc_handle = mr.get_allocation_handle()</span>&nbsp;</span><input type="checkbox" id="ctxs399"><span class="r"><label for="ctxs399" class="ctx">25 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbIbJbKbf g LbMbNbh i j k c d l m n </span></p>
+    <p class="run"><span class="n"><a id="t400" href="#t400">400</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (device, alloc_handle)</span>&nbsp;</span><input type="checkbox" id="ctxs400"><span class="r"><label for="ctxs400" class="ctx">25 ctx</label></span><span class="ctxs">2Dba b Ebe FbGbHbIbJbKbf g LbMbNbh i j k c d l m n </span></p>
     <p class="pln"><span class="n"><a id="t401" href="#t401">401</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t402" href="#t402">402</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t403" href="#t403">403</a></span><span class="t"><span class="txt">multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)</span>&nbsp;</span><span class="r"><label for="ctxs403" class="ctx">(empty)</label></span></p>
@@ -640,7 +641,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__graph_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-15 01:14 +0000
+            created at 2026-03-16 01:38 +0000
         </p>
     </div>
 </footer>
