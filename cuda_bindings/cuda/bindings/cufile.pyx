@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
-from enum import IntEnum as _IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
 import cython
 
@@ -35,6 +35,33 @@ cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
+
+cdef __from_buffer(buffer, size, lowpp_type):
+    cdef Py_buffer view
+    if cpython.PyObject_GetBuffer(buffer, &view, cpython.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        cpython.PyBuffer_Release(&view)
+
+
+cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+    buffer.buf = <char *>ptr
+    buffer.format = 'b'
+    buffer.internal = NULL
+    buffer.itemsize = 1
+    buffer.len = size
+    buffer.ndim = 1
+    buffer.obj = self
+    buffer.readonly = readonly
+    buffer.shape = &buffer.len
+    buffer.strides = &buffer.itemsize
+    buffer.suboffsets = NULL
 
 ###############################################################################
 # POD
@@ -97,6 +124,12 @@ cdef class _py_anon_pod1:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileDescr_t*>NULL).handle), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
@@ -130,6 +163,11 @@ cdef class _py_anon_pod1:
         if self._readonly:
             raise ValueError("This _py_anon_pod1 instance is read-only")
         self._ptr[0].handle = <void *><intptr_t>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof((<CUfileDescr_t*>NULL).handle), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -231,6 +269,12 @@ cdef class _py_anon_pod3:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
@@ -286,6 +330,11 @@ cdef class _py_anon_pod3:
         if self._readonly:
             raise ValueError("This _py_anon_pod3 instance is read-only")
         self._ptr[0].size = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u.batch), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -390,6 +439,12 @@ cdef class IOEvents:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def cookie(self):
         """Union[~_numpy.intp, int]: """
@@ -441,6 +496,11 @@ cdef class IOEvents:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOEvents instance with the memory from the given buffer."""
+        return IOEvents.from_data(_numpy.frombuffer(buffer, dtype=io_events_dtype))
 
     @staticmethod
     def from_data(data):
@@ -543,6 +603,12 @@ cdef class OpCounter:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileOpCounter_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileOpCounter_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <CUfileOpCounter_t *>malloc(sizeof(CUfileOpCounter_t))
@@ -576,6 +642,11 @@ cdef class OpCounter:
         if self._readonly:
             raise ValueError("This OpCounter instance is read-only")
         self._ptr[0].err = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an OpCounter instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileOpCounter_t), OpCounter)
 
     @staticmethod
     def from_data(data):
@@ -706,6 +777,12 @@ cdef class PerGpuStats:
         if (not isinstance(other, PerGpuStats)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
         return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def uuid(self):
@@ -1055,6 +1132,11 @@ cdef class PerGpuStats:
         self._data[key] = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an PerGpuStats instance with the memory from the given buffer."""
+        return PerGpuStats.from_data(_numpy.frombuffer(buffer, dtype=per_gpu_stats_dtype))
+
+    @staticmethod
     def from_data(data):
         """Create an PerGpuStats instance wrapping the given NumPy array.
 
@@ -1160,6 +1242,12 @@ cdef class Descr:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def type(self):
         """Union[~_numpy.int32, int]: """
@@ -1209,6 +1297,11 @@ cdef class Descr:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Descr instance with the memory from the given buffer."""
+        return Descr.from_data(_numpy.frombuffer(buffer, dtype=descr_dtype))
 
     @staticmethod
     def from_data(data):
@@ -1305,6 +1398,12 @@ cdef class _py_anon_pod2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <_anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
@@ -1328,6 +1427,11 @@ cdef class _py_anon_pod2:
             raise ValueError("This _py_anon_pod2 instance is read-only")
         cdef _py_anon_pod3 val_ = val
         memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -1467,6 +1571,12 @@ cdef class StatsLevel1:
             return False
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel1_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
@@ -1975,6 +2085,11 @@ cdef class StatsLevel1:
         self._ptr[0].last_batch_write_bytes = val
 
     @staticmethod
+    def from_buffer(buffer):
+        """Create an StatsLevel1 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel1_t), StatsLevel1)
+
+    @staticmethod
     def from_data(data):
         """Create an StatsLevel1 instance wrapping the given NumPy array.
 
@@ -2079,6 +2194,12 @@ cdef class IOParams:
             return False
         return bool((self_data == other._data).all())
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
     @property
     def mode(self):
         """Union[~_numpy.int32, int]: """
@@ -2150,6 +2271,11 @@ cdef class IOParams:
 
     def __setitem__(self, key, val):
         self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOParams instance with the memory from the given buffer."""
+        return IOParams.from_data(_numpy.frombuffer(buffer, dtype=io_params_dtype))
 
     @staticmethod
     def from_data(data):
@@ -2253,6 +2379,12 @@ cdef class StatsLevel2:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel2_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <CUfileStatsLevel2_t *>malloc(sizeof(CUfileStatsLevel2_t))
@@ -2288,6 +2420,8 @@ cdef class StatsLevel2:
     def read_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field read_size_kb_hist, got {len(val)}")
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
@@ -2303,9 +2437,16 @@ cdef class StatsLevel2:
     def write_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field write_size_kb_hist, got {len(val)}")
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an StatsLevel2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel2_t), StatsLevel2)
 
     @staticmethod
     def from_data(data):
@@ -2406,6 +2547,12 @@ cdef class StatsLevel3:
         other_ = other
         return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel3_t)) == 0)
 
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
             self._ptr = <CUfileStatsLevel3_t *>malloc(sizeof(CUfileStatsLevel3_t))
@@ -2441,7 +2588,7 @@ cdef class StatsLevel3:
             raise ValueError("This StatsLevel3 instance is read-only")
         cdef PerGpuStats val_ = val
         if len(val) != 16:
-            raise ValueError(f"Expected length 16 for field per_gpu_stats, got {len(val)}")
+            raise ValueError(f"Expected length { 16 } for field per_gpu_stats, got {len(val)}")
         memcpy(<void *>&(self._ptr[0].per_gpu_stats), <void *>(val_._get_ptr()), sizeof(CUfilePerGpuStats_t) * 16)
 
     @property
@@ -2454,6 +2601,11 @@ cdef class StatsLevel3:
         if self._readonly:
             raise ValueError("This StatsLevel3 instance is read-only")
         self._ptr[0].num_gpus = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an StatsLevel3 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel3_t), StatsLevel3)
 
     @staticmethod
     def from_data(data):
@@ -2496,8 +2648,10 @@ cdef class StatsLevel3:
 # Enum
 ###############################################################################
 
-class OpError(_IntEnum):
-    """See `CUfileOpError`."""
+class OpError(_FastEnum):
+    """
+    See `CUfileOpError`.
+    """
     SUCCESS = CU_FILE_SUCCESS
     DRIVER_NOT_INITIALIZED = CU_FILE_DRIVER_NOT_INITIALIZED
     DRIVER_INVALID_PROPS = CU_FILE_DRIVER_INVALID_PROPS
@@ -2548,49 +2702,63 @@ class OpError(_IntEnum):
     BATCH_NOCOMPAT_ERROR = CU_FILE_BATCH_NOCOMPAT_ERROR
     IO_MAX_ERROR = CU_FILE_IO_MAX_ERROR
 
-class DriverStatusFlags(_IntEnum):
-    """See `CUfileDriverStatusFlags_t`."""
-    LUSTRE_SUPPORTED = CU_FILE_LUSTRE_SUPPORTED
-    WEKAFS_SUPPORTED = CU_FILE_WEKAFS_SUPPORTED
-    NFS_SUPPORTED = CU_FILE_NFS_SUPPORTED
+class DriverStatusFlags(_FastEnum):
+    """
+    See `CUfileDriverStatusFlags_t`.
+    """
+    LUSTRE_SUPPORTED = (CU_FILE_LUSTRE_SUPPORTED, 'Support for DDN LUSTRE')
+    WEKAFS_SUPPORTED = (CU_FILE_WEKAFS_SUPPORTED, 'Support for WEKAFS')
+    NFS_SUPPORTED = (CU_FILE_NFS_SUPPORTED, 'Support for NFS')
     GPFS_SUPPORTED = CU_FILE_GPFS_SUPPORTED
-    NVME_SUPPORTED = CU_FILE_NVME_SUPPORTED
-    NVMEOF_SUPPORTED = CU_FILE_NVMEOF_SUPPORTED
-    SCSI_SUPPORTED = CU_FILE_SCSI_SUPPORTED
-    SCALEFLUX_CSD_SUPPORTED = CU_FILE_SCALEFLUX_CSD_SUPPORTED
-    NVMESH_SUPPORTED = CU_FILE_NVMESH_SUPPORTED
-    BEEGFS_SUPPORTED = CU_FILE_BEEGFS_SUPPORTED
-    NVME_P2P_SUPPORTED = CU_FILE_NVME_P2P_SUPPORTED
-    SCATEFS_SUPPORTED = CU_FILE_SCATEFS_SUPPORTED
-    VIRTIOFS_SUPPORTED = CU_FILE_VIRTIOFS_SUPPORTED
-    MAX_TARGET_TYPES = CU_FILE_MAX_TARGET_TYPES
+    NVME_SUPPORTED = (CU_FILE_NVME_SUPPORTED, '< Support for GPFS Support for NVMe')
+    NVMEOF_SUPPORTED = (CU_FILE_NVMEOF_SUPPORTED, 'Support for NVMeOF')
+    SCSI_SUPPORTED = (CU_FILE_SCSI_SUPPORTED, 'Support for SCSI')
+    SCALEFLUX_CSD_SUPPORTED = (CU_FILE_SCALEFLUX_CSD_SUPPORTED, 'Support for Scaleflux CSD')
+    NVMESH_SUPPORTED = (CU_FILE_NVMESH_SUPPORTED, 'Support for NVMesh Block Dev')
+    BEEGFS_SUPPORTED = (CU_FILE_BEEGFS_SUPPORTED, 'Support for BeeGFS')
+    NVME_P2P_SUPPORTED = (CU_FILE_NVME_P2P_SUPPORTED, 'Do not use this macro. This is deprecated now')
+    SCATEFS_SUPPORTED = (CU_FILE_SCATEFS_SUPPORTED, 'Support for ScateFS')
+    VIRTIOFS_SUPPORTED = (CU_FILE_VIRTIOFS_SUPPORTED, 'Support for VirtioFS')
+    MAX_TARGET_TYPES = (CU_FILE_MAX_TARGET_TYPES, 'Maximum FS supported')
 
-class DriverControlFlags(_IntEnum):
-    """See `CUfileDriverControlFlags_t`."""
-    USE_POLL_MODE = CU_FILE_USE_POLL_MODE
-    ALLOW_COMPAT_MODE = CU_FILE_ALLOW_COMPAT_MODE
+class DriverControlFlags(_FastEnum):
+    """
+    See `CUfileDriverControlFlags_t`.
+    """
+    USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
+    ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
+    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'Vanilla posix io mode. properties.posix_io_mode')
+    FALLBACK_IO_MODE = (CU_FILE_FALLBACK_IO_MODE, 'Fallback io mode. properties.gds_fallback_io')
 
-class FeatureFlags(_IntEnum):
-    """See `CUfileFeatureFlags_t`."""
-    DYN_ROUTING_SUPPORTED = CU_FILE_DYN_ROUTING_SUPPORTED
-    BATCH_IO_SUPPORTED = CU_FILE_BATCH_IO_SUPPORTED
-    STREAMS_SUPPORTED = CU_FILE_STREAMS_SUPPORTED
-    PARALLEL_IO_SUPPORTED = CU_FILE_PARALLEL_IO_SUPPORTED
-    P2P_SUPPORTED = CU_FILE_P2P_SUPPORTED
+class FeatureFlags(_FastEnum):
+    """
+    See `CUfileFeatureFlags_t`.
+    """
+    DYN_ROUTING_SUPPORTED = (CU_FILE_DYN_ROUTING_SUPPORTED, 'Support for Dynamic routing to handle devices across the PCIe bridges')
+    BATCH_IO_SUPPORTED = (CU_FILE_BATCH_IO_SUPPORTED, 'Supported')
+    STREAMS_SUPPORTED = (CU_FILE_STREAMS_SUPPORTED, 'Supported')
+    PARALLEL_IO_SUPPORTED = (CU_FILE_PARALLEL_IO_SUPPORTED, 'Supported')
+    P2P_SUPPORTED = (CU_FILE_P2P_SUPPORTED, 'Support for PCI P2PDMA')
 
-class FileHandleType(_IntEnum):
-    """See `CUfileFileHandleType`."""
-    OPAQUE_FD = CU_FILE_HANDLE_TYPE_OPAQUE_FD
-    OPAQUE_WIN32 = CU_FILE_HANDLE_TYPE_OPAQUE_WIN32
+class FileHandleType(_FastEnum):
+    """
+    See `CUfileFileHandleType`.
+    """
+    OPAQUE_FD = (CU_FILE_HANDLE_TYPE_OPAQUE_FD, 'Linux based fd')
+    OPAQUE_WIN32 = (CU_FILE_HANDLE_TYPE_OPAQUE_WIN32, 'Windows based handle (unsupported)')
     USERSPACE_FS = CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
-class Opcode(_IntEnum):
-    """See `CUfileOpcode_t`."""
+class Opcode(_FastEnum):
+    """
+    See `CUfileOpcode_t`.
+    """
     READ = CUFILE_READ
     WRITE = CUFILE_WRITE
 
-class Status(_IntEnum):
-    """See `CUfileStatus_t`."""
+class Status(_FastEnum):
+    """
+    See `CUfileStatus_t`.
+    """
     WAITING = CUFILE_WAITING
     PENDING = CUFILE_PENDING
     INVALID = CUFILE_INVALID
@@ -2599,12 +2767,16 @@ class Status(_IntEnum):
     TIMEOUT = CUFILE_TIMEOUT
     FAILED = CUFILE_FAILED
 
-class BatchMode(_IntEnum):
-    """See `CUfileBatchMode_t`."""
+class BatchMode(_FastEnum):
+    """
+    See `CUfileBatchMode_t`.
+    """
     BATCH = CUFILE_BATCH
 
-class SizeTConfigParameter(_IntEnum):
-    """See `CUFileSizeTConfigParameter_t`."""
+class SizeTConfigParameter(_FastEnum):
+    """
+    See `CUFileSizeTConfigParameter_t`.
+    """
     PROFILE_STATS = CUFILE_PARAM_PROFILE_STATS
     EXECUTION_MAX_IO_QUEUE_DEPTH = CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
     EXECUTION_MAX_IO_THREADS = CUFILE_PARAM_EXECUTION_MAX_IO_THREADS
@@ -2618,8 +2790,10 @@ class SizeTConfigParameter(_IntEnum):
     POLLTHRESHOLD_SIZE_KB = CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
     PROPERTIES_BATCH_IO_TIMEOUT_MS = CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
-class BoolConfigParameter(_IntEnum):
-    """See `CUFileBoolConfigParameter_t`."""
+class BoolConfigParameter(_FastEnum):
+    """
+    See `CUFileBoolConfigParameter_t`.
+    """
     PROPERTIES_USE_POLL_MODE = CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
     PROPERTIES_ALLOW_COMPAT_MODE = CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
     FORCE_COMPAT_MODE = CUFILE_PARAM_FORCE_COMPAT_MODE
@@ -2633,24 +2807,32 @@ class BoolConfigParameter(_IntEnum):
     SKIP_TOPOLOGY_DETECTION = CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
     STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
-class StringConfigParameter(_IntEnum):
-    """See `CUFileStringConfigParameter_t`."""
+class StringConfigParameter(_FastEnum):
+    """
+    See `CUFileStringConfigParameter_t`.
+    """
     LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
 
-class ArrayConfigParameter(_IntEnum):
-    """See `CUFileArrayConfigParameter_t`."""
+class ArrayConfigParameter(_FastEnum):
+    """
+    See `CUFileArrayConfigParameter_t`.
+    """
     POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
     POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
+    GPU_BOUNCE_BUFFER_SLAB_SIZE_KB = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_SIZE_KB
+    GPU_BOUNCE_BUFFER_SLAB_COUNT = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_COUNT
 
-class P2PFlags(_IntEnum):
-    """See `CUfileP2PFlags_t`."""
-    P2PDMA = CUFILE_P2PDMA
-    NVFS = CUFILE_NVFS
-    DMABUF = CUFILE_DMABUF
-    C2C = CUFILE_C2C
-    NVIDIA_PEERMEM = CUFILE_NVIDIA_PEERMEM
+class P2PFlags(_FastEnum):
+    """
+    See `CUfileP2PFlags_t`.
+    """
+    P2PDMA = (CUFILE_P2PDMA, 'Support for PCI P2PDMA')
+    NVFS = (CUFILE_NVFS, 'Support for nvidia-fs')
+    DMABUF = (CUFILE_DMABUF, 'Support for DMA Buffer')
+    C2C = (CUFILE_C2C, 'Support for Chip-to-Chip (Grace-based systems)')
+    NVIDIA_PEERMEM = (CUFILE_NVIDIA_PEERMEM, 'Only for IBM Spectrum Scale and WekaFS')
 
 
 ###############################################################################
@@ -2774,10 +2956,10 @@ cpdef use_count():
 
 
 cpdef driver_get_properties(intptr_t props):
-    """Gets the Driver session properties.
+    """Gets the Driver session properties If the driver is not opened, it will return the staged/default properties If the driver is opened, it will return the current properties.
 
     Args:
-        props (intptr_t): Properties to set.
+        props (intptr_t): Properties to get.
 
     .. seealso:: `cuFileDriverGetProperties`
     """
@@ -2787,7 +2969,7 @@ cpdef driver_get_properties(intptr_t props):
 
 
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
-    """Sets whether the Read/Write APIs use polling to do IO operations.
+    """Sets whether the Read/Write APIs use polling to do IO operations This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         poll (bint): boolean to indicate whether to use poll mode or not.
@@ -2801,7 +2983,7 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
 
 
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
-    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver.
+    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_direct_io_size (size_t): maximum allowed direct io size in KB.
@@ -2814,7 +2996,7 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
 
 
 cpdef driver_set_max_cache_size(size_t max_cache_size):
-    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering.
+    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_cache_size (size_t): The maximum GPU buffer space per device used for internal use in KB.
@@ -2827,7 +3009,7 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
 
 
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
-    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister``.
+    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister`` This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_pinned_size (size_t): maximum buffer space that is pinned in KB.
@@ -2871,25 +3053,25 @@ cpdef void batch_io_destroy(intptr_t batch_idp) except*:
 
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream):
     with nogil:
-        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <void*>stream)
+        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <CUstream>stream)
     check_status(__status__)
 
 
 cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_written_p, intptr_t stream):
     with nogil:
-        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <void*>stream)
+        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <CUstream>stream)
     check_status(__status__)
 
 
 cpdef stream_register(intptr_t stream, unsigned flags):
     with nogil:
-        __status__ = cuFileStreamRegister(<void*>stream, flags)
+        __status__ = cuFileStreamRegister(<CUstream>stream, flags)
     check_status(__status__)
 
 
 cpdef stream_deregister(intptr_t stream):
     with nogil:
-        __status__ = cuFileStreamDeregister(<void*>stream)
+        __status__ = cuFileStreamDeregister(<CUstream>stream)
     check_status(__status__)
 
 

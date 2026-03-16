@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
+
 from cuda.bindings import driver, runtime
 from cuda.core._utils import cuda_utils
 

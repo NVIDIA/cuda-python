@@ -14,6 +14,9 @@ from cpython.pycapsule cimport PyCapsule_GetName, PyCapsule_GetPointer
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
+from cuda.bindings cimport cynvrtc
+from cuda.bindings cimport cynvvm
+from cuda.bindings cimport cynvjitlink
 
 from ._resource_handles cimport (
     ContextHandle,
@@ -23,9 +26,17 @@ from ._resource_handles cimport (
     DevicePtrHandle,
     LibraryHandle,
     KernelHandle,
+    GraphicsResourceHandle,
+    NvrtcProgramHandle,
+    NvvmProgramHandle,
+    NvJitLinkHandle,
+    CuLinkHandle,
 )
 
 import cuda.bindings.cydriver as cydriver
+import cuda.bindings.cynvrtc as cynvrtc
+import cuda.bindings.cynvvm as cynvvm
+import cuda.bindings.cynvjitlink as cynvjitlink
 
 # =============================================================================
 # C++ function declarations (non-inline, implemented in resource_handles.cpp)
@@ -86,6 +97,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr) except+ nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
         cydriver.CUdeviceptr ptr, object owner) except+ nogil
+
+    # MR deallocation callback
+    ctypedef void (*MRDeallocCallback)(
+        object mr, cydriver.CUdeviceptr ptr, size_t size,
+        const StreamHandle& stream) noexcept
+    void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
+        MRDeallocCallback cb) noexcept
+    DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
+        cydriver.CUdeviceptr ptr, size_t size, object mr) except+ nogil
+
     DevicePtrHandle deviceptr_import_ipc "cuda_core::deviceptr_import_ipc" (
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
@@ -106,6 +127,34 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const LibraryHandle& h_library, const char* name) except+ nogil
     KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
         cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+
+    # Graphics resource handles
+    GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
+        cydriver.CUgraphicsResource resource) except+ nogil
+
+    # NVRTC Program handles
+    NvrtcProgramHandle create_nvrtc_program_handle "cuda_core::create_nvrtc_program_handle" (
+        cynvrtc.nvrtcProgram prog) except+ nogil
+    NvrtcProgramHandle create_nvrtc_program_handle_ref "cuda_core::create_nvrtc_program_handle_ref" (
+        cynvrtc.nvrtcProgram prog) except+ nogil
+
+    # NVVM Program handles
+    NvvmProgramHandle create_nvvm_program_handle "cuda_core::create_nvvm_program_handle" (
+        cynvvm.nvvmProgram prog) except+ nogil
+    NvvmProgramHandle create_nvvm_program_handle_ref "cuda_core::create_nvvm_program_handle_ref" (
+        cynvvm.nvvmProgram prog) except+ nogil
+
+    # nvJitLink handles
+    NvJitLinkHandle create_nvjitlink_handle "cuda_core::create_nvjitlink_handle" (
+        cynvjitlink.nvJitLinkHandle handle) except+ nogil
+    NvJitLinkHandle create_nvjitlink_handle_ref "cuda_core::create_nvjitlink_handle_ref" (
+        cynvjitlink.nvJitLinkHandle handle) except+ nogil
+
+    # cuLink handles
+    CuLinkHandle create_culink_handle "cuda_core::create_culink_handle" (
+        cydriver.CUlinkState state) except+ nogil
+    CuLinkHandle create_culink_handle_ref "cuda_core::create_culink_handle_ref" (
+        cydriver.CUlinkState state) except+ nogil
 
 
 # =============================================================================
@@ -174,6 +223,21 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuLibraryUnload "reinterpret_cast<void*&>(cuda_core::p_cuLibraryUnload)"
     void* p_cuLibraryGetKernel "reinterpret_cast<void*&>(cuda_core::p_cuLibraryGetKernel)"
 
+    # Linker
+    void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
+
+    # Graphics interop
+    void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
+
+    # NVRTC
+    void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
+
+    # NVVM
+    void* p_nvvmDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvvmDestroyProgram)"
+
+    # nvJitLink
+    void* p_nvJitLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_nvJitLinkDestroy)"
+
 
 # Initialize driver function pointers from cydriver.__pyx_capi__ at module load
 cdef void* _get_driver_fn(str name):
@@ -223,3 +287,45 @@ p_cuLibraryLoadFromFile = _get_driver_fn("cuLibraryLoadFromFile")
 p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
 p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
 p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
+
+# Linker
+p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
+
+# Graphics interop
+p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
+
+# =============================================================================
+# NVRTC function pointer initialization
+# =============================================================================
+
+cdef void* _get_nvrtc_fn(str name):
+    capsule = cynvrtc.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_nvrtcDestroyProgram = _get_nvrtc_fn("nvrtcDestroyProgram")
+
+# =============================================================================
+# NVVM function pointer initialization
+#
+# NVVM may not be available at runtime, so we handle missing function pointers
+# gracefully. The C++ deleter checks for null before calling.
+# =============================================================================
+
+cdef void* _get_nvvm_fn(str name):
+    capsule = cynvvm.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_nvvmDestroyProgram = _get_nvvm_fn("nvvmDestroyProgram")
+
+# =============================================================================
+# nvJitLink function pointer initialization
+#
+# nvJitLink may not be available at runtime, so we handle missing function
+# pointers gracefully. The C++ deleter checks for null before calling.
+# =============================================================================
+
+cdef void* _get_nvjitlink_fn(str name):
+    capsule = cynvjitlink.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_nvJitLinkDestroy = _get_nvjitlink_fn("nvJitLinkDestroy")

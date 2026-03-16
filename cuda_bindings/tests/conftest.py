@@ -1,8 +1,28 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import cuda.bindings.driver as cuda
+import pathlib
+import sys
+from importlib.metadata import PackageNotFoundError, distribution
+
 import pytest
+
+import cuda.bindings.driver as cuda
+
+# Import shared test helpers for tests across subprojects.
+# PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
+_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
+try:
+    distribution("cuda-python-test-helpers")
+except PackageNotFoundError as exc:
+    if not _test_helpers_root.is_dir():
+        raise RuntimeError(
+            f"cuda-python-test-helpers not installed; expected checkout path {_test_helpers_root}"
+        ) from exc
+
+    test_helpers_root = str(_test_helpers_root)
+    if test_helpers_root not in sys.path:
+        sys.path.insert(0, test_helpers_root)
 
 
 @pytest.fixture(scope="module")

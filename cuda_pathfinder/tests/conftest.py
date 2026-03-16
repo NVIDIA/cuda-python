@@ -9,7 +9,7 @@ def pytest_configure(config):
     config.custom_info = []
 
 
-def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG001
+def pytest_terminal_summary(terminalreporter, exitstatus, config):
     if not config.getoption("verbose"):
         return
     if hasattr(config.option, "iterations"):  # pytest-freethreaded runs all tests at least twice

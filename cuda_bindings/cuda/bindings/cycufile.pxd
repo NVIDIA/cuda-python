@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -106,6 +106,8 @@ cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverControlFlags_t:
         CU_FILE_USE_POLL_MODE
         CU_FILE_ALLOW_COMPAT_MODE
+        CU_FILE_POSIX_IO_MODE
+        CU_FILE_FALLBACK_IO_MODE
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileFeatureFlags_t:
@@ -180,6 +182,8 @@ cdef extern from '<cufile.h>':
     ctypedef enum CUFileArrayConfigParameter_t:
         CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
         CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
+        CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_SIZE_KB
+        CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_COUNT
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileP2PFlags_t:

@@ -4,3 +4,4 @@
 
 recursive-include cuda/core *.pyx *.pxd *.pxi
 recursive-include cuda/core/_cpp *.cpp *.hpp
+recursive-include cuda/core/_include *.h *.hpp

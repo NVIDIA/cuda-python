@@ -1,11 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import cuda.core
 import pytest
-from cuda.core import DeviceMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
+
+import cuda.core
+from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core._utils.cuda_utils import CUDAError
 
 NBYTES = 1024
 
@@ -17,7 +18,8 @@ def test_peer_access_basic(mempool_device_x2):
     zero_on_dev0 = make_scratch_buffer(dev0, 0, NBYTES)
     one_on_dev0 = make_scratch_buffer(dev0, 1, NBYTES)
     stream_on_dev0 = dev0.create_stream()
-    dmr_on_dev1 = DeviceMemoryResource(dev1)
+    # Use owned pool to ensure clean initial state (no stale peer access).
+    dmr_on_dev1 = DeviceMemoryResource(dev1, DeviceMemoryResourceOptions())
     buf_on_dev1 = dmr_on_dev1.allocate(NBYTES)
 
     # No access at first.
@@ -52,7 +54,8 @@ def test_peer_access_property_x2(mempool_device_x2):
     # The peer access list is a sorted tuple and always excludes the self
     # device.
     dev0, dev1 = mempool_device_x2
-    dmr = DeviceMemoryResource(dev0)
+    # Use owned pool to ensure clean initial state (no stale peer access).
+    dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions())
 
     def check(expected):
         assert isinstance(dmr.peer_accessible_by, tuple)
@@ -61,13 +64,13 @@ def test_peer_access_property_x2(mempool_device_x2):
     # No access to begin with.
     check(expected=())
     # fmt: off
-    dmr.peer_accessible_by = (0,)            ; check(expected=())    # noqa: E702
-    dmr.peer_accessible_by = (1,)            ; check(expected=(1,))  # noqa: E702
-    dmr.peer_accessible_by = (0, 1)          ; check(expected=(1,))  # noqa: E702
-    dmr.peer_accessible_by = ()              ; check(expected=())    # noqa: E702
-    dmr.peer_accessible_by = [0, 1]          ; check(expected=(1,))  # noqa: E702
-    dmr.peer_accessible_by = set()           ; check(expected=())    # noqa: E702
-    dmr.peer_accessible_by = [1, 1, 1, 1, 1] ; check(expected=(1,))  # noqa: E702
+    dmr.peer_accessible_by = (0,)            ; check(expected=())
+    dmr.peer_accessible_by = (1,)            ; check(expected=(1,))
+    dmr.peer_accessible_by = (0, 1)          ; check(expected=(1,))
+    dmr.peer_accessible_by = ()              ; check(expected=())
+    dmr.peer_accessible_by = [0, 1]          ; check(expected=(1,))
+    dmr.peer_accessible_by = set()           ; check(expected=())
+    dmr.peer_accessible_by = [1, 1, 1, 1, 1] ; check(expected=(1,))
     # fmt: on
 
     with pytest.raises(ValueError, match=r"device_id must be \>\= 0"):
@@ -99,7 +102,9 @@ def test_peer_access_transitions(mempool_device_x3):
     # Allocate per-device resources.
     streams = [dev.create_stream() for dev in devs]
     pgens = [PatternGen(devs[i], NBYTES, streams[i]) for i in range(3)]
-    dmrs = [DeviceMemoryResource(dev) for dev in devs]
+    # Use owned pools (with options) to ensure clean initial state.
+    # Default pools are shared and may have stale peer access from prior tests.
+    dmrs = [DeviceMemoryResource(dev, DeviceMemoryResourceOptions()) for dev in devs]
     bufs = [dmr.allocate(NBYTES) for dmr in dmrs]
 
     def verify_state(state, pattern_seed):
@@ -139,3 +144,32 @@ def test_peer_access_transitions(mempool_device_x3):
         assert dmrs[0].peer_accessible_by == final_state
         verify_state(final_state, pattern_seed)
         pattern_seed += 1
+
+
+def test_peer_access_shared_pool_queries_driver(mempool_device_x2):
+    """Non-owned pools always query the driver for peer access state."""
+    dev0, dev1 = mempool_device_x2
+
+    # Grant peer access via one wrapper; a second wrapper must see it.
+    dmr1 = DeviceMemoryResource(dev0)
+    dmr1.peer_accessible_by = [dev1]
+    dmr2 = DeviceMemoryResource(dev0)
+    assert dev1.device_id in dmr2.peer_accessible_by
+
+    # Revoke via dmr2; dmr1 must reflect the change immediately.
+    dmr2.peer_accessible_by = []
+    assert dmr1.peer_accessible_by == ()
+
+    # Re-grant via dmr1. A fresh wrapper that has never read the
+    # property must still query the driver before computing diffs
+    # in the setter, so setting [] must discover and revoke the access.
+    dmr1.peer_accessible_by = [dev1]
+    dmr3 = DeviceMemoryResource(dev0)
+    assert dmr1.peer_accessible_by == (dev1.device_id,)
+    assert dmr2.peer_accessible_by == (dev1.device_id,)
+    assert dmr3.peer_accessible_by == (dev1.device_id,)
+    dmr3.peer_accessible_by = []
+    assert DeviceMemoryResource(dev0).peer_accessible_by == ()
+    assert dmr1.peer_accessible_by == ()
+    assert dmr2.peer_accessible_by == ()
+    assert dmr3.peer_accessible_by == ()

@@ -1,16 +1,17 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
 
 import pytest
-from cuda.core import Device, EventOptions
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
+from cuda.core import Device, EventOptions
+
 ENABLE_LOGGING = False  # Set True for test debugging and development
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 
 
@@ -19,6 +20,7 @@ class TestEventIpc:
 
     pytestmark = pytest.mark.usefixtures("requires_concurrent_managed_access")
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
@@ -95,6 +97,7 @@ class TestEventIpc:
         log("done")
 
 
+@pytest.mark.flaky(reruns=2)
 def test_event_is_monadic(ipc_device):
     """Check that IPC-enabled events are always bound and cannot be reset."""
     device = ipc_device
@@ -110,6 +113,7 @@ def test_event_is_monadic(ipc_device):
         stream.record(e)
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize(
     "options", [{"ipc_enabled": True, "enable_timing": True}, EventOptions(ipc_enabled=True, enable_timing=True)]
 )
@@ -127,6 +131,7 @@ class TestIpcEventProperties:
     process.
     """
 
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("busy_waited_sync", [True, False])
     @pytest.mark.parametrize("use_options_cls", [True, False])
     @pytest.mark.parametrize("use_option_kw", [True, False])

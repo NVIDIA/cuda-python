@@ -28,20 +28,21 @@ else:
 finally:
     del bindings, importlib, subdir, cuda_major, cuda_minor
 
-from cuda.core import system, utils  # noqa: E402
-from cuda.core._device import Device  # noqa: E402
-from cuda.core._event import Event, EventOptions  # noqa: E402
-from cuda.core._graph import (  # noqa: E402
+from cuda.core import system, utils
+from cuda.core._device import Device
+from cuda.core._event import Event, EventOptions
+from cuda.core._graph import (
     Graph,
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
-from cuda.core._launch_config import LaunchConfig  # noqa: E402
-from cuda.core._launcher import launch  # noqa: E402
-from cuda.core._layout import _StridedLayout  # noqa: E402
-from cuda.core._linker import Linker, LinkerOptions  # noqa: E402
-from cuda.core._memory import (  # noqa: E402
+from cuda.core._graphics import GraphicsResource
+from cuda.core._launch_config import LaunchConfig
+from cuda.core._launcher import launch
+from cuda.core._layout import _StridedLayout
+from cuda.core._linker import Linker, LinkerOptions
+from cuda.core._memory import (
     Buffer,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
@@ -55,10 +56,15 @@ from cuda.core._memory import (  # noqa: E402
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core._memoryview import (  # noqa: E402
-    StridedMemoryView,  # noqa: E402
-    args_viewable_as_strided_memory,  # noqa: E402
+from cuda.core._memoryview import (
+    StridedMemoryView,
+    args_viewable_as_strided_memory,
 )
-from cuda.core._module import Kernel, ObjectCode  # noqa: E402
-from cuda.core._program import Program, ProgramOptions  # noqa: E402
-from cuda.core._stream import Stream, StreamOptions  # noqa: E402
+from cuda.core._module import Kernel, ObjectCode
+from cuda.core._program import Program, ProgramOptions
+from cuda.core._stream import (
+    LEGACY_DEFAULT_STREAM,
+    PER_THREAD_DEFAULT_STREAM,
+    Stream,
+    StreamOptions,
+)

@@ -561,6 +561,10 @@ cdef class Kernel:
         """
         return as_py(self._h_kernel)
 
+    @property
+    def _handle(self):
+        return self.handle
+
     @staticmethod
     def from_handle(handle, mod: ObjectCode = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
@@ -657,10 +661,9 @@ cdef class ObjectCode:
 
         return self
 
-    @classmethod
-    def _reduce_helper(cls, module, code_type, name, symbol_mapping):
-        # just for forwarding kwargs
-        return cls._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
+    @staticmethod
+    def _reduce_helper(module, code_type, name, symbol_mapping):
+        return ObjectCode._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
 
     def __reduce__(self):
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
@@ -800,7 +803,7 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        name : Any
+        name : str | bytes
             Name of the kernel to retrieve.
 
         Returns
@@ -816,7 +819,8 @@ cdef class ObjectCode:
         try:
             name = self._sym_map[name]
         except KeyError:
-            name = name.encode()
+            if isinstance(name, str):
+                name = name.encode()
 
         cdef KernelHandle h_kernel = create_kernel_handle(self._h_library, <const char*>name)
         if not h_kernel:

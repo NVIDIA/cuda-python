@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -52,6 +52,9 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
 ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
+ctypedef nvmlVgpuSchedulerStateInfo_v2_t VgpuSchedulerStateInfo_v2
+ctypedef nvmlVgpuSchedulerLogEntry_v2_t VgpuSchedulerLogEntry_v2
+ctypedef nvmlVgpuSchedulerState_v2_t VgpuSchedulerState_v2
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
@@ -67,6 +70,7 @@ ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurren
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
 ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
+ctypedef nvmlVgpuSchedulerLogInfo_v2_t VgpuSchedulerLogInfo_v2
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
 ctypedef nvmlPRMCounterList_v1_t PRMCounterList_v1
@@ -342,7 +346,6 @@ cpdef object device_get_grid_licensable_features_v4(intptr_t device)
 cpdef unsigned int get_vgpu_driver_capabilities(int capability) except? 0
 cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability) except? 0
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id)
-cpdef str vgpu_type_get_name(unsigned int vgpu_type_id)
 cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_id) except? 0
 cpdef tuple vgpu_type_get_device_id(unsigned int vgpu_type_id)
 cpdef unsigned long long vgpu_type_get_framebuffer_size(unsigned int vgpu_type_id) except? 0

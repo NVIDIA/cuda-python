@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -72,8 +72,13 @@ function Install-Driver {
         Write-Output "Unknown driver mode: $driver_mode"
         exit 1
     }
-    pnputil /disable-device /class Display
-    pnputil /enable-device /class Display
+    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA)
+    $nvidia_devices = Get-PnpDevice -Class Display -FriendlyName "NVIDIA*"
+    foreach ($device in $nvidia_devices) {
+        Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
+        pnputil /disable-device "$($device.InstanceId)"
+        pnputil /enable-device "$($device.InstanceId)"
+    }
     # Give it a minute to settle:
     Start-Sleep -Seconds 5
 }

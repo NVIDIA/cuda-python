@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
@@ -6,7 +6,7 @@ from libc.stdlib cimport calloc, free
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.string cimport memcpy
-from enum import Enum as _Enum
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.param_packer as param_packer
@@ -73,7 +73,7 @@ cdef class _HelperKernelParams:
                         self._ckernelParams[idx] = <void*><void_ptr>value.getPtr()
                     elif isinstance(value, (_ctypes.Structure)):
                         self._ckernelParams[idx] = <void*><void_ptr>_ctypes.addressof(value)
-                    elif isinstance(value, (_Enum)):
+                    elif isinstance(value, (_FastEnum)):
                         self._ckernelParams[idx] = &(self._ckernelParamsData[data_idx])
                         (<int*>self._ckernelParams[idx])[0] = value.value
                         data_idx += sizeof(int)
@@ -128,31 +128,32 @@ cdef class _HelperKernelParams:
 
 cdef class _HelperInputVoidPtr:
     def __cinit__(self, ptr):
-        self._pyobj_acquired = False
-        if ptr is None:
-            self._cptr = NULL
-        elif isinstance(ptr, (int)):
-            # Easy run, user gave us an already configured void** address
-            self._cptr = <void*><void_ptr>ptr
-        elif isinstance(ptr, (_driver["CUdeviceptr"])):
-            self._cptr = <void*><void_ptr>int(ptr)
-        elif PyObject_CheckBuffer(ptr):
-            # Easy run, get address from Python Buffer Protocol
-            err_buffer = PyObject_GetBuffer(ptr, &self._pybuffer, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
-            if err_buffer == -1:
-                raise RuntimeError("Failed to retrieve buffer through Buffer Protocol")
-            self._pyobj_acquired = True
-            self._cptr = <void*><void_ptr>self._pybuffer.buf
-        else:
-            raise TypeError("Provided argument is of type {} but expected Type {}, {} or object with Buffer Protocol".format(type(ptr), type(None), type(int)))
+        self._cptr = _helper_input_void_ptr(ptr, &self._helper)
 
     def __dealloc__(self):
-        if self._pyobj_acquired is True:
-            PyBuffer_Release(&self._pybuffer)
+        _helper_input_void_ptr_free(&self._helper)
 
     @property
     def cptr(self):
-        return <void_ptr>self._cptr
+        return <void_ptr>self._cptr 
+
+
+cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):
+    helper[0]._pybuffer.buf = NULL
+    try:
+        return <void *><void_ptr>ptr        
+    except:
+        if ptr is None:
+            return NULL
+        elif PyObject_CheckBuffer(ptr):
+            # Easy run, get address from Python Buffer Protocol
+            err_buffer = PyObject_GetBuffer(ptr, &helper[0]._pybuffer, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
+            if err_buffer == -1:
+                raise RuntimeError("Failed to retrieve buffer through Buffer Protocol")
+            return <void*><void_ptr>(helper[0]._pybuffer.buf)
+        else:
+            raise TypeError("Provided argument is of type {} but expected Type {}, {} or object with Buffer Protocol".format(type(ptr), type(None), type(int)))
+
 
 {{if 'CUmemPool_attribute_enum' in found_types}}
 
@@ -596,6 +597,9 @@ cdef class _HelperCUmemAllocationHandleType:
 
 cdef class _InputVoidPtrPtrHelper:
     def __cinit__(self, lst):
+        # Hold onto references to the original buffers so they
+        # won't be free'd behind our back
+        self._references = lst
         self._cptr = <void**>_callocWrapper(len(lst), sizeof(void*))
         for idx in range(len(lst)):
             self._cptr[idx] = <void*><void_ptr>lst[idx].cptr

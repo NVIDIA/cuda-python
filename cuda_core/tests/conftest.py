@@ -3,8 +3,10 @@
 
 import multiprocessing
 import os
+import pathlib
+import sys
+from importlib.metadata import PackageNotFoundError, distribution
 
-import helpers
 import pytest
 from cuda_python_test_helpers.managed_memory import managed_memory_skip_reason
 
@@ -26,6 +28,21 @@ from cuda.core import (
 )
 from cuda.core._utils.cuda_utils import handle_return
 
+# Import shared test helpers for tests across subprojects.
+# PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
+_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
+try:
+    distribution("cuda-python-test-helpers")
+except PackageNotFoundError as exc:
+    if not _test_helpers_root.is_dir():
+        raise RuntimeError(
+            f"cuda-python-test-helpers not installed; expected checkout path {_test_helpers_root}"
+        ) from exc
+
+    test_helpers_root = str(_test_helpers_root)
+    if test_helpers_root not in sys.path:
+        sys.path.insert(0, test_helpers_root)
+
 
 def skip_if_pinned_memory_unsupported(device):
     try:
@@ -44,6 +61,12 @@ def skip_if_managed_memory_unsupported(device):
             pytest.skip("Device does not support managed memory pool operations")
     except AttributeError:
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+    try:
+        ManagedMemoryResource()
+    except RuntimeError as e:
+        if "requires CUDA 13.0" in str(e):
+            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+        raise
 
 
 def create_managed_memory_resource_or_skip(*args, **kwargs):
@@ -71,7 +94,7 @@ def session_setup():
     multiprocessing.set_start_method("spawn", force=True)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def init_cuda():
     # TODO: rename this to e.g. init_context
     device = Device(0)
@@ -102,14 +125,14 @@ def _device_unset_current() -> bool:
     return True
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def deinit_cuda():
     # TODO: rename this to e.g. deinit_context
     yield
     _ = _device_unset_current()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def deinit_all_contexts_function():
     def pop_all_contexts():
         max_iters = 256
@@ -141,7 +164,9 @@ def ipc_device():
         pytest.skip("Device does not support IPC")
 
     # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
-    if helpers.IS_WSL or not helpers.supports_ipc_mempool(device):
+    from helpers import IS_WSL, supports_ipc_mempool
+
+    if IS_WSL or not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     return device
@@ -238,4 +263,7 @@ def memory_resource_factory(request, init_cuda):
     return request.param
 
 
-skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")
+skipif_need_cuda_headers = pytest.mark.skipif(
+    not os.path.isdir(os.path.join(os.environ.get("CUDA_PATH", ""), "include")),
+    reason="need CUDA header",
+)

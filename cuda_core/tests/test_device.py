@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 try:
@@ -6,8 +6,9 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-import cuda.core
 import pytest
+
+import cuda.core
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
@@ -34,6 +35,11 @@ def test_to_system_device(deinit_cuda):
         with pytest.raises(RuntimeError):
             device.to_system_device()
         pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
+
+    from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
+
+    if not hardware_supports_nvml():
+        pytest.skip("NVML not supported on this platform")
 
     from cuda.core.system import Device as SystemDevice
 
@@ -313,8 +319,8 @@ def test_device_property_types(property_name, expected_type):
 
 def test_device_properties_complete():
     device = Device()
-    live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
-    tab_props = set(attr for attr, _ in cuda_base_properties)
+    live_props = {attr for attr in dir(device.properties) if not attr.startswith("_")}
+    tab_props = {attr for attr, _ in cuda_base_properties}
 
     excluded_props = set()
     # Exclude CUDA 13+ specific properties when not available

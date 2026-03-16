@@ -40,6 +40,7 @@ extensions = [
     "enum_tools.autoenum",
     "sphinx_copybutton",
     "release_toc",
+    "release_date",
 ]
 
 nb_execution_mode = "off"

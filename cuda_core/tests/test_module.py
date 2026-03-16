@@ -5,9 +5,11 @@ import ctypes
 import pickle
 import warnings
 
-import cuda.core
 import pytest
+
+import cuda.core
 from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
+from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
@@ -59,7 +61,7 @@ def test_object_code_init_disabled():
         ObjectCode()  # Reject at front door.
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_cubin(init_cuda):
     # prepare program
     prog = Program(SAXPY_KERNEL, code_type="c++")
@@ -71,7 +73,7 @@ def get_saxpy_kernel_cubin(init_cuda):
     return mod.get_kernel("saxpy<float>"), mod
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_ptx(init_cuda):
     # prepare program
     prog = Program(SAXPY_KERNEL, code_type="c++")
@@ -83,7 +85,7 @@ def get_saxpy_kernel_ptx(init_cuda):
     return ptx, mod
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_ltoir(init_cuda):
     # Create LTOIR code using link-time optimization
     prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
@@ -104,6 +106,8 @@ def test_get_kernel(init_cuda):
     kernel = object_code.get_kernel("ABC")
     assert object_code.handle is not None
     assert kernel.handle is not None
+    # Also works with bytes
+    assert object_code.get_kernel(b"ABC").handle is not None
 
 
 @pytest.mark.parametrize(
@@ -146,7 +150,7 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     sym_map = mod.symbol_mapping
     mod_obj = ObjectCode.from_ptx(ptx, symbol_mapping=sym_map)
     assert mod.code == ptx
-    if not Program._can_load_generated_ptx():
+    if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
@@ -160,7 +164,7 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
     assert mod_obj.code == str(ptx_file)
     assert mod_obj.code_type == "ptx"
-    if not Program._can_load_generated_ptx():
+    if not _can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
@@ -272,8 +276,8 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_4_prerequis
     members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
 
     arg_info = krn.arguments_info
-    assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members)])
-    assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
+    assert all(actual.offset == expected.offset for actual, expected in zip(arg_info, members))
+    assert all(actual.size == expected.size for actual, expected in zip(arg_info, members))
 
 
 def test_num_args_error_handling(deinit_all_contexts_function, cuda12_4_prerequisite_check):
@@ -411,7 +415,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
 
 def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     _, objcode = get_saxpy_kernel_cubin
-    result = pickle.loads(pickle.dumps(objcode))  # noqa: S403, S301
+    result = pickle.loads(pickle.dumps(objcode))  # noqa: S301
 
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code

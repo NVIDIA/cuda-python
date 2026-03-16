@@ -6,6 +6,7 @@ import warnings
 from unittest import mock
 
 import pytest
+
 from cuda.bindings import driver
 from cuda.bindings.utils import _version_check, warn_if_cuda_major_version_mismatch
 

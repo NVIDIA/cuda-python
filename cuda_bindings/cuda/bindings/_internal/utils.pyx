@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -6,6 +6,28 @@ cimport cpython
 from libc.stdint cimport intptr_t
 from libcpp.utility cimport move
 from cython.operator cimport dereference as deref
+
+
+cdef extern from *:
+    """
+    #if defined(__clang__)
+        #define _COMPILER_VERSION ("Clang " __clang_version__)
+    #elif defined(__GNUC__) || defined(__GNUG__)
+        #define _COMPILER_VERSION ("GCC " __VERSION__)
+    #elif defined(_MSC_VER)
+        #define _COMPILER_VERSION ("MSVC " Py_STRINGIFY(_MSC_VER))
+    #else
+        #define _COMPILER_VERSION ("Unknown Compiler")
+    #endif
+    """
+    cdef char *_COMPILER_VERSION
+
+
+cpdef str get_c_compiler():
+    """
+    Returns a string describing the C compiler used to build cuda.bindings
+    """
+    return _COMPILER_VERSION.decode()
 
 
 cdef bint is_nested_sequence(data):

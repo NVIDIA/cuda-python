@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
@@ -503,10 +503,22 @@ cdef cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, 
     return cyruntime._cudaFuncSetAttribute(func, attr, value)
 {{endif}}
 
+{{if 'cudaFuncGetParamCount' in found_functions}}
+
+cdef cudaError_t cudaFuncGetParamCount(const void* func, size_t* paramCount) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaFuncGetParamCount(func, paramCount)
+{{endif}}
+
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
 cdef cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaLaunchHostFunc(stream, fn, userData)
+{{endif}}
+
+{{if 'cudaLaunchHostFunc_v2' in found_functions}}
+
+cdef cudaError_t cudaLaunchHostFunc_v2(cudaStream_t stream, cudaHostFn_t fn, void* userData, unsigned int syncMode) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaLaunchHostFunc_v2(stream, fn, userData, syncMode)
 {{endif}}
 
 {{if 'cudaFuncSetSharedMemConfig' in found_functions}}
@@ -765,6 +777,18 @@ cdef cudaError_t cudaMemcpyBatchAsync(const void** dsts, const void** srcs, cons
 
 cdef cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaMemcpy3DBatchAsync(numOps, opList, flags, stream)
+{{endif}}
+
+{{if 'cudaMemcpyWithAttributesAsync' in found_functions}}
+
+cdef cudaError_t cudaMemcpyWithAttributesAsync(void* dst, const void* src, size_t size, cudaMemcpyAttributes* attr, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaMemcpyWithAttributesAsync(dst, src, size, attr, stream)
+{{endif}}
+
+{{if 'cudaMemcpy3DWithAttributesAsync' in found_functions}}
+
+cdef cudaError_t cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaMemcpy3DWithAttributesAsync(op, flags, stream)
 {{endif}}
 
 {{if 'cudaMemcpy2DAsync' in found_functions}}
@@ -1671,6 +1695,12 @@ cdef cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph
 
 cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaGraphNodeSetParams(node, nodeParams)
+{{endif}}
+
+{{if 'cudaGraphNodeGetParams' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphNodeGetParams(node, nodeParams)
 {{endif}}
 
 {{if 'cudaGraphExecNodeSetParams' in found_functions}}

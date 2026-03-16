@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 cimport cuda.bindings._lib.windll as windll
@@ -38,6 +38,8 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcGetPCHCreateStatus' in found_functions}}cdef void *__nvrtcGetPCHCreateStatus = NULL{{endif}}
 {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}cdef void *__nvrtcGetPCHHeapSizeRequired = NULL{{endif}}
 {{if 'nvrtcSetFlowCallback' in found_functions}}cdef void *__nvrtcSetFlowCallback = NULL{{endif}}
+{{if 'nvrtcGetTileIRSize' in found_functions}}cdef void *__nvrtcGetTileIRSize = NULL{{endif}}
+{{if 'nvrtcGetTileIR' in found_functions}}cdef void *__nvrtcGetTileIR = NULL{{endif}}
 
 cdef int _cuPythonInit() except -1 nogil:
     global __cuPythonInit
@@ -144,6 +146,14 @@ cdef int _cuPythonInit() except -1 nogil:
         global __nvrtcSetFlowCallback
         __nvrtcSetFlowCallback = windll.GetProcAddress(handle, 'nvrtcSetFlowCallback')
         {{endif}}
+        {{if 'nvrtcGetTileIRSize' in found_functions}}
+        global __nvrtcGetTileIRSize
+        __nvrtcGetTileIRSize = windll.GetProcAddress(handle, 'nvrtcGetTileIRSize')
+        {{endif}}
+        {{if 'nvrtcGetTileIR' in found_functions}}
+        global __nvrtcGetTileIR
+        __nvrtcGetTileIR = windll.GetProcAddress(handle, 'nvrtcGetTileIR')
+        {{endif}}
 
         {{else}}
         handle = <void*><uintptr_t>(load_nvidia_dynamic_lib("nvrtc")._handle_uint)
@@ -244,6 +254,14 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'nvrtcSetFlowCallback' in found_functions}}
         global __nvrtcSetFlowCallback
         __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')
+        {{endif}}
+        {{if 'nvrtcGetTileIRSize' in found_functions}}
+        global __nvrtcGetTileIRSize
+        __nvrtcGetTileIRSize = dlfcn.dlsym(handle, 'nvrtcGetTileIRSize')
+        {{endif}}
+        {{if 'nvrtcGetTileIR' in found_functions}}
+        global __nvrtcGetTileIR
+        __nvrtcGetTileIR = dlfcn.dlsym(handle, 'nvrtcGetTileIR')
         {{endif}}
 
         {{endif}}
@@ -545,6 +563,30 @@ cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* 
     return err
 {{endif}}
 
+{{if 'nvrtcGetTileIRSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcGetTileIRSize
+    cuPythonInit()
+    if __nvrtcGetTileIRSize == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetTileIRSize" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetTileIRSize)(prog, TileIRSizeRet)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetTileIR' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcGetTileIR
+    cuPythonInit()
+    if __nvrtcGetTileIR == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetTileIR" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetTileIR)(prog, TileIR)
+    return err
+{{endif}}
+
 cdef dict func_ptrs = None
 
 cpdef dict _inspect_function_pointers():
@@ -721,6 +763,20 @@ cpdef dict _inspect_function_pointers():
     data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
     {{else}}
     data["__nvrtcSetFlowCallback"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'nvrtcGetTileIRSize' in found_functions}}
+    global __nvrtcGetTileIRSize
+    data["__nvrtcGetTileIRSize"] = <intptr_t>__nvrtcGetTileIRSize
+    {{else}}
+    data["__nvrtcGetTileIRSize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'nvrtcGetTileIR' in found_functions}}
+    global __nvrtcGetTileIR
+    data["__nvrtcGetTileIR"] = <intptr_t>__nvrtcGetTileIR
+    {{else}}
+    data["__nvrtcGetTileIR"] = <intptr_t>0
     {{endif}}
 
     func_ptrs = data

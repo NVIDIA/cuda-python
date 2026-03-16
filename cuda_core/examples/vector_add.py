@@ -10,6 +10,7 @@
 # ################################################################################
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute c = a + b
@@ -29,36 +30,38 @@ __global__ void vector_add(const T* A,
 
 dev = Device()
 dev.set_current()
-s = dev.create_stream()
+stream = dev.create_stream()
 
-# prepare program
-program_options = ProgramOptions(std="c++17", arch=f"sm_{dev.arch}")
-prog = Program(code, code_type="c++", options=program_options)
-mod = prog.compile("cubin", name_expressions=("vector_add<float>",))
+try:
+    # prepare program
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{dev.arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile("cubin", name_expressions=("vector_add<float>",))
 
-# run in single precision
-ker = mod.get_kernel("vector_add<float>")
-dtype = cp.float32
+    # run in single precision
+    kernel = mod.get_kernel("vector_add<float>")
+    dtype = cp.float32
 
-# prepare input/output
-size = 50000
-rng = cp.random.default_rng()
-a = rng.random(size, dtype=dtype)
-b = rng.random(size, dtype=dtype)
-c = cp.empty_like(a)
+    # prepare input/output
+    size = 50000
+    rng = cp.random.default_rng()
+    a = rng.random(size, dtype=dtype)
+    b = rng.random(size, dtype=dtype)
+    c = cp.empty_like(a)
 
-# cupy runs on a different stream from s, so sync before accessing
-dev.sync()
+    # cupy runs on a different stream from stream, so sync before accessing
+    dev.sync()
 
-# prepare launch
-block = 256
-grid = (size + block - 1) // block
-config = LaunchConfig(grid=grid, block=block)
+    # prepare launch
+    block = 256
+    grid = (size + block - 1) // block
+    config = LaunchConfig(grid=grid, block=block)
 
-# launch kernel on stream s
-launch(s, config, ker, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
-s.sync()
+    # launch kernel on stream
+    launch(stream, config, kernel, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
+    stream.sync()
 
-# check result
-assert cp.allclose(c, a + b)
-print("done!")
+    # check result
+    assert cp.allclose(c, a + b)
+finally:
+    stream.close()
