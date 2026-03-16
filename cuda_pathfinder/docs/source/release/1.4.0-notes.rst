@@ -12,8 +12,8 @@ Highlights
 ----------
 
 * Add CTK root canary probing for non-standard-path libraries in
-  ``load_nvidia_dynamic_lib()`` (notably ``nvvm``), including spawned child
-  process isolation for the canary probe.
+  ``load_nvidia_dynamic_lib()`` (notably ``nvvm``), including dedicated
+  subprocess isolation for the canary probe.
   (`PR #1595 <https://github.com/NVIDIA/cuda-python/pull/1595>`_)
 
 * Restore backward-compatible exception behavior for

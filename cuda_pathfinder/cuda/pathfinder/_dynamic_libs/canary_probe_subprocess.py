@@ -2,6 +2,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+from collections.abc import Sequence
 import json
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
@@ -27,3 +29,15 @@ def _probe_canary_abs_path(libname: str) -> str | None:
 
 def probe_canary_abs_path_and_print_json(libname: str) -> None:
     print(json.dumps(_probe_canary_abs_path(libname)))
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    if len(args) != 1:
+        raise SystemExit("Usage: python -m cuda.pathfinder._dynamic_libs.canary_probe_subprocess <libname>")
+    probe_canary_abs_path_and_print_json(args[0])
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

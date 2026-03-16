@@ -6,10 +6,10 @@ from __future__ import annotations
 import functools
 import json
 import struct
+import subprocess
 import sys
 from typing import TYPE_CHECKING
 
-from cuda.pathfinder._dynamic_libs.canary_probe_subprocess import probe_canary_abs_path_and_print_json
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError,
@@ -28,7 +28,6 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     run_find_steps,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
 if TYPE_CHECKING:
     from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
@@ -40,6 +39,8 @@ _ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
     name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
 )
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
+_CANARY_PROBE_MODULE = "cuda.pathfinder._dynamic_libs.canary_probe_subprocess"
+_CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
@@ -67,15 +68,46 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     )
 
 
+def _coerce_subprocess_output(output: str | bytes | None) -> str:
+    if isinstance(output, bytes):
+        return output.decode(errors="replace")
+    return "" if output is None else output
+
+
+def _raise_canary_probe_child_process_error(
+    *,
+    returncode: int | None = None,
+    timeout: float | None = None,
+    stderr: str | bytes | None = None,
+) -> None:
+    if timeout is None:
+        error_line = f"Canary probe child process exited with code {returncode}."
+    else:
+        error_line = f"Canary probe child process timed out after {timeout} seconds."
+    raise ChildProcessError(
+        f"{error_line}\n"
+        "--- stderr-from-child-process ---\n"
+        f"{_coerce_subprocess_output(stderr)}"
+        "<end-of-stderr-from-child-process>\n"
+    )
+
+
 @functools.cache
 def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
-    """Resolve a canary library's absolute path in a spawned child process."""
-    result = run_in_spawned_child_process(
-        probe_canary_abs_path_and_print_json,
-        args=(libname,),
-        timeout=10.0,
-        rethrow=True,
-    )
+    """Resolve a canary library's absolute path in a fresh Python subprocess."""
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", _CANARY_PROBE_MODULE, libname],
+            capture_output=True,
+            text=True,
+            timeout=_CANARY_PROBE_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        _raise_canary_probe_child_process_error(timeout=exc.timeout, stderr=exc.stderr)
+
+    if result.returncode != 0:
+        _raise_canary_probe_child_process_error(returncode=result.returncode, stderr=result.stderr)
 
     # Use the final non-empty line in case earlier output lines are emitted.
     lines = [line for line in result.stdout.splitlines() if line.strip()]
