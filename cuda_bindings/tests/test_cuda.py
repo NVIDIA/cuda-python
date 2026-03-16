@@ -8,7 +8,7 @@ import textwrap
 
 import numpy as np
 import pytest
-from cuda_python_test_helpers.managed_memory import managed_memory_skip_reason
+from cuda_python_test_helpers.managed_memory import skip_if_concurrent_managed_access_disabled
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
@@ -39,12 +39,6 @@ def supportsCudaAPI(name):
 
 def callableBinary(name):
     return shutil.which(name) is not None
-
-
-def skip_if_concurrent_managed_access_disabled():
-    reason = managed_memory_skip_reason()
-    if reason:
-        pytest.skip(reason)
 
 
 def test_cuda_memcpy():

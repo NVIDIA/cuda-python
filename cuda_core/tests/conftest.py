@@ -8,7 +8,6 @@ import sys
 from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
-from cuda_python_test_helpers.managed_memory import managed_memory_skip_reason
 
 try:
     from cuda.bindings import driver
@@ -52,10 +51,14 @@ def skip_if_pinned_memory_unsupported(device):
         pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
 
 
+def _skip_if_concurrent_managed_access_disabled(device=None) -> None:
+    from cuda_python_test_helpers.managed_memory import skip_if_concurrent_managed_access_disabled
+
+    skip_if_concurrent_managed_access_disabled(device)
+
+
 def skip_if_managed_memory_unsupported(device):
-    reason = managed_memory_skip_reason(device)
-    if reason:
-        pytest.skip(reason)
+    _skip_if_concurrent_managed_access_disabled(device)
     try:
         if not device.properties.memory_pools_supported or not device.properties.concurrent_managed_access:
             pytest.skip("Device does not support managed memory pool operations")
@@ -80,9 +83,7 @@ def create_managed_memory_resource_or_skip(*args, **kwargs):
 
 @pytest.fixture
 def requires_concurrent_managed_access():
-    reason = managed_memory_skip_reason()
-    if reason:
-        pytest.skip(reason)
+    _skip_if_concurrent_managed_access_disabled()
 
 
 @pytest.fixture(scope="session", autouse=True)
