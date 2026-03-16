@@ -92,6 +92,9 @@ extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
 extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
 extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
+// Graph
+extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 
@@ -143,6 +146,8 @@ using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
+using GraphHandle = std::shared_ptr<const CUgraph>;
+using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
@@ -372,6 +377,33 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel);
 LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 
 // ============================================================================
+// Graph handle functions
+// ============================================================================
+
+// Wrap an externally-created CUgraph with RAII cleanup.
+// When the last reference is released, cuGraphDestroy is called automatically.
+// The caller must have already created the graph via cuGraphCreate.
+GraphHandle create_graph_handle(CUgraph graph);
+
+// Create a non-owning graph handle that keeps h_parent alive.
+// Use for graphs owned by a child/conditional node in a parent graph.
+// The child graph will NOT be destroyed when this handle is released,
+// but h_parent will be prevented from destruction while this handle exists.
+GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+
+// ============================================================================
+// Graph node handle functions
+// ============================================================================
+
+// Create a node handle. Nodes are owned by their parent graph (not
+// independently destroyable). The GraphHandle dependency ensures the
+// graph outlives any node reference.
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph);
+
+// Extract the owning graph handle from a node handle.
+GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept;
+
+// ============================================================================
 // Graphics resource handle functions
 // ============================================================================
 
@@ -467,6 +499,14 @@ inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraph as_cu(const GraphHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -514,6 +554,14 @@ inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphNodeHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -593,6 +641,17 @@ inline PyObject* as_py(const LibraryHandle& h) noexcept {
 
 inline PyObject* as_py(const KernelHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
+    if (!as_intptr(h)) {
+        Py_RETURN_NONE;
+    }
+    return detail::make_py("cuda.bindings.driver", "CUgraphNode", as_intptr(h));
 }
 
 inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
