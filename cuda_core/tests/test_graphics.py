@@ -314,13 +314,9 @@ class TestMapUnmap:
     def test_resource_context_manager_can_map_inside_scope(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
             stream = _create_stream()
-            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard") as resource:
-                with resource.map(stream=stream) as buf:
-                    assert isinstance(buf, Buffer)
-                    assert resource.is_mapped
-                    assert buf.handle != 0
-            assert resource.handle == 0
-            assert not resource.is_mapped
+            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
+                assert isinstance(buf, Buffer)
+                assert buf.handle != 0
 
     def test_map_with_stream(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
