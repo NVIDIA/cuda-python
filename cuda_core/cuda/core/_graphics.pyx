@@ -73,13 +73,14 @@ cdef class GraphicsResource:
             view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
             # view.ptr is a CUDA device pointer into the GL buffer
 
-    Or use explicit control for render loops:
+    Or scope registration separately from mapping:
 
     .. code-block:: python
 
-        buf = resource.map(stream=s)
-        # ... launch kernels using buf.handle, buf.size ...
-        buf.close()
+        with GraphicsResource.from_gl_buffer(vbo) as resource:
+            with resource.map(stream=s) as buf:
+                # ... launch kernels using buf.handle, buf.size ...
+                pass
     """
 
     def __init__(self):
@@ -110,12 +111,21 @@ cdef class GraphicsResource:
                 with GraphicsResource.from_gl_buffer(vbo, stream=s) as buf:
                     view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
 
+            If omitted, the returned resource can still be used as a context
+            manager to scope registration and automatic cleanup::
+
+                with GraphicsResource.from_gl_buffer(vbo) as resource:
+                    with resource.map(stream=s) as buf:
+                        ...
+
         Returns
         -------
         GraphicsResource
             A new graphics resource wrapping the registered GL buffer.
-            If *stream* was given, the returned resource can be used directly
-            as a context manager.
+            The returned resource can be used as a context manager. If
+            *stream* was given, entering maps the resource and yields a
+            :class:`~cuda.core.Buffer`; otherwise entering yields the
+            :class:`GraphicsResource` itself and closes it on exit.
 
         Raises
         ------
@@ -289,21 +299,12 @@ cdef class GraphicsResource:
 
     def __enter__(self):
         if self._context_manager_stream is None:
-            raise RuntimeError(
-                "GraphicsResource context manager requires a stream; "
-                "use resource.map(stream=...) or pass stream= to from_gl_buffer()"
-            )
+            return self
         self._entered_buffer = self.map(stream=self._context_manager_stream)
         return self._entered_buffer
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        cdef object buf_obj = self._entered_buffer
-        cdef Buffer buf
-        self._entered_buffer = None
-        if buf_obj is not None:
-            buf = <Buffer>buf_obj
-            if buf._h_ptr:
-                buf.close()
+        self.close()
         return False
 
     cpdef close(self, stream=None):
