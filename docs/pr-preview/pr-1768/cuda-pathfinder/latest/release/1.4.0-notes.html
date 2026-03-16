@@ -423,6 +423,7 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="1.4.3-notes.html">1.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.4.2-notes.html">1.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.4.1-notes.html">1.4.1</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">1.4.0</a></li>
@@ -501,8 +502,8 @@
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Add CTK root canary probing for non-standard-path libraries in
-<code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib()</span></code> (notably <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>), including dedicated
-subprocess isolation for the canary probe.
+<code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib()</span></code> (notably <code class="docutils literal notranslate"><span class="pre">nvvm</span></code>), including spawned child
+process isolation for the canary probe.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1595">PR #1595</a>)</p></li>
 <li><p>Restore backward-compatible exception behavior for
 <code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib()</span></code> argument validation by replacing the short-lived
