@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -39487,7 +39487,7 @@ def cudaDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[cudaD
 {{if 'cudaDevSmResourceSplit' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResource], unsigned int flags, groupParams : Optional[cudaDevSmResourceGroupParams]):
+def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResource], unsigned int flags, groupParams : Optional[tuple[cudaDevSmResourceGroupParams] | list[cudaDevSmResourceGroupParams]]):
     """ Splits a `cudaDevResourceTypeSm` resource into structured groups.
 
     This API will split a resource of :py:obj:`~.cudaDevResourceTypeSm`
@@ -39604,7 +39604,7 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
     flags : unsigned int
         Flags specifying how the API should behave. The value should be 0
         for now.
-    groupParams : :py:obj:`~.cudaDevSmResourceGroupParams`
+    groupParams : list[:py:obj:`~.cudaDevSmResourceGroupParams`]
         Description of how the SMs should be split and assigned to the
         corresponding result entry.
 
@@ -39623,6 +39623,9 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
     --------
     :py:obj:`~.cuDevSmResourceSplit`, :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevResourceGenerateDesc`
     """
+    groupParams = [] if groupParams is None else groupParams
+    if not all(isinstance(_x, (cudaDevSmResourceGroupParams,)) for _x in groupParams):
+        raise TypeError("Argument 'groupParams' is not instance of type (expected tuple[cyruntime.cudaDevSmResourceGroupParams,] or list[cyruntime.cudaDevSmResourceGroupParams,]")
     cdef cyruntime.cudaDevResource* cyresult = NULL
     pyresult = [cudaDevResource() for idx in range(nbGroups)]
     if nbGroups != 0:
@@ -39631,14 +39634,24 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cyruntime.cudaDevResource)))
     cdef cyruntime.cudaDevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
     cdef cudaDevResource remainder = cudaDevResource()
-    cdef cyruntime.cudaDevSmResourceGroupParams* cygroupParams_ptr = groupParams._pvt_ptr if groupParams is not None else NULL
+    cdef cyruntime.cudaDevSmResourceGroupParams* cygroupParams = NULL
+    if len(groupParams) > 1:
+        cygroupParams = <cyruntime.cudaDevSmResourceGroupParams*> calloc(len(groupParams), sizeof(cyruntime.cudaDevSmResourceGroupParams))
+        if cygroupParams is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(groupParams)) + 'x' + str(sizeof(cyruntime.cudaDevSmResourceGroupParams)))
+        for idx in range(len(groupParams)):
+            string.memcpy(&cygroupParams[idx], (<cudaDevSmResourceGroupParams>groupParams[idx])._pvt_ptr, sizeof(cyruntime.cudaDevSmResourceGroupParams))
+    elif len(groupParams) == 1:
+        cygroupParams = (<cudaDevSmResourceGroupParams>groupParams[0])._pvt_ptr
     with nogil:
-        err = cyruntime.cudaDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cyruntime.cudaDevResource*>remainder._pvt_ptr, flags, cygroupParams_ptr)
+        err = cyruntime.cudaDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cyruntime.cudaDevResource*>remainder._pvt_ptr, flags, cygroupParams)
     if cudaError_t(err) == cudaError_t(0):
         for idx in range(nbGroups):
             string.memcpy((<cudaDevResource>pyresult[idx])._pvt_ptr, &cyresult[idx], sizeof(cyruntime.cudaDevResource))
     if cyresult is not NULL:
         free(cyresult)
+    if len(groupParams) > 1 and cygroupParams is not NULL:
+        free(cygroupParams)
     if err != cyruntime.cudaSuccess:
         return (_cudaError_t(err), None, None)
     return (_cudaError_t_SUCCESS, pyresult, remainder)
