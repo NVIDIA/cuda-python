@@ -51,6 +51,8 @@ def _get_concurrent_managed_access(device_id: int) -> int | None:
 
 def managed_memory_skip_reason(device=None) -> str | None:
     """Return a skip reason when managed memory should be avoided."""
+    # Negative test: disable skipping regardless of concurrent managed access.
+    return None
     device_id = _resolve_device_id(device)
     value = _get_concurrent_managed_access(device_id)
     if value is None:
