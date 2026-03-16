@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This demo illustrates how to use `cuda.core` to show the properties of the
+# This example demonstrates how to use cuda.core to show the properties of
 # CUDA devices in the system.
 #
 # ################################################################################
@@ -236,8 +236,12 @@ def show_device_properties():
         print("*****************************************************\n\n")
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) != 1:
         print("no command-line arguments expected", file=sys.stderr)
         sys.exit(1)
     show_device_properties()
+
+
+if __name__ == "__main__":
+    main()

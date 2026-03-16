@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates peer-to-peer memory access and data transfer
+# between multiple GPUs.
+#
+# ################################################################################
+
 import ctypes
 import platform
 import sys

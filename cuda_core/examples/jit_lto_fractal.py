@@ -4,20 +4,11 @@
 
 # ################################################################################
 #
-# This demo illustrates:
-#
-#   1. How to use the JIT LTO feature provided by the Linker class to link multiple objects together
-#   2. That linking allows for libraries to modify workflows dynamically at runtime
-#
-# This demo mimics a relationship between a library and a user. The user's sole responsibility is to
-# provide device code that generates some art. Whereas the library is responsible for all steps involved in
-# setting up the device, launch configurations and arguments, as well as linking the provided device code.
-#
-# Two algorithms are implemented:
-#   1. A Mandelbrot set
-#   2. A Julia set
-#
-# The user can choose which algorithm to use at runtime and generate the resulting image.
+# This example demonstrates the JIT LTO feature of the Linker class to link
+# multiple objects together, allowing libraries to modify workflows at runtime.
+# It mimics a library-user relationship: the user provides device code that
+# generates art (Mandelbrot or Julia set), while the library handles device
+# setup, launch config, and linking.
 #
 # ################################################################################
 

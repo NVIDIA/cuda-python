@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates vector addition using the CUDA Driver API with
+# unified virtual addressing.
+#
+# ################################################################################
+
 import ctypes
 import math
 import sys
