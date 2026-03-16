@@ -200,9 +200,12 @@ StreamHandle get_per_thread_stream();
 
 // Create an owning event handle by calling cuEventCreate.
 // The event structurally depends on the provided context handle.
+// Metadata fields are stored in the EventBox for later retrieval.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags);
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
+                                bool timing_disabled, bool busy_waited,
+                                bool ipc_enabled, int device_id);
 
 // Create an owning event handle without context dependency.
 // Use for temporary events that are created and destroyed in the same scope.
@@ -214,7 +217,21 @@ EventHandle create_event_handle_noctx(unsigned int flags);
 // The originating process owns the event and its context.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
+                                    bool busy_waited);
+
+// Create a non-owning event handle (references existing event).
+// Use for events that are managed by the CUDA graph or another owner.
+// The event will NOT be destroyed when the handle is released.
+// Metadata defaults to unknown (timing_disabled=true, device_id=-1).
+EventHandle create_event_handle_ref(CUevent event);
+
+// Event metadata accessors (read from EventBox via pointer arithmetic)
+bool get_event_timing_disabled(const EventHandle& h) noexcept;
+bool get_event_busy_waited(const EventHandle& h) noexcept;
+bool get_event_ipc_enabled(const EventHandle& h) noexcept;
+int get_event_device_id(const EventHandle& h) noexcept;
+ContextHandle get_event_context(const EventHandle& h) noexcept;
 
 // ============================================================================
 // Memory pool handle functions
@@ -345,9 +362,14 @@ LibraryHandle create_library_handle_ref(CUlibrary library);
 // Returns empty handle on error (caller must check).
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name);
 
-// Create a non-owning kernel handle with library dependency.
-// Use for borrowed kernels. The library handle keeps the library alive.
-KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
+// Create a kernel handle from a raw CUkernel.
+// If the kernel is already managed (in the registry), returns the owning
+// handle with library dependency. Otherwise returns a non-owning ref.
+KernelHandle create_kernel_handle_ref(CUkernel kernel);
+
+// Get the library handle associated with a kernel (from KernelBox).
+// Returns empty handle if the kernel has no library dependency.
+LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 
 // ============================================================================
 // Graphics resource handle functions
@@ -516,8 +538,6 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
 }
 
 // as_py() - convert handle to Python wrapper object (returns new reference)
-namespace detail {
-
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
 #endif
@@ -530,6 +550,7 @@ inline bool py_is_finalizing() noexcept {
 #endif
 }
 
+namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
 inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
     if (py_is_finalizing()) {

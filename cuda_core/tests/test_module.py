@@ -511,6 +511,42 @@ def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
     assert int(kernel1.handle) == int(kernel2.handle) == int(kernel3.handle) == handle
 
 
+def test_kernel_from_handle_library_mismatch_warning(init_cuda):
+    """Kernel.from_handle warns when caller-supplied module differs from the kernel's library."""
+    prog1 = Program(SAXPY_KERNEL, code_type="c++")
+    mod1 = prog1.compile("cubin", name_expressions=("saxpy<float>",))
+    kernel = mod1.get_kernel("saxpy<float>")
+    handle = int(kernel.handle)
+
+    prog2 = Program(SAXPY_KERNEL, code_type="c++")
+    mod2 = prog2.compile("cubin", name_expressions=("saxpy<float>",))
+    mod2.get_kernel("saxpy<float>")
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        k = Kernel.from_handle(handle, mod2)
+        assert len(w) == 1
+        assert "does not match" in str(w[0].message)
+
+    assert k.attributes.max_threads_per_block() > 0
+
+
+def test_kernel_from_handle_foreign_kernel(init_cuda):
+    """Kernel.from_handle with a driver-level kernel not created by cuda.core."""
+    prog = Program(SAXPY_KERNEL, code_type="c++")
+    mod = prog.compile("cubin", name_expressions=("saxpy<float>",))
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
+
+    cu_lib = handle_return(driver.cuLibraryLoadData(cubin, [], [], 0, [], [], 0))
+    mangled = sym_map["saxpy<float>"]
+    cu_kernel = handle_return(driver.cuLibraryGetKernel(cu_lib, mangled))
+    handle = int(cu_kernel)
+
+    k = Kernel.from_handle(handle)
+    assert k.attributes.max_threads_per_block() > 0
+
+
 def test_kernel_keeps_library_alive(init_cuda):
     """Test that a Kernel keeps its underlying library alive after ObjectCode goes out of scope."""
     import gc

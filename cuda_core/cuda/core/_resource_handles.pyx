@@ -70,11 +70,27 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Event handles (note: _create_event_handle* are internal due to C++ overloading)
     EventHandle create_event_handle "cuda_core::create_event_handle" (
-        const ContextHandle& h_ctx, unsigned int flags) except+ nogil
+        const ContextHandle& h_ctx, unsigned int flags,
+        bint timing_disabled, bint busy_waited,
+        bint ipc_enabled, int device_id) except+ nogil
     EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
         unsigned int flags) except+ nogil
+    EventHandle create_event_handle_ref "cuda_core::create_event_handle_ref" (
+        cydriver.CUevent event) except+ nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
-        const cydriver.CUipcEventHandle& ipc_handle) except+ nogil
+        const cydriver.CUipcEventHandle& ipc_handle, bint busy_waited) except+ nogil
+
+    # Event metadata getters
+    bint get_event_timing_disabled "cuda_core::get_event_timing_disabled" (
+        const EventHandle& h) noexcept nogil
+    bint get_event_busy_waited "cuda_core::get_event_busy_waited" (
+        const EventHandle& h) noexcept nogil
+    bint get_event_ipc_enabled "cuda_core::get_event_ipc_enabled" (
+        const EventHandle& h) noexcept nogil
+    int get_event_device_id "cuda_core::get_event_device_id" (
+        const EventHandle& h) noexcept nogil
+    ContextHandle get_event_context "cuda_core::get_event_context" (
+        const EventHandle& h) noexcept nogil
 
     # Memory pool handles
     MemoryPoolHandle create_mempool_handle "cuda_core::create_mempool_handle" (
@@ -126,7 +142,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     KernelHandle create_kernel_handle "cuda_core::create_kernel_handle" (
         const LibraryHandle& h_library, const char* name) except+ nogil
     KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
-        cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+        cydriver.CUkernel kernel) except+ nogil
+    LibraryHandle get_kernel_library "cuda_core::get_kernel_library" (
+        const KernelHandle& h) noexcept nogil
 
     # Graphics resource handles
     GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
