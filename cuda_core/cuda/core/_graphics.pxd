@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.core._resource_handles cimport GraphicsResourceHandle
-from cuda.core._memory._buffer cimport Buffer
 
 
-cdef class GraphicsResource(Buffer):
+cdef class GraphicsResource:
 
     cdef:
         GraphicsResourceHandle _handle
-        bint _mapped
-        object _map_stream
+        object _mapped_buffer
+        object _context_manager_stream
+        object _entered_buffer
 
     cpdef close(self, stream=*)

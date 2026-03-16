@@ -112,6 +112,10 @@ cdef DevicePtrHandle deviceptr_alloc(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_alloc_host(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) except+ nogil
+cdef DevicePtrHandle deviceptr_create_mapped_graphics(
+    cydriver.CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_mr(
     cydriver.CUdeviceptr ptr, size_t size, object mr) except+ nogil
 
