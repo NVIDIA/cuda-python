@@ -1,0 +1,45 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.ClockId
+========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: ClockId
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_integer_ratio
+   .. automethod:: bit_count
+   .. automethod:: bit_length
+   .. automethod:: conjugate
+   .. automethod:: from_bytes
+   .. automethod:: is_integer
+   .. automethod:: to_bytes
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: APP_CLOCK_DEFAULT
+   .. autoattribute:: APP_CLOCK_TARGET
+   .. autoattribute:: COUNT
+   .. autoattribute:: CURRENT
+   .. autoattribute:: CUSTOMER_BOOST_MAX
+   .. autoattribute:: denominator
+   .. autoattribute:: imag
+   .. autoattribute:: name
+   .. autoattribute:: numerator
+   .. autoattribute:: real
+   .. autoattribute:: value
+   
+   
