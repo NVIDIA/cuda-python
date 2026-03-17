@@ -27471,3 +27471,9 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
+
+
+# Cleanup some docstrings that don't parse as rst.
+device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."
