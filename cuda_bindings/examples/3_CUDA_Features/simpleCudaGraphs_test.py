@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates CUDA Graphs for capture and replay of GPU
+# workloads, including manual graph construction and stream capture.
+#
+# ################################################################################
+
 import ctypes
 import random as rnd
 

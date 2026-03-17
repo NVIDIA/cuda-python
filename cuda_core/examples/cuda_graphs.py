@@ -4,9 +4,9 @@
 
 # ################################################################################
 #
-# This demo illustrates how to use CUDA graphs to capture and execute
-# multiple kernel launches with minimal overhead. The graph performs a
-# sequence of vector operations: add, multiply, and subtract.
+# This example demonstrates CUDA graphs to capture and execute multiple
+# kernel launches with minimal overhead. The graph performs a sequence of
+# vector operations: add, multiply, and subtract.
 #
 # ################################################################################
 
