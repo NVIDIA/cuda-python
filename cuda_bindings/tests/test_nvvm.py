@@ -127,7 +127,7 @@ def test_get_buffer_empty(get_size, get_buffer):
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"], [b"-opt=0"]])
-def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):  # noqa: F401, F811
+def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         try:
