@@ -318,6 +318,16 @@ class TestMapUnmap:
                 assert isinstance(buf, Buffer)
                 assert buf.handle != 0
 
+    def test_chained_map_context_manager_unmaps(self):
+        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+            stream = _create_stream()
+            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
+                assert isinstance(buf, Buffer)
+                assert buf.handle != 0
+                assert buf.size > 0
+            assert buf.handle == 0
+            assert buf.size == 0
+
     def test_map_with_stream(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
             stream = _create_stream()
