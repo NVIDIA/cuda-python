@@ -8,3 +8,6 @@ __pycache__/
 
 # Pixi environments
 .pixi/
+
+# Override root .gitignore *.cpp rule (which targets Cython-generated files)
+!cpp/*.cpp
