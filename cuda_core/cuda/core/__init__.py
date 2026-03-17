@@ -28,7 +28,7 @@ else:
 finally:
     del bindings, importlib, subdir, cuda_major, cuda_minor
 
-from cuda.core import system, utils
+from cuda.core import managed_memory, system, utils
 from cuda.core._device import Device
 from cuda.core._event import Event, EventOptions
 from cuda.core._graph import (

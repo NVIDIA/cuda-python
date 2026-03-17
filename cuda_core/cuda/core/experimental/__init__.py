@@ -38,9 +38,10 @@ def _warn_deprecated():
 _warn_deprecated()
 
 
-from cuda.core import system, utils
+from cuda.core import managed_memory, system, utils
 
 # Make utils accessible as a submodule for backward compatibility
+__import__("sys").modules[__spec__.name + ".managed_memory"] = managed_memory
 __import__("sys").modules[__spec__.name + ".utils"] = utils
 
 

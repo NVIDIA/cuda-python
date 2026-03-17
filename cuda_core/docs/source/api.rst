@@ -62,6 +62,19 @@ CUDA runtime
    on other non-blocking streams.
 
 
+.. module:: cuda.core.managed_memory
+
+Managed memory
+--------------
+
+.. autosummary::
+   :toctree: generated/
+
+   advise
+   prefetch
+   discard_prefetch
+
+
 CUDA compilation toolchain
 --------------------------
 

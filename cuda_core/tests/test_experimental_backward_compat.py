@@ -38,6 +38,7 @@ def test_experimental_backward_compatibility():
     assert hasattr(cuda.core.experimental, "Device")
     assert hasattr(cuda.core.experimental, "Stream")
     assert hasattr(cuda.core.experimental, "Buffer")
+    assert hasattr(cuda.core.experimental, "managed_memory")
     assert hasattr(cuda.core.experimental, "system")
 
     # Test 2: Direct imports - should emit deprecation warning
@@ -73,6 +74,7 @@ def test_experimental_backward_compatibility():
     assert cuda.core.experimental.Linker is cuda.core.Linker
 
     # Compare singletons
+    assert cuda.core.experimental.managed_memory is cuda.core.managed_memory
     assert cuda.core.experimental.system is cuda.core.system
 
     # Test 4: Utils module works
@@ -88,6 +90,11 @@ def test_experimental_backward_compatibility():
 
     assert StridedMemoryView is not None
     assert args_viewable_as_strided_memory is not None
+    from cuda.core.experimental.managed_memory import advise, discard_prefetch, prefetch
+
+    assert advise is not None
+    assert prefetch is not None
+    assert discard_prefetch is not None
 
     # Test 5: Options classes are accessible
     assert hasattr(cuda.core.experimental, "EventOptions")

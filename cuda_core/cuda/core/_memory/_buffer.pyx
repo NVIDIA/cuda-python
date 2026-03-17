@@ -113,6 +113,13 @@ cdef frozenset _MANAGED_ADVICE_HOST_OR_DEVICE_ONLY = frozenset((
     "unset_accessed_by",
 ))
 
+cdef int _MANAGED_SIZE_NOT_PROVIDED = -1
+cdef int _HOST_NUMA_CURRENT_ID = 0
+cdef int _FIRST_PREFETCH_LOCATION_INDEX = 0
+cdef size_t _SINGLE_RANGE_COUNT = 1
+cdef size_t _SINGLE_PREFETCH_LOCATION_COUNT = 1
+cdef unsigned long long _MANAGED_OPERATION_FLAGS = 0
+
 
 cdef inline object _managed_location_enum(str location_type):
     cdef str attr_name = _MANAGED_LOCATION_TYPE_ATTRS[location_type]
@@ -130,7 +137,7 @@ cdef inline object _make_managed_location(str location_type, int location_id):
     if location_type == "host":
         location.id = int(getattr(driver, "CU_DEVICE_CPU", -1))
     elif location_type == "host_numa_current":
-        location.id = 0
+        location.id = _HOST_NUMA_CURRENT_ID
     else:
         location.id = location_id
     return location
@@ -236,7 +243,7 @@ cdef inline object _normalize_managed_location(
             raise ValueError(
                 f"{what} location must be None when location_type is 'host_numa_current', got {location!r}"
             )
-        return _make_managed_location(loc_type, 0)
+        return _make_managed_location(loc_type, _HOST_NUMA_CURRENT_ID)
 
     if loc_type == "host" and not allow_host:
         raise ValueError(f"{what} does not support host locations")
@@ -264,15 +271,205 @@ cdef inline int _managed_location_to_legacy_device(object location, str what):
 cdef inline void _require_managed_buffer(Buffer self, str what):
     _init_mem_attrs(self)
     if not self._mem_attrs.is_managed:
-        raise ValueError(f"{what} requires a managed-memory buffer")
+        raise ValueError(f"{what} requires a managed-memory allocation")
 
 
-cdef inline void _require_managed_discard_prefetch_support():
+cdef inline void _require_managed_discard_prefetch_support(str what):
     if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
         raise RuntimeError(
-            "Buffer.discard_prefetch requires cuda.bindings support for "
-            "cuMemDiscardAndPrefetchBatchAsync"
+            f"{what} requires cuda.bindings support for cuMemDiscardAndPrefetchBatchAsync"
         )
+
+
+cdef inline tuple _managed_range_from_buffer(
+    Buffer buffer,
+    int size,
+    str what,
+):
+    if size != _MANAGED_SIZE_NOT_PROVIDED:
+        raise TypeError(f"{what} does not accept size= when target is a Buffer")
+    _require_managed_buffer(buffer, what)
+    return buffer.handle, buffer._size
+
+
+cdef inline uintptr_t _coerce_raw_pointer(object target, str what) except? 0:
+    cdef object ptr_obj
+    try:
+        ptr_obj = int(target)
+    except Exception as exc:
+        raise TypeError(
+            f"{what} target must be a Buffer or a raw pointer, got {type(target).__name__}"
+        ) from exc
+    if ptr_obj < 0:
+        raise ValueError(f"{what} target pointer must be >= 0, got {target!r}")
+    return <uintptr_t>ptr_obj
+
+
+cdef inline int _require_managed_pointer(uintptr_t ptr, str what) except -1:
+    cdef _MemAttrs mem_attrs
+    with nogil:
+        _query_memory_attrs(mem_attrs, <cydriver.CUdeviceptr>ptr)
+    if not mem_attrs.is_managed:
+        raise ValueError(f"{what} requires a managed-memory allocation")
+    return 0
+
+
+cdef inline tuple _normalize_managed_target_range(
+    object target,
+    int size,
+    str what,
+):
+    cdef uintptr_t ptr
+
+    if isinstance(target, Buffer):
+        return _managed_range_from_buffer(<Buffer>target, size, what)
+
+    if size == _MANAGED_SIZE_NOT_PROVIDED:
+        raise TypeError(f"{what} requires size= when target is a raw pointer")
+    ptr = _coerce_raw_pointer(target, what)
+    _require_managed_pointer(ptr, what)
+    return ptr, <size_t>size
+
+
+def advise(
+    target,
+    advice: driver.CUmem_advise | str,
+    location: Device | int | None = None,
+    *,
+    int size=_MANAGED_SIZE_NOT_PROVIDED,
+    location_type: str | None = None,
+):
+    """Apply managed-memory advice to an allocation range.
+
+    Parameters
+    ----------
+    target : :class:`Buffer` | int | object
+        Managed allocation to operate on. This may be a :class:`Buffer` or a
+        raw pointer (requires ``size=``).
+    advice : :obj:`~driver.CUmem_advise` | str
+        Managed-memory advice to apply. String aliases such as
+        ``"set_read_mostly"``, ``"set_preferred_location"``, and
+        ``"set_accessed_by"`` are accepted.
+    location : :obj:`~_device.Device` | int | None, optional
+        Target location. When ``location_type`` is ``None``, values are
+        interpreted as a device ordinal, ``-1`` for host, or ``None`` for
+        advice values that ignore location.
+    size : int, optional
+        Allocation size in bytes. Required when ``target`` is a raw pointer.
+    location_type : str | None, optional
+        Explicit location kind. Supported values are ``"device"``, ``"host"``,
+        ``"host_numa"``, and ``"host_numa_current"``.
+    """
+    cdef str advice_name
+    cdef object ptr
+    cdef size_t nbytes
+
+    ptr, nbytes = _normalize_managed_target_range(target, size, "advise")
+    advice_name, advice = _normalize_managed_advice(advice)
+    location = _normalize_managed_location(
+        location,
+        location_type,
+        "advise",
+        allow_none=advice_name in _MANAGED_ADVICE_IGNORE_LOCATION,
+        allow_host=True,
+        allow_host_numa=advice_name not in _MANAGED_ADVICE_HOST_OR_DEVICE_ONLY,
+        allow_host_numa_current=advice_name == "set_preferred_location",
+    )
+    if _managed_location_uses_v2_bindings():
+        handle_return(driver.cuMemAdvise(ptr, nbytes, advice, location))
+    else:
+        handle_return(
+            driver.cuMemAdvise(
+                ptr,
+                nbytes,
+                advice,
+                _managed_location_to_legacy_device(location, "advise"),
+            )
+        )
+
+
+def prefetch(
+    target,
+    location: Device | int | None = None,
+    *,
+    stream: Stream | GraphBuilder,
+    int size=_MANAGED_SIZE_NOT_PROVIDED,
+    location_type: str | None = None,
+):
+    """Prefetch a managed-memory allocation range to a target location."""
+    cdef Stream s = Stream_accept(stream)
+    cdef object ptr
+    cdef size_t nbytes
+
+    ptr, nbytes = _normalize_managed_target_range(target, size, "prefetch")
+    location = _normalize_managed_location(
+        location,
+        location_type,
+        "prefetch",
+        allow_none=False,
+        allow_host=True,
+        allow_host_numa=True,
+        allow_host_numa_current=True,
+    )
+    if _managed_location_uses_v2_bindings():
+        handle_return(
+            driver.cuMemPrefetchAsync(
+                ptr,
+                nbytes,
+                location,
+                _MANAGED_OPERATION_FLAGS,
+                s.handle,
+            )
+        )
+    else:
+        handle_return(
+            driver.cuMemPrefetchAsync(
+                ptr,
+                nbytes,
+                _managed_location_to_legacy_device(location, "prefetch"),
+                s.handle,
+            )
+        )
+
+
+def discard_prefetch(
+    target,
+    location: Device | int | None = None,
+    *,
+    stream: Stream | GraphBuilder,
+    int size=_MANAGED_SIZE_NOT_PROVIDED,
+    location_type: str | None = None,
+):
+    """Discard a managed-memory allocation range and prefetch it to a target location."""
+    cdef Stream s = Stream_accept(stream)
+    cdef object ptr
+    cdef object batch_ptr
+    cdef size_t nbytes
+
+    ptr, nbytes = _normalize_managed_target_range(target, size, "discard_prefetch")
+    batch_ptr = driver.CUdeviceptr(int(ptr))
+    _require_managed_discard_prefetch_support("discard_prefetch")
+    location = _normalize_managed_location(
+        location,
+        location_type,
+        "discard_prefetch",
+        allow_none=False,
+        allow_host=True,
+        allow_host_numa=True,
+        allow_host_numa_current=True,
+    )
+    handle_return(
+        driver.cuMemDiscardAndPrefetchBatchAsync(
+            [batch_ptr],
+            [nbytes],
+            _SINGLE_RANGE_COUNT,
+            [location],
+            [_FIRST_PREFETCH_LOCATION_INDEX],
+            _SINGLE_PREFETCH_LOCATION_COUNT,
+            _MANAGED_OPERATION_FLAGS,
+            s.handle,
+        )
+    )
 
 cdef class Buffer:
     """Represent a handle to allocated memory.
@@ -501,119 +698,6 @@ cdef class Buffer:
             Buffer_fill_from_ptr(self, <const char*>buf.buf, buf.len, s_stream._h_stream)
         finally:
             PyBuffer_Release(&buf)
-
-    def advise(
-        self,
-        advice: driver.CUmem_advise | str,
-        location: Device | int | None = None,
-        *,
-        location_type: str | None = None,
-    ):
-        """Apply a managed-memory advice to this buffer.
-
-        This method is only valid for buffers backed by managed memory.
-
-        Parameters
-        ----------
-        advice : :obj:`~driver.CUmem_advise` | str
-            Managed-memory advice to apply. String aliases such as
-            ``"set_read_mostly"``, ``"set_preferred_location"``, and
-            ``"set_accessed_by"`` are accepted.
-        location : :obj:`~_device.Device` | int | None, optional
-            Target location. When ``location_type`` is ``None``, values are
-            interpreted as a device ordinal, ``-1`` for host, or ``None`` for
-            advice values that ignore location.
-        location_type : str | None, optional
-            Explicit location kind. Supported values are ``"device"``,
-            ``"host"``, ``"host_numa"``, and ``"host_numa_current"``.
-        """
-        cdef str advice_name
-        _require_managed_buffer(self, "Buffer.advise")
-        advice_name, advice = _normalize_managed_advice(advice)
-        location = _normalize_managed_location(
-            location,
-            location_type,
-            "Buffer.advise",
-            allow_none=advice_name in _MANAGED_ADVICE_IGNORE_LOCATION,
-            allow_host=True,
-            allow_host_numa=advice_name not in _MANAGED_ADVICE_HOST_OR_DEVICE_ONLY,
-            allow_host_numa_current=advice_name == "set_preferred_location",
-        )
-        if _managed_location_uses_v2_bindings():
-            handle_return(driver.cuMemAdvise(self.handle, self._size, advice, location))
-        else:
-            handle_return(
-                driver.cuMemAdvise(
-                    self.handle,
-                    self._size,
-                    advice,
-                    _managed_location_to_legacy_device(location, "Buffer.advise"),
-                )
-            )
-
-    def prefetch(
-        self,
-        location: Device | int | None = None,
-        *,
-        stream: Stream | GraphBuilder,
-        location_type: str | None = None,
-    ):
-        """Prefetch this managed-memory buffer to a target location."""
-        cdef Stream s = Stream_accept(stream)
-        _require_managed_buffer(self, "Buffer.prefetch")
-        location = _normalize_managed_location(
-            location,
-            location_type,
-            "Buffer.prefetch",
-            allow_none=False,
-            allow_host=True,
-            allow_host_numa=True,
-            allow_host_numa_current=True,
-        )
-        if _managed_location_uses_v2_bindings():
-            handle_return(driver.cuMemPrefetchAsync(self.handle, self._size, location, 0, s.handle))
-        else:
-            handle_return(
-                driver.cuMemPrefetchAsync(
-                    self.handle,
-                    self._size,
-                    _managed_location_to_legacy_device(location, "Buffer.prefetch"),
-                    s.handle,
-                )
-            )
-
-    def discard_prefetch(
-        self,
-        location: Device | int | None = None,
-        *,
-        stream: Stream | GraphBuilder,
-        location_type: str | None = None,
-    ):
-        """Discard this managed-memory buffer and prefetch it to a target location."""
-        cdef Stream s = Stream_accept(stream)
-        _require_managed_buffer(self, "Buffer.discard_prefetch")
-        _require_managed_discard_prefetch_support()
-        location = _normalize_managed_location(
-            location,
-            location_type,
-            "Buffer.discard_prefetch",
-            allow_none=False,
-            allow_host=True,
-            allow_host_numa=True,
-            allow_host_numa_current=True,
-        )
-        handle_return(
-            driver.cuMemDiscardAndPrefetchBatchAsync(
-                [self.handle],
-                [self._size],
-                1,
-                [location],
-                [0],
-                1,
-                0,
-                s.handle,
-            )
-        )
 
     def __dlpack__(
         self,

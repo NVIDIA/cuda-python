@@ -2598,7 +2598,7 @@ packages:
   subdir: win-64
   variants:
     c_compiler: vs2022
-    cuda-version: 13.2.*
+    cuda_version: 13.2.*
     cxx_compiler: vs2022
     python: 3.14.*
     target_platform: win-64
@@ -2625,7 +2625,7 @@ packages:
   build: py314h9a28ecd_0
   subdir: linux-aarch64
   variants:
-    cuda-version: 13.2.*
+    cuda_version: 13.2.*
     python: 3.14.*
     target_platform: linux-aarch64
   depends:
@@ -2653,7 +2653,7 @@ packages:
   build: py314hb727236_0
   subdir: linux-64
   variants:
-    cuda-version: 13.2.*
+    cuda_version: 13.2.*
     python: 3.14.*
     target_platform: linux-64
   depends:
@@ -2794,7 +2794,7 @@ packages:
   subdir: win-64
   variants:
     c_compiler: vs2022
-    cuda-version: 13.2.*
+    cuda_version: 13.2.*
     cxx_compiler: vs2022
     python: 3.14.*
     target_platform: win-64
@@ -2817,7 +2817,7 @@ packages:
   subdir: win-64
   variants:
     c_compiler: vs2022
-    cuda-version: 12.*
+    cuda_version: 12.*
     cxx_compiler: vs2022
     python: 3.14.*
     target_platform: win-64
@@ -2840,7 +2840,7 @@ packages:
   build: py314h9a28ecd_0
   subdir: linux-aarch64
   variants:
-    cuda-version: 13.2.*
+    cuda_version: 13.2.*
     python: 3.14.*
     target_platform: linux-aarch64
   depends:
@@ -2862,7 +2862,7 @@ packages:
   build: py314ha6d028f_0
   subdir: linux-64
   variants:
-    cuda-version: 12.*
+    cuda_version: 12.*
     python: 3.14.*
     target_platform: linux-64
   depends:
@@ -2884,7 +2884,7 @@ packages:
   build: py314hb727236_0
   subdir: linux-64
   variants:
-    cuda-version: 13.2.*
+    cuda_version: 13.2.*
     python: 3.14.*
     target_platform: linux-64
   depends:
@@ -2906,7 +2906,7 @@ packages:
   build: py314he8946ed_0
   subdir: linux-aarch64
   variants:
-    cuda-version: 12.*
+    cuda_version: 12.*
     python: 3.14.*
     target_platform: linux-aarch64
   depends:

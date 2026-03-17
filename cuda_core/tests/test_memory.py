@@ -38,6 +38,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
+    managed_memory,
 )
 from cuda.core import (
     system as ccx_system,
@@ -48,6 +49,12 @@ from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 
 POOL_SIZE = 2097152  # 2MB size
+_MANAGED_TEST_ALLOCATION_SIZE = 4096
+_MEM_RANGE_ATTRIBUTE_VALUE_SIZE = 4
+_READ_MOSTLY_ENABLED = 1
+_HOST_LOCATION_ID = -1
+_INVALID_HOST_DEVICE_ORDINAL = 0
+_LEGACY_BINDINGS_VERSION = (12, 9)
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -1138,6 +1145,10 @@ def _get_mem_range_attr(buffer, attribute, data_size):
     return handle_return(driver.cuMemRangeGetAttribute(data_size, attribute, buffer.handle, buffer.size))
 
 
+def _get_int_mem_range_attr(buffer, attribute):
+    return _get_mem_range_attr(buffer, attribute, _MEM_RANGE_ATTRIBUTE_VALUE_SIZE)
+
+
 def _skip_if_managed_allocation_unsupported(device):
     try:
         if not device.properties.managed_memory:
@@ -1165,140 +1176,134 @@ def _skip_if_managed_discard_prefetch_unsupported(device):
         pytest.skip("discard-prefetch requires concurrent managed access on all visible devices")
 
 
-def test_managed_buffer_prefetch_supports_managed_pool_allocations(init_cuda):
+def test_managed_memory_prefetch_supports_managed_pool_allocations(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)
     device.set_current()
 
     mr = create_managed_memory_resource_or_skip()
-    buffer = mr.allocate(4096)
+    buffer = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    buffer.prefetch(-1, stream=stream)
+    managed_memory.prefetch(buffer, _HOST_LOCATION_ID, stream=stream)
     stream.sync()
-    last_location = _get_mem_range_attr(
+    last_location = _get_int_mem_range_attr(
         buffer,
         driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        4,
     )
-    assert last_location == -1
+    assert last_location == _HOST_LOCATION_ID
 
-    buffer.prefetch(device, stream=stream)
+    managed_memory.prefetch(buffer, device, stream=stream)
     stream.sync()
-    last_location = _get_mem_range_attr(
+    last_location = _get_int_mem_range_attr(
         buffer,
         driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        4,
     )
     assert last_location == device.device_id
 
     buffer.close()
 
 
-def test_managed_buffer_advise_supports_external_managed_allocations(init_cuda):
+def test_managed_memory_advise_supports_external_managed_allocations(init_cuda):
     device = Device()
     _skip_if_managed_allocation_unsupported(device)
     device.set_current()
 
-    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
 
-    buffer.advise("set_read_mostly")
+    managed_memory.advise(buffer, "set_read_mostly")
     assert (
-        _get_mem_range_attr(
+        _get_int_mem_range_attr(
             buffer,
             driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
-            4,
         )
-        == 1
+        == _READ_MOSTLY_ENABLED
     )
 
     # cuda.bindings currently exposes the combined location attributes for
     # cuMemRangeGetAttribute, so use the legacy location query here.
-    buffer.advise("set_preferred_location", location_type="host")
-    preferred_location = _get_mem_range_attr(
+    managed_memory.advise(buffer, "set_preferred_location", location_type="host")
+    preferred_location = _get_int_mem_range_attr(
         buffer,
         driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
-        4,
     )
-    assert preferred_location == -1
+    assert preferred_location == _HOST_LOCATION_ID
 
     buffer.close()
 
 
-def test_managed_buffer_prefetch_supports_external_managed_allocations(init_cuda):
+def test_managed_memory_prefetch_supports_external_managed_allocations(init_cuda):
     device = Device()
     _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
 
-    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    buffer.prefetch(device, stream=stream)
+    managed_memory.prefetch(buffer, device, stream=stream)
     stream.sync()
 
-    last_location = _get_mem_range_attr(
+    last_location = _get_int_mem_range_attr(
         buffer,
         driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        4,
     )
     assert last_location == device.device_id
 
     buffer.close()
 
 
-def test_managed_buffer_discard_prefetch_supports_external_managed_allocations(init_cuda):
+def test_managed_memory_discard_prefetch_supports_external_managed_allocations(init_cuda):
     device = Device()
     _skip_if_managed_discard_prefetch_unsupported(device)
     device.set_current()
 
-    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    buffer.prefetch(-1, stream=stream)
+    managed_memory.prefetch(buffer, _HOST_LOCATION_ID, stream=stream)
     stream.sync()
 
-    buffer.discard_prefetch(device, stream=stream)
+    managed_memory.discard_prefetch(buffer, device, stream=stream)
     stream.sync()
 
-    last_location = _get_mem_range_attr(
+    last_location = _get_int_mem_range_attr(
         buffer,
         driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-        4,
     )
     assert last_location == device.device_id
 
     buffer.close()
 
 
-def test_managed_buffer_advise_uses_legacy_bindings_signature(monkeypatch, init_cuda):
+def test_managed_memory_advise_uses_legacy_bindings_signature(monkeypatch, init_cuda):
     device = Device()
     _skip_if_managed_allocation_unsupported(device)
     device.set_current()
 
-    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     calls = []
 
     def fake_cuMemAdvise(ptr, size, advice, location):
         calls.append((ptr, size, advice, location))
         return (driver.CUresult.CUDA_SUCCESS,)
 
-    monkeypatch.setattr(_buffer, "get_binding_version", lambda: (12, 9))
+    monkeypatch.setattr(_buffer, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
     monkeypatch.setattr(_buffer.driver, "cuMemAdvise", fake_cuMemAdvise)
 
-    buffer.advise("set_read_mostly")
+    managed_memory.advise(buffer, "set_read_mostly")
 
     assert len(calls) == 1
-    assert calls[0][3] == int(getattr(driver, "CU_DEVICE_CPU", -1))
+    assert calls[0][3] == int(getattr(driver, "CU_DEVICE_CPU", _HOST_LOCATION_ID))
 
     buffer.close()
 
 
-def test_managed_buffer_prefetch_uses_legacy_bindings_signature(monkeypatch, init_cuda):
+def test_managed_memory_prefetch_uses_legacy_bindings_signature(monkeypatch, init_cuda):
     device = Device()
     _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
 
-    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
     calls = []
 
@@ -1306,10 +1311,10 @@ def test_managed_buffer_prefetch_uses_legacy_bindings_signature(monkeypatch, ini
         calls.append((ptr, size, location, hstream))
         return (driver.CUresult.CUDA_SUCCESS,)
 
-    monkeypatch.setattr(_buffer, "get_binding_version", lambda: (12, 9))
+    monkeypatch.setattr(_buffer, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
     monkeypatch.setattr(_buffer.driver, "cuMemPrefetchAsync", fake_cuMemPrefetchAsync)
 
-    buffer.prefetch(device, stream=stream)
+    managed_memory.prefetch(buffer, device, stream=stream)
 
     assert len(calls) == 1
     assert calls[0][2] == device.device_id
@@ -1318,38 +1323,66 @@ def test_managed_buffer_prefetch_uses_legacy_bindings_signature(monkeypatch, ini
     buffer.close()
 
 
-def test_managed_buffer_operations_reject_non_managed_buffers(init_cuda):
+def test_managed_memory_operations_reject_non_managed_allocations(init_cuda):
     device = Device()
     device.set_current()
 
-    buffer = DummyDeviceMemoryResource(device).allocate(4096)
+    buffer = DummyDeviceMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
-    with pytest.raises(ValueError, match="managed-memory buffer"):
-        buffer.advise("set_read_mostly")
-    with pytest.raises(ValueError, match="managed-memory buffer"):
-        buffer.prefetch(device, stream=stream)
-    with pytest.raises(ValueError, match="managed-memory buffer"):
-        buffer.discard_prefetch(device, stream=stream)
+    with pytest.raises(ValueError, match="managed-memory allocation"):
+        managed_memory.advise(buffer, "set_read_mostly")
+    with pytest.raises(ValueError, match="managed-memory allocation"):
+        managed_memory.prefetch(buffer, device, stream=stream)
+    with pytest.raises(ValueError, match="managed-memory allocation"):
+        managed_memory.discard_prefetch(buffer, device, stream=stream)
 
     buffer.close()
 
 
-def test_managed_buffer_operation_validation(init_cuda):
+def test_managed_memory_operation_validation(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)
     device.set_current()
 
     mr = create_managed_memory_resource_or_skip()
-    buffer = mr.allocate(4096)
+    buffer = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
     stream = device.create_stream()
 
     with pytest.raises(ValueError, match="requires a location"):
-        buffer.prefetch(stream=stream)
+        managed_memory.prefetch(buffer, stream=stream)
     with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
-        buffer.advise("set_accessed_by", 0, location_type="host_numa")
+        managed_memory.advise(buffer, "set_accessed_by", _INVALID_HOST_DEVICE_ORDINAL, location_type="host_numa")
     with pytest.raises(ValueError, match="location must be None or -1"):
-        buffer.prefetch(0, stream=stream, location_type="host")
+        managed_memory.prefetch(buffer, _INVALID_HOST_DEVICE_ORDINAL, stream=stream, location_type="host")
+
+    buffer.close()
+
+
+def test_managed_memory_functions_accept_raw_pointer_ranges(init_cuda):
+    device = Device()
+    _skip_if_managed_location_ops_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+    stream = device.create_stream()
+
+    managed_memory.advise(buffer.handle, "set_read_mostly", size=buffer.size)
+    assert (
+        _get_int_mem_range_attr(
+            buffer,
+            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+        )
+        == _READ_MOSTLY_ENABLED
+    )
+
+    managed_memory.prefetch(buffer.handle, device, size=buffer.size, stream=stream)
+    stream.sync()
+    last_location = _get_int_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+    )
+    assert last_location == device.device_id
 
     buffer.close()
 
