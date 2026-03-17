@@ -1138,17 +1138,69 @@ def _get_mem_range_attr(buffer, attribute, data_size):
     return handle_return(driver.cuMemRangeGetAttribute(data_size, attribute, buffer.handle, buffer.size))
 
 
-def test_managed_buffer_advise_prefetch_and_discard_prefetch(init_cuda):
+def _skip_if_managed_allocation_unsupported(device):
+    try:
+        if not device.properties.managed_memory:
+            pytest.skip("Device does not support managed memory operations")
+    except AttributeError:
+        pytest.skip("Managed-memory buffer operations require CUDA support")
+
+
+def _skip_if_managed_location_ops_unsupported(device):
+    _skip_if_managed_allocation_unsupported(device)
+    try:
+        if not device.properties.concurrent_managed_access:
+            pytest.skip("Device does not support concurrent managed memory access")
+    except AttributeError:
+        pytest.skip("Managed-memory location operations require CUDA support")
+
+
+def _skip_if_managed_discard_prefetch_unsupported(device):
+    _skip_if_managed_location_ops_unsupported(device)
+    if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
+        pytest.skip("discard-prefetch requires cuda.bindings support")
+
+    visible_devices = Device.get_all_devices()
+    if not all(dev.properties.concurrent_managed_access for dev in visible_devices):
+        pytest.skip("discard-prefetch requires concurrent managed access on all visible devices")
+
+
+def test_managed_buffer_prefetch_supports_managed_pool_allocations(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)
     device.set_current()
 
-    if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
-        pytest.skip("discard-prefetch requires cuda.bindings support")
-
     mr = create_managed_memory_resource_or_skip()
     buffer = mr.allocate(4096)
     stream = device.create_stream()
+
+    buffer.prefetch(-1, stream=stream)
+    stream.sync()
+    last_location = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+        4,
+    )
+    assert last_location == -1
+
+    buffer.prefetch(device, stream=stream)
+    stream.sync()
+    last_location = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+        4,
+    )
+    assert last_location == device.device_id
+
+    buffer.close()
+
+
+def test_managed_buffer_advise_supports_external_managed_allocations(init_cuda):
+    device = Device()
+    _skip_if_managed_allocation_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
 
     buffer.advise("set_read_mostly")
     assert (
@@ -1160,50 +1212,22 @@ def test_managed_buffer_advise_prefetch_and_discard_prefetch(init_cuda):
         == 1
     )
 
-    buffer.advise("set_preferred_location", device, location_type="device")
-    preferred_type = _get_mem_range_attr(
+    # cuda.bindings currently exposes the combined location attributes for
+    # cuMemRangeGetAttribute, so use the legacy location query here.
+    buffer.advise("set_preferred_location", location_type="host")
+    preferred_location = _get_mem_range_attr(
         buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
         4,
     )
-    preferred_id = _get_mem_range_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
-        4,
-    )
-    assert int(preferred_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE)
-    assert preferred_id == device.device_id
-
-    buffer.prefetch(-1, stream=stream)
-    stream.sync()
-    last_type = _get_mem_range_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
-        4,
-    )
-    assert int(last_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST)
-
-    buffer.discard_prefetch(device, stream=stream)
-    stream.sync()
-    last_type = _get_mem_range_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
-        4,
-    )
-    last_id = _get_mem_range_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
-        4,
-    )
-    assert int(last_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE)
-    assert last_id == device.device_id
+    assert preferred_location == -1
 
     buffer.close()
 
 
-def test_managed_buffer_operations_support_external_managed_allocations(init_cuda):
+def test_managed_buffer_prefetch_supports_external_managed_allocations(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
 
     buffer = DummyUnifiedMemoryResource(device).allocate(4096)
@@ -1212,18 +1236,36 @@ def test_managed_buffer_operations_support_external_managed_allocations(init_cud
     buffer.prefetch(device, stream=stream)
     stream.sync()
 
-    last_type = _get_mem_range_attr(
+    last_location = _get_mem_range_attr(
         buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
         4,
     )
-    last_id = _get_mem_range_attr(
+    assert last_location == device.device_id
+
+    buffer.close()
+
+
+def test_managed_buffer_discard_prefetch_supports_external_managed_allocations(init_cuda):
+    device = Device()
+    _skip_if_managed_discard_prefetch_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    stream = device.create_stream()
+
+    buffer.prefetch(-1, stream=stream)
+    stream.sync()
+
+    buffer.discard_prefetch(device, stream=stream)
+    stream.sync()
+
+    last_location = _get_mem_range_attr(
         buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
         4,
     )
-    assert int(last_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE)
-    assert last_id == device.device_id
+    assert last_location == device.device_id
 
     buffer.close()
 
