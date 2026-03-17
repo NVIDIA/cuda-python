@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuInstanceProfileCaps
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuInstanceProfileCaps.__init__
-      ~GpuInstanceProfileCaps.as_integer_ratio
-      ~GpuInstanceProfileCaps.bit_count
-      ~GpuInstanceProfileCaps.bit_length
-      ~GpuInstanceProfileCaps.conjugate
-      ~GpuInstanceProfileCaps.from_bytes
-      ~GpuInstanceProfileCaps.is_integer
-      ~GpuInstanceProfileCaps.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuInstanceProfileCaps.GFX
-      ~GpuInstanceProfileCaps.P2P
-      ~GpuInstanceProfileCaps.denominator
-      ~GpuInstanceProfileCaps.imag
-      ~GpuInstanceProfileCaps.name
-      ~GpuInstanceProfileCaps.numerator
-      ~GpuInstanceProfileCaps.real
-      ~GpuInstanceProfileCaps.value
-   
-   
+.. autoenum:: GpuInstanceProfileCaps

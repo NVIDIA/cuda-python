@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: CCSystemFeature
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CCSystemFeature.__init__
-      ~CCSystemFeature.as_integer_ratio
-      ~CCSystemFeature.bit_count
-      ~CCSystemFeature.bit_length
-      ~CCSystemFeature.conjugate
-      ~CCSystemFeature.from_bytes
-      ~CCSystemFeature.is_integer
-      ~CCSystemFeature.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CCSystemFeature.DISABLED
-      ~CCSystemFeature.ENABLED
-      ~CCSystemFeature.denominator
-      ~CCSystemFeature.imag
-      ~CCSystemFeature.name
-      ~CCSystemFeature.numerator
-      ~CCSystemFeature.real
-      ~CCSystemFeature.value
-   
-   
+.. autoenum:: CCSystemFeature

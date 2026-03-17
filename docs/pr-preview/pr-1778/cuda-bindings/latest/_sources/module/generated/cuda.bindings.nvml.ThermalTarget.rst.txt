@@ -3,48 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: ThermalTarget
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~ThermalTarget.__init__
-      ~ThermalTarget.as_integer_ratio
-      ~ThermalTarget.bit_count
-      ~ThermalTarget.bit_length
-      ~ThermalTarget.conjugate
-      ~ThermalTarget.from_bytes
-      ~ThermalTarget.is_integer
-      ~ThermalTarget.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~ThermalTarget.ALL
-      ~ThermalTarget.BOARD
-      ~ThermalTarget.GPU
-      ~ThermalTarget.MEMORY
-      ~ThermalTarget.NONE
-      ~ThermalTarget.POWER_SUPPLY
-      ~ThermalTarget.UNKNOWN
-      ~ThermalTarget.VCD_BOARD
-      ~ThermalTarget.VCD_INLET
-      ~ThermalTarget.VCD_OUTLET
-      ~ThermalTarget.denominator
-      ~ThermalTarget.imag
-      ~ThermalTarget.name
-      ~ThermalTarget.numerator
-      ~ThermalTarget.real
-      ~ThermalTarget.value
-   
-   
+.. autoenum:: ThermalTarget

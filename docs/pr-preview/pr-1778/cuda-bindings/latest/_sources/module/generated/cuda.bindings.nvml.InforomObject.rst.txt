@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: InforomObject
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~InforomObject.__init__
-      ~InforomObject.as_integer_ratio
-      ~InforomObject.bit_count
-      ~InforomObject.bit_length
-      ~InforomObject.conjugate
-      ~InforomObject.from_bytes
-      ~InforomObject.is_integer
-      ~InforomObject.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~InforomObject.INFOROM_COUNT
-      ~InforomObject.INFOROM_DEN
-      ~InforomObject.INFOROM_ECC
-      ~InforomObject.INFOROM_OEM
-      ~InforomObject.INFOROM_POWER
-      ~InforomObject.denominator
-      ~InforomObject.imag
-      ~InforomObject.name
-      ~InforomObject.numerator
-      ~InforomObject.real
-      ~InforomObject.value
-   
-   
+.. autoenum:: InforomObject

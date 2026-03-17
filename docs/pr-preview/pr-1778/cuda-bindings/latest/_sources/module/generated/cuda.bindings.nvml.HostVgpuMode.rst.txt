@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: HostVgpuMode
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~HostVgpuMode.__init__
-      ~HostVgpuMode.as_integer_ratio
-      ~HostVgpuMode.bit_count
-      ~HostVgpuMode.bit_length
-      ~HostVgpuMode.conjugate
-      ~HostVgpuMode.from_bytes
-      ~HostVgpuMode.is_integer
-      ~HostVgpuMode.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~HostVgpuMode.NON_SRIOV
-      ~HostVgpuMode.SRIOV
-      ~HostVgpuMode.denominator
-      ~HostVgpuMode.imag
-      ~HostVgpuMode.name
-      ~HostVgpuMode.numerator
-      ~HostVgpuMode.real
-      ~HostVgpuMode.value
-   
-   
+.. autoenum:: HostVgpuMode

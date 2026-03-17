@@ -3,47 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: ComputeInstanceProfile
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~ComputeInstanceProfile.__init__
-      ~ComputeInstanceProfile.as_integer_ratio
-      ~ComputeInstanceProfile.bit_count
-      ~ComputeInstanceProfile.bit_length
-      ~ComputeInstanceProfile.conjugate
-      ~ComputeInstanceProfile.from_bytes
-      ~ComputeInstanceProfile.is_integer
-      ~ComputeInstanceProfile.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~ComputeInstanceProfile.PROFILE_1_SLICE
-      ~ComputeInstanceProfile.PROFILE_1_SLICE_REV1
-      ~ComputeInstanceProfile.PROFILE_2_SLICE
-      ~ComputeInstanceProfile.PROFILE_3_SLICE
-      ~ComputeInstanceProfile.PROFILE_4_SLICE
-      ~ComputeInstanceProfile.PROFILE_6_SLICE
-      ~ComputeInstanceProfile.PROFILE_7_SLICE
-      ~ComputeInstanceProfile.PROFILE_8_SLICE
-      ~ComputeInstanceProfile.PROFILE_COUNT
-      ~ComputeInstanceProfile.denominator
-      ~ComputeInstanceProfile.imag
-      ~ComputeInstanceProfile.name
-      ~ComputeInstanceProfile.numerator
-      ~ComputeInstanceProfile.real
-      ~ComputeInstanceProfile.value
-   
-   
+.. autoenum:: ComputeInstanceProfile

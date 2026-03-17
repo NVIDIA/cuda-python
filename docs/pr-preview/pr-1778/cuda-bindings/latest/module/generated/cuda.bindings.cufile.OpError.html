@@ -1270,212 +1270,55 @@
 <dt class="sig sig-object py" id="cuda.bindings.cufile.OpError">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cufile.</span></span><span class="sig-name descname"><span class="pre">OpError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.OpError" title="Link to this definition">#</a></dt>
 <dd><p>See <cite>CUfileOpError</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.OpError.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.OpError.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.cufile.OpError.__init__" title="cuda.bindings.cufile.OpError.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASYNC_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BATCH_FULL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BATCH_NOCOMPAT_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BATCH_SUBMIT_FAILED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_CONTEXT_MISMATCH</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_DRIVER_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_MEMORY_TYPE_INVALID</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_POINTER_INVALID</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDA_POINTER_RANGE_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_NOT_FOUND</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DIO_NOT_SET</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_ALREADY_OPEN</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_CLOSING</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_INVALID_PROPS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_NOT_INITIALIZED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_UNSUPPORTED_LIMIT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_VERSION_MISMATCH</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVER_VERSION_READ_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GETNEWFD_FAILED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPU_MEMORY_PINNING_FAILED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HANDLE_ALREADY_REGISTERED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HANDLE_NOT_REGISTERED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HASH_OPR_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERNAL_BATCH_CANCEL_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERNAL_BATCH_GETSTATUS_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERNAL_BATCH_SETUP_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERNAL_BATCH_SUBMIT_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERNAL_BUF_REGISTER_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INTERNAL_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID_CONTEXT_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID_FILE_OPEN_FLAG</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID_FILE_TYPE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID_MAPPING_RANGE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID_MAPPING_SIZE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">INVALID_VALUE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IO_DISABLED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IO_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IO_MAX_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IO_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MEMORY_ALREADY_REGISTERED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MEMORY_NOT_REGISTERED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NOMEM_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVFS_DRIVER_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVFS_INTERNAL_DRIVER_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVFS_SETUP_ERROR</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PERMISSION_DENIED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLATFORM_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUCCESS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p><strong>SUCCESS</strong>: 0</p>
+<p><strong>DRIVER_NOT_INITIALIZED</strong>: 5001</p>
+<p><strong>DRIVER_INVALID_PROPS</strong>: 5002</p>
+<p><strong>DRIVER_UNSUPPORTED_LIMIT</strong>: 5003</p>
+<p><strong>DRIVER_VERSION_MISMATCH</strong>: 5004</p>
+<p><strong>DRIVER_VERSION_READ_ERROR</strong>: 5005</p>
+<p><strong>DRIVER_CLOSING</strong>: 5006</p>
+<p><strong>PLATFORM_NOT_SUPPORTED</strong>: 5007</p>
+<p><strong>IO_NOT_SUPPORTED</strong>: 5008</p>
+<p><strong>DEVICE_NOT_SUPPORTED</strong>: 5009</p>
+<p><strong>NVFS_DRIVER_ERROR</strong>: 5010</p>
+<p><strong>CUDA_DRIVER_ERROR</strong>: 5011</p>
+<p><strong>CUDA_POINTER_INVALID</strong>: 5012</p>
+<p><strong>CUDA_MEMORY_TYPE_INVALID</strong>: 5013</p>
+<p><strong>CUDA_POINTER_RANGE_ERROR</strong>: 5014</p>
+<p><strong>CUDA_CONTEXT_MISMATCH</strong>: 5015</p>
+<p><strong>INVALID_MAPPING_SIZE</strong>: 5016</p>
+<p><strong>INVALID_MAPPING_RANGE</strong>: 5017</p>
+<p><strong>INVALID_FILE_TYPE</strong>: 5018</p>
+<p><strong>INVALID_FILE_OPEN_FLAG</strong>: 5019</p>
+<p><strong>DIO_NOT_SET</strong>: 5020</p>
+<p><strong>INVALID_VALUE</strong>: 5022</p>
+<p><strong>MEMORY_ALREADY_REGISTERED</strong>: 5023</p>
+<p><strong>MEMORY_NOT_REGISTERED</strong>: 5024</p>
+<p><strong>PERMISSION_DENIED</strong>: 5025</p>
+<p><strong>DRIVER_ALREADY_OPEN</strong>: 5026</p>
+<p><strong>HANDLE_NOT_REGISTERED</strong>: 5027</p>
+<p><strong>HANDLE_ALREADY_REGISTERED</strong>: 5028</p>
+<p><strong>DEVICE_NOT_FOUND</strong>: 5029</p>
+<p><strong>INTERNAL_ERROR</strong>: 5030</p>
+<p><strong>GETNEWFD_FAILED</strong>: 5031</p>
+<p><strong>NVFS_SETUP_ERROR</strong>: 5033</p>
+<p><strong>IO_DISABLED</strong>: 5034</p>
+<p><strong>BATCH_SUBMIT_FAILED</strong>: 5035</p>
+<p><strong>GPU_MEMORY_PINNING_FAILED</strong>: 5036</p>
+<p><strong>BATCH_FULL</strong>: 5037</p>
+<p><strong>ASYNC_NOT_SUPPORTED</strong>: 5038</p>
+<p><strong>INTERNAL_BATCH_SETUP_ERROR</strong>: 5039</p>
+<p><strong>INTERNAL_BATCH_SUBMIT_ERROR</strong>: 5040</p>
+<p><strong>INTERNAL_BATCH_GETSTATUS_ERROR</strong>: 5041</p>
+<p><strong>INTERNAL_BATCH_CANCEL_ERROR</strong>: 5042</p>
+<p><strong>NOMEM_ERROR</strong>: 5043</p>
+<p><strong>IO_ERROR</strong>: 5044</p>
+<p><strong>INTERNAL_BUF_REGISTER_ERROR</strong>: 5045</p>
+<p><strong>HASH_OPR_ERROR</strong>: 5046</p>
+<p><strong>INVALID_CONTEXT_ERROR</strong>: 5047</p>
+<p><strong>NVFS_INTERNAL_DRIVER_ERROR</strong>: 5048</p>
+<p><strong>BATCH_NOCOMPAT_ERROR</strong>: 5049</p>
+<p><strong>IO_MAX_ERROR</strong>: 5050</p>
 </dd></dl>
 
 </section>
@@ -1529,10 +1372,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.OpError"><code class="docutils literal notranslate"><span class="pre">OpError</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.OpError.__init__"><code class="docutils literal notranslate"><span class="pre">OpError.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.OpError"><code class="docutils literal notranslate"><span class="pre">OpError</span></code></a></li>
 </ul>
   </nav></div>
 

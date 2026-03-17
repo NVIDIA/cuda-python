@@ -1272,80 +1272,18 @@
 <dd><p>Clock Ids. These are used in combination with nvmlClockType_t to
 specify a single clock value.</p>
 <p>See <cite>nvmlClockId_t</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.nvml.ClockId.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.ClockId.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.nvml.ClockId.__init__" title="cuda.bindings.nvml.ClockId.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">APP_CLOCK_DEFAULT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">APP_CLOCK_TARGET</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">COUNT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CURRENT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUSTOMER_BOOST_MAX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<dl class="simple">
+<dt><strong>CURRENT</strong>: 0</dt><dd><p>Current actual clock value.</p>
+</dd>
+<dt><strong>APP_CLOCK_TARGET</strong>: 1</dt><dd><p>Target application clock. Deprecated, do not use.</p>
+</dd>
+<dt><strong>APP_CLOCK_DEFAULT</strong>: 2</dt><dd><p>Default application clock target Deprecated, do not use.</p>
+</dd>
+<dt><strong>CUSTOMER_BOOST_MAX</strong>: 3</dt><dd><p>OEM-defined maximum clock rate.</p>
+</dd>
+<dt><strong>COUNT</strong>: 4</dt><dd><p>Count of Clock Ids.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1399,10 +1337,7 @@ specify a single clock value.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.ClockId"><code class="docutils literal notranslate"><span class="pre">ClockId</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.ClockId.__init__"><code class="docutils literal notranslate"><span class="pre">ClockId.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.ClockId"><code class="docutils literal notranslate"><span class="pre">ClockId</span></code></a></li>
 </ul>
   </nav></div>
 

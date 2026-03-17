@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: CCAcceptingClientRequests
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CCAcceptingClientRequests.__init__
-      ~CCAcceptingClientRequests.as_integer_ratio
-      ~CCAcceptingClientRequests.bit_count
-      ~CCAcceptingClientRequests.bit_length
-      ~CCAcceptingClientRequests.conjugate
-      ~CCAcceptingClientRequests.from_bytes
-      ~CCAcceptingClientRequests.is_integer
-      ~CCAcceptingClientRequests.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CCAcceptingClientRequests.FALSE
-      ~CCAcceptingClientRequests.TRUE
-      ~CCAcceptingClientRequests.denominator
-      ~CCAcceptingClientRequests.imag
-      ~CCAcceptingClientRequests.name
-      ~CCAcceptingClientRequests.numerator
-      ~CCAcceptingClientRequests.real
-      ~CCAcceptingClientRequests.value
-   
-   
+.. autoenum:: CCAcceptingClientRequests

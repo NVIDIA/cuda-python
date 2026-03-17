@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: BusType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~BusType.__init__
-      ~BusType.as_integer_ratio
-      ~BusType.bit_count
-      ~BusType.bit_length
-      ~BusType.conjugate
-      ~BusType.from_bytes
-      ~BusType.is_integer
-      ~BusType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~BusType.AGP
-      ~BusType.FPCI
-      ~BusType.PCI
-      ~BusType.PCIE
-      ~BusType.UNKNOWN
-      ~BusType.denominator
-      ~BusType.imag
-      ~BusType.name
-      ~BusType.numerator
-      ~BusType.real
-      ~BusType.value
-   
-   
+.. autoenum:: BusType

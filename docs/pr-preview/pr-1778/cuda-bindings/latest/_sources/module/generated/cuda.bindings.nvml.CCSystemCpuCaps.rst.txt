@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: CCSystemCpuCaps
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CCSystemCpuCaps.__init__
-      ~CCSystemCpuCaps.as_integer_ratio
-      ~CCSystemCpuCaps.bit_count
-      ~CCSystemCpuCaps.bit_length
-      ~CCSystemCpuCaps.conjugate
-      ~CCSystemCpuCaps.from_bytes
-      ~CCSystemCpuCaps.is_integer
-      ~CCSystemCpuCaps.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CCSystemCpuCaps.AMD_SEV
-      ~CCSystemCpuCaps.AMD_SEV_SNP
-      ~CCSystemCpuCaps.AMD_SNP_VTOM
-      ~CCSystemCpuCaps.INTEL_TDX
-      ~CCSystemCpuCaps.NONE
-      ~CCSystemCpuCaps.denominator
-      ~CCSystemCpuCaps.imag
-      ~CCSystemCpuCaps.name
-      ~CCSystemCpuCaps.numerator
-      ~CCSystemCpuCaps.real
-      ~CCSystemCpuCaps.value
-   
-   
+.. autoenum:: CCSystemCpuCaps

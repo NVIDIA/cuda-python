@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: PcieUtilCounter
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~PcieUtilCounter.__init__
-      ~PcieUtilCounter.as_integer_ratio
-      ~PcieUtilCounter.bit_count
-      ~PcieUtilCounter.bit_length
-      ~PcieUtilCounter.conjugate
-      ~PcieUtilCounter.from_bytes
-      ~PcieUtilCounter.is_integer
-      ~PcieUtilCounter.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~PcieUtilCounter.PCIE_UTIL_COUNT
-      ~PcieUtilCounter.PCIE_UTIL_RX_BYTES
-      ~PcieUtilCounter.PCIE_UTIL_TX_BYTES
-      ~PcieUtilCounter.denominator
-      ~PcieUtilCounter.imag
-      ~PcieUtilCounter.name
-      ~PcieUtilCounter.numerator
-      ~PcieUtilCounter.real
-      ~PcieUtilCounter.value
-   
-   
+.. autoenum:: PcieUtilCounter

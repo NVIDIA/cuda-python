@@ -3,42 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: PowerProfileOperation
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~PowerProfileOperation.__init__
-      ~PowerProfileOperation.as_integer_ratio
-      ~PowerProfileOperation.bit_count
-      ~PowerProfileOperation.bit_length
-      ~PowerProfileOperation.conjugate
-      ~PowerProfileOperation.from_bytes
-      ~PowerProfileOperation.is_integer
-      ~PowerProfileOperation.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~PowerProfileOperation.CLEAR
-      ~PowerProfileOperation.MAX
-      ~PowerProfileOperation.SET
-      ~PowerProfileOperation.SET_AND_OVERWRITE
-      ~PowerProfileOperation.denominator
-      ~PowerProfileOperation.imag
-      ~PowerProfileOperation.name
-      ~PowerProfileOperation.numerator
-      ~PowerProfileOperation.real
-      ~PowerProfileOperation.value
-   
-   
+.. autoenum:: PowerProfileOperation

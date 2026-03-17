@@ -3,42 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuFabricHealthSummary
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuFabricHealthSummary.__init__
-      ~GpuFabricHealthSummary.as_integer_ratio
-      ~GpuFabricHealthSummary.bit_count
-      ~GpuFabricHealthSummary.bit_length
-      ~GpuFabricHealthSummary.conjugate
-      ~GpuFabricHealthSummary.from_bytes
-      ~GpuFabricHealthSummary.is_integer
-      ~GpuFabricHealthSummary.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuFabricHealthSummary.HEALTHY
-      ~GpuFabricHealthSummary.LIMITED_CAPACITY
-      ~GpuFabricHealthSummary.NOT_SUPPORTED
-      ~GpuFabricHealthSummary.UNHEALTHY
-      ~GpuFabricHealthSummary.denominator
-      ~GpuFabricHealthSummary.imag
-      ~GpuFabricHealthSummary.name
-      ~GpuFabricHealthSummary.numerator
-      ~GpuFabricHealthSummary.real
-      ~GpuFabricHealthSummary.value
-   
-   
+.. autoenum:: GpuFabricHealthSummary

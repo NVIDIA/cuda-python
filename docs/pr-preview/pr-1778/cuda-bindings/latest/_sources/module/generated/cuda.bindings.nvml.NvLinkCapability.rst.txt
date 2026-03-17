@@ -3,45 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvLinkCapability
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvLinkCapability.__init__
-      ~NvLinkCapability.as_integer_ratio
-      ~NvLinkCapability.bit_count
-      ~NvLinkCapability.bit_length
-      ~NvLinkCapability.conjugate
-      ~NvLinkCapability.from_bytes
-      ~NvLinkCapability.is_integer
-      ~NvLinkCapability.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvLinkCapability.NVLINK_CAP_COUNT
-      ~NvLinkCapability.NVLINK_CAP_P2P_ATOMICS
-      ~NvLinkCapability.NVLINK_CAP_P2P_SUPPORTED
-      ~NvLinkCapability.NVLINK_CAP_SLI_BRIDGE
-      ~NvLinkCapability.NVLINK_CAP_SYSMEM_ACCESS
-      ~NvLinkCapability.NVLINK_CAP_SYSMEM_ATOMICS
-      ~NvLinkCapability.NVLINK_CAP_VALID
-      ~NvLinkCapability.denominator
-      ~NvLinkCapability.imag
-      ~NvLinkCapability.name
-      ~NvLinkCapability.numerator
-      ~NvLinkCapability.real
-      ~NvLinkCapability.value
-   
-   
+.. autoenum:: NvLinkCapability

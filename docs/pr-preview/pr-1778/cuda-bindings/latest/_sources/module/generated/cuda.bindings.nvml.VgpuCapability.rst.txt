@@ -3,44 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuCapability
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuCapability.__init__
-      ~VgpuCapability.as_integer_ratio
-      ~VgpuCapability.bit_count
-      ~VgpuCapability.bit_length
-      ~VgpuCapability.conjugate
-      ~VgpuCapability.from_bytes
-      ~VgpuCapability.is_integer
-      ~VgpuCapability.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuCapability.VGPU_CAP_COUNT
-      ~VgpuCapability.VGPU_CAP_EXCLUSIVE_SIZE
-      ~VgpuCapability.VGPU_CAP_EXCLUSIVE_TYPE
-      ~VgpuCapability.VGPU_CAP_GPUDIRECT
-      ~VgpuCapability.VGPU_CAP_MULTI_VGPU_EXCLUSIVE
-      ~VgpuCapability.VGPU_CAP_NVLINK_P2P
-      ~VgpuCapability.denominator
-      ~VgpuCapability.imag
-      ~VgpuCapability.name
-      ~VgpuCapability.numerator
-      ~VgpuCapability.real
-      ~VgpuCapability.value
-   
-   
+.. autoenum:: VgpuCapability

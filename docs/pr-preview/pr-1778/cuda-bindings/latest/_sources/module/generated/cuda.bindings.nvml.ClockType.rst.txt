@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: ClockType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~ClockType.__init__
-      ~ClockType.as_integer_ratio
-      ~ClockType.bit_count
-      ~ClockType.bit_length
-      ~ClockType.conjugate
-      ~ClockType.from_bytes
-      ~ClockType.is_integer
-      ~ClockType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~ClockType.CLOCK_COUNT
-      ~ClockType.CLOCK_GRAPHICS
-      ~ClockType.CLOCK_MEM
-      ~ClockType.CLOCK_SM
-      ~ClockType.CLOCK_VIDEO
-      ~ClockType.denominator
-      ~ClockType.imag
-      ~ClockType.name
-      ~ClockType.numerator
-      ~ClockType.real
-      ~ClockType.value
-   
-   
+.. autoenum:: ClockType

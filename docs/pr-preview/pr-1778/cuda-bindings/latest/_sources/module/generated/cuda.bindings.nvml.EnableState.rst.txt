@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: EnableState
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~EnableState.__init__
-      ~EnableState.as_integer_ratio
-      ~EnableState.bit_count
-      ~EnableState.bit_length
-      ~EnableState.conjugate
-      ~EnableState.from_bytes
-      ~EnableState.is_integer
-      ~EnableState.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~EnableState.FEATURE_DISABLED
-      ~EnableState.FEATURE_ENABLED
-      ~EnableState.denominator
-      ~EnableState.imag
-      ~EnableState.name
-      ~EnableState.numerator
-      ~EnableState.real
-      ~EnableState.value
-   
-   
+.. autoenum:: EnableState

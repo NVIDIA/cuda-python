@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvlinkLowPowerThresholdUnit
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvlinkLowPowerThresholdUnit.__init__
-      ~NvlinkLowPowerThresholdUnit.as_integer_ratio
-      ~NvlinkLowPowerThresholdUnit.bit_count
-      ~NvlinkLowPowerThresholdUnit.bit_length
-      ~NvlinkLowPowerThresholdUnit.conjugate
-      ~NvlinkLowPowerThresholdUnit.from_bytes
-      ~NvlinkLowPowerThresholdUnit.is_integer
-      ~NvlinkLowPowerThresholdUnit.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvlinkLowPowerThresholdUnit.UNIT_100US
-      ~NvlinkLowPowerThresholdUnit.UNIT_50US
-      ~NvlinkLowPowerThresholdUnit.denominator
-      ~NvlinkLowPowerThresholdUnit.imag
-      ~NvlinkLowPowerThresholdUnit.name
-      ~NvlinkLowPowerThresholdUnit.numerator
-      ~NvlinkLowPowerThresholdUnit.real
-      ~NvlinkLowPowerThresholdUnit.value
-   
-   
+.. autoenum:: NvlinkLowPowerThresholdUnit

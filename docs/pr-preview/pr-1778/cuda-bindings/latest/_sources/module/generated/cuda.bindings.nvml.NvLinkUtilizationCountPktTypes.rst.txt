@@ -3,47 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvLinkUtilizationCountPktTypes
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvLinkUtilizationCountPktTypes.__init__
-      ~NvLinkUtilizationCountPktTypes.as_integer_ratio
-      ~NvLinkUtilizationCountPktTypes.bit_count
-      ~NvLinkUtilizationCountPktTypes.bit_length
-      ~NvLinkUtilizationCountPktTypes.conjugate
-      ~NvLinkUtilizationCountPktTypes.from_bytes
-      ~NvLinkUtilizationCountPktTypes.is_integer
-      ~NvLinkUtilizationCountPktTypes.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_ALL
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_FLUSH
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_NOP
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_NRATOM
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_RATOM
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_READ
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_RESPDATA
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_RESPNODATA
-      ~NvLinkUtilizationCountPktTypes.NVLINK_COUNTER_PKTFILTER_WRITE
-      ~NvLinkUtilizationCountPktTypes.denominator
-      ~NvLinkUtilizationCountPktTypes.imag
-      ~NvLinkUtilizationCountPktTypes.name
-      ~NvLinkUtilizationCountPktTypes.numerator
-      ~NvLinkUtilizationCountPktTypes.real
-      ~NvLinkUtilizationCountPktTypes.value
-   
-   
+.. autoenum:: NvLinkUtilizationCountPktTypes

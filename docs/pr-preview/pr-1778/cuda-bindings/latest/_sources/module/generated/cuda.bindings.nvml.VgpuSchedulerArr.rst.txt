@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuSchedulerArr
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuSchedulerArr.__init__
-      ~VgpuSchedulerArr.as_integer_ratio
-      ~VgpuSchedulerArr.bit_count
-      ~VgpuSchedulerArr.bit_length
-      ~VgpuSchedulerArr.conjugate
-      ~VgpuSchedulerArr.from_bytes
-      ~VgpuSchedulerArr.is_integer
-      ~VgpuSchedulerArr.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuSchedulerArr.DEFAULT
-      ~VgpuSchedulerArr.DISABLE
-      ~VgpuSchedulerArr.ENABLE
-      ~VgpuSchedulerArr.denominator
-      ~VgpuSchedulerArr.imag
-      ~VgpuSchedulerArr.name
-      ~VgpuSchedulerArr.numerator
-      ~VgpuSchedulerArr.real
-      ~VgpuSchedulerArr.value
-   
-   
+.. autoenum:: VgpuSchedulerArr

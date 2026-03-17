@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: CCSystemDevtoolsMode
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CCSystemDevtoolsMode.__init__
-      ~CCSystemDevtoolsMode.as_integer_ratio
-      ~CCSystemDevtoolsMode.bit_count
-      ~CCSystemDevtoolsMode.bit_length
-      ~CCSystemDevtoolsMode.conjugate
-      ~CCSystemDevtoolsMode.from_bytes
-      ~CCSystemDevtoolsMode.is_integer
-      ~CCSystemDevtoolsMode.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CCSystemDevtoolsMode.OFF
-      ~CCSystemDevtoolsMode.ON
-      ~CCSystemDevtoolsMode.denominator
-      ~CCSystemDevtoolsMode.imag
-      ~CCSystemDevtoolsMode.name
-      ~CCSystemDevtoolsMode.numerator
-      ~CCSystemDevtoolsMode.real
-      ~CCSystemDevtoolsMode.value
-   
-   
+.. autoenum:: CCSystemDevtoolsMode

@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvlinkFirmwareUcodeType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvlinkFirmwareUcodeType.__init__
-      ~NvlinkFirmwareUcodeType.as_integer_ratio
-      ~NvlinkFirmwareUcodeType.bit_count
-      ~NvlinkFirmwareUcodeType.bit_length
-      ~NvlinkFirmwareUcodeType.conjugate
-      ~NvlinkFirmwareUcodeType.from_bytes
-      ~NvlinkFirmwareUcodeType.is_integer
-      ~NvlinkFirmwareUcodeType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvlinkFirmwareUcodeType.MSE
-      ~NvlinkFirmwareUcodeType.NETIR
-      ~NvlinkFirmwareUcodeType.NETIR_CLN
-      ~NvlinkFirmwareUcodeType.NETIR_DLN
-      ~NvlinkFirmwareUcodeType.NETIR_UPHY
-      ~NvlinkFirmwareUcodeType.denominator
-      ~NvlinkFirmwareUcodeType.imag
-      ~NvlinkFirmwareUcodeType.name
-      ~NvlinkFirmwareUcodeType.numerator
-      ~NvlinkFirmwareUcodeType.real
-      ~NvlinkFirmwareUcodeType.value
-   
-   
+.. autoenum:: NvlinkFirmwareUcodeType

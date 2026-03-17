@@ -3,42 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: EncoderType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~EncoderType.__init__
-      ~EncoderType.as_integer_ratio
-      ~EncoderType.bit_count
-      ~EncoderType.bit_length
-      ~EncoderType.conjugate
-      ~EncoderType.from_bytes
-      ~EncoderType.is_integer
-      ~EncoderType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~EncoderType.ENCODER_QUERY_AV1
-      ~EncoderType.ENCODER_QUERY_H264
-      ~EncoderType.ENCODER_QUERY_HEVC
-      ~EncoderType.ENCODER_QUERY_UNKNOWN
-      ~EncoderType.denominator
-      ~EncoderType.imag
-      ~EncoderType.name
-      ~EncoderType.numerator
-      ~EncoderType.real
-      ~EncoderType.value
-   
-   
+.. autoenum:: EncoderType

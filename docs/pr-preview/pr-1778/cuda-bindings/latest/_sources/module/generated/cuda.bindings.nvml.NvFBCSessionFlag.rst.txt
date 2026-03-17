@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvFBCSessionFlag
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvFBCSessionFlag.__init__
-      ~NvFBCSessionFlag.as_integer_ratio
-      ~NvFBCSessionFlag.bit_count
-      ~NvFBCSessionFlag.bit_length
-      ~NvFBCSessionFlag.conjugate
-      ~NvFBCSessionFlag.from_bytes
-      ~NvFBCSessionFlag.is_integer
-      ~NvFBCSessionFlag.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvFBCSessionFlag.CAPTURE_WITH_WAIT_INFINITE
-      ~NvFBCSessionFlag.CAPTURE_WITH_WAIT_NO_WAIT
-      ~NvFBCSessionFlag.CAPTURE_WITH_WAIT_TIMEOUT
-      ~NvFBCSessionFlag.CLASSIFICATIONMAP_ENABLED
-      ~NvFBCSessionFlag.DIFFMAP_ENABLED
-      ~NvFBCSessionFlag.denominator
-      ~NvFBCSessionFlag.imag
-      ~NvFBCSessionFlag.name
-      ~NvFBCSessionFlag.numerator
-      ~NvFBCSessionFlag.real
-      ~NvFBCSessionFlag.value
-   
-   
+.. autoenum:: NvFBCSessionFlag

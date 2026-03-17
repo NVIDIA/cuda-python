@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: CCSystemGpus
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CCSystemGpus.__init__
-      ~CCSystemGpus.as_integer_ratio
-      ~CCSystemGpus.bit_count
-      ~CCSystemGpus.bit_length
-      ~CCSystemGpus.conjugate
-      ~CCSystemGpus.from_bytes
-      ~CCSystemGpus.is_integer
-      ~CCSystemGpus.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CCSystemGpus.CC_CAPABLE
-      ~CCSystemGpus.CC_NOT_CAPABLE
-      ~CCSystemGpus.denominator
-      ~CCSystemGpus.imag
-      ~CCSystemGpus.name
-      ~CCSystemGpus.numerator
-      ~CCSystemGpus.real
-      ~CCSystemGpus.value
-   
-   
+.. autoenum:: CCSystemGpus

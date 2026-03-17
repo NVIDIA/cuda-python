@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: UUIDType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~UUIDType.__init__
-      ~UUIDType.as_integer_ratio
-      ~UUIDType.bit_count
-      ~UUIDType.bit_length
-      ~UUIDType.conjugate
-      ~UUIDType.from_bytes
-      ~UUIDType.is_integer
-      ~UUIDType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~UUIDType.ASCII
-      ~UUIDType.BINARY
-      ~UUIDType.NONE
-      ~UUIDType.denominator
-      ~UUIDType.imag
-      ~UUIDType.name
-      ~UUIDType.numerator
-      ~UUIDType.real
-      ~UUIDType.value
-   
-   
+.. autoenum:: UUIDType

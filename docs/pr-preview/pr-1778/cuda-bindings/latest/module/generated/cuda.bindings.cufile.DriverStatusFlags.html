@@ -1270,107 +1270,37 @@
 <dt class="sig sig-object py" id="cuda.bindings.cufile.DriverStatusFlags">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.cufile.</span></span><span class="sig-name descname"><span class="pre">DriverStatusFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.DriverStatusFlags" title="Link to this definition">#</a></dt>
 <dd><p>See <cite>CUfileDriverStatusFlags_t</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.cufile.DriverStatusFlags.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.DriverStatusFlags.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.cufile.DriverStatusFlags.__init__" title="cuda.bindings.cufile.DriverStatusFlags.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BEEGFS_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPFS_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LUSTRE_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAX_TARGET_TYPES</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NFS_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVMEOF_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVMESH_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVME_P2P_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVME_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCALEFLUX_CSD_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCATEFS_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCSI_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VIRTIOFS_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WEKAFS_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<dl class="simple">
+<dt><strong>LUSTRE_SUPPORTED</strong>: 0</dt><dd><p>Support for DDN LUSTRE</p>
+</dd>
+<dt><strong>WEKAFS_SUPPORTED</strong>: 1</dt><dd><p>Support for WEKAFS</p>
+</dd>
+<dt><strong>NFS_SUPPORTED</strong>: 2</dt><dd><p>Support for NFS</p>
+</dd>
+</dl>
+<p><strong>GPFS_SUPPORTED</strong>: 3</p>
+<dl class="simple">
+<dt><strong>NVME_SUPPORTED</strong>: 4</dt><dd><p>&lt; Support for GPFS Support for NVMe</p>
+</dd>
+<dt><strong>NVMEOF_SUPPORTED</strong>: 5</dt><dd><p>Support for NVMeOF</p>
+</dd>
+<dt><strong>SCSI_SUPPORTED</strong>: 6</dt><dd><p>Support for SCSI</p>
+</dd>
+<dt><strong>SCALEFLUX_CSD_SUPPORTED</strong>: 7</dt><dd><p>Support for Scaleflux CSD</p>
+</dd>
+<dt><strong>NVMESH_SUPPORTED</strong>: 8</dt><dd><p>Support for NVMesh Block Dev</p>
+</dd>
+<dt><strong>BEEGFS_SUPPORTED</strong>: 9</dt><dd><p>Support for BeeGFS</p>
+</dd>
+<dt><strong>NVME_P2P_SUPPORTED</strong>: 11</dt><dd><p>Do not use this macro. This is deprecated now</p>
+</dd>
+<dt><strong>SCATEFS_SUPPORTED</strong>: 12</dt><dd><p>Support for ScateFS</p>
+</dd>
+<dt><strong>VIRTIOFS_SUPPORTED</strong>: 13</dt><dd><p>Support for VirtioFS</p>
+</dd>
+<dt><strong>MAX_TARGET_TYPES</strong>: 14</dt><dd><p>Maximum FS supported</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1424,10 +1354,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.DriverStatusFlags"><code class="docutils literal notranslate"><span class="pre">DriverStatusFlags</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.DriverStatusFlags.__init__"><code class="docutils literal notranslate"><span class="pre">DriverStatusFlags.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.cufile.DriverStatusFlags"><code class="docutils literal notranslate"><span class="pre">DriverStatusFlags</span></code></a></li>
 </ul>
   </nav></div>
 

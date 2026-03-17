@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuPgpu
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuPgpu.__init__
-      ~VgpuPgpu.as_integer_ratio
-      ~VgpuPgpu.bit_count
-      ~VgpuPgpu.bit_length
-      ~VgpuPgpu.conjugate
-      ~VgpuPgpu.from_bytes
-      ~VgpuPgpu.is_integer
-      ~VgpuPgpu.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuPgpu.HETEROGENEOUS_MODE
-      ~VgpuPgpu.HOMOGENEOUS_MODE
-      ~VgpuPgpu.denominator
-      ~VgpuPgpu.imag
-      ~VgpuPgpu.name
-      ~VgpuPgpu.numerator
-      ~VgpuPgpu.real
-      ~VgpuPgpu.value
-   
-   
+.. autoenum:: VgpuPgpu

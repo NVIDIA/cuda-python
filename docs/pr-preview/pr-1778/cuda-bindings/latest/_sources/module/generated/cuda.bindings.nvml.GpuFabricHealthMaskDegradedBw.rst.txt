@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuFabricHealthMaskDegradedBw
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuFabricHealthMaskDegradedBw.__init__
-      ~GpuFabricHealthMaskDegradedBw.as_integer_ratio
-      ~GpuFabricHealthMaskDegradedBw.bit_count
-      ~GpuFabricHealthMaskDegradedBw.bit_length
-      ~GpuFabricHealthMaskDegradedBw.conjugate
-      ~GpuFabricHealthMaskDegradedBw.from_bytes
-      ~GpuFabricHealthMaskDegradedBw.is_integer
-      ~GpuFabricHealthMaskDegradedBw.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuFabricHealthMaskDegradedBw.FALSE
-      ~GpuFabricHealthMaskDegradedBw.NOT_SUPPORTED
-      ~GpuFabricHealthMaskDegradedBw.TRUE
-      ~GpuFabricHealthMaskDegradedBw.denominator
-      ~GpuFabricHealthMaskDegradedBw.imag
-      ~GpuFabricHealthMaskDegradedBw.name
-      ~GpuFabricHealthMaskDegradedBw.numerator
-      ~GpuFabricHealthMaskDegradedBw.real
-      ~GpuFabricHealthMaskDegradedBw.value
-   
-   
+.. autoenum:: GpuFabricHealthMaskDegradedBw

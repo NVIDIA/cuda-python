@@ -1271,758 +1271,362 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">GpmMetricId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.GpmMetricId" title="Link to this definition">#</a></dt>
 <dd><p>GPM Metric Identifiers</p>
 <p>See <cite>nvmlGpmMetricId_t</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.nvml.GpmMetricId.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.GpmMetricId.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.nvml.GpmMetricId.__init__" title="cuda.bindings.nvml.GpmMetricId.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_ANY_TENSOR_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_C2C_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DFMA_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DFMA_TENSOR_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DMMA_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DMMA_TENSOR_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DRAM_BW_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DRAM_CACHE_HIT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_DRAM_CACHE_MISS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_FP16_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_FP16_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_FP32_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_FP32_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_FP64_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_FP64_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR0_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR0_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR1_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR1_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR2_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR2_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR3_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR3_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR4_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR4_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR5_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR5_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR6_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR6_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR7_CTXSW_ACTIVE_PCT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GR7_CTXSW_REQUESTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_GRAPHICS_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_HMMA_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_HMMA_TENSOR_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_HOSTMEM_CACHE_HIT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_HOSTMEM_CACHE_MISS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_IMMA_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_IMMA_TENSOR_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_INTEGER_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_INTEGER_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_MAX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_MMA_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_0_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_1_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_2_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_3_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_4_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_5_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_6_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVDEC_7_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVENC_0_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVENC_1_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVENC_2_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVENC_3_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_0_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_1_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_2_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_3_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_4_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_5_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_6_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVJPG_7_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L0_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L0_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L0_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L0_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L10_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L10_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L10_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L10_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L11_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L11_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L11_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L11_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L12_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L12_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L12_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L12_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L13_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L13_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L13_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L13_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L14_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L14_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L14_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L14_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L15_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L15_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L15_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L15_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L16_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L16_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L16_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L16_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L17_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L17_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L17_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L17_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L1_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L1_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L1_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L1_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L2_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L2_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L2_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L2_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L3_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L3_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L3_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L3_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L4_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L4_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L4_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L4_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L5_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L5_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L5_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L5_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L6_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L6_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L6_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L6_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L7_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L7_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L7_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L7_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L8_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L8_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L8_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L8_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L9_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L9_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L9_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_L9_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVOFA_0_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_NVOFA_1_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_PCIE_RX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_PCIE_RX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_PCIE_TX</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_PCIE_TX_PER_SEC</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_PEERMEM_CACHE_HIT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_PEERMEM_CACHE_MISS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_SM_CYCLES_ACTIVE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_SM_CYCLES_ELAPSED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_SM_OCCUPANCY</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPM_METRIC_SM_UTIL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<dl class="simple">
+<dt><strong>GPM_METRIC_GRAPHICS_UTIL</strong>: 1</dt><dd><p>Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_SM_UTIL</strong>: 2</dt><dd><p>Percentage of SMs that were busy. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_SM_OCCUPANCY</strong>: 3</dt><dd><p>Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_INTEGER_UTIL</strong>: 4</dt><dd><p>Percentage of time the GPU’s SMs were doing integer operations. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_ANY_TENSOR_UTIL</strong>: 5</dt><dd><p>Percentage of time the GPU’s SMs were doing ANY tensor operations. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_DFMA_TENSOR_UTIL</strong>: 6</dt><dd><p>Percentage of time the GPU’s SMs were doing DFMA tensor operations. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_HMMA_TENSOR_UTIL</strong>: 7</dt><dd><p>Percentage of time the GPU’s SMs were doing HMMA tensor operations. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_DMMA_TENSOR_UTIL</strong>: 8</dt><dd><p>Percentage of time the GPU’s SMs were doing DMMA tensor operations. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_IMMA_TENSOR_UTIL</strong>: 9</dt><dd><p>Percentage of time the GPU’s SMs were doing IMMA tensor operations. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_DRAM_BW_UTIL</strong>: 10</dt><dd><p>Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 <a href="#id1"><span class="problematic" id="id2">*</span></a>‍/.</p>
+</dd>
+<dt><strong>GPM_METRIC_FP64_UTIL</strong>: 11</dt><dd><p>Percentage of time the GPU’s SMs were doing non-tensor FP64 math. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_FP32_UTIL</strong>: 12</dt><dd><p>Percentage of time the GPU’s SMs were doing non-tensor FP32 math. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_FP16_UTIL</strong>: 13</dt><dd><p>Percentage of time the GPU’s SMs were doing non-tensor FP16 math. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_PCIE_TX_PER_SEC</strong>: 20</dt><dd><p>PCIe traffic from this GPU in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_PCIE_RX_PER_SEC</strong>: 21</dt><dd><p>PCIe traffic to this GPU in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_0_UTIL</strong>: 30</dt><dd><p>Percent utilization of NVDEC 0. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_1_UTIL</strong>: 31</dt><dd><p>Percent utilization of NVDEC 1. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_2_UTIL</strong>: 32</dt><dd><p>Percent utilization of NVDEC 2. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_3_UTIL</strong>: 33</dt><dd><p>Percent utilization of NVDEC 3. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_4_UTIL</strong>: 34</dt><dd><p>Percent utilization of NVDEC 4. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_5_UTIL</strong>: 35</dt><dd><p>Percent utilization of NVDEC 5. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_6_UTIL</strong>: 36</dt><dd><p>Percent utilization of NVDEC 6. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVDEC_7_UTIL</strong>: 37</dt><dd><p>Percent utilization of NVDEC 7. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_0_UTIL</strong>: 40</dt><dd><p>Percent utilization of NVJPG 0. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_1_UTIL</strong>: 41</dt><dd><p>Percent utilization of NVJPG 1. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_2_UTIL</strong>: 42</dt><dd><p>Percent utilization of NVJPG 2. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_3_UTIL</strong>: 43</dt><dd><p>Percent utilization of NVJPG 3. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_4_UTIL</strong>: 44</dt><dd><p>Percent utilization of NVJPG 4. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_5_UTIL</strong>: 45</dt><dd><p>Percent utilization of NVJPG 5. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_6_UTIL</strong>: 46</dt><dd><p>Percent utilization of NVJPG 6. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVJPG_7_UTIL</strong>: 47</dt><dd><p>Percent utilization of NVJPG 7. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVOFA_0_UTIL</strong>: 50</dt><dd><p>Percent utilization of NVOFA 0. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVOFA_1_UTIL</strong>: 51</dt><dd><p>Percent utilization of NVOFA 1. 0.0 - 100.0.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC</strong>: 60</dt><dd><p>NvLink read bandwidth for all links in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC</strong>: 61</dt><dd><p>NvLink write bandwidth for all links in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L0_RX_PER_SEC</strong>: 62</dt><dd><p>NvLink read bandwidth for link 0 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L0_TX_PER_SEC</strong>: 63</dt><dd><p>NvLink write bandwidth for link 0 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L1_RX_PER_SEC</strong>: 64</dt><dd><p>NvLink read bandwidth for link 1 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L1_TX_PER_SEC</strong>: 65</dt><dd><p>NvLink write bandwidth for link 1 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L2_RX_PER_SEC</strong>: 66</dt><dd><p>NvLink read bandwidth for link 2 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L2_TX_PER_SEC</strong>: 67</dt><dd><p>NvLink write bandwidth for link 2 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L3_RX_PER_SEC</strong>: 68</dt><dd><p>NvLink read bandwidth for link 3 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L3_TX_PER_SEC</strong>: 69</dt><dd><p>NvLink write bandwidth for link 3 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L4_RX_PER_SEC</strong>: 70</dt><dd><p>NvLink read bandwidth for link 4 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L4_TX_PER_SEC</strong>: 71</dt><dd><p>NvLink write bandwidth for link 4 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L5_RX_PER_SEC</strong>: 72</dt><dd><p>NvLink read bandwidth for link 5 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L5_TX_PER_SEC</strong>: 73</dt><dd><p>NvLink write bandwidth for link 5 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L6_RX_PER_SEC</strong>: 74</dt><dd><p>NvLink read bandwidth for link 6 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L6_TX_PER_SEC</strong>: 75</dt><dd><p>NvLink write bandwidth for link 6 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L7_RX_PER_SEC</strong>: 76</dt><dd><p>NvLink read bandwidth for link 7 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L7_TX_PER_SEC</strong>: 77</dt><dd><p>NvLink write bandwidth for link 7 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L8_RX_PER_SEC</strong>: 78</dt><dd><p>NvLink read bandwidth for link 8 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L8_TX_PER_SEC</strong>: 79</dt><dd><p>NvLink write bandwidth for link 8 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L9_RX_PER_SEC</strong>: 80</dt><dd><p>NvLink read bandwidth for link 9 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L9_TX_PER_SEC</strong>: 81</dt><dd><p>NvLink write bandwidth for link 9 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L10_RX_PER_SEC</strong>: 82</dt><dd><p>NvLink read bandwidth for link 10 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L10_TX_PER_SEC</strong>: 83</dt><dd><p>NvLink write bandwidth for link 10 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L11_RX_PER_SEC</strong>: 84</dt><dd><p>NvLink read bandwidth for link 11 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L11_TX_PER_SEC</strong>: 85</dt><dd><p>NvLink write bandwidth for link 11 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L12_RX_PER_SEC</strong>: 86</dt><dd><p>NvLink read bandwidth for link 12 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L12_TX_PER_SEC</strong>: 87</dt><dd><p>NvLink write bandwidth for link 12 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L13_RX_PER_SEC</strong>: 88</dt><dd><p>NvLink read bandwidth for link 13 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L13_TX_PER_SEC</strong>: 89</dt><dd><p>NvLink write bandwidth for link 13 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L14_RX_PER_SEC</strong>: 90</dt><dd><p>NvLink read bandwidth for link 14 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L14_TX_PER_SEC</strong>: 91</dt><dd><p>NvLink write bandwidth for link 14 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L15_RX_PER_SEC</strong>: 92</dt><dd><p>NvLink read bandwidth for link 15 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L15_TX_PER_SEC</strong>: 93</dt><dd><p>NvLink write bandwidth for link 15 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L16_RX_PER_SEC</strong>: 94</dt><dd><p>NvLink read bandwidth for link 16 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L16_TX_PER_SEC</strong>: 95</dt><dd><p>NvLink write bandwidth for link 16 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L17_RX_PER_SEC</strong>: 96</dt><dd><p>NvLink read bandwidth for link 17 in MiB/sec.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L17_TX_PER_SEC</strong>: 97</dt><dd><p>NvLink write bandwidth for link 17 in MiB/sec.</p>
+</dd>
+</dl>
+<p><strong>GPM_METRIC_C2C_TOTAL_TX_PER_SEC</strong>: 100</p>
+<p><strong>GPM_METRIC_C2C_TOTAL_RX_PER_SEC</strong>: 101</p>
+<p><strong>GPM_METRIC_C2C_DATA_TX_PER_SEC</strong>: 102</p>
+<p><strong>GPM_METRIC_C2C_DATA_RX_PER_SEC</strong>: 103</p>
+<p><strong>GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC</strong>: 104</p>
+<p><strong>GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC</strong>: 105</p>
+<p><strong>GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC</strong>: 106</p>
+<p><strong>GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC</strong>: 107</p>
+<p><strong>GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC</strong>: 108</p>
+<p><strong>GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC</strong>: 109</p>
+<p><strong>GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC</strong>: 110</p>
+<p><strong>GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC</strong>: 111</p>
+<p><strong>GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC</strong>: 112</p>
+<p><strong>GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC</strong>: 113</p>
+<p><strong>GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC</strong>: 114</p>
+<p><strong>GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC</strong>: 115</p>
+<p><strong>GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC</strong>: 116</p>
+<p><strong>GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC</strong>: 117</p>
+<p><strong>GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC</strong>: 118</p>
+<p><strong>GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC</strong>: 119</p>
+<p><strong>GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC</strong>: 120</p>
+<p><strong>GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC</strong>: 121</p>
+<p><strong>GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC</strong>: 122</p>
+<p><strong>GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC</strong>: 123</p>
+<p><strong>GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC</strong>: 124</p>
+<p><strong>GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC</strong>: 125</p>
+<p><strong>GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC</strong>: 126</p>
+<p><strong>GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC</strong>: 127</p>
+<p><strong>GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC</strong>: 128</p>
+<p><strong>GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC</strong>: 129</p>
+<p><strong>GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC</strong>: 130</p>
+<p><strong>GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC</strong>: 131</p>
+<p><strong>GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC</strong>: 132</p>
+<p><strong>GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC</strong>: 133</p>
+<p><strong>GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC</strong>: 134</p>
+<p><strong>GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC</strong>: 135</p>
+<p><strong>GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC</strong>: 136</p>
+<p><strong>GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC</strong>: 137</p>
+<p><strong>GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC</strong>: 138</p>
+<p><strong>GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC</strong>: 139</p>
+<p><strong>GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC</strong>: 140</p>
+<p><strong>GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC</strong>: 141</p>
+<p><strong>GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC</strong>: 142</p>
+<p><strong>GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC</strong>: 143</p>
+<p><strong>GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC</strong>: 144</p>
+<p><strong>GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC</strong>: 145</p>
+<p><strong>GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC</strong>: 146</p>
+<p><strong>GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC</strong>: 147</p>
+<p><strong>GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC</strong>: 148</p>
+<p><strong>GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC</strong>: 149</p>
+<p><strong>GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC</strong>: 150</p>
+<p><strong>GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC</strong>: 151</p>
+<p><strong>GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC</strong>: 152</p>
+<p><strong>GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC</strong>: 153</p>
+<p><strong>GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC</strong>: 154</p>
+<p><strong>GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC</strong>: 155</p>
+<p><strong>GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC</strong>: 156</p>
+<p><strong>GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC</strong>: 157</p>
+<p><strong>GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC</strong>: 158</p>
+<p><strong>GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC</strong>: 159</p>
+<p><strong>GPM_METRIC_HOSTMEM_CACHE_HIT</strong>: 160</p>
+<p><strong>GPM_METRIC_HOSTMEM_CACHE_MISS</strong>: 161</p>
+<p><strong>GPM_METRIC_PEERMEM_CACHE_HIT</strong>: 162</p>
+<p><strong>GPM_METRIC_PEERMEM_CACHE_MISS</strong>: 163</p>
+<p><strong>GPM_METRIC_DRAM_CACHE_HIT</strong>: 164</p>
+<p><strong>GPM_METRIC_DRAM_CACHE_MISS</strong>: 165</p>
+<p><strong>GPM_METRIC_NVENC_0_UTIL</strong>: 166</p>
+<p><strong>GPM_METRIC_NVENC_1_UTIL</strong>: 167</p>
+<p><strong>GPM_METRIC_NVENC_2_UTIL</strong>: 168</p>
+<p><strong>GPM_METRIC_NVENC_3_UTIL</strong>: 169</p>
+<p><strong>GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED</strong>: 170</p>
+<p><strong>GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE</strong>: 171</p>
+<p><strong>GPM_METRIC_GR0_CTXSW_REQUESTS</strong>: 172</p>
+<p><strong>GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ</strong>: 173</p>
+<p><strong>GPM_METRIC_GR0_CTXSW_ACTIVE_PCT</strong>: 174</p>
+<p><strong>GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED</strong>: 175</p>
+<p><strong>GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE</strong>: 176</p>
+<p><strong>GPM_METRIC_GR1_CTXSW_REQUESTS</strong>: 177</p>
+<p><strong>GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ</strong>: 178</p>
+<p><strong>GPM_METRIC_GR1_CTXSW_ACTIVE_PCT</strong>: 179</p>
+<p><strong>GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED</strong>: 180</p>
+<p><strong>GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE</strong>: 181</p>
+<p><strong>GPM_METRIC_GR2_CTXSW_REQUESTS</strong>: 182</p>
+<p><strong>GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ</strong>: 183</p>
+<p><strong>GPM_METRIC_GR2_CTXSW_ACTIVE_PCT</strong>: 184</p>
+<p><strong>GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED</strong>: 185</p>
+<p><strong>GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE</strong>: 186</p>
+<p><strong>GPM_METRIC_GR3_CTXSW_REQUESTS</strong>: 187</p>
+<p><strong>GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ</strong>: 188</p>
+<p><strong>GPM_METRIC_GR3_CTXSW_ACTIVE_PCT</strong>: 189</p>
+<p><strong>GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED</strong>: 190</p>
+<p><strong>GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE</strong>: 191</p>
+<p><strong>GPM_METRIC_GR4_CTXSW_REQUESTS</strong>: 192</p>
+<p><strong>GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ</strong>: 193</p>
+<p><strong>GPM_METRIC_GR4_CTXSW_ACTIVE_PCT</strong>: 194</p>
+<p><strong>GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED</strong>: 195</p>
+<p><strong>GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE</strong>: 196</p>
+<p><strong>GPM_METRIC_GR5_CTXSW_REQUESTS</strong>: 197</p>
+<p><strong>GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ</strong>: 198</p>
+<p><strong>GPM_METRIC_GR5_CTXSW_ACTIVE_PCT</strong>: 199</p>
+<p><strong>GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED</strong>: 200</p>
+<p><strong>GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE</strong>: 201</p>
+<p><strong>GPM_METRIC_GR6_CTXSW_REQUESTS</strong>: 202</p>
+<p><strong>GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ</strong>: 203</p>
+<p><strong>GPM_METRIC_GR6_CTXSW_ACTIVE_PCT</strong>: 204</p>
+<p><strong>GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED</strong>: 205</p>
+<p><strong>GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE</strong>: 206</p>
+<p><strong>GPM_METRIC_GR7_CTXSW_REQUESTS</strong>: 207</p>
+<p><strong>GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ</strong>: 208</p>
+<p><strong>GPM_METRIC_GR7_CTXSW_ACTIVE_PCT</strong>: 209</p>
+<dl class="simple">
+<dt><strong>GPM_METRIC_SM_CYCLES_ELAPSED</strong>: 248</dt><dd><p>The GPU’s SM cycles elapsed since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_SM_CYCLES_ACTIVE</strong>: 249</dt><dd><p>The GPU’s SM activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_MMA_CYCLES_ACTIVE</strong>: 250</dt><dd><p>The GPU’s SM MMA tensor activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_DMMA_CYCLES_ACTIVE</strong>: 251</dt><dd><p>The GPU’s SM DMMA tensor activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_HMMA_CYCLES_ACTIVE</strong>: 252</dt><dd><p>The GPU’s SM HMMA tensor activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_IMMA_CYCLES_ACTIVE</strong>: 253</dt><dd><p>The GPU’s SM IMMA tensor activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_DFMA_CYCLES_ACTIVE</strong>: 254</dt><dd><p>The GPU’s SM DFMA tensor activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_PCIE_TX</strong>: 255</dt><dd><p>The PCIe TX traffic since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_PCIE_RX</strong>: 256</dt><dd><p>The PCIe RX traffic since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_INTEGER_CYCLES_ACTIVE</strong>: 257</dt><dd><p>The GPU’s SM integer activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_FP64_CYCLES_ACTIVE</strong>: 258</dt><dd><p>The GPU’s SM FP64 activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_FP32_CYCLES_ACTIVE</strong>: 259</dt><dd><p>The GPU’s SM FP64 activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_FP16_CYCLES_ACTIVE</strong>: 260</dt><dd><p>The GPU’s SM FP64 activity since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L0_RX</strong>: 261</dt><dd><p>NvLink read for link 0 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L0_TX</strong>: 262</dt><dd><p>NvLink write for link 0 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L1_RX</strong>: 263</dt><dd><p>NvLink read for link 1 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L1_TX</strong>: 264</dt><dd><p>NvLink write for link 1 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L2_RX</strong>: 265</dt><dd><p>NvLink read for link 2 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L2_TX</strong>: 266</dt><dd><p>NvLink write for link 2 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L3_RX</strong>: 267</dt><dd><p>NvLink read for link 3 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L3_TX</strong>: 268</dt><dd><p>NvLink write for link 3 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L4_RX</strong>: 269</dt><dd><p>NvLink read for link 4 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L4_TX</strong>: 270</dt><dd><p>NvLink write for link 4 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L5_RX</strong>: 271</dt><dd><p>NvLink read for link 5 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L5_TX</strong>: 272</dt><dd><p>NvLink write for link 5 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L6_RX</strong>: 273</dt><dd><p>NvLink read for link 6 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L6_TX</strong>: 274</dt><dd><p>NvLink write for link 6 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L7_RX</strong>: 275</dt><dd><p>NvLink read for link 7 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L7_TX</strong>: 276</dt><dd><p>NvLink write for link 7 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L8_RX</strong>: 277</dt><dd><p>NvLink read for link 8 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L8_TX</strong>: 278</dt><dd><p>NvLink write for link 8 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L9_RX</strong>: 279</dt><dd><p>NvLink read for link 9 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L9_TX</strong>: 280</dt><dd><p>NvLink write for link 9 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L10_RX</strong>: 281</dt><dd><p>NvLink read for link 10 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L10_TX</strong>: 282</dt><dd><p>NvLink write for link 10 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L11_RX</strong>: 283</dt><dd><p>NvLink read for link 11 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L11_TX</strong>: 284</dt><dd><p>NvLink write for link 11 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L12_RX</strong>: 285</dt><dd><p>NvLink read for link 12 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L12_TX</strong>: 286</dt><dd><p>NvLink write for link 12 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L13_RX</strong>: 287</dt><dd><p>NvLink read for link 13 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L13_TX</strong>: 288</dt><dd><p>NvLink write for link 13 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L14_RX</strong>: 289</dt><dd><p>NvLink read for link 14 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L14_TX</strong>: 290</dt><dd><p>NvLink write for link 14 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L15_RX</strong>: 291</dt><dd><p>NvLink read for link 15 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L15_TX</strong>: 292</dt><dd><p>NvLink write for link 15 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L16_RX</strong>: 293</dt><dd><p>NvLink read for link 16 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L16_TX</strong>: 294</dt><dd><p>NvLink write for link 16 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L17_RX</strong>: 295</dt><dd><p>NvLink read for link 17 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L17_TX</strong>: 296</dt><dd><p>NvLink write for link 17 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_MAX</strong>: 333</dt><dd><p>Maximum value above +1.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -2076,10 +1680,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.GpmMetricId"><code class="docutils literal notranslate"><span class="pre">GpmMetricId</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.GpmMetricId.__init__"><code class="docutils literal notranslate"><span class="pre">GpmMetricId.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.GpmMetricId"><code class="docutils literal notranslate"><span class="pre">GpmMetricId</span></code></a></li>
 </ul>
   </nav></div>
 

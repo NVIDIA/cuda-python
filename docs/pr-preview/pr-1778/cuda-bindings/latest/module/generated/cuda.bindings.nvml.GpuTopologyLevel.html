@@ -1272,83 +1272,12 @@
 <dd><p>Represents level relationships within a system between two GPUs The
 enums are spaced to allow for future relationships</p>
 <p>See <cite>nvmlGpuTopologyLevel_t</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.nvml.GpuTopologyLevel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.GpuTopologyLevel.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.nvml.GpuTopologyLevel.__init__" title="cuda.bindings.nvml.GpuTopologyLevel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOPOLOGY_HOSTBRIDGE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOPOLOGY_INTERNAL</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOPOLOGY_MULTIPLE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOPOLOGY_NODE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOPOLOGY_SINGLE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TOPOLOGY_SYSTEM</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p><strong>TOPOLOGY_INTERNAL</strong>: 0</p>
+<p><strong>TOPOLOGY_SINGLE</strong>: 10</p>
+<p><strong>TOPOLOGY_MULTIPLE</strong>: 20</p>
+<p><strong>TOPOLOGY_HOSTBRIDGE</strong>: 30</p>
+<p><strong>TOPOLOGY_NODE</strong>: 40</p>
+<p><strong>TOPOLOGY_SYSTEM</strong>: 50</p>
 </dd></dl>
 
 </section>
@@ -1402,10 +1331,7 @@ enums are spaced to allow for future relationships</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.GpuTopologyLevel"><code class="docutils literal notranslate"><span class="pre">GpuTopologyLevel</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.GpuTopologyLevel.__init__"><code class="docutils literal notranslate"><span class="pre">GpuTopologyLevel.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.GpuTopologyLevel"><code class="docutils literal notranslate"><span class="pre">GpuTopologyLevel</span></code></a></li>
 </ul>
   </nav></div>
 

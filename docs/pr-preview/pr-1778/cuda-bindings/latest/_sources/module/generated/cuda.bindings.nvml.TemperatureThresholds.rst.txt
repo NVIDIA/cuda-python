@@ -3,47 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: TemperatureThresholds
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~TemperatureThresholds.__init__
-      ~TemperatureThresholds.as_integer_ratio
-      ~TemperatureThresholds.bit_count
-      ~TemperatureThresholds.bit_length
-      ~TemperatureThresholds.conjugate
-      ~TemperatureThresholds.from_bytes
-      ~TemperatureThresholds.is_integer
-      ~TemperatureThresholds.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MAX
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_MIN
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_COUNT
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_GPS_CURR
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN
-      ~TemperatureThresholds.TEMPERATURE_THRESHOLD_SLOWDOWN
-      ~TemperatureThresholds.denominator
-      ~TemperatureThresholds.imag
-      ~TemperatureThresholds.name
-      ~TemperatureThresholds.numerator
-      ~TemperatureThresholds.real
-      ~TemperatureThresholds.value
-   
-   
+.. autoenum:: TemperatureThresholds

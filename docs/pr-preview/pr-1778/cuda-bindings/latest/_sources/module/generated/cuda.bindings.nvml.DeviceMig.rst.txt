@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: DeviceMig
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~DeviceMig.__init__
-      ~DeviceMig.as_integer_ratio
-      ~DeviceMig.bit_count
-      ~DeviceMig.bit_length
-      ~DeviceMig.conjugate
-      ~DeviceMig.from_bytes
-      ~DeviceMig.is_integer
-      ~DeviceMig.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~DeviceMig.DISABLE
-      ~DeviceMig.ENABLE
-      ~DeviceMig.denominator
-      ~DeviceMig.imag
-      ~DeviceMig.name
-      ~DeviceMig.numerator
-      ~DeviceMig.real
-      ~DeviceMig.value
-   
-   
+.. autoenum:: DeviceMig

@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: PcieLinkState
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~PcieLinkState.__init__
-      ~PcieLinkState.as_integer_ratio
-      ~PcieLinkState.bit_count
-      ~PcieLinkState.bit_length
-      ~PcieLinkState.conjugate
-      ~PcieLinkState.from_bytes
-      ~PcieLinkState.is_integer
-      ~PcieLinkState.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~PcieLinkState.PCIE_LINK_KEEP
-      ~PcieLinkState.PCIE_LINK_SHUT_DOWN
-      ~PcieLinkState.denominator
-      ~PcieLinkState.imag
-      ~PcieLinkState.name
-      ~PcieLinkState.numerator
-      ~PcieLinkState.real
-      ~PcieLinkState.value
-   
-   
+.. autoenum:: PcieLinkState

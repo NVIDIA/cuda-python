@@ -3,46 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuP2PStatus
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuP2PStatus.__init__
-      ~GpuP2PStatus.as_integer_ratio
-      ~GpuP2PStatus.bit_count
-      ~GpuP2PStatus.bit_length
-      ~GpuP2PStatus.conjugate
-      ~GpuP2PStatus.from_bytes
-      ~GpuP2PStatus.is_integer
-      ~GpuP2PStatus.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORED
-      ~GpuP2PStatus.P2P_STATUS_CHIPSET_NOT_SUPPORTED
-      ~GpuP2PStatus.P2P_STATUS_DISABLED_BY_REGKEY
-      ~GpuP2PStatus.P2P_STATUS_GPU_NOT_SUPPORTED
-      ~GpuP2PStatus.P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED
-      ~GpuP2PStatus.P2P_STATUS_NOT_SUPPORTED
-      ~GpuP2PStatus.P2P_STATUS_OK
-      ~GpuP2PStatus.P2P_STATUS_UNKNOWN
-      ~GpuP2PStatus.denominator
-      ~GpuP2PStatus.imag
-      ~GpuP2PStatus.name
-      ~GpuP2PStatus.numerator
-      ~GpuP2PStatus.real
-      ~GpuP2PStatus.value
-   
-   
+.. autoenum:: GpuP2PStatus

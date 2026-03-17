@@ -1271,161 +1271,72 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">Return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.Return" title="Link to this definition">#</a></dt>
 <dd><p>Return values for NVML API calls.</p>
 <p>See <cite>nvmlReturn_t</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.nvml.Return.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.Return.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.nvml.Return.__init__" title="cuda.bindings.nvml.Return.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_ALREADY_INITIALIZED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_ARGUMENT_VERSION_MISMATCH</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_CORRUPTED_INFOROM</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_DEPRECATED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_DRIVER_NOT_LOADED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_FREQ_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_FUNCTION_NOT_FOUND</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_GPU_IS_LOST</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_GPU_NOT_FOUND</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_INSUFFICIENT_POWER</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_INSUFFICIENT_RESOURCES</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_INSUFFICIENT_SIZE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_INVALID_ARGUMENT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_INVALID_STATE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_IN_USE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_IRQ_ISSUE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_LIBRARY_NOT_FOUND</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_LIB_RM_VERSION_MISMATCH</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_MEMORY</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_NOT_FOUND</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_NOT_READY</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_NO_DATA</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_NO_PERMISSION</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_OPERATING_SYSTEM</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_RESET_REQUIRED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_RESET_TYPE_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_TIMEOUT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_UNINITIALIZED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_UNKNOWN</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ERROR_VGPU_ECC_NOT_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUCCESS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<dl class="simple">
+<dt><strong>SUCCESS</strong>: 0</dt><dd><p>The operation was successful.</p>
+</dd>
+<dt><strong>ERROR_UNINITIALIZED</strong>: 1</dt><dd><p>NVML was not first initialized with nvmlInit()</p>
+</dd>
+<dt><strong>ERROR_INVALID_ARGUMENT</strong>: 2</dt><dd><p>A supplied argument is invalid.</p>
+</dd>
+<dt><strong>ERROR_NOT_SUPPORTED</strong>: 3</dt><dd><p>The requested operation is not available on target device.</p>
+</dd>
+<dt><strong>ERROR_NO_PERMISSION</strong>: 4</dt><dd><p>The current user does not have permission for operation.</p>
+</dd>
+<dt><strong>ERROR_ALREADY_INITIALIZED</strong>: 5</dt><dd><p>Deprecated: Multiple initializations are now allowed through ref counting.</p>
+</dd>
+<dt><strong>ERROR_NOT_FOUND</strong>: 6</dt><dd><p>A query to find an object was unsuccessful.</p>
+</dd>
+<dt><strong>ERROR_INSUFFICIENT_SIZE</strong>: 7</dt><dd><p>An input argument is not large enough.</p>
+</dd>
+<dt><strong>ERROR_INSUFFICIENT_POWER</strong>: 8</dt><dd><p>A device’s external power cables are not properly attached.</p>
+</dd>
+<dt><strong>ERROR_DRIVER_NOT_LOADED</strong>: 9</dt><dd><p>NVIDIA driver is not loaded.</p>
+</dd>
+<dt><strong>ERROR_TIMEOUT</strong>: 10</dt><dd><p>User provided timeout passed.</p>
+</dd>
+<dt><strong>ERROR_IRQ_ISSUE</strong>: 11</dt><dd><p>NVIDIA Kernel detected an interrupt issue with a GPU.</p>
+</dd>
+<dt><strong>ERROR_LIBRARY_NOT_FOUND</strong>: 12</dt><dd><p>NVML Shared Library couldn’t be found or loaded.</p>
+</dd>
+<dt><strong>ERROR_FUNCTION_NOT_FOUND</strong>: 13</dt><dd><p>Local version of NVML doesn’t implement this function.</p>
+</dd>
+<dt><strong>ERROR_CORRUPTED_INFOROM</strong>: 14</dt><dd><p>infoROM is corrupted</p>
+</dd>
+<dt><strong>ERROR_GPU_IS_LOST</strong>: 15</dt><dd><p>The GPU has fallen off the bus or has otherwise become inaccessible.</p>
+</dd>
+<dt><strong>ERROR_RESET_REQUIRED</strong>: 16</dt><dd><p>The GPU requires a reset before it can be used again.</p>
+</dd>
+<dt><strong>ERROR_OPERATING_SYSTEM</strong>: 17</dt><dd><p>The GPU control device has been blocked by the operating system/cgroups.</p>
+</dd>
+<dt><strong>ERROR_LIB_RM_VERSION_MISMATCH</strong>: 18</dt><dd><p>RM detects a driver/library version mismatch.</p>
+</dd>
+<dt><strong>ERROR_IN_USE</strong>: 19</dt><dd><p>An operation cannot be performed because the GPU is currently in use.</p>
+</dd>
+<dt><strong>ERROR_MEMORY</strong>: 20</dt><dd><p>Insufficient memory.</p>
+</dd>
+<dt><strong>ERROR_NO_DATA</strong>: 21</dt><dd><p>No data.</p>
+</dd>
+<dt><strong>ERROR_VGPU_ECC_NOT_SUPPORTED</strong>: 22</dt><dd><p>The requested vgpu operation is not available on target device, becasue ECC is enabled.</p>
+</dd>
+<dt><strong>ERROR_INSUFFICIENT_RESOURCES</strong>: 23</dt><dd><p>Ran out of critical resources, other than memory.</p>
+</dd>
+<dt><strong>ERROR_FREQ_NOT_SUPPORTED</strong>: 24</dt><dd><p>Ran out of critical resources, other than memory.</p>
+</dd>
+<dt><strong>ERROR_ARGUMENT_VERSION_MISMATCH</strong>: 25</dt><dd><p>The provided version is invalid/unsupported.</p>
+</dd>
+<dt><strong>ERROR_DEPRECATED</strong>: 26</dt><dd><p>The requested functionality has been deprecated.</p>
+</dd>
+<dt><strong>ERROR_NOT_READY</strong>: 27</dt><dd><p>The system is not ready for the request.</p>
+</dd>
+<dt><strong>ERROR_GPU_NOT_FOUND</strong>: 28</dt><dd><p>No GPUs were found.</p>
+</dd>
+<dt><strong>ERROR_INVALID_STATE</strong>: 29</dt><dd><p>Resource not in correct state to perform requested operation.</p>
+</dd>
+<dt><strong>ERROR_RESET_TYPE_NOT_SUPPORTED</strong>: 30</dt><dd><p>Reset not supported for given device/parameters.</p>
+</dd>
+<dt><strong>ERROR_UNKNOWN</strong>: 999</dt><dd><p>An internal driver error occurred.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1479,10 +1390,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.Return"><code class="docutils literal notranslate"><span class="pre">Return</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.Return.__init__"><code class="docutils literal notranslate"><span class="pre">Return.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.Return"><code class="docutils literal notranslate"><span class="pre">Return</span></code></a></li>
 </ul>
   </nav></div>
 

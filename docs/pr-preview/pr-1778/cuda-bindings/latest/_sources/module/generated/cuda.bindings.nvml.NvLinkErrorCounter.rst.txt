@@ -3,44 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvLinkErrorCounter
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvLinkErrorCounter.__init__
-      ~NvLinkErrorCounter.as_integer_ratio
-      ~NvLinkErrorCounter.bit_count
-      ~NvLinkErrorCounter.bit_length
-      ~NvLinkErrorCounter.conjugate
-      ~NvLinkErrorCounter.from_bytes
-      ~NvLinkErrorCounter.is_integer
-      ~NvLinkErrorCounter.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvLinkErrorCounter.NVLINK_ERROR_COUNT
-      ~NvLinkErrorCounter.NVLINK_ERROR_DL_CRC_DATA
-      ~NvLinkErrorCounter.NVLINK_ERROR_DL_CRC_FLIT
-      ~NvLinkErrorCounter.NVLINK_ERROR_DL_ECC_DATA
-      ~NvLinkErrorCounter.NVLINK_ERROR_DL_RECOVERY
-      ~NvLinkErrorCounter.NVLINK_ERROR_DL_REPLAY
-      ~NvLinkErrorCounter.denominator
-      ~NvLinkErrorCounter.imag
-      ~NvLinkErrorCounter.name
-      ~NvLinkErrorCounter.numerator
-      ~NvLinkErrorCounter.real
-      ~NvLinkErrorCounter.value
-   
-   
+.. autoenum:: NvLinkErrorCounter

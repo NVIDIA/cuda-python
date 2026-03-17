@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: BridgeChipType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~BridgeChipType.__init__
-      ~BridgeChipType.as_integer_ratio
-      ~BridgeChipType.bit_count
-      ~BridgeChipType.bit_length
-      ~BridgeChipType.conjugate
-      ~BridgeChipType.from_bytes
-      ~BridgeChipType.is_integer
-      ~BridgeChipType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~BridgeChipType.BRIDGE_CHIP_BRO4
-      ~BridgeChipType.BRIDGE_CHIP_PLX
-      ~BridgeChipType.denominator
-      ~BridgeChipType.imag
-      ~BridgeChipType.name
-      ~BridgeChipType.numerator
-      ~BridgeChipType.real
-      ~BridgeChipType.value
-   
-   
+.. autoenum:: BridgeChipType

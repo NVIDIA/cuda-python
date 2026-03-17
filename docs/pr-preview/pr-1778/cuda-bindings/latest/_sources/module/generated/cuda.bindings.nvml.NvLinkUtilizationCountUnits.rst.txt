@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: NvLinkUtilizationCountUnits
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~NvLinkUtilizationCountUnits.__init__
-      ~NvLinkUtilizationCountUnits.as_integer_ratio
-      ~NvLinkUtilizationCountUnits.bit_count
-      ~NvLinkUtilizationCountUnits.bit_length
-      ~NvLinkUtilizationCountUnits.conjugate
-      ~NvLinkUtilizationCountUnits.from_bytes
-      ~NvLinkUtilizationCountUnits.is_integer
-      ~NvLinkUtilizationCountUnits.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~NvLinkUtilizationCountUnits.NVLINK_COUNTER_UNIT_BYTES
-      ~NvLinkUtilizationCountUnits.NVLINK_COUNTER_UNIT_COUNT
-      ~NvLinkUtilizationCountUnits.NVLINK_COUNTER_UNIT_CYCLES
-      ~NvLinkUtilizationCountUnits.NVLINK_COUNTER_UNIT_PACKETS
-      ~NvLinkUtilizationCountUnits.NVLINK_COUNTER_UNIT_RESERVED
-      ~NvLinkUtilizationCountUnits.denominator
-      ~NvLinkUtilizationCountUnits.imag
-      ~NvLinkUtilizationCountUnits.name
-      ~NvLinkUtilizationCountUnits.numerator
-      ~NvLinkUtilizationCountUnits.real
-      ~NvLinkUtilizationCountUnits.value
-   
-   
+.. autoenum:: NvLinkUtilizationCountUnits

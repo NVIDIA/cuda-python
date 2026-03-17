@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: ComputeInstanceEngineProfile
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~ComputeInstanceEngineProfile.__init__
-      ~ComputeInstanceEngineProfile.as_integer_ratio
-      ~ComputeInstanceEngineProfile.bit_count
-      ~ComputeInstanceEngineProfile.bit_length
-      ~ComputeInstanceEngineProfile.conjugate
-      ~ComputeInstanceEngineProfile.from_bytes
-      ~ComputeInstanceEngineProfile.is_integer
-      ~ComputeInstanceEngineProfile.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~ComputeInstanceEngineProfile.COUNT
-      ~ComputeInstanceEngineProfile.SHARED
-      ~ComputeInstanceEngineProfile.denominator
-      ~ComputeInstanceEngineProfile.imag
-      ~ComputeInstanceEngineProfile.name
-      ~ComputeInstanceEngineProfile.numerator
-      ~ComputeInstanceEngineProfile.real
-      ~ComputeInstanceEngineProfile.value
-   
-   
+.. autoenum:: ComputeInstanceEngineProfile

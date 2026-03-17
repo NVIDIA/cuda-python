@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuPgpuCompatibilityLimitCode
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuPgpuCompatibilityLimitCode.__init__
-      ~VgpuPgpuCompatibilityLimitCode.as_integer_ratio
-      ~VgpuPgpuCompatibilityLimitCode.bit_count
-      ~VgpuPgpuCompatibilityLimitCode.bit_length
-      ~VgpuPgpuCompatibilityLimitCode.conjugate
-      ~VgpuPgpuCompatibilityLimitCode.from_bytes
-      ~VgpuPgpuCompatibilityLimitCode.is_integer
-      ~VgpuPgpuCompatibilityLimitCode.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuPgpuCompatibilityLimitCode.VGPU_COMPATIBILITY_LIMIT_GPU
-      ~VgpuPgpuCompatibilityLimitCode.VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER
-      ~VgpuPgpuCompatibilityLimitCode.VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER
-      ~VgpuPgpuCompatibilityLimitCode.VGPU_COMPATIBILITY_LIMIT_NONE
-      ~VgpuPgpuCompatibilityLimitCode.VGPU_COMPATIBILITY_LIMIT_OTHER
-      ~VgpuPgpuCompatibilityLimitCode.denominator
-      ~VgpuPgpuCompatibilityLimitCode.imag
-      ~VgpuPgpuCompatibilityLimitCode.name
-      ~VgpuPgpuCompatibilityLimitCode.numerator
-      ~VgpuPgpuCompatibilityLimitCode.real
-      ~VgpuPgpuCompatibilityLimitCode.value
-   
-   
+.. autoenum:: VgpuPgpuCompatibilityLimitCode

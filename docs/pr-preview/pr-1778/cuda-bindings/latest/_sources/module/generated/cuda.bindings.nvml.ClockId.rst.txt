@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: ClockId
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~ClockId.__init__
-      ~ClockId.as_integer_ratio
-      ~ClockId.bit_count
-      ~ClockId.bit_length
-      ~ClockId.conjugate
-      ~ClockId.from_bytes
-      ~ClockId.is_integer
-      ~ClockId.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~ClockId.APP_CLOCK_DEFAULT
-      ~ClockId.APP_CLOCK_TARGET
-      ~ClockId.COUNT
-      ~ClockId.CURRENT
-      ~ClockId.CUSTOMER_BOOST_MAX
-      ~ClockId.denominator
-      ~ClockId.imag
-      ~ClockId.name
-      ~ClockId.numerator
-      ~ClockId.real
-      ~ClockId.value
-   
-   
+.. autoenum:: ClockId

@@ -3,42 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuSchedulerPolicy
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuSchedulerPolicy.__init__
-      ~VgpuSchedulerPolicy.as_integer_ratio
-      ~VgpuSchedulerPolicy.bit_count
-      ~VgpuSchedulerPolicy.bit_length
-      ~VgpuSchedulerPolicy.conjugate
-      ~VgpuSchedulerPolicy.from_bytes
-      ~VgpuSchedulerPolicy.is_integer
-      ~VgpuSchedulerPolicy.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuSchedulerPolicy.BEST_EFFORT
-      ~VgpuSchedulerPolicy.EQUAL_SHARE
-      ~VgpuSchedulerPolicy.FIXED_SHARE
-      ~VgpuSchedulerPolicy.UNKNOWN
-      ~VgpuSchedulerPolicy.denominator
-      ~VgpuSchedulerPolicy.imag
-      ~VgpuSchedulerPolicy.name
-      ~VgpuSchedulerPolicy.numerator
-      ~VgpuSchedulerPolicy.real
-      ~VgpuSchedulerPolicy.value
-   
-   
+.. autoenum:: VgpuSchedulerPolicy

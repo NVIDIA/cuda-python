@@ -3,42 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: PowerMizerMode
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~PowerMizerMode.__init__
-      ~PowerMizerMode.as_integer_ratio
-      ~PowerMizerMode.bit_count
-      ~PowerMizerMode.bit_length
-      ~PowerMizerMode.conjugate
-      ~PowerMizerMode.from_bytes
-      ~PowerMizerMode.is_integer
-      ~PowerMizerMode.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~PowerMizerMode.ADAPTIVE
-      ~PowerMizerMode.AUTO
-      ~PowerMizerMode.PREFER_CONSISTENT_PERFORMANCE
-      ~PowerMizerMode.PREFER_MAXIMUM_PERFORMANCE
-      ~PowerMizerMode.denominator
-      ~PowerMizerMode.imag
-      ~PowerMizerMode.name
-      ~PowerMizerMode.numerator
-      ~PowerMizerMode.real
-      ~PowerMizerMode.value
-   
-   
+.. autoenum:: PowerMizerMode

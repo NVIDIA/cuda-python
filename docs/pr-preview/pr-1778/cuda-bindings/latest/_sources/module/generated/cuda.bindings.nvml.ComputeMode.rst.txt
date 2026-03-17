@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: ComputeMode
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~ComputeMode.__init__
-      ~ComputeMode.as_integer_ratio
-      ~ComputeMode.bit_count
-      ~ComputeMode.bit_length
-      ~ComputeMode.conjugate
-      ~ComputeMode.from_bytes
-      ~ComputeMode.is_integer
-      ~ComputeMode.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~ComputeMode.COMPUTEMODE_COUNT
-      ~ComputeMode.COMPUTEMODE_DEFAULT
-      ~ComputeMode.COMPUTEMODE_EXCLUSIVE_PROCESS
-      ~ComputeMode.COMPUTEMODE_EXCLUSIVE_THREAD
-      ~ComputeMode.COMPUTEMODE_PROHIBITED
-      ~ComputeMode.denominator
-      ~ComputeMode.imag
-      ~ComputeMode.name
-      ~ComputeMode.numerator
-      ~ComputeMode.real
-      ~ComputeMode.value
-   
-   
+.. autoenum:: ComputeMode

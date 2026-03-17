@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: CCSystemEnvironment
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~CCSystemEnvironment.__init__
-      ~CCSystemEnvironment.as_integer_ratio
-      ~CCSystemEnvironment.bit_count
-      ~CCSystemEnvironment.bit_length
-      ~CCSystemEnvironment.conjugate
-      ~CCSystemEnvironment.from_bytes
-      ~CCSystemEnvironment.is_integer
-      ~CCSystemEnvironment.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~CCSystemEnvironment.PROD
-      ~CCSystemEnvironment.SIM
-      ~CCSystemEnvironment.UNAVAILABLE
-      ~CCSystemEnvironment.denominator
-      ~CCSystemEnvironment.imag
-      ~CCSystemEnvironment.name
-      ~CCSystemEnvironment.numerator
-      ~CCSystemEnvironment.real
-      ~CCSystemEnvironment.value
-   
-   
+.. autoenum:: CCSystemEnvironment

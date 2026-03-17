@@ -3,47 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: PerfPolicyType
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~PerfPolicyType.__init__
-      ~PerfPolicyType.as_integer_ratio
-      ~PerfPolicyType.bit_count
-      ~PerfPolicyType.bit_length
-      ~PerfPolicyType.conjugate
-      ~PerfPolicyType.from_bytes
-      ~PerfPolicyType.is_integer
-      ~PerfPolicyType.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~PerfPolicyType.PERF_POLICY_BOARD_LIMIT
-      ~PerfPolicyType.PERF_POLICY_COUNT
-      ~PerfPolicyType.PERF_POLICY_LOW_UTILIZATION
-      ~PerfPolicyType.PERF_POLICY_POWER
-      ~PerfPolicyType.PERF_POLICY_RELIABILITY
-      ~PerfPolicyType.PERF_POLICY_SYNC_BOOST
-      ~PerfPolicyType.PERF_POLICY_THERMAL
-      ~PerfPolicyType.PERF_POLICY_TOTAL_APP_CLOCKS
-      ~PerfPolicyType.PERF_POLICY_TOTAL_BASE_CLOCKS
-      ~PerfPolicyType.denominator
-      ~PerfPolicyType.imag
-      ~PerfPolicyType.name
-      ~PerfPolicyType.numerator
-      ~PerfPolicyType.real
-      ~PerfPolicyType.value
-   
-   
+.. autoenum:: PerfPolicyType

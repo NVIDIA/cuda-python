@@ -3,43 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuVmCompatibility
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuVmCompatibility.__init__
-      ~VgpuVmCompatibility.as_integer_ratio
-      ~VgpuVmCompatibility.bit_count
-      ~VgpuVmCompatibility.bit_length
-      ~VgpuVmCompatibility.conjugate
-      ~VgpuVmCompatibility.from_bytes
-      ~VgpuVmCompatibility.is_integer
-      ~VgpuVmCompatibility.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuVmCompatibility.COLD
-      ~VgpuVmCompatibility.HIBERNATE
-      ~VgpuVmCompatibility.LIVE
-      ~VgpuVmCompatibility.NONE
-      ~VgpuVmCompatibility.SLEEP
-      ~VgpuVmCompatibility.denominator
-      ~VgpuVmCompatibility.imag
-      ~VgpuVmCompatibility.name
-      ~VgpuVmCompatibility.numerator
-      ~VgpuVmCompatibility.real
-      ~VgpuVmCompatibility.value
-   
-   
+.. autoenum:: VgpuVmCompatibility

@@ -3,48 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: MemoryLocation
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~MemoryLocation.__init__
-      ~MemoryLocation.as_integer_ratio
-      ~MemoryLocation.bit_count
-      ~MemoryLocation.bit_length
-      ~MemoryLocation.conjugate
-      ~MemoryLocation.from_bytes
-      ~MemoryLocation.is_integer
-      ~MemoryLocation.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~MemoryLocation.CBU
-      ~MemoryLocation.COUNT
-      ~MemoryLocation.DEVICE_MEMORY
-      ~MemoryLocation.DRAM
-      ~MemoryLocation.L1_CACHE
-      ~MemoryLocation.L2_CACHE
-      ~MemoryLocation.REGISTER_FILE
-      ~MemoryLocation.SRAM
-      ~MemoryLocation.TEXTURE_MEMORY
-      ~MemoryLocation.TEXTURE_SHM
-      ~MemoryLocation.denominator
-      ~MemoryLocation.imag
-      ~MemoryLocation.name
-      ~MemoryLocation.numerator
-      ~MemoryLocation.real
-      ~MemoryLocation.value
-   
-   
+.. autoenum:: MemoryLocation

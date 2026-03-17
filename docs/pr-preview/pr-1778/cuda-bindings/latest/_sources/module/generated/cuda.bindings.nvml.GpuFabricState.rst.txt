@@ -3,42 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuFabricState
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuFabricState.__init__
-      ~GpuFabricState.as_integer_ratio
-      ~GpuFabricState.bit_count
-      ~GpuFabricState.bit_length
-      ~GpuFabricState.conjugate
-      ~GpuFabricState.from_bytes
-      ~GpuFabricState.is_integer
-      ~GpuFabricState.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuFabricState.COMPLETED
-      ~GpuFabricState.IN_PROGRESS
-      ~GpuFabricState.NOT_STARTED
-      ~GpuFabricState.NOT_SUPPORTED
-      ~GpuFabricState.denominator
-      ~GpuFabricState.imag
-      ~GpuFabricState.name
-      ~GpuFabricState.numerator
-      ~GpuFabricState.real
-      ~GpuFabricState.value
-   
-   
+.. autoenum:: GpuFabricState

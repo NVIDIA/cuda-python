@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: RestrictedAPI
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~RestrictedAPI.__init__
-      ~RestrictedAPI.as_integer_ratio
-      ~RestrictedAPI.bit_count
-      ~RestrictedAPI.bit_length
-      ~RestrictedAPI.conjugate
-      ~RestrictedAPI.from_bytes
-      ~RestrictedAPI.is_integer
-      ~RestrictedAPI.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~RestrictedAPI.COUNT
-      ~RestrictedAPI.SET_APPLICATION_CLOCKS
-      ~RestrictedAPI.SET_AUTO_BOOSTED_CLOCKS
-      ~RestrictedAPI.denominator
-      ~RestrictedAPI.imag
-      ~RestrictedAPI.name
-      ~RestrictedAPI.numerator
-      ~RestrictedAPI.real
-      ~RestrictedAPI.value
-   
-   
+.. autoenum:: RestrictedAPI

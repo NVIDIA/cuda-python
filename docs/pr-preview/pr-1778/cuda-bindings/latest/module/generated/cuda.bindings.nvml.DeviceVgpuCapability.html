@@ -1271,104 +1271,33 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">DeviceVgpuCapability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.DeviceVgpuCapability" title="Link to this definition">#</a></dt>
 <dd><p>Device vGPU queryable capabilities</p>
 <p>See <cite>nvmlDeviceVgpuCapability_t</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.nvml.DeviceVgpuCapability.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.DeviceVgpuCapability.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cuda.bindings.nvml.DeviceVgpuCapability.__init__" title="cuda.bindings.nvml.DeviceVgpuCapability.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_integer_ratio</span></code>()</p></td>
-<td><p>Return a pair of integers, whose ratio is equal to the original int.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_count</span></code>()</p></td>
-<td><p>Number of ones in the binary representation of the absolute value of self.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bit_length</span></code>()</p></td>
-<td><p>Number of bits necessary to represent self in binary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></p></td>
-<td><p>Returns self, the complex conjugate of any int.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_bytes</span></code>([byteorder, signed])</p></td>
-<td><p>Return the integer represented by the given array of bytes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_integer</span></code>()</p></td>
-<td><p>Returns True.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_bytes</span></code>([length, byteorder, signed])</p></td>
-<td><p>Return an array of bytes representing an integer.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_COUNT</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_DEVICE_STREAMING</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_MINI_QUARTER_GPU</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_WARM_UPDATE</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
-<td><p>the denominator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></p></td>
-<td><p>the imaginary part of a complex number</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerator</span></code></p></td>
-<td><p>the numerator of a rational number in lowest terms</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></p></td>
-<td><p>the real part of a complex number</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<dl class="simple">
+<dt><strong>DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU</strong>: 0</dt><dd><p>Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES</strong>: 1</dt><dd><p>Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES</strong>: 2</dt><dd><p>Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW</strong>: 3</dt><dd><p>Query the GPU’s read_device_buffer expected bandwidth capacity in megabytes per second.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW</strong>: 4</dt><dd><p>Query the GPU’s write_device_buffer expected bandwidth capacity in megabytes per second.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_DEVICE_STREAMING</strong>: 5</dt><dd><p>Query whether the vGPU profiles on the GPU supports migration data streaming.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_MINI_QUARTER_GPU</strong>: 6</dt><dd><p>Set/Get support for mini-quarter vGPU profiles.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU</strong>: 7</dt><dd><p>Set/Get support for compute media engine vGPU profiles.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_WARM_UPDATE</strong>: 8</dt><dd><p>Query whether the GPU supports FSR and warm update.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS</strong>: 9</dt><dd><p>Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED</strong>: 10</dt><dd><p>Query whether the GPU supports timesliced vGPU on MIG.</p>
+</dd>
+<dt><strong>DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED</strong>: 11</dt><dd><p>Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.</p>
+</dd>
+</dl>
+<p><strong>DEVICE_VGPU_CAP_COUNT</strong>: 12</p>
 </dd></dl>
 
 </section>
@@ -1422,10 +1351,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.DeviceVgpuCapability"><code class="docutils literal notranslate"><span class="pre">DeviceVgpuCapability</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.DeviceVgpuCapability.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceVgpuCapability.__init__()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.DeviceVgpuCapability"><code class="docutils literal notranslate"><span class="pre">DeviceVgpuCapability</span></code></a></li>
 </ul>
   </nav></div>
 

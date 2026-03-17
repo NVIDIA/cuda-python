@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: VgpuDriverCapability
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~VgpuDriverCapability.__init__
-      ~VgpuDriverCapability.as_integer_ratio
-      ~VgpuDriverCapability.bit_count
-      ~VgpuDriverCapability.bit_length
-      ~VgpuDriverCapability.conjugate
-      ~VgpuDriverCapability.from_bytes
-      ~VgpuDriverCapability.is_integer
-      ~VgpuDriverCapability.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~VgpuDriverCapability.VGPU_DRIVER_CAP_COUNT
-      ~VgpuDriverCapability.VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU
-      ~VgpuDriverCapability.VGPU_DRIVER_CAP_WARM_UPDATE
-      ~VgpuDriverCapability.denominator
-      ~VgpuDriverCapability.imag
-      ~VgpuDriverCapability.name
-      ~VgpuDriverCapability.numerator
-      ~VgpuDriverCapability.real
-      ~VgpuDriverCapability.value
-   
-   
+.. autoenum:: VgpuDriverCapability

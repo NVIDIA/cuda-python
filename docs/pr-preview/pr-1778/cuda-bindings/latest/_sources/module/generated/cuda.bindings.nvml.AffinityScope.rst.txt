@@ -3,40 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: AffinityScope
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~AffinityScope.__init__
-      ~AffinityScope.as_integer_ratio
-      ~AffinityScope.bit_count
-      ~AffinityScope.bit_length
-      ~AffinityScope.conjugate
-      ~AffinityScope.from_bytes
-      ~AffinityScope.is_integer
-      ~AffinityScope.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~AffinityScope.NODE
-      ~AffinityScope.SOCKET
-      ~AffinityScope.denominator
-      ~AffinityScope.imag
-      ~AffinityScope.name
-      ~AffinityScope.numerator
-      ~AffinityScope.real
-      ~AffinityScope.value
-   
-   
+.. autoenum:: AffinityScope

@@ -3,45 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuP2PCapsIndex
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuP2PCapsIndex.__init__
-      ~GpuP2PCapsIndex.as_integer_ratio
-      ~GpuP2PCapsIndex.bit_count
-      ~GpuP2PCapsIndex.bit_length
-      ~GpuP2PCapsIndex.conjugate
-      ~GpuP2PCapsIndex.from_bytes
-      ~GpuP2PCapsIndex.is_integer
-      ~GpuP2PCapsIndex.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_ATOMICS
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_NVLINK
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_PCI
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_PROP
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_READ
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_UNKNOWN
-      ~GpuP2PCapsIndex.P2P_CAPS_INDEX_WRITE
-      ~GpuP2PCapsIndex.denominator
-      ~GpuP2PCapsIndex.imag
-      ~GpuP2PCapsIndex.name
-      ~GpuP2PCapsIndex.numerator
-      ~GpuP2PCapsIndex.real
-      ~GpuP2PCapsIndex.value
-   
-   
+.. autoenum:: GpuP2PCapsIndex

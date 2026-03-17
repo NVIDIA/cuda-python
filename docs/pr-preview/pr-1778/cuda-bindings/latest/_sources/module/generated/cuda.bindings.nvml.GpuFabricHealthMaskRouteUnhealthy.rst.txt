@@ -3,41 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: GpuFabricHealthMaskRouteUnhealthy
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~GpuFabricHealthMaskRouteUnhealthy.__init__
-      ~GpuFabricHealthMaskRouteUnhealthy.as_integer_ratio
-      ~GpuFabricHealthMaskRouteUnhealthy.bit_count
-      ~GpuFabricHealthMaskRouteUnhealthy.bit_length
-      ~GpuFabricHealthMaskRouteUnhealthy.conjugate
-      ~GpuFabricHealthMaskRouteUnhealthy.from_bytes
-      ~GpuFabricHealthMaskRouteUnhealthy.is_integer
-      ~GpuFabricHealthMaskRouteUnhealthy.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~GpuFabricHealthMaskRouteUnhealthy.FALSE
-      ~GpuFabricHealthMaskRouteUnhealthy.NOT_SUPPORTED
-      ~GpuFabricHealthMaskRouteUnhealthy.TRUE
-      ~GpuFabricHealthMaskRouteUnhealthy.denominator
-      ~GpuFabricHealthMaskRouteUnhealthy.imag
-      ~GpuFabricHealthMaskRouteUnhealthy.name
-      ~GpuFabricHealthMaskRouteUnhealthy.numerator
-      ~GpuFabricHealthMaskRouteUnhealthy.real
-      ~GpuFabricHealthMaskRouteUnhealthy.value
-   
-   
+.. autoenum:: GpuFabricHealthMaskRouteUnhealthy

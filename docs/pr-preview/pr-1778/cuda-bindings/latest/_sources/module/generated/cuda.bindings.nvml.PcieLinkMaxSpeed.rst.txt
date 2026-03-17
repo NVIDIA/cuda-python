@@ -3,45 +3,4 @@
 
 .. currentmodule:: cuda.bindings.nvml
 
-.. autoclass:: PcieLinkMaxSpeed
-
-   
-   .. automethod:: __init__
-
-   
-   .. rubric:: Methods
-
-   .. autosummary::
-   
-      ~PcieLinkMaxSpeed.__init__
-      ~PcieLinkMaxSpeed.as_integer_ratio
-      ~PcieLinkMaxSpeed.bit_count
-      ~PcieLinkMaxSpeed.bit_length
-      ~PcieLinkMaxSpeed.conjugate
-      ~PcieLinkMaxSpeed.from_bytes
-      ~PcieLinkMaxSpeed.is_integer
-      ~PcieLinkMaxSpeed.to_bytes
-   
-   
-
-   
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~PcieLinkMaxSpeed.SPEED_16000MBPS
-      ~PcieLinkMaxSpeed.SPEED_2500MBPS
-      ~PcieLinkMaxSpeed.SPEED_32000MBPS
-      ~PcieLinkMaxSpeed.SPEED_5000MBPS
-      ~PcieLinkMaxSpeed.SPEED_64000MBPS
-      ~PcieLinkMaxSpeed.SPEED_8000MBPS
-      ~PcieLinkMaxSpeed.SPEED_INVALID
-      ~PcieLinkMaxSpeed.denominator
-      ~PcieLinkMaxSpeed.imag
-      ~PcieLinkMaxSpeed.name
-      ~PcieLinkMaxSpeed.numerator
-      ~PcieLinkMaxSpeed.real
-      ~PcieLinkMaxSpeed.value
-   
-   
+.. autoenum:: PcieLinkMaxSpeed
