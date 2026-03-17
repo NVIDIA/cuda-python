@@ -29,7 +29,6 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     DYNAMIC_LIB_SUBPROCESS_CWD,
     MODE_CANARY,
-    STATUS_NOT_FOUND,
     STATUS_OK,
     DynamicLibSubprocessPayload,
     build_dynamic_lib_subprocess_command,
@@ -124,12 +123,8 @@ def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     )
     abs_path: str | None = payload.abs_path
     if payload.status == STATUS_OK:
-        if abs_path is None:
-            raise RuntimeError(f"Canary probe child process emitted unexpected payload for {libname!r}: {payload!r}")
         return abs_path
-    if payload.status == STATUS_NOT_FOUND:
-        return None
-    raise RuntimeError(f"Canary probe child process emitted unexpected payload for {libname!r}: {payload!r}")
+    return None
 
 
 def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
