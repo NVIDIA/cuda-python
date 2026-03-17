@@ -43,7 +43,7 @@ from cuda.core import (
     system as ccx_system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._memory import IPCBufferDescriptor, _buffer
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 
@@ -1266,6 +1266,54 @@ def test_managed_buffer_discard_prefetch_supports_external_managed_allocations(i
         4,
     )
     assert last_location == device.device_id
+
+    buffer.close()
+
+
+def test_managed_buffer_advise_uses_legacy_bindings_signature(monkeypatch, init_cuda):
+    device = Device()
+    _skip_if_managed_allocation_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    calls = []
+
+    def fake_cuMemAdvise(ptr, size, advice, location):
+        calls.append((ptr, size, advice, location))
+        return (driver.CUresult.CUDA_SUCCESS,)
+
+    monkeypatch.setattr(_buffer, "get_binding_version", lambda: (12, 9))
+    monkeypatch.setattr(_buffer.driver, "cuMemAdvise", fake_cuMemAdvise)
+
+    buffer.advise("set_read_mostly")
+
+    assert len(calls) == 1
+    assert calls[0][3] == int(getattr(driver, "CU_DEVICE_CPU", -1))
+
+    buffer.close()
+
+
+def test_managed_buffer_prefetch_uses_legacy_bindings_signature(monkeypatch, init_cuda):
+    device = Device()
+    _skip_if_managed_location_ops_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    stream = device.create_stream()
+    calls = []
+
+    def fake_cuMemPrefetchAsync(ptr, size, location, hstream):
+        calls.append((ptr, size, location, hstream))
+        return (driver.CUresult.CUDA_SUCCESS,)
+
+    monkeypatch.setattr(_buffer, "get_binding_version", lambda: (12, 9))
+    monkeypatch.setattr(_buffer.driver, "cuMemPrefetchAsync", fake_cuMemPrefetchAsync)
+
+    buffer.prefetch(device, stream=stream)
+
+    assert len(calls) == 1
+    assert calls[0][2] == device.device_id
+    assert int(calls[0][3]) == int(stream.handle)
 
     buffer.close()
 

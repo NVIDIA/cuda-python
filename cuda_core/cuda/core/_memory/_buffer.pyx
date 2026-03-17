@@ -36,7 +36,7 @@ else:
     BufferProtocol = object
 
 from cuda.core._dlpack import DLDeviceType, make_py_capsule
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return
 from cuda.core._device import Device
 
 
@@ -245,6 +245,20 @@ cdef inline object _normalize_managed_location(
     if loc_type == "host_numa_current" and not allow_host_numa_current:
         raise ValueError(f"{what} does not support location_type='host_numa_current'")
     return _make_managed_location(<str>loc_type, loc_id)
+
+
+cdef inline bint _managed_location_uses_v2_bindings():
+    # cuda.bindings 13.x switches these APIs to CUmemLocation-based wrappers.
+    return get_binding_version() >= (13, 0)
+
+
+cdef inline int _managed_location_to_legacy_device(object location, str what):
+    cdef object loc_type = location.type
+    if loc_type == _managed_location_enum("device") or loc_type == _managed_location_enum("host"):
+        return <int>location.id
+    raise RuntimeError(
+        f"{what} requires cuda.bindings 13.x for location_type={loc_type!r}"
+    )
 
 
 cdef inline void _require_managed_buffer(Buffer self, str what):
@@ -518,7 +532,17 @@ cdef class Buffer:
             allow_host_numa=advice_name not in _MANAGED_ADVICE_HOST_OR_DEVICE_ONLY,
             allow_host_numa_current=advice_name == "set_preferred_location",
         )
-        handle_return(driver.cuMemAdvise(self.handle, self._size, advice, location))
+        if _managed_location_uses_v2_bindings():
+            handle_return(driver.cuMemAdvise(self.handle, self._size, advice, location))
+        else:
+            handle_return(
+                driver.cuMemAdvise(
+                    self.handle,
+                    self._size,
+                    advice,
+                    _managed_location_to_legacy_device(location, "Buffer.advise"),
+                )
+            )
 
     def prefetch(
         self,
@@ -539,7 +563,17 @@ cdef class Buffer:
             allow_host_numa=True,
             allow_host_numa_current=True,
         )
-        handle_return(driver.cuMemPrefetchAsync(self.handle, self._size, location, 0, s.handle))
+        if _managed_location_uses_v2_bindings():
+            handle_return(driver.cuMemPrefetchAsync(self.handle, self._size, location, 0, s.handle))
+        else:
+            handle_return(
+                driver.cuMemPrefetchAsync(
+                    self.handle,
+                    self._size,
+                    _managed_location_to_legacy_device(location, "Buffer.prefetch"),
+                    s.handle,
+                )
+            )
 
     def discard_prefetch(
         self,
