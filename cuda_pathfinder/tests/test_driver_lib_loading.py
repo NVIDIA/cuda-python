@@ -8,13 +8,13 @@ They use a simplified system-search-only path, skipping site-packages,
 conda, CUDA_HOME, and the canary probe.
 """
 
-import json
 import os
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
     child_process_reported_dynamic_lib_not_found,
+    parse_dynamic_lib_subprocess_result,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
 
@@ -142,11 +142,12 @@ def test_real_load_driver_lib(info_summary_append, libname):
     if result.returncode != 0:
         raise_child_process_failed()
     assert not result.stderr
-    if child_process_reported_dynamic_lib_not_found(result):
+    if child_process_reported_dynamic_lib_not_found(result, libname=libname):
         if STRICTNESS == "all_must_work":
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
     else:
-        abs_path = json.loads(result.stdout.rstrip())
+        abs_path = parse_dynamic_lib_subprocess_result(result, libname=libname).abs_path
+        assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)

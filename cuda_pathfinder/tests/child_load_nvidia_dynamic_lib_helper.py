@@ -4,13 +4,19 @@
 from __future__ import annotations
 
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
-from cuda.pathfinder._testing.load_nvidia_dynamic_lib_subprocess import DYNAMIC_LIB_NOT_FOUND_MARKER
+from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
+    DYNAMIC_LIB_SUBPROCESS_MODULE,
+    MODE_LOAD,
+    STATUS_NOT_FOUND,
+    build_dynamic_lib_subprocess_command,
+    parse_dynamic_lib_subprocess_payload,
+)
 
-LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODULE = "cuda.pathfinder._testing.load_nvidia_dynamic_lib_subprocess"
+LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODULE = DYNAMIC_LIB_SUBPROCESS_MODULE
+LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE = MODE_LOAD
 # Launch the child from a neutral directory so `python -m cuda.pathfinder...`
 # resolves the installed package instead of the source checkout. In CI the
 # checkout does not contain the generated `_version.py` file.
@@ -26,8 +32,25 @@ def build_child_process_failed_for_libname_message(libname: str, result: subproc
     )
 
 
-def child_process_reported_dynamic_lib_not_found(result: subprocess.CompletedProcess[str]) -> bool:
-    return result.stdout.startswith(DYNAMIC_LIB_NOT_FOUND_MARKER)
+def parse_dynamic_lib_subprocess_result(
+    result: subprocess.CompletedProcess[str],
+    *,
+    libname: str,
+):
+    return parse_dynamic_lib_subprocess_payload(
+        result.stdout,
+        libname=libname,
+        error_label="Load subprocess child process",
+    )
+
+
+def child_process_reported_dynamic_lib_not_found(
+    result: subprocess.CompletedProcess[str],
+    *,
+    libname: str,
+) -> bool:
+    payload = parse_dynamic_lib_subprocess_result(result, libname=libname)
+    return payload.status == STATUS_NOT_FOUND
 
 
 def run_load_nvidia_dynamic_lib_in_subprocess(
@@ -35,7 +58,7 @@ def run_load_nvidia_dynamic_lib_in_subprocess(
     *,
     timeout: float,
 ) -> subprocess.CompletedProcess[str]:
-    command = [sys.executable, "-m", LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODULE, libname]
+    command = build_dynamic_lib_subprocess_command(LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE, libname)
     try:
         return subprocess.run(  # noqa: S603 - trusted argv: current interpreter + internal test helper module
             command,
