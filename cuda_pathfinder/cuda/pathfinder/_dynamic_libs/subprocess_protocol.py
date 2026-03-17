@@ -15,7 +15,6 @@ VALID_MODES: tuple[Literal["canary"], Literal["load"]] = (MODE_CANARY, MODE_LOAD
 
 STATUS_OK: Literal["ok"] = "ok"
 STATUS_NOT_FOUND: Literal["not-found"] = "not-found"
-VALID_STATUSES: tuple[Literal["ok"], Literal["not-found"]] = (STATUS_OK, STATUS_NOT_FOUND)
 
 DYNAMIC_LIB_SUBPROCESS_MODULE = "cuda.pathfinder._dynamic_libs.dynamic_lib_subprocess"
 DYNAMIC_LIB_SUBPROCESS_CWD = Path(__file__).resolve().parents[3]
@@ -28,14 +27,10 @@ class DynamicLibSubprocessPayload:
 
 
 def format_dynamic_lib_subprocess_payload(status: Literal["ok", "not-found"], abs_path: str | None) -> str:
-    if status not in VALID_STATUSES:
-        raise ValueError(f"Unsupported subprocess payload status: {status!r}")
     return json.dumps({"status": status, "abs_path": abs_path})
 
 
 def build_dynamic_lib_subprocess_command(mode: str, libname: str) -> list[str]:
-    if mode not in VALID_MODES:
-        raise ValueError(f"Unsupported subprocess probe mode: {mode!r}")
     return [sys.executable, "-m", DYNAMIC_LIB_SUBPROCESS_MODULE, mode, libname]
 
 
