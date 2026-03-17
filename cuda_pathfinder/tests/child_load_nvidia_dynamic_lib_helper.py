@@ -10,7 +10,6 @@ from pathlib import Path
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     DYNAMIC_LIB_SUBPROCESS_MODULE,
     MODE_LOAD,
-    STATUS_NOT_FOUND,
     build_dynamic_lib_subprocess_command,
     parse_dynamic_lib_subprocess_payload,
 )
@@ -42,15 +41,6 @@ def parse_dynamic_lib_subprocess_result(
         libname=libname,
         error_label="Load subprocess child process",
     )
-
-
-def child_process_reported_dynamic_lib_not_found(
-    result: subprocess.CompletedProcess[str],
-    *,
-    libname: str,
-) -> bool:
-    payload = parse_dynamic_lib_subprocess_result(result, libname=libname)
-    return payload.status == STATUS_NOT_FOUND
 
 
 def run_load_nvidia_dynamic_lib_in_subprocess(

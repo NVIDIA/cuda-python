@@ -7,7 +7,6 @@ import platform
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
-    child_process_reported_dynamic_lib_not_found,
     parse_dynamic_lib_subprocess_result,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
@@ -16,6 +15,7 @@ from local_helpers import have_distribution
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
+from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
@@ -121,12 +121,13 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     if result.returncode != 0:
         raise_child_process_failed()
     assert not result.stderr
-    if child_process_reported_dynamic_lib_not_found(result, libname=libname):
+    payload = parse_dynamic_lib_subprocess_result(result, libname=libname)
+    if payload.status == STATUS_NOT_FOUND:
         if STRICTNESS == "all_must_work" and not _is_expected_load_nvidia_dynamic_lib_failure(libname):
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
     else:
-        abs_path = parse_dynamic_lib_subprocess_result(result, libname=libname).abs_path
+        abs_path = payload.abs_path
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)  # double-check the abs_path
