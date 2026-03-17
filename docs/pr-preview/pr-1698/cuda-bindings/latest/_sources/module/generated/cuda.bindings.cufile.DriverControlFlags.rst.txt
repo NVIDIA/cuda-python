@@ -31,6 +31,8 @@
    .. autosummary::
    
       ~DriverControlFlags.ALLOW_COMPAT_MODE
+      ~DriverControlFlags.FALLBACK_IO_MODE
+      ~DriverControlFlags.POSIX_IO_MODE
       ~DriverControlFlags.USE_POLL_MODE
       ~DriverControlFlags.denominator
       ~DriverControlFlags.imag

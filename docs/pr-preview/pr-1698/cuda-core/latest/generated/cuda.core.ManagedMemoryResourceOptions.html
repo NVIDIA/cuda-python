@@ -33,7 +33,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7c9b6d70"></script>
+    <script src="../_static/documentation_options.js?v=e21ff75c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev69';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -646,18 +646,53 @@
 <h1>cuda.core.ManagedMemoryResourceOptions<a class="headerlink" href="#cuda-core-managedmemoryresourceoptions" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResourceOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">ManagedMemoryResourceOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preferred_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResourceOptions" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">ManagedMemoryResourceOptions</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">preferred_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">preferred_location_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResourceOptions" title="Link to this definition">#</a></dt>
 <dd><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code> options.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResourceOptions.preferred_location">
 <span class="sig-name descname"><span class="pre">preferred_location</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResourceOptions.preferred_location" title="Link to this definition">#</a></dt>
-<dd><p>The preferred device location for the managed memory.
-Use a device ID (0, 1, 2, …) for device preference, -1 for CPU/host,
-or None to let the driver decide.
-(Default to None)</p>
+<dd><p>A location identifier (device ordinal or NUMA node ID) whose
+meaning depends on <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code>.
+(Default to <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> | None, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResourceOptions.preferred_location_type">
+<span class="sig-name descname"><span class="pre">preferred_location_type</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResourceOptions.preferred_location_type" title="Link to this definition">#</a></dt>
+<dd><p>Controls how <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> is interpreted.</p>
+<p>When set to <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default), legacy behavior is used:
+<code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> is interpreted as a device ordinal,
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> for host, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for no preference.</p>
+<p>When set explicitly, the type determines both the kind of
+preferred location and the valid values for
+<code class="docutils literal notranslate"><span class="pre">preferred_location</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>: prefer a specific GPU. <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code>
+must be a device ordinal (<code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">0</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>: prefer host memory (OS-managed NUMA placement).
+<code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> must be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>: prefer a specific host NUMA node.
+<code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> must be a NUMA node ID (<code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">0</span></code>),
+or <code class="docutils literal notranslate"><span class="pre">None</span></code> to derive the NUMA node from the current CUDA
+device’s <code class="docutils literal notranslate"><span class="pre">host_numa_id</span></code> attribute (requires an active
+CUDA context).</p></li>
+</ul>
+<p>(Default to <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code> | None, optional</p>
 </dd>
 </dl>
 </dd></dl>
@@ -717,6 +752,7 @@ or None to let the driver decide.
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResourceOptions.preferred_location"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions.preferred_location</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResourceOptions.preferred_location_type"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions.preferred_location_type</span></code></a></li>
 </ul>
 </li>
 </ul>

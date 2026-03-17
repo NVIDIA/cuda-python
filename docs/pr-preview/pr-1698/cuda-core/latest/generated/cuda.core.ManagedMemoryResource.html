@@ -33,7 +33,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7c9b6d70"></script>
+    <script src="../_static/documentation_options.js?v=e21ff75c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev69';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -706,7 +706,7 @@ resource was created for.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.close" title="Link to this definition">#</a></dt>
-<dd><p>Close the device memory resource and destroy the associated memory pool
+<dd><p>Close the memory resource and destroy the associated memory pool
 if owned.</p>
 </dd></dl>
 
@@ -753,10 +753,10 @@ is used.</p></li>
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.device_id">
 <span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.device_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
-<p>The associated device ordinal.</p>
+<p>The preferred device ordinal, or -1 if the preferred location is not a device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>_MemPool.device_id</p>
+<dd class="field-odd"><p>ManagedMemoryResource.device_id</p>
 </dd>
 </dl>
 </dd></dl>
@@ -835,22 +835,19 @@ another process.  If True, allocation is not permitted.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.peer_accessible_by">
-<span class="sig-name descname"><span class="pre">peer_accessible_by</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.peer_accessible_by" title="Link to this definition">#</a></dt>
-<dd><p>Get or set the devices that can access allocations from this memory
-pool. Access can be modified at any time and affects all allocations
-from this memory pool.</p>
-<p>Returns a tuple of sorted device IDs that currently have peer access to
-allocations from this memory pool.</p>
-<p>When setting, accepts a sequence of Device objects or device IDs.
-Setting to an empty sequence revokes all peer access.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span> <span class="o">=</span> <span class="n">DeviceMemoryResource</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Grant access to device 1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Revoke access</span>
-</pre></div>
-</div>
+<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.preferred_location">
+<span class="sig-name descname"><span class="pre">preferred_location</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.preferred_location" title="Link to this definition">#</a></dt>
+<dd><p>tuple | None</p>
+<p>The preferred location for managed memory allocations.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no preferred location is set (driver decides),
+or a tuple <code class="docutils literal notranslate"><span class="pre">(type,</span> <span class="pre">id)</span></code> where <em>type</em> is one of <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, and <em>id</em> is the device ordinal,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> (for <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>), or the NUMA node ID, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ManagedMemoryResource.preferred_location</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -932,7 +929,7 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_host_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_ipc_enabled"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_ipc_enabled</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_mapped"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_mapped</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.peer_accessible_by"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.peer_accessible_by</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.preferred_location"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.preferred_location</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.uuid"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.uuid</span></code></a></li>
 </ul>
 </li>

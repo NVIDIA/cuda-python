@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=350a9c04"></script>
+    <script src="_static/documentation_options.js?v=6d0302ba"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.4.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.4.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -395,8 +395,20 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.DynamicLibNotAvailableError.html">cuda.pathfinder.DynamicLibNotAvailableError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_header_directory.html">cuda.pathfinder.find_nvidia_header_directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.locate_nvidia_header_directory.html">cuda.pathfinder.locate_nvidia_header_directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LocatedHeaderDir.html">cuda.pathfinder.LocatedHeaderDir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_BINARY_UTILITIES.html">cuda.pathfinder.SUPPORTED_BINARY_UTILITIES</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_binary_utility.html">cuda.pathfinder.find_nvidia_binary_utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_BITCODE_LIBS.html">cuda.pathfinder.SUPPORTED_BITCODE_LIBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_bitcode_lib.html">cuda.pathfinder.find_bitcode_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.locate_bitcode_lib.html">cuda.pathfinder.locate_bitcode_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LocatedBitcodeLib.html">cuda.pathfinder.LocatedBitcodeLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.BitcodeLibNotFoundError.html">cuda.pathfinder.BitcodeLibNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_STATIC_LIBS.html">cuda.pathfinder.SUPPORTED_STATIC_LIBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_static_lib.html">cuda.pathfinder.find_static_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.locate_static_lib.html">cuda.pathfinder.locate_static_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LocatedStaticLib.html">cuda.pathfinder.LocatedStaticLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.StaticLibNotFoundError.html">cuda.pathfinder.StaticLibNotFoundError</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
@@ -404,6 +416,9 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.4.3-notes.html">1.4.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.4.2-notes.html">1.4.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.4.1-notes.html">1.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.4.0-notes.html">1.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.3.5-notes.html">1.3.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.3.4-notes.html">1.3.4</a></li>
@@ -451,6 +466,7 @@
 
 <div class="genindex-jumpbox">
  <a href="#_"><strong>_</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
@@ -463,6 +479,22 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.pathfinder.LoadedDL.html#cuda.pathfinder.LoadedDL.__init__">__init__() (cuda.pathfinder.LoadedDL method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.pathfinder.LocatedBitcodeLib.html#cuda.pathfinder.LocatedBitcodeLib.__init__">(cuda.pathfinder.LocatedBitcodeLib method)</a>
+</li>
+        <li><a href="generated/cuda.pathfinder.LocatedHeaderDir.html#cuda.pathfinder.LocatedHeaderDir.__init__">(cuda.pathfinder.LocatedHeaderDir method)</a>
+</li>
+        <li><a href="generated/cuda.pathfinder.LocatedStaticLib.html#cuda.pathfinder.LocatedStaticLib.__init__">(cuda.pathfinder.LocatedStaticLib method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.pathfinder.BitcodeLibNotFoundError.html#cuda.pathfinder.BitcodeLibNotFoundError">BitcodeLibNotFoundError</a>
 </li>
   </ul></td>
 </tr></table>
@@ -497,11 +529,15 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.pathfinder.find_bitcode_lib.html#cuda.pathfinder.find_bitcode_lib">find_bitcode_lib() (in module cuda.pathfinder)</a>
+</li>
       <li><a href="generated/cuda.pathfinder.find_nvidia_binary_utility.html#cuda.pathfinder.find_nvidia_binary_utility">find_nvidia_binary_utility() (in module cuda.pathfinder)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.pathfinder.find_nvidia_header_directory.html#cuda.pathfinder.find_nvidia_header_directory">find_nvidia_header_directory() (in module cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.find_static_lib.html#cuda.pathfinder.find_static_lib">find_static_lib() (in module cuda.pathfinder)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -511,9 +547,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.pathfinder.load_nvidia_dynamic_lib.html#cuda.pathfinder.load_nvidia_dynamic_lib">load_nvidia_dynamic_lib() (in module cuda.pathfinder)</a>
 </li>
+      <li><a href="generated/cuda.pathfinder.LoadedDL.html#cuda.pathfinder.LoadedDL">LoadedDL (class in cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.locate_bitcode_lib.html#cuda.pathfinder.locate_bitcode_lib">locate_bitcode_lib() (in module cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.locate_nvidia_header_directory.html#cuda.pathfinder.locate_nvidia_header_directory">locate_nvidia_header_directory() (in module cuda.pathfinder)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.pathfinder.LoadedDL.html#cuda.pathfinder.LoadedDL">LoadedDL (class in cuda.pathfinder)</a>
+      <li><a href="generated/cuda.pathfinder.locate_static_lib.html#cuda.pathfinder.locate_static_lib">locate_static_lib() (in module cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.LocatedBitcodeLib.html#cuda.pathfinder.LocatedBitcodeLib">LocatedBitcodeLib (class in cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.LocatedHeaderDir.html#cuda.pathfinder.LocatedHeaderDir">LocatedHeaderDir (class in cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.LocatedStaticLib.html#cuda.pathfinder.LocatedStaticLib">LocatedStaticLib (class in cuda.pathfinder)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -534,13 +582,19 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.pathfinder.StaticLibNotFoundError.html#cuda.pathfinder.StaticLibNotFoundError">StaticLibNotFoundError</a>
+</li>
       <li><a href="generated/cuda.pathfinder.SUPPORTED_BINARY_UTILITIES.html#cuda.pathfinder.SUPPORTED_BINARY_UTILITIES">SUPPORTED_BINARY_UTILITIES (in module cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.SUPPORTED_BITCODE_LIBS.html#cuda.pathfinder.SUPPORTED_BITCODE_LIBS">SUPPORTED_BITCODE_LIBS (in module cuda.pathfinder)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK.html#cuda.pathfinder.SUPPORTED_HEADERS_CTK">SUPPORTED_HEADERS_CTK (in module cuda.pathfinder)</a>
 </li>
       <li><a href="generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html#cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES">SUPPORTED_NVIDIA_LIBNAMES (in module cuda.pathfinder)</a>
+</li>
+      <li><a href="generated/cuda.pathfinder.SUPPORTED_STATIC_LIBS.html#cuda.pathfinder.SUPPORTED_STATIC_LIBS">SUPPORTED_STATIC_LIBS (in module cuda.pathfinder)</a>
 </li>
   </ul></td>
 </tr></table>
