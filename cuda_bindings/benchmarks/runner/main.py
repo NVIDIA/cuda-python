@@ -14,7 +14,7 @@ from types import ModuleType
 import pyperf
 
 
-BENCH_DIR = Path(__file__).resolve().parent.parent
+BENCH_DIR = Path(__file__).resolve().parent.parent / "benchmarks"
 
 
 def load_module(module_path: Path) -> ModuleType:
