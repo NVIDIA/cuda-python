@@ -4,28 +4,24 @@
 
 # ################################################################################
 #
-# This demo illustrates:
-#
-#   1. The similarity between CPU and GPU JIT-compilation with C++ sources
-#   2. How to use StridedMemoryView to interface with foreign C/C++ functions
-#
-# This demo uses cffi (https://cffi.readthedocs.io/) for the CPU path, which can be
-# easily installed from pip or conda following their instructions.
+# This example demonstrates StridedMemoryView for interfacing with foreign
+# C/C++ functions, using JIT-compiled CPU code via cffi. Requires cffi.
 #
 # ################################################################################
 
 import importlib
-import shutil
 import string
 import sys
 import tempfile
+from contextlib import contextmanager
 
 try:
     from cffi import FFI
 except ImportError:
-    print("cffi is not installed, the CPU example will be skipped", file=sys.stderr)
-    FFI = None
+    print("cffi is not installed, this example requires cffi", file=sys.stderr)
+    sys.exit(1)
 import numpy as np
+
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 # ################################################################################
@@ -60,9 +56,7 @@ func_sig = f"void {func_name}(int* data, size_t N)"
 # We assume the 0-th argument supports either DLPack or CUDA Array Interface (both
 # of which are supported by StridedMemoryView).
 @args_viewable_as_strided_memory((0,))
-def my_func(arr):
-    global cpu_func
-    global cpu_prog
+def my_func(arr, cpu_prog, cpu_func):
     # Create a memory view over arr (assumed to be a 1D array of int32). The stream
     # ordering is taken care of, so that arr can be safely accessed on our work
     # stream (ordered after a data stream on which arr is potentially prepared).
@@ -78,10 +72,7 @@ def my_func(arr):
     cpu_func(cpu_prog.cast("int*", view.ptr), size)
 
 
-def run():
-    global my_func
-    if not FFI:
-        return
+def _create_cpu_program():
     # Here is a concrete (very naive!) implementation on CPU:
     cpu_code = string.Template(r"""
     extern "C"
@@ -102,32 +93,37 @@ def run():
         source_extension=".cpp",
         extra_compile_args=["-std=c++11"],
     )
-    temp_dir = tempfile.mkdtemp()
+    return cpu_prog
+
+
+@contextmanager
+def _compiled_cpu_func(cpu_prog, temp_dir):
     saved_sys_path = sys.path.copy()
     try:
         cpu_prog.compile(tmpdir=temp_dir)
-
         sys.path.append(temp_dir)
         cpu_func = getattr(importlib.import_module("_cpu_obj.lib"), func_name)
-
-        # Create input array on CPU
-        arr_cpu = np.zeros(1024, dtype=np.int32)
-        print(f"before: {arr_cpu[:10]=}")
-
-        # Run the workload
-        my_func(arr_cpu)
-
-        # Check the result
-        print(f"after: {arr_cpu[:10]=}")
-        assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
+        yield cpu_func
     finally:
         sys.path = saved_sys_path
-        # to allow FFI module to unload, we delete references to
-        # to cpu_func
-        del cpu_func, my_func
-        # clean up temp directory
-        shutil.rmtree(temp_dir)
+        # Ensure cffi modules are unloadable before removing the temp build dir.
+        sys.modules.pop("_cpu_obj.lib", None)
+        sys.modules.pop("_cpu_obj", None)
+
+
+def _run_example(cpu_prog, cpu_func):
+    arr_cpu = np.zeros(1024, dtype=np.int32)
+    print(f"before: {arr_cpu[:10]=}", file=sys.stderr)
+    my_func(arr_cpu, cpu_prog, cpu_func)
+    print(f"after: {arr_cpu[:10]=}", file=sys.stderr)
+    assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
+
+
+def main():
+    cpu_prog = _create_cpu_program()
+    with tempfile.TemporaryDirectory() as temp_dir, _compiled_cpu_func(cpu_prog, temp_dir) as cpu_func:
+        _run_example(cpu_prog, cpu_func)
 
 
 if __name__ == "__main__":
-    run()
+    main()

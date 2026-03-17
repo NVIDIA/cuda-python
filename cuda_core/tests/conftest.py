@@ -57,6 +57,12 @@ def skip_if_managed_memory_unsupported(device):
             pytest.skip("Device does not support managed memory pool operations")
     except AttributeError:
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+    try:
+        ManagedMemoryResource()
+    except RuntimeError as e:
+        if "requires CUDA 13.0" in str(e):
+            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+        raise
 
 
 def create_managed_memory_resource_or_skip(*args, **kwargs):
@@ -77,7 +83,7 @@ def session_setup():
     multiprocessing.set_start_method("spawn", force=True)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def init_cuda():
     # TODO: rename this to e.g. init_context
     device = Device(0)
@@ -108,14 +114,14 @@ def _device_unset_current() -> bool:
     return True
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def deinit_cuda():
     # TODO: rename this to e.g. deinit_context
     yield
     _ = _device_unset_current()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def deinit_all_contexts_function():
     def pop_all_contexts():
         max_iters = 256

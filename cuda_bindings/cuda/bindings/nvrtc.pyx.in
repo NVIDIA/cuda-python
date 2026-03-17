@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -1043,6 +1043,71 @@ def nvrtcSetFlowCallback(prog, callback, payload):
         err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback, cypayload)
     _helper_input_void_ptr_free(&cycallbackHelper)
     _helper_input_void_ptr_free(&cypayloadHelper)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetTileIRSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetTileIRSize(prog):
+    """ 
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        None
+
+    Returns
+    -------
+    nvrtcResult
+
+    TileIRSizeRet : int
+        None
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t TileIRSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetTileIRSize(cyprog, &TileIRSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, TileIRSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetTileIR' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetTileIR(prog, char* TileIR):
+    """ 
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        None
+    TileIR : bytes
+        None
+
+    Returns
+    -------
+    nvrtcResult
+
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetTileIR(cyprog, TileIR)
     return (_nvrtcResult(err),)
 {{endif}}
 

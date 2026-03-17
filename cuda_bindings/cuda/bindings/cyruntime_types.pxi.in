@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
 
 cdef extern from "vector_types.h":
 
@@ -23,6 +23,7 @@ cdef extern from "driver_types.h":
         cudaErrorProfilerAlreadyStarted = 7
         cudaErrorProfilerAlreadyStopped = 8
         cudaErrorInvalidConfiguration = 9
+        cudaErrorVersionTranslation = 10
         cudaErrorInvalidPitchValue = 12
         cudaErrorInvalidSymbol = 13
         cudaErrorInvalidHostPointer = 16
@@ -275,6 +276,7 @@ cdef extern from "driver_types.h":
     cdef struct cudaHostNodeParamsV2:
         cudaHostFn_t fn
         void* userData
+        unsigned int syncMode
 
     cdef struct anon_struct1:
         cudaArray_t array
@@ -344,7 +346,8 @@ cdef extern from "driver_types.h":
         int requiredClusterDepth
         int clusterSchedulingPolicyPreference
         int nonPortableClusterSizeAllowed
-        int reserved[16]
+        int reserved0
+        int reserved[15]
 
     cdef struct cudaMemLocation:
         cudaMemLocationType type
@@ -724,12 +727,15 @@ cdef extern from "driver_types.h":
 
     cdef struct cudaKernelNodeParamsV2:
         void* func
+        cudaKernel_t kern
+        cudaFunction_t cuFunc
         dim3 gridDim
         dim3 blockDim
         unsigned int sharedMemBytes
         void** kernelParams
         void** extra
         cudaExecutionContext_t ctx
+        cudaKernelFunctionType functionType
 
     cdef struct cudaExternalSemaphoreSignalNodeParams:
         cudaExternalSemaphore_t* extSemArray
@@ -836,7 +842,7 @@ cdef extern from "driver_types.h":
         size_t offset
         size_t size
 
-    cdef union anon_union8:
+    cdef union anon_union9:
         dim3 gridDim
         anon_struct16 param
         unsigned int isEnabled
@@ -844,7 +850,7 @@ cdef extern from "driver_types.h":
     cdef struct cudaGraphKernelNodeUpdate:
         cudaGraphDeviceNode_t node
         cudaGraphKernelNodeField field
-        anon_union8 updateData
+        anon_union9 updateData
 
     cdef enum cudaLaunchMemSyncDomain:
         cudaLaunchMemSyncDomainDefault = 0
@@ -855,6 +861,16 @@ cdef extern from "driver_types.h":
         unsigned char remote
 
     ctypedef cudaLaunchMemSyncDomainMap_st cudaLaunchMemSyncDomainMap
+
+    cdef enum cudaLaunchAttributePortableClusterMode:
+        cudaLaunchPortableClusterModeDefault = 0
+        cudaLaunchPortableClusterModeRequirePortable = 1
+        cudaLaunchPortableClusterModeAllowNonPortable = 2
+
+    cdef enum cudaSharedMemoryMode:
+        cudaSharedMemoryModeDefault = 0
+        cudaSharedMemoryModeRequirePortable = 1
+        cudaSharedMemoryModeAllowNonPortable = 2
 
     cdef enum cudaLaunchAttributeID:
         cudaLaunchAttributeIgnore = 0
@@ -873,6 +889,8 @@ cdef extern from "driver_types.h":
         cudaLaunchAttributeDeviceUpdatableKernelNode = 13
         cudaLaunchAttributePreferredSharedMemoryCarveout = 14
         cudaLaunchAttributeNvlinkUtilCentricScheduling = 16
+        cudaLaunchAttributePortableClusterSizeMode = 17
+        cudaLaunchAttributeSharedMemoryMode = 18
 
     cdef struct anon_struct17:
         unsigned int x
@@ -914,6 +932,8 @@ cdef extern from "driver_types.h":
         anon_struct21 deviceUpdatableKernelNode
         unsigned int sharedMemCarveout
         unsigned int nvlinkUtilCentricScheduling
+        cudaLaunchAttributePortableClusterMode portableClusterSizeMode
+        cudaSharedMemoryMode sharedMemoryMode
 
     cdef struct cudaLaunchAttribute_st:
         cudaLaunchAttributeID id
@@ -933,12 +953,12 @@ cdef extern from "driver_types.h":
     cdef struct anon_struct22:
         unsigned long long bytesOverBudget
 
-    cdef union anon_union9:
+    cdef union anon_union10:
         anon_struct22 overBudget
 
     cdef struct cudaAsyncNotificationInfo:
         cudaAsyncNotificationType type
-        anon_union9 info
+        anon_union10 info
 
     ctypedef cudaAsyncNotificationInfo cudaAsyncNotificationInfo_t
 
@@ -1038,6 +1058,10 @@ cdef extern from "driver_types.h":
 
     cdef enum cudaUserObjectRetainFlags:
         cudaGraphUserObjectMove = 1
+
+    cdef enum cudaHostTaskSyncMode:
+        cudaHostTaskBlocking = 0
+        cudaHostTaskSpinWait = 1
 
     cdef enum cudaGraphicsRegisterFlags:
         cudaGraphicsRegisterFlagsNone = 0
@@ -1327,6 +1351,12 @@ cdef extern from "driver_types.h":
         cudaMemPoolAttrReservedMemHigh = 6
         cudaMemPoolAttrUsedMemCurrent = 7
         cudaMemPoolAttrUsedMemHigh = 8
+        cudaMemPoolAttrAllocationType = 9
+        cudaMemPoolAttrExportHandleTypes = 10
+        cudaMemPoolAttrLocationId = 11
+        cudaMemPoolAttrLocationType = 12
+        cudaMemPoolAttrMaxPoolSize = 13
+        cudaMemPoolAttrHwDecompressEnabled = 14
 
     cdef enum cudaMemLocationType:
         cudaMemLocationTypeInvalid = 0
@@ -1335,6 +1365,7 @@ cdef extern from "driver_types.h":
         cudaMemLocationTypeHost = 2
         cudaMemLocationTypeHostNuma = 3
         cudaMemLocationTypeHostNumaCurrent = 4
+        cudaMemLocationTypeInvisible = 5
 
     cdef enum cudaMemAccessFlags:
         cudaMemAccessFlagsProtNone = 0
@@ -1484,6 +1515,12 @@ cdef extern from "driver_types.h":
         cudaCGScopeGrid = 1
         cudaCGScopeReserved = 2
 
+    cdef enum cudaKernelFunctionType:
+        cudaKernelFunctionTypeUnspecified = 0
+        cudaKernelFunctionTypeDeviceEntry = 1
+        cudaKernelFunctionTypeKernel = 2
+        cudaKernelFunctionTypeFunction = 3
+
     cdef enum cudaGraphConditionalHandleFlags:
         cudaGraphCondAssignDefault = 1
 
@@ -1509,6 +1546,7 @@ cdef extern from "driver_types.h":
         cudaGraphNodeTypeCount = 14
 
     cdef enum cudaGraphChildGraphNodeOwnership:
+        cudaGraphChildGraphOwnershipInvalid = -1
         cudaGraphChildGraphOwnershipClone = 0
         cudaGraphChildGraphOwnershipMove = 1
 

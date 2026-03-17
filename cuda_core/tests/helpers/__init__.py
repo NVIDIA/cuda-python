@@ -6,8 +6,7 @@ import os
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
-
-from cuda_python_test_helpers import *  # noqa: F403
+from cuda_python_test_helpers import *
 
 CUDA_PATH = os.environ.get("CUDA_PATH")
 CUDA_INCLUDE_PATH = None
@@ -30,7 +29,7 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
     to check for CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR support. Does not
     require an active CUDA context.
     """
-    if IS_WSL:  # noqa: F405
+    if IS_WSL:
         return False
 
     try:

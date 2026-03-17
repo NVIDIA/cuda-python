@@ -1,51 +1,28 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Input for this script: .txt files generated with:
-# for exe in *.exe; do 7z l $exe > "${exe%.exe}.txt"; done
+"""Scan 7z listing files for .dll names, update descriptor_catalog.py.
 
-# The output of this script is expected to be usable as-is.
+Usage:
+    # First generate listings from CTK .exe installers:
+    #   for exe in *.exe; do 7z l "$exe" > "${exe%.exe}.txt"; done
+    python toolshed/build_pathfinder_dlls.py listing1.txt [listing2.txt ...]
+"""
+
+from __future__ import annotations
 
 import collections
 import sys
 from pathlib import Path
 
-# ATTENTION: Ambiguous shorter names need to appear after matching longer names
-#            (e.g. "cufft" after "cufftw")
-LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER = (
-    "nvJitLink",
-    "nvrtc",
-    "nvvm",
-    "cudart",
-    "nvfatbin",
-    "cublasLt",
-    "cublas",
-    "cufftw",
-    "cufft",
-    "curand",
-    "cusolverMg",
-    "cusolver",
-    "cusparse",
-    "nppc",
-    "nppial",
-    "nppicc",
-    "nppidei",
-    "nppif",
-    "nppig",
-    "nppim",
-    "nppist",
-    "nppisu",
-    "nppitc",
-    "npps",
-    "nvblas",
-    "nvjpeg",
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _catalog_writer import load_catalog, update_specs, write_catalog
 
 
-def is_suppressed_dll(libname, dll):
+def _is_suppressed_dll(libname: str, dll: str) -> bool:
     if libname == "cudart":
         if dll.startswith("cudart32_"):
             return True
@@ -65,15 +42,15 @@ def is_suppressed_dll(libname, dll):
     return False
 
 
-def run(args):
-    dlls_from_files = set()
-    for filename in args:
+def _parse_listings(paths: list[str]) -> set[str]:
+    dlls: set[str] = set()
+    for filename in paths:
         lines_iter = iter(Path(filename).read_text().splitlines())
         for line in lines_iter:
             if line.startswith("-------------------"):
                 break
         else:
-            raise RuntimeError("------------------- NOT FOUND")
+            raise RuntimeError(f"------------------- NOT FOUND in {filename}")
         for line in lines_iter:
             if line.startswith("-------------------"):
                 break
@@ -82,42 +59,60 @@ def run(args):
             path = line[53:]
             if path.endswith(".dll"):
                 dll = path.rsplit("/", 1)[1]
-                dlls_from_files.add(dll)
+                dlls.add(dll)
         else:
-            raise RuntimeError("------------------- NOT FOUND")
+            raise RuntimeError(f"------------------- NOT FOUND in {filename}")
+    return dlls
 
-    print("DLLs in scope of cuda.pathfinder")
-    print("================================")
-    dlls_in_scope = set()
-    dlls_by_libname = collections.defaultdict(list)
-    suppressed_dlls = set()
-    for libname in LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER:
+
+def run(listing_files: list[str]) -> None:
+    dlls_from_files = _parse_listings(listing_files)
+    catalog = load_catalog()
+
+    # Longest-prefix-first to avoid ambiguous matches (e.g. "cufftw" before "cufft").
+    ctk_names = sorted(
+        (spec.name for spec in catalog if spec.packaged_with == "ctk"),
+        key=lambda n: (-len(n), n),
+    )
+
+    dlls_in_scope: set[str] = set()
+    dlls_by_name: dict[str, list[str]] = collections.defaultdict(list)
+    suppressed: set[str] = set()
+
+    for name in ctk_names:
         for dll in sorted(dlls_from_files):
-            if dll not in dlls_in_scope and dll.startswith(libname):
-                if is_suppressed_dll(libname, dll):
-                    suppressed_dlls.add(dll)
+            if dll not in dlls_in_scope and dll.startswith(name):
+                if _is_suppressed_dll(name, dll):
+                    suppressed.add(dll)
                 else:
-                    dlls_by_libname[libname].append(dll)
+                    dlls_by_name[name].append(dll)
                 dlls_in_scope.add(dll)
-    for libname, dlls in sorted(dlls_by_libname.items()):
-        print(f'"{libname}": (')
-        for dll in dlls:
-            print(f'    "{dll}",')
-        print("),")
-    print()
 
-    print("Suppressed DLLs")
-    print("===============")
-    for dll in sorted(suppressed_dlls):
-        print(dll)
-    print()
+    updates: dict[str, dict[str, object]] = {}
+    for name, dlls in dlls_by_name.items():
+        updates[name] = {"windows_dlls": tuple(dlls)}
 
-    print("DLLs out of scope")
-    print("=================")
-    for dll in sorted(dlls_from_files - dlls_in_scope):
-        print(dll)
-    print()
+    if updates:
+        write_catalog(update_specs(catalog, updates))
+        for name in sorted(updates):
+            print(f"  updated {name}: windows_dlls={updates[name]['windows_dlls']}")
+    else:
+        print("No matching DLLs found.")
+
+    if suppressed:
+        print(f"\nSuppressed DLLs ({len(suppressed)}):")
+        for dll in sorted(suppressed):
+            print(f"  {dll}")
+
+    out_of_scope = dlls_from_files - dlls_in_scope
+    if out_of_scope:
+        print(f"\nDLLs out of scope ({len(out_of_scope)}):")
+        for dll in sorted(out_of_scope):
+            print(f"  {dll}")
 
 
 if __name__ == "__main__":
-    run(args=sys.argv[1:])
+    if len(sys.argv) < 2:
+        print("Usage: build_pathfinder_dlls.py <7z-listing.txt> ...", file=sys.stderr)
+        sys.exit(1)
+    run(listing_files=sys.argv[1:])

@@ -41,6 +41,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_toolbox.more_autodoc.autoprotocol",
     "release_toc",
+    "release_date",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

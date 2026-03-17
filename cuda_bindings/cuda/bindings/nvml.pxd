@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -52,6 +52,9 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
 ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
+ctypedef nvmlVgpuSchedulerStateInfo_v2_t VgpuSchedulerStateInfo_v2
+ctypedef nvmlVgpuSchedulerLogEntry_v2_t VgpuSchedulerLogEntry_v2
+ctypedef nvmlVgpuSchedulerState_v2_t VgpuSchedulerState_v2
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
@@ -67,6 +70,7 @@ ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurren
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
 ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
+ctypedef nvmlVgpuSchedulerLogInfo_v2_t VgpuSchedulerLogInfo_v2
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
 ctypedef nvmlPRMCounterList_v1_t PRMCounterList_v1

@@ -19,7 +19,7 @@ test = [
 ]
 # Internal organization of test dependencies.
 cu12 = [
-    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==12.*",
+    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
     "cutensor-cu12",
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
@@ -31,7 +31,7 @@ cu12 = [
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
 ]
 cu13 = [
-    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
+    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "cutensor-cu13",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
@@ -84,47 +84,6 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 
 [tool.pytest.ini_options]
 addopts = "--showlocals"
-
-[tool.ruff]
-line-length = 120
-preview = true
-
-[tool.ruff.format]
-docstring-code-format = true
-
-[tool.ruff.lint]
-select = [
-    "E",     # pycodestyle Error
-    "F",     # Pyflakes
-    "W",     # pycodestyle Warning
-    "UP",    # pyupgrade
-    "B",     # flake8-bugbear
-    "SIM",   # flake8-simplify
-    "I",     # isort
-    "ARG",   # flake8-unused-arguments
-    "Q",     # flake8-quotes
-    "N",     # pep8-naming
-    "C4",    # flake8-comprehensions
-    "PIE",   # flake8-pie
-    "T20",   # flake8-print
-    "RUF",   # Ruff-specific rules
-    "PT",    # flake8-pytest-style
-    "DTZ",   # flake8-datetimez
-    "S",
-]
-extend-select = ["B9"]
-
-ignore = [
-  "S101",   # asserts
-  "S311",   # allow use of the random.* even though many are not cryptographically secure
-  "S404",   # allow importing the subprocess module
-]
-
-[tool.ruff.lint.flake8-quotes]
-inline-quotes = "double"
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*" = ["S101"]
 
 [tool.mypy]
 # Basic settings

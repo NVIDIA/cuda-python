@@ -5,8 +5,9 @@
 
 import numpy as np
 import pytest
-from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
 from helpers.graph_kernels import compile_common_kernels
+
+from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
 
 
 def test_graph_is_building(init_cuda):

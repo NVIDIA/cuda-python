@@ -1,16 +1,24 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates vector addition using the CUDA Driver API with
+# unified virtual addressing.
+#
+# ################################################################################
+
 import ctypes
 import math
 import sys
 
 import numpy as np
 from common import common
-from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
+from common.helper_cuda import check_cuda_errors, find_cuda_device_drv
+
 from cuda.bindings import driver as cuda
 
-vectorAddDrv = """\
+vector_add_drv = """\
 /* Vector addition: C = A + B.
  *
  * This sample is a very basic sample that implements element by element
@@ -31,60 +39,60 @@ extern "C" __global__ void VecAdd_kernel(const float *A, const float *B, float *
 
 
 def main():
-    print("Vector Addition (Driver API)")
-    N = 50000
-    nbytes = N * np.dtype(np.float32).itemsize
+    n = 50000
+    nbytes = n * np.dtype(np.float32).itemsize
 
     # Initialize
-    checkCudaErrors(cuda.cuInit(0))
-    cuDevice = findCudaDeviceDRV()
+    check_cuda_errors(cuda.cuInit(0))
+    cu_device = find_cuda_device_drv()
     # Create context
-    cuContext = checkCudaErrors(cuda.cuCtxCreate(None, 0, cuDevice))
+    cu_context = check_cuda_errors(cuda.cuCtxCreate(None, 0, cu_device))
 
-    uvaSupported = checkCudaErrors(
-        cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice)
+    uva_supported = check_cuda_errors(
+        cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cu_device)
     )
-    if not uvaSupported:
-        print("Accessing pageable memory directly requires UVA")
-        return
+    if not uva_supported:
+        import pytest
 
-    kernelHelper = common.KernelHelper(vectorAddDrv, int(cuDevice))
-    _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
+        pytest.skip("Accessing pageable memory directly requires UVA")
+
+    kernel_helper = common.KernelHelper(vector_add_drv, int(cu_device))
+    _vec_add_kernel = kernel_helper.get_function(b"VecAdd_kernel")
 
     # Allocate input vectors h_A and h_B in host memory
-    h_A = np.random.rand(N).astype(dtype=np.float32)
-    h_B = np.random.rand(N).astype(dtype=np.float32)
-    h_C = np.random.rand(N).astype(dtype=np.float32)
+    h_a = np.random.rand(n).astype(dtype=np.float32)
+    h_b = np.random.rand(n).astype(dtype=np.float32)
+    h_c = np.random.rand(n).astype(dtype=np.float32)
 
     # Allocate vectors in device memory
-    d_A = checkCudaErrors(cuda.cuMemAlloc(nbytes))
-    d_B = checkCudaErrors(cuda.cuMemAlloc(nbytes))
-    d_C = checkCudaErrors(cuda.cuMemAlloc(nbytes))
+    d_a = check_cuda_errors(cuda.cuMemAlloc(nbytes))
+    d_b = check_cuda_errors(cuda.cuMemAlloc(nbytes))
+    d_c = check_cuda_errors(cuda.cuMemAlloc(nbytes))
 
     # Copy vectors from host memory to device memory
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, nbytes))
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, nbytes))
+    check_cuda_errors(cuda.cuMemcpyHtoD(d_a, h_a, nbytes))
+    check_cuda_errors(cuda.cuMemcpyHtoD(d_b, h_b, nbytes))
 
     if True:
         # Grid/Block configuration
-        threadsPerBlock = 256
-        blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
+        threads_per_block = 256
+        blocks_per_grid = (n + threads_per_block - 1) / threads_per_block
 
-        kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
+        kernel_args = ((d_a, d_b, d_c, n), (None, None, None, ctypes.c_int))
 
         # Launch the CUDA kernel
-        checkCudaErrors(
+        check_cuda_errors(
             cuda.cuLaunchKernel(
-                _VecAdd_kernel,
-                blocksPerGrid,
+                _vec_add_kernel,
+                blocks_per_grid,
                 1,
                 1,
-                threadsPerBlock,
+                threads_per_block,
                 1,
                 1,
                 0,
                 0,
-                kernelArgs,
+                kernel_args,
                 0,
             )
         )
@@ -93,22 +101,22 @@ def main():
 
     # Copy result from device memory to host memory
     # h_C contains the result in host memory
-    checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, nbytes))
+    check_cuda_errors(cuda.cuMemcpyDtoH(h_c, d_c, nbytes))
 
-    for i in range(N):
-        sum_all = h_A[i] + h_B[i]
-        if math.fabs(h_C[i] - sum_all) > 1e-7:
+    for i in range(n):
+        sum_all = h_a[i] + h_b[i]
+        if math.fabs(h_c[i] - sum_all) > 1e-7:
             break
 
     # Free device memory
-    checkCudaErrors(cuda.cuMemFree(d_A))
-    checkCudaErrors(cuda.cuMemFree(d_B))
-    checkCudaErrors(cuda.cuMemFree(d_C))
+    check_cuda_errors(cuda.cuMemFree(d_a))
+    check_cuda_errors(cuda.cuMemFree(d_b))
+    check_cuda_errors(cuda.cuMemFree(d_c))
 
-    checkCudaErrors(cuda.cuCtxDestroy(cuContext))
-    print("{}".format("Result = PASS" if i + 1 == N else "Result = FAIL"))
-    if i + 1 != N:
-        sys.exit(-1)
+    check_cuda_errors(cuda.cuCtxDestroy(cu_context))
+    if i + 1 != n:
+        print("Result = FAIL", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

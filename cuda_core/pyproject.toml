@@ -47,6 +47,7 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA :: 13",
 ]
 dependencies = [
+    "cuda-pathfinder >=1.4.2",
     "numpy",
 ]
 

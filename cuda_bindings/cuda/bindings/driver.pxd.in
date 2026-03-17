@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -396,6 +396,23 @@ cdef class CUlinkState:
     cdef list _keepalive
 {{endif}}
 
+{{if 'CUcoredumpCallbackHandle' in found_types}}
+
+cdef class CUcoredumpCallbackHandle:
+    """ Opaque handle representing a registered coredump status callback.
+
+    This handle is returned when registering a callback and must be provided when deregistering the callback.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUcoredumpCallbackHandle  _pvt_val
+    cdef cydriver.CUcoredumpCallbackHandle* _pvt_ptr
+{{endif}}
+
 {{if 'CUdevResourceDesc' in found_types}}
 
 cdef class CUdevResourceDesc:
@@ -548,6 +565,21 @@ cdef class CUoccupancyB2DSize:
     """
     cdef cydriver.CUoccupancyB2DSize  _pvt_val
     cdef cydriver.CUoccupancyB2DSize* _pvt_ptr
+{{endif}}
+
+{{if 'CUcoredumpStatusCallback' in found_types}}
+
+cdef class CUcoredumpStatusCallback:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUcoredumpStatusCallback  _pvt_val
+    cdef cydriver.CUcoredumpStatusCallback* _pvt_ptr
 {{endif}}
 
 {{if 'CUlogsCallback' in found_types}}
@@ -1529,6 +1561,10 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
     userData : Any
         Argument to pass to the function
     {{endif}}
+    {{if 'CUDA_HOST_NODE_PARAMS_v2_st.syncMode' in found_struct}}
+    syncMode : unsigned int
+        The sync mode to use for the host task
+    {{endif}}
 
     Methods
     -------
@@ -1979,6 +2015,16 @@ cdef class CUlaunchAttributeValue_union:
     nvlinkUtilCentricScheduling : unsigned int
 
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : CUlaunchAttributePortableClusterMode
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : CUsharedMemoryMode
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE.
+        See CUsharedMemoryMode for acceptable values.
+    {{endif}}
 
     Methods
     -------
@@ -2153,7 +2199,7 @@ cdef class CUexecAffinityParam_st:
     ----------
     {{if 'CUexecAffinityParam_st.type' in found_struct}}
     type : CUexecAffinityType
-
+        Type of execution affinity.
     {{endif}}
     {{if 'CUexecAffinityParam_st.param' in found_struct}}
     param : anon_union3
@@ -2181,11 +2227,12 @@ cdef class CUctxCigParam_st:
     ----------
     {{if 'CUctxCigParam_st.sharedDataType' in found_struct}}
     sharedDataType : CUcigDataType
-
+        Type of shared data from graphics client (D3D12 or Vulkan).
     {{endif}}
     {{if 'CUctxCigParam_st.sharedData' in found_struct}}
     sharedData : Any
-
+        Graphics client data handle (ID3D12CommandQueue or Nvidia specific
+        data blob).
     {{endif}}
 
     Methods
@@ -2203,22 +2250,28 @@ cdef class CUctxCigParam_st:
 
 cdef class CUctxCreateParams_st:
     """
-    Params for creating CUDA context Exactly one of execAffinityParams
-    and cigParams must be non-NULL.
+    Params for creating CUDA context. Both execAffinityParams and
+    cigParams cannot be non-NULL at the same time. If both are NULL,
+    the context will be created as a regular CUDA context.
 
     Attributes
     ----------
     {{if 'CUctxCreateParams_st.execAffinityParams' in found_struct}}
     execAffinityParams : CUexecAffinityParam
-
+        Array of execution affinity parameters to limit context resources
+        (e.g., SM count). Only supported Volta+ MPS. Mutually exclusive
+        with cigParams.
     {{endif}}
     {{if 'CUctxCreateParams_st.numExecAffinityParams' in found_struct}}
     numExecAffinityParams : int
-
+        Number of elements in execAffinityParams array. Must be 0 if
+        execAffinityParams is NULL.
     {{endif}}
     {{if 'CUctxCreateParams_st.cigParams' in found_struct}}
     cigParams : CUctxCigParam
-
+        CIG (CUDA in Graphics) parameters for sharing data from
+        D3D12/Vulkan graphics clients. Mutually exclusive with
+        execAffinityParams.
     {{endif}}
 
     Methods
@@ -2235,6 +2288,62 @@ cdef class CUctxCreateParams_st:
     {{if 'CUctxCreateParams_st.cigParams' in found_struct}}
     cdef size_t _cigParams_length
     cdef cydriver.CUctxCigParam* _cigParams
+    {{endif}}
+{{endif}}
+{{if 'CUstreamCigParam_st' in found_struct}}
+
+cdef class CUstreamCigParam_st:
+    """
+    CIG Stream Capture Params
+
+    Attributes
+    ----------
+    {{if 'CUstreamCigParam_st.streamSharedDataType' in found_struct}}
+    streamSharedDataType : CUstreamCigDataType
+        Type of shared data from graphics client (D3D12).
+    {{endif}}
+    {{if 'CUstreamCigParam_st.streamSharedData' in found_struct}}
+    streamSharedData : Any
+        Graphics client data handle
+        (ID3D12CommandList/ID3D12GraphicsCommandList).
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUstreamCigParam_st _pvt_val
+    cdef cydriver.CUstreamCigParam_st* _pvt_ptr
+    {{if 'CUstreamCigParam_st.streamSharedData' in found_struct}}
+    cdef _HelperInputVoidPtr _cystreamSharedData
+    {{endif}}
+{{endif}}
+{{if 'CUstreamCigCaptureParams_st' in found_struct}}
+
+cdef class CUstreamCigCaptureParams_st:
+    """
+    Params for capturing CUDA stream to CIG streamCigParams must be
+    non-NULL.
+
+    Attributes
+    ----------
+    {{if 'CUstreamCigCaptureParams_st.streamCigParams' in found_struct}}
+    streamCigParams : CUstreamCigParam
+        CIG (CUDA in Graphics) parameters for sharing command list data
+        from D3D12 graphics clients.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUstreamCigCaptureParams_st _pvt_val
+    cdef cydriver.CUstreamCigCaptureParams_st* _pvt_ptr
+    {{if 'CUstreamCigCaptureParams_st.streamCigParams' in found_struct}}
+    cdef size_t _streamCigParams_length
+    cdef cydriver.CUstreamCigParam* _streamCigParams
     {{endif}}
 {{endif}}
 {{if 'CUlibraryHostUniversalFunctionAndDataTable_st' in found_struct}}
@@ -4239,7 +4348,7 @@ cdef class CUmemLocation_st:
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     id : int
-        identifier for a given this location's CUmemLocationType.
+
     {{endif}}
 
     Methods
@@ -4247,7 +4356,7 @@ cdef class CUmemLocation_st:
     getPtr()
         Get memory address of class instance
     """
-    cdef cydriver.CUmemLocation_st _pvt_val
+    cdef cydriver.CUmemLocation_st* _val_ptr
     cdef cydriver.CUmemLocation_st* _pvt_ptr
 {{endif}}
 {{if 'CUmemAllocationProp_st.allocFlags' in found_struct}}
@@ -4557,7 +4666,7 @@ cdef class CUmemcpyAttributes_st:
 
 cdef class CUoffset3D_st:
     """
-    Struct representing offset into a CUarray in elements
+    Struct representing a 3D offset
 
     Attributes
     ----------
@@ -4677,7 +4786,7 @@ cdef class anon_struct24:
 {{endif}}
 {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
 
-cdef class anon_union12:
+cdef class anon_union13:
     """
     Attributes
     ----------
@@ -4716,7 +4825,7 @@ cdef class CUmemcpy3DOperand_st:
 
     {{endif}}
     {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    op : anon_union12
+    op : anon_union13
 
     {{endif}}
 
@@ -4728,7 +4837,7 @@ cdef class CUmemcpy3DOperand_st:
     cdef cydriver.CUmemcpy3DOperand_st* _val_ptr
     cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
     {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    cdef anon_union12 _op
+    cdef anon_union13 _op
     {{endif}}
 {{endif}}
 {{if 'CUDA_MEMCPY3D_BATCH_OP_st' in found_struct}}
@@ -5336,7 +5445,7 @@ cdef class CUdevSmResource_st:
     {{if 'CUdevSmResource_st.flags' in found_struct}}
     flags : unsigned int
         The flags set on this SM resource. For possible values see
-        ::CUdevSmResourceGroup_flags.
+        CUdevSmResourceGroup_flags.
     {{endif}}
 
     Methods
@@ -5418,12 +5527,12 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
     {{endif}}
     {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `CUdevSmResourceGroup_flags` values to indicate this
-        this group is created.
+        The flags set on this SM resource group. For possible values see
+        CUdevSmResourceGroup_flags.
     {{endif}}
     {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
     reserved : list[unsigned int]
-        Reserved for future use - ensure this is is zero initialized.
+
     {{endif}}
 
     Methods
@@ -5494,7 +5603,7 @@ cdef class CUdevResource_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union15:
+cdef class anon_union16:
     """
     Attributes
     ----------
@@ -5525,7 +5634,7 @@ cdef class CUeglFrame_st:
     Attributes
     ----------
     {{if True}}
-    frame : anon_union15
+    frame : anon_union16
 
     {{endif}}
     {{if True}}
@@ -5573,7 +5682,7 @@ cdef class CUeglFrame_st:
     cdef cydriver.CUeglFrame_st* _val_ptr
     cdef cydriver.CUeglFrame_st* _pvt_ptr
     {{if True}}
-    cdef anon_union15 _frame
+    cdef anon_union16 _frame
     {{endif}}
 {{endif}}
 {{if 'CUdeviceptr' in found_types}}
@@ -6665,6 +6774,10 @@ cdef class CUDA_HOST_NODE_PARAMS_v2(CUDA_HOST_NODE_PARAMS_v2_st):
     userData : Any
         Argument to pass to the function
     {{endif}}
+    {{if 'CUDA_HOST_NODE_PARAMS_v2_st.syncMode' in found_struct}}
+    syncMode : unsigned int
+        The sync mode to use for the host task
+    {{endif}}
 
     Methods
     -------
@@ -6899,6 +7012,16 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     nvlinkUtilCentricScheduling : unsigned int
 
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : CUlaunchAttributePortableClusterMode
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : CUsharedMemoryMode
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE.
+        See CUsharedMemoryMode for acceptable values.
+    {{endif}}
 
     Methods
     -------
@@ -7100,6 +7223,16 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     nvlinkUtilCentricScheduling : unsigned int
 
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : CUlaunchAttributePortableClusterMode
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : CUsharedMemoryMode
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE.
+        See CUsharedMemoryMode for acceptable values.
+    {{endif}}
 
     Methods
     -------
@@ -7220,6 +7353,16 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
     nvlinkUtilCentricScheduling : unsigned int
 
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : CUlaunchAttributePortableClusterMode
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : CUsharedMemoryMode
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE.
+        See CUsharedMemoryMode for acceptable values.
     {{endif}}
 
     Methods
@@ -7342,6 +7485,16 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     nvlinkUtilCentricScheduling : unsigned int
 
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : CUlaunchAttributePortableClusterMode
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : CUsharedMemoryMode
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE.
+        See CUsharedMemoryMode for acceptable values.
+    {{endif}}
 
     Methods
     -------
@@ -7463,6 +7616,16 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     nvlinkUtilCentricScheduling : unsigned int
 
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : CUlaunchAttributePortableClusterMode
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : CUsharedMemoryMode
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE.
+        See CUsharedMemoryMode for acceptable values.
+    {{endif}}
 
     Methods
     -------
@@ -7521,7 +7684,7 @@ cdef class CUexecAffinityParam_v1(CUexecAffinityParam_st):
     ----------
     {{if 'CUexecAffinityParam_st.type' in found_struct}}
     type : CUexecAffinityType
-
+        Type of execution affinity.
     {{endif}}
     {{if 'CUexecAffinityParam_st.param' in found_struct}}
     param : anon_union3
@@ -7545,7 +7708,7 @@ cdef class CUexecAffinityParam(CUexecAffinityParam_v1):
     ----------
     {{if 'CUexecAffinityParam_st.type' in found_struct}}
     type : CUexecAffinityType
-
+        Type of execution affinity.
     {{endif}}
     {{if 'CUexecAffinityParam_st.param' in found_struct}}
     param : anon_union3
@@ -7569,11 +7732,12 @@ cdef class CUctxCigParam(CUctxCigParam_st):
     ----------
     {{if 'CUctxCigParam_st.sharedDataType' in found_struct}}
     sharedDataType : CUcigDataType
-
+        Type of shared data from graphics client (D3D12 or Vulkan).
     {{endif}}
     {{if 'CUctxCigParam_st.sharedData' in found_struct}}
     sharedData : Any
-
+        Graphics client data handle (ID3D12CommandQueue or Nvidia specific
+        data blob).
     {{endif}}
 
     Methods
@@ -7587,22 +7751,75 @@ cdef class CUctxCigParam(CUctxCigParam_st):
 
 cdef class CUctxCreateParams(CUctxCreateParams_st):
     """
-    Params for creating CUDA context Exactly one of execAffinityParams
-    and cigParams must be non-NULL.
+    Params for creating CUDA context. Both execAffinityParams and
+    cigParams cannot be non-NULL at the same time. If both are NULL,
+    the context will be created as a regular CUDA context.
 
     Attributes
     ----------
     {{if 'CUctxCreateParams_st.execAffinityParams' in found_struct}}
     execAffinityParams : CUexecAffinityParam
-
+        Array of execution affinity parameters to limit context resources
+        (e.g., SM count). Only supported Volta+ MPS. Mutually exclusive
+        with cigParams.
     {{endif}}
     {{if 'CUctxCreateParams_st.numExecAffinityParams' in found_struct}}
     numExecAffinityParams : int
-
+        Number of elements in execAffinityParams array. Must be 0 if
+        execAffinityParams is NULL.
     {{endif}}
     {{if 'CUctxCreateParams_st.cigParams' in found_struct}}
     cigParams : CUctxCigParam
+        CIG (CUDA in Graphics) parameters for sharing data from
+        D3D12/Vulkan graphics clients. Mutually exclusive with
+        execAffinityParams.
+    {{endif}}
 
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUstreamCigParam' in found_types}}
+
+cdef class CUstreamCigParam(CUstreamCigParam_st):
+    """
+    CIG Stream Capture Params
+
+    Attributes
+    ----------
+    {{if 'CUstreamCigParam_st.streamSharedDataType' in found_struct}}
+    streamSharedDataType : CUstreamCigDataType
+        Type of shared data from graphics client (D3D12).
+    {{endif}}
+    {{if 'CUstreamCigParam_st.streamSharedData' in found_struct}}
+    streamSharedData : Any
+        Graphics client data handle
+        (ID3D12CommandList/ID3D12GraphicsCommandList).
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUstreamCigCaptureParams' in found_types}}
+
+cdef class CUstreamCigCaptureParams(CUstreamCigCaptureParams_st):
+    """
+    Params for capturing CUDA stream to CIG streamCigParams must be
+    non-NULL.
+
+    Attributes
+    ----------
+    {{if 'CUstreamCigCaptureParams_st.streamCigParams' in found_struct}}
+    streamCigParams : CUstreamCigParam
+        CIG (CUDA in Graphics) parameters for sharing command list data
+        from D3D12 graphics clients.
     {{endif}}
 
     Methods
@@ -9761,7 +9978,7 @@ cdef class CUmemLocation_v1(CUmemLocation_st):
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     id : int
-        identifier for a given this location's CUmemLocationType.
+
     {{endif}}
 
     Methods
@@ -9785,7 +10002,7 @@ cdef class CUmemLocation(CUmemLocation_v1):
     {{endif}}
     {{if 'CUmemLocation_st.id' in found_struct}}
     id : int
-        identifier for a given this location's CUmemLocationType.
+
     {{endif}}
 
     Methods
@@ -10271,7 +10488,7 @@ cdef class CUmemcpyAttributes(CUmemcpyAttributes_v1):
 
 cdef class CUoffset3D_v1(CUoffset3D_st):
     """
-    Struct representing offset into a CUarray in elements
+    Struct representing a 3D offset
 
     Attributes
     ----------
@@ -10299,7 +10516,7 @@ cdef class CUoffset3D_v1(CUoffset3D_st):
 
 cdef class CUoffset3D(CUoffset3D_v1):
     """
-    Struct representing offset into a CUarray in elements
+    Struct representing a 3D offset
 
     Attributes
     ----------
@@ -10392,7 +10609,7 @@ cdef class CUmemcpy3DOperand_v1(CUmemcpy3DOperand_st):
 
     {{endif}}
     {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    op : anon_union12
+    op : anon_union13
 
     {{endif}}
 
@@ -10416,7 +10633,7 @@ cdef class CUmemcpy3DOperand(CUmemcpy3DOperand_v1):
 
     {{endif}}
     {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    op : anon_union12
+    op : anon_union13
 
     {{endif}}
 
@@ -10994,7 +11211,7 @@ cdef class CUdevSmResource(CUdevSmResource_st):
     {{if 'CUdevSmResource_st.flags' in found_struct}}
     flags : unsigned int
         The flags set on this SM resource. For possible values see
-        ::CUdevSmResourceGroup_flags.
+        CUdevSmResourceGroup_flags.
     {{endif}}
 
     Methods
@@ -11070,12 +11287,12 @@ cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS(CU_DEV_SM_RESOURCE_GROUP_PARAMS_st):
     {{endif}}
     {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Combination of `CUdevSmResourceGroup_flags` values to indicate this
-        this group is created.
+        The flags set on this SM resource group. For possible values see
+        CUdevSmResourceGroup_flags.
     {{endif}}
     {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
     reserved : list[unsigned int]
-        Reserved for future use - ensure this is is zero initialized.
+
     {{endif}}
 
     Methods
@@ -11184,7 +11401,7 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
     Attributes
     ----------
     {{if True}}
-    frame : anon_union15
+    frame : anon_union16
 
     {{endif}}
     {{if True}}
@@ -11242,7 +11459,7 @@ cdef class CUeglFrame(CUeglFrame_v1):
     Attributes
     ----------
     {{if True}}
-    frame : anon_union15
+    frame : anon_union16
 
     {{endif}}
     {{if True}}

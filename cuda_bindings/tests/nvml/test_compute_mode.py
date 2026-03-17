@@ -5,6 +5,7 @@
 import sys
 
 import pytest
+
 from cuda.bindings import nvml
 
 from .conftest import unsupported_before

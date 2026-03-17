@@ -14,7 +14,27 @@
 // Use void* to match cuda.bindings.cynvvm's typedef
 using nvvmProgram = void*;
 
+// Forward declaration for nvJitLink - avoids nvJitLink.h dependency
+// Use void* to match cuda.bindings.cynvjitlink's typedef
+using nvJitLink_t = void*;
+
 namespace cuda_core {
+
+// ============================================================================
+// TaggedHandle - make void*-based handle types distinct for overloading
+//
+// Both nvvmProgram and nvJitLink_t are void*, so shared_ptr<const void*>
+// would be the same C++ type for both. TaggedHandle<T, Tag> wraps the raw
+// value with a unique tag type, making each shared_ptr type distinct.
+// ============================================================================
+
+template<typename T, int Tag>
+struct TaggedHandle {
+    T raw;
+};
+
+using NvvmProgramValue = TaggedHandle<nvvmProgram, 0>;
+using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
 
 // ============================================================================
 // Thread-local error handling
@@ -72,7 +92,11 @@ extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
 extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
 extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
+// Linker
+extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
+
 // Graphics interop
+extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
 
 // ============================================================================
@@ -98,6 +122,19 @@ using NvvmDestroyProgramFn = int (*)(nvvmProgram*);
 extern NvvmDestroyProgramFn p_nvvmDestroyProgram;
 
 // ============================================================================
+// nvJitLink function pointers
+//
+// These are populated by _resource_handles.pyx at module import time using
+// function pointers extracted from cuda.bindings.cynvjitlink.__pyx_capi__.
+// Note: May be null if nvJitLink is not available at runtime.
+// ============================================================================
+
+// Function pointer type for nvJitLinkDestroy (avoids nvJitLink.h dependency)
+// Signature: nvJitLinkResult nvJitLinkDestroy(nvJitLinkHandle *handle)
+using NvJitLinkDestroyFn = int (*)(nvJitLink_t*);
+extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
+
+// ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
 
@@ -109,7 +146,9 @@ using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
-using NvvmProgramHandle = std::shared_ptr<const nvvmProgram>;
+using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
+using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
+using CuLinkHandle = std::shared_ptr<const CUlinkState>;
 
 
 // ============================================================================
@@ -162,9 +201,12 @@ StreamHandle get_per_thread_stream();
 
 // Create an owning event handle by calling cuEventCreate.
 // The event structurally depends on the provided context handle.
+// Metadata fields are stored in the EventBox for later retrieval.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags);
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
+                                bool timing_disabled, bool busy_waited,
+                                bool ipc_enabled, int device_id);
 
 // Create an owning event handle without context dependency.
 // Use for temporary events that are created and destroyed in the same scope.
@@ -176,7 +218,21 @@ EventHandle create_event_handle_noctx(unsigned int flags);
 // The originating process owns the event and its context.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
+                                    bool busy_waited);
+
+// Create a non-owning event handle (references existing event).
+// Use for events that are managed by the CUDA graph or another owner.
+// The event will NOT be destroyed when the handle is released.
+// Metadata defaults to unknown (timing_disabled=true, device_id=-1).
+EventHandle create_event_handle_ref(CUevent event);
+
+// Event metadata accessors (read from EventBox via pointer arithmetic)
+bool get_event_timing_disabled(const EventHandle& h) noexcept;
+bool get_event_busy_waited(const EventHandle& h) noexcept;
+bool get_event_ipc_enabled(const EventHandle& h) noexcept;
+int get_event_device_id(const EventHandle& h) noexcept;
+ContextHandle get_event_context(const EventHandle& h) noexcept;
 
 // ============================================================================
 // Memory pool handle functions
@@ -244,6 +300,16 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 
+// Create a device pointer handle for a mapped graphics resource.
+// The pointer structurally depends on the provided graphics resource handle.
+// When the last reference is released, cuGraphicsUnmapResources is called on
+// the stored stream, then the graphics resource may be unregistered when its
+// own handle is released.
+DevicePtrHandle deviceptr_create_mapped_graphics(
+    CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream);
+
 // Callback type for MemoryResource deallocation.
 // Called from the shared_ptr deleter when a handle created via
 // deviceptr_create_with_mr is destroyed.  The implementation is responsible
@@ -307,9 +373,14 @@ LibraryHandle create_library_handle_ref(CUlibrary library);
 // Returns empty handle on error (caller must check).
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name);
 
-// Create a non-owning kernel handle with library dependency.
-// Use for borrowed kernels. The library handle keeps the library alive.
-KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
+// Create a kernel handle from a raw CUkernel.
+// If the kernel is already managed (in the registry), returns the owning
+// handle with library dependency. Otherwise returns a non-owning ref.
+KernelHandle create_kernel_handle_ref(CUkernel kernel);
+
+// Get the library handle associated with a kernel (from KernelBox).
+// Returns empty handle if the kernel has no library dependency.
+LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 
 // ============================================================================
 // Graphics resource handle functions
@@ -346,6 +417,33 @@ NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog);
 // Create a non-owning NVVM program handle (references existing program).
 // The program will NOT be destroyed when the handle is released.
 NvvmProgramHandle create_nvvm_program_handle_ref(nvvmProgram prog);
+
+// ============================================================================
+// nvJitLink handle functions
+// ============================================================================
+
+// Create an owning nvJitLink handle.
+// When the last reference is released, nvJitLinkDestroy is called.
+// Use this to wrap a handle created via nvJitLinkCreate.
+// Note: If nvJitLink is not available (p_nvJitLinkDestroy is null), the deleter is a no-op.
+NvJitLinkHandle create_nvjitlink_handle(nvJitLink_t handle);
+
+// Create a non-owning nvJitLink handle (references existing handle).
+// The handle will NOT be destroyed when the last reference is released.
+NvJitLinkHandle create_nvjitlink_handle_ref(nvJitLink_t handle);
+
+// ============================================================================
+// cuLink handle functions
+// ============================================================================
+
+// Create an owning cuLink handle.
+// When the last reference is released, cuLinkDestroy is called.
+// Use this to wrap a CUlinkState created via cuLinkCreate.
+CuLinkHandle create_culink_handle(CUlinkState state);
+
+// Create a non-owning cuLink handle (references existing CUlinkState).
+// The handle will NOT be destroyed when the last reference is released.
+CuLinkHandle create_culink_handle_ref(CUlinkState state);
 
 // ============================================================================
 // Overloaded helper functions to extract raw resources from handles
@@ -389,6 +487,14 @@ inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
 }
 
 inline nvvmProgram as_cu(const NvvmProgramHandle& h) noexcept {
+    return h ? h->raw : nullptr;
+}
+
+inline nvJitLink_t as_cu(const NvJitLinkHandle& h) noexcept {
+    return h ? h->raw : nullptr;
+}
+
+inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -434,10 +540,33 @@ inline std::intptr_t as_intptr(const NvvmProgramHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const NvJitLinkHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
 // as_py() - convert handle to Python wrapper object (returns new reference)
+#if PY_VERSION_HEX < 0x030D0000
+extern "C" int _Py_IsFinalizing(void);
+#endif
+
+inline bool py_is_finalizing() noexcept {
+#if PY_VERSION_HEX >= 0x030D0000
+    return Py_IsFinalizing();
+#else
+    return _Py_IsFinalizing() != 0;
+#endif
+}
+
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
 inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
+    if (py_is_finalizing()) {
+        Py_RETURN_NONE;
+    }
     PyObject* mod = PyImport_ImportModule(module_name);
     if (!mod) return nullptr;
     PyObject* cls = PyObject_GetAttrString(mod, class_name);
@@ -484,6 +613,15 @@ inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
 inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
     // NVVM bindings use raw integers, not wrapper classes
     return PyLong_FromSsize_t(as_intptr(h));
+}
+
+inline PyObject* as_py(const NvJitLinkHandle& h) noexcept {
+    // nvJitLink bindings use raw integers, not wrapper classes
+    return PyLong_FromSsize_t(as_intptr(h));
+}
+
+inline PyObject* as_py(const CuLinkHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUlinkState", as_intptr(h));
 }
 
 inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -526,6 +526,12 @@ cdef CUresult cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t* p
     return cydriver._cuKernelGetParamInfo(kernel, paramIndex, paramOffset, paramSize)
 {{endif}}
 
+{{if 'cuKernelGetParamCount' in found_functions}}
+
+cdef CUresult cuKernelGetParamCount(CUkernel kernel, size_t* paramCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuKernelGetParamCount(kernel, paramCount)
+{{endif}}
+
 {{if 'cuMemGetInfo_v2' in found_functions}}
 
 cdef CUresult cuMemGetInfo(size_t* free, size_t* total) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -812,6 +818,18 @@ cdef CUresult cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* s
 
 cdef CUresult cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuMemcpy3DBatchAsync_v2(numOps, opList, flags, hStream)
+{{endif}}
+
+{{if 'cuMemcpyWithAttributesAsync' in found_functions}}
+
+cdef CUresult cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes* attr, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemcpyWithAttributesAsync(dst, src, size, attr, hStream)
+{{endif}}
+
+{{if 'cuMemcpy3DWithAttributesAsync' in found_functions}}
+
+cdef CUresult cuMemcpy3DWithAttributesAsync(CUDA_MEMCPY3D_BATCH_OP* op, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemcpy3DWithAttributesAsync(op, flags, hStream)
 {{endif}}
 
 {{if 'cuMemsetD8_v2' in found_functions}}
@@ -1282,6 +1300,18 @@ cdef CUresult cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags,
     return cydriver._cuStreamCreateWithPriority(phStream, flags, priority)
 {{endif}}
 
+{{if 'cuStreamBeginCaptureToCig' in found_functions}}
+
+cdef CUresult cuStreamBeginCaptureToCig(CUstream hStream, CUstreamCigCaptureParams* streamCigCaptureParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuStreamBeginCaptureToCig(hStream, streamCigCaptureParams)
+{{endif}}
+
+{{if 'cuStreamEndCaptureToCig' in found_functions}}
+
+cdef CUresult cuStreamEndCaptureToCig(CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuStreamEndCaptureToCig(hStream)
+{{endif}}
+
 {{if 'cuStreamGetPriority' in found_functions}}
 
 cdef CUresult cuStreamGetPriority(CUstream hStream, int* priority) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1570,6 +1600,12 @@ cdef CUresult cuFuncGetParamInfo(CUfunction func, size_t paramIndex, size_t* par
     return cydriver._cuFuncGetParamInfo(func, paramIndex, paramOffset, paramSize)
 {{endif}}
 
+{{if 'cuFuncGetParamCount' in found_functions}}
+
+cdef CUresult cuFuncGetParamCount(CUfunction func, size_t* paramCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuFuncGetParamCount(func, paramCount)
+{{endif}}
+
 {{if 'cuFuncIsLoaded' in found_functions}}
 
 cdef CUresult cuFuncIsLoaded(CUfunctionLoadingState* state, CUfunction function) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1610,6 +1646,12 @@ cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchPar
 
 cdef CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuLaunchHostFunc(hStream, fn, userData)
+{{endif}}
+
+{{if 'cuLaunchHostFunc_v2' in found_functions}}
+
+cdef CUresult cuLaunchHostFunc_v2(CUstream hStream, CUhostFn fn, void* userData, unsigned int syncMode) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLaunchHostFunc_v2(hStream, fn, userData, syncMode)
 {{endif}}
 
 {{if 'cuFuncSetBlockShape' in found_functions}}
@@ -2188,6 +2230,12 @@ cdef CUresult cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodePar
     return cydriver._cuGraphNodeSetParams(hNode, nodeParams)
 {{endif}}
 
+{{if 'cuGraphNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphNodeGetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGraphNodeGetParams(hNode, nodeParams)
+{{endif}}
+
 {{if 'cuGraphExecNodeSetParams' in found_functions}}
 
 cdef CUresult cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -2588,6 +2636,30 @@ cdef CUresult cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, siz
 
 cdef CUresult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuCoredumpSetAttributeGlobal(attrib, value, size)
+{{endif}}
+
+{{if 'cuCoredumpRegisterStartCallback' in found_functions}}
+
+cdef CUresult cuCoredumpRegisterStartCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCoredumpRegisterStartCallback(callback, userData, callbackOut)
+{{endif}}
+
+{{if 'cuCoredumpRegisterCompleteCallback' in found_functions}}
+
+cdef CUresult cuCoredumpRegisterCompleteCallback(CUcoredumpStatusCallback callback, void* userData, CUcoredumpCallbackHandle* callbackOut) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCoredumpRegisterCompleteCallback(callback, userData, callbackOut)
+{{endif}}
+
+{{if 'cuCoredumpDeregisterStartCallback' in found_functions}}
+
+cdef CUresult cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCoredumpDeregisterStartCallback(callback)
+{{endif}}
+
+{{if 'cuCoredumpDeregisterCompleteCallback' in found_functions}}
+
+cdef CUresult cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCoredumpDeregisterCompleteCallback(callback)
 {{endif}}
 
 {{if 'cuGetExportTable' in found_functions}}

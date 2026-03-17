@@ -4,20 +4,11 @@
 
 # ################################################################################
 #
-# This demo illustrates:
-#
-#   1. How to use the JIT LTO feature provided by the Linker class to link multiple objects together
-#   2. That linking allows for libraries to modify workflows dynamically at runtime
-#
-# This demo mimics a relationship between a library and a user. The user's sole responsibility is to
-# provide device code that generates some art. Whereas the library is responsible for all steps involved in
-# setting up the device, launch configurations and arguments, as well as linking the provided device code.
-#
-# Two algorithms are implemented:
-#   1. A Mandelbrot set
-#   2. A Julia set
-#
-# The user can choose which algorithm to use at runtime and generate the resulting image.
+# This example demonstrates the JIT LTO feature of the Linker class to link
+# multiple objects together, allowing libraries to modify workflows at runtime.
+# It mimics a library-user relationship: the user provides device code that
+# generates art (Mandelbrot or Julia set), while the library handles device
+# setup, launch config, and linking.
 #
 # ################################################################################
 
@@ -25,6 +16,7 @@ import argparse
 import sys
 
 import cupy as cp
+
 from cuda.core import Device, LaunchConfig, Linker, LinkerOptions, Program, ProgramOptions, launch
 
 
@@ -75,9 +67,12 @@ class MockLibrary:
 
         # Setup the launch configuration such that each thread will be generating one pixel, and subdivide
         # the problem into 16x16 chunks.
-        self.grid = (self.width / 16, self.height / 16, 1.0)
+        self.grid = (self.width // 16, self.height // 16, 1)
         self.block = (16, 16, 1)
         self.config = LaunchConfig(grid=self.grid, block=self.block)
+
+    def close(self):
+        self.stream.close()
 
     def link(self, user_code, target_type):
         if target_type == "ltoir":
@@ -266,36 +261,37 @@ def main():
             import matplotlib.pyplot as plt
         except ImportError:
             print("this example requires matplotlib installed in order to display the image", file=sys.stderr)
-            sys.exit(0)
+            sys.exit(1)
 
     result_to_display = []
     lib = MockLibrary()
+    try:
+        # Process mandelbrot option
+        if args.target in ("mandelbrot", "all"):
+            # The library will compile and link their main kernel with the provided Mandelbrot kernel
+            kernel = lib.link(code_mandelbrot, args.format)
+            result = lib.run(kernel)
+            result_to_display.append((result, "Mandelbrot"))
 
-    # Process mandelbrot option
-    if args.target in ("mandelbrot", "all"):
-        # The library will compile and link their main kernel with the provided Mandelbrot kernel
-        kernel = lib.link(code_mandelbrot, args.format)
-        result = lib.run(kernel)
-        result_to_display.append((result, "Mandelbrot"))
+        # Process julia option
+        if args.target in ("julia", "all"):
+            # Likewise, the same library can be configured to instead use the provided Julia kernel
+            kernel = lib.link(code_julia, args.format)
+            result = lib.run(kernel)
+            result_to_display.append((result, "Julia"))
 
-    # Process julia option
-    if args.target in ("julia", "all"):
-        # Likewise, the same library can be configured to instead use the provided Julia kernel
-        kernel = lib.link(code_julia, args.format)
-        result = lib.run(kernel)
-        result_to_display.append((result, "Julia"))
-
-    # Display the generated images if requested
-    if args.display:
-        fig = plt.figure()
-        for i, (image, title) in enumerate(result_to_display):
-            axs = fig.add_subplot(len(result_to_display), 1, i + 1)
-            axs.imshow(image)
-            axs.set_title(title)
-            axs.axis("off")
-        plt.show()
+        # Display the generated images if requested
+        if args.display:
+            fig = plt.figure()
+            for i, (image, title) in enumerate(result_to_display):
+                axs = fig.add_subplot(len(result_to_display), 1, i + 1)
+                axs.imshow(image)
+                axs.set_title(title)
+                axs.axis("off")
+            plt.show()
+    finally:
+        lib.close()
 
 
 if __name__ == "__main__":
     main()
-    print("done!")

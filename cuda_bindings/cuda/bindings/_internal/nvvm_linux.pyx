@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -72,6 +72,7 @@ cdef void* __nvvmGetCompiledResultSize = NULL
 cdef void* __nvvmGetCompiledResult = NULL
 cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
+cdef void* __nvvmLLVMVersion = NULL
 
 
 cdef void* load_library() except* with gil:
@@ -181,6 +182,13 @@ cdef int _init_nvvm() except -1 nogil:
                 handle = load_library()
             __nvvmGetProgramLog = dlsym(handle, 'nvvmGetProgramLog')
 
+        global __nvvmLLVMVersion
+        __nvvmLLVMVersion = dlsym(RTLD_DEFAULT, 'nvvmLLVMVersion')
+        if __nvvmLLVMVersion == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvvmLLVMVersion = dlsym(handle, 'nvvmLLVMVersion')
+
         __py_nvvm_init = True
         return 0
 
@@ -241,6 +249,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmGetProgramLog
     data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
+
+    global __nvvmLLVMVersion
+    data["__nvvmLLVMVersion"] = <intptr_t>__nvvmLLVMVersion
 
     func_ptrs = data
     return data
@@ -385,3 +396,13 @@ cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?_NVVMR
             raise FunctionNotFoundError("function nvvmGetProgramLog is not found")
     return (<nvvmResult (*)(nvvmProgram, char*) noexcept nogil>__nvvmGetProgramLog)(
         prog, buffer)
+
+
+cdef nvvmResult _nvvmLLVMVersion(const char* arch, int* major) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvvmLLVMVersion
+    _check_or_init_nvvm()
+    if __nvvmLLVMVersion == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmLLVMVersion is not found")
+    return (<nvvmResult (*)(const char*, int*) noexcept nogil>__nvvmLLVMVersion)(
+        arch, major)

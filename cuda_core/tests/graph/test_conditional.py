@@ -7,8 +7,9 @@ import ctypes
 
 import numpy as np
 import pytest
-from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
 from helpers.graph_kernels import compile_conditional_kernels
+
+from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
 
 
 @pytest.mark.parametrize(
