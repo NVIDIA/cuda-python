@@ -15,6 +15,11 @@ import sys
 
 from cuda.bindings import nvml
 
+##################################################################################
+# FORMATTING HELPERS
+
+# Utilities to help format the output table. See below for NVML usage.
+
 
 def format_size(bytes_val: int) -> str:
     """Formats bytes to MiB."""
@@ -57,72 +62,110 @@ class TableFormatter:
             args = args[count:]
 
 
-def print_table():
+def print_table(metadata, devices):
     formatter = TableFormatter(LINES)
-
-    driver_version = nvml.system_get_driver_version()
-    cuda_version_int = nvml.system_get_cuda_driver_version()
-    cuda_major = cuda_version_int // 1000
-    cuda_minor = (cuda_version_int % 1000) // 10
-    cuda_version = f"{cuda_major}.{cuda_minor}"
 
     print("+-----------------------------------------------------------------------------------------+")
     print(
-        f"| NVIDIA-MINI-SMI {driver_version:<16} Driver Version: {driver_version:<15} CUDA Version: {cuda_version:<9}|"
+        f"| NVIDIA-MINI-SMI {metadata['driver_version']:<16} Driver Version: {metadata['driver_version']:<15} CUDA Version: {metadata['cuda_version']:<9}|"
     )
     formatter.print_line()
     print("| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |")
     print("| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |")
     formatter.print_line("=")
 
+    for device in devices:
+        formatter.print_values(
+            str(device["index"]),
+            device["name"],
+            device["persistence"],
+            device["bus_id"],
+            device["display_active"],
+            device["ecc_mode"],
+            device["fan_speed"],
+            device["temperature"],
+            device["performance_state"],
+            device["power"],
+            device["memory"],
+            device["utilization"],
+            device["compute_mode"],
+        )
+        formatter.print_line()
+
+
+##################################################################################
+# NVML USAGE EXAMPLES
+
+
+def collect_info():
+    metadata = {}
+    metadata["driver_version"] = nvml.system_get_driver_version()
+    cuda_version_int = nvml.system_get_cuda_driver_version()
+    cuda_major = cuda_version_int // 1000
+    cuda_minor = (cuda_version_int % 1000) // 10
+    metadata["cuda_version"] = f"{cuda_major}.{cuda_minor}"
+
+    devices = []
+
     device_count = nvml.device_get_count_v2()
 
     for i in range(device_count):
+        device = {}
+        device["index"] = i
+
         handle = nvml.device_get_handle_by_index_v2(i)
 
         name = nvml.device_get_name(handle)
+        device["name"] = name
 
         try:
             persistence = nvml.device_get_persistence_mode(handle)
             persistence_str = "On" if persistence == nvml.EnableState.FEATURE_ENABLED else "Off"
         except nvml.NvmlError:
             persistence_str = "N/A"
+        device["persistence"] = persistence_str
 
         try:
             pci_info = nvml.device_get_pci_info_v3(handle)
             bus_id = pci_info.bus_id
         except nvml.NvmlError:
             bus_id = "N/A"
+        device["bus_id"] = bus_id
 
         try:
             display_active = nvml.device_get_display_active(handle)
             disp_str = "On" if display_active == nvml.EnableState.FEATURE_ENABLED else "Off"
         except nvml.NvmlError:
             disp_str = "N/A"
+        device["display_active"] = disp_str
 
         try:
             current, _ = nvml.device_get_ecc_mode(handle)
             ecc_str = "On" if current == nvml.EnableState.FEATURE_ENABLED else "Off"
         except nvml.NvmlError:
             ecc_str = "N/A"
+        device["ecc_mode"] = ecc_str
 
         try:
             fan = nvml.device_get_fan_speed(handle)
             fan_str = f"{fan: >3}%"
         except nvml.NvmlError:
             fan_str = "N/A"
+        device["fan_speed"] = fan_str
 
         try:
             temp = nvml.device_get_temperature_v(handle, nvml.TemperatureSensors.TEMPERATURE_GPU)
             temp_str = f"{temp}C"
         except nvml.NvmlError:
             temp_str = "N/A"
+        device["temperature"] = temp_str
 
         try:
             perf_state = nvml.device_get_performance_state(handle)
             perf_str = f"P{perf_state}"
         except nvml.NvmlError:
             perf_str = "N/A"
+        device["performance_state"] = perf_str
 
         try:
             power_usage = nvml.device_get_power_usage(handle)  # mW
@@ -137,6 +180,7 @@ def print_table():
             cap_str = "N/A"
 
         pwr_str = f"{usage_str} / {cap_str}"
+        device["power"] = pwr_str
 
         try:
             mem_info = nvml.device_get_memory_info_v2(handle)
@@ -147,6 +191,8 @@ def print_table():
             mem_total = format_size(mem_info.total)
             mem_str = f"{mem_used} / {mem_total}"
 
+        device["memory"] = mem_str
+
         try:
             util_rates = nvml.device_get_utilization_rates(handle)
         except nvml.NvmlError:
@@ -154,6 +200,8 @@ def print_table():
         else:
             gpu_util = util_rates.gpu
             util_str = f"{gpu_util: >3}%"
+
+        device["utilization"] = util_str
 
         try:
             compute_mode = nvml.device_get_compute_mode(handle)
@@ -168,23 +216,11 @@ def print_table():
                 comp_str = "Prohibited"
             else:
                 comp_str = "Unknown"
+        device["compute_mode"] = comp_str
 
-        formatter.print_values(
-            str(i),
-            name,
-            persistence_str,
-            bus_id,
-            disp_str,
-            ecc_str,
-            fan_str,
-            temp_str,
-            perf_str,
-            pwr_str,
-            mem_str,
-            util_str,
-            comp_str,
-        )
-        formatter.print_line()
+        devices.append(device)
+
+    return metadata, devices
 
 
 def main():
@@ -195,7 +231,8 @@ def main():
         sys.exit(1)
 
     try:
-        print_table()
+        metadata, devices = collect_info()
+        print_table(metadata, devices)
     finally:
         nvml.shutdown()
 
