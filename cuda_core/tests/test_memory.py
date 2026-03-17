@@ -1151,11 +1151,14 @@ def test_managed_buffer_advise_prefetch_and_discard_prefetch(init_cuda):
     stream = device.create_stream()
 
     buffer.advise("set_read_mostly")
-    assert _get_mem_range_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
-        4,
-    ) == 1
+    assert (
+        _get_mem_range_attr(
+            buffer,
+            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+            4,
+        )
+        == 1
+    )
 
     buffer.advise("set_preferred_location", device, location_type="device")
     preferred_type = _get_mem_range_attr(
