@@ -14,6 +14,21 @@ There are a couple of tasks defined:
 - `bench`: Runs the Python benchmarks
 - `bench-cpp`: Runs the C++ benchmarks
 
+### System tuning
+
+For more stable results on Linux, tune the system before running benchmarks.
+See: https://pyperf.readthedocs.io/en/latest/system.html#system
+
+```bash
+# Show current system state
+pixi run -e wheel -- python -m pyperf system show
+
+# Apply tuning (may require root)
+sudo $(pixi run -e wheel -- which python) -m pyperf system tune
+```
+
+### Running benchmarks
+
 To run the benchmarks combine the environment and task:
 
 ```bash
