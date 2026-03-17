@@ -85,8 +85,6 @@ def print_table():
         try:
             persistence = nvml.device_get_persistence_mode(handle)
             persistence_str = "On" if persistence == nvml.EnableState.FEATURE_ENABLED else "Off"
-        except nvml.NotSupportedError:
-            persistence_str = "Unsupp."
         except nvml.NvmlError:
             persistence_str = "N/A"
 
@@ -142,21 +140,26 @@ def print_table():
 
         try:
             mem_info = nvml.device_get_memory_info_v2(handle)
+        except nvml.NvmlError:
+            mem_str = "N/A"
+        else:
             mem_used = format_size(mem_info.used)
             mem_total = format_size(mem_info.total)
             mem_str = f"{mem_used} / {mem_total}"
-        except nvml.NvmlError:
-            mem_str = "N/A"
 
         try:
             util_rates = nvml.device_get_utilization_rates(handle)
-            gpu_util = util_rates.gpu
-            util_str = f"{gpu_util: >3}%"
         except nvml.NvmlError:
             util_str = "N/A"
+        else:
+            gpu_util = util_rates.gpu
+            util_str = f"{gpu_util: >3}%"
 
         try:
             compute_mode = nvml.device_get_compute_mode(handle)
+        except nvml.NvmlError:
+            comp_str = "N/A"
+        else:
             if compute_mode == nvml.ComputeMode.COMPUTEMODE_DEFAULT:
                 comp_str = "Default"
             elif compute_mode == nvml.ComputeMode.COMPUTEMODE_EXCLUSIVE_PROCESS:
@@ -165,8 +168,6 @@ def print_table():
                 comp_str = "Prohibited"
             else:
                 comp_str = "Unknown"
-        except nvml.NvmlError:
-            comp_str = "N/A"
 
         formatter.print_values(
             str(i),
