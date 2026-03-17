@@ -6,4 +6,4 @@
 
 from cuda.core._memory._buffer import advise, discard_prefetch, prefetch
 
-__all__ = ["advise", "prefetch", "discard_prefetch"]
+__all__ = ["advise", "discard_prefetch", "prefetch"]
