@@ -54,7 +54,7 @@ cmd = "pytest --benchmark-only --override-ini 'addopts=' $PIXI_PROJECT_ROOT/pyte
 cmd = [
     "cmake",
     "-S",
-    "$PIXI_PROJECT_ROOT/cpp",
+    "$PIXI_PROJECT_ROOT/benchmarks/cpp",
     "-B",
     "$PIXI_PROJECT_ROOT/.build/cpp",
     "-G",

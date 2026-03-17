@@ -10,4 +10,4 @@ __pycache__/
 .pixi/
 
 # Override root .gitignore *.cpp rule (which targets Cython-generated files)
-!cpp/*.cpp
+!benchmarks/cpp/*.cpp
