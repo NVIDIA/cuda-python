@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=520cca20"></script>
+    <script src="../_static/documentation_options.js?v=3dfddef4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev65';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -755,6 +755,31 @@ it will be the Buffer instance passed to the method.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.as_tensor_map">
+<span class="sig-name descname"><span class="pre">as_tensor_map</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">box_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">element_strides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">interleave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">swizzle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">l2_promotion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">oob_fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.as_tensor_map" title="Link to this definition">#</a></dt>
+<dd><p>Create a tiled <code class="xref py py-obj docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code> from this view.</p>
+<p>This is the public entry point for creating tiled tensor map
+descriptors in <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. Pass either <code class="docutils literal notranslate"><span class="pre">box_dim</span></code> and the
+individual keyword arguments directly, or provide bundled tiled
+options via <code class="docutils literal notranslate"><span class="pre">options=</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.copy_from">
 <span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
 
@@ -1066,6 +1091,7 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.readonly"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.readonly</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.exporting_obj"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.exporting_obj</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.__init__"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.as_tensor_map"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.as_tensor_map()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.copy_from"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.copy_from()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.copy_to"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.copy_to()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.from_any_interface"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_any_interface()</span></code></a></li>
