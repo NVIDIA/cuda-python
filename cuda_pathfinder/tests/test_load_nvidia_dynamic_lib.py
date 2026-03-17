@@ -6,14 +6,17 @@ import os
 import platform
 
 import pytest
-from child_load_nvidia_dynamic_lib_helper import build_child_process_failed_for_libname_message, child_process_func
+from child_load_nvidia_dynamic_lib_helper import (
+    build_child_process_failed_for_libname_message,
+    child_process_reported_dynamic_lib_not_found,
+    run_load_nvidia_dynamic_lib_in_subprocess,
+)
 from local_helpers import have_distribution
 
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
-from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -107,12 +110,10 @@ def _is_expected_load_nvidia_dynamic_lib_failure(libname):
     supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else supported_nvidia_libs.SUPPORTED_LINUX_SONAMES,
 )
 def test_load_nvidia_dynamic_lib(info_summary_append, libname):
-    # We intentionally run each dynamic library operation in a child process
-    # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
-    # Without child processes, loading/unloading libraries during testing could
-    # interfere across test cases and lead to nondeterministic or platform-specific failures.
+    # Use a fresh Python subprocess for each load to isolate global dynamic
+    # loader state and keep the tests aligned with the canary probe model.
     timeout = 120 if IS_WINDOWS else 30
-    result = run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
+    result = run_load_nvidia_dynamic_lib_in_subprocess(libname, timeout=timeout)
 
     def raise_child_process_failed():
         raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
@@ -120,7 +121,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     if result.returncode != 0:
         raise_child_process_failed()
     assert not result.stderr
-    if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
+    if child_process_reported_dynamic_lib_not_found(result):
         if STRICTNESS == "all_must_work" and not _is_expected_load_nvidia_dynamic_lib_failure(libname):
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")

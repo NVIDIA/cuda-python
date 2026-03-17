@@ -37,10 +37,10 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
-    "enum_tools.autoenum",
     "sphinx_copybutton",
     "release_toc",
     "release_date",
+    "enum_documenter",
 ]
 
 nb_execution_mode = "off"
