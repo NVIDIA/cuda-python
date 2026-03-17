@@ -13,7 +13,6 @@ import os
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
-    parse_dynamic_lib_subprocess_result,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
 
@@ -24,7 +23,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_driver_lib_no_cache,
     _load_lib_no_cache,
 )
-from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND
+from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
@@ -142,7 +141,11 @@ def test_real_load_driver_lib(info_summary_append, libname):
     if result.returncode != 0:
         raise_child_process_failed()
     assert not result.stderr
-    payload = parse_dynamic_lib_subprocess_result(result, libname=libname)
+    payload = parse_dynamic_lib_subprocess_payload(
+        result.stdout,
+        libname=libname,
+        error_label="Load subprocess child process",
+    )
     if payload.status == STATUS_NOT_FOUND:
         if STRICTNESS == "all_must_work":
             raise_child_process_failed()

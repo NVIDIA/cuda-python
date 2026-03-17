@@ -11,7 +11,6 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     DYNAMIC_LIB_SUBPROCESS_MODULE,
     MODE_LOAD,
     build_dynamic_lib_subprocess_command,
-    parse_dynamic_lib_subprocess_payload,
 )
 
 LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODULE = DYNAMIC_LIB_SUBPROCESS_MODULE
@@ -28,18 +27,6 @@ def build_child_process_failed_for_libname_message(libname: str, result: subproc
         f"Child process failed for {libname=!r} with exit code {result.returncode}\n"
         f"--- stdout-from-child-process ---\n{result.stdout}<end-of-stdout-from-child-process>\n"
         f"--- stderr-from-child-process ---\n{result.stderr}<end-of-stderr-from-child-process>\n"
-    )
-
-
-def parse_dynamic_lib_subprocess_result(
-    result: subprocess.CompletedProcess[str],
-    *,
-    libname: str,
-):
-    return parse_dynamic_lib_subprocess_payload(
-        result.stdout,
-        libname=libname,
-        error_label="Load subprocess child process",
     )
 
 
