@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.VgpuVmIdType
-===============================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: VgpuVmIdType
