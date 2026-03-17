@@ -1134,6 +1134,133 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
         )
 
 
+def _get_mem_range_attr(buffer, attribute, data_size):
+    return handle_return(driver.cuMemRangeGetAttribute(data_size, attribute, buffer.handle, buffer.size))
+
+
+def test_managed_buffer_advise_prefetch_and_discard_prefetch(init_cuda):
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
+        pytest.skip("discard-prefetch requires cuda.bindings support")
+
+    mr = create_managed_memory_resource_or_skip()
+    buffer = mr.allocate(4096)
+    stream = device.create_stream()
+
+    buffer.advise("set_read_mostly")
+    assert _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+        4,
+    ) == 1
+
+    buffer.advise("set_preferred_location", device, location_type="device")
+    preferred_type = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
+        4,
+    )
+    preferred_id = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
+        4,
+    )
+    assert int(preferred_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE)
+    assert preferred_id == device.device_id
+
+    buffer.prefetch(-1, stream=stream)
+    stream.sync()
+    last_type = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        4,
+    )
+    assert int(last_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST)
+
+    buffer.discard_prefetch(device, stream=stream)
+    stream.sync()
+    last_type = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        4,
+    )
+    last_id = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+        4,
+    )
+    assert int(last_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE)
+    assert last_id == device.device_id
+
+    buffer.close()
+
+
+def test_managed_buffer_operations_support_external_managed_allocations(init_cuda):
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(4096)
+    stream = device.create_stream()
+
+    buffer.prefetch(device, stream=stream)
+    stream.sync()
+
+    last_type = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
+        4,
+    )
+    last_id = _get_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
+        4,
+    )
+    assert int(last_type) == int(driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE)
+    assert last_id == device.device_id
+
+    buffer.close()
+
+
+def test_managed_buffer_operations_reject_non_managed_buffers(init_cuda):
+    device = Device()
+    device.set_current()
+
+    buffer = DummyDeviceMemoryResource(device).allocate(4096)
+    stream = device.create_stream()
+
+    with pytest.raises(ValueError, match="managed-memory buffer"):
+        buffer.advise("set_read_mostly")
+    with pytest.raises(ValueError, match="managed-memory buffer"):
+        buffer.prefetch(device, stream=stream)
+    with pytest.raises(ValueError, match="managed-memory buffer"):
+        buffer.discard_prefetch(device, stream=stream)
+
+    buffer.close()
+
+
+def test_managed_buffer_operation_validation(init_cuda):
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    device.set_current()
+
+    mr = create_managed_memory_resource_or_skip()
+    buffer = mr.allocate(4096)
+    stream = device.create_stream()
+
+    with pytest.raises(ValueError, match="requires a location"):
+        buffer.prefetch(stream=stream)
+    with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
+        buffer.advise("set_accessed_by", 0, location_type="host_numa")
+    with pytest.raises(ValueError, match="location must be None or -1"):
+        buffer.prefetch(0, stream=stream, location_type="host")
+
+    buffer.close()
+
+
 def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
     """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
     from unittest.mock import MagicMock, patch
