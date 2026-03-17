@@ -5,12 +5,16 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from cuda.pathfinder._testing.load_nvidia_dynamic_lib_subprocess import DYNAMIC_LIB_NOT_FOUND_MARKER
 
 LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODULE = "cuda.pathfinder._testing.load_nvidia_dynamic_lib_subprocess"
-LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_CWD = Path(__file__).resolve().parents[1]
+# Launch the child from a neutral directory so `python -m cuda.pathfinder...`
+# resolves the installed package instead of the source checkout. In CI the
+# checkout does not contain the generated `_version.py` file.
+LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_CWD = Path(tempfile.gettempdir())
 PROCESS_TIMED_OUT = -9
 
 
