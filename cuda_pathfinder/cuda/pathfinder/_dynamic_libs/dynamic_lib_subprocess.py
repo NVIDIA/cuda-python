@@ -38,9 +38,7 @@ def _probe_canary_abs_path(libname: str) -> str | None:
         return None
     if loaded is None:
         return None
-    abs_path = loaded.abs_path
-    if not isinstance(abs_path, str):
-        return None
+    abs_path: str | None = loaded.abs_path
     return abs_path
 
 
