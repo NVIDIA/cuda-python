@@ -11,8 +11,11 @@ channel-priority = "disabled"
 [feature.cu13.system-requirements]
 cuda = "13"
 
-[feature.cu13.dependencies]
+[feature.cu13-pinned.dependencies]
 cuda-version = "13.1.*"
+
+[feature.cu13-source.dependencies]
+cuda-version = "13.*"
 
 [feature.bench.dependencies]
 python = "3.14.*"
@@ -41,8 +44,8 @@ cuda-bindings = "==13.1.0"
 cuda-bindings = { path = ".." }
 
 [environments]
-wheel = { features = ["cu13", "bench", "cpp-bench", "bindings-wheel"] }
-source = { features = ["cu13", "bench", "cpp-bench", "bindings-source"] }
+wheel = { features = ["cu13", "cu13-pinned", "bench", "cpp-bench", "bindings-wheel"] }
+source = { features = ["cu13", "cu13-source", "bench", "cpp-bench", "bindings-source"] }
 
 [target.linux.tasks.bench]
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
