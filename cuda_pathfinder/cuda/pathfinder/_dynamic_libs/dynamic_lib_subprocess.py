@@ -20,6 +20,13 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     format_dynamic_lib_subprocess_payload,
 )
 
+# NOTE: The main entrypoint (below) serves both production (canary probe)
+# and tests (full loader). Keeping them together ensures a single subprocess
+# protocol and CLI surface, so the test subprocess stays aligned with the
+# production flow while avoiding a separate test-only module.
+# Any production-code impact is negligible since the extra logic only runs
+# in the subprocess entrypoint and only in test mode.
+
 
 def _probe_canary_abs_path(libname: str) -> str | None:
     desc = LIB_DESCRIPTORS.get(libname)
@@ -44,6 +51,7 @@ def _validate_abs_path(abs_path: str) -> None:
 
 
 def _load_nvidia_dynamic_lib_for_test(libname: str) -> str:
+    """Test-only loader used by the subprocess entrypoint."""
     # Keep imports inside the subprocess body so startup stays focused on the
     # code under test rather than the parent test module.
     from cuda.pathfinder import load_nvidia_dynamic_lib
@@ -89,6 +97,7 @@ def probe_dynamic_lib_and_print_json(libname: str, mode: str) -> None:
         return
 
     if mode == MODE_LOAD:
+        # Test-only path: exercises full loader behavior in isolation.
         try:
             abs_path = _load_nvidia_dynamic_lib_for_test(libname)
         except DynamicLibNotFoundError:
