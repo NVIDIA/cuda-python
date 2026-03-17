@@ -41,6 +41,12 @@ def _skip_if_no_mempool():
         pytest.skip("Device does not support mempool operations")
 
 
+def _skip_if_no_managed_mempool():
+    _skip_if_no_mempool()
+    if not Device(0).properties.concurrent_managed_access:
+        pytest.skip("Device does not support managed memory pool operations")
+
+
 def _driver_has_node_get_params():
     from cuda.bindings import driver as drv
 
@@ -266,6 +272,7 @@ def _build_alloc_node(g):
 
 
 def _build_alloc_managed_node(g):
+    _skip_if_no_managed_mempool()
     device_id = Device().device_id
     options = GraphAllocOptions(memory_type="managed")
     entry = g.alloc(ALLOC_SIZE)
