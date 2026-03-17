@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.MemoryErrorType
+==================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: MemoryErrorType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MemoryErrorType.__init__
+      ~MemoryErrorType.as_integer_ratio
+      ~MemoryErrorType.bit_count
+      ~MemoryErrorType.bit_length
+      ~MemoryErrorType.conjugate
+      ~MemoryErrorType.from_bytes
+      ~MemoryErrorType.is_integer
+      ~MemoryErrorType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MemoryErrorType.CORRECTED
+      ~MemoryErrorType.COUNT
+      ~MemoryErrorType.UNCORRECTED
+      ~MemoryErrorType.denominator
+      ~MemoryErrorType.imag
+      ~MemoryErrorType.name
+      ~MemoryErrorType.numerator
+      ~MemoryErrorType.real
+      ~MemoryErrorType.value
+   
+   

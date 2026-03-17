@@ -1,0 +1,46 @@
+﻿cuda.bindings.nvml.GpuTopologyLevel
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuTopologyLevel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuTopologyLevel.__init__
+      ~GpuTopologyLevel.as_integer_ratio
+      ~GpuTopologyLevel.bit_count
+      ~GpuTopologyLevel.bit_length
+      ~GpuTopologyLevel.conjugate
+      ~GpuTopologyLevel.from_bytes
+      ~GpuTopologyLevel.is_integer
+      ~GpuTopologyLevel.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuTopologyLevel.TOPOLOGY_HOSTBRIDGE
+      ~GpuTopologyLevel.TOPOLOGY_INTERNAL
+      ~GpuTopologyLevel.TOPOLOGY_MULTIPLE
+      ~GpuTopologyLevel.TOPOLOGY_NODE
+      ~GpuTopologyLevel.TOPOLOGY_SINGLE
+      ~GpuTopologyLevel.TOPOLOGY_SYSTEM
+      ~GpuTopologyLevel.denominator
+      ~GpuTopologyLevel.imag
+      ~GpuTopologyLevel.name
+      ~GpuTopologyLevel.numerator
+      ~GpuTopologyLevel.real
+      ~GpuTopologyLevel.value
+   
+   

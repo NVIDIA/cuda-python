@@ -1,0 +1,48 @@
+﻿cuda.bindings.nvml.ValueType
+============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ValueType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ValueType.__init__
+      ~ValueType.as_integer_ratio
+      ~ValueType.bit_count
+      ~ValueType.bit_length
+      ~ValueType.conjugate
+      ~ValueType.from_bytes
+      ~ValueType.is_integer
+      ~ValueType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ValueType.COUNT
+      ~ValueType.DOUBLE
+      ~ValueType.SIGNED_INT
+      ~ValueType.SIGNED_LONG_LONG
+      ~ValueType.UNSIGNED_INT
+      ~ValueType.UNSIGNED_LONG
+      ~ValueType.UNSIGNED_LONG_LONG
+      ~ValueType.UNSIGNED_SHORT
+      ~ValueType.denominator
+      ~ValueType.imag
+      ~ValueType.name
+      ~ValueType.numerator
+      ~ValueType.real
+      ~ValueType.value
+   
+   

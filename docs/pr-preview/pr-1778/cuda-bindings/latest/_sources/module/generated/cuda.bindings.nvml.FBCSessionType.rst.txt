@@ -1,0 +1,45 @@
+﻿cuda.bindings.nvml.FBCSessionType
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: FBCSessionType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FBCSessionType.__init__
+      ~FBCSessionType.as_integer_ratio
+      ~FBCSessionType.bit_count
+      ~FBCSessionType.bit_length
+      ~FBCSessionType.conjugate
+      ~FBCSessionType.from_bytes
+      ~FBCSessionType.is_integer
+      ~FBCSessionType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FBCSessionType.CUDA
+      ~FBCSessionType.HWENC
+      ~FBCSessionType.TOSYS
+      ~FBCSessionType.UNKNOWN
+      ~FBCSessionType.VID
+      ~FBCSessionType.denominator
+      ~FBCSessionType.imag
+      ~FBCSessionType.name
+      ~FBCSessionType.numerator
+      ~FBCSessionType.real
+      ~FBCSessionType.value
+   
+   

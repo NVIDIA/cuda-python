@@ -1,0 +1,48 @@
+﻿cuda.bindings.nvml.PowerSmoothingProfileParam
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PowerSmoothingProfileParam
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PowerSmoothingProfileParam.__init__
+      ~PowerSmoothingProfileParam.as_integer_ratio
+      ~PowerSmoothingProfileParam.bit_count
+      ~PowerSmoothingProfileParam.bit_length
+      ~PowerSmoothingProfileParam.conjugate
+      ~PowerSmoothingProfileParam.from_bytes
+      ~PowerSmoothingProfileParam.is_integer
+      ~PowerSmoothingProfileParam.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PowerSmoothingProfileParam.PERCENT_TMP_FLOOR
+      ~PowerSmoothingProfileParam.PRIMARY_FLOOR_ACT_OFFSET
+      ~PowerSmoothingProfileParam.PRIMARY_FLOOR_ACT_WIN_MULT
+      ~PowerSmoothingProfileParam.PRIMARY_FLOOR_TAR_WIN_MULT
+      ~PowerSmoothingProfileParam.RAMP_DOWN_HYSTERESIS
+      ~PowerSmoothingProfileParam.RAMP_DOWN_RATE
+      ~PowerSmoothingProfileParam.RAMP_UP_RATE
+      ~PowerSmoothingProfileParam.SECONDARY_POWER_FLOOR
+      ~PowerSmoothingProfileParam.denominator
+      ~PowerSmoothingProfileParam.imag
+      ~PowerSmoothingProfileParam.name
+      ~PowerSmoothingProfileParam.numerator
+      ~PowerSmoothingProfileParam.real
+      ~PowerSmoothingProfileParam.value
+   
+   

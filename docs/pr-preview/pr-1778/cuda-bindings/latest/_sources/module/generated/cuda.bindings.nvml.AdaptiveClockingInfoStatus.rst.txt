@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.AdaptiveClockingInfoStatus
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: AdaptiveClockingInfoStatus
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AdaptiveClockingInfoStatus.__init__
+      ~AdaptiveClockingInfoStatus.as_integer_ratio
+      ~AdaptiveClockingInfoStatus.bit_count
+      ~AdaptiveClockingInfoStatus.bit_length
+      ~AdaptiveClockingInfoStatus.conjugate
+      ~AdaptiveClockingInfoStatus.from_bytes
+      ~AdaptiveClockingInfoStatus.is_integer
+      ~AdaptiveClockingInfoStatus.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AdaptiveClockingInfoStatus.DISABLED
+      ~AdaptiveClockingInfoStatus.ENABLED
+      ~AdaptiveClockingInfoStatus.denominator
+      ~AdaptiveClockingInfoStatus.imag
+      ~AdaptiveClockingInfoStatus.name
+      ~AdaptiveClockingInfoStatus.numerator
+      ~AdaptiveClockingInfoStatus.real
+      ~AdaptiveClockingInfoStatus.value
+   
+   

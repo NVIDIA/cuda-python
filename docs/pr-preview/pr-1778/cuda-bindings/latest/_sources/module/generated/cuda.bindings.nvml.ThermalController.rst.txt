@@ -1,0 +1,59 @@
+﻿cuda.bindings.nvml.ThermalController
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ThermalController
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ThermalController.__init__
+      ~ThermalController.as_integer_ratio
+      ~ThermalController.bit_count
+      ~ThermalController.bit_length
+      ~ThermalController.conjugate
+      ~ThermalController.from_bytes
+      ~ThermalController.is_integer
+      ~ThermalController.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ThermalController.ADM1032
+      ~ThermalController.ADT7461
+      ~ThermalController.ADT7473
+      ~ThermalController.ADT7473S
+      ~ThermalController.G781
+      ~ThermalController.GPU_INTERNAL
+      ~ThermalController.LM64
+      ~ThermalController.LM89
+      ~ThermalController.LM99
+      ~ThermalController.MAX1617
+      ~ThermalController.MAX6649
+      ~ThermalController.MAX6649R
+      ~ThermalController.NONE
+      ~ThermalController.NVSYSCON_CANOAS
+      ~ThermalController.NVSYSCON_E551
+      ~ThermalController.OS
+      ~ThermalController.SBMAX6649
+      ~ThermalController.UNKNOWN
+      ~ThermalController.VBIOSEVT
+      ~ThermalController.denominator
+      ~ThermalController.imag
+      ~ThermalController.name
+      ~ThermalController.numerator
+      ~ThermalController.real
+      ~ThermalController.value
+   
+   

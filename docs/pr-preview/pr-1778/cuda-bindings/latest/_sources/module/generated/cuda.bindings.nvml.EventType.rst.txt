@@ -1,0 +1,55 @@
+﻿cuda.bindings.nvml.EventType
+============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EventType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventType.__init__
+      ~EventType.as_integer_ratio
+      ~EventType.bit_count
+      ~EventType.bit_length
+      ~EventType.conjugate
+      ~EventType.from_bytes
+      ~EventType.is_integer
+      ~EventType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EventType.CLOCK
+      ~EventType.DOUBLE_BIT_ECC_ERROR
+      ~EventType.DRAM_RETIREMENT_EVENT
+      ~EventType.DRAM_RETIREMENT_FAILURE
+      ~EventType.FATAL_POISON_ERROR
+      ~EventType.GPU_RECOVERY_ACTION
+      ~EventType.GPU_UNAVAILABLE_ERROR
+      ~EventType.MIG_CONFIG_CHANGE
+      ~EventType.NONE
+      ~EventType.NON_FATAL_POISON_ERROR
+      ~EventType.POWER_SOURCE_CHANGE
+      ~EventType.PSTATE
+      ~EventType.SINGLE_BIT_ECC_ERROR
+      ~EventType.SINGLE_BIT_ECC_ERROR_STORM
+      ~EventType.XID_CRITICAL_ERROR
+      ~EventType.denominator
+      ~EventType.imag
+      ~EventType.name
+      ~EventType.numerator
+      ~EventType.real
+      ~EventType.value
+   
+   

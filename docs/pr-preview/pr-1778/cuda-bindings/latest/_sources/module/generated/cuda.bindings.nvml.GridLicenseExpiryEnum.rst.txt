@@ -1,0 +1,45 @@
+﻿cuda.bindings.nvml.GridLicenseExpiryEnum
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GridLicenseExpiryEnum
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GridLicenseExpiryEnum.__init__
+      ~GridLicenseExpiryEnum.as_integer_ratio
+      ~GridLicenseExpiryEnum.bit_count
+      ~GridLicenseExpiryEnum.bit_length
+      ~GridLicenseExpiryEnum.conjugate
+      ~GridLicenseExpiryEnum.from_bytes
+      ~GridLicenseExpiryEnum.is_integer
+      ~GridLicenseExpiryEnum.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GridLicenseExpiryEnum.INVALID
+      ~GridLicenseExpiryEnum.NOT_APPLICABLE
+      ~GridLicenseExpiryEnum.NOT_AVAILABLE
+      ~GridLicenseExpiryEnum.PERMANENT
+      ~GridLicenseExpiryEnum.VALID
+      ~GridLicenseExpiryEnum.denominator
+      ~GridLicenseExpiryEnum.imag
+      ~GridLicenseExpiryEnum.name
+      ~GridLicenseExpiryEnum.numerator
+      ~GridLicenseExpiryEnum.real
+      ~GridLicenseExpiryEnum.value
+   
+   

@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.VgpuVmIdType
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuVmIdType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuVmIdType.__init__
+      ~VgpuVmIdType.as_integer_ratio
+      ~VgpuVmIdType.bit_count
+      ~VgpuVmIdType.bit_length
+      ~VgpuVmIdType.conjugate
+      ~VgpuVmIdType.from_bytes
+      ~VgpuVmIdType.is_integer
+      ~VgpuVmIdType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuVmIdType.VGPU_VM_ID_DOMAIN_ID
+      ~VgpuVmIdType.VGPU_VM_ID_UUID
+      ~VgpuVmIdType.denominator
+      ~VgpuVmIdType.imag
+      ~VgpuVmIdType.name
+      ~VgpuVmIdType.numerator
+      ~VgpuVmIdType.real
+      ~VgpuVmIdType.value
+   
+   

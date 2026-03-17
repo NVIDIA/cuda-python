@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.CCSystemMultiGpu
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: CCSystemMultiGpu
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CCSystemMultiGpu.__init__
+      ~CCSystemMultiGpu.as_integer_ratio
+      ~CCSystemMultiGpu.bit_count
+      ~CCSystemMultiGpu.bit_length
+      ~CCSystemMultiGpu.conjugate
+      ~CCSystemMultiGpu.from_bytes
+      ~CCSystemMultiGpu.is_integer
+      ~CCSystemMultiGpu.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CCSystemMultiGpu.NONE
+      ~CCSystemMultiGpu.NVLE
+      ~CCSystemMultiGpu.PROTECTED_PCIE
+      ~CCSystemMultiGpu.denominator
+      ~CCSystemMultiGpu.imag
+      ~CCSystemMultiGpu.name
+      ~CCSystemMultiGpu.numerator
+      ~CCSystemMultiGpu.real
+      ~CCSystemMultiGpu.value
+   
+   

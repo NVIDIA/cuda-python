@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.NvlinkPowerState
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkPowerState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkPowerState.__init__
+      ~NvlinkPowerState.as_integer_ratio
+      ~NvlinkPowerState.bit_count
+      ~NvlinkPowerState.bit_length
+      ~NvlinkPowerState.conjugate
+      ~NvlinkPowerState.from_bytes
+      ~NvlinkPowerState.is_integer
+      ~NvlinkPowerState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkPowerState.HIGH_SPEED
+      ~NvlinkPowerState.LOW_SPEED
+      ~NvlinkPowerState.denominator
+      ~NvlinkPowerState.imag
+      ~NvlinkPowerState.name
+      ~NvlinkPowerState.numerator
+      ~NvlinkPowerState.real
+      ~NvlinkPowerState.value
+   
+   

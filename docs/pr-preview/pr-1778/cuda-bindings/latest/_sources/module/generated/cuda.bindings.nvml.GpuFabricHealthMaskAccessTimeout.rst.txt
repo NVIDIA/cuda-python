@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.GpuFabricHealthMaskAccessTimeout
+===================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuFabricHealthMaskAccessTimeout
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuFabricHealthMaskAccessTimeout.__init__
+      ~GpuFabricHealthMaskAccessTimeout.as_integer_ratio
+      ~GpuFabricHealthMaskAccessTimeout.bit_count
+      ~GpuFabricHealthMaskAccessTimeout.bit_length
+      ~GpuFabricHealthMaskAccessTimeout.conjugate
+      ~GpuFabricHealthMaskAccessTimeout.from_bytes
+      ~GpuFabricHealthMaskAccessTimeout.is_integer
+      ~GpuFabricHealthMaskAccessTimeout.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuFabricHealthMaskAccessTimeout.FALSE
+      ~GpuFabricHealthMaskAccessTimeout.NOT_SUPPORTED
+      ~GpuFabricHealthMaskAccessTimeout.TRUE
+      ~GpuFabricHealthMaskAccessTimeout.denominator
+      ~GpuFabricHealthMaskAccessTimeout.imag
+      ~GpuFabricHealthMaskAccessTimeout.name
+      ~GpuFabricHealthMaskAccessTimeout.numerator
+      ~GpuFabricHealthMaskAccessTimeout.real
+      ~GpuFabricHealthMaskAccessTimeout.value
+   
+   

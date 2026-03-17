@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.VgpuSchedulerEngineType
+==========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuSchedulerEngineType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuSchedulerEngineType.__init__
+      ~VgpuSchedulerEngineType.as_integer_ratio
+      ~VgpuSchedulerEngineType.bit_count
+      ~VgpuSchedulerEngineType.bit_length
+      ~VgpuSchedulerEngineType.conjugate
+      ~VgpuSchedulerEngineType.from_bytes
+      ~VgpuSchedulerEngineType.is_integer
+      ~VgpuSchedulerEngineType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuSchedulerEngineType.GRAPHICS
+      ~VgpuSchedulerEngineType.NVENC1
+      ~VgpuSchedulerEngineType.denominator
+      ~VgpuSchedulerEngineType.imag
+      ~VgpuSchedulerEngineType.name
+      ~VgpuSchedulerEngineType.numerator
+      ~VgpuSchedulerEngineType.real
+      ~VgpuSchedulerEngineType.value
+   
+   

@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.TemperatureSensors
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: TemperatureSensors
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TemperatureSensors.__init__
+      ~TemperatureSensors.as_integer_ratio
+      ~TemperatureSensors.bit_count
+      ~TemperatureSensors.bit_length
+      ~TemperatureSensors.conjugate
+      ~TemperatureSensors.from_bytes
+      ~TemperatureSensors.is_integer
+      ~TemperatureSensors.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TemperatureSensors.TEMPERATURE_COUNT
+      ~TemperatureSensors.TEMPERATURE_GPU
+      ~TemperatureSensors.denominator
+      ~TemperatureSensors.imag
+      ~TemperatureSensors.name
+      ~TemperatureSensors.numerator
+      ~TemperatureSensors.real
+      ~TemperatureSensors.value
+   
+   

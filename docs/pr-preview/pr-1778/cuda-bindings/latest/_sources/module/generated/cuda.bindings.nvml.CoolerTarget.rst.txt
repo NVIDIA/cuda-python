@@ -1,0 +1,45 @@
+﻿cuda.bindings.nvml.CoolerTarget
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: CoolerTarget
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CoolerTarget.__init__
+      ~CoolerTarget.as_integer_ratio
+      ~CoolerTarget.bit_count
+      ~CoolerTarget.bit_length
+      ~CoolerTarget.conjugate
+      ~CoolerTarget.from_bytes
+      ~CoolerTarget.is_integer
+      ~CoolerTarget.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CoolerTarget.THERMAL_GPU
+      ~CoolerTarget.THERMAL_GPU_RELATED
+      ~CoolerTarget.THERMAL_MEMORY
+      ~CoolerTarget.THERMAL_NONE
+      ~CoolerTarget.THERMAL_POWER_SUPPLY
+      ~CoolerTarget.denominator
+      ~CoolerTarget.imag
+      ~CoolerTarget.name
+      ~CoolerTarget.numerator
+      ~CoolerTarget.real
+      ~CoolerTarget.value
+   
+   

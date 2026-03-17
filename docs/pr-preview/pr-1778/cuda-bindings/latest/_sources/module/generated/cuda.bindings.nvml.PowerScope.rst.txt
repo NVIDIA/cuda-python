@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.PowerScope
+=============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PowerScope
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PowerScope.__init__
+      ~PowerScope.as_integer_ratio
+      ~PowerScope.bit_count
+      ~PowerScope.bit_length
+      ~PowerScope.conjugate
+      ~PowerScope.from_bytes
+      ~PowerScope.is_integer
+      ~PowerScope.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PowerScope.GPU
+      ~PowerScope.MEMORY
+      ~PowerScope.MODULE
+      ~PowerScope.denominator
+      ~PowerScope.imag
+      ~PowerScope.name
+      ~PowerScope.numerator
+      ~PowerScope.real
+      ~PowerScope.value
+   
+   

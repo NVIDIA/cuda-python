@@ -1,0 +1,46 @@
+﻿cuda.bindings.nvml.GridLicenseState
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GridLicenseState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GridLicenseState.__init__
+      ~GridLicenseState.as_integer_ratio
+      ~GridLicenseState.bit_count
+      ~GridLicenseState.bit_length
+      ~GridLicenseState.conjugate
+      ~GridLicenseState.from_bytes
+      ~GridLicenseState.is_integer
+      ~GridLicenseState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GridLicenseState.LICENSED
+      ~GridLicenseState.UNINITIALIZED
+      ~GridLicenseState.UNKNOWN
+      ~GridLicenseState.UNLICENSED
+      ~GridLicenseState.UNLICENSED_RESTRICTED
+      ~GridLicenseState.UNLICENSED_UNRESTRICTED
+      ~GridLicenseState.denominator
+      ~GridLicenseState.imag
+      ~GridLicenseState.name
+      ~GridLicenseState.numerator
+      ~GridLicenseState.real
+      ~GridLicenseState.value
+   
+   

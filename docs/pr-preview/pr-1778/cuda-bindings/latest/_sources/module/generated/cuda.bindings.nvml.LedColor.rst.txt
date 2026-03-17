@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.LedColor
+===========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: LedColor
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LedColor.__init__
+      ~LedColor.as_integer_ratio
+      ~LedColor.bit_count
+      ~LedColor.bit_length
+      ~LedColor.conjugate
+      ~LedColor.from_bytes
+      ~LedColor.is_integer
+      ~LedColor.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LedColor.AMBER
+      ~LedColor.GREEN
+      ~LedColor.denominator
+      ~LedColor.imag
+      ~LedColor.name
+      ~LedColor.numerator
+      ~LedColor.real
+      ~LedColor.value
+   
+   

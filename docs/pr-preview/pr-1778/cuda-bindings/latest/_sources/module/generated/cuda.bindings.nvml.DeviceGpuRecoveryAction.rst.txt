@@ -1,0 +1,45 @@
+﻿cuda.bindings.nvml.DeviceGpuRecoveryAction
+==========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: DeviceGpuRecoveryAction
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DeviceGpuRecoveryAction.__init__
+      ~DeviceGpuRecoveryAction.as_integer_ratio
+      ~DeviceGpuRecoveryAction.bit_count
+      ~DeviceGpuRecoveryAction.bit_length
+      ~DeviceGpuRecoveryAction.conjugate
+      ~DeviceGpuRecoveryAction.from_bytes
+      ~DeviceGpuRecoveryAction.is_integer
+      ~DeviceGpuRecoveryAction.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DeviceGpuRecoveryAction.GPU_RECOVERY_ACTION_DRAIN_AND_RESET
+      ~DeviceGpuRecoveryAction.GPU_RECOVERY_ACTION_DRAIN_P2P
+      ~DeviceGpuRecoveryAction.GPU_RECOVERY_ACTION_GPU_RESET
+      ~DeviceGpuRecoveryAction.GPU_RECOVERY_ACTION_NODE_REBOOT
+      ~DeviceGpuRecoveryAction.GPU_RECOVERY_ACTION_NONE
+      ~DeviceGpuRecoveryAction.denominator
+      ~DeviceGpuRecoveryAction.imag
+      ~DeviceGpuRecoveryAction.name
+      ~DeviceGpuRecoveryAction.numerator
+      ~DeviceGpuRecoveryAction.real
+      ~DeviceGpuRecoveryAction.value
+   
+   

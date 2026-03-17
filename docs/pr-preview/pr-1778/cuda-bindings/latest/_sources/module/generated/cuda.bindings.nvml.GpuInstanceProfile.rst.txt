@@ -1,0 +1,58 @@
+﻿cuda.bindings.nvml.GpuInstanceProfile
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuInstanceProfile
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuInstanceProfile.__init__
+      ~GpuInstanceProfile.as_integer_ratio
+      ~GpuInstanceProfile.bit_count
+      ~GpuInstanceProfile.bit_length
+      ~GpuInstanceProfile.conjugate
+      ~GpuInstanceProfile.from_bytes
+      ~GpuInstanceProfile.is_integer
+      ~GpuInstanceProfile.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuInstanceProfile.PROFILE_1_SLICE
+      ~GpuInstanceProfile.PROFILE_1_SLICE_ALL_ME
+      ~GpuInstanceProfile.PROFILE_1_SLICE_GFX
+      ~GpuInstanceProfile.PROFILE_1_SLICE_NO_ME
+      ~GpuInstanceProfile.PROFILE_1_SLICE_REV1
+      ~GpuInstanceProfile.PROFILE_1_SLICE_REV2
+      ~GpuInstanceProfile.PROFILE_2_SLICE
+      ~GpuInstanceProfile.PROFILE_2_SLICE_ALL_ME
+      ~GpuInstanceProfile.PROFILE_2_SLICE_GFX
+      ~GpuInstanceProfile.PROFILE_2_SLICE_NO_ME
+      ~GpuInstanceProfile.PROFILE_2_SLICE_REV1
+      ~GpuInstanceProfile.PROFILE_3_SLICE
+      ~GpuInstanceProfile.PROFILE_4_SLICE
+      ~GpuInstanceProfile.PROFILE_4_SLICE_GFX
+      ~GpuInstanceProfile.PROFILE_6_SLICE
+      ~GpuInstanceProfile.PROFILE_7_SLICE
+      ~GpuInstanceProfile.PROFILE_8_SLICE
+      ~GpuInstanceProfile.PROFILE_COUNT
+      ~GpuInstanceProfile.denominator
+      ~GpuInstanceProfile.imag
+      ~GpuInstanceProfile.name
+      ~GpuInstanceProfile.numerator
+      ~GpuInstanceProfile.real
+      ~GpuInstanceProfile.value
+   
+   

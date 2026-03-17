@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.GpuOperationMode
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuOperationMode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuOperationMode.__init__
+      ~GpuOperationMode.as_integer_ratio
+      ~GpuOperationMode.bit_count
+      ~GpuOperationMode.bit_length
+      ~GpuOperationMode.conjugate
+      ~GpuOperationMode.from_bytes
+      ~GpuOperationMode.is_integer
+      ~GpuOperationMode.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuOperationMode.GOM_ALL_ON
+      ~GpuOperationMode.GOM_COMPUTE
+      ~GpuOperationMode.GOM_LOW_DP
+      ~GpuOperationMode.denominator
+      ~GpuOperationMode.imag
+      ~GpuOperationMode.name
+      ~GpuOperationMode.numerator
+      ~GpuOperationMode.real
+      ~GpuOperationMode.value
+   
+   

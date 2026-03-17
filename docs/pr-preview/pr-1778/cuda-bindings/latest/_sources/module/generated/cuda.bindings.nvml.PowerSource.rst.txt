@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.PowerSource
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PowerSource
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PowerSource.__init__
+      ~PowerSource.as_integer_ratio
+      ~PowerSource.bit_count
+      ~PowerSource.bit_length
+      ~PowerSource.conjugate
+      ~PowerSource.from_bytes
+      ~PowerSource.is_integer
+      ~PowerSource.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PowerSource.AC
+      ~PowerSource.BATTERY
+      ~PowerSource.UNDERSIZED
+      ~PowerSource.denominator
+      ~PowerSource.imag
+      ~PowerSource.name
+      ~PowerSource.numerator
+      ~PowerSource.real
+      ~PowerSource.value
+   
+   

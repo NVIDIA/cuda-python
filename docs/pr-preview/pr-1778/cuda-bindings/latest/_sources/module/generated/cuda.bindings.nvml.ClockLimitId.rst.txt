@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.ClockLimitId
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ClockLimitId
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClockLimitId.__init__
+      ~ClockLimitId.as_integer_ratio
+      ~ClockLimitId.bit_count
+      ~ClockLimitId.bit_length
+      ~ClockLimitId.conjugate
+      ~ClockLimitId.from_bytes
+      ~ClockLimitId.is_integer
+      ~ClockLimitId.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ClockLimitId.RANGE_START
+      ~ClockLimitId.TDP
+      ~ClockLimitId.UNLIMITED
+      ~ClockLimitId.denominator
+      ~ClockLimitId.imag
+      ~ClockLimitId.name
+      ~ClockLimitId.numerator
+      ~ClockLimitId.real
+      ~ClockLimitId.value
+   
+   

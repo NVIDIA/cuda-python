@@ -1,0 +1,50 @@
+﻿cuda.bindings.nvml.RUSD
+=======================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: RUSD
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RUSD.__init__
+      ~RUSD.as_integer_ratio
+      ~RUSD.bit_count
+      ~RUSD.bit_length
+      ~RUSD.conjugate
+      ~RUSD.from_bytes
+      ~RUSD.is_integer
+      ~RUSD.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RUSD.POLL_ALL
+      ~RUSD.POLL_CLOCK
+      ~RUSD.POLL_FAN
+      ~RUSD.POLL_MEMORY
+      ~RUSD.POLL_NONE
+      ~RUSD.POLL_PCI
+      ~RUSD.POLL_PERF
+      ~RUSD.POLL_POWER
+      ~RUSD.POLL_PROC_UTIL
+      ~RUSD.POLL_THERMAL
+      ~RUSD.denominator
+      ~RUSD.imag
+      ~RUSD.name
+      ~RUSD.numerator
+      ~RUSD.real
+      ~RUSD.value
+   
+   

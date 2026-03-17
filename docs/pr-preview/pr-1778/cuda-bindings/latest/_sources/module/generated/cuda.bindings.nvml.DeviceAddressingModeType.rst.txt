@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.DeviceAddressingModeType
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: DeviceAddressingModeType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DeviceAddressingModeType.__init__
+      ~DeviceAddressingModeType.as_integer_ratio
+      ~DeviceAddressingModeType.bit_count
+      ~DeviceAddressingModeType.bit_length
+      ~DeviceAddressingModeType.conjugate
+      ~DeviceAddressingModeType.from_bytes
+      ~DeviceAddressingModeType.is_integer
+      ~DeviceAddressingModeType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_ATS
+      ~DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_HMM
+      ~DeviceAddressingModeType.DEVICE_ADDRESSING_MODE_NONE
+      ~DeviceAddressingModeType.denominator
+      ~DeviceAddressingModeType.imag
+      ~DeviceAddressingModeType.name
+      ~DeviceAddressingModeType.numerator
+      ~DeviceAddressingModeType.real
+      ~DeviceAddressingModeType.value
+   
+   

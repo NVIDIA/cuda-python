@@ -1,0 +1,50 @@
+﻿cuda.bindings.nvml.ClocksEventReasons
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ClocksEventReasons
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClocksEventReasons.__init__
+      ~ClocksEventReasons.as_integer_ratio
+      ~ClocksEventReasons.bit_count
+      ~ClocksEventReasons.bit_length
+      ~ClocksEventReasons.conjugate
+      ~ClocksEventReasons.from_bytes
+      ~ClocksEventReasons.is_integer
+      ~ClocksEventReasons.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ClocksEventReasons.EVENT_REASON_APPLICATIONS_CLOCKS_SETTING
+      ~ClocksEventReasons.EVENT_REASON_DISPLAY_CLOCK_SETTING
+      ~ClocksEventReasons.EVENT_REASON_GPU_IDLE
+      ~ClocksEventReasons.EVENT_REASON_NONE
+      ~ClocksEventReasons.EVENT_REASON_SW_POWER_CAP
+      ~ClocksEventReasons.EVENT_REASON_SW_THERMAL_SLOWDOWN
+      ~ClocksEventReasons.EVENT_REASON_SYNC_BOOST
+      ~ClocksEventReasons.THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN
+      ~ClocksEventReasons.THROTTLE_REASON_HW_SLOWDOWN
+      ~ClocksEventReasons.THROTTLE_REASON_HW_THERMAL_SLOWDOWN
+      ~ClocksEventReasons.denominator
+      ~ClocksEventReasons.imag
+      ~ClocksEventReasons.name
+      ~ClocksEventReasons.numerator
+      ~ClocksEventReasons.real
+      ~ClocksEventReasons.value
+   
+   

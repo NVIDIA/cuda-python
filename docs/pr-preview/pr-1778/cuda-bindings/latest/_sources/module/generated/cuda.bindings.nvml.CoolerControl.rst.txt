@@ -1,0 +1,44 @@
+﻿cuda.bindings.nvml.CoolerControl
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: CoolerControl
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CoolerControl.__init__
+      ~CoolerControl.as_integer_ratio
+      ~CoolerControl.bit_count
+      ~CoolerControl.bit_length
+      ~CoolerControl.conjugate
+      ~CoolerControl.from_bytes
+      ~CoolerControl.is_integer
+      ~CoolerControl.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CoolerControl.THERMAL_COOLER_SIGNAL_COUNT
+      ~CoolerControl.THERMAL_COOLER_SIGNAL_NONE
+      ~CoolerControl.THERMAL_COOLER_SIGNAL_TOGGLE
+      ~CoolerControl.THERMAL_COOLER_SIGNAL_VARIABLE
+      ~CoolerControl.denominator
+      ~CoolerControl.imag
+      ~CoolerControl.name
+      ~CoolerControl.numerator
+      ~CoolerControl.real
+      ~CoolerControl.value
+   
+   

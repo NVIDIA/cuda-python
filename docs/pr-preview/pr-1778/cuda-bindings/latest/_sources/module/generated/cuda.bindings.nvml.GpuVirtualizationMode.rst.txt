@@ -1,0 +1,45 @@
+﻿cuda.bindings.nvml.GpuVirtualizationMode
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuVirtualizationMode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuVirtualizationMode.__init__
+      ~GpuVirtualizationMode.as_integer_ratio
+      ~GpuVirtualizationMode.bit_count
+      ~GpuVirtualizationMode.bit_length
+      ~GpuVirtualizationMode.conjugate
+      ~GpuVirtualizationMode.from_bytes
+      ~GpuVirtualizationMode.is_integer
+      ~GpuVirtualizationMode.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuVirtualizationMode.HOST_VGPU
+      ~GpuVirtualizationMode.HOST_VSGA
+      ~GpuVirtualizationMode.NONE
+      ~GpuVirtualizationMode.PASSTHROUGH
+      ~GpuVirtualizationMode.VGPU
+      ~GpuVirtualizationMode.denominator
+      ~GpuVirtualizationMode.imag
+      ~GpuVirtualizationMode.name
+      ~GpuVirtualizationMode.numerator
+      ~GpuVirtualizationMode.real
+      ~GpuVirtualizationMode.value
+   
+   

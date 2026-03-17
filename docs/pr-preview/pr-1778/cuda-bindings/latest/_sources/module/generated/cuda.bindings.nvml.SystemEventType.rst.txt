@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.SystemEventType
+==================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: SystemEventType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SystemEventType.__init__
+      ~SystemEventType.as_integer_ratio
+      ~SystemEventType.bit_count
+      ~SystemEventType.bit_length
+      ~SystemEventType.conjugate
+      ~SystemEventType.from_bytes
+      ~SystemEventType.is_integer
+      ~SystemEventType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SystemEventType.GPU_DRIVER_BIND
+      ~SystemEventType.GPU_DRIVER_UNBIND
+      ~SystemEventType.denominator
+      ~SystemEventType.imag
+      ~SystemEventType.name
+      ~SystemEventType.numerator
+      ~SystemEventType.real
+      ~SystemEventType.value
+   
+   

@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.VgpuVirtualizationCapMigration
+=================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuVirtualizationCapMigration
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuVirtualizationCapMigration.__init__
+      ~VgpuVirtualizationCapMigration.as_integer_ratio
+      ~VgpuVirtualizationCapMigration.bit_count
+      ~VgpuVirtualizationCapMigration.bit_length
+      ~VgpuVirtualizationCapMigration.conjugate
+      ~VgpuVirtualizationCapMigration.from_bytes
+      ~VgpuVirtualizationCapMigration.is_integer
+      ~VgpuVirtualizationCapMigration.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuVirtualizationCapMigration.NO
+      ~VgpuVirtualizationCapMigration.YES
+      ~VgpuVirtualizationCapMigration.denominator
+      ~VgpuVirtualizationCapMigration.imag
+      ~VgpuVirtualizationCapMigration.name
+      ~VgpuVirtualizationCapMigration.numerator
+      ~VgpuVirtualizationCapMigration.real
+      ~VgpuVirtualizationCapMigration.value
+   
+   

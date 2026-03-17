@@ -1,0 +1,48 @@
+﻿cuda.bindings.nvml.PcieAtomicsCap
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PcieAtomicsCap
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PcieAtomicsCap.__init__
+      ~PcieAtomicsCap.as_integer_ratio
+      ~PcieAtomicsCap.bit_count
+      ~PcieAtomicsCap.bit_length
+      ~PcieAtomicsCap.conjugate
+      ~PcieAtomicsCap.from_bytes
+      ~PcieAtomicsCap.is_integer
+      ~PcieAtomicsCap.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PcieAtomicsCap.CAS128
+      ~PcieAtomicsCap.CAS32
+      ~PcieAtomicsCap.CAS64
+      ~PcieAtomicsCap.FETCHADD32
+      ~PcieAtomicsCap.FETCHADD64
+      ~PcieAtomicsCap.MAX
+      ~PcieAtomicsCap.SWAP32
+      ~PcieAtomicsCap.SWAP64
+      ~PcieAtomicsCap.denominator
+      ~PcieAtomicsCap.imag
+      ~PcieAtomicsCap.name
+      ~PcieAtomicsCap.numerator
+      ~PcieAtomicsCap.real
+      ~PcieAtomicsCap.value
+   
+   

@@ -1,0 +1,44 @@
+﻿cuda.bindings.nvml.EncoderQuery
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EncoderQuery
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EncoderQuery.__init__
+      ~EncoderQuery.as_integer_ratio
+      ~EncoderQuery.bit_count
+      ~EncoderQuery.bit_length
+      ~EncoderQuery.conjugate
+      ~EncoderQuery.from_bytes
+      ~EncoderQuery.is_integer
+      ~EncoderQuery.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EncoderQuery.AV1
+      ~EncoderQuery.H264
+      ~EncoderQuery.HEVC
+      ~EncoderQuery.UNKNOWN
+      ~EncoderQuery.denominator
+      ~EncoderQuery.imag
+      ~EncoderQuery.name
+      ~EncoderQuery.numerator
+      ~EncoderQuery.real
+      ~EncoderQuery.value
+   
+   

@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.DetachGpuState
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: DetachGpuState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DetachGpuState.__init__
+      ~DetachGpuState.as_integer_ratio
+      ~DetachGpuState.bit_count
+      ~DetachGpuState.bit_length
+      ~DetachGpuState.conjugate
+      ~DetachGpuState.from_bytes
+      ~DetachGpuState.is_integer
+      ~DetachGpuState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DetachGpuState.DETACH_GPU_KEEP
+      ~DetachGpuState.DETACH_GPU_REMOVE
+      ~DetachGpuState.denominator
+      ~DetachGpuState.imag
+      ~DetachGpuState.name
+      ~DetachGpuState.numerator
+      ~DetachGpuState.real
+      ~DetachGpuState.value
+   
+   

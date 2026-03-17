@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.InitFlag
+===========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: InitFlag
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InitFlag.__init__
+      ~InitFlag.as_integer_ratio
+      ~InitFlag.bit_count
+      ~InitFlag.bit_length
+      ~InitFlag.conjugate
+      ~InitFlag.from_bytes
+      ~InitFlag.is_integer
+      ~InitFlag.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~InitFlag.NO_ATTACH
+      ~InitFlag.NO_GPUS
+      ~InitFlag.denominator
+      ~InitFlag.imag
+      ~InitFlag.name
+      ~InitFlag.numerator
+      ~InitFlag.real
+      ~InitFlag.value
+   
+   

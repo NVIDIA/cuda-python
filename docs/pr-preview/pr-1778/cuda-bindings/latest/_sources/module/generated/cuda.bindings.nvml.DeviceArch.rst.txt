@@ -1,0 +1,50 @@
+﻿cuda.bindings.nvml.DeviceArch
+=============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: DeviceArch
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DeviceArch.__init__
+      ~DeviceArch.as_integer_ratio
+      ~DeviceArch.bit_count
+      ~DeviceArch.bit_length
+      ~DeviceArch.conjugate
+      ~DeviceArch.from_bytes
+      ~DeviceArch.is_integer
+      ~DeviceArch.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DeviceArch.ADA
+      ~DeviceArch.AMPERE
+      ~DeviceArch.BLACKWELL
+      ~DeviceArch.HOPPER
+      ~DeviceArch.KEPLER
+      ~DeviceArch.MAXWELL
+      ~DeviceArch.PASCAL
+      ~DeviceArch.TURING
+      ~DeviceArch.UNKNOWN
+      ~DeviceArch.VOLTA
+      ~DeviceArch.denominator
+      ~DeviceArch.imag
+      ~DeviceArch.name
+      ~DeviceArch.numerator
+      ~DeviceArch.real
+      ~DeviceArch.value
+   
+   

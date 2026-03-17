@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.NvlinkState
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkState.__init__
+      ~NvlinkState.as_integer_ratio
+      ~NvlinkState.bit_count
+      ~NvlinkState.bit_length
+      ~NvlinkState.conjugate
+      ~NvlinkState.from_bytes
+      ~NvlinkState.is_integer
+      ~NvlinkState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkState.ACTIVE
+      ~NvlinkState.INACTIVE
+      ~NvlinkState.SLEEP
+      ~NvlinkState.denominator
+      ~NvlinkState.imag
+      ~NvlinkState.name
+      ~NvlinkState.numerator
+      ~NvlinkState.real
+      ~NvlinkState.value
+   
+   

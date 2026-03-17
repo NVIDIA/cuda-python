@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.FanState
+===========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: FanState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FanState.__init__
+      ~FanState.as_integer_ratio
+      ~FanState.bit_count
+      ~FanState.bit_length
+      ~FanState.conjugate
+      ~FanState.from_bytes
+      ~FanState.is_integer
+      ~FanState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FanState.FAN_FAILED
+      ~FanState.FAN_NORMAL
+      ~FanState.denominator
+      ~FanState.imag
+      ~FanState.name
+      ~FanState.numerator
+      ~FanState.real
+      ~FanState.value
+   
+   

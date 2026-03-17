@@ -1,0 +1,41 @@
+﻿cuda.bindings.nvml.ComputeInstanceProfileCaps
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ComputeInstanceProfileCaps
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComputeInstanceProfileCaps.__init__
+      ~ComputeInstanceProfileCaps.as_integer_ratio
+      ~ComputeInstanceProfileCaps.bit_count
+      ~ComputeInstanceProfileCaps.bit_length
+      ~ComputeInstanceProfileCaps.conjugate
+      ~ComputeInstanceProfileCaps.from_bytes
+      ~ComputeInstanceProfileCaps.is_integer
+      ~ComputeInstanceProfileCaps.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeInstanceProfileCaps.GFX
+      ~ComputeInstanceProfileCaps.denominator
+      ~ComputeInstanceProfileCaps.imag
+      ~ComputeInstanceProfileCaps.name
+      ~ComputeInstanceProfileCaps.numerator
+      ~ComputeInstanceProfileCaps.real
+      ~ComputeInstanceProfileCaps.value
+   
+   

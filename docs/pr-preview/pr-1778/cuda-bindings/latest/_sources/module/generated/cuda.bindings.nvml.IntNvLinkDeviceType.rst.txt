@@ -1,0 +1,44 @@
+﻿cuda.bindings.nvml.IntNvLinkDeviceType
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: IntNvLinkDeviceType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IntNvLinkDeviceType.__init__
+      ~IntNvLinkDeviceType.as_integer_ratio
+      ~IntNvLinkDeviceType.bit_count
+      ~IntNvLinkDeviceType.bit_length
+      ~IntNvLinkDeviceType.conjugate
+      ~IntNvLinkDeviceType.from_bytes
+      ~IntNvLinkDeviceType.is_integer
+      ~IntNvLinkDeviceType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IntNvLinkDeviceType.NVLINK_DEVICE_TYPE_GPU
+      ~IntNvLinkDeviceType.NVLINK_DEVICE_TYPE_IBMNPU
+      ~IntNvLinkDeviceType.NVLINK_DEVICE_TYPE_SWITCH
+      ~IntNvLinkDeviceType.NVLINK_DEVICE_TYPE_UNKNOWN
+      ~IntNvLinkDeviceType.denominator
+      ~IntNvLinkDeviceType.imag
+      ~IntNvLinkDeviceType.name
+      ~IntNvLinkDeviceType.numerator
+      ~IntNvLinkDeviceType.real
+      ~IntNvLinkDeviceType.value
+   
+   

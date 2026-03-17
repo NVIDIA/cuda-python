@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.VgpuGuestInfoState
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuGuestInfoState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuGuestInfoState.__init__
+      ~VgpuGuestInfoState.as_integer_ratio
+      ~VgpuGuestInfoState.bit_count
+      ~VgpuGuestInfoState.bit_length
+      ~VgpuGuestInfoState.conjugate
+      ~VgpuGuestInfoState.from_bytes
+      ~VgpuGuestInfoState.is_integer
+      ~VgpuGuestInfoState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuGuestInfoState.VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED
+      ~VgpuGuestInfoState.VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED
+      ~VgpuGuestInfoState.denominator
+      ~VgpuGuestInfoState.imag
+      ~VgpuGuestInfoState.name
+      ~VgpuGuestInfoState.numerator
+      ~VgpuGuestInfoState.real
+      ~VgpuGuestInfoState.value
+   
+   

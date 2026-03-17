@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.FanControlPolicy
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: FanControlPolicy
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FanControlPolicy.__init__
+      ~FanControlPolicy.as_integer_ratio
+      ~FanControlPolicy.bit_count
+      ~FanControlPolicy.bit_length
+      ~FanControlPolicy.conjugate
+      ~FanControlPolicy.from_bytes
+      ~FanControlPolicy.is_integer
+      ~FanControlPolicy.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FanControlPolicy.MANUAL
+      ~FanControlPolicy.TEMPERATURE_CONTINUOUS_SW
+      ~FanControlPolicy.denominator
+      ~FanControlPolicy.imag
+      ~FanControlPolicy.name
+      ~FanControlPolicy.numerator
+      ~FanControlPolicy.real
+      ~FanControlPolicy.value
+   
+   

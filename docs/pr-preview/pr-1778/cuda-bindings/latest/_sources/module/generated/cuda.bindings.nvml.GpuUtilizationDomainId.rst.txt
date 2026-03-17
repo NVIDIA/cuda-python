@@ -1,0 +1,44 @@
+﻿cuda.bindings.nvml.GpuUtilizationDomainId
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuUtilizationDomainId
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuUtilizationDomainId.__init__
+      ~GpuUtilizationDomainId.as_integer_ratio
+      ~GpuUtilizationDomainId.bit_count
+      ~GpuUtilizationDomainId.bit_length
+      ~GpuUtilizationDomainId.conjugate
+      ~GpuUtilizationDomainId.from_bytes
+      ~GpuUtilizationDomainId.is_integer
+      ~GpuUtilizationDomainId.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuUtilizationDomainId.GPU_UTILIZATION_DOMAIN_BUS
+      ~GpuUtilizationDomainId.GPU_UTILIZATION_DOMAIN_FB
+      ~GpuUtilizationDomainId.GPU_UTILIZATION_DOMAIN_GPU
+      ~GpuUtilizationDomainId.GPU_UTILIZATION_DOMAIN_VID
+      ~GpuUtilizationDomainId.denominator
+      ~GpuUtilizationDomainId.imag
+      ~GpuUtilizationDomainId.name
+      ~GpuUtilizationDomainId.numerator
+      ~GpuUtilizationDomainId.real
+      ~GpuUtilizationDomainId.value
+   
+   

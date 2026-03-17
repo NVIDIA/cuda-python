@@ -1,0 +1,48 @@
+﻿cuda.bindings.nvml.NvlinkVersion
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkVersion
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkVersion.__init__
+      ~NvlinkVersion.as_integer_ratio
+      ~NvlinkVersion.bit_count
+      ~NvlinkVersion.bit_length
+      ~NvlinkVersion.conjugate
+      ~NvlinkVersion.from_bytes
+      ~NvlinkVersion.is_integer
+      ~NvlinkVersion.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkVersion.VERSION_1_0
+      ~NvlinkVersion.VERSION_2_0
+      ~NvlinkVersion.VERSION_2_2
+      ~NvlinkVersion.VERSION_3_0
+      ~NvlinkVersion.VERSION_3_1
+      ~NvlinkVersion.VERSION_4_0
+      ~NvlinkVersion.VERSION_5_0
+      ~NvlinkVersion.VERSION_INVALID
+      ~NvlinkVersion.denominator
+      ~NvlinkVersion.imag
+      ~NvlinkVersion.name
+      ~NvlinkVersion.numerator
+      ~NvlinkVersion.real
+      ~NvlinkVersion.value
+   
+   

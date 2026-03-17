@@ -1,0 +1,57 @@
+﻿cuda.bindings.nvml.Pstates
+==========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: Pstates
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Pstates.__init__
+      ~Pstates.as_integer_ratio
+      ~Pstates.bit_count
+      ~Pstates.bit_length
+      ~Pstates.conjugate
+      ~Pstates.from_bytes
+      ~Pstates.is_integer
+      ~Pstates.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Pstates.PSTATE_0
+      ~Pstates.PSTATE_1
+      ~Pstates.PSTATE_10
+      ~Pstates.PSTATE_11
+      ~Pstates.PSTATE_12
+      ~Pstates.PSTATE_13
+      ~Pstates.PSTATE_14
+      ~Pstates.PSTATE_15
+      ~Pstates.PSTATE_2
+      ~Pstates.PSTATE_3
+      ~Pstates.PSTATE_4
+      ~Pstates.PSTATE_5
+      ~Pstates.PSTATE_6
+      ~Pstates.PSTATE_7
+      ~Pstates.PSTATE_8
+      ~Pstates.PSTATE_9
+      ~Pstates.PSTATE_UNKNOWN
+      ~Pstates.denominator
+      ~Pstates.imag
+      ~Pstates.name
+      ~Pstates.numerator
+      ~Pstates.real
+      ~Pstates.value
+   
+   

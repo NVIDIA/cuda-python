@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.EccCounterType
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EccCounterType
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EccCounterType.__init__
+      ~EccCounterType.as_integer_ratio
+      ~EccCounterType.bit_count
+      ~EccCounterType.bit_length
+      ~EccCounterType.conjugate
+      ~EccCounterType.from_bytes
+      ~EccCounterType.is_integer
+      ~EccCounterType.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EccCounterType.AGGREGATE_ECC
+      ~EccCounterType.COUNT
+      ~EccCounterType.VOLATILE_ECC
+      ~EccCounterType.denominator
+      ~EccCounterType.imag
+      ~EccCounterType.name
+      ~EccCounterType.numerator
+      ~EccCounterType.real
+      ~EccCounterType.value
+   
+   

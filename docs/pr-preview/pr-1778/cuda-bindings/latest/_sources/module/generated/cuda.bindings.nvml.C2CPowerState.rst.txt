@@ -1,0 +1,42 @@
+﻿cuda.bindings.nvml.C2CPowerState
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: C2CPowerState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C2CPowerState.__init__
+      ~C2CPowerState.as_integer_ratio
+      ~C2CPowerState.bit_count
+      ~C2CPowerState.bit_length
+      ~C2CPowerState.conjugate
+      ~C2CPowerState.from_bytes
+      ~C2CPowerState.is_integer
+      ~C2CPowerState.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C2CPowerState.FULL_POWER
+      ~C2CPowerState.LOW_POWER
+      ~C2CPowerState.denominator
+      ~C2CPowerState.imag
+      ~C2CPowerState.name
+      ~C2CPowerState.numerator
+      ~C2CPowerState.real
+      ~C2CPowerState.value
+   
+   

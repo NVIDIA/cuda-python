@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.DriverModel
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: DriverModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DriverModel.__init__
+      ~DriverModel.as_integer_ratio
+      ~DriverModel.bit_count
+      ~DriverModel.bit_length
+      ~DriverModel.conjugate
+      ~DriverModel.from_bytes
+      ~DriverModel.is_integer
+      ~DriverModel.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DriverModel.DRIVER_MCDM
+      ~DriverModel.DRIVER_WDDM
+      ~DriverModel.DRIVER_WDM
+      ~DriverModel.denominator
+      ~DriverModel.imag
+      ~DriverModel.name
+      ~DriverModel.numerator
+      ~DriverModel.real
+      ~DriverModel.value
+   
+   

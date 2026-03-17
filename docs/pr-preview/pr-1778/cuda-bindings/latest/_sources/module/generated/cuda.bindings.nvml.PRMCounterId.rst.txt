@@ -1,0 +1,55 @@
+﻿cuda.bindings.nvml.PRMCounterId
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PRMCounterId
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PRMCounterId.__init__
+      ~PRMCounterId.as_integer_ratio
+      ~PRMCounterId.bit_count
+      ~PRMCounterId.bit_length
+      ~PRMCounterId.conjugate
+      ~PRMCounterId.from_bytes
+      ~PRMCounterId.is_integer
+      ~PRMCounterId.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PRMCounterId.NONE
+      ~PRMCounterId.PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS
+      ~PRMCounterId.PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS
+      ~PRMCounterId.PPCNT_PLR_RCV_CODES
+      ~PRMCounterId.PPCNT_PLR_RCV_CODE_ERR
+      ~PRMCounterId.PPCNT_PLR_RCV_UNCORRECTABLE_CODE
+      ~PRMCounterId.PPCNT_PLR_SYNC_EVENTS
+      ~PRMCounterId.PPCNT_PLR_XMIT_CODES
+      ~PRMCounterId.PPCNT_PLR_XMIT_RETRY_CODES
+      ~PRMCounterId.PPCNT_PLR_XMIT_RETRY_EVENTS
+      ~PRMCounterId.PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT
+      ~PRMCounterId.PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES
+      ~PRMCounterId.PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY
+      ~PRMCounterId.PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS
+      ~PRMCounterId.PPRM_OPER_RECOVERY
+      ~PRMCounterId.denominator
+      ~PRMCounterId.imag
+      ~PRMCounterId.name
+      ~PRMCounterId.numerator
+      ~PRMCounterId.real
+      ~PRMCounterId.value
+   
+   

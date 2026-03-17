@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.PageRetirementCause
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PageRetirementCause
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PageRetirementCause.__init__
+      ~PageRetirementCause.as_integer_ratio
+      ~PageRetirementCause.bit_count
+      ~PageRetirementCause.bit_length
+      ~PageRetirementCause.conjugate
+      ~PageRetirementCause.from_bytes
+      ~PageRetirementCause.is_integer
+      ~PageRetirementCause.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PageRetirementCause.COUNT
+      ~PageRetirementCause.DOUBLE_BIT_ECC_ERROR
+      ~PageRetirementCause.MULTIPLE_SINGLE_BIT_ECC_ERRORS
+      ~PageRetirementCause.denominator
+      ~PageRetirementCause.imag
+      ~PageRetirementCause.name
+      ~PageRetirementCause.numerator
+      ~PageRetirementCause.real
+      ~PageRetirementCause.value
+   
+   
