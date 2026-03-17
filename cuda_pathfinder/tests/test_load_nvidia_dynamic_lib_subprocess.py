@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 
+import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_CWD,
     LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE,
@@ -87,3 +88,28 @@ def test_probe_load_nvidia_dynamic_lib_and_prints_not_found_payload(mocker, caps
     captured = capsys.readouterr()
     assert json.loads(captured.out) == {"status": "not-found", "abs_path": None}
     assert captured.err == ""
+
+
+def test_probe_canary_dynamic_lib_and_print_json(mocker, capsys):
+    mocker.patch.object(subprocess_mod, "_probe_canary_abs_path", return_value="/usr/lib/libcudart.so.13")
+
+    subprocess_mod.probe_dynamic_lib_and_print_json("cudart", subprocess_mod.MODE_CANARY)
+
+    captured = capsys.readouterr()
+    assert json.loads(captured.out) == {"status": "ok", "abs_path": "/usr/lib/libcudart.so.13"}
+    assert captured.err == ""
+
+
+def test_probe_canary_dynamic_lib_and_prints_not_found_payload(mocker, capsys):
+    mocker.patch.object(subprocess_mod, "_probe_canary_abs_path", return_value=None)
+
+    subprocess_mod.probe_dynamic_lib_and_print_json("cudart", subprocess_mod.MODE_CANARY)
+
+    captured = capsys.readouterr()
+    assert json.loads(captured.out) == {"status": "not-found", "abs_path": None}
+    assert captured.err == ""
+
+
+def test_probe_dynamic_lib_and_print_json_rejects_invalid_mode():
+    with pytest.raises(ValueError, match="Unsupported subprocess probe mode"):
+        subprocess_mod.probe_dynamic_lib_and_print_json("cudart", "nope")
