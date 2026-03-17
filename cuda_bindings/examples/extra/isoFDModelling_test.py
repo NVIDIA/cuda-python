@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates isotropic finite-difference wave propagation
+# modelling across multiple GPUs with peer-to-peer halo exchange.
+#
+# ################################################################################
+
 import time
 
 import numpy as np

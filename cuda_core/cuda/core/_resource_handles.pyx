@@ -113,6 +113,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr) except+ nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
         cydriver.CUdeviceptr ptr, object owner) except+ nogil
+    DevicePtrHandle deviceptr_create_mapped_graphics "cuda_core::deviceptr_create_mapped_graphics" (
+        cydriver.CUdeviceptr ptr,
+        const GraphicsResourceHandle& h_resource,
+        const StreamHandle& h_stream) except+ nogil
 
     # MR deallocation callback
     ctypedef void (*MRDeallocCallback)(
@@ -245,6 +249,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
 
     # Graphics interop
+    void* p_cuGraphicsUnmapResources "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnmapResources)"
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
 
     # NVRTC
@@ -310,6 +315,7 @@ p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
 
 # Graphics interop
+p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
 p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
 
 # =============================================================================

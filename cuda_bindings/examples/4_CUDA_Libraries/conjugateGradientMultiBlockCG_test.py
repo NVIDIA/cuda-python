@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates a conjugate gradient solver using cooperative
+# groups and multi-block grid synchronization.
+#
+# ################################################################################
+
 import ctypes
 import math
 import platform
@@ -350,3 +357,7 @@ def main():
     if math.sqrt(dot_result_local) >= tol:
         print("conjugateGradientMultiBlockCG FAILED", file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

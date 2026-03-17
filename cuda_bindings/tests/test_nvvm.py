@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import pytest
 
 from cuda.bindings import nvvm
+from cuda.bindings._internal.utils import FunctionNotFoundError
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
@@ -60,6 +61,15 @@ def test_nvvm_ir_version():
     ver = nvvm.ir_version()
     assert len(ver) == 4
     assert ver >= (1, 0, 0, 0)
+
+
+def test_nvvm_llvm_version():
+    try:
+        ver = nvvm.llvm_version("compute_75")
+    except FunctionNotFoundError:
+        pytest.skip("nvvmLLVMVersion not available in this NVVM version")
+    assert isinstance(ver, int)
+    assert ver >= 0
 
 
 def test_create_and_destroy():

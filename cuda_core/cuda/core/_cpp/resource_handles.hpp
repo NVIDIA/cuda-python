@@ -96,6 +96,7 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 
 // Graphics interop
+extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
 
 // ============================================================================
@@ -298,6 +299,16 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // The pointer will NOT be freed when the handle is released.
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
+
+// Create a device pointer handle for a mapped graphics resource.
+// The pointer structurally depends on the provided graphics resource handle.
+// When the last reference is released, cuGraphicsUnmapResources is called on
+// the stored stream, then the graphics resource may be unregistered when its
+// own handle is released.
+DevicePtrHandle deviceptr_create_mapped_graphics(
+    CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream);
 
 // Callback type for MemoryResource deallocation.
 // Called from the shared_ptr deleter when a handle created via

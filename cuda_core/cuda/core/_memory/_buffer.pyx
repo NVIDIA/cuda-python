@@ -391,6 +391,13 @@ cdef class Buffer:
         """
         Buffer_close(self, stream)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
     def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
