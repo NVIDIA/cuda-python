@@ -37,6 +37,9 @@ cuda-driver-dev_linux-64 = "*"
 [feature.cpp-bench.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
 
+[feature.dev.dependencies]
+pre-commit = "*"
+
 [feature.bindings-wheel.dependencies]
 cuda-bindings = "==13.1.0"
 
@@ -44,8 +47,8 @@ cuda-bindings = "==13.1.0"
 cuda-bindings = { path = ".." }
 
 [environments]
-wheel = { features = ["cu13", "cu13-pinned", "bench", "cpp-bench", "bindings-wheel"] }
-source = { features = ["cu13", "cu13-source", "bench", "cpp-bench", "bindings-source"] }
+wheel = { features = ["cu13", "cu13-pinned", "bench", "cpp-bench", "dev", "bindings-wheel"] }
+source = { features = ["cu13", "cu13-source", "bench", "cpp-bench", "dev", "bindings-source"] }
 
 [target.linux.tasks.bench]
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
@@ -71,3 +74,6 @@ depends-on = [{ task = "bench-cpp-configure" }]
 [target.linux.tasks.bench-cpp]
 cmd = ["$PIXI_PROJECT_ROOT/.build/cpp/bench_pointer_attributes_cpp"]
 depends-on = [{ task = "bench-cpp-build" }]
+
+[target.linux.tasks.lint]
+cmd = ["pre-commit", "run", "--all-files"]

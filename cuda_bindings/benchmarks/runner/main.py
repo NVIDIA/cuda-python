@@ -12,7 +12,6 @@ from types import ModuleType
 
 import pyperf
 
-
 BENCH_DIR = Path(__file__).resolve().parent.parent / "benchmarks"
 
 
@@ -90,9 +89,7 @@ def main() -> None:
         if missing:
             known = ", ".join(sorted(registry))
             unknown = ", ".join(missing)
-            raise ValueError(
-                f"Unknown benchmark(s): {unknown}. Known benchmarks: {known}"
-            )
+            raise ValueError(f"Unknown benchmark(s): {unknown}. Known benchmarks: {known}")
         benchmark_ids = parsed.benchmark
     else:
         benchmark_ids = sorted(registry)

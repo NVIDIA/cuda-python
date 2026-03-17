@@ -4,10 +4,9 @@
 
 import time
 
+from runner.runtime import alloc_persistent
+
 from cuda.bindings import driver as cuda
-
-from runner.runtime import alloc_persistent, assert_drv
-
 
 # Allocate memory used by the tests
 PTR = alloc_persistent(1 << 18)
