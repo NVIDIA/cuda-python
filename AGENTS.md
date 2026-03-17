@@ -26,6 +26,9 @@ guide for package-specific conventions and workflows.
 - If `pixi` is available for this repo, prefer `pixi run ...` or the matching
   `pixi` task over invoking raw `python`, `pytest`, `pip`, or similar tools
   directly so commands run in the repository-managed environment.
+- When extracting or transforming JSON in shell workflows, prefer `jq` over
+  one-off Python parsing. For `gh` commands that return JSON, prefer the
+  built-in `--jq` flag instead of piping the output into `python`.
 - When multiple tool calls can be parallelized (e.g., todo updates with other
   actions, file searches, reading files), make these tool calls in parallel
   instead of sequential. Avoid single calls that might not yield a useful
