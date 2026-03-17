@@ -10,6 +10,53 @@
 #
 # ################################################################################
 
+# What this example teaches
+# =========================
+# How to use cuda.core.GraphicsResource to let a CUDA kernel write pixels
+# directly into an OpenGL buffer with zero copies through the CPU.
+#
+# How it works
+# ============
+# Normally, getting CUDA results onto the screen would require:
+#   CUDA -> CPU memory -> OpenGL  (two slow copies across the PCIe bus)
+#
+# GraphicsResource eliminates the CPU round-trip. The pixel data stays
+# on the GPU the entire time:
+#
+#   1. OpenGL allocates a PBO (Pixel Buffer Object) -- a raw GPU buffer.
+#   2. GraphicsResource.from_gl_buffer() registers that PBO with CUDA.
+#      Now both CUDA and OpenGL have access to the same GPU memory.
+#
+#   +----------------------+       +---------------------+
+#   |    OpenGL PBO        |       |  GraphicsResource   |
+#   | (pixel buffer on GPU)| <---> |  (CUDA handle to    |
+#   +----------------------+       |  the same memory)   |
+#                                  +---------------------+
+#
+#   EACH FRAME (all on GPU -- nothing touches the CPU or PCIe bus)
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   1. map()           -- CUDA gets a device pointer into the PBO
+#   2. launch kernel   -- CUDA writes pixel colors into that memory
+#   3. unmap()         -- ownership returns to OpenGL
+#   4. glTexSubImage2D -- OpenGL copies PBO into a texture (GPU-to-GPU)
+#   5. draw            -- OpenGL renders the texture to the window
+#
+#   Why is there a copy in step 4? OpenGL can only render from a
+#   texture object, not from a raw buffer. The glTexSubImage2D step
+#   copies the PBO bytes into a texture, but this happens entirely on
+#   the GPU and it is very fast. The big win from GraphicsResource is
+#   that we never copy pixels from the CPU to the GPU and then back.
+#
+# What you should see
+# ===================
+# A window showing smoothly animated, colorful swirling patterns (a plasma
+# effect popular in the demoscene). The window title shows the current FPS.
+# Close the window or press Escape to exit.
+#
+# Requirements
+# ============
+#   pip install pyglet
+
 import ctypes
 import sys
 import time
