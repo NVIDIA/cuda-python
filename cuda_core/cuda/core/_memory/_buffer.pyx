@@ -36,7 +36,7 @@ else:
     BufferProtocol = object
 
 from cuda.core._dlpack import DLDeviceType, make_py_capsule
-from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core._device import Device
 
 
@@ -175,7 +175,7 @@ cdef inline object _normalize_managed_location(
     cdef int loc_id
 
     if isinstance(location, Device):
-        location = (<Device>location).device_id
+        location = location.device_id
 
     if location_type is not None and not isinstance(location_type, str):
         raise TypeError(f"{what} location_type must be a string or None, got {type(location_type).__name__}")
