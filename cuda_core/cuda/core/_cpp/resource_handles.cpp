@@ -60,6 +60,7 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 
 // GL interop pointers
+decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
 
 // NVRTC function pointers
@@ -650,6 +651,23 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
             if (gil.acquired()) {
                 Py_DECREF(owner);
             }
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+DevicePtrHandle deviceptr_create_mapped_graphics(
+    CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream
+) {
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, h_stream},
+        [h_resource](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            CUgraphicsResource resource = as_cu(h_resource);
+            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
             delete b;
         }
     );
