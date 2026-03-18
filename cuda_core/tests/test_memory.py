@@ -1359,6 +1359,91 @@ def test_managed_memory_operation_validation(init_cuda):
     buffer.close()
 
 
+def test_managed_memory_advise_location_validation(init_cuda):
+    """Verify doc-specified location constraints for each advice kind."""
+    device = Device()
+    _skip_if_managed_allocation_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+
+    # set_read_mostly works without a location (location is ignored)
+    managed_memory.advise(buffer, "set_read_mostly")
+
+    # set_preferred_location requires a location; device ordinal works
+    managed_memory.advise(buffer, "set_preferred_location", device.device_id)
+
+    # set_preferred_location with host location_type
+    managed_memory.advise(buffer, "set_preferred_location", location_type="host")
+
+    # set_accessed_by with host_numa raises ValueError (INVALID per CUDA docs)
+    with pytest.raises(ValueError, match="does not support location_type='host_numa'"):
+        managed_memory.advise(buffer, "set_accessed_by", 0, location_type="host_numa")
+
+    # set_accessed_by with host_numa_current also raises ValueError
+    with pytest.raises(ValueError, match="does not support location_type='host_numa_current'"):
+        managed_memory.advise(buffer, "set_accessed_by", location_type="host_numa_current")
+
+    # Inferred location from int: -1 maps to host, 0 maps to device
+    managed_memory.advise(buffer, "set_preferred_location", -1)
+    managed_memory.advise(buffer, "set_preferred_location", 0)
+
+    buffer.close()
+
+
+def test_managed_memory_advise_accepts_enum_value(init_cuda):
+    """advise() accepts CUmem_advise enum values directly, not just string aliases."""
+    device = Device()
+    _skip_if_managed_allocation_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+
+    advice_enum = driver.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY
+    managed_memory.advise(buffer, advice_enum)
+
+    assert (
+        _get_int_mem_range_attr(
+            buffer,
+            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+        )
+        == _READ_MOSTLY_ENABLED
+    )
+
+    buffer.close()
+
+
+def test_managed_memory_advise_size_rejected_for_buffer(init_cuda):
+    """advise() raises TypeError when size= is given with a Buffer target."""
+    device = Device()
+    _skip_if_managed_allocation_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+
+    with pytest.raises(TypeError, match="does not accept size="):
+        managed_memory.advise(buffer, "set_read_mostly", size=1024)
+
+    buffer.close()
+
+
+def test_managed_memory_advise_invalid_advice_values(init_cuda):
+    """advise() rejects invalid advice strings and wrong types."""
+    device = Device()
+    _skip_if_managed_allocation_unsupported(device)
+    device.set_current()
+
+    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+
+    with pytest.raises(ValueError, match="advice must be one of"):
+        managed_memory.advise(buffer, "not_a_real_advice")
+
+    with pytest.raises(TypeError, match="advice must be"):
+        managed_memory.advise(buffer, 42)
+
+    buffer.close()
+
+
 def test_managed_memory_functions_accept_raw_pointer_ranges(init_cuda):
     device = Device()
     _skip_if_managed_location_ops_unsupported(device)

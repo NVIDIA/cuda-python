@@ -205,9 +205,11 @@ cdef inline object _normalize_managed_location(
             )
         loc_id = <int>location
         if loc_id == -1:
-            loc_type = "host"
+            if not allow_host:
+                raise ValueError(f"{what} does not support host locations")
+            return _make_managed_location("host", -1)
         elif loc_id >= 0:
-            loc_type = "device"
+            return _make_managed_location("device", loc_id)
         else:
             raise ValueError(
                 f"{what} location must be a device ordinal (>= 0), -1 for host, or None; got {location!r}"
@@ -245,23 +247,22 @@ cdef inline object _normalize_managed_location(
             )
         return _make_managed_location(loc_type, _HOST_NUMA_CURRENT_ID)
 
-    if loc_type == "host" and not allow_host:
-        raise ValueError(f"{what} does not support host locations")
-    if loc_type == "host_numa" and not allow_host_numa:
-        raise ValueError(f"{what} does not support location_type='host_numa'")
-    if loc_type == "host_numa_current" and not allow_host_numa_current:
-        raise ValueError(f"{what} does not support location_type='host_numa_current'")
-    return _make_managed_location(<str>loc_type, loc_id)
-
 
 cdef inline bint _managed_location_uses_v2_bindings():
     # cuda.bindings 13.x switches these APIs to CUmemLocation-based wrappers.
     return get_binding_version() >= (13, 0)
 
 
+cdef object _LEGACY_LOC_DEVICE = None
+cdef object _LEGACY_LOC_HOST = None
+
 cdef inline int _managed_location_to_legacy_device(object location, str what):
+    global _LEGACY_LOC_DEVICE, _LEGACY_LOC_HOST
+    if _LEGACY_LOC_DEVICE is None:
+        _LEGACY_LOC_DEVICE = _managed_location_enum("device")
+        _LEGACY_LOC_HOST = _managed_location_enum("host")
     cdef object loc_type = location.type
-    if loc_type == _managed_location_enum("device") or loc_type == _managed_location_enum("host"):
+    if loc_type == _LEGACY_LOC_DEVICE or loc_type == _LEGACY_LOC_HOST:
         return <int>location.id
     raise RuntimeError(
         f"{what} requires cuda.bindings 13.x for location_type={loc_type!r}"
@@ -396,7 +397,25 @@ def prefetch(
     int size=_MANAGED_SIZE_NOT_PROVIDED,
     location_type: str | None = None,
 ):
-    """Prefetch a managed-memory allocation range to a target location."""
+    """Prefetch a managed-memory allocation range to a target location.
+
+    Parameters
+    ----------
+    target : :class:`Buffer` | int | object
+        Managed allocation to operate on. This may be a :class:`Buffer` or a
+        raw pointer (requires ``size=``).
+    location : :obj:`~_device.Device` | int | None, optional
+        Target location. When ``location_type`` is ``None``, values are
+        interpreted as a device ordinal, ``-1`` for host, or ``None``.
+        A location is required for prefetch.
+    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        Keyword argument specifying the stream for the asynchronous prefetch.
+    size : int, optional
+        Allocation size in bytes. Required when ``target`` is a raw pointer.
+    location_type : str | None, optional
+        Explicit location kind. Supported values are ``"device"``, ``"host"``,
+        ``"host_numa"``, and ``"host_numa_current"``.
+    """
     cdef Stream s = Stream_accept(stream)
     cdef object ptr
     cdef size_t nbytes
@@ -440,7 +459,25 @@ def discard_prefetch(
     int size=_MANAGED_SIZE_NOT_PROVIDED,
     location_type: str | None = None,
 ):
-    """Discard a managed-memory allocation range and prefetch it to a target location."""
+    """Discard a managed-memory allocation range and prefetch it to a target location.
+
+    Parameters
+    ----------
+    target : :class:`Buffer` | int | object
+        Managed allocation to operate on. This may be a :class:`Buffer` or a
+        raw pointer (requires ``size=``).
+    location : :obj:`~_device.Device` | int | None, optional
+        Target location. When ``location_type`` is ``None``, values are
+        interpreted as a device ordinal, ``-1`` for host, or ``None``.
+        A location is required for discard_prefetch.
+    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        Keyword argument specifying the stream for the asynchronous operation.
+    size : int, optional
+        Allocation size in bytes. Required when ``target`` is a raw pointer.
+    location_type : str | None, optional
+        Explicit location kind. Supported values are ``"device"``, ``"host"``,
+        ``"host_numa"``, and ``"host_numa_current"``.
+    """
     cdef Stream s = Stream_accept(stream)
     cdef object ptr
     cdef object batch_ptr
