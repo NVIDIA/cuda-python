@@ -139,4 +139,4 @@ inline-quotes = "double"
 "ci/**" = ["T201"]
 "**/build_hooks.py" = ["T201"]
 "**/docs/**/conf.py" = ["T201", "ARG001"]
-"cuda_pathfinder/**/canary_probe_subprocess.py" = ["T201"]
+"cuda_pathfinder/**/dynamic_lib_subprocess.py" = ["T201"]
