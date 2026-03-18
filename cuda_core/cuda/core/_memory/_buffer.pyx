@@ -35,7 +35,7 @@ else:
     BufferProtocol = object
 
 from cuda.core._dlpack import DLDeviceType, make_py_capsule
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
 
 
