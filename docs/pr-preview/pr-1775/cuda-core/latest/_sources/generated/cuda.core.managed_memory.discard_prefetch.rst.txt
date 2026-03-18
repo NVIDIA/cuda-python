@@ -1,0 +1,6 @@
+﻿cuda.core.managed\_memory.discard\_prefetch
+===========================================
+
+.. currentmodule:: cuda.core.managed_memory
+
+.. autofunction:: discard_prefetch

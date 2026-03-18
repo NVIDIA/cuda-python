@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=520cca20"></script>
+    <script src="_static/documentation_options.js?v=59320eb0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev75';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -500,6 +500,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -739,6 +742,23 @@ on other non-blocking streams.</p>
 </dd></dl>
 
 </section>
+<section id="managed-memory">
+<span id="module-cuda.core.managed_memory"></span><h2>Managed memory<a class="headerlink" href="#managed-memory" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.advise.html#cuda.core.managed_memory.advise" title="cuda.core.managed_memory.advise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advise</span></code></a>(target, advice, location, *, ...)</p></td>
+<td><p>Apply managed-memory advice to an allocation range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.prefetch.html#cuda.core.managed_memory.prefetch" title="cuda.core.managed_memory.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(target, location, *, stream, ...)</p></td>
+<td><p>Prefetch a managed-memory allocation range to a target location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.discard_prefetch.html#cuda.core.managed_memory.discard_prefetch" title="cuda.core.managed_memory.discard_prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_prefetch</span></code></a>(target, location, *, ...)</p></td>
+<td><p>Discard a managed-memory allocation range and prefetch it to a target location.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="cuda-compilation-toolchain">
 <h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -812,7 +832,7 @@ on other non-blocking streams.</p>
 <td><p>Representation of a device.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.AddressingMode.html#cuda.core.system.AddressingMode" title="cuda.core.system.AddressingMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.AddressingMode</span></code></a></p></td>
-<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceAddressingModeType</span></code></p></td>
+<td><p>alias of <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/generated/cuda.bindings.nvml.DeviceAddressingModeType.html#cuda.bindings.nvml.DeviceAddressingModeType" title="(in cuda.bindings)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceAddressingModeType</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope" title="cuda.core.system.AffinityScope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.AffinityScope</span></code></a>(value)</p></td>
 <td><p></p></td>
@@ -1008,6 +1028,7 @@ on other non-blocking streams.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managed-memory">Managed memory</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information-and-nvidia-management-library-nvml">CUDA system information and NVIDIA Management Library (NVML)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions">Utility functions</a></li>

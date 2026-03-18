@@ -1,0 +1,6 @@
+﻿cuda.core.managed\_memory.advise
+================================
+
+.. currentmodule:: cuda.core.managed_memory
+
+.. autofunction:: advise

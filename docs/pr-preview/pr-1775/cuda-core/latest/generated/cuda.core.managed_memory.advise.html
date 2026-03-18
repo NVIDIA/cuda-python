@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.system.get_process_name &#8212; cuda.core</title>
+    <title>cuda.core.managed_memory.advise &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.get_process_name';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.managed_memory.advise';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.system.get_process_name.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.managed_memory.advise.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.system.get_topology_common_ancestor" href="cuda.core.system.get_topology_common_ancestor.html" />
-    <link rel="prev" title="cuda.core.system.get_nvml_version" href="cuda.core.system.get_nvml_version.html" />
+    <link rel="next" title="cuda.core.managed_memory.prefetch" href="cuda.core.managed_memory.prefetch.html" />
+    <link rel="prev" title="cuda.core.VirtualMemoryResourceOptions" href="cuda.core.VirtualMemoryResourceOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -500,7 +500,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.managed_memory.advise</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
@@ -514,7 +514,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
@@ -628,7 +628,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.get_process_name</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.managed_memory.advise</span></li>
   </ul>
 </nav>
 </div>
@@ -645,21 +645,38 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-system-get-process-name">
-<h1>cuda.core.system.get_process_name<a class="headerlink" href="#cuda-core-system-get-process-name" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-managed-memory-advise">
+<h1>cuda.core.managed_memory.advise<a class="headerlink" href="#cuda-core-managed-memory-advise" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="cuda.core.system.get_process_name">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_process_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">pid:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.system.get_process_name" title="Link to this definition">#</a></dt>
-<dd><p>The name of process with given PID.</p>
+<dt class="sig sig-object py" id="cuda.core.managed_memory.advise">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.managed_memory.</span></span><span class="sig-name descname"><span class="pre">advise</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">advice:</span> <span class="pre">driver.CUmem_advise</span> <span class="pre">|</span> <span class="pre">str</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">location:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">size=_MANAGED_SIZE_NOT_PROVIDED</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">location_type:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.managed_memory.advise" title="Link to this definition">#</a></dt>
+<dd><p>Apply managed-memory advice to an allocation range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pid</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The PID of the process for which to get the name.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>name</strong> – The process name.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> | int | object) – Managed allocation to operate on. This may be a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> or a
+raw pointer (requires <code class="docutils literal notranslate"><span class="pre">size=</span></code>).</p></li>
+<li><p><strong>advice</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmem_advise</span></code> | str) – Managed-memory advice to apply. String aliases such as
+<code class="docutils literal notranslate"><span class="pre">&quot;set_read_mostly&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;set_preferred_location&quot;</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">&quot;set_accessed_by&quot;</span></code> are accepted.</p></li>
+<li><p><strong>location</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> | int | None, optional) – Target location. When <code class="docutils literal notranslate"><span class="pre">location_type</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, values are
+interpreted as a device ordinal, <code class="docutils literal notranslate"><span class="pre">-1</span></code> for host, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for
+advice values that ignore location.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Allocation size in bytes. Required when <code class="docutils literal notranslate"><span class="pre">target</span></code> is a raw pointer.</p></li>
+<li><p><strong>location_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – Explicit location kind. Supported values are <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;host_numa_current&quot;</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -677,20 +694,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.system.get_nvml_version.html"
+       href="cuda.core.VirtualMemoryResourceOptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.system.get_nvml_version</p>
+        <p class="prev-next-title">cuda.core.VirtualMemoryResourceOptions</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.system.get_topology_common_ancestor.html"
+       href="cuda.core.managed_memory.prefetch.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.system.get_topology_common_ancestor</p>
+        <p class="prev-next-title">cuda.core.managed_memory.prefetch</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -715,7 +732,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.get_process_name"><code class="docutils literal notranslate"><span class="pre">get_process_name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.managed_memory.advise"><code class="docutils literal notranslate"><span class="pre">advise()</span></code></a></li>
 </ul>
   </nav></div>
 

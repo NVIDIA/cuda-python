@@ -14,16 +14,13 @@ cuda.core.Buffer
 
    
    .. automethod:: __init__
-   .. automethod:: advise
    .. automethod:: close
    .. automethod:: copy_from
    .. automethod:: copy_to
-   .. automethod:: discard_prefetch
    .. automethod:: fill
    .. automethod:: from_handle
    .. automethod:: from_ipc_descriptor
    .. automethod:: get_ipc_descriptor
-   .. automethod:: prefetch
 
    
    

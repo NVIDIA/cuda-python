@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=520cca20"></script>
+    <script src="_static/documentation_options.js?v=59320eb0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev75';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -493,6 +493,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -809,7 +812,7 @@
 </li>
       <li><a href="generated/cuda.core.system.ThermalController.html#cuda.core.system.ThermalController.ADT7473S">ADT7473S (cuda.core.system.ThermalController attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.advise">advise() (cuda.core.Buffer method)</a>
+      <li><a href="generated/cuda.core.managed_memory.advise.html#cuda.core.managed_memory.advise">advise() (in module cuda.core.managed_memory)</a>
 </li>
       <li><a href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope">AffinityScope (class in cuda.core.system)</a>
 </li>
@@ -901,6 +904,8 @@
         <li><a href="generated/cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget.as_integer_ratio">(cuda.core.system.ThermalTarget method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.as_tensor_map">as_tensor_map() (cuda.core.utils.StridedMemoryView method)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.async_engine_count">async_engine_count (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.attributes">attributes (cuda.core.DeviceMemoryResource attribute)</a>
@@ -1213,8 +1218,6 @@
 </li>
       <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.configuration_checksum">configuration_checksum (cuda.core.system.InforomInfo attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.AffinityScope.html#cuda.core.system.AffinityScope.conjugate">conjugate() (cuda.core.system.AffinityScope method)</a>
 
       <ul>
@@ -1261,6 +1264,8 @@
         <li><a href="generated/cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget.conjugate">(cuda.core.system.ThermalTarget method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.const_size_bytes">const_size_bytes() (cuda.core._module.KernelAttributes method)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.context">context (cuda.core.Device property)</a>
@@ -1326,6 +1331,13 @@
 
       <ul>
         <li><a href="api.html#module-cuda.core">module</a>
+</li>
+      </ul></li>
+      <li>
+    cuda.core.managed_memory
+
+      <ul>
+        <li><a href="api.html#module-cuda.core.managed_memory">module</a>
 </li>
       </ul></li>
       <li>
@@ -2023,7 +2035,7 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.disable_warnings">disable_warnings (cuda.core.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.discard_prefetch">discard_prefetch() (cuda.core.Buffer method)</a>
+      <li><a href="generated/cuda.core.managed_memory.discard_prefetch.html#cuda.core.managed_memory.discard_prefetch">discard_prefetch() (in module cuda.core.managed_memory)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.display_active">display_active (cuda.core.system.Device attribute)</a>
 </li>
@@ -3003,6 +3015,8 @@
       <ul>
         <li><a href="api.html#module-cuda.core">cuda.core</a>
 </li>
+        <li><a href="api.html#module-cuda.core.managed_memory">cuda.core.managed_memory</a>
+</li>
         <li><a href="api.html#module-cuda.core.utils">cuda.core.utils</a>
 </li>
       </ul></li>
@@ -3320,7 +3334,7 @@
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.preferred_shared_memory_carveout">preferred_shared_memory_carveout() (cuda.core._module.KernelAttributes method)</a>
 </li>
-      <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.prefetch">prefetch() (cuda.core.Buffer method)</a>
+      <li><a href="generated/cuda.core.managed_memory.prefetch.html#cuda.core.managed_memory.prefetch">prefetch() (in module cuda.core.managed_memory)</a>
 </li>
       <li><a href="generated/cuda.core.Stream.html#cuda.core.Stream.priority">priority (cuda.core.Stream attribute)</a>
 

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=520cca20"></script>
+    <script src="../_static/documentation_options.js?v=59320eb0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev75';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -498,6 +498,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -663,10 +666,12 @@ backwards compatibility when <code class="docutils literal notranslate"><span cl
 resolved preferred location of a managed memory pool. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> for no
 preference, or a tuple such as <code class="docutils literal notranslate"><span class="pre">(&quot;device&quot;,</span> <span class="pre">0)</span></code>, <code class="docutils literal notranslate"><span class="pre">(&quot;host&quot;,</span> <span class="pre">None)</span></code>, or
 <code class="docutils literal notranslate"><span class="pre">(&quot;host_numa&quot;,</span> <span class="pre">3)</span></code>.</p></li>
-<li><p>Added managed-memory controls on <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a>: <code class="docutils literal notranslate"><span class="pre">advise()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">prefetch()</span></code>, and <code class="docutils literal notranslate"><span class="pre">discard_prefetch()</span></code>. These methods validate that the
-underlying allocation is managed memory and then forward to the corresponding
-CUDA driver operations for range advice and migration.</p></li>
+<li><p>Added managed-memory range operations under <a class="reference internal" href="../api.html#module-cuda.core.managed_memory" title="cuda.core.managed_memory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.managed_memory</span></code></a>:
+<code class="docutils literal notranslate"><span class="pre">advise()</span></code>, <code class="docutils literal notranslate"><span class="pre">prefetch()</span></code>, and <code class="docutils literal notranslate"><span class="pre">discard_prefetch()</span></code>. These free
+functions accept either a managed <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> or a raw pointer plus
+<code class="docutils literal notranslate"><span class="pre">size=</span></code>, validate that the target allocation is managed memory, and then
+forward to the corresponding CUDA driver operations for range advice and
+migration.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> option to <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a> for explicit
 control over host NUMA node placement. When <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> and
 <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not set, the NUMA node is automatically derived from the

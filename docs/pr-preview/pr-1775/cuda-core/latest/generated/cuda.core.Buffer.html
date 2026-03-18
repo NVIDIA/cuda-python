@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=520cca20"></script>
+    <script src="../_static/documentation_options.js?v=59320eb0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev75';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -500,6 +500,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.advise.html">cuda.core.managed_memory.advise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.prefetch.html">cuda.core.managed_memory.prefetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.managed_memory.discard_prefetch.html">cuda.core.managed_memory.discard_prefetch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -659,37 +662,6 @@ allocations.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.advise">
-<span class="sig-name descname"><span class="pre">advise</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">advice:</span> <span class="pre">driver.CUmem_advise</span> <span class="pre">|</span> <span class="pre">str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">location:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">location_type:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.advise" title="Link to this definition">#</a></dt>
-<dd><p>Apply a managed-memory advice to this buffer.</p>
-<p>This method is only valid for buffers backed by managed memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>advice</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmem_advise</span></code> | str) – Managed-memory advice to apply. String aliases such as
-<code class="docutils literal notranslate"><span class="pre">&quot;set_read_mostly&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;set_preferred_location&quot;</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">&quot;set_accessed_by&quot;</span></code> are accepted.</p></li>
-<li><p><strong>location</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> | int | None, optional) – Target location. When <code class="docutils literal notranslate"><span class="pre">location_type</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, values are
-interpreted as a device ordinal, <code class="docutils literal notranslate"><span class="pre">-1</span></code> for host, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for
-advice values that ignore location.</p></li>
-<li><p><strong>location_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – Explicit location kind. Supported values are <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
-<code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;host_numa_current&quot;</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.close" title="Link to this definition">#</a></dt>
 <dd><p>Deallocate this buffer asynchronously on the given stream.</p>
@@ -752,22 +724,6 @@ asynchronous copy</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.discard_prefetch">
-<span class="sig-name descname"><span class="pre">discard_prefetch</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">location:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">location_type:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.discard_prefetch" title="Link to this definition">#</a></dt>
-<dd><p>Discard this managed-memory buffer and prefetch it to a target location.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -859,22 +815,6 @@ non-owning reference.  The pointer will NOT be freed when the
 <dt class="sig sig-object py" id="cuda.core.Buffer.get_ipc_descriptor">
 <span class="sig-name descname"><span class="pre">get_ipc_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><span class="pre">IPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.get_ipc_descriptor" title="Link to this definition">#</a></dt>
 <dd><p>Export a buffer allocated for sharing between processes.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Buffer.prefetch">
-<span class="sig-name descname"><span class="pre">prefetch</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">location:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">location_type:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.prefetch" title="Link to this definition">#</a></dt>
-<dd><p>Prefetch this managed-memory buffer to a target location.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
@@ -1034,16 +974,13 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.__init__"><code class="docutils literal notranslate"><span class="pre">Buffer.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.advise"><code class="docutils literal notranslate"><span class="pre">Buffer.advise()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.close"><code class="docutils literal notranslate"><span class="pre">Buffer.close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_from"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_to"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.discard_prefetch"><code class="docutils literal notranslate"><span class="pre">Buffer.discard_prefetch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.fill"><code class="docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_handle"><code class="docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.get_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.prefetch"><code class="docutils literal notranslate"><span class="pre">Buffer.prefetch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.device_id"><code class="docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>

@@ -35,10 +35,12 @@ New features
   preference, or a tuple such as ``("device", 0)``, ``("host", None)``, or
   ``("host_numa", 3)``.
 
-- Added managed-memory controls on :class:`Buffer`: ``advise()``,
-  ``prefetch()``, and ``discard_prefetch()``. These methods validate that the
-  underlying allocation is managed memory and then forward to the corresponding
-  CUDA driver operations for range advice and migration.
+- Added managed-memory range operations under :mod:`cuda.core.managed_memory`:
+  ``advise()``, ``prefetch()``, and ``discard_prefetch()``. These free
+  functions accept either a managed :class:`Buffer` or a raw pointer plus
+  ``size=``, validate that the target allocation is managed memory, and then
+  forward to the corresponding CUDA driver operations for range advice and
+  migration.
 
 - Added ``numa_id`` option to :class:`PinnedMemoryResourceOptions` for explicit
   control over host NUMA node placement. When ``ipc_enabled=True`` and
