@@ -124,7 +124,7 @@ cdef unsigned long long _MANAGED_OPERATION_FLAGS = 0
 # Lazily cached values for immutable runtime properties.
 cdef object _CU_DEVICE_CPU = None
 cdef dict _ADVICE_ENUM_TO_ALIAS = None
-cdef int _V2_BINDINGS = -1
+_V2_BINDINGS = -1
 cdef int _DISCARD_PREFETCH_SUPPORTED = -1
 
 
