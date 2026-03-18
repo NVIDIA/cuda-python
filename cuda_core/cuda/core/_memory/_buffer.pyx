@@ -5,8 +5,7 @@
 from __future__ import annotations
 
 cimport cython
-from libc.stdint cimport uint8_t, uint16_t, uint32_t, uintptr_t
-from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
+from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
@@ -25,7 +24,7 @@ from cuda.core._resource_handles cimport (
 )
 
 from cuda.core._stream cimport Stream, Stream_accept
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
 from typing import TypeVar
@@ -722,27 +721,27 @@ cdef class Buffer:
 
         """
         cdef Stream s_stream = Stream_accept(stream)
+        cdef unsigned int val
+        cdef unsigned int elem_size
+        val, elem_size = _parse_fill_value(value)
 
-        # Handle int case: 1-byte fill with automatic overflow checking.
-        if isinstance(value, int):
-            Buffer_fill_uint8(self, value, s_stream._h_stream)
-            return
+        cdef size_t buffer_size = self._size
+        cdef cydriver.CUdeviceptr dst = as_cu(self._h_ptr)
+        cdef cydriver.CUstream s = as_cu(s_stream._h_stream)
 
-        # Handle bytes case: direct pointer access without intermediate objects.
-        if isinstance(value, bytes):
-            Buffer_fill_from_ptr(self, <const char*><bytes>value, len(value), s_stream._h_stream)
-            return
-
-        # General buffer protocol path using C buffer API.
-        cdef Py_buffer buf
-        if PyObject_GetBuffer(value, &buf, PyBUF_SIMPLE) != 0:
-            raise TypeError(
-                f"value must be an int or support the buffer protocol, got {type(value).__name__}"
-            )
-        try:
-            Buffer_fill_from_ptr(self, <const char*>buf.buf, buf.len, s_stream._h_stream)
-        finally:
-            PyBuffer_Release(&buf)
+        if elem_size == 1:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD8Async(dst, val, buffer_size, s))
+        elif elem_size == 2:
+            if buffer_size & 0x1:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD16Async(dst, val, buffer_size // 2, s))
+        elif elem_size == 4:
+            if buffer_size & 0x3:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD32Async(dst, val, buffer_size // 4, s))
 
     def __dlpack__(
         self,
@@ -1023,36 +1022,3 @@ cdef inline void Buffer_close(Buffer self, object stream):
     self._memory_resource = None
     self._ipc_data = None
     self._owner = None
-
-
-cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, StreamHandle h_stream) except? -1:
-    cdef cydriver.CUdeviceptr ptr = as_cu(self._h_ptr)
-    cdef cydriver.CUstream s = as_cu(h_stream)
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemsetD8Async(ptr, value, self._size, s))
-    return 0
-
-
-cdef inline int Buffer_fill_from_ptr(
-    Buffer self, const char* ptr, size_t width, StreamHandle h_stream
-) except? -1:
-    cdef size_t buffer_size = self._size
-    cdef cydriver.CUdeviceptr dst = as_cu(self._h_ptr)
-    cdef cydriver.CUstream s = as_cu(h_stream)
-
-    if width == 1:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD8Async(dst, (<uint8_t*>ptr)[0], buffer_size, s))
-    elif width == 2:
-        if buffer_size & 0x1:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD16Async(dst, (<uint16_t*>ptr)[0], buffer_size // 2, s))
-    elif width == 4:
-        if buffer_size & 0x3:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD32Async(dst, (<uint32_t*>ptr)[0], buffer_size // 4, s))
-    else:
-        raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
-    return 0

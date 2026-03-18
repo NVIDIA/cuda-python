@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -16,7 +16,7 @@ from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions, EventOp
 from cuda.core._event import _reduce_event
 from cuda.core._memory._device_memory_resource import _deep_reduce_device_memory_resource
 from cuda.core._memory._ipc import _reduce_allocation_handle
-from cuda.core._utils.cuda_utils import reset_fork_warning
+from cuda.core._utils.cuda_utils import check_multiprocessing_start_method, reset_fork_warning
 
 
 def test_warn_on_fork_method_device_memory_resource(ipc_device):
@@ -145,3 +145,19 @@ def test_warning_emitted_only_once(ipc_device):
 
     mr1.close()
     mr2.close()
+
+
+def test_warn_on_unset_start_method_linux():
+    """Test warning when get_start_method raises RuntimeError on Linux (unset start method)."""
+    with (
+        patch("multiprocessing.get_start_method", side_effect=RuntimeError),
+        patch("platform.system", return_value="Linux"),
+        warnings.catch_warnings(record=True) as w,
+    ):
+        warnings.simplefilter("always")
+        reset_fork_warning()
+        check_multiprocessing_start_method()
+
+        fork_warnings = [x for x in w if "fork" in str(x.message).lower()]
+        assert len(fork_warnings) == 1
+        assert "not set" in str(fork_warnings[0].message).lower()

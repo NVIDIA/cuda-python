@@ -1865,6 +1865,18 @@ def test_graph_memory_resource_object(init_cuda):
     assert gmr1 == gmr2 == gmr3
 
 
+@pytest.mark.skipif(np is None, reason="numpy is not installed")
+def test_strided_memory_view_dlpack_errors():
+    arr = np.zeros(64, dtype=np.uint8)
+    smv = StridedMemoryView.from_any_interface(arr, stream_ptr=-1)
+    with pytest.raises(BufferError, match="dl_device other than None"):
+        smv.__dlpack__(dl_device=())
+    with pytest.raises(BufferError, match="copy=True"):
+        smv.__dlpack__(copy=True)
+    with pytest.raises(BufferError, match="Expected max_version"):
+        smv.__dlpack__(max_version=(9, 8, 7))
+
+
 def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
     MR, MROps = memory_resource_factory
 

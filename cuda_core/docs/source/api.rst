@@ -97,6 +97,9 @@ CUDA compilation toolchain
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
+Basic functions
+```````````````
+
 .. autosummary::
    :toctree: generated/
 
@@ -109,35 +112,61 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_topology_common_ancestor
    system.get_p2p_status
 
+Events
+``````
+
+.. autosummary::
+   :toctree: generated/
+
    system.register_events
    system.RegisteredSystemEvents
    system.SystemEvent
    system.SystemEvents
    system.SystemEventType
 
+Enums
+`````
+
+.. autosummary::
+   :toctree: generated/
+
+   system.AddressingMode
+   system.AffinityScope
+   system.BrandType
+   system.ClockId
+   system.ClocksEventReasons
+   system.CoolerControl
+   system.CoolerTarget
+   system.DeviceArch
+   system.EventType
+   system.FanControlPolicy
+   system.FieldId
+   system.InforomObject
+   system.PcieUtilCounter
+   system.Pstates
+   system.TemperatureSensors
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalTarget
+
+Types
+`````
+
+.. autosummary::
+   :toctree: generated/
+
    :template: autosummary/cyclass.rst
 
    system.Device
-   system.AddressingMode
-   system.AffinityScope
    system.BAR1MemoryInfo
-   system.BrandType
-   system.ClockId
    system.ClockInfo
    system.ClockOffsets
-   system.ClocksEventReasons
    system.ClockType
-   system.CoolerControl
    system.CoolerInfo
-   system.CoolerTarget
-   system.DeviceArch
    system.DeviceAttributes
    system.DeviceEvents
    system.EventData
-   system.EventType
-   system.FanControlPolicy
    system.FanInfo
-   system.FieldId
    system.FieldValue
    system.FieldValues
    system.GpuDynamicPstatesInfo
@@ -146,19 +175,12 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.GpuP2PStatus
    system.GpuTopologyLevel
    system.InforomInfo
-   system.InforomObject
    system.MemoryInfo
-   system.PcieUtilCounter
    system.PciInfo
-   system.Pstates
    system.RepairStatus
    system.Temperature
-   system.TemperatureSensors
-   system.TemperatureThresholds
-   system.ThermalController
    system.ThermalSensor
    system.ThermalSettings
-   system.ThermalTarget
 
 .. module:: cuda.core.utils
 
