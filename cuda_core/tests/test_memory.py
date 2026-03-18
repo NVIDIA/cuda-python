@@ -1142,6 +1142,7 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
 
 
 def _get_mem_range_attr(buffer, attribute, data_size):
+    # cuMemRangeGetAttribute returns a raw integer when data_size <= 4.
     return handle_return(driver.cuMemRangeGetAttribute(data_size, attribute, buffer.handle, buffer.size))
 
 
@@ -1241,6 +1242,31 @@ def test_managed_memory_prefetch_supports_external_managed_allocations(init_cuda
     stream = device.create_stream()
 
     managed_memory.prefetch(buffer, device, stream=stream)
+    stream.sync()
+
+    last_location = _get_int_mem_range_attr(
+        buffer,
+        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+    )
+    assert last_location == device.device_id
+
+    buffer.close()
+
+
+def test_managed_memory_discard_prefetch_supports_managed_pool_allocations(init_cuda):
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+    _skip_if_managed_discard_prefetch_unsupported(device)
+    device.set_current()
+
+    mr = create_managed_memory_resource_or_skip()
+    buffer = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE)
+    stream = device.create_stream()
+
+    managed_memory.prefetch(buffer, _HOST_LOCATION_ID, stream=stream)
+    stream.sync()
+
+    managed_memory.discard_prefetch(buffer, device, stream=stream)
     stream.sync()
 
     last_location = _get_int_mem_range_attr(

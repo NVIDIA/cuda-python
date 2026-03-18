@@ -89,17 +89,11 @@ cdef dict _MANAGED_LOCATION_TYPE_ATTRS = {
 
 cdef dict _MANAGED_ADVICE_ALIASES = {
     "set_read_mostly": "CU_MEM_ADVISE_SET_READ_MOSTLY",
-    "cu_mem_advise_set_read_mostly": "CU_MEM_ADVISE_SET_READ_MOSTLY",
     "unset_read_mostly": "CU_MEM_ADVISE_UNSET_READ_MOSTLY",
-    "cu_mem_advise_unset_read_mostly": "CU_MEM_ADVISE_UNSET_READ_MOSTLY",
     "set_preferred_location": "CU_MEM_ADVISE_SET_PREFERRED_LOCATION",
-    "cu_mem_advise_set_preferred_location": "CU_MEM_ADVISE_SET_PREFERRED_LOCATION",
     "unset_preferred_location": "CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION",
-    "cu_mem_advise_unset_preferred_location": "CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION",
     "set_accessed_by": "CU_MEM_ADVISE_SET_ACCESSED_BY",
-    "cu_mem_advise_set_accessed_by": "CU_MEM_ADVISE_SET_ACCESSED_BY",
     "unset_accessed_by": "CU_MEM_ADVISE_UNSET_ACCESSED_BY",
-    "cu_mem_advise_unset_accessed_by": "CU_MEM_ADVISE_UNSET_ACCESSED_BY",
 }
 
 cdef frozenset _MANAGED_ADVICE_IGNORE_LOCATION = frozenset((
@@ -108,10 +102,18 @@ cdef frozenset _MANAGED_ADVICE_IGNORE_LOCATION = frozenset((
     "unset_preferred_location",
 ))
 
-cdef frozenset _MANAGED_ADVICE_HOST_OR_DEVICE_ONLY = frozenset((
-    "set_accessed_by",
-    "unset_accessed_by",
-))
+cdef frozenset _ALL_LOCATION_TYPES = frozenset(("device", "host", "host_numa", "host_numa_current"))
+cdef frozenset _DEVICE_HOST_NUMA = frozenset(("device", "host", "host_numa"))
+cdef frozenset _DEVICE_HOST_ONLY = frozenset(("device", "host"))
+
+cdef dict _MANAGED_ADVICE_ALLOWED_LOCTYPES = {
+    "set_read_mostly": _DEVICE_HOST_NUMA,
+    "unset_read_mostly": _DEVICE_HOST_NUMA,
+    "set_preferred_location": _ALL_LOCATION_TYPES,
+    "unset_preferred_location": _DEVICE_HOST_NUMA,
+    "set_accessed_by": _DEVICE_HOST_ONLY,
+    "unset_accessed_by": _DEVICE_HOST_ONLY,
+}
 
 cdef int _MANAGED_SIZE_NOT_PROVIDED = -1
 cdef int _HOST_NUMA_CURRENT_ID = 0
@@ -120,22 +122,32 @@ cdef size_t _SINGLE_RANGE_COUNT = 1
 cdef size_t _SINGLE_PREFETCH_LOCATION_COUNT = 1
 cdef unsigned long long _MANAGED_OPERATION_FLAGS = 0
 
+# Lazily cached values for immutable runtime properties.
+cdef object _CU_DEVICE_CPU = None
+cdef dict _ADVICE_ENUM_TO_ALIAS = None
+cdef int _V2_BINDINGS = -1
+cdef int _DISCARD_PREFETCH_SUPPORTED = -1
+
 
 cdef inline object _managed_location_enum(str location_type):
     cdef str attr_name = _MANAGED_LOCATION_TYPE_ATTRS[location_type]
-    if not hasattr(driver.CUmemLocationType, attr_name):
+    cdef object result = getattr(driver.CUmemLocationType, attr_name, None)
+    if result is None:
         raise RuntimeError(
             f"Managed-memory location type {location_type!r} is not supported by the "
             f"installed cuda.bindings package."
         )
-    return getattr(driver.CUmemLocationType, attr_name)
+    return result
 
 
 cdef inline object _make_managed_location(str location_type, int location_id):
+    global _CU_DEVICE_CPU
     cdef object location = driver.CUmemLocation()
     location.type = _managed_location_enum(location_type)
     if location_type == "host":
-        location.id = int(getattr(driver, "CU_DEVICE_CPU", -1))
+        if _CU_DEVICE_CPU is None:
+            _CU_DEVICE_CPU = int(getattr(driver, "CU_DEVICE_CPU", -1))
+        location.id = _CU_DEVICE_CPU
     elif location_type == "host_numa_current":
         location.id = _HOST_NUMA_CURRENT_ID
     else:
@@ -157,12 +169,17 @@ cdef inline tuple _normalize_managed_advice(object advice):
         return alias, getattr(driver.CUmem_advise, attr_name)
 
     if isinstance(advice, driver.CUmem_advise):
-        for alias, attr_name in _MANAGED_ADVICE_ALIASES.items():
-            if alias.startswith("cu_mem_advise_"):
-                continue
-            if advice == getattr(driver.CUmem_advise, attr_name):
-                return alias, advice
-        raise ValueError(f"Unsupported advice value: {advice!r}")
+        global _ADVICE_ENUM_TO_ALIAS
+        if _ADVICE_ENUM_TO_ALIAS is None:
+            _ADVICE_ENUM_TO_ALIAS = {}
+            for alias, attr_name in _MANAGED_ADVICE_ALIASES.items():
+                enum_val = getattr(driver.CUmem_advise, attr_name, None)
+                if enum_val is not None:
+                    _ADVICE_ENUM_TO_ALIAS[enum_val] = alias
+        alias = _ADVICE_ENUM_TO_ALIAS.get(advice)
+        if alias is None:
+            raise ValueError(f"Unsupported advice value: {advice!r}")
+        return alias, advice
 
     raise TypeError(
         "advice must be a cuda.bindings.driver.CUmem_advise value or a supported string alias"
@@ -174,9 +191,7 @@ cdef inline object _normalize_managed_location(
     object location_type,
     str what,
     bint allow_none=False,
-    bint allow_host=True,
-    bint allow_host_numa=True,
-    bint allow_host_numa_current=True,
+    frozenset allowed_loctypes=_ALL_LOCATION_TYPES,
 ):
     cdef object loc_type
     cdef int loc_id
@@ -194,6 +209,9 @@ cdef inline object _normalize_managed_location(
             f"or None, got {location_type!r}"
         )
 
+    if loc_type is not None and loc_type not in allowed_loctypes:
+        raise ValueError(f"{what} does not support location_type='{loc_type}'")
+
     if loc_type is None:
         if location is None:
             if allow_none:
@@ -205,7 +223,7 @@ cdef inline object _normalize_managed_location(
             )
         loc_id = <int>location
         if loc_id == -1:
-            if not allow_host:
+            if "host" not in allowed_loctypes:
                 raise ValueError(f"{what} does not support host locations")
             return _make_managed_location("host", -1)
         elif loc_id >= 0:
@@ -227,20 +245,14 @@ cdef inline object _normalize_managed_location(
             raise ValueError(
                 f"{what} location must be None or -1 when location_type is 'host', got {location!r}"
             )
-        if not allow_host:
-            raise ValueError(f"{what} does not support location_type='host'")
         return _make_managed_location(loc_type, -1)
     elif loc_type == "host_numa":
-        if not allow_host_numa:
-            raise ValueError(f"{what} does not support location_type='host_numa'")
         if not isinstance(location, int) or <int>location < 0:
             raise ValueError(
                 f"{what} location must be a NUMA node ID (>= 0) when location_type is 'host_numa', got {location!r}"
             )
         return _make_managed_location(loc_type, <int>location)
     else:
-        if not allow_host_numa_current:
-            raise ValueError(f"{what} does not support location_type='host_numa_current'")
         if location is not None:
             raise ValueError(
                 f"{what} location must be None when location_type is 'host_numa_current', got {location!r}"
@@ -250,7 +262,10 @@ cdef inline object _normalize_managed_location(
 
 cdef inline bint _managed_location_uses_v2_bindings():
     # cuda.bindings 13.x switches these APIs to CUmemLocation-based wrappers.
-    return get_binding_version() >= (13, 0)
+    global _V2_BINDINGS
+    if _V2_BINDINGS < 0:
+        _V2_BINDINGS = 1 if get_binding_version() >= (13, 0) else 0
+    return _V2_BINDINGS != 0
 
 
 cdef object _LEGACY_LOC_DEVICE = None
@@ -276,7 +291,10 @@ cdef inline void _require_managed_buffer(Buffer self, str what):
 
 
 cdef inline void _require_managed_discard_prefetch_support(str what):
-    if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
+    global _DISCARD_PREFETCH_SUPPORTED
+    if _DISCARD_PREFETCH_SUPPORTED < 0:
+        _DISCARD_PREFETCH_SUPPORTED = 1 if hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync") else 0
+    if not _DISCARD_PREFETCH_SUPPORTED:
         raise RuntimeError(
             f"{what} requires cuda.bindings support for cuMemDiscardAndPrefetchBatchAsync"
         )
@@ -372,9 +390,7 @@ def advise(
         location_type,
         "advise",
         allow_none=advice_name in _MANAGED_ADVICE_IGNORE_LOCATION,
-        allow_host=True,
-        allow_host_numa=advice_name not in _MANAGED_ADVICE_HOST_OR_DEVICE_ONLY,
-        allow_host_numa_current=advice_name == "set_preferred_location",
+        allowed_loctypes=_MANAGED_ADVICE_ALLOWED_LOCTYPES[advice_name],
     )
     if _managed_location_uses_v2_bindings():
         handle_return(driver.cuMemAdvise(ptr, nbytes, advice, location))
@@ -425,10 +441,6 @@ def prefetch(
         location,
         location_type,
         "prefetch",
-        allow_none=False,
-        allow_host=True,
-        allow_host_numa=True,
-        allow_host_numa_current=True,
     )
     if _managed_location_uses_v2_bindings():
         handle_return(
@@ -478,6 +490,7 @@ def discard_prefetch(
         Explicit location kind. Supported values are ``"device"``, ``"host"``,
         ``"host_numa"``, and ``"host_numa_current"``.
     """
+    _require_managed_discard_prefetch_support("discard_prefetch")
     cdef Stream s = Stream_accept(stream)
     cdef object ptr
     cdef object batch_ptr
@@ -485,15 +498,10 @@ def discard_prefetch(
 
     ptr, nbytes = _normalize_managed_target_range(target, size, "discard_prefetch")
     batch_ptr = driver.CUdeviceptr(int(ptr))
-    _require_managed_discard_prefetch_support("discard_prefetch")
     location = _normalize_managed_location(
         location,
         location_type,
         "discard_prefetch",
-        allow_none=False,
-        allow_host=True,
-        allow_host_numa=True,
-        allow_host_numa_current=True,
     )
     handle_return(
         driver.cuMemDiscardAndPrefetchBatchAsync(

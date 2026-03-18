@@ -74,6 +74,8 @@ Managed memory
    prefetch
    discard_prefetch
 
+.. module:: cuda.core
+   :no-index:
 
 CUDA compilation toolchain
 --------------------------
