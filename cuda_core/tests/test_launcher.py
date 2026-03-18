@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -382,3 +382,10 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
 
     # Verify buffer is properly closed
     assert buffer.handle == 0, f"{name} buffer should be closed"
+
+
+def test_kernel_arg_unsupported_type():
+    from cuda.core._kernel_arg_handler import ParamHolder
+
+    with pytest.raises(TypeError, match="unsupported type"):
+        ParamHolder(["not_a_valid_kernel_arg"])
