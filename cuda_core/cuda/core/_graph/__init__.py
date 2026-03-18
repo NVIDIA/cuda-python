@@ -91,6 +91,43 @@ class GraphDebugPrintOptions:
     extra_topo_info: bool = False
     conditional_node_params: bool = False
 
+    def _to_flags(self) -> int:
+        """Convert options to CUDA driver API flags (internal use)."""
+        flags = 0
+        if self.verbose:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE
+        if self.runtime_types:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES
+        if self.kernel_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS
+        if self.memcpy_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS
+        if self.memset_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS
+        if self.host_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS
+        if self.event_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS
+        if self.ext_semas_signal_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS
+        if self.ext_semas_wait_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS
+        if self.kernel_node_attributes:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES
+        if self.handles:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES
+        if self.mem_alloc_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS
+        if self.mem_free_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS
+        if self.batch_mem_op_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS
+        if self.extra_topo_info:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO
+        if self.conditional_node_params:
+            flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS
+        return flags
+
 
 @dataclass
 class GraphCompleteOptions:
@@ -116,6 +153,44 @@ class GraphCompleteOptions:
     upload_stream: Stream | None = None
     device_launch: bool = False
     use_node_priority: bool = False
+
+
+def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> Graph:
+    params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
+    if options:
+        flags = 0
+        if options.auto_free_on_launch:
+            flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
+        if options.upload_stream:
+            flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
+            params.hUploadStream = options.upload_stream.handle
+        if options.device_launch:
+            flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
+        if options.use_node_priority:
+            flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
+        params.flags = flags
+
+    graph = Graph._init(handle_return(driver.cuGraphInstantiateWithParams(h_graph, params)))
+    if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
+        raise RuntimeError(
+            "Instantiation failed for an unexpected reason which is described in the return value of the function."
+        )
+    elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_INVALID_STRUCTURE:
+        raise RuntimeError("Instantiation failed due to invalid structure, such as cycles.")
+    elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_NODE_OPERATION_NOT_SUPPORTED:
+        raise RuntimeError(
+            "Instantiation for device launch failed because the graph contained an unsupported operation."
+        )
+    elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED:
+        raise RuntimeError("Instantiation for device launch failed due to the nodes belonging to different contexts.")
+    elif (
+        _py_major_minor >= (12, 8)
+        and params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
+    ):
+        raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
+    elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
+        raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
+    return graph
 
 
 class GraphBuilder:
@@ -280,53 +355,7 @@ class GraphBuilder:
         if not self._building_ended:
             raise RuntimeError("Graph has not finished building.")
 
-        if (_driver_ver < 12000) or (_py_major_minor < (12, 0)):
-            flags = 0
-            if options:
-                if options.auto_free_on_launch:
-                    flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
-                if options.use_node_priority:
-                    flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
-            return Graph._init(handle_return(driver.cuGraphInstantiateWithFlags(self._mnff.graph, flags)))
-
-        params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
-        if options:
-            flags = 0
-            if options.auto_free_on_launch:
-                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
-            if options.upload_stream:
-                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
-                params.hUploadStream = options.upload_stream.handle
-            if options.device_launch:
-                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
-            if options.use_node_priority:
-                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
-            params.flags = flags
-
-        graph = Graph._init(handle_return(driver.cuGraphInstantiateWithParams(self._mnff.graph, params)))
-        if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
-            # NOTE: Should never get here since the handle_return should have caught this case
-            raise RuntimeError(
-                "Instantiation failed for an unexpected reason which is described in the return value of the function."
-            )
-        elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_INVALID_STRUCTURE:
-            raise RuntimeError("Instantiation failed due to invalid structure, such as cycles.")
-        elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_NODE_OPERATION_NOT_SUPPORTED:
-            raise RuntimeError(
-                "Instantiation for device launch failed because the graph contained an unsupported operation."
-            )
-        elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED:
-            raise RuntimeError(
-                "Instantiation for device launch failed due to the nodes belonging to different contexts."
-            )
-        elif (
-            _py_major_minor >= (12, 8)
-            and params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
-        ):
-            raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
-        elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
-            raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
-        return graph
+        return _instantiate_graph(self._mnff.graph, options)
 
     def debug_dot_print(self, path, options: GraphDebugPrintOptions | None = None):
         """Generates a DOT debug file for the graph builder.
@@ -341,41 +370,7 @@ class GraphBuilder:
         """
         if not self._building_ended:
             raise RuntimeError("Graph has not finished building.")
-        flags = 0
-        if options:
-            if options.verbose:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE
-            if options.runtime_types:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES
-            if options.kernel_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS
-            if options.memcpy_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS
-            if options.memset_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS
-            if options.host_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS
-            if options.event_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS
-            if options.ext_semas_signal_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS
-            if options.ext_semas_wait_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS
-            if options.kernel_node_attributes:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES
-            if options.handles:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES
-            if options.mem_alloc_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS
-            if options.mem_free_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS
-            if options.batch_mem_op_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS
-            if options.extra_topo_info:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO
-            if options.conditional_node_params:
-                flags |= driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS
-
+        flags = options._to_flags() if options else 0
         handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, path, flags))
 
     def split(self, count: int) -> tuple[GraphBuilder, ...]:
