@@ -489,13 +489,13 @@ def discard_prefetch(
         Explicit location kind. Supported values are ``"device"``, ``"host"``,
         ``"host_numa"``, and ``"host_numa_current"``.
     """
-    _require_managed_discard_prefetch_support("discard_prefetch")
-    cdef Stream s = Stream_accept(stream)
     cdef object ptr
     cdef object batch_ptr
     cdef size_t nbytes
 
     ptr, nbytes = _normalize_managed_target_range(target, size, "discard_prefetch")
+    _require_managed_discard_prefetch_support("discard_prefetch")
+    cdef Stream s = Stream_accept(stream)
     batch_ptr = driver.CUdeviceptr(int(ptr))
     location = _normalize_managed_location(
         location,
