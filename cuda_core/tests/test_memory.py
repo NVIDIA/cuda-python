@@ -1207,7 +1207,7 @@ def test_managed_memory_prefetch_supports_managed_pool_allocations(init_cuda):
 
 def test_managed_memory_advise_supports_external_managed_allocations(init_cuda):
     device = Device()
-    _skip_if_managed_allocation_unsupported(device)
+    _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
 
     buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
@@ -1390,7 +1390,7 @@ def test_managed_memory_operation_validation(init_cuda):
 def test_managed_memory_advise_location_validation(init_cuda):
     """Verify doc-specified location constraints for each advice kind."""
     device = Device()
-    _skip_if_managed_allocation_unsupported(device)
+    _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
 
     buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
@@ -1422,7 +1422,7 @@ def test_managed_memory_advise_location_validation(init_cuda):
 def test_managed_memory_advise_accepts_enum_value(init_cuda):
     """advise() accepts CUmem_advise enum values directly, not just string aliases."""
     device = Device()
-    _skip_if_managed_allocation_unsupported(device)
+    _skip_if_managed_location_ops_unsupported(device)
     device.set_current()
 
     buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
