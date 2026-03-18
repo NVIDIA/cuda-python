@@ -14,12 +14,11 @@ Highlights
   ``cuStreamBeginCaptureToCig``, ``cuLaunchHostFunc_v2``,
   ``cuGraphNodeGetParams``, coredump callback registration, and more) and their
   runtime counterparts.
-* ``cuda.bindings.nvml`` has graduated from experimental (``cuda.bindings._nvml``)
-  to a fully supported public module with extensive handwritten Pythonic API
-  coverage spanning ~170 functions across system queries, device discovery,
-  memory, power, clocks, utilization, thermals, NVLink, and device configuration.
-  (`PR #1524 <https://github.com/NVIDIA/cuda-python/pull/1524>`_,
-  `PR #1548 <https://github.com/NVIDIA/cuda-python/pull/1548>`_)
+* ``cuda.bindings.nvml`` has graduated from experimental
+  (``cuda.bindings._nvml``) to a fully supported public module with coverage
+  spanning 378 functions.  `PR #1524
+  <https://github.com/NVIDIA/cuda-python/pull/1524>`_, `PR #1548
+  <https://github.com/NVIDIA/cuda-python/pull/1548>`_)
 * Add ``nvFatbin`` bindings.
   (`PR #1467 <https://github.com/NVIDIA/cuda-python/pull/1467>`_)
 * Performance improvement: ``cuda.bindings`` now uses a faster ``enum``
