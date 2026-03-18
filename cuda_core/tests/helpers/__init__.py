@@ -3,11 +3,10 @@
 
 import functools
 import os
-import pathlib
-import sys
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
+from cuda_python_test_helpers import *
 
 CUDA_PATH = os.environ.get("CUDA_PATH")
 CUDA_INCLUDE_PATH = None
@@ -22,14 +21,6 @@ if CUDA_PATH is not None:
             CCCL_INCLUDE_PATHS = (path,) + CCCL_INCLUDE_PATHS
 
 
-try:
-    from cuda_python_test_helpers import *  # noqa: F403
-except ImportError:
-    # Import shared platform helpers for tests across repos
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
-    from cuda_python_test_helpers import *  # noqa: F403
-
-
 @functools.cache
 def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
     """Return True if mempool IPC via POSIX file descriptor is supported.
@@ -38,7 +29,7 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
     to check for CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR support. Does not
     require an active CUDA context.
     """
-    if IS_WSL:  # noqa: F405
+    if IS_WSL:
         return False
 
     try:

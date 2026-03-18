@@ -26,6 +26,7 @@ cdef extern from "_include/dlpack.h" nogil:
         _kDLCUDA "kDLCUDA"
         _kDLCUDAHost "kDLCUDAHost"
         _kDLCUDAManaged "kDLCUDAManaged"
+        _kDLTrn "kDLTrn"
 
     ctypedef struct DLDevice:
         _DLDeviceType device_type
@@ -72,8 +73,52 @@ cdef extern from "_include/dlpack.h" nogil:
     int DLPACK_MAJOR_VERSION
     int DLPACK_MINOR_VERSION
     int DLPACK_FLAG_BITMASK_READ_ONLY
+    int DLPACK_FLAG_BITMASK_IS_COPIED
+    int DLPACK_FLAG_BITMASK_IS_SUBBYTE_TYPE_PADDED
 
     const char* DLPACK_TENSOR_UNUSED_NAME
     const char* DLPACK_VERSIONED_TENSOR_UNUSED_NAME
     const char* DLPACK_TENSOR_USED_NAME
     const char* DLPACK_VERSIONED_TENSOR_USED_NAME
+
+
+cdef extern from "_include/dlpack.h":
+    ctypedef int (*DLPackManagedTensorAllocator)(
+        DLTensor* prototype,
+        DLManagedTensorVersioned** out,
+        void* error_ctx,
+        void (*SetError)(void* error_ctx, const char* kind, const char* message) noexcept
+    )
+
+    ctypedef int (*DLPackManagedTensorFromPyObjectNoSync)(
+        void* py_object,
+        DLManagedTensorVersioned** out
+    )
+
+    ctypedef int (*DLPackManagedTensorToPyObjectNoSync)(
+        DLManagedTensorVersioned* tensor,
+        void** out_py_object
+    )
+
+    ctypedef int (*DLPackDLTensorFromPyObjectNoSync)(
+        void* py_object,
+        DLTensor* out
+    )
+
+    ctypedef int (*DLPackCurrentWorkStream)(
+        _DLDeviceType device_type,
+        int32_t device_id,
+        void** out_current_stream
+    )
+
+    ctypedef struct DLPackExchangeAPIHeader:
+        DLPackVersion version
+        DLPackExchangeAPIHeader* prev_api
+
+    ctypedef struct DLPackExchangeAPI:
+        DLPackExchangeAPIHeader header
+        DLPackManagedTensorAllocator managed_tensor_allocator
+        DLPackManagedTensorFromPyObjectNoSync managed_tensor_from_py_object_no_sync
+        DLPackManagedTensorToPyObjectNoSync managed_tensor_to_py_object_no_sync
+        DLPackDLTensorFromPyObjectNoSync dltensor_from_py_object_no_sync
+        DLPackCurrentWorkStream current_work_stream

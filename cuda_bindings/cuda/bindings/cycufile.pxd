@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -106,6 +106,8 @@ cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverControlFlags_t:
         CU_FILE_USE_POLL_MODE
         CU_FILE_ALLOW_COMPAT_MODE
+        CU_FILE_POSIX_IO_MODE
+        CU_FILE_FALLBACK_IO_MODE
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileFeatureFlags_t:
@@ -180,6 +182,8 @@ cdef extern from '<cufile.h>':
     ctypedef enum CUFileArrayConfigParameter_t:
         CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
         CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
+        CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_SIZE_KB
+        CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_COUNT
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileP2PFlags_t:
@@ -201,7 +205,7 @@ cdef extern from '<cufile.h>':
         CUfileOpError err
         CUresult cu_err
 
-cdef struct _anon_pod0 '_anon_pod0':
+cdef struct cuda_bindings_cufile__anon_pod0:
     unsigned int major_version
     unsigned int minor_version
     size_t poll_thresh_size
@@ -223,11 +227,11 @@ cdef extern from '<cufile.h>':
         ssize_t (*read)(const void*, char*, size_t, loff_t, const cufileRDMAInfo_t*)
         ssize_t (*write)(const void*, const char*, size_t, loff_t, const cufileRDMAInfo_t*)
 
-cdef union _anon_pod1 '_anon_pod1':
+cdef union cuda_bindings_cufile__anon_pod1:
     int fd
     void* handle
 
-cdef struct _anon_pod3 '_anon_pod3':
+cdef struct cuda_bindings_cufile__anon_pod3:
     void* devPtr_base
     off_t file_offset
     off_t devPtr_offset
@@ -279,7 +283,7 @@ cdef extern from '<cufile.h>':
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
-        _anon_pod0 nvfs
+        cuda_bindings_cufile__anon_pod0 nvfs
         unsigned int fflags
         unsigned int max_device_cache_size
         unsigned int per_buffer_cache_size
@@ -290,11 +294,11 @@ cdef extern from '<cufile.h>':
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileDescr_t 'CUfileDescr_t':
         CUfileFileHandleType type
-        _anon_pod1 handle
+        cuda_bindings_cufile__anon_pod1 handle
         CUfileFSOps_t* fs_ops
 
-cdef union _anon_pod2 '_anon_pod2':
-    _anon_pod3 batch
+cdef union cuda_bindings_cufile__anon_pod2:
+    cuda_bindings_cufile__anon_pod3 batch
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileStatsLevel1_t 'CUfileStatsLevel1_t':
@@ -345,7 +349,7 @@ cdef extern from '<cufile.h>':
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
         CUfileBatchMode_t mode
-        _anon_pod2 u
+        cuda_bindings_cufile__anon_pod2 u
         CUfileHandle_t fh
         CUfileOpcode_t opcode
         void* cookie

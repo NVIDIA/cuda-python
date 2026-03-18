@@ -14,6 +14,7 @@ Welcome to the documentation for ``cuda.core``.
    install
    interoperability
    api
+   environment_variables
    contribute
 
 .. toctree::

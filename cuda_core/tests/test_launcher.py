@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -12,6 +12,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
+
+from conftest import skipif_need_cuda_headers
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -23,8 +25,6 @@ from cuda.core import (
 )
 from cuda.core._memory import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-
-from conftest import skipif_need_cuda_headers
 
 
 def test_launch_config_init(init_cuda):
@@ -150,6 +150,7 @@ def test_launch_invalid_values(init_cuda):
         launch(StreamWrapper(stream), config, ker)
 
     launch(stream, config, ker)
+    stream.sync()  # TODO(#1539)
 
 
 # Parametrize: (python_type, cpp_type, init_value)
@@ -381,3 +382,10 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
 
     # Verify buffer is properly closed
     assert buffer.handle == 0, f"{name} buffer should be closed"
+
+
+def test_kernel_arg_unsupported_type():
+    from cuda.core._kernel_arg_handler import ParamHolder
+
+    with pytest.raises(TypeError, match="unsupported type"):
+        ParamHolder(["not_a_valid_kernel_arg"])

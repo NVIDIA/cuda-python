@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -6,6 +6,28 @@ cimport cpython
 from libc.stdint cimport intptr_t
 from libcpp.utility cimport move
 from cython.operator cimport dereference as deref
+
+
+cdef extern from *:
+    """
+    #if defined(__clang__)
+        #define _COMPILER_VERSION ("Clang " __clang_version__)
+    #elif defined(__GNUC__) || defined(__GNUG__)
+        #define _COMPILER_VERSION ("GCC " __VERSION__)
+    #elif defined(_MSC_VER)
+        #define _COMPILER_VERSION ("MSVC " Py_STRINGIFY(_MSC_VER))
+    #else
+        #define _COMPILER_VERSION ("Unknown Compiler")
+    #endif
+    """
+    cdef char *_COMPILER_VERSION
+
+
+cpdef str get_c_compiler():
+    """
+    Returns a string describing the C compiler used to build cuda.bindings
+    """
+    return _COMPILER_VERSION.decode()
 
 
 cdef bint is_nested_sequence(data):
@@ -98,7 +120,14 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
         nested_ptr.reset(nested_vec, True)
         for i, obj_i in enumerate(obj):
             if ResT is char:
-                obj_i_bytes = (<str?>(obj_i)).encode()
+                obj_i_type = type(obj_i)
+                if obj_i_type is str:
+                    obj_i_bytes = obj_i.encode("utf-8")
+                elif obj_i_type is bytes:
+                    obj_i_bytes = obj_i
+                else:
+                    raise TypeError(
+                        f"Expected str or bytes, got {obj_i_type.__name__}")
                 str_len = <size_t>(len(obj_i_bytes)) + 1  # including null termination
                 deref(nested_res_vec)[i].resize(str_len)
                 obj_i_ptr = <char*>(obj_i_bytes)

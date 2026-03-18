@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -13,6 +13,11 @@ from cuda.core._resource_handles cimport (
     EventHandle,
     create_event_handle,
     create_event_handle_ipc,
+    get_event_timing_disabled,
+    get_event_busy_waited,
+    get_event_ipc_enabled,
+    get_event_device_id,
+    get_event_context,
     as_intptr,
     as_cu,
     as_py,
@@ -26,14 +31,11 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 import multiprocessing
-from typing import TYPE_CHECKING, Optional
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
 )
-if TYPE_CHECKING:
-    import cuda.bindings
 
 
 @dataclass
@@ -56,9 +58,9 @@ cdef class EventOptions:
 
     """
 
-    enable_timing: Optional[bool] = False
-    busy_waited_sync: Optional[bool] = False
-    ipc_enabled: Optional[bool] = False
+    enable_timing: bool | None = False
+    busy_waited_sync: bool | None = False
+    ipc_enabled: bool | None = False
 
 
 cdef class Event:
@@ -98,34 +100,44 @@ cdef class Event:
         cdef Event self = cls.__new__(cls)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         cdef unsigned int flags = 0x0
-        self._timing_disabled = False
-        self._busy_waited = False
-        self._ipc_enabled = False
+        cdef bint timing_disabled = False
+        cdef bint busy_waited = False
+        cdef bint ipc_enabled = False
         self._ipc_descriptor = None
         if not opts.enable_timing:
             flags |= cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING
-            self._timing_disabled = True
+            timing_disabled = True
         if opts.busy_waited_sync:
             flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
-            self._busy_waited = True
+            busy_waited = True
         if opts.ipc_enabled:
             if is_free:
                 raise TypeError(
                     "IPC-enabled events must be bound; use Stream.record for creation."
                 )
             flags |= cydriver.CUevent_flags.CU_EVENT_INTERPROCESS
-            self._ipc_enabled = True
-            if not self._timing_disabled:
+            ipc_enabled = True
+            if not timing_disabled:
                 raise TypeError("IPC-enabled events cannot use timing.")
-        # C++ creates the event and returns owning handle with context dependency
-        cdef EventHandle h_event = create_event_handle(h_context, flags)
+        cdef EventHandle h_event = create_event_handle(
+            h_context, flags, timing_disabled, busy_waited, ipc_enabled, device_id)
         if not h_event:
             raise RuntimeError("Failed to create CUDA event")
         self._h_event = h_event
-        self._h_context = h_context
-        self._device_id = device_id
-        if opts.ipc_enabled:
+        if ipc_enabled:
             self.get_ipc_descriptor()
+        return self
+
+    @staticmethod
+    cdef Event _from_handle(EventHandle h_event):
+        """Create an Event wrapping an existing EventHandle.
+
+        Metadata (timing, busy_waited, ipc, device_id) is read from the
+        EventBox via pointer arithmetic — no fields are cached on Event.
+        """
+        cdef Event self = Event.__new__(Event)
+        self._h_event = h_event
+        self._ipc_descriptor = None
         return self
 
     cpdef close(self):
@@ -172,7 +184,7 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((type(self), as_intptr(self._h_event)))
+        return hash(as_intptr(self._h_event))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.
@@ -180,6 +192,9 @@ cdef class Event:
             return NotImplemented
         cdef Event _other = <Event>other
         return as_intptr(self._h_event) == as_intptr(_other._h_event)
+
+    def __repr__(self) -> str:
+        return f"<Event handle={as_intptr(self._h_event):#x}>"
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
@@ -191,7 +206,7 @@ cdef class Event:
         with nogil:
             HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, as_cu(self._h_event)))
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
-        self._ipc_descriptor = IPCEventDescriptor._init(data_b, self._busy_waited)
+        self._ipc_descriptor = IPCEventDescriptor._init(data_b, get_event_busy_waited(self._h_event))
         return self._ipc_descriptor
 
     @classmethod
@@ -200,33 +215,27 @@ cdef class Event:
         cdef cydriver.CUipcEventHandle data
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
-        # IPC events: the originating process owns the event and its context
-        cdef EventHandle h_event = create_event_handle_ipc(data)
+        cdef EventHandle h_event = create_event_handle_ipc(data, ipc_descriptor._busy_waited)
         if not h_event:
             raise RuntimeError("Failed to open IPC event handle")
         self._h_event = h_event
-        self._h_context = ContextHandle()
-        self._timing_disabled = True
-        self._busy_waited = ipc_descriptor._busy_waited
-        self._ipc_enabled = True
         self._ipc_descriptor = ipc_descriptor
-        self._device_id = -1
         return self
 
     @property
     def is_ipc_enabled(self) -> bool:
         """Return True if the event can be shared across process boundaries, otherwise False."""
-        return self._ipc_enabled
+        return get_event_ipc_enabled(self._h_event)
 
     @property
     def is_timing_disabled(self) -> bool:
         """Return True if the event does not record timing data, otherwise False."""
-        return self._timing_disabled
+        return get_event_timing_disabled(self._h_event)
 
     @property
     def is_sync_busy_waited(self) -> bool:
         """Return True if the event synchronization would keep the CPU busy-waiting, otherwise False."""
-        return self._busy_waited
+        return get_event_busy_waited(self._h_event)
 
     def sync(self):
         """Synchronize until the event completes.
@@ -274,15 +283,18 @@ cdef class Event:
         context is set current after a event is created.
 
         """
-        if self._device_id >= 0:
+        cdef int dev_id = get_event_device_id(self._h_event)
+        if dev_id >= 0:
             from ._device import Device  # avoid circular import
-            return Device(self._device_id)
+            return Device(dev_id)
 
     @property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this event."""
-        if self._h_context and self._device_id >= 0:
-            return Context._from_handle(Context, self._h_context, self._device_id)
+        cdef ContextHandle h_ctx = get_event_context(self._h_event)
+        cdef int dev_id = get_event_device_id(self._h_event)
+        if h_ctx and dev_id >= 0:
+            return Context._from_handle(Context, h_ctx, dev_id)
 
 
 cdef class IPCEventDescriptor:
@@ -295,9 +307,9 @@ cdef class IPCEventDescriptor:
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
-    @classmethod
-    def _init(cls, reserved: bytes, busy_waited: cython.bint):
-        cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(cls)
+    @staticmethod
+    def _init(reserved: bytes, busy_waited: cython.bint):
+        cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(IPCEventDescriptor)
         self._reserved = reserved
         self._busy_waited = busy_waited
         return self
@@ -307,7 +319,7 @@ cdef class IPCEventDescriptor:
         return self._reserved == rhs._reserved
 
     def __reduce__(self):
-        return self._init, (self._reserved, self._busy_waited)
+        return IPCEventDescriptor._init, (self._reserved, self._busy_waited)
 
 
 def _reduce_event(event):

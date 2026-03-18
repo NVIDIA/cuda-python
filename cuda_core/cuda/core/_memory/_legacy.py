@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from cuda.core._memory._buffer import DevicePointerT
+
 from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
@@ -13,9 +16,6 @@ from cuda.core._utils.cuda_utils import (
 from cuda.core._utils.cuda_utils import (
     driver,
 )
-
-if TYPE_CHECKING:
-    from cuda.core._memory.buffer import DevicePointerT
 
 __all__ = ["LegacyPinnedMemoryResource", "_SynchronousMemoryResource"]
 
@@ -46,9 +46,12 @@ class LegacyPinnedMemoryResource(MemoryResource):
             from cuda.core._stream import default_stream
 
             stream = default_stream()
-        err, ptr = driver.cuMemAllocHost(size)
-        raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self, stream)
+        if size:
+            err, ptr = driver.cuMemAllocHost(size)
+            raise_if_driver_error(err)
+        else:
+            ptr = 0
+        return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size, stream):
         """Deallocate a buffer previously allocated by this resource.
@@ -64,8 +67,10 @@ class LegacyPinnedMemoryResource(MemoryResource):
         """
         if stream is not None:
             stream.sync()
-        (err,) = driver.cuMemFreeHost(ptr)
-        raise_if_driver_error(err)
+
+        if size:
+            (err,) = driver.cuMemFreeHost(ptr)
+            raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -96,15 +101,19 @@ class _SynchronousMemoryResource(MemoryResource):
             from cuda.core._stream import default_stream
 
             stream = default_stream()
-        err, ptr = driver.cuMemAlloc(size)
-        raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self, stream)
+        if size:
+            err, ptr = driver.cuMemAlloc(size)
+            raise_if_driver_error(err)
+        else:
+            ptr = 0
+        return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr, size, stream):
         if stream is not None:
             stream.sync()
-        (err,) = driver.cuMemFree(ptr)
-        raise_if_driver_error(err)
+        if size:
+            (err,) = driver.cuMemFree(ptr)
+            raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:

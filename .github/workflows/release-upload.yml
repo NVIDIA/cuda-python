@@ -41,7 +41,7 @@ jobs:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
     steps:
       - name: Checkout Source
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
           ref: ${{ inputs.git-tag }}
@@ -78,6 +78,9 @@ jobs:
         run: |
           # Use the shared script to download wheels
           ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
+
+          # Validate that release wheels match the expected version from tag.
+          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"
 
           # Upload wheels to the release
           if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then

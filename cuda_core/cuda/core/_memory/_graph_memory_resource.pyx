@@ -18,10 +18,6 @@ from cuda.core._stream cimport default_stream, Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from cuda.core._memory.buffer import DevicePointerT
 
 __all__ = ['GraphMemoryResource']
 

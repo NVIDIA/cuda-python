@@ -23,6 +23,7 @@ cdef class Buffer:
         object          _owner
         _MemAttrs       _mem_attrs
         bint            _mem_attrs_inited
+        object          __weakref__
 
 
 cdef class MemoryResource:

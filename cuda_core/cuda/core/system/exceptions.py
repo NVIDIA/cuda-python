@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 
-from cuda.bindings import _nvml as nvml
+from cuda.bindings import nvml
 
 NvmlError = nvml.NvmlError
 UninitializedError = nvml.UninitializedError
@@ -40,36 +40,36 @@ UnknownError = nvml.UnknownError
 
 
 __all__ = [
-    "NvmlError",
-    "UninitializedError",
-    "InvalidArgumentError",
-    "NotSupportedError",
-    "NoPermissionError",
     "AlreadyInitializedError",
-    "NotFoundError",
-    "InsufficientSizeError",
-    "InsufficientPowerError",
-    "DriverNotLoadedError",
-    "TimeoutError",
-    "IrqIssueError",
-    "LibraryNotFoundError",
-    "FunctionNotFoundError",
+    "ArgumentVersionMismatchError",
     "CorruptedInforomError",
+    "DeprecatedError",
+    "DriverNotLoadedError",
+    "FreqNotSupportedError",
+    "FunctionNotFoundError",
     "GpuIsLostError",
-    "ResetRequiredError",
-    "OperatingSystemError",
-    "LibRmVersionMismatchError",
+    "GpuNotFoundError",
     "InUseError",
+    "InsufficientPowerError",
+    "InsufficientResourcesError",
+    "InsufficientSizeError",
+    "InvalidArgumentError",
+    "InvalidStateError",
+    "IrqIssueError",
+    "LibRmVersionMismatchError",
+    "LibraryNotFoundError",
     "MemoryError",
     "NoDataError",
-    "VgpuEccNotSupportedError",
-    "InsufficientResourcesError",
-    "FreqNotSupportedError",
-    "ArgumentVersionMismatchError",
-    "DeprecatedError",
+    "NoPermissionError",
+    "NotFoundError",
     "NotReadyError",
-    "GpuNotFoundError",
-    "InvalidStateError",
+    "NotSupportedError",
+    "NvmlError",
+    "OperatingSystemError",
+    "ResetRequiredError",
     "ResetTypeNotSupportedError",
+    "TimeoutError",
+    "UninitializedError",
     "UnknownError",
+    "VgpuEccNotSupportedError",
 ]

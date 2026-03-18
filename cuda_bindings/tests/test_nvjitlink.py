@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
+
 from cuda.bindings import nvjitlink, nvrtc
 
 # Establish a handful of compatible architectures and PTX versions to test with
@@ -95,6 +96,12 @@ def test_invalid_arch_error():
 @pytest.mark.parametrize("option", ARCHITECTURES)
 def test_create_and_destroy(option):
     handle = nvjitlink.create(1, [f"-arch={option}"])
+    assert handle != 0
+    nvjitlink.destroy(handle)
+
+
+def test_create_and_destroy_bytes_options():
+    handle = nvjitlink.create(1, [b"-arch=sm_80"])
     assert handle != 0
     nvjitlink.destroy(handle)
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,6 +9,8 @@ preview = ["pixi-build"]
 
 [workspace.build-variants]
 python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
+# Keep source-package metadata aligned with the consuming environment's CUDA major.
+cuda-version = ["12.*", "13.2.*"]
 
 [dependencies]
 cuda-bindings = { path = "." }
@@ -17,6 +19,7 @@ cuda-bindings = { path = "." }
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
 pytest-randomly = "*"
+pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
 
@@ -49,21 +52,21 @@ CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 [feature.cython-tests.target.win-64.activation.env]
 CUDA_HOME = '%CONDA_PREFIX%\Library'
 
-[feature.cu13.system-requirements]
-cuda = "13"
+[feature.cu12.dependencies]
+cuda-version = "12.*"
 
 [feature.cu13.dependencies]
-# TODO: make cuda-version a build-variant
-cuda-version = "13.1.*"
+cuda-version = "13.2.*"
 
 [environments]
-default = { features = ["cu13", "test", "cython-tests"] }
-cu13 = { features = ["cu13", "test", "cython-tests"] }
+default = { features = ["test", "cython-tests"], solve-group = "default" }
+cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
+cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-bindings"
-version = "13.1.0"
+version = "13.2.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
@@ -91,6 +94,7 @@ CUDA_HOME = '%PREFIX%\Library'
 
 [package.host-dependencies]
 python = "*"
+cuda-version = "*"
 setuptools = ">=80"
 setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
@@ -114,10 +118,12 @@ cuda-crt-dev_win-64 = "*"
 
 [package.run-dependencies]
 python = "*"
-cuda-pathfinder = ">=1.1,<2"
+cuda-version = "*"
+cuda-pathfinder = { path = "../cuda_pathfinder" }
 libnvjitlink = "*"
 cuda-nvrtc = "*"
 cuda-nvvm = "*"
+libnvfatbin = "*"
 
 [package.target.linux.run-dependencies]
 libcufile = "*"

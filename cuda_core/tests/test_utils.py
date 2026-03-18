@@ -1,9 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
 import math
 
+# TODO: replace optional imports with pytest.importorskip
 try:
     import cupy as cp
 except ImportError:
@@ -12,13 +14,33 @@ try:
     from numba import cuda as numba_cuda
 except ImportError:
     numba_cuda = None
+try:
+    import torch
+except ImportError:
+    torch = None
 import cuda.core
+
+try:
+    import ml_dtypes
+except ImportError:
+    ml_dtypes = None
 import numpy as np
 import pytest
+
 from cuda.core import Device
+from cuda.core._dlpack import DLDeviceType
 from cuda.core._layout import _StridedLayout
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
-from pytest import param
+
+_PyCapsule_IsValid = ctypes.pythonapi.PyCapsule_IsValid
+_PyCapsule_IsValid.argtypes = (ctypes.py_object, ctypes.c_char_p)
+_PyCapsule_IsValid.restype = ctypes.c_int
+
+
+def _get_cupy_version_major() -> int | None:
+    if cp is None:
+        return None
+    return int(cp.__version__.split(".")[0])
 
 
 def test_cast_to_3_tuple_success():
@@ -185,6 +207,44 @@ class TestViewGPU:
         # can't test view.readonly with CuPy or Numba...
 
 
+def test_strided_memory_view_dlpack_export_numpy_roundtrip():
+    src = np.arange(24, dtype=np.int32).reshape(4, 6)[:, ::2]
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    out = np.from_dlpack(view)
+    assert out.shape == src.shape
+    assert out.dtype == src.dtype
+    assert np.array_equal(out, src)
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCPU), 0)
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_strided_memory_view_dlpack_export_cupy_roundtrip(init_cuda):
+    src = cp.arange(24, dtype=cp.float32).reshape(4, 6)[:, ::2]
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    out = cp.from_dlpack(view)
+    cp.testing.assert_array_equal(out, src)
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDA), init_cuda.device_id)
+
+
+def test_strided_memory_view_dlpack_export_requires_dtype(init_cuda):
+    buffer = init_cuda.memory_resource.allocate(16)
+    view = StridedMemoryView.from_buffer(
+        buffer,
+        shape=(16,),
+        itemsize=1,
+        dtype=None,
+    )
+    with pytest.raises(BufferError, match="dtype"):
+        view.__dlpack__()
+
+
+def test_strided_memory_view_exposes_dlpack_c_exchange_api_capsule():
+    capsule = StridedMemoryView.__dlpack_c_exchange_api__
+    assert _PyCapsule_IsValid(capsule, b"dlpack_exchange_api") == 1
+    # Backward-compatible alias.
+    assert StridedMemoryView.__c_dlpack_exchange_api__ is capsule
+
+
 @pytest.mark.skipif(cp is None, reason="CuPy is not installed")
 @pytest.mark.parametrize("in_arr,use_stream", (*gpu_array_samples(),))
 class TestViewCudaArrayInterfaceGPU:
@@ -233,7 +293,7 @@ def _dense_strides(shape, stride_order):
     return tuple(strides)
 
 
-@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)], ids=str)
+@pytest.mark.parametrize("shape", [(), (2, 3), (10, 10), (10, 13, 11)], ids=str)
 @pytest.mark.parametrize("dtype", [np.dtype(np.int8), np.dtype(np.uint32)], ids=str)
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 @pytest.mark.parametrize("readonly", [True, False])
@@ -345,7 +405,7 @@ def _get_ptr(array):
         for view_as in ["dlpack", "cai"]
     ],
 )
-def test_view_sliced_external(shape, slices, stride_order, view_as):
+def test_view_sliced_external(init_cuda, shape, slices, stride_order, view_as):
     if view_as == "dlpack":
         if np is None:
             pytest.skip("NumPy is not installed")
@@ -380,7 +440,7 @@ def test_view_sliced_external(shape, slices, stride_order, view_as):
     ("stride_order", "view_as"),
     [(stride_order, view_as) for stride_order in ["C", "F"] for view_as in ["dlpack", "cai"]],
 )
-def test_view_sliced_external_negative_offset(stride_order, view_as):
+def test_view_sliced_external_negative_offset(init_cuda, stride_order, view_as):
     shape = (5,)
     if view_as == "dlpack":
         if np is None:
@@ -422,7 +482,7 @@ def test_view_sliced_external_negative_offset(stride_order, view_as):
 )
 @pytest.mark.parametrize("shape", [(0,), (0, 0), (0, 0, 0)])
 @pytest.mark.parametrize("dtype", [np.int64, np.uint8, np.float64])
-def test_view_zero_size_array(api, shape, dtype):
+def test_view_zero_size_array(init_cuda, api, shape, dtype):
     cp = pytest.importorskip("cupy")
 
     x = cp.empty(shape, dtype=dtype)
@@ -446,7 +506,7 @@ def test_from_buffer_with_non_power_of_two_itemsize():
     assert view.dtype == dtype
 
 
-def test_struct_array():
+def test_struct_array(init_cuda):
     cp = pytest.importorskip("cupy")
 
     x = np.array([(1.0, 2), (2.0, 3)], dtype=[("array1", np.float64), ("array2", np.int64)])
@@ -467,38 +527,40 @@ def test_struct_array():
     ("x", "expected_dtype"),
     [
         # 1D arrays with different dtypes
-        param(np.array([1, 2, 3], dtype=np.int32), "int32", id="1d-int32"),
-        param(np.array([1.0, 2.0, 3.0], dtype=np.float64), "float64", id="1d-float64"),
-        param(np.array([1 + 2j, 3 + 4j], dtype=np.complex128), "complex128", id="1d-complex128"),
-        param(np.array([1 + 2j, 3 + 4j, 5 + 6j], dtype=np.complex64), "complex64", id="1d-complex64"),
-        param(np.array([1, 2, 3, 4, 5], dtype=np.uint8), "uint8", id="1d-uint8"),
-        param(np.array([1, 2], dtype=np.int64), "int64", id="1d-int64"),
-        param(np.array([100, 200, 300], dtype=np.int16), "int16", id="1d-int16"),
-        param(np.array([1000, 2000, 3000], dtype=np.uint16), "uint16", id="1d-uint16"),
-        param(np.array([10000, 20000, 30000], dtype=np.uint64), "uint64", id="1d-uint64"),
+        pytest.param(np.array([1, 2, 3], dtype=np.int32), "int32", id="1d-int32"),
+        pytest.param(np.array([1.0, 2.0, 3.0], dtype=np.float64), "float64", id="1d-float64"),
+        pytest.param(np.array([1 + 2j, 3 + 4j], dtype=np.complex128), "complex128", id="1d-complex128"),
+        pytest.param(np.array([1 + 2j, 3 + 4j, 5 + 6j], dtype=np.complex64), "complex64", id="1d-complex64"),
+        pytest.param(np.array([1, 2, 3, 4, 5], dtype=np.uint8), "uint8", id="1d-uint8"),
+        pytest.param(np.array([1, 2], dtype=np.int64), "int64", id="1d-int64"),
+        pytest.param(np.array([100, 200, 300], dtype=np.int16), "int16", id="1d-int16"),
+        pytest.param(np.array([1000, 2000, 3000], dtype=np.uint16), "uint16", id="1d-uint16"),
+        pytest.param(np.array([10000, 20000, 30000], dtype=np.uint64), "uint64", id="1d-uint64"),
         # 2D arrays - C-contiguous
-        param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32), "int32", id="2d-c-int32"),
-        param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32), "float32", id="2d-c-float32"),
+        pytest.param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32), "int32", id="2d-c-int32"),
+        pytest.param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32), "float32", id="2d-c-float32"),
         # 2D arrays - Fortran-contiguous
-        param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32, order="F"), "int32", id="2d-f-int32"),
-        param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64, order="F"), "float64", id="2d-f-float64"),
+        pytest.param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32, order="F"), "int32", id="2d-f-int32"),
+        pytest.param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64, order="F"), "float64", id="2d-f-float64"),
         # 3D arrays
-        param(np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], dtype=np.int32), "int32", id="3d-int32"),
-        param(np.ones((2, 3, 4), dtype=np.float64), "float64", id="3d-float64"),
+        pytest.param(np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], dtype=np.int32), "int32", id="3d-int32"),
+        pytest.param(np.ones((2, 3, 4), dtype=np.float64), "float64", id="3d-float64"),
         # Sliced/strided arrays
-        param(np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)[::2], "int32", id="1d-strided-int32"),
-        param(np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"),
-        param(np.arange(20, dtype=np.int32).reshape(4, 5)[::2, ::2], "int32", id="2d-strided-2x2-int32"),
+        pytest.param(np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)[::2], "int32", id="1d-strided-int32"),
+        pytest.param(
+            np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"
+        ),
+        pytest.param(np.arange(20, dtype=np.int32).reshape(4, 5)[::2, ::2], "int32", id="2d-strided-2x2-int32"),
         # Scalar (0-D array)
-        param(np.array(42, dtype=np.int32), "int32", id="scalar-int32"),
-        param(np.array(3.14, dtype=np.float64), "float64", id="scalar-float64"),
+        pytest.param(np.array(42, dtype=np.int32), "int32", id="scalar-int32"),
+        pytest.param(np.array(3.14, dtype=np.float64), "float64", id="scalar-float64"),
         # Empty arrays
-        param(np.array([], dtype=np.int32), "int32", id="empty-1d-int32"),
-        param(np.empty((0, 3), dtype=np.float64), "float64", id="empty-2d-float64"),
+        pytest.param(np.array([], dtype=np.int32), "int32", id="empty-1d-int32"),
+        pytest.param(np.empty((0, 3), dtype=np.float64), "float64", id="empty-2d-float64"),
         # Single element
-        param(np.array([1], dtype=np.int32), "int32", id="single-element"),
+        pytest.param(np.array([1], dtype=np.int32), "int32", id="single-element"),
         # Structured dtype
-        param(np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")]), "V12", id="structured-dtype"),
+        pytest.param(np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")]), "V12", id="structured-dtype"),
     ],
 )
 def test_from_array_interface(x, init_cuda, expected_dtype):
@@ -520,7 +582,134 @@ def test_from_array_interface_unsupported_strides(init_cuda):
     # Create an array with strides that aren't a multiple of itemsize
     x = np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")])
     b = x["b"]
-    smv = StridedMemoryView.from_array_interface(b)
     with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
-        # TODO: ideally this would raise on construction
-        smv.strides  # noqa: B018
+        StridedMemoryView.from_array_interface(b)
+
+
+def _make_cuda_array_interface_obj(*, shape, strides, typestr="<f8", data=(0, False), version=3):
+    return type(
+        "SyntheticCAI",
+        (),
+        {
+            "__cuda_array_interface__": {
+                "shape": shape,
+                "strides": strides,
+                "typestr": typestr,
+                "data": data,
+                "version": version,
+            }
+        },
+    )()
+
+
+def test_from_cuda_array_interface_unsupported_strides(init_cuda):
+    cai_obj = _make_cuda_array_interface_obj(shape=(2,), strides=(10,))
+    with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
+        StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
+
+
+def test_from_cuda_array_interface_zero_strides(init_cuda):
+    cai_obj = _make_cuda_array_interface_obj(shape=(1, 1), strides=(0, 0))
+    smv = StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
+    assert smv.shape == (1, 1)
+    assert smv.strides == (0, 0)
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_from_cuda_array_interface_negative_strides(init_cuda):
+    x = cp.arange(4, dtype=cp.float64)[::-1]
+    smv = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(x), stream_ptr=-1)
+    assert smv.shape == x.shape
+    assert smv.strides == (-1,)
+
+
+def test_from_cuda_array_interface_empty_array(init_cuda):
+    cai_obj = _make_cuda_array_interface_obj(shape=(0, 3), strides=(24, 8))
+    smv = StridedMemoryView.from_cuda_array_interface(cai_obj, stream_ptr=-1)
+    assert smv.size == 0
+    assert smv.shape == (0, 3)
+    assert smv.strides == (3, 1)
+
+
+@pytest.mark.parametrize(
+    "slices",
+    [
+        pytest.param((slice(None), slice(None)), id="contiguous"),
+        pytest.param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
+    ],
+)
+@pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+@pytest.mark.skipif(cp is not None and _get_cupy_version_major() < 14, reason="CuPy version is less than 14.0.0")
+def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
+    a = cp.array([1, 2, 3, 4, 5, 6], dtype=ml_dtypes.bfloat16).reshape(2, 3)[slices]
+    smv = StridedMemoryView.from_dlpack(a, stream_ptr=0)
+
+    assert smv.size == a.size
+    assert smv.dtype == np.dtype("bfloat16")
+    assert smv.dtype == np.dtype(ml_dtypes.bfloat16)
+    assert smv.shape == a.shape
+    assert smv.ptr == a.data.ptr
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+    assert smv.exporting_obj is a
+    assert smv.readonly is a.__cuda_array_interface__["data"][1]
+
+    strides_in_counts = convert_strides_to_counts(a.strides, a.dtype.itemsize)
+    if a.flags["C_CONTIGUOUS"]:
+        assert smv.strides in (None, strides_in_counts)
+    else:
+        assert smv.strides == strides_in_counts
+
+
+@pytest.mark.parametrize(
+    "slices",
+    [
+        pytest.param((slice(None), slice(None)), id="contiguous"),
+        pytest.param((slice(None, None, 2), slice(1, None, 2)), id="strided"),
+    ],
+)
+@pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
+@pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
+def test_ml_dtypes_bfloat16_torch_dlpack(init_cuda, slices):
+    a = torch.tensor([1, 2, 3, 4, 5, 6], dtype=torch.bfloat16, device="cuda").reshape(2, 3)[slices]
+    smv = StridedMemoryView.from_dlpack(a, stream_ptr=0)
+
+    assert smv.size == a.numel()
+    assert smv.dtype == np.dtype("bfloat16")
+    assert smv.dtype == np.dtype(ml_dtypes.bfloat16)
+    assert smv.shape == tuple(a.shape)
+    assert smv.ptr == a.data_ptr()
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+    assert smv.exporting_obj is a
+
+    # PyTorch stride() returns strides in elements, convert to bytes first
+    strides_in_bytes = tuple(s * a.element_size() for s in a.stride())
+    strides_in_counts = convert_strides_to_counts(strides_in_bytes, a.element_size())
+    if a.is_contiguous():
+        assert smv.strides in (None, strides_in_counts)
+    else:
+        assert smv.strides == strides_in_counts
+
+
+@pytest.fixture
+def no_ml_dtypes(monkeypatch):
+    monkeypatch.setattr("cuda.core._memoryview.bfloat16", None)
+    return
+
+
+@pytest.mark.parametrize(
+    "api",
+    [
+        pytest.param(StridedMemoryView.from_dlpack, id="from_dlpack"),
+        pytest.param(StridedMemoryView.from_any_interface, id="from_any_interface"),
+    ],
+)
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+@pytest.mark.skipif(cp is not None and _get_cupy_version_major() < 14, reason="CuPy version is less than 14.0.0")
+def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, api):
+    a = cp.array([1, 2, 3], dtype="bfloat16")
+    smv = api(a, stream_ptr=0)
+    with pytest.raises(NotImplementedError, match=r"requires `ml_dtypes`"):
+        smv.dtype  # noqa: B018

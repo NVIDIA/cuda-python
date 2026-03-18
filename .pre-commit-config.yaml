@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,6 +19,7 @@ repos:
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
+        exclude: ^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$
       - id: ruff-format
 
   - repo: local
@@ -29,7 +30,8 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '.*pixi\.lock'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)'
+        args: ["--fix"]
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
@@ -57,7 +59,13 @@ repos:
       exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
-      exclude: *gen_exclude
+      exclude: |
+        (?x)^(?:
+          cuda_python/README\.md|
+          cuda_bindings/cuda/bindings/.*\.in?|
+          cuda_bindings/docs/source/module/.*\.rst?|
+          .*\.patch$
+        )$
 
   # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -88,6 +96,7 @@ repos:
       - id: cython-lint
         args: [--no-pycodestyle]
         exclude: ^cuda_bindings/
+
 
 default_language_version:
       python: python3

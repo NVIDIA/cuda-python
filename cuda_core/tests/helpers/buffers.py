@@ -9,11 +9,12 @@ from cuda.core._utils.cuda_utils import driver, handle_return
 from . import libc
 
 __all__ = [
+    "DummyUnifiedMemoryResource",
+    "PatternGen",
+    "TrackingMR",
     "compare_buffer_to_constant",
     "compare_equal_buffers",
-    "DummyUnifiedMemoryResource",
     "make_scratch_buffer",
-    "PatternGen",
 ]
 
 
@@ -39,6 +40,37 @@ class DummyUnifiedMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self.device
+
+
+class TrackingMR(MemoryResource):
+    """A MemoryResource that tracks active allocations via a dict.
+
+    Useful for verifying that deallocate is called at the expected time.
+    """
+
+    def __init__(self):
+        self.active = {}
+
+    def allocate(self, size, stream=None):
+        ptr = handle_return(driver.cuMemAlloc(size))
+        self.active[int(ptr)] = size
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+
+    def deallocate(self, ptr, size, stream=None):
+        handle_return(driver.cuMemFree(ptr))
+        del self.active[int(ptr)]
+
+    @property
+    def is_device_accessible(self):
+        return True
+
+    @property
+    def is_host_accessible(self):
+        return False
+
+    @property
+    def device_id(self):
+        return 0
 
 
 class PatternGen:

@@ -1,12 +1,12 @@
-cuda/_version.py export-subst
-
 * text eol=lf
 *.cmd text eol=crlf
 
 # we do not own any headers checked in, don't touch them
 *.h binary
 *.hpp binary
-# Exception: headers we own (cuda_core C++ implementation)
+# Exception: headers we own
+cuda_bindings/cuda/bindings/_bindings/*.h -binary text diff
+cuda_bindings/cuda/bindings/_lib/*.h -binary text diff
 cuda_core/cuda/core/_cpp/*.h -binary text diff
 cuda_core/cuda/core/_cpp/*.hpp -binary text diff
 # git should not convert line endings in PNG files
@@ -14,3 +14,9 @@ cuda_core/cuda/core/_cpp/*.hpp -binary text diff
 *.svg binary
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
+
+# "export-subst" specifies that this file will get filled in with the current
+# commit and tag information when running `git archive`.  This allows
+# `setuptools-scm` to correctly determine the version when building from a git
+# archive.  See #1609.
+.git_archival.txt export-subst

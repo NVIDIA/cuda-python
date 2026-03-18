@@ -1,10 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from collections import namedtuple
 
 import pytest
-from cuda.bindings import _nvml as nvml
+
+from cuda.bindings import nvml
+from cuda.bindings._test_helpers.arch_check import unsupported_before  # noqa: F401
 
 
 class NVMLInitializer:
@@ -73,7 +75,7 @@ def get_devices(device_info):
 @pytest.fixture
 def all_devices(device_info):
     with NVMLInitializer():
-        yield sorted(list(set(get_devices(device_info))))
+        yield sorted(set(get_devices(device_info)))
 
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. currentmodule:: cuda.core
@@ -78,6 +78,16 @@ array libraries.
 
 The :attr:`~utils.StridedMemoryView.is_device_accessible` attribute can be used to check
 whether or not the underlying buffer can be accessed on GPU.
+
+The :class:`~utils.StridedMemoryView` class supports narrow data types (e.g., ``bfloat16``) when the optional
+`ml_dtypes <https://github.com/jax-ml/ml_dtypes>`_ package is installed. This enables interoperability with libraries that use
+narrow dtype tensors, such as PyTorch with ``torch.bfloat16`` or CuPy with ``"bfloat16"`` dtype.
+If ``ml_dtypes`` is not available and such a tensor is encountered, a
+:obj:`NotImplementedError` will be raised.
+
+Currently supported narrow data types:
+
+* ``bfloat16``
 
 .. rubric:: Footnotes
 

@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. module:: cuda.core
@@ -49,6 +49,18 @@ CUDA runtime
    LaunchConfig
    VirtualMemoryResourceOptions
 
+.. data:: LEGACY_DEFAULT_STREAM
+
+   The legacy default CUDA stream. All devices share the same legacy default
+   stream, and work launched on it is not concurrent with work on any other
+   stream.
+
+.. data:: PER_THREAD_DEFAULT_STREAM
+
+   The per-thread default CUDA stream. Each host thread has its own per-thread
+   default stream, and work launched on it can execute concurrently with work
+   on other non-blocking streams.
+
 
 CUDA compilation toolchain
 --------------------------
@@ -70,6 +82,9 @@ CUDA compilation toolchain
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
+Basic functions
+```````````````
+
 .. autosummary::
    :toctree: generated/
 
@@ -82,35 +97,75 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_topology_common_ancestor
    system.get_p2p_status
 
+Events
+``````
+
+.. autosummary::
+   :toctree: generated/
+
    system.register_events
    system.RegisteredSystemEvents
    system.SystemEvent
    system.SystemEvents
    system.SystemEventType
 
+Enums
+`````
+
+.. autosummary::
+   :toctree: generated/
+
+   system.AddressingMode
+   system.AffinityScope
+   system.BrandType
+   system.ClockId
+   system.ClocksEventReasons
+   system.CoolerControl
+   system.CoolerTarget
+   system.DeviceArch
+   system.EventType
+   system.FanControlPolicy
+   system.FieldId
+   system.InforomObject
+   system.PcieUtilCounter
+   system.Pstates
+   system.TemperatureSensors
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalTarget
+
+Types
+`````
+
+.. autosummary::
+   :toctree: generated/
+
    :template: autosummary/cyclass.rst
 
    system.Device
-   system.AddressingMode
    system.BAR1MemoryInfo
-   system.BrandType
-   system.DeviceArchitecture
+   system.ClockInfo
+   system.ClockOffsets
+   system.ClockType
+   system.CoolerInfo
    system.DeviceAttributes
    system.DeviceEvents
    system.EventData
-   system.EventType
-   system.FieldId
+   system.FanInfo
    system.FieldValue
    system.FieldValues
+   system.GpuDynamicPstatesInfo
+   system.GpuDynamicPstatesUtilization
    system.GpuP2PCapsIndex
    system.GpuP2PStatus
    system.GpuTopologyLevel
    system.InforomInfo
-   system.InforomObject
    system.MemoryInfo
-   system.PcieUtilCounter
    system.PciInfo
    system.RepairStatus
+   system.Temperature
+   system.ThermalSensor
+   system.ThermalSettings
 
 .. module:: cuda.core.utils
 

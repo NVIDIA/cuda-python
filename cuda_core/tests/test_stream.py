@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from helpers.misc import StreamWrapper
+
 from cuda.core import Device, Stream, StreamOptions
 from cuda.core._event import Event
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
 from cuda.core._utils.cuda_utils import driver
-from helpers.misc import StreamWrapper
 
 
 def test_stream_init_disabled():
@@ -117,7 +118,7 @@ def test_stream_legacy_default_subclassing():
     class MyStream(Stream):
         pass
 
-    stream = MyStream.legacy_default()
+    stream = MyStream._legacy_default()
     assert isinstance(stream, MyStream)
 
 
@@ -125,24 +126,8 @@ def test_stream_per_thread_default_subclassing():
     class MyStream(Stream):
         pass
 
-    stream = MyStream.per_thread_default()
+    stream = MyStream._per_thread_default()
     assert isinstance(stream, MyStream)
-
-
-def test_stream_legacy_default_public_api(init_cuda):
-    """Test public legacy_default() method."""
-    stream = Stream.legacy_default()
-    assert isinstance(stream, Stream)
-    # Verify it's the same as LEGACY_DEFAULT_STREAM
-    assert stream == LEGACY_DEFAULT_STREAM
-
-
-def test_stream_per_thread_default_public_api(init_cuda):
-    """Test public per_thread_default() method."""
-    stream = Stream.per_thread_default()
-    assert isinstance(stream, Stream)
-    # Verify it's the same as PER_THREAD_DEFAULT_STREAM
-    assert stream == PER_THREAD_DEFAULT_STREAM
 
 
 # ============================================================================

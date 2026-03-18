@@ -34,7 +34,7 @@ jobs:
          }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Load branch name
         id: get-branch
@@ -43,7 +43,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
+        uses: korthout/backport-action@01619ebc9a6e3f6820274221b9956b3e7365000a  # v4.1.0
         with:
           copy_assignees: true
           copy_labels_pattern: true
@@ -54,7 +54,7 @@ jobs:
     if: github.repository_owner == 'nvidia' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Load branch from environment name
         if: inputs.backport-branch == null
@@ -67,7 +67,7 @@ jobs:
         run: echo "BACKPORT_BRANCH=${{ inputs.backport-branch }}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
+        uses: korthout/backport-action@01619ebc9a6e3f6820274221b9956b3e7365000a  # v4.1.0
         with:
           copy_assignees: true
           copy_labels_pattern: true
