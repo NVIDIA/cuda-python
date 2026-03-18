@@ -6,7 +6,6 @@ import os
 import subprocess
 import sys
 import textwrap
-from pathlib import Path
 
 import pytest
 
@@ -26,11 +25,16 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     derive_ctk_root,
     find_via_ctk_root,
 )
+from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
+    DYNAMIC_LIB_SUBPROCESS_CWD,
+    DYNAMIC_LIB_SUBPROCESS_MODULE,
+    MODE_CANARY,
+)
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
-_PACKAGE_ROOT = Path(load_mod.__file__).resolve().parents[3]
+_PACKAGE_ROOT = DYNAMIC_LIB_SUBPROCESS_CWD
 
 
 def _ctx(libname: str = "nvvm") -> SearchContext:
@@ -194,14 +198,14 @@ def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
     result = subprocess.CompletedProcess(
         args=[],
         returncode=0,
-        stdout='"/usr/local/cuda/lib64/libcudart.so.13"\n',
+        stdout='{"status": "ok", "abs_path": "/usr/local/cuda/lib64/libcudart.so.13"}\n',
         stderr="",
     )
     run_mock = mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") == "/usr/local/cuda/lib64/libcudart.so.13"
     run_mock.assert_called_once_with(
-        [sys.executable, "-m", "cuda.pathfinder._dynamic_libs.canary_probe_subprocess", "cudart"],
+        [sys.executable, "-m", DYNAMIC_LIB_SUBPROCESS_MODULE, MODE_CANARY, "cudart"],
         capture_output=True,
         text=True,
         timeout=10.0,
@@ -211,7 +215,12 @@ def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
 
 
 def test_subprocess_probe_returns_none_on_null_payload(mocker):
-    result = subprocess.CompletedProcess(args=[], returncode=0, stdout="null\n", stderr="")
+    result = subprocess.CompletedProcess(
+        args=[],
+        returncode=0,
+        stdout='{"status": "not-found", "abs_path": null}\n',
+        stderr="",
+    )
     mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") is None
