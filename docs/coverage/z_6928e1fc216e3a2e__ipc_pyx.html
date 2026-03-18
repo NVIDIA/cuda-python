@@ -95,10 +95,9 @@
   "{": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
   "|": "tests/test_memory.py::test_mempool_ipc_errors|run",
   "}": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
-  "~": "tests/memory_ipc/test_event_ipc.py::TestIpcEventProperties::test_main[False-False-True]|run",
-  "ab": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "bb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
-  "cb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run"
+  "~": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  "ab": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
+  "bb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -160,8 +159,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-17 01:05 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
+            created at 2026-03-18 01:10 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -222,7 +221,7 @@
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">cdef class IPCDataForBuffer:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">    """Data members related to sharing memory buffers via IPC."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        self._ipc_descriptor = ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">35 ctx</label></span><span class="ctxs">1abJKefrstuvwxyzABCDEklFGHIpqghijcdm</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        self._ipc_descriptor = ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">36 ctx</label></span><span class="ctxs">1nabJKefrstuvwxyzABCDEklFGHIpqghijcdm</span></p>
     <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        self._is_mapped = is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">35 ctx</label></span><span class="ctxs">1abJKefrstuvwxyzABCDEklFGHIpqghijcdm</span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
@@ -294,14 +293,14 @@
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs117" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        """Close the handle."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if self._handle >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">35 ctx</label></span><span class="ctxs">2a b e f ~ g h i j c d L M N O P Q R S T U V W X Y Z 0 m 1 2 ab3 o 4 5 </span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            try:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">35 ctx</label></span><span class="ctxs">2a b e f ~ g h i j c d L M N O P Q R S T U V W X Y Z 0 m 1 2 ab3 o 4 5 </span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                os.close(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">35 ctx</label></span><span class="ctxs">2a b e f ~ g h i j c d L M N O P Q R S T U V W X Y Z 0 m 1 2 ab3 o 4 5 </span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if self._handle >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">34 ctx</label></span><span class="ctxs">1abefghijcdLMNOPQRSTUVWXYZ0m12~3o45</span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            try:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">34 ctx</label></span><span class="ctxs">1abefghijcdLMNOPQRSTUVWXYZ0m12~3o45</span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                os.close(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">34 ctx</label></span><span class="ctxs">1abefghijcdLMNOPQRSTUVWXYZ0m12~3o45</span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            finally:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                self._handle = -1</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">35 ctx</label></span><span class="ctxs">2a b e f ~ g h i j c d L M N O P Q R S T U V W X Y Z 0 m 1 2 ab3 o 4 5 </span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                self._handle = -1</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">34 ctx</label></span><span class="ctxs">1abefghijcdLMNOPQRSTUVWXYZ0m12~3o45</span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">35 ctx</label></span><span class="ctxs">2a b e f ~ g h i j c d L M N O P Q R S T U V W X Y Z 0 m 1 2 ab3 o 4 5 </span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">34 ctx</label></span><span class="ctxs">1abefghijcdLMNOPQRSTUVWXYZ0m12~3o45</span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    def __int__(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        if self._handle &lt; 0:</span>&nbsp;</span><span class="r"></span></p>
@@ -312,17 +311,17 @@
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">    def handle(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return self._handle</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">37 ctx</label></span><span class="ctxs">2bbcba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return self._handle</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">37 ctx</label></span><span class="ctxs">2abbba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">    def uuid(self) -> uuid.UUID:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">37 ctx</label></span><span class="ctxs">2bbcba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">37 ctx</label></span><span class="ctxs">2abbba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">def _reduce_allocation_handle(alloc_handle):</span>&nbsp;</span><span class="r"><label for="ctxs144" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">37 ctx</label></span><span class="ctxs">2bbcba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">37 ctx</label></span><span class="ctxs">2bbcba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
-    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">37 ctx</label></span><span class="ctxs">2bbcba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">37 ctx</label></span><span class="ctxs">2abbba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">37 ctx</label></span><span class="ctxs">2abbba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">37 ctx</label></span><span class="ctxs">2abbba b J K e f r s t u v w x y z A B C D E k l F G H I p q g h i j c d o </span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint</span>&nbsp;</span><span class="r"><label for="ctxs150" class="ctx">(empty)</label></span></p>
@@ -445,8 +444,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-17 01:05 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
+            created at 2026-03-18 01:10 +0000
         </p>
     </div>
 </footer>
