@@ -4,6 +4,7 @@
 
 from libc.stdint cimport uintptr_t
 
+from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport DevicePtrHandle
 from cuda.core._stream cimport Stream
 
@@ -38,3 +39,10 @@ cdef Buffer Buffer_from_deviceptr_handle(
     MemoryResource mr,
     object ipc_descriptor = *
 )
+
+# Memory attribute query helpers (used by _managed_memory_ops)
+cdef void _init_mem_attrs(Buffer self)
+cdef int _query_memory_attrs(
+    _MemAttrs& out,
+    cydriver.CUdeviceptr ptr,
+) except -1 nogil

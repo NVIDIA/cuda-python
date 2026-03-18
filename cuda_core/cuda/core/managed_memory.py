@@ -4,6 +4,6 @@
 
 """Managed-memory range operations."""
 
-from cuda.core._memory._buffer import advise, discard_prefetch, prefetch
+from cuda.core._memory._managed_memory_ops import advise, discard_prefetch, prefetch
 
 __all__ = ["advise", "discard_prefetch", "prefetch"]

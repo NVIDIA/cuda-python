@@ -44,7 +44,7 @@ from cuda.core import (
     system as ccx_system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory import IPCBufferDescriptor, _buffer
+from cuda.core._memory import IPCBufferDescriptor, _managed_memory_ops
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
 
@@ -1313,9 +1313,9 @@ def test_managed_memory_advise_uses_legacy_bindings_signature(monkeypatch, init_
         calls.append((ptr, size, advice, location))
         return (driver.CUresult.CUDA_SUCCESS,)
 
-    monkeypatch.setattr(_buffer, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
-    monkeypatch.setattr(_buffer, "_V2_BINDINGS", -1)
-    monkeypatch.setattr(_buffer.driver, "cuMemAdvise", fake_cuMemAdvise)
+    monkeypatch.setattr(_managed_memory_ops, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
+    monkeypatch.setattr(_managed_memory_ops, "_V2_BINDINGS", -1)
+    monkeypatch.setattr(_managed_memory_ops.driver, "cuMemAdvise", fake_cuMemAdvise)
 
     managed_memory.advise(buffer, "set_read_mostly")
 
@@ -1338,9 +1338,9 @@ def test_managed_memory_prefetch_uses_legacy_bindings_signature(monkeypatch, ini
         calls.append((ptr, size, location, hstream))
         return (driver.CUresult.CUDA_SUCCESS,)
 
-    monkeypatch.setattr(_buffer, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
-    monkeypatch.setattr(_buffer, "_V2_BINDINGS", -1)
-    monkeypatch.setattr(_buffer.driver, "cuMemPrefetchAsync", fake_cuMemPrefetchAsync)
+    monkeypatch.setattr(_managed_memory_ops, "get_binding_version", lambda: _LEGACY_BINDINGS_VERSION)
+    monkeypatch.setattr(_managed_memory_ops, "_V2_BINDINGS", -1)
+    monkeypatch.setattr(_managed_memory_ops.driver, "cuMemPrefetchAsync", fake_cuMemPrefetchAsync)
 
     managed_memory.prefetch(buffer, device, stream=stream)
 
