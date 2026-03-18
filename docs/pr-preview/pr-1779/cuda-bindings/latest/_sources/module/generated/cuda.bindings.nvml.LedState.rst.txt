@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.LedState
+===========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: LedState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LedState.__init__
+      ~LedState.from_buffer
+      ~LedState.from_data
+      ~LedState.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LedState.cause
+      ~LedState.color
+      ~LedState.ptr
+   
+   
