@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -207,3 +207,17 @@ def test_linker_options_as_bytes_driver_not_supported():
     options = LinkerOptions(arch="sm_80")
     with pytest.raises(RuntimeError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
         options.as_bytes("driver")
+
+
+def test_linker_logs_cached_after_link(compile_ptx_functions):
+    """After a successful link(), get_error_log/get_info_log should return cached strings."""
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*compile_ptx_functions, options=options)
+    linker.link("cubin")
+    err_log = linker.get_error_log()
+    info_log = linker.get_info_log()
+    assert isinstance(err_log, str)
+    assert isinstance(info_log, str)
+    # Calling again should return the same observable values.
+    assert linker.get_error_log() == err_log
+    assert linker.get_info_log() == info_log
