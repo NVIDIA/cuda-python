@@ -1,6 +1,0 @@
-﻿cuda.core.system.get\_driver\_branch
-====================================
-
-.. currentmodule:: cuda.core.system
-
-.. autofunction:: get_driver_branch
