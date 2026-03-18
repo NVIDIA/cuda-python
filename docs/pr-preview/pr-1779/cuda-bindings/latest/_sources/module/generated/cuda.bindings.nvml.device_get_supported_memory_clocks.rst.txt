@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_supported\_memory\_clocks
-=========================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_supported_memory_clocks
