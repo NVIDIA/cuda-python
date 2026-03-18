@@ -15,7 +15,11 @@ from child_load_nvidia_dynamic_lib_helper import (
 )
 
 from cuda.pathfinder._dynamic_libs import dynamic_lib_subprocess as subprocess_mod
-from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
+from cuda.pathfinder._dynamic_libs.load_dl_common import (
+    DynamicLibNotAvailableError,
+    DynamicLibNotFoundError,
+    DynamicLibUnknownError,
+)
 
 _HELPER_MODULE = "child_load_nvidia_dynamic_lib_helper"
 
@@ -76,17 +80,29 @@ def test_probe_load_nvidia_dynamic_lib_and_print_json(mocker, capsys):
     assert captured.err == ""
 
 
-def test_probe_load_nvidia_dynamic_lib_and_prints_not_found_payload(mocker, capsys):
+@pytest.mark.parametrize(
+    ("exc_type", "message"),
+    (
+        (DynamicLibNotFoundError, "not found"),
+        (DynamicLibNotAvailableError, "not available"),
+        (DynamicLibUnknownError, "unknown"),
+    ),
+)
+def test_probe_load_nvidia_dynamic_lib_and_prints_not_found_payload(mocker, capsys, exc_type, message):
     mocker.patch.object(
         subprocess_mod,
         "_load_nvidia_dynamic_lib_for_test",
-        side_effect=DynamicLibNotFoundError("not found"),
+        side_effect=exc_type(message),
     )
 
     subprocess_mod.probe_dynamic_lib_and_print_json("cudart", LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE)
 
     captured = capsys.readouterr()
-    assert json.loads(captured.out) == {"status": "not-found", "abs_path": None}
+    payload = json.loads(captured.out)
+    assert payload["status"] == "not-found"
+    assert payload["abs_path"] is None
+    assert payload["error"]["type"] == exc_type.__name__
+    assert payload["error"]["message"] == message
     assert captured.err == ""
 
 

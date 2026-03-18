@@ -26,8 +26,16 @@ class DynamicLibSubprocessPayload:
     abs_path: str | None
 
 
-def format_dynamic_lib_subprocess_payload(status: Literal["ok", "not-found"], abs_path: str | None) -> str:
-    return json.dumps({"status": status, "abs_path": abs_path})
+def format_dynamic_lib_subprocess_payload(
+    status: Literal["ok", "not-found"],
+    abs_path: str | None,
+    *,
+    error: dict[str, str] | None = None,
+) -> str:
+    payload: dict[str, object] = {"status": status, "abs_path": abs_path}
+    if error is not None:
+        payload["error"] = error
+    return json.dumps(payload)
 
 
 def build_dynamic_lib_subprocess_command(mode: str, libname: str) -> list[str]:

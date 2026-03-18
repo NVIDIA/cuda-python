@@ -98,8 +98,12 @@ def probe_dynamic_lib_and_print_json(libname: str, mode: str) -> None:
         # Test-only path: exercises full loader behavior in isolation.
         try:
             abs_path = _load_nvidia_dynamic_lib_for_test(libname)
-        except DynamicLibNotFoundError:
-            print(format_dynamic_lib_subprocess_payload(STATUS_NOT_FOUND, None))
+        except DynamicLibNotFoundError as exc:
+            error = {
+                "type": exc.__class__.__name__,
+                "message": str(exc),
+            }
+            print(format_dynamic_lib_subprocess_payload(STATUS_NOT_FOUND, None, error=error))
             return
         print(format_dynamic_lib_subprocess_payload(STATUS_OK, abs_path))
         return
