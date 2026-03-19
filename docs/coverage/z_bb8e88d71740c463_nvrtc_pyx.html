@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/nvrtc.pyx: 51.23%</title>
+    <title>Coverage for cuda/bindings/nvrtc.pyx: 52.45%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
@@ -16,105 +16,109 @@
   "g": "tests/test_kernelParams.py::test_kernelParams_struct_custom|run",
   "h": "tests/test_kernelParams.py::test_kernelParams_types_cuda|run",
   "i": "(empty)",
-  "j": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|setup",
-  "k": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_80]|setup",
-  "l": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|setup",
-  "m": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_100]|setup",
-  "n": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|setup",
-  "o": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_80]|setup",
-  "p": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_90]|setup",
-  "q": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|setup",
-  "r": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH[sm_80]|setup",
-  "s": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH[sm_80]|setup",
-  "t": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|setup",
-  "u": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
-  "v": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
-  "w": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
-  "x": "tests/test_nvrtc.py::test_nvrtcGetLoweredName_failure|run",
-  "y": "tests/test_nvrtc.py::test_nvrtcGetSupportedArchs|run",
-  "z": "tests/test_linker.py::test_linker_get_error_log|run",
-  "A": "tests/test_linker.py::test_linker_get_error_log|setup",
-  "B": "tests/test_linker.py::test_linker_get_info_log|setup",
-  "C": "tests/test_linker.py::test_linker_init[options0]|setup",
-  "D": "tests/test_linker.py::test_linker_init[options1]|setup",
-  "E": "tests/test_linker.py::test_linker_init[options2]|setup",
-  "F": "tests/test_linker.py::test_linker_init[options3]|setup",
-  "G": "tests/test_linker.py::test_linker_init[options4]|setup",
-  "H": "tests/test_linker.py::test_linker_init[options5]|setup",
-  "I": "tests/test_linker.py::test_linker_init[options6]|setup",
-  "J": "tests/test_linker.py::test_linker_init[options7]|setup",
-  "K": "tests/test_linker.py::test_linker_init[options8]|setup",
-  "L": "tests/test_linker.py::test_linker_init[options9]|setup",
-  "M": "tests/test_linker.py::test_linker_init[options10]|setup",
-  "N": "tests/test_linker.py::test_linker_init[options11]|setup",
-  "O": "tests/test_linker.py::test_linker_init[options12]|setup",
-  "P": "tests/test_linker.py::test_linker_init[options13]|setup",
-  "Q": "tests/test_linker.py::test_linker_init[options14]|setup",
-  "R": "tests/test_linker.py::test_linker_init[options15]|setup",
-  "S": "tests/test_linker.py::test_linker_init[options16]|setup",
-  "T": "tests/test_linker.py::test_linker_init[options17]|setup",
-  "U": "tests/test_linker.py::test_linker_init[options18]|setup",
-  "V": "tests/test_linker.py::test_linker_init[options19]|setup",
-  "W": "tests/test_linker.py::test_linker_init[options20]|setup",
-  "X": "tests/test_linker.py::test_linker_init[options21]|setup",
-  "Y": "tests/test_linker.py::test_linker_init[options22]|setup",
-  "Z": "tests/test_linker.py::test_linker_init[options23]|setup",
-  "0": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
-  "1": "tests/test_linker.py::test_linker_link_cubin|setup",
-  "2": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
-  "3": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
-  "4": "tests/test_module.py::test_get_kernel|run",
-  "5": "tests/test_module.py::test_object_code_load_ptx_from_file|run",
-  "6": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
-  "7": "tests/test_module.py::test_object_code_load_ptx|run",
-  "8": "tests/test_module.py::test_object_code_load_ptx|setup",
-  "9": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-<ObjectCode handle=0x[0-9a-f]+ code_type='ptx'>]|run",
-  "!": "tests/test_object_protocols.py::test_repr_format[sample_program_ptx-<Program backend='(nvJitLink|driver)'>]|run",
-  "#": "tests/test_program.py::test_cpp_program_pch_auto_creates|run",
-  "$": "tests/test_program.py::test_cpp_program_pch_status_none_without_pch|run",
-  "%": "tests/test_program.py::test_cpp_program_with_pch_options|run",
-  "'": "tests/test_program.py::test_cpp_program_with_trace_option|run",
-  "(": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
-  ")": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
-  "*": "tests/test_program.py::test_cpp_program_with_various_options[options2]|run",
-  "+": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
-  ",": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
-  "-": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
-  ".": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
-  "/": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
-  ":": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
-  ";": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
-  "=": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
-  "?": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
-  "@": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
-  "[": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
-  "]": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
-  "^": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
-  "_": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
-  "`": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
-  "{": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
-  "|": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
-  "}": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
-  "~": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
-  "ab": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
-  "bb": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
-  "cb": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
-  "db": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
-  "eb": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
-  "fb": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
-  "gb": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
-  "hb": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
-  "ib": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
-  "jb": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
-  "kb": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
-  "lb": "tests/test_program.py::test_cpp_program_with_various_options[options34]|run",
-  "mb": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
-  "nb": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
-  "ob": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
-  "pb": "tests/test_program.py::test_program_compile_valid_target_type|run",
-  "qb": "tests/test_program.py::test_ptx_program_with_various_options[options7]|setup",
-  "rb": "tests/test_program.py::test_program_handle_property|run",
-  "sb": "tests/test_program.py::test_program_init_valid_code_type|run"
+  "j": "tests/test_cuda_utils.py::test_check_nvrtc_error_with_handle|run",
+  "k": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|setup",
+  "l": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_80]|setup",
+  "m": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|setup",
+  "n": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_100]|setup",
+  "o": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|setup",
+  "p": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_80]|setup",
+  "q": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_90]|setup",
+  "r": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|setup",
+  "s": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH[sm_80]|setup",
+  "t": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH[sm_80]|setup",
+  "u": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|setup",
+  "v": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
+  "w": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
+  "x": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
+  "y": "tests/test_nvrtc.py::test_nvrtcGetLoweredName_failure|run",
+  "z": "tests/test_nvrtc.py::test_nvrtcGetSupportedArchs|run",
+  "A": "tests/test_linker.py::test_linker_get_error_log|run",
+  "B": "tests/test_linker.py::test_linker_get_error_log|setup",
+  "C": "tests/test_linker.py::test_linker_get_info_log|setup",
+  "D": "tests/test_linker.py::test_linker_init[options0]|setup",
+  "E": "tests/test_linker.py::test_linker_init[options1]|setup",
+  "F": "tests/test_linker.py::test_linker_init[options2]|setup",
+  "G": "tests/test_linker.py::test_linker_init[options3]|setup",
+  "H": "tests/test_linker.py::test_linker_init[options4]|setup",
+  "I": "tests/test_linker.py::test_linker_init[options5]|setup",
+  "J": "tests/test_linker.py::test_linker_init[options6]|setup",
+  "K": "tests/test_linker.py::test_linker_init[options7]|setup",
+  "L": "tests/test_linker.py::test_linker_init[options8]|setup",
+  "M": "tests/test_linker.py::test_linker_init[options9]|setup",
+  "N": "tests/test_linker.py::test_linker_init[options10]|setup",
+  "O": "tests/test_linker.py::test_linker_init[options11]|setup",
+  "P": "tests/test_linker.py::test_linker_init[options12]|setup",
+  "Q": "tests/test_linker.py::test_linker_init[options13]|setup",
+  "R": "tests/test_linker.py::test_linker_init[options14]|setup",
+  "S": "tests/test_linker.py::test_linker_init[options15]|setup",
+  "T": "tests/test_linker.py::test_linker_init[options16]|setup",
+  "U": "tests/test_linker.py::test_linker_init[options17]|setup",
+  "V": "tests/test_linker.py::test_linker_init[options18]|setup",
+  "W": "tests/test_linker.py::test_linker_init[options19]|setup",
+  "X": "tests/test_linker.py::test_linker_init[options20]|setup",
+  "Y": "tests/test_linker.py::test_linker_init[options21]|setup",
+  "Z": "tests/test_linker.py::test_linker_init[options22]|setup",
+  "0": "tests/test_linker.py::test_linker_init[options23]|setup",
+  "1": "tests/test_linker.py::test_linker_init_invalid_arch|setup",
+  "2": "tests/test_linker.py::test_linker_link_cubin|setup",
+  "3": "tests/test_linker.py::test_linker_link_invalid_target_type|setup",
+  "4": "tests/test_linker.py::test_linker_link_ptx_multiple|setup",
+  "5": "tests/test_linker.py::test_linker_logs_cached_after_link|setup",
+  "6": "tests/test_module.py::test_get_kernel|run",
+  "7": "tests/test_module.py::test_object_code_load_ptx_from_file|run",
+  "8": "tests/test_module.py::test_object_code_load_ptx_from_file|setup",
+  "9": "tests/test_module.py::test_object_code_load_ptx|run",
+  "!": "tests/test_module.py::test_object_code_load_ptx|setup",
+  "#": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-<ObjectCode handle=0x[0-9a-f]+ code_type='ptx'>]|run",
+  "$": "tests/test_object_protocols.py::test_repr_format[sample_program_ptx-<Program backend='(nvJitLink|driver)'>]|run",
+  "%": "tests/test_program.py::test_cpp_program_pch_auto_creates|run",
+  "'": "tests/test_program.py::test_cpp_program_pch_status_none_without_pch|run",
+  "(": "tests/test_program.py::test_cpp_program_with_pch_options|run",
+  ")": "tests/test_program.py::test_cpp_program_with_trace_option|run",
+  "*": "tests/test_program.py::test_cpp_program_with_various_options[options0]|run",
+  "+": "tests/test_program.py::test_cpp_program_with_various_options[options1]|run",
+  ",": "tests/test_program.py::test_cpp_program_with_various_options[options2]|run",
+  "-": "tests/test_program.py::test_cpp_program_with_various_options[options3]|run",
+  ".": "tests/test_program.py::test_cpp_program_with_various_options[options4]|run",
+  "/": "tests/test_program.py::test_cpp_program_with_various_options[options5]|run",
+  ":": "tests/test_program.py::test_cpp_program_with_various_options[options6]|run",
+  ";": "tests/test_program.py::test_cpp_program_with_various_options[options7]|run",
+  "=": "tests/test_program.py::test_cpp_program_with_various_options[options8]|run",
+  "?": "tests/test_program.py::test_cpp_program_with_various_options[options9]|run",
+  "@": "tests/test_program.py::test_cpp_program_with_various_options[options10]|run",
+  "[": "tests/test_program.py::test_cpp_program_with_various_options[options11]|run",
+  "]": "tests/test_program.py::test_cpp_program_with_various_options[options12]|run",
+  "^": "tests/test_program.py::test_cpp_program_with_various_options[options13]|run",
+  "_": "tests/test_program.py::test_cpp_program_with_various_options[options14]|run",
+  "`": "tests/test_program.py::test_cpp_program_with_various_options[options15]|run",
+  "{": "tests/test_program.py::test_cpp_program_with_various_options[options16]|run",
+  "|": "tests/test_program.py::test_cpp_program_with_various_options[options17]|run",
+  "}": "tests/test_program.py::test_cpp_program_with_various_options[options18]|run",
+  "~": "tests/test_program.py::test_cpp_program_with_various_options[options19]|run",
+  "ab": "tests/test_program.py::test_cpp_program_with_various_options[options20]|run",
+  "bb": "tests/test_program.py::test_cpp_program_with_various_options[options21]|run",
+  "cb": "tests/test_program.py::test_cpp_program_with_various_options[options22]|run",
+  "db": "tests/test_program.py::test_cpp_program_with_various_options[options23]|run",
+  "eb": "tests/test_program.py::test_cpp_program_with_various_options[options24]|run",
+  "fb": "tests/test_program.py::test_cpp_program_with_various_options[options25]|run",
+  "gb": "tests/test_program.py::test_cpp_program_with_various_options[options26]|run",
+  "hb": "tests/test_program.py::test_cpp_program_with_various_options[options27]|run",
+  "ib": "tests/test_program.py::test_cpp_program_with_various_options[options28]|run",
+  "jb": "tests/test_program.py::test_cpp_program_with_various_options[options29]|run",
+  "kb": "tests/test_program.py::test_cpp_program_with_various_options[options30]|run",
+  "lb": "tests/test_program.py::test_cpp_program_with_various_options[options32]|run",
+  "mb": "tests/test_program.py::test_cpp_program_with_various_options[options33]|run",
+  "nb": "tests/test_program.py::test_cpp_program_with_various_options[options34]|run",
+  "ob": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
+  "pb": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
+  "qb": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
+  "rb": "tests/test_program.py::test_nvrtc_compile_invalid_code|run",
+  "sb": "tests/test_program.py::test_program_compile_valid_target_type|run",
+  "tb": "tests/test_program.py::test_ptx_program_with_various_options[options8]|setup",
+  "ub": "tests/test_program.py::test_program_handle_property|run",
+  "vb": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "wb": "tests/test_cuda_utils.py::test_check_nvrtc_error_without_handle|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -124,7 +128,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;nvrtc.pyx</b>:
-            <span class="pc_cov">51.23%</span>
+            <span class="pc_cov">52.45%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -167,8 +171,8 @@
         </aside>
         <h2>
             <span class="text">326 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">167<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">159<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">171<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">155<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -177,7 +181,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_nvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-18 01:10 +0000
+            created at 2026-03-19 01:19 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -279,13 +283,13 @@
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        if _ptr == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">25 ctx</label></span><span class="ctxs">2a b c d e f g h j k l m n o p q r s t u v w x rbsb</span></p>
-    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            self._pvt_ptr = &amp;self._pvt_val</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">25 ctx</label></span><span class="ctxs">2a b c d e f g h j k l m n o p q r s t u v w x rbsb</span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">            self._pvt_ptr[0] = &lt;cynvrtc.nvrtcProgram>init_value</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">25 ctx</label></span><span class="ctxs">2a b c d e f g h j k l m n o p q r s t u v w x rbsb</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        if _ptr == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">26 ctx</label></span><span class="ctxs">2j a b c d e f g h k l m n o p q r s t u v w x y ubvb</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            self._pvt_ptr = &amp;self._pvt_val</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">26 ctx</label></span><span class="ctxs">2j a b c d e f g h k l m n o p q r s t u v w x y ubvb</span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">            self._pvt_ptr[0] = &lt;cynvrtc.nvrtcProgram>init_value</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">26 ctx</label></span><span class="ctxs">2j a b c d e f g h k l m n o p q r s t u v w x y ubvb</span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">            self._pvt_ptr = &lt;cynvrtc.nvrtcProgram *>_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    def __init__(self, *args, **kwargs):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">25 ctx</label></span><span class="ctxs">2a b c d e f g h j k l m n o p q r s t u v w x rbsb</span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">26 ctx</label></span><span class="ctxs">2j a b c d e f g h k l m n o p q r s t u v w x y ubvb</span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        return '&lt;nvrtcProgram ' + str(hex(self.__int__())) + '>'</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    def __index__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -297,9 +301,9 @@
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    def __hash__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        return hash(&lt;uintptr_t>&lt;void*>(self._pvt_ptr[0]))</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">    def __int__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        return &lt;void_ptr>self._pvt_ptr[0]</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">23 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        return &lt;void_ptr>self._pvt_ptr[0]</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">24 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwxy</span></p>
     <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs107" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        return &lt;void_ptr>self._pvt_ptr</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        return &lt;void_ptr>self._pvt_ptr</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs110" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">def nvrtcGetErrorString(result not None : nvrtcResult):</span>&nbsp;</span><span class="r"></span></p>
@@ -317,10 +321,10 @@
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    bytes</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        Message string for the given :py:obj:`~.nvrtcResult` code.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcResult cyresult = int(result)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetErrorString(cyresult)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return (nvrtcResult.NVRTC_SUCCESS, err)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcResult cyresult = int(result)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">2 ctx</label></span><span class="ctxs">2j wb</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">2 ctx</label></span><span class="ctxs">2j wb</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetErrorString(cyresult)</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">2 ctx</label></span><span class="ctxs">2j wb</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return (nvrtcResult.NVRTC_SUCCESS, err)</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">2 ctx</label></span><span class="ctxs">2j wb</span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs131" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">def nvrtcVersion():</span>&nbsp;</span><span class="r"></span></p>
@@ -336,13 +340,13 @@
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    minor : int</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        CUDA Runtime Compilation minor version number.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    cdef int major = 0</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">90 ctx</label></span><span class="ctxs">2i a b c d e f g h z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqb</span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    cdef int minor = 0</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">90 ctx</label></span><span class="ctxs">2i a b c d e f g h z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqb</span></p>
-    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">90 ctx</label></span><span class="ctxs">2i a b c d e f g h z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqb</span></p>
-    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">90 ctx</label></span><span class="ctxs">2i a b c d e f g h z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqb</span></p>
-    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">90 ctx</label></span><span class="ctxs">2i a b c d e f g h z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqb</span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    cdef int major = 0</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">92 ctx</label></span><span class="ctxs">2i a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtb</span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    cdef int minor = 0</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">92 ctx</label></span><span class="ctxs">2i a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtb</span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">92 ctx</label></span><span class="ctxs">2i a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtb</span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">92 ctx</label></span><span class="ctxs">2i a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtb</span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">92 ctx</label></span><span class="ctxs">2i a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None, None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">90 ctx</label></span><span class="ctxs">2i a b c d e f g h z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqb</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">92 ctx</label></span><span class="ctxs">2i a b c d e f g h A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtb</span></p>
     <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs153" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">def nvrtcGetNumSupportedArchs():</span>&nbsp;</span><span class="r"></span></p>
@@ -358,12 +362,12 @@
     <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    numArchs : int</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        number of supported architectures.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    cdef int numArchs = 0</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetNumSupportedArchs(&amp;numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    cdef int numArchs = 0</span>&nbsp;</span><input type="checkbox" id="ctxs167"><span class="r"><label for="ctxs167" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetNumSupportedArchs(&amp;numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
     <p class="mis show_mis"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
     <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs174" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">def nvrtcGetSupportedArchs():</span>&nbsp;</span><span class="r"></span></p>
@@ -380,14 +384,14 @@
     <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        sorted array of supported architectures.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">    cdef vector[int] supportedArchs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    _, s = nvrtcGetNumSupportedArchs()</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    supportedArchs.resize(s)</span>&nbsp;</span><input type="checkbox" id="ctxs190"><span class="r"><label for="ctxs190" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    _, s = nvrtcGetNumSupportedArchs()</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    supportedArchs.resize(s)</span>&nbsp;</span><input type="checkbox" id="ctxs190"><span class="r"><label for="ctxs190" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetSupportedArchs(supportedArchs.data())</span>&nbsp;</span><input type="checkbox" id="ctxs193"><span class="r"><label for="ctxs193" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
-    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetSupportedArchs(supportedArchs.data())</span>&nbsp;</span><input type="checkbox" id="ctxs193"><span class="r"><label for="ctxs193" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
     <p class="mis show_mis"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, supportedArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, supportedArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
     <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs198" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):</span>&nbsp;</span><span class="r"></span></p>
@@ -427,22 +431,22 @@
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcDestroyProgram`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    includeNames = [] if includeNames is None else includeNames</span>&nbsp;</span><input type="checkbox" id="ctxs236"><span class="r"><label for="ctxs236" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">    if not all(isinstance(_x, (bytes)) for _x in includeNames):</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    includeNames = [] if includeNames is None else includeNames</span>&nbsp;</span><input type="checkbox" id="ctxs236"><span class="r"><label for="ctxs236" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">    if not all(isinstance(_x, (bytes)) for _x in includeNames):</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">        raise TypeError("Argument 'includeNames' is not instance of type (expected tuple[bytes] or list[bytes]")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    headers = [] if headers is None else headers</span>&nbsp;</span><input type="checkbox" id="ctxs239"><span class="r"><label for="ctxs239" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    if not all(isinstance(_x, (bytes)) for _x in headers):</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    headers = [] if headers is None else headers</span>&nbsp;</span><input type="checkbox" id="ctxs239"><span class="r"><label for="ctxs239" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    if not all(isinstance(_x, (bytes)) for _x in headers):</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">        raise TypeError("Argument 'headers' is not instance of type (expected tuple[bytes] or list[bytes]")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">    cdef nvrtcProgram prog = nvrtcProgram()</span>&nbsp;</span><input type="checkbox" id="ctxs242"><span class="r"><label for="ctxs242" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    if numHeaders > len(headers): raise RuntimeError("List is too small: " + str(len(headers)) + " &lt; " + str(numHeaders))</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " &lt; " + str(numHeaders))</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    cdef vector[const char*] cyheaders = headers</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    cdef vector[const char*] cyincludeNames = includeNames</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcCreateProgram(&lt;cynvrtc.nvrtcProgram*>prog._pvt_ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">    cdef nvrtcProgram prog = nvrtcProgram()</span>&nbsp;</span><input type="checkbox" id="ctxs242"><span class="r"><label for="ctxs242" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    if numHeaders > len(headers): raise RuntimeError("List is too small: " + str(len(headers)) + " &lt; " + str(numHeaders))</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " &lt; " + str(numHeaders))</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    cdef vector[const char*] cyheaders = headers</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    cdef vector[const char*] cyincludeNames = includeNames</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcCreateProgram(&lt;cynvrtc.nvrtcProgram*>prog._pvt_ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, prog)</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, prog)</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs253" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">def nvrtcDestroyProgram(prog):</span>&nbsp;</span><span class="r"></span></p>
@@ -464,18 +468,18 @@
     <p class="pln"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcCreateProgram`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram *cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs273"><span class="r"><label for="ctxs273" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs273"><span class="r"><label for="ctxs273" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        cyprog = &lt;cynvrtc.nvrtcProgram*>&lt;void_ptr>NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs275"><span class="r"><label for="ctxs275" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        pprog = prog.getPtr()</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        cyprog = &lt;cynvrtc.nvrtcProgram*>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs275"><span class="r"><label for="ctxs275" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        pprog = prog.getPtr()</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        cyprog = &lt;cynvrtc.nvrtcProgram*>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">    elif isinstance(prog, (int)):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">        cyprog = &lt;cynvrtc.nvrtcProgram*>&lt;void_ptr>prog</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        raise TypeError("Argument 'prog' is not instance of type (expected &lt;class 'int, nvrtc.nvrtcProgram'>, found " + str(type(prog)))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcDestroyProgram(cyprog)</span>&nbsp;</span><input type="checkbox" id="ctxs283"><span class="r"><label for="ctxs283" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs284"><span class="r"><label for="ctxs284" class="ctx">14 ctx</label></span><span class="ctxs">1jklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcDestroyProgram(cyprog)</span>&nbsp;</span><input type="checkbox" id="ctxs283"><span class="r"><label for="ctxs283" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs284"><span class="r"><label for="ctxs284" class="ctx">15 ctx</label></span><span class="ctxs">1jklmnopqrstuvwx</span></p>
     <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs286" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | list[bytes]]):</span>&nbsp;</span><span class="r"></span></p>
@@ -507,22 +511,22 @@
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">        - :py:obj:`~.NVRTC_ERROR_TIME_FILE_WRITE_FAILED`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">        - :py:obj:`~.NVRTC_ERROR_CANCELLED`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">    options = [] if options is None else options</span>&nbsp;</span><input type="checkbox" id="ctxs316"><span class="r"><label for="ctxs316" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">    if not all(isinstance(_x, (bytes)) for _x in options):</span>&nbsp;</span><input type="checkbox" id="ctxs317"><span class="r"><label for="ctxs317" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">    options = [] if options is None else options</span>&nbsp;</span><input type="checkbox" id="ctxs316"><span class="r"><label for="ctxs316" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">    if not all(isinstance(_x, (bytes)) for _x in options):</span>&nbsp;</span><input type="checkbox" id="ctxs317"><span class="r"><label for="ctxs317" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">        raise TypeError("Argument 'options' is not instance of type (expected tuple[bytes] or list[bytes]")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs320"><span class="r"><label for="ctxs320" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs320"><span class="r"><label for="ctxs320" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs322"><span class="r"><label for="ctxs322" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs323"><span class="r"><label for="ctxs323" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs322"><span class="r"><label for="ctxs322" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs323"><span class="r"><label for="ctxs323" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs326"><span class="r"><label for="ctxs326" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " &lt; " + str(numOptions))</span>&nbsp;</span><input type="checkbox" id="ctxs327"><span class="r"><label for="ctxs327" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    cdef vector[const char*] cyoptions = options</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())</span>&nbsp;</span><input type="checkbox" id="ctxs330"><span class="r"><label for="ctxs330" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
-    <p class="run"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs331"><span class="r"><label for="ctxs331" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghjklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs326"><span class="r"><label for="ctxs326" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " &lt; " + str(numOptions))</span>&nbsp;</span><input type="checkbox" id="ctxs327"><span class="r"><label for="ctxs327" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    cdef vector[const char*] cyoptions = options</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())</span>&nbsp;</span><input type="checkbox" id="ctxs330"><span class="r"><label for="ctxs330" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
+    <p class="run"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs331"><span class="r"><label for="ctxs331" class="ctx">23 ctx</label></span><span class="ctxs">1jabcdefghklmnopqrstuvwx</span></p>
     <p class="pln"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs333" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">def nvrtcGetPTXSize(prog):</span>&nbsp;</span><span class="r"></span></p>
@@ -618,19 +622,19 @@
     <p class="pln"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcGetCUBIN`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs427"><span class="r"><label for="ctxs427" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs427"><span class="r"><label for="ctxs427" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="mis show_mis"><span class="n"><a id="t428" href="#t428">428</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t429" href="#t429">429</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs429"><span class="r"><label for="ctxs429" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t430" href="#t430">430</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs430"><span class="r"><label for="ctxs430" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t429" href="#t429">429</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs429"><span class="r"><label for="ctxs429" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t430" href="#t430">430</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs430"><span class="r"><label for="ctxs430" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="pln"><span class="n"><a id="t431" href="#t431">431</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t432" href="#t432">432</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t433" href="#t433">433</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs433"><span class="r"><label for="ctxs433" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t434" href="#t434">434</a></span><span class="t"><span class="txt">    cdef size_t cubinSizeRet = 0</span>&nbsp;</span><input type="checkbox" id="ctxs434"><span class="r"><label for="ctxs434" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t435" href="#t435">435</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs435"><span class="r"><label for="ctxs435" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t436" href="#t436">436</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetCUBINSize(cyprog, &amp;cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs436"><span class="r"><label for="ctxs436" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t437" href="#t437">437</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs437"><span class="r"><label for="ctxs437" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t433" href="#t433">433</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs433"><span class="r"><label for="ctxs433" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t434" href="#t434">434</a></span><span class="t"><span class="txt">    cdef size_t cubinSizeRet = 0</span>&nbsp;</span><input type="checkbox" id="ctxs434"><span class="r"><label for="ctxs434" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t435" href="#t435">435</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs435"><span class="r"><label for="ctxs435" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t436" href="#t436">436</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetCUBINSize(cyprog, &amp;cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs436"><span class="r"><label for="ctxs436" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t437" href="#t437">437</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs437"><span class="r"><label for="ctxs437" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="mis show_mis"><span class="n"><a id="t438" href="#t438">438</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t439" href="#t439">439</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs439"><span class="r"><label for="ctxs439" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t439" href="#t439">439</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs439"><span class="r"><label for="ctxs439" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="pln"><span class="n"><a id="t440" href="#t440">440</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t441" href="#t441">441</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs441" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t442" href="#t442">442</a></span><span class="t"><span class="txt">def nvrtcGetCUBIN(prog, char* cubin):</span>&nbsp;</span><span class="r"></span></p>
@@ -655,16 +659,16 @@
     <p class="pln"><span class="n"><a id="t461" href="#t461">461</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcGetCUBINSize`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t462" href="#t462">462</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t463" href="#t463">463</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t464" href="#t464">464</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs464"><span class="r"><label for="ctxs464" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t464" href="#t464">464</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs464"><span class="r"><label for="ctxs464" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="mis show_mis"><span class="n"><a id="t465" href="#t465">465</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t466" href="#t466">466</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs466"><span class="r"><label for="ctxs466" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t467" href="#t467">467</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs467"><span class="r"><label for="ctxs467" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t466" href="#t466">466</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs466"><span class="r"><label for="ctxs466" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t467" href="#t467">467</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs467"><span class="r"><label for="ctxs467" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="pln"><span class="n"><a id="t468" href="#t468">468</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t469" href="#t469">469</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t470" href="#t470">470</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs470"><span class="r"><label for="ctxs470" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs471"><span class="r"><label for="ctxs471" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t472" href="#t472">472</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)</span>&nbsp;</span><input type="checkbox" id="ctxs472"><span class="r"><label for="ctxs472" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs473"><span class="r"><label for="ctxs473" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghnopqrs</span></p>
+    <p class="run"><span class="n"><a id="t470" href="#t470">470</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs470"><span class="r"><label for="ctxs470" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs471"><span class="r"><label for="ctxs471" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t472" href="#t472">472</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)</span>&nbsp;</span><input type="checkbox" id="ctxs472"><span class="r"><label for="ctxs472" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
+    <p class="run"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs473"><span class="r"><label for="ctxs473" class="ctx">14 ctx</label></span><span class="ctxs">1abcdefghopqrst</span></p>
     <p class="pln"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t475" href="#t475">475</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs475" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t"><span class="txt">def nvrtcGetLTOIRSize(prog):</span>&nbsp;</span><span class="r"></span></p>
@@ -689,19 +693,19 @@
     <p class="pln"><span class="n"><a id="t495" href="#t495">495</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcGetLTOIR`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t496" href="#t496">496</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t497" href="#t497">497</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs498"><span class="r"><label for="ctxs498" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs498"><span class="r"><label for="ctxs498" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs500"><span class="r"><label for="ctxs500" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs501"><span class="r"><label for="ctxs501" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs500"><span class="r"><label for="ctxs500" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs501"><span class="r"><label for="ctxs501" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="pln"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t503" href="#t503">503</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t504" href="#t504">504</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs504"><span class="r"><label for="ctxs504" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t505" href="#t505">505</a></span><span class="t"><span class="txt">    cdef size_t LTOIRSizeRet = 0</span>&nbsp;</span><input type="checkbox" id="ctxs505"><span class="r"><label for="ctxs505" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t506" href="#t506">506</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs506"><span class="r"><label for="ctxs506" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t507" href="#t507">507</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetLTOIRSize(cyprog, &amp;LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs507"><span class="r"><label for="ctxs507" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t508" href="#t508">508</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs508"><span class="r"><label for="ctxs508" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t504" href="#t504">504</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs504"><span class="r"><label for="ctxs504" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t505" href="#t505">505</a></span><span class="t"><span class="txt">    cdef size_t LTOIRSizeRet = 0</span>&nbsp;</span><input type="checkbox" id="ctxs505"><span class="r"><label for="ctxs505" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t506" href="#t506">506</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs506"><span class="r"><label for="ctxs506" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t507" href="#t507">507</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetLTOIRSize(cyprog, &amp;LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs507"><span class="r"><label for="ctxs507" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t508" href="#t508">508</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs508"><span class="r"><label for="ctxs508" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t509" href="#t509">509</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t510" href="#t510">510</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs510"><span class="r"><label for="ctxs510" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t510" href="#t510">510</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs510"><span class="r"><label for="ctxs510" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="pln"><span class="n"><a id="t511" href="#t511">511</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t512" href="#t512">512</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs512" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t513" href="#t513">513</a></span><span class="t"><span class="txt">def nvrtcGetLTOIR(prog, char* LTOIR):</span>&nbsp;</span><span class="r"></span></p>
@@ -726,16 +730,16 @@
     <p class="pln"><span class="n"><a id="t532" href="#t532">532</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcGetLTOIRSize`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t533" href="#t533">533</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t534" href="#t534">534</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs535"><span class="r"><label for="ctxs535" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs535"><span class="r"><label for="ctxs535" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="mis show_mis"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs537"><span class="r"><label for="ctxs537" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs538"><span class="r"><label for="ctxs538" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs537"><span class="r"><label for="ctxs537" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs538"><span class="r"><label for="ctxs538" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="pln"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs541"><span class="r"><label for="ctxs541" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs542"><span class="r"><label for="ctxs542" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetLTOIR(cyprog, LTOIR)</span>&nbsp;</span><input type="checkbox" id="ctxs543"><span class="r"><label for="ctxs543" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
-    <p class="run"><span class="n"><a id="t544" href="#t544">544</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs544"><span class="r"><label for="ctxs544" class="ctx">8 ctx</label></span><span class="ctxs">1jklmtuvw</span></p>
+    <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs541"><span class="r"><label for="ctxs541" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs542"><span class="r"><label for="ctxs542" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetLTOIR(cyprog, LTOIR)</span>&nbsp;</span><input type="checkbox" id="ctxs543"><span class="r"><label for="ctxs543" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
+    <p class="run"><span class="n"><a id="t544" href="#t544">544</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs544"><span class="r"><label for="ctxs544" class="ctx">8 ctx</label></span><span class="ctxs">1klmnuvwx</span></p>
     <p class="pln"><span class="n"><a id="t545" href="#t545">545</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t546" href="#t546">546</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs546" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t547" href="#t547">547</a></span><span class="t"><span class="txt">def nvrtcGetOptiXIRSize(prog):</span>&nbsp;</span><span class="r"></span></p>
@@ -834,19 +838,19 @@
     <p class="pln"><span class="n"><a id="t640" href="#t640">640</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcGetProgramLog`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t641" href="#t641">641</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t642" href="#t642">642</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t643" href="#t643">643</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs643"><span class="r"><label for="ctxs643" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t643" href="#t643">643</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs643"><span class="r"><label for="ctxs643" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="mis show_mis"><span class="n"><a id="t644" href="#t644">644</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t645" href="#t645">645</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs645"><span class="r"><label for="ctxs645" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t646" href="#t646">646</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs646"><span class="r"><label for="ctxs646" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t645" href="#t645">645</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs645"><span class="r"><label for="ctxs645" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t646" href="#t646">646</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs646"><span class="r"><label for="ctxs646" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="pln"><span class="n"><a id="t647" href="#t647">647</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t648" href="#t648">648</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t649" href="#t649">649</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs649"><span class="r"><label for="ctxs649" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t650" href="#t650">650</a></span><span class="t"><span class="txt">    cdef size_t logSizeRet = 0</span>&nbsp;</span><input type="checkbox" id="ctxs650"><span class="r"><label for="ctxs650" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t651" href="#t651">651</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs651"><span class="r"><label for="ctxs651" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t652" href="#t652">652</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetProgramLogSize(cyprog, &amp;logSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs652"><span class="r"><label for="ctxs652" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t653" href="#t653">653</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs653"><span class="r"><label for="ctxs653" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t649" href="#t649">649</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs649"><span class="r"><label for="ctxs649" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t650" href="#t650">650</a></span><span class="t"><span class="txt">    cdef size_t logSizeRet = 0</span>&nbsp;</span><input type="checkbox" id="ctxs650"><span class="r"><label for="ctxs650" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t651" href="#t651">651</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs651"><span class="r"><label for="ctxs651" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t652" href="#t652">652</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetProgramLogSize(cyprog, &amp;logSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs652"><span class="r"><label for="ctxs652" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t653" href="#t653">653</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs653"><span class="r"><label for="ctxs653" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="mis show_mis"><span class="n"><a id="t654" href="#t654">654</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t655" href="#t655">655</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, logSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs655"><span class="r"><label for="ctxs655" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t655" href="#t655">655</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, logSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs655"><span class="r"><label for="ctxs655" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="pln"><span class="n"><a id="t656" href="#t656">656</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t657" href="#t657">657</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs657" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t658" href="#t658">658</a></span><span class="t"><span class="txt">def nvrtcGetProgramLog(prog, char* log):</span>&nbsp;</span><span class="r"></span></p>
@@ -871,16 +875,16 @@
     <p class="pln"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t"><span class="txt">    :py:obj:`~.nvrtcGetProgramLogSize`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t678" href="#t678">678</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t679" href="#t679">679</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs680"><span class="r"><label for="ctxs680" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs680"><span class="r"><label for="ctxs680" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="mis show_mis"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs682"><span class="r"><label for="ctxs682" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs683"><span class="r"><label for="ctxs683" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs682"><span class="r"><label for="ctxs682" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs683"><span class="r"><label for="ctxs683" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="pln"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t685" href="#t685">685</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs686"><span class="r"><label for="ctxs686" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs687"><span class="r"><label for="ctxs687" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t688" href="#t688">688</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetProgramLog(cyprog, log)</span>&nbsp;</span><input type="checkbox" id="ctxs688"><span class="r"><label for="ctxs688" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
-    <p class="run"><span class="n"><a id="t689" href="#t689">689</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs689"><span class="r"><label for="ctxs689" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs686"><span class="r"><label for="ctxs686" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs687"><span class="r"><label for="ctxs687" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t688" href="#t688">688</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetProgramLog(cyprog, log)</span>&nbsp;</span><input type="checkbox" id="ctxs688"><span class="r"><label for="ctxs688" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
+    <p class="run"><span class="n"><a id="t689" href="#t689">689</a></span><span class="t"><span class="txt">    return (_nvrtcResult(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs689"><span class="r"><label for="ctxs689" class="ctx">9 ctx</label></span><span class="ctxs">1jabcdefgh</span></p>
     <p class="pln"><span class="n"><a id="t690" href="#t690">690</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t691" href="#t691">691</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs691" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t692" href="#t692">692</a></span><span class="t"><span class="txt">def nvrtcAddNameExpression(prog, char* name_expression):</span>&nbsp;</span><span class="r"></span></p>
@@ -949,18 +953,18 @@
     <p class="pln"><span class="n"><a id="t755" href="#t755">755</a></span><span class="t"><span class="txt">    nvrtcAddNameExpression</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t756" href="#t756">756</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t757" href="#t757">757</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcProgram cyprog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t758" href="#t758">758</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs758"><span class="r"><label for="ctxs758" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t759" href="#t759">759</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><input type="checkbox" id="ctxs759"><span class="r"><label for="ctxs759" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t760" href="#t760">760</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs760"><span class="r"><label for="ctxs760" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t758" href="#t758">758</a></span><span class="t"><span class="txt">    if prog is None:</span>&nbsp;</span><input type="checkbox" id="ctxs758"><span class="r"><label for="ctxs758" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t759" href="#t759">759</a></span><span class="t"><span class="txt">        pprog = 0</span>&nbsp;</span><input type="checkbox" id="ctxs759"><span class="r"><label for="ctxs759" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t760" href="#t760">760</a></span><span class="t"><span class="txt">    elif isinstance(prog, (nvrtcProgram,)):</span>&nbsp;</span><input type="checkbox" id="ctxs760"><span class="r"><label for="ctxs760" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
     <p class="mis show_mis"><span class="n"><a id="t761" href="#t761">761</a></span><span class="t"><span class="txt">        pprog = int(prog)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t762" href="#t762">762</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t763" href="#t763">763</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><input type="checkbox" id="ctxs763"><span class="r"><label for="ctxs763" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t764" href="#t764">764</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs764"><span class="r"><label for="ctxs764" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t765" href="#t765">765</a></span><span class="t"><span class="txt">    cdef const char* lowered_name = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs765"><span class="r"><label for="ctxs765" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t766" href="#t766">766</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs766"><span class="r"><label for="ctxs766" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t767" href="#t767">767</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &amp;lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs767"><span class="r"><label for="ctxs767" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t768" href="#t768">768</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs768"><span class="r"><label for="ctxs768" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t769" href="#t769">769</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><input type="checkbox" id="ctxs769"><span class="r"><label for="ctxs769" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t763" href="#t763">763</a></span><span class="t"><span class="txt">        pprog = int(nvrtcProgram(prog))</span>&nbsp;</span><input type="checkbox" id="ctxs763"><span class="r"><label for="ctxs763" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t764" href="#t764">764</a></span><span class="t"><span class="txt">    cyprog = &lt;cynvrtc.nvrtcProgram>&lt;void_ptr>pprog</span>&nbsp;</span><input type="checkbox" id="ctxs764"><span class="r"><label for="ctxs764" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t765" href="#t765">765</a></span><span class="t"><span class="txt">    cdef const char* lowered_name = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs765"><span class="r"><label for="ctxs765" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t766" href="#t766">766</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs766"><span class="r"><label for="ctxs766" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t767" href="#t767">767</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &amp;lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs767"><span class="r"><label for="ctxs767" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t768" href="#t768">768</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs768"><span class="r"><label for="ctxs768" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
+    <p class="run"><span class="n"><a id="t769" href="#t769">769</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None)</span>&nbsp;</span><input type="checkbox" id="ctxs769"><span class="r"><label for="ctxs769" class="ctx">1 ctx</label></span><span class="ctxs">1y</span></p>
     <p class="mis show_mis"><span class="n"><a id="t770" href="#t770">770</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, &lt;bytes>lowered_name if lowered_name != NULL else None)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t771" href="#t771">771</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t772" href="#t772">772</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs772" class="ctx">(empty)</label></span></p>
@@ -1228,7 +1232,7 @@
             <a class="nav" href="z_bb8e88d71740c463_nvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-18 01:10 +0000
+            created at 2026-03-19 01:19 +0000
         </p>
     </div>
 </footer>

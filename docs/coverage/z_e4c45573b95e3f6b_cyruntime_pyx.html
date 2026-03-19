@@ -35,7 +35,7 @@
   "z": "tests/test_cudart.py::test_cudart_memcpy|run",
   "A": "tests/test_interoperability.py::test_interop_graphExec|run",
   "B": "tests/test_interoperability.py::test_interop_graphNode|run",
-  "C": "tests/system/test_system_system.py::test_devices|run",
+  "C": "tests/system/test_system_system.py::test_num_devices|run",
   "D": "tests/test_cudart.py::test_cudart_hostRegister|run",
   "E": "tests/test_cudart.py::test_profiler|run",
   "F": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[<cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone: 0>]|run",
@@ -57,7 +57,7 @@
   "V": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
   "W": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
   "X": "tests/system/test_system_device.py::test_to_cuda_device|run",
-  "Y": "tests/system/test_system_system.py::test_num_devices|run",
+  "Y": "tests/system/test_system_system.py::test_devices|run",
   "Z": "tests/test_cuda_utils.py::test_check_runtime_error|run",
   "0": "tests/test_cudart.py::test_cudart_both_type|run",
   "1": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
@@ -200,7 +200,7 @@
             <a id="nextFileLink" class="nav" href="z_e4c45573b95e3f6b_cyruntime_ptds_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-18 01:10 +0000
+            created at 2026-03-19 01:19 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -239,7 +239,7 @@
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt"># Create a very small function to check whether we are init'ed, so the C</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt"># compiler can inline it.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef inline int cudaPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    if __cudaPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">131 ctx</label></span><span class="ctxs">2a R S T U V W X C Y Z q 0 x y r s 1 k f d i g l e b c j h m n o t u v D 2 w z E 3 4 5 6 7 8 F G H 9 ! I J A B K L M N O P Q p # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPb</span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    if __cudaPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">131 ctx</label></span><span class="ctxs">2a R S T U V W X Y C Z q 0 x y r s 1 k f d i g l e b c j h m n o t u v D 2 w z E 3 4 5 6 7 8 F G H 9 ! I J A B K L M N O P Q p # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPb</span></p>
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">        return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">130 ctx</label></span><span class="ctxs">2a R S T U V W X Y Z q 0 x y r s 1 k f d i g l e b c j h m n o t u v D 2 w z E 3 4 5 6 7 8 F G H 9 ! I J A B K L M N O P Q p # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPb</span></p>
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    return _cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">2 ctx</label></span><span class="ctxs">1aC</span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -388,10 +388,10 @@
     <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    return cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs171"><span class="r"><label for="ctxs171" class="ctx">1 ctx</label></span><span class="ctxs">1H</span></p>
     <p class="pln"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaGetDeviceCount(int* count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs173" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">2 ctx</label></span><span class="ctxs">1CY</span></p>
-    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs175"><span class="r"><label for="ctxs175" class="ctx">2 ctx</label></span><span class="ctxs">1CY</span></p>
+    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">2 ctx</label></span><span class="ctxs">1YC</span></p>
+    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs175"><span class="r"><label for="ctxs175" class="ctx">2 ctx</label></span><span class="ctxs">1YC</span></p>
     <p class="mis show_mis"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">        return ptds._cudaGetDeviceCount(count)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    return cudaGetDeviceCount(count)</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">2 ctx</label></span><span class="ctxs">1CY</span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    return cudaGetDeviceCount(count)</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">2 ctx</label></span><span class="ctxs">1YC</span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaGetDeviceProperties(cudaDeviceProp* prop, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs179" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">2 ctx</label></span><span class="ctxs">112</span></p>
@@ -2174,7 +2174,7 @@
             <a class="nav" href="z_e4c45573b95e3f6b_cyruntime_ptds_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-18 01:10 +0000
+            created at 2026-03-19 01:19 +0000
         </p>
     </div>
 </footer>
