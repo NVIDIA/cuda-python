@@ -163,12 +163,11 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     """
     # Reverse tabulated names to achieve new -> old search order.
     for dll_name in reversed(desc.windows_dlls):
-        # First, find the DLL's full path using SearchPathW
+        # SearchPathW bypasses Python 3.8+'s SetDefaultDllDirectories restriction.
         found_path = _search_path_for_dll(dll_name)
         if found_path:
-            # Load with LOAD_WITH_ALTERED_SEARCH_PATH so Windows searches for
-            # dependencies from the DLL's directory (required for CUDA DLLs
-            # whose dependencies are co-located)
+            # LOAD_WITH_ALTERED_SEARCH_PATH additionally ensures dependencies
+            # are resolved from the DLL's directory.
             handle = kernel32.LoadLibraryExW(found_path, None, WINBASE_LOAD_WITH_ALTERED_SEARCH_PATH)
             if handle:
                 return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
