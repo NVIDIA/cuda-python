@@ -3,9 +3,12 @@
 
 import os
 import platform
+import subprocess
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
+    LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_CWD,
+    LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE,
     build_child_process_failed_for_libname_message,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
@@ -14,7 +17,11 @@ from local_helpers import have_distribution
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
-from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
+from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
+    STATUS_NOT_FOUND,
+    build_dynamic_lib_subprocess_command,
+    parse_dynamic_lib_subprocess_payload,
+)
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
@@ -134,3 +141,54 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)  # double-check the abs_path
+
+
+def test_load_nvrtc_without_cuda_home_or_cuda_path(info_summary_append):
+    """Regression test for issue #1781: nvrtc must load without CUDA_HOME/CUDA_PATH.
+
+    On Windows, when CUDA DLLs are discovered via PATH (system search), the
+    previous LoadLibraryExW(flags=0) call would find the DLL but fail to
+    resolve co-located dependencies like nvrtc-builtins (error 126).
+
+    The fix uses SearchPathW to resolve the full path, then loads with
+    LOAD_WITH_ALTERED_SEARCH_PATH so dependency search starts from the
+    DLL's directory.
+
+    This test strips CUDA_HOME and CUDA_PATH, then loads nvrtc in a fresh
+    subprocess. In CI environments where nvrtc is only available via system
+    search, this exercises the exact code path that was broken.
+    """
+    env = os.environ.copy()
+    env.pop("CUDA_HOME", None)
+    env.pop("CUDA_PATH", None)
+
+    timeout = 120 if IS_WINDOWS else 30
+    command = build_dynamic_lib_subprocess_command(LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE, "nvrtc")
+    result = subprocess.run(  # noqa: S603
+        command,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+        env=env,
+        cwd=LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_CWD,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(build_child_process_failed_for_libname_message("nvrtc", result))
+    assert not result.stderr
+
+    payload = parse_dynamic_lib_subprocess_payload(
+        result.stdout,
+        libname="nvrtc",
+        error_label="Load subprocess child process (no CUDA_HOME/CUDA_PATH)",
+    )
+
+    if payload.status == STATUS_NOT_FOUND:
+        info_summary_append("nvrtc not found without CUDA_HOME/CUDA_PATH")
+        pytest.skip("nvrtc not available without CUDA_HOME/CUDA_PATH")
+
+    abs_path = payload.abs_path
+    assert abs_path is not None
+    info_summary_append(f"nvrtc (no CUDA_HOME/CUDA_PATH): abs_path={quote_for_shell(abs_path)}")
+    assert os.path.isfile(abs_path)
