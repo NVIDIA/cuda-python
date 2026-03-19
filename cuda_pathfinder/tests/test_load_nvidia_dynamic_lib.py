@@ -147,9 +147,10 @@ def test_load_nvrtc_without_cuda_home_or_cuda_path(info_summary_append):
     """Regression test for issue #1781: nvrtc must load without CUDA_HOME/CUDA_PATH.
 
     On Windows, Python 3.8+ calls SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)
-    at startup, which excludes PATH from the LoadLibraryExW search order. The fix uses
-    SearchPathW (unaffected by SetDefaultDllDirectories) to locate the DLL via PATH, then
-    loads it by absolute path with LOAD_WITH_ALTERED_SEARCH_PATH.
+    at startup, which excludes PATH from the LoadLibraryExW search order. The fix keeps
+    the native process DLL search first, then explicitly scans PATH for CTK DLLs and
+    loads any match by absolute path using LOAD_LIBRARY_SEARCH_DEFAULT_DIRS together with
+    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR.
 
     This test loads nvrtc twice in fresh subprocesses: once with the normal environment,
     once with CUDA_HOME and CUDA_PATH stripped. If the normal load finds nvrtc in a

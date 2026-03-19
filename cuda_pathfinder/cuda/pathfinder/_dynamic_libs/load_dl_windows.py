@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -15,7 +16,6 @@ if TYPE_CHECKING:
     from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
-WINBASE_LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 
@@ -47,17 +47,6 @@ kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
 # AddDllDirectory (Windows 7+)
 kernel32.AddDllDirectory.argtypes = [ctypes.wintypes.LPCWSTR]
 kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
-
-# SearchPathW - find a file in the system search path
-kernel32.SearchPathW.argtypes = [
-    ctypes.wintypes.LPCWSTR,  # lpPath (NULL to use standard search)
-    ctypes.wintypes.LPCWSTR,  # lpFileName
-    ctypes.wintypes.LPCWSTR,  # lpExtension
-    ctypes.wintypes.DWORD,  # nBufferLength
-    ctypes.wintypes.LPWSTR,  # lpBuffer
-    ctypes.POINTER(ctypes.wintypes.LPWSTR),  # lpFilePart
-]
-kernel32.SearchPathW.restype = ctypes.wintypes.DWORD
 
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
@@ -127,29 +116,55 @@ def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: b
     return None
 
 
-def _search_path_for_dll(dll_name: str) -> str | None:
-    """Search for a DLL using Windows SearchPathW.
+def _iter_env_path_directories(path_value: str | None) -> Iterator[str]:
+    """Yield normalized directories from PATH without consulting the current directory."""
+    seen: set[str] = set()
+    if not path_value:
+        return
 
-    Args:
-        dll_name: The name of the DLL to find
+    for raw_entry in path_value.split(os.pathsep):
+        entry = os.path.expandvars(raw_entry.strip().strip('"'))
+        if not entry:
+            continue
+        if not os.path.isabs(entry):
+            # Relative PATH entries would implicitly consult the current
+            # directory, which we explicitly avoid for DLL lookup.
+            continue
+        if not os.path.isdir(entry):
+            continue
 
-    Returns:
-        The absolute path to the DLL if found, None otherwise
-    """
-    buffer = ctypes.create_unicode_buffer(260)  # MAX_PATH
-    length = kernel32.SearchPathW(None, dll_name, None, len(buffer), buffer, None)
+        normalized_entry = os.path.normcase(os.path.normpath(entry))
+        if normalized_entry in seen:
+            continue
+        seen.add(normalized_entry)
+        yield entry
 
-    if length == 0:
+
+def _find_dll_on_env_path(dll_name: str) -> str | None:
+    """Locate a DLL by scanning PATH entries explicitly."""
+    for dirpath in _iter_env_path_directories(os.environ.get("PATH")):
+        candidate = os.path.join(dirpath, dll_name)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def _try_load_with_process_dll_search(desc: LibDescriptor, dll_name: str) -> LoadedDL | None:
+    """Try the process DLL search path configured by CPython/Windows."""
+    handle = kernel32.LoadLibraryExW(dll_name, None, 0)
+    if not handle:
         return None
 
-    # If buffer was too small, try with larger buffer
-    if length > len(buffer):
-        buffer = ctypes.create_unicode_buffer(length)
-        length = kernel32.SearchPathW(None, dll_name, None, len(buffer), buffer, None)
-        if length == 0:
-            return None
+    abs_path = abs_path_for_dynamic_library(desc.name, handle)
+    return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
 
-    return buffer.value
+
+def _try_load_with_env_path_fallback(desc: LibDescriptor, dll_name: str) -> LoadedDL | None:
+    """Fallback for CTK-style installs exposed only via PATH."""
+    found_path = _find_dll_on_env_path(dll_name)
+    if found_path is None:
+        return None
+    return load_with_abs_path(desc, found_path, "system-search")
 
 
 def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
@@ -161,16 +176,25 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    # Reverse tabulated names to achieve new -> old search order.
-    for dll_name in reversed(desc.windows_dlls):
-        # SearchPathW bypasses Python 3.8+'s SetDefaultDllDirectories restriction.
-        found_path = _search_path_for_dll(dll_name)
-        if found_path:
-            # LOAD_WITH_ALTERED_SEARCH_PATH additionally ensures dependencies
-            # are resolved from the DLL's directory.
-            handle = kernel32.LoadLibraryExW(found_path, None, WINBASE_LOAD_WITH_ALTERED_SEARCH_PATH)
-            if handle:
-                return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
+    dll_names = tuple(reversed(desc.windows_dlls))
+
+    # Phase 1: preserve the native process DLL search path (application dir,
+    # system32, AddDllDirectory user dirs, loaded-module list).
+    for dll_name in dll_names:
+        loaded = _try_load_with_process_dll_search(desc, dll_name)
+        if loaded is not None:
+            return loaded
+
+    if desc.packaged_with == "driver":
+        return None
+
+    # Phase 2: explicit PATH fallback for CTK-style installs only. Avoid
+    # SearchPathW because its search semantics differ from LoadLibraryExW and
+    # can consult the current directory.
+    for dll_name in dll_names:
+        loaded = _try_load_with_env_path_fallback(desc, dll_name)
+        if loaded is not None:
+            return loaded
 
     return None
 
