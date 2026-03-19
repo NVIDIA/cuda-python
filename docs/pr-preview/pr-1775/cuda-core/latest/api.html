@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=f3529e27"></script>
+    <script src="_static/documentation_options.js?v=1076f975"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev89';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev90';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -746,13 +746,13 @@ on other non-blocking streams.</p>
 <span id="module-cuda.core.managed_memory"></span><h2>Managed memory<a class="headerlink" href="#managed-memory" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.advise.html#cuda.core.managed_memory.advise" title="cuda.core.managed_memory.advise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advise</span></code></a>(target, advice, location, *, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.advise.html#cuda.core.managed_memory.advise" title="cuda.core.managed_memory.advise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advise</span></code></a>(Buffer target, advice, location, *, ...)</p></td>
 <td><p>Apply managed-memory advice to an allocation range.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.prefetch.html#cuda.core.managed_memory.prefetch" title="cuda.core.managed_memory.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(target, location, *, stream, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.prefetch.html#cuda.core.managed_memory.prefetch" title="cuda.core.managed_memory.prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prefetch</span></code></a>(Buffer target, location, *, stream, ...)</p></td>
 <td><p>Prefetch a managed-memory allocation range to a target location.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.discard_prefetch.html#cuda.core.managed_memory.discard_prefetch" title="cuda.core.managed_memory.discard_prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_prefetch</span></code></a>(target, location, *, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.managed_memory.discard_prefetch.html#cuda.core.managed_memory.discard_prefetch" title="cuda.core.managed_memory.discard_prefetch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discard_prefetch</span></code></a>(Buffer target, location, *, ...)</p></td>
 <td><p>Discard a managed-memory allocation range and prefetch it to a target location.</p></td>
 </tr>
 </tbody>

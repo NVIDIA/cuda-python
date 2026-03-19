@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f3529e27"></script>
+    <script src="../_static/documentation_options.js?v=1076f975"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev89';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev90';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -652,11 +652,10 @@
 <span class="sig-prename descclassname"><span class="pre">cuda.core.managed_memory.</span></span><span class="sig-name descname"><span class="pre">discard_prefetch</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Buffer</span> <span class="pre">target:</span> <span class="pre">Buffer</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">location:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">size=_MANAGED_SIZE_NOT_PROVIDED</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">location_type:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
@@ -665,13 +664,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> | int | object) – Managed allocation to operate on. This may be a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> or a
-raw pointer (requires <code class="docutils literal notranslate"><span class="pre">size=</span></code>).</p></li>
+<li><p><strong>target</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>) – Managed allocation to operate on.</p></li>
 <li><p><strong>location</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> | int | None, optional) – Target location. When <code class="docutils literal notranslate"><span class="pre">location_type</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, values are
 interpreted as a device ordinal, <code class="docutils literal notranslate"><span class="pre">-1</span></code> for host, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.
 A location is required for discard_prefetch.</p></li>
 <li><p><strong>stream</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Keyword argument specifying the stream for the asynchronous operation.</p></li>
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Allocation size in bytes. Required when <code class="docutils literal notranslate"><span class="pre">target</span></code> is a raw pointer.</p></li>
 <li><p><strong>location_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – Explicit location kind. Supported values are <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;host_numa_current&quot;</span></code>.</p></li>
 </ul>
