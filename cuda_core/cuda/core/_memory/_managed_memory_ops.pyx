@@ -4,10 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
-
-from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, _MemAttrs, _init_mem_attrs, _query_memory_attrs
+from cuda.core._memory._buffer cimport Buffer, _init_mem_attrs
 from cuda.core._stream cimport Stream, Stream_accept
 
 from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return
@@ -56,7 +53,6 @@ cdef dict _MANAGED_ADVICE_ALLOWED_LOCTYPES = {
     "unset_accessed_by": _DEVICE_HOST_ONLY,
 }
 
-cdef int _MANAGED_SIZE_NOT_PROVIDED = -1
 cdef int _HOST_NUMA_CURRENT_ID = 0
 cdef int _FIRST_PREFETCH_LOCATION_INDEX = 0
 cdef size_t _SINGLE_RANGE_COUNT = 1
@@ -241,71 +237,19 @@ cdef void _require_managed_discard_prefetch_support(str what):
         )
 
 
-cdef tuple _managed_range_from_buffer(
-    Buffer buffer,
-    int size,
-    str what,
-):
-    if size != _MANAGED_SIZE_NOT_PROVIDED:
-        raise TypeError(f"{what} does not accept size= when target is a Buffer")
-    _require_managed_buffer(buffer, what)
-    return buffer.handle, buffer._size
-
-
-cdef uintptr_t _coerce_raw_pointer(object target, str what) except? 0:
-    cdef object ptr_obj
-    try:
-        ptr_obj = int(target)
-    except Exception as exc:
-        raise TypeError(
-            f"{what} target must be a Buffer or a raw pointer, got {type(target).__name__}"
-        ) from exc
-    if ptr_obj < 0:
-        raise ValueError(f"{what} target pointer must be >= 0, got {target!r}")
-    return <uintptr_t>ptr_obj
-
-
-cdef int _require_managed_pointer(uintptr_t ptr, str what) except -1:
-    cdef _MemAttrs mem_attrs
-    with nogil:
-        _query_memory_attrs(mem_attrs, <cydriver.CUdeviceptr>ptr)
-    if not mem_attrs.is_managed:
-        raise ValueError(f"{what} requires a managed-memory allocation")
-    return 0
-
-
-cdef tuple _normalize_managed_target_range(
-    object target,
-    int size,
-    str what,
-):
-    cdef uintptr_t ptr
-
-    if isinstance(target, Buffer):
-        return _managed_range_from_buffer(<Buffer>target, size, what)
-
-    if size == _MANAGED_SIZE_NOT_PROVIDED:
-        raise TypeError(f"{what} requires size= when target is a raw pointer")
-    ptr = _coerce_raw_pointer(target, what)
-    _require_managed_pointer(ptr, what)
-    return ptr, <size_t>size
-
-
 def advise(
-    target,
+    target: Buffer,
     advice: driver.CUmem_advise | str,
     location: Device | int | None = None,
     *,
-    int size=_MANAGED_SIZE_NOT_PROVIDED,
     location_type: str | None = None,
 ):
     """Apply managed-memory advice to an allocation range.
 
     Parameters
     ----------
-    target : :class:`Buffer` | int | object
-        Managed allocation to operate on. This may be a :class:`Buffer` or a
-        raw pointer (requires ``size=``).
+    target : :class:`Buffer`
+        Managed allocation to operate on.
     advice : :obj:`~driver.CUmem_advise` | str
         Managed-memory advice to apply. String aliases such as
         ``"set_read_mostly"``, ``"set_preferred_location"``, and
@@ -314,17 +258,18 @@ def advise(
         Target location. When ``location_type`` is ``None``, values are
         interpreted as a device ordinal, ``-1`` for host, or ``None`` for
         advice values that ignore location.
-    size : int, optional
-        Allocation size in bytes. Required when ``target`` is a raw pointer.
     location_type : str | None, optional
         Explicit location kind. Supported values are ``"device"``, ``"host"``,
         ``"host_numa"``, and ``"host_numa_current"``.
     """
+    if not isinstance(target, Buffer):
+        raise TypeError(f"advise target must be a Buffer, got {type(target).__name__}")
+    cdef Buffer buf = <Buffer>target
+    _require_managed_buffer(buf, "advise")
     cdef str advice_name
-    cdef object ptr
-    cdef size_t nbytes
+    cdef object ptr = buf.handle
+    cdef size_t nbytes = buf._size
 
-    ptr, nbytes = _normalize_managed_target_range(target, size, "advise")
     advice_name, advice = _normalize_managed_advice(advice)
     location = _normalize_managed_location(
         location,
@@ -347,37 +292,36 @@ def advise(
 
 
 def prefetch(
-    target,
+    target: Buffer,
     location: Device | int | None = None,
     *,
     stream: Stream | GraphBuilder,
-    int size=_MANAGED_SIZE_NOT_PROVIDED,
     location_type: str | None = None,
 ):
     """Prefetch a managed-memory allocation range to a target location.
 
     Parameters
     ----------
-    target : :class:`Buffer` | int | object
-        Managed allocation to operate on. This may be a :class:`Buffer` or a
-        raw pointer (requires ``size=``).
+    target : :class:`Buffer`
+        Managed allocation to operate on.
     location : :obj:`~_device.Device` | int | None, optional
         Target location. When ``location_type`` is ``None``, values are
         interpreted as a device ordinal, ``-1`` for host, or ``None``.
         A location is required for prefetch.
     stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
         Keyword argument specifying the stream for the asynchronous prefetch.
-    size : int, optional
-        Allocation size in bytes. Required when ``target`` is a raw pointer.
     location_type : str | None, optional
         Explicit location kind. Supported values are ``"device"``, ``"host"``,
         ``"host_numa"``, and ``"host_numa_current"``.
     """
+    if not isinstance(target, Buffer):
+        raise TypeError(f"prefetch target must be a Buffer, got {type(target).__name__}")
+    cdef Buffer buf = <Buffer>target
+    _require_managed_buffer(buf, "prefetch")
     cdef Stream s = Stream_accept(stream)
-    cdef object ptr
-    cdef size_t nbytes
+    cdef object ptr = buf.handle
+    cdef size_t nbytes = buf._size
 
-    ptr, nbytes = _normalize_managed_target_range(target, size, "prefetch")
     location = _normalize_managed_location(
         location,
         location_type,
@@ -405,40 +349,37 @@ def prefetch(
 
 
 def discard_prefetch(
-    target,
+    target: Buffer,
     location: Device | int | None = None,
     *,
     stream: Stream | GraphBuilder,
-    int size=_MANAGED_SIZE_NOT_PROVIDED,
     location_type: str | None = None,
 ):
     """Discard a managed-memory allocation range and prefetch it to a target location.
 
     Parameters
     ----------
-    target : :class:`Buffer` | int | object
-        Managed allocation to operate on. This may be a :class:`Buffer` or a
-        raw pointer (requires ``size=``).
+    target : :class:`Buffer`
+        Managed allocation to operate on.
     location : :obj:`~_device.Device` | int | None, optional
         Target location. When ``location_type`` is ``None``, values are
         interpreted as a device ordinal, ``-1`` for host, or ``None``.
         A location is required for discard_prefetch.
     stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
         Keyword argument specifying the stream for the asynchronous operation.
-    size : int, optional
-        Allocation size in bytes. Required when ``target`` is a raw pointer.
     location_type : str | None, optional
         Explicit location kind. Supported values are ``"device"``, ``"host"``,
         ``"host_numa"``, and ``"host_numa_current"``.
     """
-    cdef object ptr
-    cdef object batch_ptr
-    cdef size_t nbytes
-
-    ptr, nbytes = _normalize_managed_target_range(target, size, "discard_prefetch")
+    if not isinstance(target, Buffer):
+        raise TypeError(f"discard_prefetch target must be a Buffer, got {type(target).__name__}")
+    cdef Buffer buf = <Buffer>target
+    _require_managed_buffer(buf, "discard_prefetch")
     _require_managed_discard_prefetch_support("discard_prefetch")
     cdef Stream s = Stream_accept(stream)
-    batch_ptr = driver.CUdeviceptr(int(ptr))
+    cdef object ptr = buf.handle
+    cdef size_t nbytes = buf._size
+    cdef object batch_ptr = driver.CUdeviceptr(int(ptr))
     location = _normalize_managed_location(
         location,
         location_type,

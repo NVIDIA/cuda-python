@@ -1441,20 +1441,6 @@ def test_managed_memory_advise_accepts_enum_value(init_cuda):
     buffer.close()
 
 
-def test_managed_memory_advise_size_rejected_for_buffer(init_cuda):
-    """advise() raises TypeError when size= is given with a Buffer target."""
-    device = Device()
-    _skip_if_managed_allocation_unsupported(device)
-    device.set_current()
-
-    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-
-    with pytest.raises(TypeError, match="does not accept size="):
-        managed_memory.advise(buffer, "set_read_mostly", size=1024)
-
-    buffer.close()
-
-
 def test_managed_memory_advise_invalid_advice_values(init_cuda):
     """advise() rejects invalid advice strings and wrong types."""
     device = Device()
@@ -1468,34 +1454,6 @@ def test_managed_memory_advise_invalid_advice_values(init_cuda):
 
     with pytest.raises(TypeError, match="advice must be"):
         managed_memory.advise(buffer, 42)
-
-    buffer.close()
-
-
-def test_managed_memory_functions_accept_raw_pointer_ranges(init_cuda):
-    device = Device()
-    _skip_if_managed_location_ops_unsupported(device)
-    device.set_current()
-
-    buffer = DummyUnifiedMemoryResource(device).allocate(_MANAGED_TEST_ALLOCATION_SIZE)
-    stream = device.create_stream()
-
-    managed_memory.advise(buffer.handle, "set_read_mostly", size=buffer.size)
-    assert (
-        _get_int_mem_range_attr(
-            buffer,
-            driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
-        )
-        == _READ_MOSTLY_ENABLED
-    )
-
-    managed_memory.prefetch(buffer.handle, device, size=buffer.size, stream=stream)
-    stream.sync()
-    last_location = _get_int_mem_range_attr(
-        buffer,
-        driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
-    )
-    assert last_location == device.device_id
 
     buffer.close()
 
