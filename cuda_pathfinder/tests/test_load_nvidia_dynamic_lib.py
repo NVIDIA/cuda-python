@@ -146,25 +146,42 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
 def test_load_nvrtc_without_cuda_home_or_cuda_path(info_summary_append):
     """Regression test for issue #1781: nvrtc must load without CUDA_HOME/CUDA_PATH.
 
-    On Windows, when CUDA DLLs are discovered via PATH (system search), the
-    previous LoadLibraryExW(flags=0) call would find the DLL but fail to
-    resolve co-located dependencies like nvrtc-builtins (error 126).
+    On Windows, Python 3.8+ calls SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)
+    at startup, which excludes PATH from the LoadLibraryExW search order. The fix uses
+    SearchPathW (unaffected by SetDefaultDllDirectories) to locate the DLL via PATH, then
+    loads it by absolute path with LOAD_WITH_ALTERED_SEARCH_PATH.
 
-    The fix uses SearchPathW to resolve the full path, then loads with
-    LOAD_WITH_ALTERED_SEARCH_PATH so dependency search starts from the
-    DLL's directory.
-
-    This test strips CUDA_HOME and CUDA_PATH, then loads nvrtc in a fresh
-    subprocess. In CI environments where nvrtc is only available via system
-    search, this exercises the exact code path that was broken.
+    This test loads nvrtc twice in fresh subprocesses: once with the normal environment,
+    once with CUDA_HOME and CUDA_PATH stripped. If the normal load finds nvrtc in a
+    directory on PATH, the stripped load must also succeed — otherwise the system search
+    is broken.
     """
+    timeout = 120 if IS_WINDOWS else 30
+
+    # Phase 1: load nvrtc with normal environment.
+    normal_result = run_load_nvidia_dynamic_lib_in_subprocess("nvrtc", timeout=timeout)
+    if normal_result.returncode != 0:
+        raise RuntimeError(build_child_process_failed_for_libname_message("nvrtc", normal_result))
+    assert not normal_result.stderr
+    normal_payload = parse_dynamic_lib_subprocess_payload(
+        normal_result.stdout,
+        libname="nvrtc",
+        error_label="Load subprocess child process (normal env)",
+    )
+    if normal_payload.status == STATUS_NOT_FOUND:
+        info_summary_append("nvrtc not found (normal env)")
+        pytest.skip("nvrtc not available in this environment")
+    normal_abs_path = normal_payload.abs_path
+    assert normal_abs_path is not None
+    assert os.path.isfile(normal_abs_path)
+    info_summary_append(f"nvrtc (normal env): abs_path={quote_for_shell(normal_abs_path)}")
+
+    # Phase 2: load nvrtc without CUDA_HOME/CUDA_PATH.
     env = os.environ.copy()
     env.pop("CUDA_HOME", None)
     env.pop("CUDA_PATH", None)
-
-    timeout = 120 if IS_WINDOWS else 30
     command = build_dynamic_lib_subprocess_command(LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_MODE, "nvrtc")
-    result = subprocess.run(  # noqa: S603
+    stripped_result = subprocess.run(  # noqa: S603
         command,
         capture_output=True,
         text=True,
@@ -173,22 +190,36 @@ def test_load_nvrtc_without_cuda_home_or_cuda_path(info_summary_append):
         env=env,
         cwd=LOAD_NVIDIA_DYNAMIC_LIB_SUBPROCESS_CWD,
     )
-
-    if result.returncode != 0:
-        raise RuntimeError(build_child_process_failed_for_libname_message("nvrtc", result))
-    assert not result.stderr
-
-    payload = parse_dynamic_lib_subprocess_payload(
-        result.stdout,
+    if stripped_result.returncode != 0:
+        raise RuntimeError(build_child_process_failed_for_libname_message("nvrtc", stripped_result))
+    assert not stripped_result.stderr
+    stripped_payload = parse_dynamic_lib_subprocess_payload(
+        stripped_result.stdout,
         libname="nvrtc",
         error_label="Load subprocess child process (no CUDA_HOME/CUDA_PATH)",
     )
 
-    if payload.status == STATUS_NOT_FOUND:
-        info_summary_append("nvrtc not found without CUDA_HOME/CUDA_PATH")
-        pytest.skip("nvrtc not available without CUDA_HOME/CUDA_PATH")
+    # Phase 3: evaluate.
+    if stripped_payload.status != STATUS_NOT_FOUND:
+        stripped_abs_path = stripped_payload.abs_path
+        assert stripped_abs_path is not None
+        assert os.path.isfile(stripped_abs_path)
+        info_summary_append(f"nvrtc (no CUDA_HOME/CUDA_PATH): abs_path={quote_for_shell(stripped_abs_path)}")
+        return
 
-    abs_path = payload.abs_path
-    assert abs_path is not None
-    info_summary_append(f"nvrtc (no CUDA_HOME/CUDA_PATH): abs_path={quote_for_shell(abs_path)}")
-    assert os.path.isfile(abs_path)
+    # nvrtc was found normally but not without CUDA_HOME/CUDA_PATH.
+    # If the DLL's directory is on PATH, the system search should have found it.
+    dll_dir = os.path.normcase(os.path.normpath(os.path.dirname(normal_abs_path)))
+    on_path = any(
+        os.path.normcase(os.path.normpath(d)) == dll_dir for d in os.environ.get("PATH", "").split(os.pathsep) if d
+    )
+    if on_path:
+        pytest.fail(
+            f"nvrtc was found at {normal_abs_path!r} (directory is on PATH) "
+            f"but could not be loaded without CUDA_HOME/CUDA_PATH. "
+            f"System search should find DLLs in PATH directories."
+        )
+    info_summary_append(
+        f"nvrtc (no CUDA_HOME/CUDA_PATH): not found "
+        f"(normal-env directory not on PATH: {quote_for_shell(os.path.dirname(normal_abs_path))})"
+    )
