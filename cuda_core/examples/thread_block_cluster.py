@@ -23,6 +23,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 
 # print cluster info using a kernel and store results in pinned memory
 code = r"""
@@ -65,9 +66,9 @@ def main():
         print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
         sys.exit(1)
 
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    cuda_path = get_cuda_home_or_path()
     if cuda_path is None:
-        print("this example requires a valid CUDA_PATH environment variable set", file=sys.stderr)
+        print("This example requires CUDA_PATH or CUDA_HOME to point to a CUDA toolkit.", file=sys.stderr)
         sys.exit(1)
     cuda_include = os.path.join(cuda_path, "include")
     if not os.path.isdir(cuda_include):

@@ -36,6 +36,7 @@ from cuda.core import (
     StridedMemoryView,
     launch,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 
 # ---------------------------------------------------------------------------
 # CUDA kernel that uses TMA to load a 1-D tile into shared memory, then
@@ -103,7 +104,7 @@ __global__ void tma_copy(
 
 
 def _get_cccl_include_paths():
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    cuda_path = get_cuda_home_or_path()
     if cuda_path is None:
         print("This example requires CUDA_PATH or CUDA_HOME to point to a CUDA toolkit.", file=sys.stderr)
         sys.exit(1)
