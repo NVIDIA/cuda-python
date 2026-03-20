@@ -78,8 +78,7 @@ def get_cuda_home_or_path() -> str | None:
     Toolkit path, and subsequent calls return the cached value.
 
     Returns:
-        Path to CUDA Toolkit, or None if neither variable is set. Empty strings are
-        preserved and returned as-is if explicitly set in the environment.
+        Path to CUDA Toolkit, or None if neither variable is set or all are empty.
 
     Warnings:
         UserWarning: If multiple CUDA environment variables are set but point to
@@ -88,13 +87,12 @@ def get_cuda_home_or_path() -> str | None:
     See Also:
         CUDA_ENV_VARS_ORDERED: The canonical search order for CUDA environment variables.
     """
-    # Collect all set environment variables in priority order
-    # Note: We check 'is not None' to preserve empty strings (which are valid but unusual).
-    # Empty strings are falsy in Python but may indicate an intentional "unset" by the user.
+    # Collect non-empty environment variables in priority order.
+    # Empty strings are treated as undefined — no valid CUDA path is empty.
     set_vars = {}
     for var in CUDA_ENV_VARS_ORDERED:
         val = os.environ.get(var)
-        if val is not None:
+        if val:
             set_vars[var] = val
 
     if not set_vars:
@@ -102,32 +100,23 @@ def get_cuda_home_or_path() -> str | None:
 
     # If multiple variables are set, check if they differ and warn
     if len(set_vars) > 1:
-        # Check if any non-empty values actually differ
-        non_empty_values = [(var, val) for var, val in set_vars.items() if val]
+        values = list(set_vars.items())
+        values_differ = False
+        for i in range(len(values) - 1):
+            if _paths_differ(values[i][1], values[i + 1][1]):
+                values_differ = True
+                break
 
-        if len(non_empty_values) > 1:
-            # Check if any pair of non-empty values differs
-            values_differ = False
-            for i in range(len(non_empty_values) - 1):
-                if _paths_differ(non_empty_values[i][1], non_empty_values[i + 1][1]):
-                    values_differ = True
-                    break
-
-            if values_differ:
-                # Build a generic warning message that works for any number of variables
-                var_list = "\n".join(f"  {var}={val}" for var, val in set_vars.items())
-                highest_priority = CUDA_ENV_VARS_ORDERED[0]
-                warnings.warn(
-                    f"Multiple CUDA environment variables are set but differ:\n"
-                    f"{var_list}\n"
-                    f"Using {highest_priority} (highest priority as defined in CUDA_ENV_VARS_ORDERED).",
-                    UserWarning,
-                    stacklevel=2,
-                )
+        if values_differ:
+            var_list = "\n".join(f"  {var}={val}" for var, val in set_vars.items())
+            highest_priority = CUDA_ENV_VARS_ORDERED[0]
+            warnings.warn(
+                f"Multiple CUDA environment variables are set but differ:\n"
+                f"{var_list}\n"
+                f"Using {highest_priority} (highest priority as defined in CUDA_ENV_VARS_ORDERED).",
+                UserWarning,
+                stacklevel=2,
+            )
 
     # Return the first (highest priority) set variable
-    for var in CUDA_ENV_VARS_ORDERED:
-        if var in set_vars:
-            return set_vars[var]
-
-    return None
+    return next(iter(set_vars.values()))

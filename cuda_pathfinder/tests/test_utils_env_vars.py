@@ -33,12 +33,18 @@ def test_returns_none_when_unset(monkeypatch):
     assert get_cuda_home_or_path() is None
 
 
-def test_empty_cuda_path_preserved(monkeypatch):
-    # empty string is returned as-is if set.
+def test_empty_cuda_path_falls_through(monkeypatch):
     unset_env(monkeypatch)
     monkeypatch.setenv("CUDA_PATH", "")
-    monkeypatch.setenv("CUDA_HOME", "/does/not/matter")
-    assert get_cuda_home_or_path() == ""
+    monkeypatch.setenv("CUDA_HOME", "/usr/local/cuda")
+    assert get_cuda_home_or_path() == "/usr/local/cuda"
+
+
+def test_all_empty_returns_none(monkeypatch):
+    unset_env(monkeypatch)
+    monkeypatch.setenv("CUDA_PATH", "")
+    monkeypatch.setenv("CUDA_HOME", "")
+    assert get_cuda_home_or_path() is None
 
 
 def test_prefers_cuda_path_over_cuda_home(monkeypatch, tmp_path):
