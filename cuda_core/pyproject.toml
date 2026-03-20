@@ -65,6 +65,20 @@ test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-c
 test-cu12-ft = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cuda-toolkit[cudart]==12.*"]
 test-cu13-ft = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cuda-toolkit[cudart]==13.*"]
 
+[tool.uv]
+conflicts = [
+    [
+        { extra = "cu12" },
+        { extra = "cu13" },
+    ],
+    [
+        { group = "test-cu12" },
+        { group = "test-cu13" },
+        { group = "test-cu12-ft" },
+        { group = "test-cu13-ft" },
+    ],
+]
+
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
