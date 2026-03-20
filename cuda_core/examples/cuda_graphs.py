@@ -11,7 +11,7 @@
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core", "cupy"]
+# dependencies = ["cuda_bindings", "cuda_core", "cupy-cuda13x"]
 # ///
 
 import sys

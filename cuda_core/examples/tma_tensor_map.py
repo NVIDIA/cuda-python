@@ -23,7 +23,7 @@
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core>0.6.0", "cupy", "numpy"]
+# dependencies = ["cuda_bindings", "cuda_core>0.6.0", "cupy-cuda13x", "numpy"]
 # ///
 
 import os

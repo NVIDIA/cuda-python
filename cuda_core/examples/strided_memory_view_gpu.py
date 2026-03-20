@@ -10,7 +10,7 @@
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core", "cupy", "numpy"]
+# dependencies = ["cuda_bindings", "cuda_core", "cupy-cuda13x", "numpy"]
 # ///
 
 import string
