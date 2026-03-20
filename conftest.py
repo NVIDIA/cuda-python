@@ -4,7 +4,7 @@
 
 import pytest
 
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder import get_cuda_path_or_home
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001

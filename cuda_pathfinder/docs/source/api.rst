@@ -16,6 +16,8 @@ CUDA bitcode and static libraries.
 .. autosummary::
    :toctree: generated/
 
+   get_cuda_path_or_home
+
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
    LoadedDL
@@ -42,19 +44,3 @@ CUDA bitcode and static libraries.
    locate_static_lib
    LocatedStaticLib
    StaticLibNotFoundError
-
-Environment Variable Utilities
--------------------------------
-
-The ``cuda.pathfinder._utils.env_vars`` module provides centralized handling of CUDA
-environment variables used across all cuda-python packages.
-
-.. autosummary::
-   :toctree: generated/
-
-   _utils.env_vars.get_cuda_path_or_home
-   _utils.env_vars.CUDA_ENV_VARS_ORDERED
-
-.. autofunction:: cuda.pathfinder._utils.env_vars.get_cuda_path_or_home
-
-.. autodata:: cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED

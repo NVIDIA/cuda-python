@@ -23,7 +23,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder import get_cuda_path_or_home
 
 # print cluster info using a kernel and store results in pinned memory
 code = r"""

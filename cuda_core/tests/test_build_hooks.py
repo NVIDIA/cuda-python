@@ -24,7 +24,7 @@ from unittest import mock
 
 import pytest
 
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder import get_cuda_path_or_home
 
 # build_hooks.py imports Cython and setuptools at the top level, so skip if not available
 pytest.importorskip("Cython")

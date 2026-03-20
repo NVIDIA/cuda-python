@@ -15,7 +15,7 @@ Runtime Environment Variables
 Build-Time Environment Variables
 --------------------------------
 
-- ``CUDA_PATH`` or ``CUDA_HOME``: Specifies the location of the CUDA Toolkit. If both are set, ``CUDA_PATH`` takes precedence. This search order is defined in :py:data:`cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED`.
+- ``CUDA_PATH`` or ``CUDA_HOME``: Specifies the location of the CUDA Toolkit. If both are set, ``CUDA_PATH`` takes precedence.
 
   .. note::
      **Breaking Change in v1.4.0**: The priority order changed from ``CUDA_HOME`` > ``CUDA_PATH`` to ``CUDA_PATH`` > ``CUDA_HOME``.

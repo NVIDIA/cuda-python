@@ -9,7 +9,7 @@ from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder import get_cuda_path_or_home
 
 try:
     from cuda.bindings import driver

@@ -6,7 +6,7 @@ import os
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder import get_cuda_path_or_home
 from cuda_python_test_helpers import *
 
 CUDA_PATH = get_cuda_path_or_home()

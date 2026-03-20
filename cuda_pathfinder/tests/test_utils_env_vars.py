@@ -9,7 +9,6 @@ import warnings
 import pytest
 
 from cuda.pathfinder._utils.env_vars import (
-    CUDA_ENV_VARS_ORDERED,
     _paths_differ,
     get_cuda_path_or_home,
 )
@@ -170,16 +169,6 @@ def test_samefile_equivalence_via_symlink_when_possible(monkeypatch, tmp_path):
     assert len(record) == 0
 
 
-def test_cuda_env_vars_ordered_constant():
-    """
-    Verify the canonical search order constant is defined correctly.
-    CUDA_PATH must have higher priority than CUDA_HOME.
-    """
-    assert CUDA_ENV_VARS_ORDERED == ("CUDA_PATH", "CUDA_HOME")
-    assert CUDA_ENV_VARS_ORDERED[0] == "CUDA_PATH"  # highest priority
-    assert CUDA_ENV_VARS_ORDERED[1] == "CUDA_HOME"  # lower priority
-
-
 def test_search_order_matches_implementation(monkeypatch, tmp_path):
     """
     Verify that get_cuda_path_or_home() follows the documented search order.
@@ -194,12 +183,11 @@ def test_search_order_matches_implementation(monkeypatch, tmp_path):
     monkeypatch.setenv("CUDA_PATH", str(path_dir))
     monkeypatch.setenv("CUDA_HOME", str(home_dir))
 
-    # The result should match the first (highest priority) variable in CUDA_ENV_VARS_ORDERED
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("always")
         result = get_cuda_path_or_home()
 
-    highest_priority_var = CUDA_ENV_VARS_ORDERED[0]
+    highest_priority_var = "CUDA_PATH"  # as hard-wired in the documentation
     expected = os.environ.get(highest_priority_var)
     assert result == expected
     assert pathlib.Path(result) == path_dir  # CUDA_PATH should win

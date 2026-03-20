@@ -36,7 +36,7 @@ from cuda.core import (
     StridedMemoryView,
     launch,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder import get_cuda_path_or_home
 
 # ---------------------------------------------------------------------------
 # CUDA kernel that uses TMA to load a 1-D tile into shared memory, then
