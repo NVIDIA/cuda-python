@@ -13,6 +13,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
     find_static_lib,
     locate_static_lib,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.platform_aware import quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_STATIC_LIB_STRICTNESS", "see_what_works")
@@ -24,8 +25,10 @@ CUDADEVRT_INFO = find_static_lib_module._SUPPORTED_STATIC_LIBS_INFO["cudadevrt"]
 @pytest.fixture
 def clear_find_static_lib_cache():
     find_static_lib_module.find_static_lib.cache_clear()
+    get_cuda_home_or_path.cache_clear()
     yield
     find_static_lib_module.find_static_lib.cache_clear()
+    get_cuda_home_or_path.cache_clear()
 
 
 def _make_static_lib_file(dir_path: Path, filename: str) -> str:
