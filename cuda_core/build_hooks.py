@@ -29,12 +29,13 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
 @functools.cache
-def _get_cuda_paths() -> list[str]:
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+def _get_cuda_path() -> str:
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
+    cuda_path = get_cuda_home_or_path()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    cuda_path = cuda_path.split(os.pathsep)
-    print("CUDA paths:", cuda_path)
+    print("CUDA path:", cuda_path)
     return cuda_path
 
 
@@ -60,21 +61,20 @@ def _determine_cuda_major_version() -> str:
         return cuda_major
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
-    cuda_path = _get_cuda_paths()
-    for root in cuda_path:
-        cuda_h = os.path.join(root, "include", "cuda.h")
-        try:
-            with open(cuda_h, encoding="utf-8") as f:
-                for line in f:
-                    m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
-                    if m:
-                        v = int(m.group(1))
-                        # CUDA_VERSION is e.g. 12020 for 12.2.
-                        cuda_major = str(v // 1000)
-                        print("CUDA MAJOR VERSION:", cuda_major)
-                        return cuda_major
-        except OSError:
-            continue
+    cuda_path = _get_cuda_path()
+    cuda_h = os.path.join(cuda_path, "include", "cuda.h")
+    try:
+        with open(cuda_h, encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                if m:
+                    v = int(m.group(1))
+                    # CUDA_VERSION is e.g. 12020 for 12.2.
+                    cuda_major = str(v // 1000)
+                    print("CUDA MAJOR VERSION:", cuda_major)
+                    return cuda_major
+    except OSError:
+        pass
 
     # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach here
     # in normal circumstances. Raise an error to make the issue clear.
@@ -132,7 +132,7 @@ def _build_cuda_core():
 
         return sources
 
-    all_include_dirs = [os.path.join(root, "include") for root in _get_cuda_paths()]
+    all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not

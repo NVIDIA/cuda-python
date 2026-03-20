@@ -34,13 +34,14 @@ _extensions = None
 
 
 @functools.cache
-def _get_cuda_paths() -> list[str]:
-    CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
-    if not CUDA_HOME:
-        raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
-    CUDA_HOME = CUDA_HOME.split(os.pathsep)
-    print("CUDA paths:", CUDA_HOME)
-    return CUDA_HOME
+def _get_cuda_path() -> str:
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
+    cuda_path = get_cuda_home_or_path()
+    if not cuda_path:
+        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+    print("CUDA path:", cuda_path)
+    return cuda_path
 
 
 # -----------------------------------------------------------------------
@@ -133,8 +134,8 @@ def _fetch_header_paths(required_headers, include_path_list):
     if missing_headers:
         error_message = "Couldn't find required headers: "
         error_message += ", ".join(missing_headers)
-        cuda_paths = _get_cuda_paths()
-        raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{cuda_paths}")')
+        cuda_path = _get_cuda_path()
+        raise RuntimeError(f'{error_message}\nIs CUDA_PATH setup correctly? (CUDA_PATH="{cuda_path}")')
 
     return header_dict
 
@@ -291,7 +292,7 @@ def _build_cuda_bindings(strip=False):
 
     global _extensions
 
-    cuda_paths = _get_cuda_paths()
+    cuda_path = _get_cuda_path()
 
     if os.environ.get("PARALLEL_LEVEL") is not None:
         warn(
@@ -307,7 +308,7 @@ def _build_cuda_bindings(strip=False):
     compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
     # Parse CUDA headers
-    include_path_list = [os.path.join(path, "include") for path in cuda_paths]
+    include_path_list = [os.path.join(cuda_path, "include")]
     header_dict = _fetch_header_paths(_REQUIRED_HEADERS, include_path_list)
     found_types, found_functions, found_values, found_struct, struct_list = _parse_headers(
         header_dict, include_path_list, parser_caching
@@ -347,7 +348,7 @@ def _build_cuda_bindings(strip=False):
     ] + include_path_list
     library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
     cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
-    library_dirs.extend(os.path.join(prefix, subdir) for prefix in cuda_paths for subdir in cudalib_subdirs)
+    library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
 
     extra_compile_args = []
     extra_link_args = []
