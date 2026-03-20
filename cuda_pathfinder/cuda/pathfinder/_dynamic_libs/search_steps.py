@@ -183,7 +183,13 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
 
 
 def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
-    """Search ``$CUDA_HOME`` / ``$CUDA_PATH``."""
+    """Search ``$CUDA_HOME`` / ``$CUDA_PATH``.
+
+    On Windows, this is the normal fallback for system-installed CTK DLLs when
+    they are not already discoverable via the native ``LoadLibraryExW(..., 0)``
+    path used by :func:`cuda.pathfinder._dynamic_libs.load_dl_windows.load_with_system_search`.
+    Python 3.8+ does not include ``PATH`` in that native DLL search.
+    """
     cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
