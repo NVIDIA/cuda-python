@@ -24,6 +24,8 @@ from unittest import mock
 
 import pytest
 
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
 # build_hooks.py imports Cython and setuptools at the top level, so skip if not available
 pytest.importorskip("Cython")
 pytest.importorskip("setuptools")
@@ -66,8 +68,9 @@ def _check_version_detection(
         cuda_h = include_dir / "cuda.h"
         cuda_h.write_text(f"#define CUDA_VERSION {cuda_version}\n")
 
-        build_hooks._get_cuda_paths.cache_clear()
+        build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        get_cuda_home_or_path.cache_clear()
 
         mock_env = {
             k: v
@@ -90,8 +93,9 @@ class TestGetCudaMajorVersion:
     @pytest.mark.parametrize("version", ["11", "12", "13", "14"])
     def test_env_var_override(self, version):
         """CUDA_CORE_BUILD_MAJOR env var override works with various versions."""
-        build_hooks._get_cuda_paths.cache_clear()
+        build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        get_cuda_home_or_path.cache_clear()
         with mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": version}, clear=False):
             result = build_hooks._determine_cuda_major_version()
             assert result == version
@@ -123,36 +127,11 @@ class TestGetCudaMajorVersion:
 
     def test_missing_cuda_path_raises_error(self):
         """RuntimeError is raised when CUDA_PATH/CUDA_HOME not set and no env var override."""
-        build_hooks._get_cuda_paths.cache_clear()
+        build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        get_cuda_home_or_path.cache_clear()
         with (
             mock.patch.dict(os.environ, {}, clear=True),
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
-
-    def test_multiple_cuda_paths(self):
-        """Multiple CUDA paths separated by os.pathsep are correctly handled."""
-        with tempfile.TemporaryDirectory() as tmpdir1, tempfile.TemporaryDirectory() as tmpdir2:
-            # Create mock CUDA installations in both directories
-            for tmpdir in [tmpdir1, tmpdir2]:
-                include_dir = Path(tmpdir) / "include"
-                include_dir.mkdir()
-                cuda_h = include_dir / "cuda.h"
-                cuda_h.write_text("#define CUDA_VERSION 12080\n")
-
-            build_hooks._get_cuda_paths.cache_clear()
-            build_hooks._determine_cuda_major_version.cache_clear()
-
-            # Set CUDA_PATH with multiple paths
-            multiple_paths = os.pathsep.join([tmpdir1, tmpdir2])
-            with mock.patch.dict(os.environ, {"CUDA_PATH": multiple_paths}, clear=True):
-                # Should return list of both paths
-                paths = build_hooks._get_cuda_paths()
-                assert len(paths) == 2
-                assert paths[0] == tmpdir1
-                assert paths[1] == tmpdir2
-
-                # Version detection should use first path
-                result = build_hooks._determine_cuda_major_version()
-                assert result == "12"
