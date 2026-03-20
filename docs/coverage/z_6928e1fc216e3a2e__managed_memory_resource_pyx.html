@@ -13,7 +13,7 @@
   "d": "tests/test_memory.py::test_managed_memory_resource_preferred_location_host|run",
   "e": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[ManagedMR]|run",
   "f": "tests/test_memory.py::test_managed_memory_resource_host_numa_auto_resolve_failure|run",
-  "g": "tests/test_memory.py::test_mempool_attributes[ManagedMR-used_mem_high-int-True]|run",
+  "g": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reserved_mem_current-int-True]|run",
   "h": "tests/test_memory.py::test_managed_memory_resource_with_options|run",
   "i": "tests/test_memory.py::test_managed_memory_resource_initialization|run",
   "j": "tests/test_memory.py::test_managed_memory_resource_preferred_location_default|run",
@@ -28,12 +28,12 @@
   "s": "tests/test_memory.py::test_mempool_attributes_ownership[ManagedMR]|run",
   "t": "tests/test_memory.py::test_mempool_attributes_repr[ManagedMR]|run",
   "u": "tests/test_memory.py::test_mempool_attributes[ManagedMR-release_threshold-int-True]|run",
-  "v": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reserved_mem_current-int-True]|run",
-  "w": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reserved_mem_high-int-True]|run",
-  "x": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reuse_allow_internal_dependencies-bool-True]|run",
-  "y": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reuse_allow_opportunistic-bool-True]|run",
-  "z": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reuse_follow_event_dependencies-bool-True]|run",
-  "A": "tests/test_memory.py::test_mempool_attributes[ManagedMR-used_mem_current-int-True]|run",
+  "v": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reserved_mem_high-int-True]|run",
+  "w": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reuse_allow_internal_dependencies-bool-True]|run",
+  "x": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reuse_allow_opportunistic-bool-True]|run",
+  "y": "tests/test_memory.py::test_mempool_attributes[ManagedMR-reuse_follow_event_dependencies-bool-True]|run",
+  "z": "tests/test_memory.py::test_mempool_attributes[ManagedMR-used_mem_current-int-True]|run",
+  "A": "tests/test_memory.py::test_mempool_attributes[ManagedMR-used_mem_high-int-True]|run",
   "B": "(empty)"
 }
     </script>
@@ -97,7 +97,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__memory_pool_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-19 01:19 +0000
+            created at 2026-03-20 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -201,7 +201,7 @@
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    def __init__(self, options=None):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        _MMR_init(self, options)</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        _MMR_init(self, options)</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    def device_id(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
@@ -246,21 +246,21 @@
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        Returns a 4-tuple:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">            (CUmemLocationType, loc_id, pref_loc_type_str, pref_loc_id)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        cdef object pref_loc = opts.preferred_location if opts is not None else None</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        cdef object pref_type = opts.preferred_location_type if opts is not None else None</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        cdef object pref_loc = opts.preferred_location if opts is not None else None</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        cdef object pref_type = opts.preferred_location_type if opts is not None else None</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        if pref_type is not None and pref_type not in _VALID_LOCATION_TYPES:</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        if pref_type is not None and pref_type not in _VALID_LOCATION_TYPES:</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">                f"preferred_location_type must be one of {_VALID_LOCATION_TYPES!r} "</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">                f"or None, got {pref_type!r}"</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        if pref_type is None:</span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        if pref_type is None:</span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">            # Legacy behavior</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">            if pref_loc is None:</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">                return (</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE,</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">                    -1, None, -1,</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">            if pref_loc is None:</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">                return (</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE,</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">                    -1, None, -1,</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">            if pref_loc == -1:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">4 ctx</label></span><span class="ctxs">1cdae</span></p>
     <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">                return (</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">1 ctx</label></span><span class="ctxs">1d</span></p>
@@ -328,19 +328,19 @@
     <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">cdef inline _MMR_init(ManagedMemoryResource self, options):</span>&nbsp;</span><span class="r"><label for="ctxs215" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">        cdef ManagedMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs217"><span class="r"><label for="ctxs217" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">        cdef ManagedMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs217"><span class="r"><label for="ctxs217" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">            ManagedMemoryResourceOptions, options, "ManagedMemoryResource options",</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">            keep_none=True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        cdef cydriver.CUmemLocationType loc_type</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">        cdef int loc_id</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">        loc_type, loc_id, self._pref_loc_type, self._pref_loc_id = (</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">            _resolve_preferred_location(opts)</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">        loc_type, loc_id, self._pref_loc_type, self._pref_loc_id = (</span>&nbsp;</span><input type="checkbox" id="ctxs224"><span class="r"><label for="ctxs224" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">            _resolve_preferred_location(opts)</span>&nbsp;</span><input type="checkbox" id="ctxs225"><span class="r"><label for="ctxs225" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">        if opts is None:</span>&nbsp;</span><input type="checkbox" id="ctxs228"><span class="r"><label for="ctxs228" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">            MP_init_current_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">        if opts is None:</span>&nbsp;</span><input type="checkbox" id="ctxs228"><span class="r"><label for="ctxs228" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">            MP_init_current_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">                self,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">                loc_type,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">                loc_id,</span>&nbsp;</span><span class="r"></span></p>
@@ -356,7 +356,7 @@
     <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">                0,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        _check_concurrent_managed_access()</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        _check_concurrent_managed_access()</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">        raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -368,8 +368,8 @@
     <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">cdef inline _check_concurrent_managed_access():</span>&nbsp;</span><span class="r"><label for="ctxs254" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    """Warn once if the platform lacks concurrent managed memory access."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">    global _concurrent_access_warned</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    if _concurrent_access_warned:</span>&nbsp;</span><input type="checkbox" id="ctxs257"><span class="r"><label for="ctxs257" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArgst</span></p>
-    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">26 ctx</label></span><span class="ctxs">1fijcbdahekulvmwnxoypzqArst</span></p>
+    <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    if _concurrent_access_warned:</span>&nbsp;</span><input type="checkbox" id="ctxs257"><span class="r"><label for="ctxs257" class="ctx">27 ctx</label></span><span class="ctxs">1fijcbdahekulgmvnwoxpyqzrAst</span></p>
+    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">        return</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">26 ctx</label></span><span class="ctxs">1fijcbdahekulmvnwoxpyqzrAst</span></p>
     <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">    cdef int c_concurrent = 0</span>&nbsp;</span><input type="checkbox" id="ctxs260"><span class="r"><label for="ctxs260" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
     <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">    with _concurrent_access_lock:</span>&nbsp;</span><input type="checkbox" id="ctxs261"><span class="r"><label for="ctxs261" class="ctx">1 ctx</label></span><span class="ctxs">1g</span></p>
@@ -412,7 +412,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__memory_pool_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-19 01:19 +0000
+            created at 2026-03-20 01:07 +0000
         </p>
     </div>
 </footer>

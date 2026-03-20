@@ -67,8 +67,7 @@
   "5": "tests/test_event.py::test_error_timing_incomplete|run",
   "6": "tests/test_helpers.py::test_latchkernel|run",
   "7": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
-  "8": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
-  "9": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|run"
+  "8": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -131,7 +130,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__virtual_memory_resource_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-19 01:19 +0000
+            created at 2026-03-20 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -213,12 +212,12 @@
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="str">        stream : Stream</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="str">            The stream on which to perform the deallocation synchronously.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">        <span class="key">if</span> <span class="nam">stream</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">59 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB956CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">        <span class="key">if</span> <span class="nam">stream</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">58 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB56CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
     <p class="mis show_mis"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">            <span class="nam">stream</span><span class="op">.</span><span class="nam">sync</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">        <span class="key">if</span> <span class="nam">size</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">59 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB956CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">            <span class="op">(</span><span class="nam">err</span><span class="op">,</span><span class="op">)</span> <span class="op">=</span> <span class="nam">driver</span><span class="op">.</span><span class="nam">cuMemFreeHost</span><span class="op">(</span><span class="nam">ptr</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">59 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB956CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">            <span class="nam">raise_if_driver_error</span><span class="op">(</span><span class="nam">err</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">59 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB956CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">        <span class="key">if</span> <span class="nam">size</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">58 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB56CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">            <span class="op">(</span><span class="nam">err</span><span class="op">,</span><span class="op">)</span> <span class="op">=</span> <span class="nam">driver</span><span class="op">.</span><span class="nam">cuMemFreeHost</span><span class="op">(</span><span class="nam">ptr</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">58 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB56CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">            <span class="nam">raise_if_driver_error</span><span class="op">(</span><span class="nam">err</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">58 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvwxyzAB56CDEFGHIJKLMNOPQRSTUVWXYZ01234</span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">    <span class="op">@</span><span class="nam">property</span>&nbsp;</span><span class="r"><label for="ctxs75" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">    <span class="key">def</span> <span class="nam">is_device_accessible</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs76" class="ctx">(empty)</label></span></p>
@@ -283,7 +282,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__virtual_memory_resource_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-19 01:19 +0000
+            created at 2026-03-20 01:07 +0000
         </p>
     </div>
 </footer>
