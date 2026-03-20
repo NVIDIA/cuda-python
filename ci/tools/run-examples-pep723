@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Runs a directory of examples using `uv run` to test that the PEP 723
+# dependency metadata in them is valid.
+
+# We allow a resolution to fail for cuda_core or cuda_bindings only, since there
+# we assume it is pinned to some future release.  This allows examples to be
+# written for unreleased features.  Testing examples against prereleases is
+# already covered by CI elsewhere.
+
+TARGET_DIR=$1
+
+if [ -z "$TARGET_DIR" ]; then
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+FAILED=0
+
+while IFS= read -r -d '' file; do
+    echo "Running $file..."
+    OUTPUT=$(uv run "$file" 2>&1)
+    EXIT_CODE=$?
+
+    if [ $EXIT_CODE -ne 0 ]; then
+        if echo "$OUTPUT" | grep -Eq "Because only cuda-(core|bindings)"; then
+            echo "SKIPPED: $file (No solution found)"
+        else
+            echo "FAILED: $file"
+            echo "$OUTPUT"
+            FAILED=1
+        fi
+    else
+        echo "PASSED: $file"
+    fi
+done < <(find "$TARGET_DIR" -name "*.py" -print0)
+
+if [ $FAILED -ne 0 ]; then
+    exit 1
+fi

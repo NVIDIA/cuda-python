@@ -96,6 +96,9 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
@@ -276,6 +279,11 @@ jobs:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
+
+      - name: Run cuda.core examples with PEP 723 metadata in isolation
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        run: |
+          ci/tools/run-examples-pep723 cuda_core/examples/
 
       - name: Ensure cuda-python installable
         run: |
