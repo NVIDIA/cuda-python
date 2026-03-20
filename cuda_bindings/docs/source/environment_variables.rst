@@ -18,19 +18,11 @@ Build-Time Environment Variables
 - ``CUDA_PATH`` or ``CUDA_HOME``: Specifies the location of the CUDA Toolkit. If both are set, ``CUDA_PATH`` takes precedence.
 
   .. note::
-     **Breaking Change in v1.4.0**: The priority order changed from ``CUDA_HOME`` > ``CUDA_PATH`` to ``CUDA_PATH`` > ``CUDA_HOME``.
-
-     **Migration Guide**:
-
-     - If you only set one variable, no changes are needed
-     - If you set both variables to the same location, no changes are needed
-     - If you set both variables to different locations and relied on ``CUDA_HOME`` taking precedence, you should either:
-
-       - Switch to using only ``CUDA_PATH`` (recommended)
-       - Ensure both variables point to the same CUDA Toolkit installation
-       - Be aware that ``CUDA_PATH`` will now be used
-
-     A warning will be issued if both variables are set but point to different locations.
+     The ``CUDA_PATH`` > ``CUDA_HOME`` priority is determined by ``cuda-pathfinder``.
+     Earlier versions of ``cuda-pathfinder`` (before 1.5.0) used the opposite order
+     (``CUDA_HOME`` > ``CUDA_PATH``). See the
+     `cuda-pathfinder 1.5.0 release notes <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/release/1.5.0-notes.html>`_
+     for details and migration guidance.
 
 - ``CUDA_PYTHON_PARSER_CACHING`` : bool, toggles the caching of parsed header files during the cuda-bindings build process. If caching is enabled (``CUDA_PYTHON_PARSER_CACHING`` is True), the cache path is set to ./cache_<library_name>, where <library_name> is derived from the cuda toolkit libraries used to build cuda-bindings.
 

@@ -24,14 +24,16 @@ Breaking Change
 Highlights
 ----------
 
-* Added centralized CUDA environment variable handling with
-  :py:func:`cuda.pathfinder.get_cuda_path_or_home`. This function provides:
+* Added :py:func:`cuda.pathfinder.get_cuda_path_or_home`, a centralized
+  function for resolving ``CUDA_PATH``/``CUDA_HOME``. Features:
 
-  - Consistent behavior across all cuda-python packages (cuda.pathfinder, cuda.core, cuda.bindings)
   - Intelligent path comparison that handles symlinks, case sensitivity, and trailing slashes
   - Result caching for performance (first call determines the path for the process lifetime)
   - Clear warnings when both ``CUDA_PATH`` and ``CUDA_HOME`` are set but differ
 
+  Future releases of ``cuda-bindings`` and ``cuda-core`` will adopt this
+  function to ensure consistent ``CUDA_PATH`` > ``CUDA_HOME`` priority
+  across all cuda-python packages.
   (`PR #1801 <https://github.com/NVIDIA/cuda-python/pull/1801>`_)
 
 * Clarified that Python 3.8+ excludes ``PATH`` from the native Windows DLL
