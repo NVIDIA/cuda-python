@@ -52,9 +52,9 @@ environment variables used across all cuda-python packages.
 .. autosummary::
    :toctree: generated/
 
-   _utils.env_vars.get_cuda_home_or_path
+   _utils.env_vars.get_cuda_path_or_home
    _utils.env_vars.CUDA_ENV_VARS_ORDERED
 
-.. autofunction:: cuda.pathfinder._utils.env_vars.get_cuda_home_or_path
+.. autofunction:: cuda.pathfinder._utils.env_vars.get_cuda_path_or_home
 
 .. autodata:: cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED

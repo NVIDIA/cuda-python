@@ -13,7 +13,7 @@ Search Order Priority:
 If both are set and differ, CUDA_PATH takes precedence and a warning is issued.
 
 Important Note on Caching:
-    The result of get_cuda_home_or_path() is cached for the process lifetime. The first
+    The result of get_cuda_path_or_home() is cached for the process lifetime. The first
     call determines the CUDA Toolkit path, and all subsequent calls return the cached
     value, even if environment variables change later. This ensures consistent behavior
     throughout the application lifecycle.
@@ -25,7 +25,7 @@ import warnings
 
 #: Canonical search order for CUDA Toolkit environment variables.
 #:
-#: This tuple defines the priority order used by :py:func:`get_cuda_home_or_path`
+#: This tuple defines the priority order used by :py:func:`get_cuda_path_or_home`
 #: and throughout cuda-python packages when determining which CUDA Toolkit to use.
 #:
 #: The first variable in the tuple has the highest priority. If multiple variables are set
@@ -67,7 +67,7 @@ def _paths_differ(a: str, b: str) -> bool:
 
 
 @functools.cache
-def get_cuda_home_or_path() -> str | None:
+def get_cuda_path_or_home() -> str | None:
     """Get CUDA Toolkit path from environment variables.
 
     Returns the value of CUDA_PATH or CUDA_HOME following the canonical search order

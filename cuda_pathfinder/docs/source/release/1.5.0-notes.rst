@@ -24,7 +24,7 @@ Breaking Changes
 New Features
 ~~~~~~~~~~~~
 
-* Added centralized CUDA environment variable handling with :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_home_or_path()`. This function provides:
+* Added centralized CUDA environment variable handling with :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_path_or_home()`. This function provides:
 
   - Consistent behavior across all cuda-python packages (cuda.pathfinder, cuda.core, cuda.bindings)
   - Intelligent path comparison that handles symlinks, case sensitivity, and trailing slashes
@@ -37,7 +37,7 @@ Documentation
 ~~~~~~~~~~~~~
 
 * Updated documentation across all packages to reflect the new ``CUDA_PATH`` priority
-* Added detailed caching behavior documentation for :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_home_or_path()`
+* Added detailed caching behavior documentation for :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_path_or_home()`
 * Clarified environment variable precedence in installation guides
 
 Bug Fixes

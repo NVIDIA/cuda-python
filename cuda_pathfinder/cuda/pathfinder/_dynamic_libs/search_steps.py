@@ -28,7 +28,7 @@ from typing import NoReturn, cast
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 # ---------------------------------------------------------------------------
 # Data types
@@ -190,7 +190,7 @@ def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
     path used by :func:`cuda.pathfinder._dynamic_libs.load_dl_windows.load_with_system_search`.
     Python 3.8+ does not include ``PATH`` in that native DLL search.
     """
-    cuda_home = get_cuda_home_or_path()
+    cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
     lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, cuda_home)

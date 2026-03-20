@@ -19,7 +19,7 @@ from cuda.pathfinder._headers.header_descriptor import (
     platform_include_subdirs,
     resolve_conda_anchor,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 if TYPE_CHECKING:
@@ -102,7 +102,7 @@ def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
 
 def find_in_cuda_home(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search ``$CUDA_PATH`` / ``$CUDA_HOME``."""
-    cuda_home = get_cuda_home_or_path()
+    cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
     result = _locate_in_anchor_layout(desc, cuda_home)

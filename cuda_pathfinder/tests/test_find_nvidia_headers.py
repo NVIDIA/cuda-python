@@ -33,7 +33,7 @@ from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_INSTALL_DIRS_NON_CTK,
     SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
@@ -79,11 +79,11 @@ def have_distribution_for(libname: str) -> bool:
 def clear_locate_nvidia_header_cache():
     locate_nvidia_header_directory.cache_clear()
     _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
-    get_cuda_home_or_path.cache_clear()
+    get_cuda_path_or_home.cache_clear()
     yield
     locate_nvidia_header_directory.cache_clear()
     _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
-    get_cuda_home_or_path.cache_clear()
+    get_cuda_path_or_home.cache_clear()
 
 
 def _create_ctk_header(ctk_root: Path, libname: str) -> str:

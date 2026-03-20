@@ -4,11 +4,11 @@
 
 import pytest
 
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
-    cuda_home = get_cuda_home_or_path()
+    cuda_home = get_cuda_path_or_home()
     for item in items:
         nodeid = item.nodeid.replace("\\", "/")
 

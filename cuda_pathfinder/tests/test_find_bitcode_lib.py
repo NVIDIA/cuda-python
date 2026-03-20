@@ -13,7 +13,7 @@ from cuda.pathfinder._static_libs.find_bitcode_lib import (
     find_bitcode_lib,
     locate_bitcode_lib,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -24,10 +24,10 @@ BCL_FILENAME = find_bitcode_lib_module._SUPPORTED_BITCODE_LIBS_INFO["device"]["f
 @pytest.fixture
 def clear_find_bitcode_lib_cache():
     find_bitcode_lib_module.find_bitcode_lib.cache_clear()
-    get_cuda_home_or_path.cache_clear()
+    get_cuda_path_or_home.cache_clear()
     yield
     find_bitcode_lib_module.find_bitcode_lib.cache_clear()
-    get_cuda_home_or_path.cache_clear()
+    get_cuda_path_or_home.cache_clear()
 
 
 def _make_bitcode_lib_file(dir_path: Path) -> str:

@@ -6,10 +6,10 @@ import os
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda_python_test_helpers import *
 
-CUDA_PATH = get_cuda_home_or_path()
+CUDA_PATH = get_cuda_path_or_home()
 CUDA_INCLUDE_PATH = None
 CCCL_INCLUDE_PATHS = None
 if CUDA_PATH is not None:

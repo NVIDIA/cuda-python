@@ -197,7 +197,7 @@ class TestFindInConda:
 
 class TestFindInCudaHome:
     def test_returns_none_without_env_var(self, mocker):
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=None)
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=None)
         assert find_in_cuda_home(_ctx(platform=LinuxSearchPlatform())) is None
 
     def test_found_linux(self, mocker, tmp_path):
@@ -206,7 +206,7 @@ class TestFindInCudaHome:
         so_file = lib_dir / "libcudart.so"
         so_file.touch()
 
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         result = find_in_cuda_home(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
@@ -219,7 +219,7 @@ class TestFindInCudaHome:
         dll = bin_dir / "cudart64_12.dll"
         dll.touch()
 
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         result = find_in_cuda_home(_ctx(platform=WindowsSearchPlatform()))
         assert result is not None
@@ -319,7 +319,7 @@ class TestAnchorRelDirs:
 
     def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
         """End-to-end: find_in_cuda_home resolves nvvm under its custom subdir."""
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         nvvm_dir = tmp_path / "nvvm" / "lib64"
         nvvm_dir.mkdir(parents=True)
