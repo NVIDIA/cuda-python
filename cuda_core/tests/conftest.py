@@ -9,6 +9,8 @@ from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
 try:
     from cuda.bindings import driver
 except ImportError:
@@ -253,6 +255,6 @@ def memory_resource_factory(request, init_cuda):
 
 
 skipif_need_cuda_headers = pytest.mark.skipif(
-    not os.path.isdir(os.path.join(os.environ.get("CUDA_PATH", ""), "include")),
+    get_cuda_home_or_path() is None,
     reason="need CUDA header",
 )
