@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. module:: cuda.pathfinder
@@ -42,3 +42,19 @@ CUDA bitcode and static libraries.
    locate_static_lib
    LocatedStaticLib
    StaticLibNotFoundError
+
+Environment Variable Utilities
+-------------------------------
+
+The ``cuda.pathfinder._utils.env_vars`` module provides centralized handling of CUDA
+environment variables used across all cuda-python packages.
+
+.. autosummary::
+   :toctree: generated/
+
+   _utils.env_vars.get_cuda_home_or_path
+   _utils.env_vars.CUDA_ENV_VARS_ORDERED
+
+.. autofunction:: cuda.pathfinder._utils.env_vars.get_cuda_home_or_path
+
+.. autodata:: cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED

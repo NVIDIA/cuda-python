@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
@@ -6,9 +6,10 @@ import os
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda_python_test_helpers import *
 
-CUDA_PATH = os.environ.get("CUDA_PATH")
+CUDA_PATH = get_cuda_home_or_path()
 CUDA_INCLUDE_PATH = None
 CCCL_INCLUDE_PATHS = None
 if CUDA_PATH is not None:

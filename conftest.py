@@ -1,13 +1,14 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 
 import pytest
 
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
-    cuda_home = os.environ.get("CUDA_HOME")
+    cuda_home = get_cuda_home_or_path()
     for item in items:
         nodeid = item.nodeid.replace("\\", "/")
 
