@@ -65,7 +65,18 @@ def _diagnose_namespace_packages():
         print(f"cuda.pathfinder.__file__: {cuda.pathfinder.__file__}")
         print(f"cuda.pathfinder.__version__: {cuda.pathfinder.__version__}")
     except Exception as e:
-        print(f"import cuda.pathfinder failed: {e}")
+        print(f"import cuda.pathfinder failed (before extend_path): {e}")
+        try:
+            import pkgutil
+
+            cuda.__path__ = pkgutil.extend_path(cuda.__path__, cuda.__name__)
+            print(f"cuda.__path__ (after extend_path): {cuda.__path__}")
+            import cuda.pathfinder
+
+            print(f"cuda.pathfinder.__file__: {cuda.pathfinder.__file__}")
+            print(f"cuda.pathfinder.__version__: {cuda.pathfinder.__version__}")
+        except Exception as e2:
+            print(f"import cuda.pathfinder failed (after extend_path): {e2}")
     print("--- end namespace diagnostic ---")
 
 
