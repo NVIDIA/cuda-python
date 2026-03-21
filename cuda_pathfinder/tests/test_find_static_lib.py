@@ -51,7 +51,7 @@ def _located_static_lib_asserts(located_static_lib):
     assert isinstance(located_static_lib.abs_path, str)
     assert isinstance(located_static_lib.filename, str)
     assert isinstance(located_static_lib.found_via, str)
-    assert located_static_lib.found_via in ("site-packages", "conda", "CUDA_HOME")
+    assert located_static_lib.found_via in ("site-packages", "conda", "CUDA_PATH")
     assert os.path.isfile(located_static_lib.abs_path)
 
 
@@ -114,7 +114,7 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
 
     located_lib = locate_static_lib("cudadevrt")
     assert located_lib.abs_path == cuda_home_path
-    assert located_lib.found_via == "CUDA_HOME"
+    assert located_lib.found_via == "CUDA_PATH"
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")

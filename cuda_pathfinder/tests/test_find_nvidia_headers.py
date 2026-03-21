@@ -56,7 +56,7 @@ def _located_hdr_dir_asserts(located_hdr_dir):
     assert located_hdr_dir.found_via in (
         "site-packages",
         "conda",
-        "CUDA_HOME",
+        "CUDA_PATH",
         "system-ctk-root",
         "supported_install_dir",
     )
@@ -201,7 +201,7 @@ def test_locate_ctk_headers_cuda_home_takes_priority_over_canary(tmp_path, monke
 
     assert located_hdr_dir is not None
     assert located_hdr_dir.abs_path == expected_hdr_dir
-    assert located_hdr_dir.found_via == "CUDA_HOME"
+    assert located_hdr_dir.found_via == "CUDA_PATH"
     probe.assert_not_called()
 
 

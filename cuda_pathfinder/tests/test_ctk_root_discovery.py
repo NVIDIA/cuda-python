@@ -424,7 +424,7 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     result = _load_lib_no_cache("nvvm")
 
     # CUDA_HOME must win; the canary should never have been consulted
-    assert result.found_via == "CUDA_HOME"
+    assert result.found_via == "CUDA_PATH"
     assert result.abs_path == str(nvvm_home_lib)
     canary_mock.assert_not_called()
 

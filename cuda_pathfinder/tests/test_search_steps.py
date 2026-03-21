@@ -211,7 +211,7 @@ class TestFindInCudaHome:
         result = find_in_cuda_home(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(so_file)
-        assert result.found_via == "CUDA_HOME"
+        assert result.found_via == "CUDA_PATH"
 
     def test_found_windows(self, mocker, tmp_path):
         bin_dir = tmp_path / "bin"
@@ -224,7 +224,7 @@ class TestFindInCudaHome:
         result = find_in_cuda_home(_ctx(platform=WindowsSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(dll)
-        assert result.found_via == "CUDA_HOME"
+        assert result.found_via == "CUDA_PATH"
 
 
 # ---------------------------------------------------------------------------
@@ -334,4 +334,4 @@ class TestAnchorRelDirs:
         result = find_in_cuda_home(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(so_file)
-        assert result.found_via == "CUDA_HOME"
+        assert result.found_via == "CUDA_PATH"

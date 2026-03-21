@@ -54,7 +54,7 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
     assert isinstance(located_bitcode_lib.abs_path, str)
     assert isinstance(located_bitcode_lib.filename, str)
     assert isinstance(located_bitcode_lib.found_via, str)
-    assert located_bitcode_lib.found_via in ("site-packages", "conda", "CUDA_HOME")
+    assert located_bitcode_lib.found_via in ("site-packages", "conda", "CUDA_PATH")
     assert os.path.isfile(located_bitcode_lib.abs_path)
 
 
@@ -110,7 +110,7 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path):
 
     located_lib = locate_bitcode_lib("device")
     assert located_lib.abs_path == cuda_home_path
-    assert located_lib.found_via == "CUDA_HOME"
+    assert located_lib.found_via == "CUDA_PATH"
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")

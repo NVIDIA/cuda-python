@@ -149,7 +149,7 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
             name=name,
             abs_path=abs_path,
             filename=finder.filename,
-            found_via="CUDA_HOME",
+            found_via="CUDA_PATH",
         )
 
     finder.raise_not_found_error()

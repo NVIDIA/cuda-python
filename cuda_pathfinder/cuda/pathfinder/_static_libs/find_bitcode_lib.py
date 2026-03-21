@@ -145,7 +145,7 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
             name=name,
             abs_path=abs_path,
             filename=finder.filename,
-            found_via="CUDA_HOME",
+            found_via="CUDA_PATH",
         )
 
     finder.raise_not_found_error()

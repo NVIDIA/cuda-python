@@ -15,6 +15,13 @@ Breaking Change
   a warning will be issued and ``CUDA_PATH`` will be used. This change aligns
   with industry standards and NVIDIA's recommended practices.
 
+  The ``found_via`` provenance field on ``LoadedDL``, ``LocatedHeaderDir``,
+  ``LocatedStaticLib``, and ``LocatedBitcodeLib`` now reports ``"CUDA_PATH"``
+  (previously ``"CUDA_HOME"``) when a library or header was discovered through
+  the ``CUDA_PATH``/``CUDA_HOME`` environment variables. The label reflects
+  the highest-priority variable name, not necessarily the variable that
+  supplied the value.
+
   **Migration Guide**:
 
   - If you rely on ``CUDA_HOME``, consider switching to ``CUDA_PATH``

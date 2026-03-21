@@ -107,7 +107,7 @@ def find_in_cuda_home(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         return None
     result = _locate_in_anchor_layout(desc, cuda_home)
     if result is not None:
-        return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
+        return LocatedHeaderDir(abs_path=result, found_via="CUDA_PATH")
     return None
 
 
