@@ -43,12 +43,12 @@ def _import_get_cuda_path_or_home():
     site-packages ``cuda/`` directory.
     """
     try:
-        from cuda import pathfinder
+        import cuda.pathfinder
     except ModuleNotFoundError:
         pass
     else:
         return getattr(
-            pathfinder,
+            cuda.pathfinder,
             "get_cuda_path_or_home",
             lambda: os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME")),
         )
@@ -61,10 +61,10 @@ def _import_get_cuda_path_or_home():
             cuda.__path__ = list(cuda.__path__) + [sp_cuda]
             break
 
-    from cuda import pathfinder
+    import cuda.pathfinder
 
     return getattr(
-        pathfinder,
+        cuda.pathfinder,
         "get_cuda_path_or_home",
         lambda: os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME")),
     )
