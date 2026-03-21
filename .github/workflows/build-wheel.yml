@@ -28,12 +28,8 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.10"
-          - "3.11"
+          # TODO: temporarily reduced to single entry for namespace package diagnostic
           - "3.12"
-          - "3.13"
-          - "3.14"
-          - "3.14t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -156,6 +152,8 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: temporary diagnostic for namespace package resolution — remove after investigation
+          CIBW_BUILD_VERBOSITY: "3"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
