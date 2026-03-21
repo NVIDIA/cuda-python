@@ -35,10 +35,9 @@ _extensions = None
 
 @functools.cache
 def _get_cuda_path() -> str:
-    # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
-    # build backend runs in an isolated venv where the cuda namespace package
-    # from backend-path shadows the installed cuda-pathfinder.
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    from cuda.pathfinder import get_cuda_path_or_home
+
+    cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)

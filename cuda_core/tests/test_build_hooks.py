@@ -24,6 +24,8 @@ from unittest import mock
 
 import pytest
 
+from cuda.pathfinder import get_cuda_path_or_home
+
 # build_hooks.py imports Cython and setuptools at the top level, so skip if not available
 pytest.importorskip("Cython")
 pytest.importorskip("setuptools")
@@ -68,6 +70,7 @@ def _check_version_detection(
 
         build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        get_cuda_path_or_home.cache_clear()
 
         mock_env = {
             k: v
@@ -92,6 +95,7 @@ class TestGetCudaMajorVersion:
         """CUDA_CORE_BUILD_MAJOR env var override works with various versions."""
         build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        get_cuda_path_or_home.cache_clear()
         with mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": version}, clear=False):
             result = build_hooks._determine_cuda_major_version()
             assert result == version
@@ -125,6 +129,7 @@ class TestGetCudaMajorVersion:
         """RuntimeError is raised when CUDA_PATH/CUDA_HOME not set and no env var override."""
         build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        get_cuda_path_or_home.cache_clear()
         with (
             mock.patch.dict(os.environ, {}, clear=True),
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
