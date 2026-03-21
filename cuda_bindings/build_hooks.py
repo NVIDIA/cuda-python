@@ -33,51 +33,43 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 _extensions = None
 
 
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    In isolated build environments, backend-path=["."] causes the ``cuda``
+    namespace package to resolve to only the project's ``cuda/`` directory,
+    hiding ``cuda.pathfinder`` installed in the build-env's site-packages.
+    Fix by replacing ``cuda.__path__`` with a plain list that includes the
+    site-packages ``cuda/`` directory.
+    """
+    try:
+        from cuda import pathfinder
+    except ModuleNotFoundError:
+        pass
+    else:
+        return pathfinder.get_cuda_path_or_home
+
+    import cuda
+
+    for p in sys.path:
+        sp_cuda = os.path.join(p, "cuda")
+        if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+            cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+            break
+
+    from cuda.pathfinder import get_cuda_path_or_home
+
+    return get_cuda_path_or_home
+
+
 @functools.cache
 def _get_cuda_path() -> str:
-    _diagnose_namespace_packages()
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
-
-
-def _diagnose_namespace_packages():
-    """TODO: temporary diagnostic — remove after investigating namespace package resolution."""
-    import sys
-
-    print("--- namespace diagnostic (cuda_bindings/build_hooks.py) ---")
-    print("sys.path:")
-    for p in sys.path:
-        print(f"  {p}")
-    try:
-        import cuda
-
-        print(f"cuda.__path__: {cuda.__path__}")
-        print(f"cuda.__file__: {getattr(cuda, '__file__', 'N/A')}")
-        print(f"cuda.__spec__: {cuda.__spec__}")
-    except Exception as e:
-        print(f"import cuda failed: {e}")
-    try:
-        import cuda.pathfinder
-
-        print(f"cuda.pathfinder.__file__: {cuda.pathfinder.__file__}")
-        print(f"cuda.pathfinder.__version__: {cuda.pathfinder.__version__}")
-    except Exception as e:
-        print(f"import cuda.pathfinder failed (before extend_path): {e}")
-        try:
-            import pkgutil
-
-            cuda.__path__ = pkgutil.extend_path(cuda.__path__, cuda.__name__)
-            print(f"cuda.__path__ (after extend_path): {cuda.__path__}")
-            import cuda.pathfinder
-
-            print(f"cuda.pathfinder.__file__: {cuda.pathfinder.__file__}")
-            print(f"cuda.pathfinder.__version__: {cuda.pathfinder.__version__}")
-        except Exception as e2:
-            print(f"import cuda.pathfinder failed (after extend_path): {e2}")
-    print("--- end namespace diagnostic ---")
 
 
 # -----------------------------------------------------------------------
