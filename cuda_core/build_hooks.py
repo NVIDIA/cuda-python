@@ -30,13 +30,38 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 @functools.cache
 def _get_cuda_path() -> str:
-    from cuda.pathfinder import get_cuda_path_or_home
-
-    cuda_path = get_cuda_path_or_home()
+    _diagnose_namespace_packages()
+    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
+
+
+def _diagnose_namespace_packages():
+    """TODO: temporary diagnostic — remove after investigating namespace package resolution."""
+    import sys
+
+    print("--- namespace diagnostic (cuda_core/build_hooks.py) ---")
+    print("sys.path:")
+    for p in sys.path:
+        print(f"  {p}")
+    try:
+        import cuda
+
+        print(f"cuda.__path__: {cuda.__path__}")
+        print(f"cuda.__file__: {getattr(cuda, '__file__', 'N/A')}")
+        print(f"cuda.__spec__: {cuda.__spec__}")
+    except Exception as e:
+        print(f"import cuda failed: {e}")
+    try:
+        import cuda.pathfinder
+
+        print(f"cuda.pathfinder.__file__: {cuda.pathfinder.__file__}")
+        print(f"cuda.pathfinder.__version__: {cuda.pathfinder.__version__}")
+    except Exception as e:
+        print(f"import cuda.pathfinder failed: {e}")
+    print("--- end namespace diagnostic ---")
 
 
 @functools.cache
