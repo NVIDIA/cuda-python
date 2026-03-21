@@ -565,7 +565,7 @@
   "vg": "tests/test_optional_dependency_imports.py::test_get_nvvm_module_reraises_nested_module_not_found|run",
   "wg": "tests/test_program.py::test_program_options_as_bytes_invalid_backend|run",
   "xg": "tests/test_program.py::test_nvvm_deferred_import|run",
-  "yg": "tests/test_program.py::test_nvvm_program_creation_compilation|setup",
+  "yg": "tests/test_program.py::test_nvvm_program_options[options4-ltoir]|setup",
   "zg": "tests/test_module.py::test_object_code_load_ptx_from_file|run",
   "Ag": "tests/test_module.py::test_object_code_load_ptx|run",
   "Bg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-<ObjectCode handle=0x[0-9a-f]+ code_type='ptx'>]|run",
@@ -632,7 +632,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__resource_handles_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-20 01:07 +0000
+            created at 2026-03-21 01:03 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1119,10 +1119,10 @@
     <p class="pln"><span class="n"><a id="t470" href="#t470">470</a></span><span class="t"><span class="txt">    """Get the NVVM module, importing it lazily with availability checks."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t"><span class="txt">    global _nvvm_module, _nvvm_import_attempted</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t472" href="#t472">472</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t"><span class="txt">    if _nvvm_import_attempted:</span>&nbsp;</span><input type="checkbox" id="ctxs473"><span class="r"><label for="ctxs473" class="ctx">28 ctx</label></span><span class="ctxs">2TehgtgugvgReSe^f|fxgOeygVe;fWe=fXe?f|dHeYe@f}dIeZe[fb f </span></p>
-    <p class="run"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t"><span class="txt">        if _nvvm_module is None:</span>&nbsp;</span><input type="checkbox" id="ctxs474"><span class="r"><label for="ctxs474" class="ctx">25 ctx</label></span><span class="ctxs">2TehgReSe^f|fxgOeygVe;fWe=fXe?f|dHeYe@f}dIeZe[fb f </span></p>
+    <p class="run"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t"><span class="txt">    if _nvvm_import_attempted:</span>&nbsp;</span><input type="checkbox" id="ctxs473"><span class="r"><label for="ctxs473" class="ctx">28 ctx</label></span><span class="ctxs">2TehgtgugvgReSe^f|fxgOeVe;fWe=fXe?f|dHeYeyg@f}dIeZe[fb f </span></p>
+    <p class="run"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t"><span class="txt">        if _nvvm_module is None:</span>&nbsp;</span><input type="checkbox" id="ctxs474"><span class="r"><label for="ctxs474" class="ctx">25 ctx</label></span><span class="ctxs">2TehgReSe^f|fxgOeVe;fWe=fXe?f|dHeYeyg@f}dIeZe[fb f </span></p>
     <p class="mis show_mis"><span class="n"><a id="t475" href="#t475">475</a></span><span class="t"><span class="txt">            raise RuntimeError("NVVM module is not available (previous import attempt failed)")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t"><span class="txt">        return _nvvm_module</span>&nbsp;</span><input type="checkbox" id="ctxs476"><span class="r"><label for="ctxs476" class="ctx">25 ctx</label></span><span class="ctxs">2TehgReSe^f|fxgOeygVe;fWe=fXe?f|dHeYe@f}dIeZe[fb f </span></p>
+    <p class="run"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t"><span class="txt">        return _nvvm_module</span>&nbsp;</span><input type="checkbox" id="ctxs476"><span class="r"><label for="ctxs476" class="ctx">25 ctx</label></span><span class="ctxs">2TehgReSe^f|fxgOeVe;fWe=fXe?f|dHeYeyg@f}dIeZe[fb f </span></p>
     <p class="pln"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t"><span class="txt">    _nvvm_import_attempted = True</span>&nbsp;</span><input type="checkbox" id="ctxs478"><span class="r"><label for="ctxs478" class="ctx">4 ctx</label></span><span class="ctxs">2Tetgugvg</span></p>
     <p class="pln"><span class="n"><a id="t479" href="#t479">479</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -1821,7 +1821,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__resource_handles_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-20 01:07 +0000
+            created at 2026-03-21 01:03 +0000
         </p>
     </div>
 </footer>
