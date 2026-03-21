@@ -42,7 +42,11 @@ def _import_get_cuda_path_or_home():
     except ModuleNotFoundError:
         pass
     else:
-        return pathfinder.get_cuda_path_or_home
+        return getattr(
+            pathfinder,
+            "get_cuda_path_or_home",
+            lambda: os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME")),
+        )
 
     import cuda
 
@@ -52,9 +56,13 @@ def _import_get_cuda_path_or_home():
             cuda.__path__ = list(cuda.__path__) + [sp_cuda]
             break
 
-    from cuda.pathfinder import get_cuda_path_or_home
+    from cuda import pathfinder
 
-    return get_cuda_path_or_home
+    return getattr(
+        pathfinder,
+        "get_cuda_path_or_home",
+        lambda: os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME")),
+    )
 
 
 @functools.cache
