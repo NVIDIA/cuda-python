@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cyruntime.pyx: 60.35%</title>
+    <title>Coverage for cuda/bindings/cyruntime.pyx: 61.79%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
@@ -29,111 +29,116 @@
   "t": "tests/test_cudart.py::test_cudart_graphs|run",
   "u": "tests/test_cudart.py::test_cudart_cudaArrayGetInfo|run",
   "v": "tests/test_cudart.py::test_cudart_cudaGetChannelDesc|run",
-  "w": "tests/test_cudart.py::test_cudart_make_api|run",
-  "x": "tests/test_graphics_apis.py::test_cuda_register_image_invalid|run",
-  "y": "tests/test_cudart.py::test_cudart_memcpy|run",
-  "z": "tests/test_cudart.py::test_cudart_conditional|run",
-  "A": "tests/test_interoperability.py::test_interop_graphNode|run",
-  "B": "tests/test_interoperability.py::test_interop_graphExec|run",
-  "C": "tests/test_interoperability.py::test_interop_stream|run",
-  "D": "tests/test_interoperability.py::test_interop_event|run",
-  "E": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[by-address]|run",
-  "F": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[not-by-address]|run",
-  "G": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol_numpy|run",
-  "H": "tests/test_kernelParams.py::test_kernelParams_struct_custom|run",
-  "I": "tests/test_cudart.py::test_cudart_hostRegister|run",
-  "J": "tests/test_interoperability.py::test_interop_deviceptr|run",
-  "K": "tests/test_interoperability.py::test_interop_graph|run",
-  "L": "tests/test_cudart.py::test_profiler|run",
-  "M": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
-  "N": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
-  "O": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
-  "P": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
-  "Q": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
-  "R": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
-  "S": "tests/test_device.py::test_device_alloc_zero_bytes|run",
-  "T": "tests/test_device.py::test_device_alloc|run",
-  "U": "tests/test_helpers.py::test_patterngen_seeds|run",
-  "V": "tests/test_helpers.py::test_patterngen_values|run",
-  "W": "tests/test_memory.py::test_buffer_copy_from|run",
-  "X": "tests/test_memory.py::test_buffer_copy_to|run",
-  "Y": "tests/test_memory.py::test_buffer_fill[device-bytes-1]|run",
-  "Z": "tests/test_memory.py::test_buffer_fill[device-bytes-2]|run",
-  "0": "tests/test_memory.py::test_buffer_fill[device-bytes-4]|run",
-  "1": "tests/test_memory.py::test_buffer_fill[device-int-0x42]|run",
-  "2": "tests/test_memory.py::test_buffer_fill[device-np-float32-1.0]|run",
-  "3": "tests/test_memory.py::test_buffer_fill[device-np-int8-127]|run",
-  "4": "tests/test_memory.py::test_buffer_fill[device-np-int8--1]|run",
-  "5": "tests/test_memory.py::test_buffer_fill[device-np-int8--128]|run",
-  "6": "tests/test_memory.py::test_buffer_fill[device-np-int16--1]|run",
-  "7": "tests/test_memory.py::test_buffer_fill[device-np-int16-max]|run",
-  "8": "tests/test_memory.py::test_buffer_fill[device-np-int16-min]|run",
-  "9": "tests/test_memory.py::test_buffer_fill[device-np-int32--1]|run",
-  "!": "tests/test_memory.py::test_buffer_fill[device-np-int32-max]|run",
-  "#": "tests/test_memory.py::test_buffer_fill[device-np-int32-min]|run",
-  "$": "tests/test_memory.py::test_buffer_fill[device-np-uint8-0]|run",
-  "%": "tests/test_memory.py::test_buffer_fill[device-np-uint8-255]|run",
-  "'": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0x1234]|run",
-  "(": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0xFFFF]|run",
-  ")": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xDEADBEEF]|run",
-  "*": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xFFFFFFFF]|run",
-  "+": "tests/test_memory.py::test_buffer_fill[pinned-bytes-1]|run",
-  ",": "tests/test_memory.py::test_buffer_fill[pinned-bytes-2]|run",
-  "-": "tests/test_memory.py::test_buffer_fill[pinned-bytes-4]|run",
-  ".": "tests/test_memory.py::test_buffer_fill[pinned-int-0x42]|run",
-  "/": "tests/test_memory.py::test_buffer_fill[pinned-np-float32-1.0]|run",
-  ":": "tests/test_memory.py::test_buffer_fill[pinned-np-int8-127]|run",
-  ";": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--1]|run",
-  "=": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--128]|run",
-  "?": "tests/test_memory.py::test_buffer_fill[pinned-np-int16--1]|run",
-  "@": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-max]|run",
-  "[": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-min]|run",
-  "]": "tests/test_memory.py::test_buffer_fill[pinned-np-int32--1]|run",
-  "^": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-max]|run",
-  "_": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-min]|run",
-  "`": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-0]|run",
-  "{": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-255]|run",
-  "|": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0x1234]|run",
-  "}": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0xFFFF]|run",
-  "~": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xDEADBEEF]|run",
-  "ab": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xFFFFFFFF]|run",
-  "bb": "tests/test_memory.py::test_buffer_fill[unified-bytes-1]|run",
-  "cb": "tests/test_memory.py::test_buffer_fill[unified-bytes-2]|run",
-  "db": "tests/test_memory.py::test_buffer_fill[unified-bytes-4]|run",
-  "eb": "tests/test_memory.py::test_buffer_fill[unified-int-0x42]|run",
-  "fb": "tests/test_memory.py::test_buffer_fill[unified-np-float32-1.0]|run",
-  "gb": "tests/test_memory.py::test_buffer_fill[unified-np-int8-127]|run",
-  "hb": "tests/test_memory.py::test_buffer_fill[unified-np-int8--1]|run",
-  "ib": "tests/test_memory.py::test_buffer_fill[unified-np-int8--128]|run",
-  "jb": "tests/test_memory.py::test_buffer_fill[unified-np-int16--1]|run",
-  "kb": "tests/test_memory.py::test_buffer_fill[unified-np-int16-max]|run",
-  "lb": "tests/test_memory.py::test_buffer_fill[unified-np-int16-min]|run",
-  "mb": "tests/test_memory.py::test_buffer_fill[unified-np-int32--1]|run",
-  "nb": "tests/test_memory.py::test_buffer_fill[unified-np-int32-max]|run",
-  "ob": "tests/test_memory.py::test_buffer_fill[unified-np-int32-min]|run",
-  "pb": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-0]|run",
-  "qb": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-255]|run",
-  "rb": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0x1234]|run",
-  "sb": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0xFFFF]|run",
-  "tb": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xDEADBEEF]|run",
-  "ub": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xFFFFFFFF]|run",
-  "vb": "tests/test_memory.py::test_device_memory_resource_with_options|run",
-  "wb": "tests/test_memory.py::test_managed_memory_resource_with_options|run",
-  "xb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
-  "yb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[ManagedMR]|run",
-  "zb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
-  "Ab": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
-  "Bb": "tests/system/test_system_device.py::test_to_cuda_device|run",
-  "Cb": "tests/test_device.py::test_pci_bus_id|run",
-  "Db": "tests/test_device.py::test_to_system_device|run",
-  "Eb": "tests/test_cuda_utils.py::test_check_runtime_error|run",
-  "Fb": "tests/system/test_system_system.py::test_devices|run",
-  "Gb": "tests/system/test_system_system.py::test_num_devices|run",
-  "Hb": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
-  "Ib": "tests/test_cudart.py::test_cudart_list_access|run",
-  "Jb": "tests/test_device.py::test_compute_capability|run",
-  "Kb": "tests/test_device.py::test_device_id|run",
-  "Lb": "tests/test_cudart.py::test_cudart_both_type|run"
+  "w": "tests/test_cudart.py::test_cudart_MemPool_attr|run",
+  "x": "tests/test_cudart.py::test_cudart_make_api|run",
+  "y": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[<cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone: 0>]|run",
+  "z": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[<cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard: 2>]|run",
+  "A": "tests/test_graphics_apis.py::test_cuda_register_image_invalid|run",
+  "B": "tests/test_cudart.py::test_cudart_memcpy|run",
+  "C": "tests/test_cudart.py::test_cudart_class_inline|run",
+  "D": "tests/test_cudart.py::test_cudart_conditional|run",
+  "E": "tests/test_interoperability.py::test_interop_graphNode|run",
+  "F": "tests/test_interoperability.py::test_interop_graphExec|run",
+  "G": "tests/test_interoperability.py::test_interop_memPool|run",
+  "H": "tests/test_interoperability.py::test_interop_stream|run",
+  "I": "tests/test_interoperability.py::test_interop_event|run",
+  "J": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[by-address]|run",
+  "K": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[not-by-address]|run",
+  "L": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol_numpy|run",
+  "M": "tests/test_kernelParams.py::test_kernelParams_struct_custom|run",
+  "N": "tests/test_cudart.py::test_cudart_hostRegister|run",
+  "O": "tests/test_interoperability.py::test_interop_deviceptr|run",
+  "P": "tests/test_interoperability.py::test_interop_graph|run",
+  "Q": "tests/test_cudart.py::test_profiler|run",
+  "R": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
+  "S": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
+  "T": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
+  "U": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
+  "V": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
+  "W": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
+  "X": "tests/test_device.py::test_device_alloc_zero_bytes|run",
+  "Y": "tests/test_device.py::test_device_alloc|run",
+  "Z": "tests/test_helpers.py::test_patterngen_seeds|run",
+  "0": "tests/test_helpers.py::test_patterngen_values|run",
+  "1": "tests/test_memory.py::test_buffer_copy_from|run",
+  "2": "tests/test_memory.py::test_buffer_copy_to|run",
+  "3": "tests/test_memory.py::test_buffer_fill[device-bytes-1]|run",
+  "4": "tests/test_memory.py::test_buffer_fill[device-bytes-2]|run",
+  "5": "tests/test_memory.py::test_buffer_fill[device-bytes-4]|run",
+  "6": "tests/test_memory.py::test_buffer_fill[device-int-0x42]|run",
+  "7": "tests/test_memory.py::test_buffer_fill[device-np-float32-1.0]|run",
+  "8": "tests/test_memory.py::test_buffer_fill[device-np-int8-127]|run",
+  "9": "tests/test_memory.py::test_buffer_fill[device-np-int8--1]|run",
+  "!": "tests/test_memory.py::test_buffer_fill[device-np-int8--128]|run",
+  "#": "tests/test_memory.py::test_buffer_fill[device-np-int16--1]|run",
+  "$": "tests/test_memory.py::test_buffer_fill[device-np-int16-max]|run",
+  "%": "tests/test_memory.py::test_buffer_fill[device-np-int16-min]|run",
+  "'": "tests/test_memory.py::test_buffer_fill[device-np-int32--1]|run",
+  "(": "tests/test_memory.py::test_buffer_fill[device-np-int32-max]|run",
+  ")": "tests/test_memory.py::test_buffer_fill[device-np-int32-min]|run",
+  "*": "tests/test_memory.py::test_buffer_fill[device-np-uint8-0]|run",
+  "+": "tests/test_memory.py::test_buffer_fill[device-np-uint8-255]|run",
+  ",": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0x1234]|run",
+  "-": "tests/test_memory.py::test_buffer_fill[device-np-uint16-0xFFFF]|run",
+  ".": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xDEADBEEF]|run",
+  "/": "tests/test_memory.py::test_buffer_fill[device-np-uint32-0xFFFFFFFF]|run",
+  ":": "tests/test_memory.py::test_buffer_fill[pinned-bytes-1]|run",
+  ";": "tests/test_memory.py::test_buffer_fill[pinned-bytes-2]|run",
+  "=": "tests/test_memory.py::test_buffer_fill[pinned-bytes-4]|run",
+  "?": "tests/test_memory.py::test_buffer_fill[pinned-int-0x42]|run",
+  "@": "tests/test_memory.py::test_buffer_fill[pinned-np-float32-1.0]|run",
+  "[": "tests/test_memory.py::test_buffer_fill[pinned-np-int8-127]|run",
+  "]": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--1]|run",
+  "^": "tests/test_memory.py::test_buffer_fill[pinned-np-int8--128]|run",
+  "_": "tests/test_memory.py::test_buffer_fill[pinned-np-int16--1]|run",
+  "`": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-max]|run",
+  "{": "tests/test_memory.py::test_buffer_fill[pinned-np-int16-min]|run",
+  "|": "tests/test_memory.py::test_buffer_fill[pinned-np-int32--1]|run",
+  "}": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-max]|run",
+  "~": "tests/test_memory.py::test_buffer_fill[pinned-np-int32-min]|run",
+  "ab": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-0]|run",
+  "bb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint8-255]|run",
+  "cb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0x1234]|run",
+  "db": "tests/test_memory.py::test_buffer_fill[pinned-np-uint16-0xFFFF]|run",
+  "eb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xDEADBEEF]|run",
+  "fb": "tests/test_memory.py::test_buffer_fill[pinned-np-uint32-0xFFFFFFFF]|run",
+  "gb": "tests/test_memory.py::test_buffer_fill[unified-bytes-1]|run",
+  "hb": "tests/test_memory.py::test_buffer_fill[unified-bytes-2]|run",
+  "ib": "tests/test_memory.py::test_buffer_fill[unified-bytes-4]|run",
+  "jb": "tests/test_memory.py::test_buffer_fill[unified-int-0x42]|run",
+  "kb": "tests/test_memory.py::test_buffer_fill[unified-np-float32-1.0]|run",
+  "lb": "tests/test_memory.py::test_buffer_fill[unified-np-int8-127]|run",
+  "mb": "tests/test_memory.py::test_buffer_fill[unified-np-int8--1]|run",
+  "nb": "tests/test_memory.py::test_buffer_fill[unified-np-int8--128]|run",
+  "ob": "tests/test_memory.py::test_buffer_fill[unified-np-int16--1]|run",
+  "pb": "tests/test_memory.py::test_buffer_fill[unified-np-int16-max]|run",
+  "qb": "tests/test_memory.py::test_buffer_fill[unified-np-int16-min]|run",
+  "rb": "tests/test_memory.py::test_buffer_fill[unified-np-int32--1]|run",
+  "sb": "tests/test_memory.py::test_buffer_fill[unified-np-int32-max]|run",
+  "tb": "tests/test_memory.py::test_buffer_fill[unified-np-int32-min]|run",
+  "ub": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-0]|run",
+  "vb": "tests/test_memory.py::test_buffer_fill[unified-np-uint8-255]|run",
+  "wb": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0x1234]|run",
+  "xb": "tests/test_memory.py::test_buffer_fill[unified-np-uint16-0xFFFF]|run",
+  "yb": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xDEADBEEF]|run",
+  "zb": "tests/test_memory.py::test_buffer_fill[unified-np-uint32-0xFFFFFFFF]|run",
+  "Ab": "tests/test_memory.py::test_device_memory_resource_with_options|run",
+  "Bb": "tests/test_memory.py::test_managed_memory_resource_with_options|run",
+  "Cb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[DeviceMR]|run",
+  "Db": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[ManagedMR]|run",
+  "Eb": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
+  "Fb": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
+  "Gb": "tests/system/test_system_device.py::test_to_cuda_device|run",
+  "Hb": "tests/test_device.py::test_pci_bus_id|run",
+  "Ib": "tests/test_device.py::test_to_system_device|run",
+  "Jb": "tests/test_cuda_utils.py::test_check_runtime_error|run",
+  "Kb": "tests/system/test_system_system.py::test_devices|run",
+  "Lb": "tests/system/test_system_system.py::test_num_devices|run",
+  "Mb": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
+  "Nb": "tests/test_cudart.py::test_cudart_list_access|run",
+  "Ob": "tests/test_device.py::test_compute_capability|run",
+  "Pb": "tests/test_device.py::test_device_id|run",
+  "Qb": "tests/test_cudart.py::test_cudart_both_type|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -143,7 +148,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;bindings&#8201;/&#8201;cyruntime.pyx</b>:
-            <span class="pc_cov">60.35%</span>
+            <span class="pc_cov">61.79%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -186,8 +191,8 @@
         </aside>
         <h2>
             <span class="text">691 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">417<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">274<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">427<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">264<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -196,7 +201,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-21 01:03 +0000
+            created at 2026-03-22 01:09 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -222,7 +227,7 @@
     <p class="mis show_mis"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceReset()</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceSynchronize() except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">79 ctx</label></span><span class="ctxs">2M N O P Q R r S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAb</span></p>
+    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs12"><span class="r"><label for="ctxs12" class="ctx">79 ctx</label></span><span class="ctxs">2R S T U V W r X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb</span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceSetLimit(cudaLimit limit, size_t value) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSetLimit(limit, value)</span>&nbsp;</span><span class="r"></span></p>
@@ -246,7 +251,7 @@
     <p class="mis show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetByPCIBusId(device, pciBusId)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetPCIBusId(char* pciBusId, int length, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetPCIBusId(pciBusId, length, device)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">3 ctx</label></span><span class="ctxs">2BbCbDb</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetPCIBusId(pciBusId, length, device)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">3 ctx</label></span><span class="ctxs">2GbHbIb</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">cdef cudaError_t cudaIpcGetEventHandle(cudaIpcEventHandle_t* handle, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs38" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    return cyruntime._cudaIpcGetEventHandle(handle, event)</span>&nbsp;</span><span class="r"></span></p>
@@ -285,28 +290,28 @@
     <p class="mis show_mis"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    return cyruntime._cudaPeekAtLastError()</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">cdef const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs74" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorName(error)</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">2 ctx</label></span><span class="ctxs">2Ebx </span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorName(error)</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">4 ctx</label></span><span class="ctxs">2Jby z A </span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">cdef const char* cudaGetErrorString(cudaError_t error) except ?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">1 ctx</label></span><span class="ctxs">1A</span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDeviceCount(int* count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs80" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceCount(count)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">2 ctx</label></span><span class="ctxs">2FbGb</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceCount(count)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">2 ctx</label></span><span class="ctxs">2KbLb</span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceProperties(prop, device)</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">2HbIb</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceProperties(prop, device)</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">2MbNb</span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetAttribute(int* value, cudaDeviceAttr attr, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetAttribute(value, attr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">2 ctx</label></span><span class="ctxs">2a Jb</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetAttribute(value, attr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">2 ctx</label></span><span class="ctxs">2a Ob</span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const cudaAtomicOperation* operations, unsigned int count, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs89" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetHostAtomicCapabilities(capabilities, operations, count, device)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetDefaultMemPool(cudaMemPool_t* memPool, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetDefaultMemPool(memPool, device)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetDefaultMemPool(memPool, device)</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">1 ctx</label></span><span class="ctxs">1G</span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceSetMemPool(int device, cudaMemPool_t memPool) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs95" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSetMemPool(device, memPool)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceSetMemPool(device, memPool)</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">1 ctx</label></span><span class="ctxs">1G</span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetMemPool(cudaMemPool_t* memPool, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs98" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceGetMemPool(memPool, device)</span>&nbsp;</span><span class="r"></span></p>
@@ -330,7 +335,7 @@
     <p class="mis show_mis"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">    return cyruntime._cudaSetDevice(device)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDevice(int* device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs119" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">1 ctx</label></span><span class="ctxs">2Kb</span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">1 ctx</label></span><span class="ctxs">2Pb</span></p>
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">cdef cudaError_t cudaSetDeviceFlags(unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs122" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    return cyruntime._cudaSetDeviceFlags(flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -339,7 +344,7 @@
     <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetDeviceFlags(flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamCreate(cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs128" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamCreate(pStream)</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">7 ctx</label></span><span class="ctxs">1fdebsrC</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamCreate(pStream)</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">7 ctx</label></span><span class="ctxs">1fdebsrH</span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamCreateWithFlags(cudaStream_t* pStream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs131" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamCreateWithFlags(pStream, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">1 ctx</label></span><span class="ctxs">1t</span></p>
@@ -372,7 +377,7 @@
     <p class="mis show_mis"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamSetAttribute(hStream, attr, value)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamDestroy(cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs161" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamDestroy(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamDestroy(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">1 ctx</label></span><span class="ctxs">1H</span></p>
     <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamWaitEvent(cudaStream_t stream, cudaEvent_t event, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs164" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamWaitEvent(stream, event, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -396,7 +401,7 @@
     <p class="mis show_mis"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamBeginCaptureToGraph(stream, graph, dependencies, dependencyData, numDependencies, mode)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs185" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    return cyruntime._cudaThreadExchangeStreamCaptureMode(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">1 ctx</label></span><span class="ctxs">2Lb</span></p>
+    <p class="run"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    return cyruntime._cudaThreadExchangeStreamCaptureMode(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs186"><span class="r"><label for="ctxs186" class="ctx">1 ctx</label></span><span class="ctxs">2Qb</span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamEndCapture(cudaStream_t stream, cudaGraph_t* pGraph) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs188" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamEndCapture(stream, pGraph)</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">1 ctx</label></span><span class="ctxs">1s</span></p>
@@ -411,7 +416,7 @@
     <p class="mis show_mis"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">    return cyruntime._cudaStreamUpdateCaptureDependencies(stream, dependencies, dependencyData, numDependencies, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">cdef cudaError_t cudaEventCreate(cudaEvent_t* event) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs200" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventCreate(event)</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventCreate(event)</span>&nbsp;</span><input type="checkbox" id="ctxs201"><span class="r"><label for="ctxs201" class="ctx">1 ctx</label></span><span class="ctxs">1I</span></p>
     <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">cdef cudaError_t cudaEventCreateWithFlags(cudaEvent_t* event, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs203" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventCreateWithFlags(event, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -429,7 +434,7 @@
     <p class="mis show_mis"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventSynchronize(event)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">cdef cudaError_t cudaEventDestroy(cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs218" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventDestroy(event)</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventDestroy(event)</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">1 ctx</label></span><span class="ctxs">1I</span></p>
     <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">cdef cudaError_t cudaEventElapsedTime(float* ms, cudaEvent_t start, cudaEvent_t end) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs221" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventElapsedTime(ms, start, end)</span>&nbsp;</span><span class="r"></span></p>
@@ -492,7 +497,7 @@
     <p class="mis show_mis"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">    return cyruntime._cudaMallocManaged(devPtr, size, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMalloc(void** devPtr, size_t size) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs281" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    return cyruntime._cudaMalloc(devPtr, size)</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">8 ctx</label></span><span class="ctxs">1fdgbchyl</span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    return cyruntime._cudaMalloc(devPtr, size)</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">8 ctx</label></span><span class="ctxs">1fdgbchBl</span></p>
     <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMallocHost(void** ptr, size_t size) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs284" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">    return cyruntime._cudaMallocHost(ptr, size)</span>&nbsp;</span><span class="r"></span></p>
@@ -504,25 +509,25 @@
     <p class="run"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">    return cyruntime._cudaMallocArray(array, desc, width, height, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs291"><span class="r"><label for="ctxs291" class="ctx">12 ctx</label></span><span class="ctxs">1uvmjgnebckho</span></p>
     <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">cdef cudaError_t cudaFree(void* devPtr) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs293" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    return cyruntime._cudaFree(devPtr)</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">10 ctx</label></span><span class="ctxs">1fdgbchpqyl</span></p>
+    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    return cyruntime._cudaFree(devPtr)</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">10 ctx</label></span><span class="ctxs">1fdgbchpqBl</span></p>
     <p class="pln"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">cdef cudaError_t cudaFreeHost(void* ptr) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs296" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    return cyruntime._cudaFreeHost(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">5 ctx</label></span><span class="ctxs">1EFGHl</span></p>
+    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    return cyruntime._cudaFreeHost(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">5 ctx</label></span><span class="ctxs">1JKLMl</span></p>
     <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">cdef cudaError_t cudaFreeArray(cudaArray_t array) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs299" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">    return cyruntime._cudaFreeArray(array)</span>&nbsp;</span><input type="checkbox" id="ctxs300"><span class="r"><label for="ctxs300" class="ctx">11 ctx</label></span><span class="ctxs">1uvjgnebckho</span></p>
     <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">cdef cudaError_t cudaFreeMipmappedArray(cudaMipmappedArray_t mipmappedArray) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs302" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    return cyruntime._cudaFreeMipmappedArray(mipmappedArray)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    return cyruntime._cudaFreeMipmappedArray(mipmappedArray)</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">cdef cudaError_t cudaHostAlloc(void** pHost, size_t size, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs305" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostAlloc(pHost, size, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">5 ctx</label></span><span class="ctxs">1EFGHl</span></p>
+    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostAlloc(pHost, size, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">5 ctx</label></span><span class="ctxs">1JKLMl</span></p>
     <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">cdef cudaError_t cudaHostRegister(void* ptr, size_t size, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs308" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostRegister(ptr, size, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs309"><span class="r"><label for="ctxs309" class="ctx">1 ctx</label></span><span class="ctxs">1I</span></p>
+    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostRegister(ptr, size, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs309"><span class="r"><label for="ctxs309" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
     <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">cdef cudaError_t cudaHostUnregister(void* ptr) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs311" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostUnregister(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">1 ctx</label></span><span class="ctxs">1I</span></p>
+    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostUnregister(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">cdef cudaError_t cudaHostGetDevicePointer(void** pDevice, void* pHost, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs314" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">    return cyruntime._cudaHostGetDevicePointer(pDevice, pHost, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -537,7 +542,7 @@
     <p class="mis show_mis"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">    return cyruntime._cudaMalloc3DArray(array, desc, extent, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMallocMipmappedArray(cudaMipmappedArray_t* mipmappedArray, const cudaChannelFormatDesc* desc, cudaExtent extent, unsigned int numLevels, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs326" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    return cyruntime._cudaMallocMipmappedArray(mipmappedArray, desc, extent, numLevels, flags)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    return cyruntime._cudaMallocMipmappedArray(mipmappedArray, desc, extent, numLevels, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs327"><span class="r"><label for="ctxs327" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetMipmappedArrayLevel(cudaArray_t* levelArray, cudaMipmappedArray_const_t mipmappedArray, unsigned int level) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs329" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetMipmappedArrayLevel(levelArray, mipmappedArray, level)</span>&nbsp;</span><span class="r"></span></p>
@@ -573,10 +578,10 @@
     <p class="mis show_mis"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">    return cyruntime._cudaArrayGetSparseProperties(sparseProperties, array)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMipmappedArrayGetSparseProperties(cudaArraySparseProperties* sparseProperties, cudaMipmappedArray_t mipmap) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs362" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    return cyruntime._cudaMipmappedArrayGetSparseProperties(sparseProperties, mipmap)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    return cyruntime._cudaMipmappedArrayGetSparseProperties(sparseProperties, mipmap)</span>&nbsp;</span><input type="checkbox" id="ctxs363"><span class="r"><label for="ctxs363" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
     <p class="pln"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs365" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemcpy(dst, src, count, kind)</span>&nbsp;</span><input type="checkbox" id="ctxs366"><span class="r"><label for="ctxs366" class="ctx">8 ctx</label></span><span class="ctxs">1gbchpqyJ</span></p>
+    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemcpy(dst, src, count, kind)</span>&nbsp;</span><input type="checkbox" id="ctxs366"><span class="r"><label for="ctxs366" class="ctx">8 ctx</label></span><span class="ctxs">1gbchpqBO</span></p>
     <p class="pln"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemcpyPeer(void* dst, int dstDevice, const void* src, int srcDevice, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs368" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemcpyPeer(dst, dstDevice, src, srcDevice, count)</span>&nbsp;</span><span class="r"></span></p>
@@ -621,7 +626,7 @@
     <p class="mis show_mis"><span class="n"><a id="t408" href="#t408">408</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemcpy2DFromArrayAsync(dst, dpitch, src, wOffset, hOffset, width, height, kind, stream)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t409" href="#t409">409</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t410" href="#t410">410</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemset(void* devPtr, int value, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs410" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t411" href="#t411">411</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemset(devPtr, value, count)</span>&nbsp;</span><input type="checkbox" id="ctxs411"><span class="r"><label for="ctxs411" class="ctx">1 ctx</label></span><span class="ctxs">1J</span></p>
+    <p class="run"><span class="n"><a id="t411" href="#t411">411</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemset(devPtr, value, count)</span>&nbsp;</span><input type="checkbox" id="ctxs411"><span class="r"><label for="ctxs411" class="ctx">1 ctx</label></span><span class="ctxs">1O</span></p>
     <p class="pln"><span class="n"><a id="t412" href="#t412">412</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t413" href="#t413">413</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemset2D(void* devPtr, size_t pitch, int value, size_t width, size_t height) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs413" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t414" href="#t414">414</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemset2D(devPtr, pitch, value, width, height)</span>&nbsp;</span><span class="r"></span></p>
@@ -684,10 +689,10 @@
     <p class="mis show_mis"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolTrimTo(memPool, minBytesToKeep)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t472" href="#t472">472</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemPoolSetAttribute(cudaMemPool_t memPool, cudaMemPoolAttr attr, void* value) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs473" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolSetAttribute(memPool, attr, value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolSetAttribute(memPool, attr, value)</span>&nbsp;</span><input type="checkbox" id="ctxs474"><span class="r"><label for="ctxs474" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="pln"><span class="n"><a id="t475" href="#t475">475</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemPoolGetAttribute(cudaMemPool_t memPool, cudaMemPoolAttr attr, void* value) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs476" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolGetAttribute(memPool, attr, value)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolGetAttribute(memPool, attr, value)</span>&nbsp;</span><input type="checkbox" id="ctxs477"><span class="r"><label for="ctxs477" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="pln"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t479" href="#t479">479</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemPoolSetAccess(cudaMemPool_t memPool, const cudaMemAccessDesc* descList, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs479" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t480" href="#t480">480</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolSetAccess(memPool, descList, count)</span>&nbsp;</span><span class="r"></span></p>
@@ -696,10 +701,10 @@
     <p class="mis show_mis"><span class="n"><a id="t483" href="#t483">483</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolGetAccess(flags, memPool, location)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t484" href="#t484">484</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t485" href="#t485">485</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemPoolCreate(cudaMemPool_t* memPool, const cudaMemPoolProps* poolProps) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs485" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t486" href="#t486">486</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolCreate(memPool, poolProps)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t486" href="#t486">486</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolCreate(memPool, poolProps)</span>&nbsp;</span><input type="checkbox" id="ctxs486"><span class="r"><label for="ctxs486" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="pln"><span class="n"><a id="t487" href="#t487">487</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t488" href="#t488">488</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemPoolDestroy(cudaMemPool_t memPool) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs488" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t489" href="#t489">489</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolDestroy(memPool)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t489" href="#t489">489</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemPoolDestroy(memPool)</span>&nbsp;</span><input type="checkbox" id="ctxs489"><span class="r"><label for="ctxs489" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="pln"><span class="n"><a id="t490" href="#t490">490</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t491" href="#t491">491</a></span><span class="t"><span class="txt">cdef cudaError_t cudaMemGetDefaultMemPool(cudaMemPool_t* memPool, cudaMemLocation* location, cudaMemAllocationType typename) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs491" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t492" href="#t492">492</a></span><span class="t"><span class="txt">    return cyruntime._cudaMemGetDefaultMemPool(memPool, location, typename)</span>&nbsp;</span><span class="r"></span></p>
@@ -738,7 +743,7 @@
     <p class="mis show_mis"><span class="n"><a id="t525" href="#t525">525</a></span><span class="t"><span class="txt">    return cyruntime._cudaDeviceDisablePeerAccess(peerDevice)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t526" href="#t526">526</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t527" href="#t527">527</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphicsUnregisterResource(cudaGraphicsResource_t resource) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs527" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsUnregisterResource(resource)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsUnregisterResource(resource)</span>&nbsp;</span><input type="checkbox" id="ctxs528"><span class="r"><label for="ctxs528" class="ctx">2 ctx</label></span><span class="ctxs">1yz</span></p>
     <p class="pln"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t530" href="#t530">530</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphicsResourceSetMapFlags(cudaGraphicsResource_t resource, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs530" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t531" href="#t531">531</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsResourceSetMapFlags(resource, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -762,7 +767,7 @@
     <p class="run"><span class="n"><a id="t549" href="#t549">549</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetChannelDesc(desc, array)</span>&nbsp;</span><input type="checkbox" id="ctxs549"><span class="r"><label for="ctxs549" class="ctx">1 ctx</label></span><span class="ctxs">1v</span></p>
     <p class="run"><span class="n"><a id="t550" href="#t550">550</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"><label for="ctxs550" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t551" href="#t551">551</a></span><span class="t"><span class="txt">cdef cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t552" href="#t552">552</a></span><span class="t"><span class="txt">    return cyruntime._cudaCreateChannelDesc(x, y, z, w, f)</span>&nbsp;</span><input type="checkbox" id="ctxs552"><span class="r"><label for="ctxs552" class="ctx">13 ctx</label></span><span class="ctxs">1uvmjgnebckhow</span></p>
+    <p class="run"><span class="n"><a id="t552" href="#t552">552</a></span><span class="t"><span class="txt">    return cyruntime._cudaCreateChannelDesc(x, y, z, w, f)</span>&nbsp;</span><input type="checkbox" id="ctxs552"><span class="r"><label for="ctxs552" class="ctx">13 ctx</label></span><span class="ctxs">1uvmjgnebckhox</span></p>
     <p class="pln"><span class="n"><a id="t553" href="#t553">553</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t554" href="#t554">554</a></span><span class="t"><span class="txt">cdef cudaError_t cudaCreateTextureObject(cudaTextureObject_t* pTexObject, const cudaResourceDesc* pResDesc, const cudaTextureDesc* pTexDesc, const cudaResourceViewDesc* pResViewDesc) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs554" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t555" href="#t555">555</a></span><span class="t"><span class="txt">    return cyruntime._cudaCreateTextureObject(pTexObject, pResDesc, pTexDesc, pResViewDesc)</span>&nbsp;</span><input type="checkbox" id="ctxs555"><span class="r"><label for="ctxs555" class="ctx">1 ctx</label></span><span class="ctxs">1m</span></p>
@@ -810,7 +815,7 @@
     <p class="mis show_mis"><span class="n"><a id="t597" href="#t597">597</a></span><span class="t"><span class="txt">    return cyruntime._cudaLogsDumpToMemory(iterator, buffer, size, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t598" href="#t598">598</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphCreate(cudaGraph_t* pGraph, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs599" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphCreate(pGraph, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs600"><span class="r"><label for="ctxs600" class="ctx">5 ctx</label></span><span class="ctxs">1zfdtK</span></p>
+    <p class="run"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphCreate(pGraph, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs600"><span class="r"><label for="ctxs600" class="ctx">5 ctx</label></span><span class="ctxs">1DfdtP</span></p>
     <p class="pln"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs602" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphAddKernelNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)</span>&nbsp;</span><span class="r"></span></p>
@@ -870,7 +875,7 @@
     <p class="mis show_mis"><span class="n"><a id="t657" href="#t657">657</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphChildGraphNodeGetGraph(node, pGraph)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t658" href="#t658">658</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t659" href="#t659">659</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphAddEmptyNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs659" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t660" href="#t660">660</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphAddEmptyNode(pGraphNode, graph, pDependencies, numDependencies)</span>&nbsp;</span><input type="checkbox" id="ctxs660"><span class="r"><label for="ctxs660" class="ctx">2 ctx</label></span><span class="ctxs">1tA</span></p>
+    <p class="run"><span class="n"><a id="t660" href="#t660">660</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphAddEmptyNode(pGraphNode, graph, pDependencies, numDependencies)</span>&nbsp;</span><input type="checkbox" id="ctxs660"><span class="r"><label for="ctxs660" class="ctx">2 ctx</label></span><span class="ctxs">1tE</span></p>
     <p class="pln"><span class="n"><a id="t661" href="#t661">661</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t662" href="#t662">662</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphAddEventRecordNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs662" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t663" href="#t663">663</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphAddEventRecordNode(pGraphNode, graph, pDependencies, numDependencies, event)</span>&nbsp;</span><span class="r"></span></p>
@@ -975,10 +980,10 @@
     <p class="mis show_mis"><span class="n"><a id="t762" href="#t762">762</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphRemoveDependencies(graph, from_, to, edgeData, numDependencies)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t763" href="#t763">763</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t764" href="#t764">764</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphDestroyNode(cudaGraphNode_t node) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs764" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t765" href="#t765">765</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphDestroyNode(node)</span>&nbsp;</span><input type="checkbox" id="ctxs765"><span class="r"><label for="ctxs765" class="ctx">1 ctx</label></span><span class="ctxs">1A</span></p>
+    <p class="run"><span class="n"><a id="t765" href="#t765">765</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphDestroyNode(node)</span>&nbsp;</span><input type="checkbox" id="ctxs765"><span class="r"><label for="ctxs765" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="pln"><span class="n"><a id="t766" href="#t766">766</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t767" href="#t767">767</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphInstantiate(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs767" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t768" href="#t768">768</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphInstantiate(pGraphExec, graph, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs768"><span class="r"><label for="ctxs768" class="ctx">3 ctx</label></span><span class="ctxs">1fdB</span></p>
+    <p class="run"><span class="n"><a id="t768" href="#t768">768</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphInstantiate(pGraphExec, graph, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs768"><span class="r"><label for="ctxs768" class="ctx">3 ctx</label></span><span class="ctxs">1fdF</span></p>
     <p class="pln"><span class="n"><a id="t769" href="#t769">769</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t770" href="#t770">770</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphInstantiateWithFlags(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs770" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t771" href="#t771">771</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphInstantiateWithFlags(pGraphExec, graph, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -1035,10 +1040,10 @@
     <p class="run"><span class="n"><a id="t822" href="#t822">822</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphLaunch(graphExec, stream)</span>&nbsp;</span><input type="checkbox" id="ctxs822"><span class="r"><label for="ctxs822" class="ctx">2 ctx</label></span><span class="ctxs">1fd</span></p>
     <p class="pln"><span class="n"><a id="t823" href="#t823">823</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t824" href="#t824">824</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphExecDestroy(cudaGraphExec_t graphExec) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs824" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphExecDestroy(graphExec)</span>&nbsp;</span><input type="checkbox" id="ctxs825"><span class="r"><label for="ctxs825" class="ctx">1 ctx</label></span><span class="ctxs">1B</span></p>
+    <p class="run"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphExecDestroy(graphExec)</span>&nbsp;</span><input type="checkbox" id="ctxs825"><span class="r"><label for="ctxs825" class="ctx">1 ctx</label></span><span class="ctxs">1F</span></p>
     <p class="pln"><span class="n"><a id="t826" href="#t826">826</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t827" href="#t827">827</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphDestroy(cudaGraph_t graph) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs827" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t828" href="#t828">828</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphDestroy(graph)</span>&nbsp;</span><input type="checkbox" id="ctxs828"><span class="r"><label for="ctxs828" class="ctx">3 ctx</label></span><span class="ctxs">1BAK</span></p>
+    <p class="run"><span class="n"><a id="t828" href="#t828">828</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphDestroy(graph)</span>&nbsp;</span><input type="checkbox" id="ctxs828"><span class="r"><label for="ctxs828" class="ctx">3 ctx</label></span><span class="ctxs">1FEP</span></p>
     <p class="pln"><span class="n"><a id="t829" href="#t829">829</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t830" href="#t830">830</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphDebugDotPrint(cudaGraph_t graph, const char* path, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs830" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t831" href="#t831">831</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphDebugDotPrint(graph, path, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -1059,7 +1064,7 @@
     <p class="mis show_mis"><span class="n"><a id="t846" href="#t846">846</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphReleaseUserObject(graph, object, count)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t847" href="#t847">847</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t848" href="#t848">848</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs848" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t849" href="#t849">849</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphAddNode(pGraphNode, graph, pDependencies, dependencyData, numDependencies, nodeParams)</span>&nbsp;</span><input type="checkbox" id="ctxs849"><span class="r"><label for="ctxs849" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t849" href="#t849">849</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphAddNode(pGraphNode, graph, pDependencies, dependencyData, numDependencies, nodeParams)</span>&nbsp;</span><input type="checkbox" id="ctxs849"><span class="r"><label for="ctxs849" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t850" href="#t850">850</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t851" href="#t851">851</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs851" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t852" href="#t852">852</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphNodeSetParams(node, nodeParams)</span>&nbsp;</span><span class="r"></span></p>
@@ -1071,7 +1076,7 @@
     <p class="mis show_mis"><span class="n"><a id="t858" href="#t858">858</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphExecNodeSetParams(graphExec, node, nodeParams)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t859" href="#t859">859</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t860" href="#t860">860</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs860" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t861" href="#t861">861</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphConditionalHandleCreate(pHandle_out, graph, defaultLaunchValue, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs861"><span class="r"><label for="ctxs861" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t861" href="#t861">861</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphConditionalHandleCreate(pHandle_out, graph, defaultLaunchValue, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs861"><span class="r"><label for="ctxs861" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t862" href="#t862">862</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t863" href="#t863">863</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphConditionalHandleCreate_v2(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, cudaExecutionContext_t ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs863" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t864" href="#t864">864</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphConditionalHandleCreate_v2(pHandle_out, graph, ctx, defaultLaunchValue, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -1164,13 +1169,13 @@
     <p class="mis show_mis"><span class="n"><a id="t951" href="#t951">951</a></span><span class="t"><span class="txt">    return cyruntime._cudaGetKernel(kernelPtr, entryFuncAddr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t952" href="#t952">952</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"><label for="ctxs952" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t953" href="#t953">953</a></span><span class="t"><span class="txt">cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t954" href="#t954">954</a></span><span class="t"><span class="txt">    return cyruntime._make_cudaPitchedPtr(d, p, xsz, ysz)</span>&nbsp;</span><input type="checkbox" id="ctxs954"><span class="r"><label for="ctxs954" class="ctx">4 ctx</label></span><span class="ctxs">1ebcw</span></p>
+    <p class="run"><span class="n"><a id="t954" href="#t954">954</a></span><span class="t"><span class="txt">    return cyruntime._make_cudaPitchedPtr(d, p, xsz, ysz)</span>&nbsp;</span><input type="checkbox" id="ctxs954"><span class="r"><label for="ctxs954" class="ctx">4 ctx</label></span><span class="ctxs">1ebcx</span></p>
     <p class="run"><span class="n"><a id="t955" href="#t955">955</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"><label for="ctxs955" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t956" href="#t956">956</a></span><span class="t"><span class="txt">cdef cudaPos make_cudaPos(size_t x, size_t y, size_t z) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t957" href="#t957">957</a></span><span class="t"><span class="txt">    return cyruntime._make_cudaPos(x, y, z)</span>&nbsp;</span><input type="checkbox" id="ctxs957"><span class="r"><label for="ctxs957" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="run"><span class="n"><a id="t957" href="#t957">957</a></span><span class="t"><span class="txt">    return cyruntime._make_cudaPos(x, y, z)</span>&nbsp;</span><input type="checkbox" id="ctxs957"><span class="r"><label for="ctxs957" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="run"><span class="n"><a id="t958" href="#t958">958</a></span><span class="t"><span class="txt">@cython.show_performance_hints(False)</span>&nbsp;</span><span class="r"><label for="ctxs958" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t959" href="#t959">959</a></span><span class="t"><span class="txt">cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t960" href="#t960">960</a></span><span class="t"><span class="txt">    return cyruntime._make_cudaExtent(w, h, d)</span>&nbsp;</span><input type="checkbox" id="ctxs960"><span class="r"><label for="ctxs960" class="ctx">6 ctx</label></span><span class="ctxs">1ebcpqw</span></p>
+    <p class="run"><span class="n"><a id="t960" href="#t960">960</a></span><span class="t"><span class="txt">    return cyruntime._make_cudaExtent(w, h, d)</span>&nbsp;</span><input type="checkbox" id="ctxs960"><span class="r"><label for="ctxs960" class="ctx">6 ctx</label></span><span class="ctxs">1ebcpqx</span></p>
     <p class="pln"><span class="n"><a id="t961" href="#t961">961</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t962" href="#t962">962</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphicsEGLRegisterImage(cudaGraphicsResource** pCudaResource, EGLImageKHR image, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs962" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t963" href="#t963">963</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsEGLRegisterImage(pCudaResource, image, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -1209,16 +1214,16 @@
     <p class="mis show_mis"><span class="n"><a id="t996" href="#t996">996</a></span><span class="t"><span class="txt">    return cyruntime._cudaEventCreateFromEGLSync(phEvent, eglSync, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t997" href="#t997">997</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t998" href="#t998">998</a></span><span class="t"><span class="txt">cdef cudaError_t cudaProfilerStart() except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs998" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t999" href="#t999">999</a></span><span class="t"><span class="txt">    return cyruntime._cudaProfilerStart()</span>&nbsp;</span><input type="checkbox" id="ctxs999"><span class="r"><label for="ctxs999" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="run"><span class="n"><a id="t999" href="#t999">999</a></span><span class="t"><span class="txt">    return cyruntime._cudaProfilerStart()</span>&nbsp;</span><input type="checkbox" id="ctxs999"><span class="r"><label for="ctxs999" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
     <p class="pln"><span class="n"><a id="t1000" href="#t1000">1000</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1001" href="#t1001">1001</a></span><span class="t"><span class="txt">cdef cudaError_t cudaProfilerStop() except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1001" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1002" href="#t1002">1002</a></span><span class="t"><span class="txt">    return cyruntime._cudaProfilerStop()</span>&nbsp;</span><input type="checkbox" id="ctxs1002"><span class="r"><label for="ctxs1002" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="run"><span class="n"><a id="t1002" href="#t1002">1002</a></span><span class="t"><span class="txt">    return cyruntime._cudaProfilerStop()</span>&nbsp;</span><input type="checkbox" id="ctxs1002"><span class="r"><label for="ctxs1002" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
     <p class="pln"><span class="n"><a id="t1003" href="#t1003">1003</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1004" href="#t1004">1004</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cudaGLDeviceList deviceList) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1004" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1005" href="#t1005">1005</a></span><span class="t"><span class="txt">    return cyruntime._cudaGLGetDevices(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1006" href="#t1006">1006</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1007" href="#t1007">1007</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, GLuint image, GLenum target, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1007" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1008" href="#t1008">1008</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsGLRegisterImage(resource, image, target, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs1008"><span class="r"><label for="ctxs1008" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t1008" href="#t1008">1008</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsGLRegisterImage(resource, image, target, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs1008"><span class="r"><label for="ctxs1008" class="ctx">3 ctx</label></span><span class="ctxs">1yzA</span></p>
     <p class="pln"><span class="n"><a id="t1009" href="#t1009">1009</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1010" href="#t1010">1010</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, GLuint buffer, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1010" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1011" href="#t1011">1011</a></span><span class="t"><span class="txt">    return cyruntime._cudaGraphicsGLRegisterBuffer(resource, buffer, flags)</span>&nbsp;</span><span class="r"></span></p>
@@ -1278,7 +1283,7 @@
             <a class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-21 01:03 +0000
+            created at 2026-03-22 01:09 +0000
         </p>
     </div>
 </footer>
