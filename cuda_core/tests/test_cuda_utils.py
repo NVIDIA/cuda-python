@@ -11,6 +11,20 @@ from cuda.core._utils import cuda_utils
 from cuda.core._utils.clear_error_support import assert_type_str_or_bytes_like, raise_code_path_meant_to_be_unreachable
 
 
+def test_driver_cu_result_explanations_smoke():
+    expl = cuda_utils.DRIVER_CU_RESULT_EXPLANATIONS
+    for code in (0, 1, 2):
+        assert code in expl
+        assert isinstance(expl[code], str)
+
+
+def test_runtime_cuda_error_explanations_smoke():
+    expl = cuda_utils.RUNTIME_CUDA_ERROR_EXPLANATIONS
+    for code in (0, 1, 2):
+        assert code in expl
+        assert isinstance(expl[code], str)
+
+
 def test_check_driver_error():
     num_unexpected = 0
     for error in driver.CUresult:

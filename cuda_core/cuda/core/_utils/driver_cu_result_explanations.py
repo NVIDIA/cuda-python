@@ -1,11 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# To regenerate the dictionary below run:
-#     ../../../../../toolshed/reformat_cuda_enums_as_py.py /usr/local/cuda/include/cuda.h
-# Replace the dictionary below with the output.
-# Also update the CUDA Toolkit version number below.
-
+# Fallback copy -- overridden from cuda.bindings below when available.
 # CUDA Toolkit v13.2.0
 DRIVER_CU_RESULT_EXPLANATIONS = {
     0: (
@@ -356,3 +352,11 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
     ),
     999: "This indicates that an unknown internal error has occurred.",
 }
+
+# Prefer the authoritative copy from cuda.bindings when available.
+try:
+    import cuda.bindings._utils.driver_cu_result_explanations as _authoritative
+except ModuleNotFoundError:
+    pass
+else:
+    DRIVER_CU_RESULT_EXPLANATIONS = _authoritative.DRIVER_CU_RESULT_EXPLANATIONS
