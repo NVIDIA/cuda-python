@@ -141,7 +141,7 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         name="cusparseLt",
         packaged_with="other",
         header_basename="cusparseLt.h",
-        site_packages_dirs=("nvidia/cusparselt/include",),
+        site_packages_dirs=("nvidia/cu13/include", "nvidia/cusparselt/include"),
         conda_targets_layout=False,
         use_ctk_root_canary=False,
     ),

@@ -331,8 +331,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="other",
         linux_sonames=("libcusparseLt.so.0",),
         windows_dlls=("cusparseLt.dll",),
-        site_packages_linux=("nvidia/cusparselt/lib",),
-        site_packages_windows=("nvidia/cusparselt/bin",),
+        site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparselt/lib"),
+        site_packages_windows=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
     ),
     DescriptorSpec(
         name="cutensor",
