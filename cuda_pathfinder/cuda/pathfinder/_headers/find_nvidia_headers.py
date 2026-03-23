@@ -100,7 +100,7 @@ def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     return None
 
 
-def find_in_cuda_home(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+def find_in_cuda_path(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search ``$CUDA_PATH`` / ``$CUDA_HOME``."""
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
@@ -150,7 +150,7 @@ def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | No
 FIND_STEPS: tuple[HeaderFindStep, ...] = (
     find_in_site_packages,
     find_in_conda,
-    find_in_cuda_home,
+    find_in_cuda_path,
     find_via_ctk_root_canary,
     find_in_system_install_dirs,
 )

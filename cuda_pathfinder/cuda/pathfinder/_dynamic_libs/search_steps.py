@@ -182,7 +182,7 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     return None
 
 
-def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
+def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     """Search ``$CUDA_PATH`` / ``$CUDA_HOME``.
 
     On Windows, this is the normal fallback for system-installed CTK DLLs when
@@ -211,7 +211,7 @@ def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
 EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_in_site_packages, find_in_conda)
 
 #: Find steps that run after system search fails.
-LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_home,)
+LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_path,)
 
 
 # ---------------------------------------------------------------------------
