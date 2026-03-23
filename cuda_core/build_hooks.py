@@ -32,7 +32,8 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 def _get_cuda_path() -> str:
     # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
     # build backend runs in an isolated venv where the cuda namespace package
-    # from backend-path shadows the installed cuda-pathfinder.
+    # from backend-path shadows the installed cuda-pathfinder. See #1803 for
+    # a workaround to apply after cuda-pathfinder >= 1.5 is released.
     cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
