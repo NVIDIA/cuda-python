@@ -724,7 +724,7 @@ def test_cpp_program_with_extra_sources():
     # negative test with NVRTC with multiple sources
     code = 'extern "C" __global__ void my_kernel(){}'
     helper = 'extern "C" __global__ void helper(){}'
-    options = ProgramOptions(extra_sources=helper)
+    options = ProgramOptions(extra_sources=[("helper", helper)])
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
 
