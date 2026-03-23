@@ -19,6 +19,9 @@ pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
+pytest-rerunfailures = "*"
+cloudpickle = "*"
+psutil = "*"
 pyglet = "*"
 
 [feature.examples.dependencies]
