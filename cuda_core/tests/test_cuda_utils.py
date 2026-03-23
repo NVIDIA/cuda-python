@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import dataclasses
+import importlib
 
 import pytest
 
@@ -10,19 +11,45 @@ from cuda.bindings import driver, runtime
 from cuda.core._utils import cuda_utils
 from cuda.core._utils.clear_error_support import assert_type_str_or_bytes_like, raise_code_path_meant_to_be_unreachable
 
+_EXPLANATION_MODULES = [
+    ("driver_cu_result_explanations", "DRIVER_CU_RESULT_EXPLANATIONS"),
+    ("runtime_cuda_error_explanations", "RUNTIME_CUDA_ERROR_EXPLANATIONS"),
+]
 
-def test_driver_cu_result_explanations_smoke():
-    expl = cuda_utils.DRIVER_CU_RESULT_EXPLANATIONS
+
+@pytest.mark.parametrize("module_name,public_name", _EXPLANATION_MODULES)
+def test_explanations_smoke(module_name, public_name):
+    expl = getattr(cuda_utils, public_name)
     for code in (0, 1, 2):
         assert code in expl
         assert isinstance(expl[code], str)
 
 
-def test_runtime_cuda_error_explanations_smoke():
-    expl = cuda_utils.RUNTIME_CUDA_ERROR_EXPLANATIONS
-    for code in (0, 1, 2):
-        assert code in expl
-        assert isinstance(expl[code], str)
+@pytest.mark.parametrize("module_name,public_name", _EXPLANATION_MODULES)
+def test_explanations_ctk_version(module_name, public_name):
+    del public_name  # unused
+    core_mod = importlib.import_module(f"cuda.core._utils.{module_name}")
+    try:
+        bindings_mod = importlib.import_module(f"cuda.bindings._utils.{module_name}")
+    except ModuleNotFoundError:
+        pytest.skip("cuda.bindings._utils not available")
+    bindings_path = f"cuda_bindings/cuda/bindings/_utils/{module_name}.py"
+    core_path = f"cuda_core/cuda/core/_utils/{module_name}.py"
+    if core_mod._CTK_MAJOR_MINOR_PATCH < bindings_mod._CTK_MAJOR_MINOR_PATCH:
+        raise RuntimeError(
+            f"cuda_core copy is older ({core_mod._CTK_MAJOR_MINOR_PATCH})"
+            f" than cuda_bindings ({bindings_mod._CTK_MAJOR_MINOR_PATCH})."
+            f" Please copy the _EXPLANATIONS dict from {bindings_path} to {core_path}"
+        )
+    if (
+        core_mod._CTK_MAJOR_MINOR_PATCH == bindings_mod._CTK_MAJOR_MINOR_PATCH
+        and core_mod._FALLBACK_EXPLANATIONS != bindings_mod._EXPLANATIONS
+    ):
+        raise RuntimeError(
+            f"The cuda_core copy of the cuda_bindings _EXPLANATIONS dict is out of sync"
+            f" (both at CTK {core_mod._CTK_MAJOR_MINOR_PATCH})."
+            f" Please copy the _EXPLANATIONS dict from {bindings_path} to {core_path}"
+        )
 
 
 def test_check_driver_error():

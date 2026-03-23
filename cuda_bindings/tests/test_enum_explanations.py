@@ -4,8 +4,7 @@
 import importlib.metadata
 
 from cuda.bindings import driver, runtime
-from cuda.bindings._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
-from cuda.bindings._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
+from cuda.bindings._utils import driver_cu_result_explanations, runtime_cuda_error_explanations
 
 
 def _get_binding_version():
@@ -17,7 +16,7 @@ def _get_binding_version():
 
 
 def test_driver_cu_result_explanations_health():
-    expl_dict = DRIVER_CU_RESULT_EXPLANATIONS
+    expl_dict = driver_cu_result_explanations._EXPLANATIONS
 
     known_codes = set()
     for error in driver.CUresult:
@@ -31,7 +30,7 @@ def test_driver_cu_result_explanations_health():
 
 
 def test_runtime_cuda_error_explanations_health():
-    expl_dict = RUNTIME_CUDA_ERROR_EXPLANATIONS
+    expl_dict = runtime_cuda_error_explanations._EXPLANATIONS
 
     known_codes = set()
     for error in runtime.cudaError_t:

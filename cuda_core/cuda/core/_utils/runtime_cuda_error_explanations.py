@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # Fallback copy -- overridden from cuda.bindings below when available.
-# CUDA Toolkit v13.2.0
-RUNTIME_CUDA_ERROR_EXPLANATIONS = {
+_CTK_MAJOR_MINOR_PATCH = (13, 2, 0)
+
+_FALLBACK_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
         " also means that the operation being queried is complete (see"
@@ -546,10 +547,12 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     ),
 }
 
+RUNTIME_CUDA_ERROR_EXPLANATIONS = _FALLBACK_EXPLANATIONS
+
 # Prefer the authoritative copy from cuda.bindings when available.
 try:
     import cuda.bindings._utils.runtime_cuda_error_explanations as _authoritative
 except ModuleNotFoundError:
     pass
 else:
-    RUNTIME_CUDA_ERROR_EXPLANATIONS = _authoritative.RUNTIME_CUDA_ERROR_EXPLANATIONS
+    RUNTIME_CUDA_ERROR_EXPLANATIONS = _authoritative._EXPLANATIONS
