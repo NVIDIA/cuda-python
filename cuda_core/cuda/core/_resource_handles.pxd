@@ -26,6 +26,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
     ctypedef shared_ptr[const cydriver.CUlibrary] LibraryHandle
     ctypedef shared_ptr[const cydriver.CUkernel] KernelHandle
+    ctypedef shared_ptr[const cydriver.CUgraph] GraphHandle
+    ctypedef shared_ptr[const cydriver.CUgraphNode] GraphNodeHandle
     ctypedef shared_ptr[const cydriver.CUgraphicsResource] GraphicsResourceHandle
     ctypedef shared_ptr[const cynvrtc.nvrtcProgram] NvrtcProgramHandle
 
@@ -48,6 +50,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
+    cydriver.CUgraph as_cu(GraphHandle h) noexcept nogil
+    cydriver.CUgraphNode as_cu(GraphNodeHandle h) noexcept nogil
     cydriver.CUgraphicsResource as_cu(GraphicsResourceHandle h) noexcept nogil
     cynvrtc.nvrtcProgram as_cu(NvrtcProgramHandle h) noexcept nogil
     cynvvm.nvvmProgram as_cu(NvvmProgramHandle h) noexcept nogil
@@ -62,6 +66,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
     intptr_t as_intptr(LibraryHandle h) noexcept nogil
     intptr_t as_intptr(KernelHandle h) noexcept nogil
+    intptr_t as_intptr(GraphHandle h) noexcept nogil
+    intptr_t as_intptr(GraphNodeHandle h) noexcept nogil
     intptr_t as_intptr(GraphicsResourceHandle h) noexcept nogil
     intptr_t as_intptr(NvrtcProgramHandle h) noexcept nogil
     intptr_t as_intptr(NvvmProgramHandle h) noexcept nogil
@@ -76,6 +82,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(DevicePtrHandle h)
     object as_py(LibraryHandle h)
     object as_py(KernelHandle h)
+    object as_py(GraphHandle h)
+    object as_py(GraphNodeHandle h)
     object as_py(GraphicsResourceHandle h)
     object as_py(NvrtcProgramHandle h)
     object as_py(NvvmProgramHandle h)
@@ -108,10 +116,21 @@ cdef StreamHandle get_legacy_stream() except+ nogil
 cdef StreamHandle get_per_thread_stream() except+ nogil
 
 # Event handles
-cdef EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) except+ nogil
+cdef EventHandle create_event_handle(
+    const ContextHandle& h_ctx, unsigned int flags,
+    bint timing_disabled, bint busy_waited,
+    bint ipc_enabled, int device_id) except+ nogil
 cdef EventHandle create_event_handle_noctx(unsigned int flags) except+ nogil
+cdef EventHandle create_event_handle_ref(cydriver.CUevent event) except+ nogil
 cdef EventHandle create_event_handle_ipc(
-    const cydriver.CUipcEventHandle& ipc_handle) except+ nogil
+    const cydriver.CUipcEventHandle& ipc_handle, bint busy_waited) except+ nogil
+
+# Event metadata getters
+cdef bint get_event_timing_disabled(const EventHandle& h) noexcept nogil
+cdef bint get_event_busy_waited(const EventHandle& h) noexcept nogil
+cdef bint get_event_ipc_enabled(const EventHandle& h) noexcept nogil
+cdef int get_event_device_id(const EventHandle& h) noexcept nogil
+cdef ContextHandle get_event_context(const EventHandle& h) noexcept nogil
 
 # Memory pool handles
 cdef MemoryPoolHandle create_mempool_handle(
@@ -129,6 +148,10 @@ cdef DevicePtrHandle deviceptr_alloc(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_alloc_host(size_t size) except+ nogil
 cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) except+ nogil
+cdef DevicePtrHandle deviceptr_create_mapped_graphics(
+    cydriver.CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_mr(
     cydriver.CUdeviceptr ptr, size_t size, object mr) except+ nogil
 
@@ -150,8 +173,16 @@ cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) except+
 
 # Kernel handles
 cdef KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) except+ nogil
-cdef KernelHandle create_kernel_handle_ref(
-    cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+cdef KernelHandle create_kernel_handle_ref(cydriver.CUkernel kernel) except+ nogil
+cdef LibraryHandle get_kernel_library(const KernelHandle& h) noexcept nogil
+
+# Graph handles
+cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
+cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+
+# Graph node handles
+cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
+cdef GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept nogil
 
 # Graphics resource handles
 cdef GraphicsResourceHandle create_graphics_resource_handle(

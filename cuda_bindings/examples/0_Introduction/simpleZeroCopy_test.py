@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates vector addition using zero-copy (mapped) host
+# memory, allowing the GPU to access CPU memory directly.
+#
+# ################################################################################
+
 import ctypes
 import math
 import platform

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -4423,7 +4423,7 @@ cdef class Value:
 
 
 cdef _get__py_anon_pod0_dtype_offsets():
-    cdef _anon_pod0 pod = _anon_pod0()
+    cdef cuda_bindings_nvml__anon_pod0 pod = cuda_bindings_nvml__anon_pod0()
     return _numpy.dtype({
         'names': ['controller', 'default_min_temp', 'default_max_temp', 'current_temp', 'target'],
         'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
@@ -4434,25 +4434,25 @@ cdef _get__py_anon_pod0_dtype_offsets():
             (<intptr_t>&(pod.currentTemp)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod0),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod0),
     })
 
 _py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
 
 cdef class _py_anon_pod0:
-    """Empty-initialize an instance of `_anon_pod0`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod0`.
 
 
-    .. seealso:: `_anon_pod0`
+    .. seealso:: `cuda_bindings_nvml__anon_pod0`
     """
     cdef:
-        _anon_pod0 *_ptr
+        cuda_bindings_nvml__anon_pod0 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod0 *>calloc(1, sizeof(_anon_pod0))
+        self._ptr = <cuda_bindings_nvml__anon_pod0 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod0")
         self._owner = None
@@ -4460,7 +4460,7 @@ cdef class _py_anon_pod0:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod0 *ptr
+        cdef cuda_bindings_nvml__anon_pod0 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -4485,20 +4485,20 @@ cdef class _py_anon_pod0:
         if not isinstance(other, _py_anon_pod0):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod0)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod0)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod0), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod0), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
+            self._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod0))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4563,7 +4563,7 @@ cdef class _py_anon_pod0:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod0 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod0), _py_anon_pod0)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod0), _py_anon_pod0)
 
     @staticmethod
     def from_data(data):
@@ -4587,14 +4587,14 @@ cdef class _py_anon_pod0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod0 obj = _py_anon_pod0.__new__(_py_anon_pod0)
         if owner is None:
-            obj._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod0))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod0 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -6280,7 +6280,7 @@ cdef class PlatformInfo_v2:
 
 
 cdef _get__py_anon_pod1_dtype_offsets():
-    cdef _anon_pod1 pod = _anon_pod1()
+    cdef cuda_bindings_nvml__anon_pod1 pod = cuda_bindings_nvml__anon_pod1()
     return _numpy.dtype({
         'names': ['b_is_present', 'percentage', 'inc_threshold', 'dec_threshold'],
         'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
@@ -6290,25 +6290,25 @@ cdef _get__py_anon_pod1_dtype_offsets():
             (<intptr_t>&(pod.incThreshold)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.decThreshold)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod1),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod1),
     })
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
 cdef class _py_anon_pod1:
-    """Empty-initialize an instance of `_anon_pod1`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod1`.
 
 
-    .. seealso:: `_anon_pod1`
+    .. seealso:: `cuda_bindings_nvml__anon_pod1`
     """
     cdef:
-        _anon_pod1 *_ptr
+        cuda_bindings_nvml__anon_pod1 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod1 *>calloc(1, sizeof(_anon_pod1))
+        self._ptr = <cuda_bindings_nvml__anon_pod1 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -6316,7 +6316,7 @@ cdef class _py_anon_pod1:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod1 *ptr
+        cdef cuda_bindings_nvml__anon_pod1 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -6341,20 +6341,20 @@ cdef class _py_anon_pod1:
         if not isinstance(other, _py_anon_pod1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod1)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod1)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod1), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod1), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
+            self._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod1))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6408,7 +6408,7 @@ cdef class _py_anon_pod1:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod1), _py_anon_pod1)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod1), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -6432,14 +6432,14 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod1))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod1 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7020,7 +7020,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
 
 cdef _get__py_anon_pod2_dtype_offsets():
-    cdef _anon_pod2 pod = _anon_pod2()
+    cdef cuda_bindings_nvml__anon_pod2 pod = cuda_bindings_nvml__anon_pod2()
     return _numpy.dtype({
         'names': ['avg_factor', 'timeslice'],
         'formats': [_numpy.uint32, _numpy.uint32],
@@ -7028,25 +7028,25 @@ cdef _get__py_anon_pod2_dtype_offsets():
             (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod2),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod2),
     })
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
 cdef class _py_anon_pod2:
-    """Empty-initialize an instance of `_anon_pod2`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod2`.
 
 
-    .. seealso:: `_anon_pod2`
+    .. seealso:: `cuda_bindings_nvml__anon_pod2`
     """
     cdef:
-        _anon_pod2 *_ptr
+        cuda_bindings_nvml__anon_pod2 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod2 *>calloc(1, sizeof(_anon_pod2))
+        self._ptr = <cuda_bindings_nvml__anon_pod2 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -7054,7 +7054,7 @@ cdef class _py_anon_pod2:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod2 *ptr
+        cdef cuda_bindings_nvml__anon_pod2 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7079,20 +7079,20 @@ cdef class _py_anon_pod2:
         if not isinstance(other, _py_anon_pod2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod2)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod2)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod2), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod2), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
+            self._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod2))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod2))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7124,7 +7124,7 @@ cdef class _py_anon_pod2:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod2), _py_anon_pod2)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod2), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -7148,14 +7148,14 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod2))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod2 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7163,32 +7163,32 @@ cdef class _py_anon_pod2:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef _anon_pod3 pod = _anon_pod3()
+    cdef cuda_bindings_nvml__anon_pod3 pod = cuda_bindings_nvml__anon_pod3()
     return _numpy.dtype({
         'names': ['timeslice'],
         'formats': [_numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod3),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod3),
     })
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
-    """Empty-initialize an instance of `_anon_pod3`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod3`.
 
 
-    .. seealso:: `_anon_pod3`
+    .. seealso:: `cuda_bindings_nvml__anon_pod3`
     """
     cdef:
-        _anon_pod3 *_ptr
+        cuda_bindings_nvml__anon_pod3 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod3 *>calloc(1, sizeof(_anon_pod3))
+        self._ptr = <cuda_bindings_nvml__anon_pod3 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -7196,7 +7196,7 @@ cdef class _py_anon_pod3:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod3 *ptr
+        cdef cuda_bindings_nvml__anon_pod3 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7221,20 +7221,20 @@ cdef class _py_anon_pod3:
         if not isinstance(other, _py_anon_pod3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod3)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod3)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod3), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod3), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
+            self._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod3))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod3))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7255,7 +7255,7 @@ cdef class _py_anon_pod3:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod3), _py_anon_pod3)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod3), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -7279,14 +7279,14 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod3))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod3 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7499,7 +7499,7 @@ cdef class VgpuSchedulerLogEntry:
 
 
 cdef _get__py_anon_pod4_dtype_offsets():
-    cdef _anon_pod4 pod = _anon_pod4()
+    cdef cuda_bindings_nvml__anon_pod4 pod = cuda_bindings_nvml__anon_pod4()
     return _numpy.dtype({
         'names': ['avg_factor', 'frequency'],
         'formats': [_numpy.uint32, _numpy.uint32],
@@ -7507,25 +7507,25 @@ cdef _get__py_anon_pod4_dtype_offsets():
             (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod4),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod4),
     })
 
 _py_anon_pod4_dtype = _get__py_anon_pod4_dtype_offsets()
 
 cdef class _py_anon_pod4:
-    """Empty-initialize an instance of `_anon_pod4`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod4`.
 
 
-    .. seealso:: `_anon_pod4`
+    .. seealso:: `cuda_bindings_nvml__anon_pod4`
     """
     cdef:
-        _anon_pod4 *_ptr
+        cuda_bindings_nvml__anon_pod4 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod4 *>calloc(1, sizeof(_anon_pod4))
+        self._ptr = <cuda_bindings_nvml__anon_pod4 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
         self._owner = None
@@ -7533,7 +7533,7 @@ cdef class _py_anon_pod4:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod4 *ptr
+        cdef cuda_bindings_nvml__anon_pod4 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7558,20 +7558,20 @@ cdef class _py_anon_pod4:
         if not isinstance(other, _py_anon_pod4):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod4)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod4)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod4), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod4), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
+            self._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod4))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod4))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7603,7 +7603,7 @@ cdef class _py_anon_pod4:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod4 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod4), _py_anon_pod4)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod4), _py_anon_pod4)
 
     @staticmethod
     def from_data(data):
@@ -7627,14 +7627,14 @@ cdef class _py_anon_pod4:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod4 obj = _py_anon_pod4.__new__(_py_anon_pod4)
         if owner is None:
-            obj._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod4))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod4 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7642,32 +7642,32 @@ cdef class _py_anon_pod4:
 
 
 cdef _get__py_anon_pod5_dtype_offsets():
-    cdef _anon_pod5 pod = _anon_pod5()
+    cdef cuda_bindings_nvml__anon_pod5 pod = cuda_bindings_nvml__anon_pod5()
     return _numpy.dtype({
         'names': ['timeslice'],
         'formats': [_numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod5),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod5),
     })
 
 _py_anon_pod5_dtype = _get__py_anon_pod5_dtype_offsets()
 
 cdef class _py_anon_pod5:
-    """Empty-initialize an instance of `_anon_pod5`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod5`.
 
 
-    .. seealso:: `_anon_pod5`
+    .. seealso:: `cuda_bindings_nvml__anon_pod5`
     """
     cdef:
-        _anon_pod5 *_ptr
+        cuda_bindings_nvml__anon_pod5 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod5 *>calloc(1, sizeof(_anon_pod5))
+        self._ptr = <cuda_bindings_nvml__anon_pod5 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
         self._owner = None
@@ -7675,7 +7675,7 @@ cdef class _py_anon_pod5:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod5 *ptr
+        cdef cuda_bindings_nvml__anon_pod5 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7700,20 +7700,20 @@ cdef class _py_anon_pod5:
         if not isinstance(other, _py_anon_pod5):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod5)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod5)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod5), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod5), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
+            self._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod5))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod5))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7734,7 +7734,7 @@ cdef class _py_anon_pod5:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod5 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod5), _py_anon_pod5)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod5), _py_anon_pod5)
 
     @staticmethod
     def from_data(data):
@@ -7758,14 +7758,14 @@ cdef class _py_anon_pod5:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod5 obj = _py_anon_pod5.__new__(_py_anon_pod5)
         if owner is None:
-            obj._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod5))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod5 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -16973,7 +16973,7 @@ cdef class GpuThermalSettings:
         cdef _py_anon_pod0 val_ = val
         if len(val) != 3:
             raise ValueError(f"Expected length { 3 } for field sensor, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(_anon_pod0) * 3)
+        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod0) * 3)
 
     @property
     def count(self):
@@ -17433,7 +17433,7 @@ cdef class GpuDynamicPstatesInfo:
         cdef _py_anon_pod1 val_ = val
         if len(val) != 8:
             raise ValueError(f"Expected length { 8 } for field utilization, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(_anon_pod1) * 8)
+        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod1) * 8)
 
     @property
     def flags_(self):
@@ -17736,7 +17736,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod2 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(_anon_pod2) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod2) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -17748,7 +17748,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod3) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -17876,7 +17876,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod4 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(_anon_pod4) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod4) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -17888,7 +17888,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod5 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod5) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod5) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -27471,3 +27471,9 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
+
+
+# Cleanup some docstrings that don't parse as rst.
+device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."

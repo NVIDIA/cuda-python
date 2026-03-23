@@ -12,9 +12,18 @@ import re
 import weakref
 
 import pytest
+from helpers.graph_kernels import compile_common_kernels
+from helpers.misc import try_create_condition
 
 from cuda.core import Buffer, Device, Kernel, LaunchConfig, Program, Stream, system
+from cuda.core._graph._graphdef import GraphDef
 from cuda.core._program import _can_load_generated_ptx
+
+
+def _skip_if_no_mempool():
+    if not Device(0).properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
 
 # =============================================================================
 # Fixtures - Primary samples
@@ -200,6 +209,275 @@ def sample_kernel_alt(sample_object_code_alt):
 
 
 # =============================================================================
+# Fixtures - Graph types (GraphDef and GraphNode)
+# =============================================================================
+
+ALLOC_SIZE = 1024
+
+
+@pytest.fixture
+def sample_graphdef(init_cuda):
+    """A sample GraphDef."""
+    return GraphDef()
+
+
+@pytest.fixture
+def sample_graphdef_alt(init_cuda):
+    """An alternate GraphDef (for inequality testing)."""
+    return GraphDef()
+
+
+@pytest.fixture
+def sample_root_node(sample_graphdef):
+    """An entry GraphNode (virtual, NULL handle)."""
+    return sample_graphdef._entry
+
+
+@pytest.fixture
+def sample_root_node_alt(sample_graphdef_alt):
+    """An alternate entry GraphNode from different graph."""
+    return sample_graphdef_alt._entry
+
+
+@pytest.fixture
+def sample_empty_node(sample_graphdef):
+    """An EmptyNode created by merging two branches."""
+    _skip_if_no_mempool()
+    a = sample_graphdef.alloc(ALLOC_SIZE)
+    b = sample_graphdef.alloc(ALLOC_SIZE)
+    return sample_graphdef.join(a, b)
+
+
+@pytest.fixture
+def sample_empty_node_alt(sample_graphdef):
+    """An alternate EmptyNode from same graph."""
+    _skip_if_no_mempool()
+    c = sample_graphdef.alloc(ALLOC_SIZE)
+    d = sample_graphdef.alloc(ALLOC_SIZE)
+    return sample_graphdef.join(c, d)
+
+
+@pytest.fixture
+def sample_alloc_node(sample_graphdef):
+    """An AllocNode."""
+    _skip_if_no_mempool()
+    return sample_graphdef.alloc(ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_alloc_node_alt(sample_graphdef):
+    """An alternate AllocNode from same graph."""
+    _skip_if_no_mempool()
+    return sample_graphdef.alloc(ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_kernel_node(sample_graphdef, init_cuda):
+    """A KernelNode."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    return sample_graphdef.launch(config, kernel)
+
+
+@pytest.fixture
+def sample_kernel_node_alt(sample_graphdef, init_cuda):
+    """An alternate KernelNode from same graph."""
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    return sample_graphdef.launch(config, kernel)
+
+
+@pytest.fixture
+def sample_free_node(sample_graphdef):
+    """A FreeNode."""
+    _skip_if_no_mempool()
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    return alloc.free(alloc.dptr)
+
+
+@pytest.fixture
+def sample_free_node_alt(sample_graphdef):
+    """An alternate FreeNode from same graph."""
+    _skip_if_no_mempool()
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    return alloc.free(alloc.dptr)
+
+
+@pytest.fixture
+def sample_memset_node(sample_graphdef):
+    """A MemsetNode."""
+    _skip_if_no_mempool()
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_memset_node_alt(sample_graphdef):
+    """An alternate MemsetNode from same graph."""
+    _skip_if_no_mempool()
+    alloc = sample_graphdef.alloc(ALLOC_SIZE)
+    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_memcpy_node(sample_graphdef):
+    """A MemcpyNode."""
+    _skip_if_no_mempool()
+    src = sample_graphdef.alloc(ALLOC_SIZE)
+    dst = sample_graphdef.alloc(ALLOC_SIZE)
+    dep = sample_graphdef.join(src, dst)
+    return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_memcpy_node_alt(sample_graphdef):
+    """An alternate MemcpyNode from same graph."""
+    _skip_if_no_mempool()
+    src = sample_graphdef.alloc(ALLOC_SIZE)
+    dst = sample_graphdef.alloc(ALLOC_SIZE)
+    dep = sample_graphdef.join(src, dst)
+    return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
+
+
+@pytest.fixture
+def sample_child_graph_node(sample_graphdef):
+    """A ChildGraphNode."""
+    child = GraphDef()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    child.launch(LaunchConfig(grid=1, block=1), kernel)
+    return sample_graphdef.embed(child)
+
+
+@pytest.fixture
+def sample_child_graph_node_alt(sample_graphdef):
+    """An alternate ChildGraphNode from same graph."""
+    child = GraphDef()
+    mod = compile_common_kernels()
+    kernel = mod.get_kernel("empty_kernel")
+    child.launch(LaunchConfig(grid=1, block=1), kernel)
+    return sample_graphdef.embed(child)
+
+
+@pytest.fixture
+def sample_event_record_node(sample_graphdef, sample_device):
+    """An EventRecordNode."""
+    event = sample_device.create_event()
+    return sample_graphdef.record_event(event)
+
+
+@pytest.fixture
+def sample_event_record_node_alt(sample_graphdef, sample_device):
+    """An alternate EventRecordNode from same graph."""
+    event = sample_device.create_event()
+    return sample_graphdef.record_event(event)
+
+
+@pytest.fixture
+def sample_event_wait_node(sample_graphdef, sample_device):
+    """An EventWaitNode."""
+    event = sample_device.create_event()
+    return sample_graphdef.wait_event(event)
+
+
+@pytest.fixture
+def sample_event_wait_node_alt(sample_graphdef, sample_device):
+    """An alternate EventWaitNode from same graph."""
+    event = sample_device.create_event()
+    return sample_graphdef.wait_event(event)
+
+
+@pytest.fixture
+def sample_host_callback_node(sample_graphdef):
+    """A HostCallbackNode."""
+
+    def my_callback():
+        pass
+
+    return sample_graphdef.callback(my_callback)
+
+
+@pytest.fixture
+def sample_host_callback_node_alt(sample_graphdef):
+    """An alternate HostCallbackNode from same graph."""
+
+    def other_callback():
+        pass
+
+    return sample_graphdef.callback(other_callback)
+
+
+@pytest.fixture
+def sample_condition(sample_graphdef):
+    """A Condition object."""
+    return try_create_condition(sample_graphdef)
+
+
+@pytest.fixture
+def sample_condition_alt(sample_graphdef):
+    """An alternate Condition from same graph."""
+    return try_create_condition(sample_graphdef)
+
+
+@pytest.fixture
+def sample_if_node(sample_graphdef):
+    """An IfNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_cond(condition)
+
+
+@pytest.fixture
+def sample_if_node_alt(sample_graphdef):
+    """An alternate IfNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_cond(condition)
+
+
+@pytest.fixture
+def sample_if_else_node(sample_graphdef):
+    """An IfElseNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_else(condition)
+
+
+@pytest.fixture
+def sample_if_else_node_alt(sample_graphdef):
+    """An alternate IfElseNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.if_else(condition)
+
+
+@pytest.fixture
+def sample_while_node(sample_graphdef):
+    """A WhileNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.while_loop(condition)
+
+
+@pytest.fixture
+def sample_while_node_alt(sample_graphdef):
+    """An alternate WhileNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.while_loop(condition)
+
+
+@pytest.fixture
+def sample_switch_node(sample_graphdef):
+    """A SwitchNode."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.switch(condition, 3)
+
+
+@pytest.fixture
+def sample_switch_node_alt(sample_graphdef):
+    """An alternate SwitchNode from same graph."""
+    condition = try_create_condition(sample_graphdef)
+    return sample_graphdef.switch(condition, 3)
+
+
+# =============================================================================
 # Type groupings
 # =============================================================================
 
@@ -213,6 +491,23 @@ HASH_TYPES = [
     "sample_launch_config",
     "sample_object_code_cubin",
     "sample_kernel",
+    "sample_graphdef",
+    "sample_condition",
+    "sample_root_node",
+    "sample_empty_node",
+    "sample_alloc_node",
+    "sample_kernel_node",
+    "sample_free_node",
+    "sample_memset_node",
+    "sample_memcpy_node",
+    "sample_child_graph_node",
+    "sample_event_record_node",
+    "sample_event_wait_node",
+    "sample_host_callback_node",
+    "sample_if_node",
+    "sample_if_else_node",
+    "sample_while_node",
+    "sample_switch_node",
 ]
 
 # Types with __eq__ support
@@ -225,6 +520,23 @@ EQ_TYPES = [
     "sample_launch_config",
     "sample_object_code_cubin",
     "sample_kernel",
+    "sample_graphdef",
+    "sample_condition",
+    "sample_root_node",
+    "sample_empty_node",
+    "sample_alloc_node",
+    "sample_kernel_node",
+    "sample_free_node",
+    "sample_memset_node",
+    "sample_memcpy_node",
+    "sample_child_graph_node",
+    "sample_event_record_node",
+    "sample_event_wait_node",
+    "sample_host_callback_node",
+    "sample_if_node",
+    "sample_if_else_node",
+    "sample_while_node",
+    "sample_switch_node",
 ]
 
 # Types with __weakref__ support
@@ -233,11 +545,28 @@ WEAKREF_TYPES = [
     "sample_stream",
     "sample_event",
     "sample_context",
+    "sample_condition",
     "sample_buffer",
     "sample_launch_config",
     "sample_object_code_cubin",
     "sample_kernel",
     "sample_program_nvrtc",
+    "sample_graphdef",
+    "sample_root_node",
+    "sample_empty_node",
+    "sample_alloc_node",
+    "sample_kernel_node",
+    "sample_free_node",
+    "sample_memset_node",
+    "sample_memcpy_node",
+    "sample_child_graph_node",
+    "sample_event_record_node",
+    "sample_event_wait_node",
+    "sample_host_callback_node",
+    "sample_if_node",
+    "sample_if_else_node",
+    "sample_while_node",
+    "sample_switch_node",
 ]
 
 # Pairs of distinct objects of the same type (for inequality testing)
@@ -251,6 +580,23 @@ SAME_TYPE_PAIRS = [
     ("sample_launch_config", "sample_launch_config_alt"),
     ("sample_object_code_cubin", "sample_object_code_alt"),
     ("sample_kernel", "sample_kernel_alt"),
+    ("sample_graphdef", "sample_graphdef_alt"),
+    ("sample_condition", "sample_condition_alt"),
+    ("sample_root_node", "sample_root_node_alt"),
+    ("sample_empty_node", "sample_empty_node_alt"),
+    ("sample_alloc_node", "sample_alloc_node_alt"),
+    ("sample_kernel_node", "sample_kernel_node_alt"),
+    ("sample_free_node", "sample_free_node_alt"),
+    ("sample_memset_node", "sample_memset_node_alt"),
+    ("sample_memcpy_node", "sample_memcpy_node_alt"),
+    ("sample_child_graph_node", "sample_child_graph_node_alt"),
+    ("sample_event_record_node", "sample_event_record_node_alt"),
+    ("sample_event_wait_node", "sample_event_wait_node_alt"),
+    ("sample_host_callback_node", "sample_host_callback_node_alt"),
+    ("sample_if_node", "sample_if_node_alt"),
+    ("sample_if_else_node", "sample_if_else_node_alt"),
+    ("sample_while_node", "sample_while_node_alt"),
+    ("sample_switch_node", "sample_switch_node_alt"),
 ]
 
 # Types with public from_handle methods and how to create a copy
@@ -286,6 +632,24 @@ REPR_PATTERNS = [
     ("sample_program_nvrtc", r"<Program backend='NVRTC'>"),
     ("sample_program_ptx", r"<Program backend='(nvJitLink|driver)'>"),
     ("sample_program_nvvm", r"<Program backend='NVVM'>"),
+    # Graph types
+    ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
+    ("sample_condition", r"<Condition handle=0x[0-9a-f]+>"),
+    ("sample_root_node", r"<GraphNode entry>"),
+    ("sample_empty_node", r"<EmptyNode with \d+ preds?>"),
+    ("sample_alloc_node", r"<AllocNode dptr=0x[0-9a-f]+ size=\d+>"),
+    ("sample_kernel_node", r"<KernelNode grid=\(\d+, \d+, \d+\) block=\(\d+, \d+, \d+\)>"),
+    ("sample_free_node", r"<FreeNode dptr=0x[0-9a-f]+>"),
+    ("sample_memset_node", r"<MemsetNode dptr=0x[0-9a-f]+ value=\d+ elem=\d+>"),
+    ("sample_memcpy_node", r"<MemcpyNode dst=0x[0-9a-f]+\([DH]\) src=0x[0-9a-f]+\([DH]\) size=\d+>"),
+    ("sample_child_graph_node", r"<ChildGraphNode with \d+ subnodes?>"),
+    ("sample_event_record_node", r"<EventRecordNode event=0x[0-9a-f]+>"),
+    ("sample_event_wait_node", r"<EventWaitNode event=0x[0-9a-f]+>"),
+    ("sample_host_callback_node", r"<HostCallbackNode callback=\w+>"),
+    ("sample_if_node", r"<IfNode condition=0x[0-9a-f]+>"),
+    ("sample_if_else_node", r"<IfElseNode condition=0x[0-9a-f]+>"),
+    ("sample_while_node", r"<WhileNode condition=0x[0-9a-f]+>"),
+    ("sample_switch_node", r"<SwitchNode condition=0x[0-9a-f]+ with \d+ branches?>"),
 ]
 
 

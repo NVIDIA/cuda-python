@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -299,3 +299,25 @@ cpdef get_program_log(intptr_t prog, buffer):
     with nogil:
         __status__ = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
     check_status(__status__)
+
+
+cpdef int llvm_version(arch) except? 0:
+    """Get the LLVM IR version guaranteed to be supported by NVVM.
+
+    Args:
+        arch (str): Architecture string.
+
+    Returns:
+        int: IR version number.
+
+    .. seealso:: `nvvmLLVMVersion`
+    """
+    if not isinstance(arch, str):
+        raise TypeError("arch must be a Python str")
+    cdef bytes _temp_arch_ = (<str>arch).encode()
+    cdef char* _arch_ = _temp_arch_
+    cdef int major
+    with nogil:
+        __status__ = nvvmLLVMVersion(<const char*>_arch_, &major)
+    check_status(__status__)
+    return major

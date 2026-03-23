@@ -56,10 +56,14 @@ decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
 decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
+// Graph
+decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 
 // GL interop pointers
+decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
 
 // NVRTC function pointers
@@ -76,8 +80,6 @@ NvJitLinkDestroyFn p_nvJitLinkDestroy = nullptr;
 // ============================================================================
 
 namespace {
-
-using cuda_core::detail::py_is_finalizing;
 
 // Helper to release the GIL while calling into the CUDA driver.
 // This guard is *conditional*: if the caller already dropped the GIL,
@@ -147,6 +149,51 @@ private:
 };
 
 }  // namespace
+
+// ============================================================================
+// Handle reverse-lookup registry
+//
+// Maps raw CUDA handles (CUevent, CUkernel, etc.) back to their owning
+// shared_ptr so that _ref constructors can recover full metadata.
+// Uses weak_ptr to avoid preventing destruction.
+// ============================================================================
+
+template<typename Key, typename Handle, typename Hash = std::hash<Key>>
+class HandleRegistry {
+public:
+    using MapType = std::unordered_map<Key, std::weak_ptr<typename Handle::element_type>, Hash>;
+
+    void register_handle(const Key& key, const Handle& h) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        map_[key] = h;
+    }
+
+    void unregister_handle(const Key& key) noexcept {
+        try {
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto it = map_.find(key);
+            if (it != map_.end() && it->second.expired()) {
+                map_.erase(it);
+            }
+        } catch (...) {}
+    }
+
+    Handle lookup(const Key& key) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = map_.find(key);
+        if (it != map_.end()) {
+            if (auto h = it->second.lock()) {
+                return h;
+            }
+            map_.erase(it);
+        }
+        return {};
+    }
+
+private:
+    std::mutex mutex_;
+    MapType map_;
+};
 
 // ============================================================================
 // Thread-local error handling
@@ -306,10 +353,46 @@ StreamHandle get_per_thread_stream() {
 namespace {
 struct EventBox {
     CUevent resource;
+    bool timing_disabled;
+    bool busy_waited;
+    bool ipc_enabled;
+    int device_id;
+    ContextHandle h_context;
 };
 }  // namespace
 
-EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) {
+static const EventBox* get_box(const EventHandle& h) {
+    const CUevent* p = h.get();
+    return reinterpret_cast<const EventBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(EventBox, resource)
+    );
+}
+
+bool get_event_timing_disabled(const EventHandle& h) noexcept {
+    return h ? get_box(h)->timing_disabled : true;
+}
+
+bool get_event_busy_waited(const EventHandle& h) noexcept {
+    return h ? get_box(h)->busy_waited : false;
+}
+
+bool get_event_ipc_enabled(const EventHandle& h) noexcept {
+    return h ? get_box(h)->ipc_enabled : false;
+}
+
+int get_event_device_id(const EventHandle& h) noexcept {
+    return h ? get_box(h)->device_id : -1;
+}
+
+ContextHandle get_event_context(const EventHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
+}
+
+static HandleRegistry<CUevent, EventHandle> event_registry;
+
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
+                                bool timing_disabled, bool busy_waited,
+                                bool ipc_enabled, int device_id) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -317,21 +400,33 @@ EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags) 
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event},
+        new EventBox{event, timing_disabled, busy_waited, ipc_enabled, device_id, h_ctx},
         [h_ctx](const EventBox* b) {
+            event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuEventDestroy(b->resource);
             delete b;
         }
     );
-    return EventHandle(box, &box->resource);
+    EventHandle h(box, &box->resource);
+    event_registry.register_handle(event, h);
+    return h;
 }
 
 EventHandle create_event_handle_noctx(unsigned int flags) {
-    return create_event_handle(ContextHandle{}, flags);
+    return create_event_handle(ContextHandle{}, flags, true, false, false, -1);
 }
 
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
+EventHandle create_event_handle_ref(CUevent event) {
+    if (auto h = event_registry.lookup(event)) {
+        return h;
+    }
+    auto box = std::make_shared<const EventBox>(EventBox{event, true, false, false, -1, {}});
+    return EventHandle(box, &box->resource);
+}
+
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
+                                    bool busy_waited) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -339,14 +434,17 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
     }
 
     auto box = std::shared_ptr<const EventBox>(
-        new EventBox{event},
+        new EventBox{event, true, busy_waited, true, -1, {}},
         [](const EventBox* b) {
+            event_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuEventDestroy(b->resource);
             delete b;
         }
     );
-    return EventHandle(box, &box->resource);
+    EventHandle h(box, &box->resource);
+    event_registry.register_handle(event, h);
+    return h;
 }
 
 // ============================================================================
@@ -562,6 +660,23 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     return DevicePtrHandle(box, &box->resource);
 }
 
+DevicePtrHandle deviceptr_create_mapped_graphics(
+    CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream
+) {
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, h_stream},
+        [h_resource](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            CUgraphicsResource resource = as_cu(h_resource);
+            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
 // ============================================================================
 // MemoryResource-owned Device Pointer Handles
 // ============================================================================
@@ -653,61 +768,43 @@ struct ExportDataKeyHash {
 
 }
 
-static std::mutex ipc_ptr_cache_mutex;
-static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
+static HandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
+static std::mutex ipc_import_mutex;
 
 DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
     if (use_ipc_ptr_cache()) {
-        // Check cache before calling cuMemPoolImportPointer
         ExportDataKey key;
         std::memcpy(&key.data, data, sizeof(key.data));
 
-        std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
+        std::lock_guard<std::mutex> lock(ipc_import_mutex);
 
-        auto it = ipc_ptr_cache.find(key);
-        if (it != ipc_ptr_cache.end()) {
-            if (auto box = it->second.lock()) {
-                // Cache hit - return existing handle
-                return DevicePtrHandle(box, &box->resource);
-            }
-            ipc_ptr_cache.erase(it);  // Expired entry
+        if (auto h = ipc_ptr_cache.lookup(key)) {
+            return h;
         }
 
-        // Cache miss - import the pointer
         GILReleaseGuard gil;
         CUdeviceptr ptr;
         if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
             return {};
         }
 
-        // Create new handle with cache-clearing deleter
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, h_stream},
             [h_pool, key](DevicePtrBox* b) {
+                ipc_ptr_cache.unregister_handle(key);
                 GILReleaseGuard gil;
-                try {
-                    std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
-                    // Only erase if expired - avoids race where another thread
-                    // replaced the entry with a new import before we acquired the lock.
-                    auto it = ipc_ptr_cache.find(key);
-                    if (it != ipc_ptr_cache.end() && it->second.expired()) {
-                        ipc_ptr_cache.erase(it);
-                    }
-                } catch (...) {
-                    // Cache cleanup is best-effort - swallow exceptions in destructor context
-                }
                 p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;
             }
         );
-        ipc_ptr_cache[key] = box;
-        return DevicePtrHandle(box, &box->resource);
+        DevicePtrHandle h(box, &box->resource);
+        ipc_ptr_cache.register_handle(key, h);
+        return h;
 
     } else {
-        // No caching - simple handle creation
         GILReleaseGuard gil;
         CUdeviceptr ptr;
         if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
@@ -786,9 +883,18 @@ LibraryHandle create_library_handle_ref(CUlibrary library) {
 namespace {
 struct KernelBox {
     CUkernel resource;
-    LibraryHandle h_library;  // Keeps library alive
+    LibraryHandle h_library;
 };
 }  // namespace
+
+static const KernelBox* get_box(const KernelHandle& h) {
+    const CUkernel* p = h.get();
+    return reinterpret_cast<const KernelBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(KernelBox, resource)
+    );
+}
+
+static HandleRegistry<CUkernel, KernelHandle> kernel_registry;
 
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
     GILReleaseGuard gil;
@@ -797,12 +903,74 @@ KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* na
         return {};
     }
 
-    return create_kernel_handle_ref(kernel, h_library);
+    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
+    KernelHandle h(box, &box->resource);
+    kernel_registry.register_handle(kernel, h);
+    return h;
 }
 
-KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library) {
-    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, h_library});
+KernelHandle create_kernel_handle_ref(CUkernel kernel) {
+    if (auto h = kernel_registry.lookup(kernel)) {
+        return h;
+    }
+    auto box = std::make_shared<const KernelBox>(KernelBox{kernel, {}});
     return KernelHandle(box, &box->resource);
+}
+
+LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
+    if (!h) return {};
+    return get_box(h)->h_library;
+}
+
+// ============================================================================
+// Graph Handles
+// ============================================================================
+
+namespace {
+struct GraphBox {
+    CUgraph resource;
+    GraphHandle h_parent;  // Keeps parent alive for child/branch graphs
+};
+}  // namespace
+
+GraphHandle create_graph_handle(CUgraph graph) {
+    auto box = std::shared_ptr<const GraphBox>(
+        new GraphBox{graph, {}},
+        [](const GraphBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphDestroy(b->resource);
+            delete b;
+        }
+    );
+    return GraphHandle(box, &box->resource);
+}
+
+GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
+    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
+    return GraphHandle(box, &box->resource);
+}
+
+namespace {
+struct GraphNodeBox {
+    CUgraphNode resource;
+    GraphHandle h_graph;
+};
+}  // namespace
+
+static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
+    const CUgraphNode* p = h.get();
+    return reinterpret_cast<const GraphNodeBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(GraphNodeBox, resource)
+    );
+}
+
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
+    auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
+    return GraphNodeHandle(box, &box->resource);
+}
+
+GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
+    return h ? get_box(h)->h_graph : GraphHandle{};
 }
 
 // ============================================================================

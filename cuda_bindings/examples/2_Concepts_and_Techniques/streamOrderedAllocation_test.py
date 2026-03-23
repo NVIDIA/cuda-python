@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates stream-ordered memory allocation (cudaMallocAsync
+# / cudaFreeAsync) and memory pool release thresholds.
+#
+# ################################################################################
+
 import ctypes
 import math
 import platform

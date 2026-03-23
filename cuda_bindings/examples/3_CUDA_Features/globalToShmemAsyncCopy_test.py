@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates asynchronous copy from global to shared memory
+# (memcpy_async) in matrix multiplication kernels.
+#
+# ################################################################################
+
 import ctypes
 import math
 import platform

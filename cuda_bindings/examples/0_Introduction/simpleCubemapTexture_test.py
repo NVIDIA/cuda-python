@@ -1,6 +1,12 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates cubemap texture sampling and transformation.
+#
+# ################################################################################
+
 import ctypes
 import sys
 import time
