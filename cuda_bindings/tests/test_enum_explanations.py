@@ -1,10 +1,17 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import importlib
 import importlib.metadata
 
+import pytest
+
 from cuda.bindings import driver, runtime
-from cuda.bindings._utils import driver_cu_result_explanations, runtime_cuda_error_explanations
+
+_EXPLANATION_MODULES = [
+    ("driver_cu_result_explanations", driver.CUresult),
+    ("runtime_cuda_error_explanations", runtime.cudaError_t),
+]
 
 
 def _get_binding_version():
@@ -15,25 +22,13 @@ def _get_binding_version():
     return tuple(int(v) for v in major_minor)
 
 
-def test_driver_cu_result_explanations_health():
-    expl_dict = driver_cu_result_explanations._EXPLANATIONS
+@pytest.mark.parametrize("module_name,enum_type", _EXPLANATION_MODULES)
+def test_explanations_health(module_name, enum_type):
+    mod = importlib.import_module(f"cuda.bindings._utils.{module_name}")
+    expl_dict = mod._EXPLANATIONS
 
     known_codes = set()
-    for error in driver.CUresult:
-        code = int(error)
-        assert code in expl_dict
-        known_codes.add(code)
-
-    if _get_binding_version() >= (13, 0):
-        extra_expl = sorted(set(expl_dict.keys()) - known_codes)
-        assert not extra_expl
-
-
-def test_runtime_cuda_error_explanations_health():
-    expl_dict = runtime_cuda_error_explanations._EXPLANATIONS
-
-    known_codes = set()
-    for error in runtime.cudaError_t:
+    for error in enum_type:
         code = int(error)
         assert code in expl_dict
         known_codes.add(code)

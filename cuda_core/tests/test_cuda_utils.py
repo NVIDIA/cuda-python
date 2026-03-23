@@ -46,7 +46,7 @@ def test_explanations_ctk_version(module_name, public_name):
         and core_mod._FALLBACK_EXPLANATIONS != bindings_mod._EXPLANATIONS
     ):
         raise RuntimeError(
-            f"The cuda_core copy of the cuda_bindings _EXPLANATIONS dict is out of sync"
+            "The cuda_core copy of the cuda_bindings _EXPLANATIONS dict is out of sync"
             f" (both at CTK {core_mod._CTK_MAJOR_MINOR_PATCH})."
             f" Please copy the _EXPLANATIONS dict from {bindings_path} to {core_path}"
         )
