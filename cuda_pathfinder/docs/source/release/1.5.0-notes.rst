@@ -31,9 +31,6 @@ Breaking Change
 Highlights
 ----------
 
-* Support cusparseLt release 0.9.0 (wheels have new directory structure).
-  (`PR #1806 <https://github.com/NVIDIA/cuda-python/pull/1806>`_)
-
 * Added :py:func:`cuda.pathfinder.get_cuda_path_or_home`, a centralized
   function for resolving ``CUDA_PATH``/``CUDA_HOME``. Features:
 
@@ -45,8 +42,3 @@ Highlights
   function to ensure consistent ``CUDA_PATH`` > ``CUDA_HOME`` priority
   across all cuda-python packages.
   (`PR #1801 <https://github.com/NVIDIA/cuda-python/pull/1801>`_)
-
-* Clarified that Python 3.8+ excludes ``PATH`` from the native Windows DLL
-  search used by ``load_nvidia_dynamic_lib()``, so CTK installs are typically
-  found via ``CUDA_PATH``/``CUDA_HOME`` or other explicit search steps instead.
-  (`PR #1795 <https://github.com/NVIDIA/cuda-python/pull/1795>`_)
