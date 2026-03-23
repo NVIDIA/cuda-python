@@ -10,8 +10,8 @@
   "a": "(empty)",
   "b": "tests/test_ctk_root_discovery.py::test_canary_fires_only_after_all_earlier_steps_fail|run",
   "c": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_not_found_raises_error|run",
-  "d": "tests/test_nvvm.py::test_nvvm_llvm_version|run",
-  "e": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options1]|setup",
+  "d": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
+  "e": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
   "f": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
   "g": "tests/test_ctk_root_discovery.py::test_non_discoverable_lib_skips_canary_probe|run",
   "h": "tests/test_ctk_root_discovery.py::test_cuda_home_takes_priority_over_canary|run",
@@ -20,16 +20,16 @@
   "k": "tests/test_ctk_root_discovery.py::test_subprocess_probe_raises_on_timeout|run",
   "l": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_found_in_conda|run",
   "m": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_search_order_conda_before_cuda_home|run",
-  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
-  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
+  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[curand]|run",
+  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
   "p": "tests/test_ctk_root_discovery.py::test_canary_finds_nvvm|run",
   "q": "tests/test_ctk_root_discovery.py::test_canary_returns_none_when_nvvm_not_in_ctk_root|run",
   "r": "tests/test_ctk_root_discovery.py::test_subprocess_probe_returns_abs_path_on_string_payload|run",
   "s": "tests/test_ctk_root_discovery.py::test_subprocess_probe_returns_none_on_null_payload|run",
   "t": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
-  "u": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufft]|run",
-  "v": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[curand]|run",
-  "w": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusparse]|run",
+  "u": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusparse]|run",
+  "v": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[npp]|run",
+  "w": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
   "x": "tests/test_ctk_root_discovery.py::test_canary_returns_none_when_ctk_root_unrecognized|run",
   "y": "tests/test_driver_lib_loading.py::test_driver_lib_does_not_search_site_packages|run",
   "z": "tests/test_driver_lib_loading.py::test_driver_lib_falls_through_to_system_search|run",
@@ -107,7 +107,7 @@
             <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_platform_loader_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-22 01:09 +0000
+            created at 2026-03-23 01:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -225,8 +225,8 @@
     <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="op">@</span><span class="nam">functools</span><span class="op">.</span><span class="nam">cache</span>&nbsp;</span><span class="r"><label for="ctxs101" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="key">def</span> <span class="nam">_resolve_system_loaded_abs_path_in_subprocess</span><span class="op">(</span><span class="nam">libname</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs102" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="str">"""Resolve a canary library's absolute path in a fresh Python subprocess."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">13 ctx</label></span><span class="ctxs">1jEFkGrstuvnwo</span></p>
-    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">        <span class="nam">result</span> <span class="op">=</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span>  <span class="com"># noqa: S603 - trusted argv: current interpreter + internal probe module</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">13 ctx</label></span><span class="ctxs">1jEFkGrstuvnwo</span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">13 ctx</label></span><span class="ctxs">1jEFkGrstnouvw</span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">        <span class="nam">result</span> <span class="op">=</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span>  <span class="com"># noqa: S603 - trusted argv: current interpreter + internal probe module</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">13 ctx</label></span><span class="ctxs">1jEFkGrstnouvw</span></p>
     <p class="run run2"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">            <span class="nam">build_dynamic_lib_subprocess_command</span><span class="op">(</span><span class="nam">MODE_CANARY</span><span class="op">,</span> <span class="nam">libname</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">            <span class="nam">capture_output</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">            <span class="nam">text</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -237,18 +237,18 @@
     <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">    <span class="key">except</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">TimeoutExpired</span> <span class="key">as</span> <span class="nam">exc</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">        <span class="nam">_raise_canary_probe_child_process_error</span><span class="op">(</span><span class="nam">timeout</span><span class="op">=</span><span class="nam">exc</span><span class="op">.</span><span class="nam">timeout</span><span class="op">,</span> <span class="nam">stderr</span><span class="op">=</span><span class="nam">exc</span><span class="op">.</span><span class="nam">stderr</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">1 ctx</label></span><span class="ctxs">1k</span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t">    <span class="key">if</span> <span class="nam">result</span><span class="op">.</span><span class="nam">returncode</span> <span class="op">!=</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">12 ctx</label></span><span class="ctxs">1jEFGrstuvnwo</span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t">    <span class="key">if</span> <span class="nam">result</span><span class="op">.</span><span class="nam">returncode</span> <span class="op">!=</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">12 ctx</label></span><span class="ctxs">1jEFGrstnouvw</span></p>
     <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t">        <span class="nam">_raise_canary_probe_child_process_error</span><span class="op">(</span><span class="nam">returncode</span><span class="op">=</span><span class="nam">result</span><span class="op">.</span><span class="nam">returncode</span><span class="op">,</span> <span class="nam">stderr</span><span class="op">=</span><span class="nam">result</span><span class="op">.</span><span class="nam">stderr</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">1 ctx</label></span><span class="ctxs">1j</span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t">    <span class="nam">payload</span><span class="op">:</span> <span class="nam">DynamicLibSubprocessPayload</span> <span class="op">=</span> <span class="nam">parse_dynamic_lib_subprocess_payload</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">11 ctx</label></span><span class="ctxs">1EFGrstuvnwo</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t">    <span class="nam">payload</span><span class="op">:</span> <span class="nam">DynamicLibSubprocessPayload</span> <span class="op">=</span> <span class="nam">parse_dynamic_lib_subprocess_payload</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">11 ctx</label></span><span class="ctxs">1EFGrstnouvw</span></p>
     <p class="run run2"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t">        <span class="nam">result</span><span class="op">.</span><span class="nam">stdout</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t">        <span class="nam">libname</span><span class="op">=</span><span class="nam">libname</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t">        <span class="nam">error_label</span><span class="op">=</span><span class="str">"Canary probe child process"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t">    <span class="nam">abs_path</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="nam">payload</span><span class="op">.</span><span class="nam">abs_path</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">8 ctx</label></span><span class="ctxs">1rstuvnwo</span></p>
-    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">    <span class="key">if</span> <span class="nam">payload</span><span class="op">.</span><span class="nam">status</span> <span class="op">==</span> <span class="nam">STATUS_OK</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">8 ctx</label></span><span class="ctxs">1rstuvnwo</span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">        <span class="key">return</span> <span class="nam">abs_path</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">4 ctx</label></span><span class="ctxs">1rvno</span></p>
-    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">    <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">6 ctx</label></span><span class="ctxs">1stunwo</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t">    <span class="nam">abs_path</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="nam">payload</span><span class="op">.</span><span class="nam">abs_path</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">8 ctx</label></span><span class="ctxs">1rstnouvw</span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">    <span class="key">if</span> <span class="nam">payload</span><span class="op">.</span><span class="nam">status</span> <span class="op">==</span> <span class="nam">STATUS_OK</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">8 ctx</label></span><span class="ctxs">1rstnouvw</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">        <span class="key">return</span> <span class="nam">abs_path</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">5 ctx</label></span><span class="ctxs">1rnovw</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">    <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">5 ctx</label></span><span class="ctxs">1stnou</span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="key">def</span> <span class="nam">_try_ctk_root_canary</span><span class="op">(</span><span class="nam">ctx</span><span class="op">:</span> <span class="nam">SearchContext</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs130" class="ctx">(empty)</label></span></p>
@@ -425,7 +425,7 @@
             <a class="nav" href="z_b173e2ae1fca2bc7_platform_loader_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-22 01:09 +0000
+            created at 2026-03-23 01:23 +0000
         </p>
     </div>
 </footer>
