@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.write
-==========================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: write
