@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6d0302ba"></script>
+    <script src="../_static/documentation_options.js?v=c97b86a3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.4.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.4.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="cuda-pathfinder 1.4.3 Release notes" href="1.4.3-notes.html" />
+    <link rel="prev" title="cuda-pathfinder 1.4.4 Release notes" href="1.4.4-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -424,6 +424,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">1.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.4.4-notes.html">1.4.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.4.3-notes.html">1.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.4.2-notes.html">1.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.4.1-notes.html">1.4.1</a></li>
@@ -524,8 +525,6 @@ supplied the value.</p>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul>
-<li><p>Support cusparseLt release 0.9.0 (wheels have new directory structure).
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1806">PR #1806</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.pathfinder.get_cuda_path_or_home.html#cuda.pathfinder.get_cuda_path_or_home" title="cuda.pathfinder.get_cuda_path_or_home"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuda.pathfinder.get_cuda_path_or_home()</span></code></a>, a centralized
 function for resolving <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>/<code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>. Features:</p>
 <ul class="simple">
@@ -538,10 +537,6 @@ function to ensure consistent <code class="docutils literal notranslate"><span c
 across all cuda-python packages.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1801">PR #1801</a>)</p>
 </li>
-<li><p>Clarified that Python 3.8+ excludes <code class="docutils literal notranslate"><span class="pre">PATH</span></code> from the native Windows DLL
-search used by <code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib()</span></code>, so CTK installs are typically
-found via <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>/<code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or other explicit search steps instead.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1795">PR #1795</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -557,12 +552,12 @@ found via <code class="docutils literal notranslate"><span class="pre">CUDA_PATH
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="1.4.3-notes.html"
+       href="1.4.4-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.4.3 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.4.4 Release notes</p>
       </div>
     </a>
 </div>
