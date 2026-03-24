@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -12,12 +12,14 @@ on:
       - synchronize
       - labeled
       - unlabeled
+      - milestoned
+      - demilestoned
 
 jobs:
   check-metadata:
     name: PR has labels and milestone
-    if: github.repository_owner == 'nvidia'
     if: github.repository_owner == 'NVIDIA'
+    runs-on: ubuntu-latest
     steps:
       - name: Check for labels and milestone
         env:
