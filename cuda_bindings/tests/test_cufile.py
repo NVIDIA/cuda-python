@@ -1412,6 +1412,14 @@ def test_set_get_parameter_size_t():
 @pytest.mark.usefixtures("ctx")
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
+    # Do not exercise allow/force compat via set_parameter_bool before any driver_open:
+    # pending API values are applied after JSON load on first open and can overwrite
+    # cufile.json (e.g. allow_compat_mode: true), causing DRIVER_NOT_INITIALIZED when
+    # nvidia-fs is not loaded. Other tests cover compat behavior where appropriate.
+    _COMPAT_PARAMS = (
+        cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE,
+        cufile.BoolConfigParameter.FORCE_COMPAT_MODE,
+    )
     param_val_pairs = (
         (cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True),
         (cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False),
@@ -1426,6 +1434,7 @@ def test_set_get_parameter_bool():
         (cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False),
         (cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True),
     )
+    param_val_pairs = tuple((p, v) for p, v in param_val_pairs if p not in _COMPAT_PARAMS)
 
     def test_param(param, val):
         orig_val = cufile.get_parameter_bool(param)
