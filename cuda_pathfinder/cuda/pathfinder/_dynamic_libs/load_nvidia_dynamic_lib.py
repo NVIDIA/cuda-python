@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -50,7 +50,7 @@ _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
-# conda, CUDA_HOME, canary) and go straight to system search.
+# conda, CUDA_PATH, canary) and go straight to system search.
 _DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
 
 
@@ -60,7 +60,7 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
     the CUDA Toolkit. They are expected to be discoverable via the platform's
     native loader mechanisms, so the full CTK search cascade (site-packages,
-    conda, CUDA_HOME, canary) is unnecessary.
+    conda, CUDA_PATH, canary) is unnecessary.
     """
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
     if loaded is not None:
@@ -246,7 +246,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
              On Windows, this is the typical way system-installed CTK DLLs are
              located. Note that the NVIDIA CTK installer automatically
              adds ``CUDA_PATH`` to the system-wide environment.
@@ -269,7 +269,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         0. Already loaded in the current process
         1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
-        The CTK-specific steps (site-packages, conda, ``CUDA_HOME``, canary
+        The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
         probe) are skipped entirely.
 
     Notes:

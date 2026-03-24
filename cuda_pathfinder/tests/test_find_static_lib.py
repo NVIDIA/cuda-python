@@ -13,6 +13,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
     find_static_lib,
     locate_static_lib,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.platform_aware import quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_STATIC_LIB_STRICTNESS", "see_what_works")
@@ -24,8 +25,10 @@ CUDADEVRT_INFO = find_static_lib_module._SUPPORTED_STATIC_LIBS_INFO["cudadevrt"]
 @pytest.fixture
 def clear_find_static_lib_cache():
     find_static_lib_module.find_static_lib.cache_clear()
+    get_cuda_path_or_home.cache_clear()
     yield
     find_static_lib_module.find_static_lib.cache_clear()
+    get_cuda_path_or_home.cache_clear()
 
 
 def _make_static_lib_file(dir_path: Path, filename: str) -> str:
@@ -48,7 +51,7 @@ def _located_static_lib_asserts(located_static_lib):
     assert isinstance(located_static_lib.abs_path, str)
     assert isinstance(located_static_lib.filename, str)
     assert isinstance(located_static_lib.found_via, str)
-    assert located_static_lib.found_via in ("site-packages", "conda", "CUDA_HOME")
+    assert located_static_lib.found_via in ("site-packages", "conda", "CUDA_PATH")
     assert os.path.isfile(located_static_lib.abs_path)
 
 
@@ -111,7 +114,7 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
 
     located_lib = locate_static_lib("cudadevrt")
     assert located_lib.abs_path == cuda_home_path
-    assert located_lib.found_via == "CUDA_HOME"
+    assert located_lib.found_via == "CUDA_PATH"
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
