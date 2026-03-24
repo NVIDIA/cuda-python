@@ -394,6 +394,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.get_cuda_path_or_home.html">cuda.pathfinder.get_cuda_path_or_home</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
@@ -423,6 +424,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.0-notes.html">1.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.4-notes.html">1.4.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.3-notes.html">1.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.2-notes.html">1.4.2</a></li>
@@ -577,7 +579,7 @@ the system <code class="docutils literal notranslate"><span class="pre">PATH</sp
 </li>
 <li><p><strong>Environment variables</strong></p>
 <ul class="simple">
-<li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).
+<li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (in that order).
 On Windows, this is the typical way system-installed CTK DLLs are
 located. Note that the NVIDIA CTK installer automatically
 adds <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> to the system-wide environment.</p></li>
@@ -605,7 +607,7 @@ libraries the search is simplified to:</p>
 <li><p>Already loaded in the current process</p></li>
 <li><p>OS default mechanisms (<code class="docutils literal notranslate"><span class="pre">dlopen</span></code> / <code class="docutils literal notranslate"><span class="pre">LoadLibraryExW</span></code>)</p></li>
 </ol>
-<p>The CTK-specific steps (site-packages, conda, <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, canary
+<p>The CTK-specific steps (site-packages, conda, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>, canary
 probe) are skipped entirely.</p>
 </div></blockquote>
 <p class="rubric">Notes</p>

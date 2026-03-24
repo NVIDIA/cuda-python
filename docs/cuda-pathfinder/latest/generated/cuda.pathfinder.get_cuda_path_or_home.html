@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.pathfinder.DynamicLibNotFoundError &#8212; cuda.pathfinder</title>
+    <title>cuda.pathfinder.get_cuda_path_or_home &#8212; cuda.pathfinder</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder.DynamicLibNotFoundError';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder.get_cuda_path_or_home';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.pathfinder.DynamicLibNotFoundError.html" />
+    <link rel="canonical" href="docs/generated/cuda.pathfinder.get_cuda_path_or_home.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.pathfinder.DynamicLibUnknownError" href="cuda.pathfinder.DynamicLibUnknownError.html" />
-    <link rel="prev" title="cuda.pathfinder.LoadedDL" href="cuda.pathfinder.LoadedDL.html" />
+    <link rel="next" title="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES" href="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html" />
+    <link rel="prev" title="cuda.pathfinder API Reference" href="../api.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -394,11 +394,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.get_cuda_path_or_home.html">cuda.pathfinder.get_cuda_path_or_home</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.get_cuda_path_or_home</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.DynamicLibNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibUnknownError.html">cuda.pathfinder.DynamicLibUnknownError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotAvailableError.html">cuda.pathfinder.DynamicLibNotAvailableError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_HEADERS_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
@@ -481,7 +481,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.pathfinder.DynamicLibNotFoundError</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.pathfinder.get_cuda_path_or_home</span></li>
   </ul>
 </nav>
 </div>
@@ -498,12 +498,29 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-pathfinder-dynamiclibnotfounderror">
-<h1>cuda.pathfinder.DynamicLibNotFoundError<a class="headerlink" href="#cuda-pathfinder-dynamiclibnotfounderror" title="Link to this heading">#</a></h1>
-<dl class="py exception">
-<dt class="sig sig-object py" id="cuda.pathfinder.DynamicLibNotFoundError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">DynamicLibNotFoundError</span></span><a class="headerlink" href="#cuda.pathfinder.DynamicLibNotFoundError" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+  <section id="cuda-pathfinder-get-cuda-path-or-home">
+<h1>cuda.pathfinder.get_cuda_path_or_home<a class="headerlink" href="#cuda-pathfinder-get-cuda-path-or-home" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.pathfinder.get_cuda_path_or_home">
+<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">get_cuda_path_or_home</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.pathfinder.get_cuda_path_or_home" title="Link to this definition">#</a></dt>
+<dd><p>Get CUDA Toolkit path from environment variables.</p>
+<p>Returns the value of CUDA_PATH or CUDA_HOME. If both are set and differ,
+CUDA_PATH takes precedence and a warning is issued.</p>
+<p>The result is cached for the process lifetime. The first call determines the CUDA
+Toolkit path, and subsequent calls return the cached value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to CUDA Toolkit, or None if neither variable is set or all are empty.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<dl class="simple">
+<dt>UserWarning: If multiple CUDA environment variables are set but point to</dt><dd><p>different locations (only on the first call).</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
 
 </section>
 
@@ -518,20 +535,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.pathfinder.LoadedDL.html"
+       href="../api.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.pathfinder.LoadedDL</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.pathfinder.DynamicLibUnknownError.html"
+       href="cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.pathfinder.DynamicLibUnknownError</p>
+        <p class="prev-next-title">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -556,7 +573,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder.DynamicLibNotFoundError"><code class="docutils literal notranslate"><span class="pre">DynamicLibNotFoundError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder.get_cuda_path_or_home"><code class="docutils literal notranslate"><span class="pre">get_cuda_path_or_home()</span></code></a></li>
 </ul>
   </nav></div>
 
