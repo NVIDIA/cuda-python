@@ -1257,6 +1257,18 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CaptionHolder:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="module/driver.html">driver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#profiler-control">Profiler Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuProfilerStart"><code class="docutils literal notranslate"><span class="pre">cuProfilerStart()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuProfilerStop"><code class="docutils literal notranslate"><span class="pre">cuProfilerStop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#vdpau-interoperability">VDPAU Interoperability</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuVDPAUGetDevice"><code class="docutils literal notranslate"><span class="pre">cuVDPAUGetDevice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuVDPAUCtxCreate"><code class="docutils literal notranslate"><span class="pre">cuVDPAUCtxCreate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsVDPAURegisterVideoSurface"><code class="docutils literal notranslate"><span class="pre">cuGraphicsVDPAURegisterVideoSurface()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsVDPAURegisterOutputSurface"><code class="docutils literal notranslate"><span class="pre">cuGraphicsVDPAURegisterOutputSurface()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#data-types-used-by-cuda-driver">Data types used by CUDA driver</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUuuid_st"><code class="docutils literal notranslate"><span class="pre">CUuuid_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUmemFabricHandle_st"><code class="docutils literal notranslate"><span class="pre">CUmemFabricHandle_st</span></code></a></li>
@@ -2238,6 +2250,13 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuCheckpointProcessUnlock"><code class="docutils literal notranslate"><span class="pre">cuCheckpointProcessUnlock()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#opengl-interoperability">OpenGL Interoperability</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUGLDeviceList"><code class="docutils literal notranslate"><span class="pre">CUGLDeviceList</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsGLRegisterBuffer"><code class="docutils literal notranslate"><span class="pre">cuGraphicsGLRegisterBuffer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsGLRegisterImage"><code class="docutils literal notranslate"><span class="pre">cuGraphicsGLRegisterImage()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGLGetDevices"><code class="docutils literal notranslate"><span class="pre">cuGLGetDevices()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#egl-interoperability">EGL Interoperability</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsEGLRegisterImage"><code class="docutils literal notranslate"><span class="pre">cuGraphicsEGLRegisterImage()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuEGLStreamConsumerConnect"><code class="docutils literal notranslate"><span class="pre">cuEGLStreamConsumerConnect()</span></code></a></li>
@@ -2251,25 +2270,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuEGLStreamProducerReturnFrame"><code class="docutils literal notranslate"><span class="pre">cuEGLStreamProducerReturnFrame()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsResourceGetMappedEglFrame"><code class="docutils literal notranslate"><span class="pre">cuGraphicsResourceGetMappedEglFrame()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuEventCreateFromEGLSync"><code class="docutils literal notranslate"><span class="pre">cuEventCreateFromEGLSync()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="module/driver.html#opengl-interoperability">OpenGL Interoperability</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUGLDeviceList"><code class="docutils literal notranslate"><span class="pre">CUGLDeviceList</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsGLRegisterBuffer"><code class="docutils literal notranslate"><span class="pre">cuGraphicsGLRegisterBuffer()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsGLRegisterImage"><code class="docutils literal notranslate"><span class="pre">cuGraphicsGLRegisterImage()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGLGetDevices"><code class="docutils literal notranslate"><span class="pre">cuGLGetDevices()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="module/driver.html#profiler-control">Profiler Control</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuProfilerStart"><code class="docutils literal notranslate"><span class="pre">cuProfilerStart()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuProfilerStop"><code class="docutils literal notranslate"><span class="pre">cuProfilerStop()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="module/driver.html#vdpau-interoperability">VDPAU Interoperability</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuVDPAUGetDevice"><code class="docutils literal notranslate"><span class="pre">cuVDPAUGetDevice()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuVDPAUCtxCreate"><code class="docutils literal notranslate"><span class="pre">cuVDPAUCtxCreate()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsVDPAURegisterVideoSurface"><code class="docutils literal notranslate"><span class="pre">cuGraphicsVDPAURegisterVideoSurface()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphicsVDPAURegisterOutputSurface"><code class="docutils literal notranslate"><span class="pre">cuGraphicsVDPAURegisterOutputSurface()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2390,6 +2390,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html#memory-management">Memory Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.make_cudaPitchedPtr"><code class="docutils literal notranslate"><span class="pre">make_cudaPitchedPtr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.make_cudaPos"><code class="docutils literal notranslate"><span class="pre">make_cudaPos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.make_cudaExtent"><code class="docutils literal notranslate"><span class="pre">make_cudaExtent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMallocManaged"><code class="docutils literal notranslate"><span class="pre">cudaMallocManaged()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMalloc"><code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMallocHost"><code class="docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code></a></li>
@@ -2447,9 +2450,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMemAdvise"><code class="docutils literal notranslate"><span class="pre">cudaMemAdvise()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMemRangeGetAttribute"><code class="docutils literal notranslate"><span class="pre">cudaMemRangeGetAttribute()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMemRangeGetAttributes"><code class="docutils literal notranslate"><span class="pre">cudaMemRangeGetAttributes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.make_cudaPitchedPtr"><code class="docutils literal notranslate"><span class="pre">make_cudaPitchedPtr()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.make_cudaPos"><code class="docutils literal notranslate"><span class="pre">make_cudaPos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.make_cudaExtent"><code class="docutils literal notranslate"><span class="pre">make_cudaExtent()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html#stream-ordered-memory-allocator">Stream Ordered Memory Allocator</a><ul>
@@ -2689,6 +2689,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html#data-types-used-by-cuda-runtime">Data types used by CUDA Runtime</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureDesc"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglPlaneDesc_st"><code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglFrame_st"><code class="docutils literal notranslate"><span class="pre">cudaEglFrame_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaChannelFormatDesc"><code class="docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a></li>
@@ -2756,7 +2757,11 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaLaunchAttributeValue"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaLaunchAttribute_st"><code class="docutils literal notranslate"><span class="pre">cudaLaunchAttribute_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaAsyncNotificationInfo"><code class="docutils literal notranslate"><span class="pre">cudaAsyncNotificationInfo</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureDesc"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureAddressMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureFilterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureReadMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceBoundaryMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceFormatMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglFrameType"><code class="docutils literal notranslate"><span class="pre">cudaEglFrameType</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglResourceLocationFlags"><code class="docutils literal notranslate"><span class="pre">cudaEglResourceLocationFlags</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat"><code class="docutils literal notranslate"><span class="pre">cudaEglColorFormat</span></code></a></li>
@@ -2834,11 +2839,8 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDeviceNumaConfig"><code class="docutils literal notranslate"><span class="pre">cudaDeviceNumaConfig</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaAsyncNotificationType"><code class="docutils literal notranslate"><span class="pre">cudaAsyncNotificationType</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaLogLevel"><code class="docutils literal notranslate"><span class="pre">cudaLogLevel</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceBoundaryMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceFormatMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureAddressMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureFilterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureReadMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureObject_t"><code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceObject_t"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglPlaneDesc"><code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglFrame"><code class="docutils literal notranslate"><span class="pre">cudaEglFrame</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEglStreamConnection"><code class="docutils literal notranslate"><span class="pre">cudaEglStreamConnection</span></code></a></li>
@@ -2882,8 +2884,20 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaAsyncCallback"><code class="docutils literal notranslate"><span class="pre">cudaAsyncCallback</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaLogsCallbackHandle"><code class="docutils literal notranslate"><span class="pre">cudaLogsCallbackHandle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaLogIterator"><code class="docutils literal notranslate"><span class="pre">cudaLogIterator</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceObject_t"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureObject_t"><code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType3D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemap</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1DLayered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2DLayered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemapLayered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType3D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemap</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1DLayered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2DLayered</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemapLayered</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.CUDA_EGL_MAX_PLANES"><code class="docutils literal notranslate"><span class="pre">runtime.CUDA_EGL_MAX_PLANES</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaHostAllocDefault"><code class="docutils literal notranslate"><span class="pre">runtime.cudaHostAllocDefault</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaHostAllocPortable"><code class="docutils literal notranslate"><span class="pre">runtime.cudaHostAllocPortable</span></code></a></li>
@@ -2964,20 +2978,6 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaKernelNodeAttrValue"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttrValue</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1D</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2D</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType3D</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1DLayered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2DLayered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemapLayered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1D</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2D</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType3D</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1DLayered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2DLayered</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaTextureTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemapLayered</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -1266,8 +1266,17 @@
 </section>
 <section id="build-time-environment-variables">
 <h2>Build-Time Environment Variables<a class="headerlink" href="#build-time-environment-variables" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>: Specifies the location of the CUDA Toolkit.</p></li>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>: Specifies the location of the CUDA Toolkit. If both are set, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> takes precedence.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> priority is determined by <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code>.
+Earlier versions of <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> (before 1.5.0) used the opposite order
+(<code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>). See the
+<a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/release/1.5.0-notes.html">cuda-pathfinder 1.5.0 release notes</a>
+for details and migration guidance.</p>
+</div>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARSER_CACHING</span></code> : bool, toggles the caching of parsed header files during the cuda-bindings build process. If caching is enabled (<code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARSER_CACHING</span></code> is True), the cache path is set to ./cache_&lt;library_name&gt;, where &lt;library_name&gt; is derived from the cuda toolkit libraries used to build cuda-bindings.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARALLEL_LEVEL</span></code> (previously <code class="docutils literal notranslate"><span class="pre">PARALLEL_LEVEL</span></code>) : int, sets the number of threads used in the compilation of extension modules. Not setting it or setting it to 0 would disable parallel builds.</p></li>
 </ul>
