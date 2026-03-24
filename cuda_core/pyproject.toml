@@ -7,6 +7,7 @@ requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8",
     "Cython>=3.2,<3.3",
+    "cuda-pathfinder>=1.5"
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -47,7 +48,7 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA :: 13",
 ]
 dependencies = [
-    "cuda-pathfinder >=1.4.2",
+    "cuda-pathfinder >=1.5",
     "numpy",
 ]
 

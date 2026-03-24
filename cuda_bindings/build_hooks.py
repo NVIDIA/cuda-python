@@ -33,13 +33,35 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 _extensions = None
 
 
+# Please keep in sync with the copy in cuda_core/build_hooks.py.
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    In isolated build environments, backend-path=["."] causes the ``cuda``
+    namespace package to resolve to only the project's ``cuda/`` directory,
+    hiding ``cuda.pathfinder`` installed in the build-env's site-packages.
+    Fix by replacing ``cuda.__path__`` with a plain list that includes the
+    site-packages ``cuda/`` directory.
+    """
+    try:
+        import cuda.pathfinder
+    except ModuleNotFoundError:
+        import cuda
+
+        for p in sys.path:
+            sp_cuda = os.path.join(p, "cuda")
+            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+                break
+        import cuda.pathfinder
+
+    return cuda.pathfinder.get_cuda_path_or_home
+
+
 @functools.cache
 def _get_cuda_path() -> str:
-    # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
-    # build backend runs in an isolated venv where the cuda namespace package
-    # from backend-path shadows the installed cuda-pathfinder. See #1803 for
-    # a workaround to apply after cuda-pathfinder >= 1.5 is released.
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
