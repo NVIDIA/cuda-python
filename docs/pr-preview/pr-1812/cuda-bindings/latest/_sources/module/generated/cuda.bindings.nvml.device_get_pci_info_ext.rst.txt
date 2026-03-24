@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_pci\_info\_ext
+==============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_pci_info_ext

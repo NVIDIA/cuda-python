@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.vgpu\_type\_get\_fb\_reservation
+===================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: vgpu_type_get_fb_reservation
