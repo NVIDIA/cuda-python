@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 8797618. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -1858,7 +1858,9 @@ class cudaLogLevel(_FastEnum):
 {{if 'cudaDataType_t' in found_types}}
 
 class cudaDataType(_FastEnum):
-    """"""
+    """
+
+    """
     {{if 'CUDA_R_32F' in found_values}}
     CUDA_R_32F = cyruntime.cudaDataType_t.CUDA_R_32F{{endif}}
     {{if 'CUDA_R_64F' in found_values}}
@@ -1934,43 +1936,98 @@ class cudaDataType(_FastEnum):
 {{if 'cudaEmulationStrategy_t' in found_types}}
 
 class cudaEmulationStrategy(_FastEnum):
-    """"""
+    """
+    Enum for specifying how to leverage floating-point emulation
+    algorithms
+    """
     {{if 'CUDA_EMULATION_STRATEGY_DEFAULT' in found_values}}
-    CUDA_EMULATION_STRATEGY_DEFAULT = cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_DEFAULT{{endif}}
+
+    CUDA_EMULATION_STRATEGY_DEFAULT = (
+        cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_DEFAULT,
+        'The default emulation strategy. For emulated computations, this is\n'
+        'equivalent to CUDA_EMULATION_STRATEGY_PERFORMANT, unless a library\n'
+        'dependent environment variable is set\n'
+    ){{endif}}
     {{if 'CUDA_EMULATION_STRATEGY_PERFORMANT' in found_values}}
-    CUDA_EMULATION_STRATEGY_PERFORMANT = cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_PERFORMANT{{endif}}
+
+    CUDA_EMULATION_STRATEGY_PERFORMANT = (
+        cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_PERFORMANT,
+        'An emulation strategy which configures libraries to use emulation when it\n'
+        'provides a performance benefit\n'
+    ){{endif}}
     {{if 'CUDA_EMULATION_STRATEGY_EAGER' in found_values}}
-    CUDA_EMULATION_STRATEGY_EAGER = cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_EAGER{{endif}}
+
+    CUDA_EMULATION_STRATEGY_EAGER = (
+        cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_EAGER,
+        'An emulation strategy which configures libraries to use emulation whenever\n'
+        'possible\n'
+    ){{endif}}
 
 {{endif}}
 {{if 'cudaEmulationMantissaControl_t' in found_types}}
 
 class cudaEmulationMantissaControl(_FastEnum):
-    """"""
+    """
+    Enum to configure the mantissa related parameters for floating-
+    point emulation algorithms
+    """
     {{if 'CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC' in found_values}}
-    CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC{{endif}}
+
+    CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = (
+        cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC,
+        'The number of retained mantissa bits are computed at runtime to ensure the\n'
+        'same or better accuracy than the floating point representation being\n'
+        'emulated\n'
+    ){{endif}}
     {{if 'CUDA_EMULATION_MANTISSA_CONTROL_FIXED' in found_values}}
-    CUDA_EMULATION_MANTISSA_CONTROL_FIXED = cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_FIXED{{endif}}
+
+    CUDA_EMULATION_MANTISSA_CONTROL_FIXED = (
+        cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_FIXED,
+        'The number of retained mantissa bits are known at runtime\n'
+    ){{endif}}
 
 {{endif}}
 {{if 'cudaEmulationSpecialValuesSupport_t' in found_types}}
 
 class cudaEmulationSpecialValuesSupport(_FastEnum):
-    """"""
+    """
+    Enum to configure how special floating-point values will be handled
+    by emulation algorithms
+    """
     {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE{{endif}}
+
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = (
+        cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE,
+        'There are no requirements for emulation algorithms to support special\n'
+        'values\n'
+    ){{endif}}
     {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY{{endif}}
+
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = (
+        cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY,
+        'Require emulation algorithms to handle signed infinity inputs and outputs\n'
+    ){{endif}}
     {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN{{endif}}
+
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = (
+        cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN,
+        'Require emulation algorithms to handle NaN inputs and outputs\n'
+    ){{endif}}
     {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT{{endif}}
+
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = (
+        cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT,
+        'The default special value support mask which contains support for signed\n'
+        'infinities and NaN values\n'
+    ){{endif}}
 
 {{endif}}
 {{if 'libraryPropertyType_t' in found_types}}
 
 class libraryPropertyType(_FastEnum):
-    """"""
+    """
+
+    """
     {{if 'MAJOR_VERSION' in found_values}}
     MAJOR_VERSION = cyruntime.libraryPropertyType_t.MAJOR_VERSION{{endif}}
     {{if 'MINOR_VERSION' in found_values}}
@@ -6394,7 +6451,9 @@ class cudaTextureReadMode(_FastEnum):
 {{if 'cudaRoundMode' in found_types}}
 
 class cudaRoundMode(_FastEnum):
-    """"""
+    """
+
+    """
     {{if 'cudaRoundNearest' in found_values}}
     cudaRoundNearest = cyruntime.cudaRoundMode.cudaRoundNearest{{endif}}
     {{if 'cudaRoundZero' in found_values}}

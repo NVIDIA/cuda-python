@@ -28,7 +28,7 @@ from typing import NoReturn, cast
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 # ---------------------------------------------------------------------------
 # Data types
@@ -182,21 +182,24 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     return None
 
 
-def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
-    """Search ``$CUDA_HOME`` / ``$CUDA_PATH``.
+def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
+    """Search ``$CUDA_PATH`` / ``$CUDA_HOME``.
 
     On Windows, this is the normal fallback for system-installed CTK DLLs when
     they are not already discoverable via the native ``LoadLibraryExW(..., 0)``
     path used by :func:`cuda.pathfinder._dynamic_libs.load_dl_windows.load_with_system_search`.
     Python 3.8+ does not include ``PATH`` in that native DLL search.
+
+    The returned ``found_via`` is always ``"CUDA_PATH"`` regardless of which
+    environment variable actually provided the value.
     """
-    cuda_home = get_cuda_home_or_path()
+    cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
     lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, cuda_home)
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is not None:
-        return FindResult(abs_path, "CUDA_HOME")
+        return FindResult(abs_path, "CUDA_PATH")
     return None
 
 
@@ -208,7 +211,7 @@ def find_in_cuda_home(ctx: SearchContext) -> FindResult | None:
 EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_in_site_packages, find_in_conda)
 
 #: Find steps that run after system search fails.
-LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_home,)
+LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_path,)
 
 
 # ---------------------------------------------------------------------------

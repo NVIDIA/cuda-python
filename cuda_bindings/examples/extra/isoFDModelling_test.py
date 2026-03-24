@@ -649,7 +649,7 @@ def main():
             )
             print(
                 "> Peer access from {} (GPU{}) -> {} (GPU{}) : {}\n".format(
-                    prop[j].name, j, prop[i].name, i, "Yes" if i_access_j else "No"
+                    prop[j].name, j, prop[i].name, i, "Yes" if j_access_i else "No"
                 )
             )
             if i_access_j and j_access_i:

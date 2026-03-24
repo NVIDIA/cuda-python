@@ -413,7 +413,7 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     # Canary subprocess probe would find cudart if consulted.
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", side_effect=canary_mock)
     # CUDA_HOME points to a separate root that also has nvvm
-    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=str(cuda_home_root))
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=str(cuda_home_root))
     # Capture the final load call
     mocker.patch.object(
         load_mod.LOADER,
@@ -424,7 +424,7 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     result = _load_lib_no_cache("nvvm")
 
     # CUDA_HOME must win; the canary should never have been consulted
-    assert result.found_via == "CUDA_HOME"
+    assert result.found_via == "CUDA_PATH"
     assert result.abs_path == str(nvvm_home_lib)
     canary_mock.assert_not_called()
 
@@ -443,7 +443,7 @@ def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
         return_value=_fake_canary_path(canary_root),
     )
     # No CUDA_HOME set
-    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
     # Capture the final load call
     mocker.patch.object(
         load_mod.LOADER,
@@ -461,7 +461,7 @@ def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
 def test_non_discoverable_lib_skips_canary_probe(mocker):
     # Force fallback path for a lib that is not canary-discoverable.
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
-    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
     canary_probe = mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess")
 
     with pytest.raises(DynamicLibNotFoundError):
