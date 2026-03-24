@@ -17,7 +17,7 @@ jobs:
   check-metadata:
     name: PR has labels and milestone
     if: github.repository_owner == 'nvidia'
-    runs-on: ubuntu-latest
+    if: github.repository_owner == 'NVIDIA'
     steps:
       - name: Check for labels and milestone
         env:
