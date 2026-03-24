@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -------
@@ -172,6 +172,9 @@ This section describes the memory management functions of the CUDA runtime appli
 
 Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.
 
+.. autofunction:: cuda.bindings.runtime.make_cudaPitchedPtr
+.. autofunction:: cuda.bindings.runtime.make_cudaPos
+.. autofunction:: cuda.bindings.runtime.make_cudaExtent
 .. autofunction:: cuda.bindings.runtime.cudaMallocManaged
 .. autofunction:: cuda.bindings.runtime.cudaMalloc
 .. autofunction:: cuda.bindings.runtime.cudaMallocHost
@@ -229,9 +232,6 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaMemAdvise
 .. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttribute
 .. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttributes
-.. autofunction:: cuda.bindings.runtime.make_cudaPitchedPtr
-.. autofunction:: cuda.bindings.runtime.make_cudaPos
-.. autofunction:: cuda.bindings.runtime.make_cudaExtent
 
 Stream Ordered Memory Allocator
 -------------------------------
@@ -1110,6 +1110,7 @@ Data types used by CUDA Runtime
 
 
 
+.. autoclass:: cuda.bindings.runtime.cudaTextureDesc
 .. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc_st
 .. autoclass:: cuda.bindings.runtime.cudaEglFrame_st
 .. autoclass:: cuda.bindings.runtime.cudaChannelFormatDesc
@@ -1177,7 +1178,89 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeValue
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttribute_st
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo
-.. autoclass:: cuda.bindings.runtime.cudaTextureDesc
+.. autoclass:: cuda.bindings.runtime.cudaTextureAddressMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap
+
+
+        Wrapping address mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp
+
+
+        Clamp to edge address mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror
+
+
+        Mirror address mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder
+
+
+        Border address mode
+
+.. autoclass:: cuda.bindings.runtime.cudaTextureFilterMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint
+
+
+        Point filter mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear
+
+
+        Linear filter mode
+
+.. autoclass:: cuda.bindings.runtime.cudaTextureReadMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType
+
+
+        Read texture as specified element type
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat
+
+
+        Read texture as normalized float
+
+.. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero
+
+
+        Zero boundary mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp
+
+
+        Clamp boundary mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap
+
+
+        Trap boundary mode
+
+.. autoclass:: cuda.bindings.runtime.cudaSurfaceFormatMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced
+
+
+        Forced format mode
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto
+
+
+        Auto format mode
+
 .. autoclass:: cuda.bindings.runtime.cudaEglFrameType
 
     .. autoattribute:: cuda.bindings.runtime.cudaEglFrameType.cudaEglFrameTypeArray
@@ -5907,89 +5990,8 @@ Data types used by CUDA Runtime
 
     .. autoattribute:: cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning
 
-.. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero
-
-
-        Zero boundary mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp
-
-
-        Clamp boundary mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap
-
-
-        Trap boundary mode
-
-.. autoclass:: cuda.bindings.runtime.cudaSurfaceFormatMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced
-
-
-        Forced format mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto
-
-
-        Auto format mode
-
-.. autoclass:: cuda.bindings.runtime.cudaTextureAddressMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap
-
-
-        Wrapping address mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp
-
-
-        Clamp to edge address mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror
-
-
-        Mirror address mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder
-
-
-        Border address mode
-
-.. autoclass:: cuda.bindings.runtime.cudaTextureFilterMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint
-
-
-        Point filter mode
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear
-
-
-        Linear filter mode
-
-.. autoclass:: cuda.bindings.runtime.cudaTextureReadMode
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType
-
-
-        Read texture as specified element type
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat
-
-
-        Read texture as normalized float
-
+.. autoclass:: cuda.bindings.runtime.cudaTextureObject_t
+.. autoclass:: cuda.bindings.runtime.cudaSurfaceObject_t
 .. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc
 .. autoclass:: cuda.bindings.runtime.cudaEglFrame
 .. autoclass:: cuda.bindings.runtime.cudaEglStreamConnection
@@ -6033,8 +6035,20 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaAsyncCallback
 .. autoclass:: cuda.bindings.runtime.cudaLogsCallbackHandle
 .. autoclass:: cuda.bindings.runtime.cudaLogIterator
-.. autoclass:: cuda.bindings.runtime.cudaSurfaceObject_t
-.. autoclass:: cuda.bindings.runtime.cudaTextureObject_t
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType1D
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType2D
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType3D
+.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemap
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType1DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaTextureType2DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemapLayered
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType3D
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemap
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2DLayered
+.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered
 .. autoattribute:: cuda.bindings.runtime.CUDA_EGL_MAX_PLANES
 
     Maximum number of planes per frame
@@ -6320,17 +6334,3 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrValue
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType3D
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemap
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType1D
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType2D
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType3D
-.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemap
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType1DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaTextureType2DLayered
-.. autoattribute:: cuda.bindings.runtime.cudaTextureTypeCubemapLayered

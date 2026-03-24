@@ -57,6 +57,18 @@ test-cu13 = [
     { include-group = "host" },
 ]
 
+[tool.uv]
+conflicts = [
+    [
+        { group = "cu12" },
+        { group = "cu13" },
+    ],
+    [
+        { group = "test-cu12" },
+        { group = "test-cu13" },
+    ],
+]
+
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"
 Documentation = "https://nvidia.github.io/cuda-python/"

@@ -1,13 +1,31 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+
 
 import os
 
 import pytest
 
+from cuda.pathfinder import get_cuda_path_or_home
+
+
+# Please keep in sync with the copy in cuda_core/tests/conftest.py.
+def _cuda_headers_available() -> bool:
+    """Return True if CUDA headers are available, False if no CUDA path is set.
+
+    Raises AssertionError if a CUDA path is set but has no include/ subdirectory.
+    """
+    cuda_path = get_cuda_path_or_home()
+    if cuda_path is None:
+        return False
+    assert os.path.isdir(os.path.join(cuda_path, "include")), (
+        f"CUDA path {cuda_path} does not contain an 'include' subdirectory"
+    )
+    return True
+
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
-    cuda_home = os.environ.get("CUDA_HOME")
+    have_headers = _cuda_headers_available()
     for item in items:
         nodeid = item.nodeid.replace("\\", "/")
 
@@ -31,6 +49,10 @@ def pytest_collection_modifyitems(config, items):  # noqa: ARG001
         ):
             item.add_marker(pytest.mark.cython)
 
-            # Gate core cython tests on CUDA_HOME
-            if "core" in item.keywords and not cuda_home:
-                item.add_marker(pytest.mark.skip(reason="CUDA_HOME not set; skipping core cython tests"))
+            # Gate core cython tests on CUDA_PATH
+            if "core" in item.keywords and not have_headers:
+                item.add_marker(
+                    pytest.mark.skip(
+                        reason="Environment variable CUDA_PATH or CUDA_HOME is not set: skipping core cython tests"
+                    )
+                )
