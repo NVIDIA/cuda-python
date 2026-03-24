@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.unit\_get\_fan\_speed\_info
+==============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: unit_get_fan_speed_info
