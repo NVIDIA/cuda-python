@@ -42,6 +42,7 @@ assert STRICTNESS in ("see_what_works", "all_must_work")
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cusparseLt": r"^nvidia-cusparselt-.*$",
     "cutensor": r"^cutensor-.*$",
+    "mathdx": r"^nvidia-libmathdx-.*$",
     "nvshmem": r"^nvidia-nvshmem-.*$",
 }
 

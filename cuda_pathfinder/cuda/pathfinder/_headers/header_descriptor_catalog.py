@@ -154,6 +154,14 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
+        name="mathdx",
+        packaged_with="other",
+        header_basename="libmathdx.h",
+        site_packages_dirs=("nvidia/cu13/include", "nvidia/cu12/include"),
+        conda_targets_layout=False,
+        use_ctk_root_canary=False,
+    ),
+    HeaderDescriptorSpec(
         name="nvshmem",
         packaged_with="other",
         header_basename="nvshmem.h",
