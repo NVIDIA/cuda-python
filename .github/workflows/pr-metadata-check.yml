@@ -12,8 +12,6 @@ on:
       - synchronize
       - labeled
       - unlabeled
-      - milestoned
-      - demilestoned
 
 jobs:
   check-metadata:
