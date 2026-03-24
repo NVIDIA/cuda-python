@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_fan\_control\_policy\_v2
-========================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_fan_control_policy_v2
