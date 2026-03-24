@@ -5,7 +5,12 @@
 import weakref
 from dataclasses import dataclass
 
+from cuda.bindings cimport cydriver
+
+from cuda.core._graph._utils cimport _attach_host_callback_to_graph
+from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import (
     driver,
     get_binding_version,
@@ -681,6 +686,57 @@ class GraphBuilder:
                 driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
             )
         )
+
+    def callback(self, fn, *, user_data=None):
+        """Add a host callback to the graph during stream capture.
+
+        The callback runs on the host CPU when the graph reaches this point
+        in execution. Two modes are supported:
+
+        - **Python callable**: Pass any callable. The GIL is acquired
+          automatically. The callable must take no arguments; use closures
+          or ``functools.partial`` to bind state.
+        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
+          The function receives a single ``void*`` argument (the
+          ``user_data``). The caller must keep the ctypes wrapper alive
+          for the lifetime of the graph.
+
+        .. warning::
+
+            Callbacks must not call CUDA API functions. Doing so may
+            deadlock or corrupt driver state.
+
+        Parameters
+        ----------
+        fn : callable or ctypes function pointer
+            The callback function.
+        user_data : int or bytes-like, optional
+            Only for ctypes function pointers. If ``int``, passed as a raw
+            pointer (caller manages lifetime). If bytes-like, the data is
+            copied and its lifetime is tied to the graph.
+        """
+        cdef Stream stream = <Stream>self._mnff.stream
+        cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
+        cdef cydriver.CUstreamCaptureStatus capture_status
+        cdef cydriver.CUgraph c_graph = NULL
+
+        with nogil:
+            IF CUDA_CORE_BUILD_MAJOR >= 13:
+                HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+                    c_stream, &capture_status, NULL, &c_graph, NULL, NULL, NULL))
+            ELSE:
+                HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+                    c_stream, &capture_status, NULL, &c_graph, NULL, NULL))
+
+        if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+            raise RuntimeError("Cannot add callback when graph is not being built")
+
+        cdef cydriver.CUhostFn c_fn
+        cdef void* c_user_data = NULL
+        _attach_host_callback_to_graph(c_graph, fn, user_data, &c_fn, &c_user_data)
+
+        with nogil:
+            HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
 
 
 class Graph:
