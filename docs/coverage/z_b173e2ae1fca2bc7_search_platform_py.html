@@ -9,9 +9,9 @@
         contexts = {
   "a": "(empty)",
   "b": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
-  "c": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
+  "c": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|setup",
   "d": "tests/test_search_steps.py::TestFindInSitePackages::test_not_found_appends_error|run",
-  "e": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
+  "e": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
   "f": "tests/test_ctk_root_discovery.py::test_canary_finds_nvvm|run",
   "g": "tests/test_ctk_root_discovery.py::test_canary_fires_only_after_all_earlier_steps_fail|run",
   "h": "tests/test_ctk_root_discovery.py::test_cuda_home_takes_priority_over_canary|run",
@@ -100,7 +100,7 @@
             <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_search_steps_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-23 01:23 +0000
+            created at 2026-03-24 01:31 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -142,8 +142,8 @@
     <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="key">def</span> <span class="nam">_no_such_file_in_sub_dirs</span><span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs25" class="ctx">(empty)</label></span></p>
     <p class="run run2"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="nam">sub_dirs</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">file_wild</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">error_messages</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">attachments</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="nam">error_messages</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="fst">f"</span><span class="fst">No such file: </span><span class="op">{</span><span class="nam">file_wild</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">5 ctx</label></span><span class="ctxs">1abced</span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">for</span> <span class="nam">sub_dir</span> <span class="key">in</span> <span class="nam">find_sub_dirs_all_sitepackages</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">5 ctx</label></span><span class="ctxs">1abced</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="nam">error_messages</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="fst">f"</span><span class="fst">No such file: </span><span class="op">{</span><span class="nam">file_wild</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">5 ctx</label></span><span class="ctxs">1abecd</span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="key">for</span> <span class="nam">sub_dir</span> <span class="key">in</span> <span class="nam">find_sub_dirs_all_sitepackages</span><span class="op">(</span><span class="nam">sub_dirs</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">5 ctx</label></span><span class="ctxs">1abecd</span></p>
     <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="nam">attachments</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="fst">f'</span><span class="fst">  listdir("</span><span class="op">{</span><span class="nam">sub_dir</span><span class="op">}</span><span class="fst">"):</span><span class="fst">'</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">1 ctx</label></span><span class="ctxs">1d</span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="key">for</span> <span class="nam">node</span> <span class="key">in</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">listdir</span><span class="op">(</span><span class="nam">sub_dir</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">1 ctx</label></span><span class="ctxs">1d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="nam">attachments</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="fst">f"</span><span class="fst">    </span><span class="op">{</span><span class="nam">node</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -336,7 +336,7 @@
             <a class="nav" href="z_b173e2ae1fca2bc7_search_steps_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-23 01:23 +0000
+            created at 2026-03-24 01:31 +0000
         </p>
     </div>
 </footer>

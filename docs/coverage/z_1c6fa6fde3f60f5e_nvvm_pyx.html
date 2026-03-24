@@ -8,7 +8,7 @@
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
+  "b": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
   "c": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options0]|run",
   "d": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|run",
   "e": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|run",
@@ -49,7 +49,7 @@
   "N": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options0]|run",
   "O": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options1]|run",
   "P": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|run",
-  "Q": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
+  "Q": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|setup",
   "R": "tests/test_program.py::test_nvvm_compile_invalid_ir|run",
   "S": "tests/test_program.py::test_nvvm_program_creation_compilation|run",
   "T": "tests/test_nvvm.py::test_c_or_v_program_fail_no_module[compile_program]|run",
@@ -65,25 +65,25 @@
   "3": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[txt-compile_program]|setup",
   "4": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[txt-verify_program]|setup",
   "5": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options0]|setup",
-  "6": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup",
-  "7": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options3]|setup",
-  "8": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options0]|setup",
-  "9": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options1]|setup",
-  "!": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options2]|setup",
-  "#": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options3]|setup",
-  "$": "tests/test_nvvm.py::test_nvvm_ir_version|run",
-  "%": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|setup",
+  "6": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
+  "7": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup",
+  "8": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options3]|setup",
+  "9": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options0]|setup",
+  "!": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options1]|setup",
+  "#": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options2]|setup",
+  "$": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options3]|setup",
+  "%": "tests/test_nvvm.py::test_nvvm_ir_version|run",
   "'": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options1]|setup",
   "(": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options2]|setup",
   ")": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options0]|setup",
   "*": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options1]|setup",
   "+": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   ",": "tests/test_nvvm.py::test_get_error_string|run",
-  "-": "tests/example_tests/test_basic_examples.py::TestExamples::test_example[/__w/cuda-python/cuda-python/cuda_core/tests/example_tests/../../examples/gl_interop_plasma.py]|run",
+  "-": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|run",
   ".": "tests/test_object_protocols.py::test_repr_format[sample_program_nvvm-<Program backend='NVVM'>]|teardown",
   "/": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   ":": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  ";": "tests/test_program.py::test_nvvm_program_options[options5-ltoir]|setup"
+  ";": "tests/test_program.py::test_nvvm_program_options[options0-ltoir]|setup"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -146,7 +146,7 @@
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_utils_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-23 01:23 +0000
+            created at 2026-03-24 01:31 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -259,7 +259,7 @@
     <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        if __nvvmGetErrorString == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            __nvvmGetErrorString = dlsym(handle, 'nvvmGetErrorString')</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            __nvvmGetErrorString = dlsym(handle, 'nvvmGetErrorString')</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        global __nvvmVersion</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        __nvvmVersion = dlsym(RTLD_DEFAULT, 'nvvmVersion')</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
@@ -269,7 +269,7 @@
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">            __nvvmVersion = dlsym(handle, 'nvvmVersion')</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">        global __nvvmIRVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        __nvvmIRVersion = dlsym(RTLD_DEFAULT, 'nvvmIRVersion')</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        __nvvmIRVersion = dlsym(RTLD_DEFAULT, 'nvvmIRVersion')</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="mis show_mis"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
@@ -284,13 +284,13 @@
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        global __nvvmDestroyProgram</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        __nvvmDestroyProgram = dlsym(RTLD_DEFAULT, 'nvvmDestroyProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        if __nvvmDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        if __nvvmDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="mis show_mis"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">            __nvvmDestroyProgram = dlsym(handle, 'nvvmDestroyProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        global __nvvmAddModuleToProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        __nvvmAddModuleToProgram = dlsym(RTLD_DEFAULT, 'nvvmAddModuleToProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        __nvvmAddModuleToProgram = dlsym(RTLD_DEFAULT, 'nvvmAddModuleToProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">        if __nvvmAddModuleToProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="mis show_mis"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">2 ctx</label></span><span class="ctxs">1aQ</span></p>
@@ -305,20 +305,20 @@
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        global __nvvmCompileProgram</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        __nvvmCompileProgram = dlsym(RTLD_DEFAULT, 'nvvmCompileProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        if __nvvmCompileProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        if __nvvmCompileProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="mis show_mis"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">            __nvvmCompileProgram = dlsym(handle, 'nvvmCompileProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs148"><span class="r"><label for="ctxs148" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        global __nvvmVerifyProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        __nvvmVerifyProgram = dlsym(RTLD_DEFAULT, 'nvvmVerifyProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        __nvvmVerifyProgram = dlsym(RTLD_DEFAULT, 'nvvmVerifyProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        if __nvvmVerifyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="mis show_mis"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs154" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">            __nvvmVerifyProgram = dlsym(handle, 'nvvmVerifyProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">49 ctx</label></span><span class="ctxs">1VWk2lQm3n4opTUc5dbe6f7g8h9i!j#XIJ,$Z0K%L'M(N)O*P+</span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">            __nvvmVerifyProgram = dlsym(handle, 'nvvmVerifyProgram')</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">49 ctx</label></span><span class="ctxs">1VWk2lbm3n4opTUc5d6e7f8g9h!i#j$XIJ,%Z0KQL'M(N)O*P+</span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        global __nvvmGetCompiledResultSize</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">        __nvvmGetCompiledResultSize = dlsym(RTLD_DEFAULT, 'nvvmGetCompiledResultSize')</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">3 ctx</label></span><span class="ctxs">1aQb</span></p>
+    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">        __nvvmGetCompiledResultSize = dlsym(RTLD_DEFAULT, 'nvvmGetCompiledResultSize')</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">3 ctx</label></span><span class="ctxs">1abQ</span></p>
     <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        if __nvvmGetCompiledResultSize == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">            if handle == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">                handle = load_library()</span>&nbsp;</span><span class="r"><label for="ctxs161" class="ctx">(empty)</label></span></p>
@@ -357,8 +357,8 @@
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_nvvm() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs196" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    if __py_nvvm_init:</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">77 ctx</label></span><span class="ctxs">1a-VWk2lQm3n4opTUc5dbe6f7g8h9i!j#XIJ,$Z0K%L'M(N)O*P+1.s/t:RYSuvwxyzABCDE;FGHqr</span></p>
-    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">76 ctx</label></span><span class="ctxs">1a-VWk2lQm3n4opTUc5de6f7g8h9i!j#XIJ,$Z0K%L'M(N)O*P+1.s/t:RYSuvwxyzABCDE;FGHqr</span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    if __py_nvvm_init:</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">77 ctx</label></span><span class="ctxs">1a-VWk2lbm3n4opTUc5d6e7f8g9h!i#j$XIJ,%Z0KQL'M(N)O*P+1.s/t:RYSu;vwxyzABCDEFGHqr</span></p>
+    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">76 ctx</label></span><span class="ctxs">1a-VWk2lm3n4opTUc5d6e7f8g9h!i#j$XIJ,%Z0KQL'M(N)O*P+1.s/t:RYSu;vwxyzABCDEFGHqr</span></p>
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    return _init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs200"><span class="r"><label for="ctxs200" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -411,7 +411,7 @@
     <p class="mis show_mis"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">    data["__nvvmGetProgramLogSize"] = &lt;intptr_t>__nvvmGetProgramLogSize</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    global __nvvmGetProgramLog</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">    data["__nvvmGetProgramLog"] = &lt;intptr_t>__nvvmGetProgramLog</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">19 ctx</label></span><span class="ctxs">12Q345b6789!#$%'()*+</span></p>
+    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">    data["__nvvmGetProgramLog"] = &lt;intptr_t>__nvvmGetProgramLog</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">19 ctx</label></span><span class="ctxs">12b3456789!#$%Q'()*+</span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    global __nvvmLLVMVersion</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    data["__nvvmLLVMVersion"] = &lt;intptr_t>__nvvmLLVMVersion</span>&nbsp;</span><span class="r"></span></p>
@@ -453,11 +453,11 @@
     <p class="pln"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs291" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">    global __nvvmIRVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs293"><span class="r"><label for="ctxs293" class="ctx">25 ctx</label></span><span class="ctxs">1a2Q345b6789!#$%'()*+/:;qr</span></p>
-    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">25 ctx</label></span><span class="ctxs">1a2Q345b6789!#$%'()*+/:;qr</span></p>
+    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs293"><span class="r"><label for="ctxs293" class="ctx">25 ctx</label></span><span class="ctxs">1a2b3456789!#$%Q'()*+/:;qr</span></p>
+    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">25 ctx</label></span><span class="ctxs">1a2b3456789!#$%Q'()*+/:;qr</span></p>
     <p class="mis show_mis"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvvmIRVersion is not found")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(int*, int*, int*, int*) noexcept nogil>__nvvmIRVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">25 ctx</label></span><span class="ctxs">1a2Q345b6789!#$%'()*+/:;qr</span></p>
+    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(int*, int*, int*, int*) noexcept nogil>__nvvmIRVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">25 ctx</label></span><span class="ctxs">1a2b3456789!#$%Q'()*+/:;qr</span></p>
     <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">        majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -578,7 +578,7 @@
             <a class="nav" href="z_1c6fa6fde3f60f5e_utils_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-23 01:23 +0000
+            created at 2026-03-24 01:31 +0000
         </p>
     </div>
 </footer>
