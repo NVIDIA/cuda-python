@@ -470,7 +470,7 @@ cdef class GraphDef:
         Graph
             An executable graph that can be launched on a stream.
         """
-        from cuda.core._graph import _instantiate_graph
+        from cuda.core._graph._graph_builder import _instantiate_graph
 
         return _instantiate_graph(
             driver.CUgraph(as_intptr(self._h_graph)), options)
@@ -485,7 +485,7 @@ cdef class GraphDef:
         options : GraphDebugPrintOptions, optional
             Customizable options for the debug print.
         """
-        from cuda.core._graph import GraphDebugPrintOptions
+        from cuda.core._graph._graph_builder import GraphDebugPrintOptions
 
         cdef unsigned int flags = 0
         if options is not None:
