@@ -263,6 +263,7 @@ jobs:
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
+        if: ${{ !endsWith(matrix.PY_VER, 't') }} # see issue #1820
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
@@ -271,6 +272,7 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
+        if: ${{ !endsWith(matrix.PY_VER, 't') }} # see issue #1820
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
