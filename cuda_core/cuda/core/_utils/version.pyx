@@ -9,7 +9,7 @@ from cuda.core._utils.cuda_utils import driver, handle_return
 
 
 @functools.cache
-def binding_version():
+def binding_version() -> tuple[int, int, int]:
     """Return the cuda-bindings version as a (major, minor, patch) triple."""
     try:
         parts = importlib.metadata.version("cuda-bindings").split(".")[:3]
@@ -19,10 +19,10 @@ def binding_version():
 
 
 @functools.cache
-def driver_version():
+def driver_version() -> tuple[int, int, int]:
     """Return the CUDA driver version as a (major, minor, patch) triple."""
     cdef int ver = handle_return(driver.cuDriverGetVersion())
-    return (ver // 1000, (ver % 1000) // 10, ver % 10)
+    return (ver // 1000, (ver // 10) % 100, ver % 10)
 
 
 cdef tuple _cached_binding_version = None
