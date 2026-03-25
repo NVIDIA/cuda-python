@@ -48,6 +48,11 @@ def _import_get_cuda_path_or_home():
             if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
                 cuda.__path__ = list(cuda.__path__) + [sp_cuda]
                 break
+        else:
+            raise ModuleNotFoundError(
+                "cuda-pathfinder is not installed in the build environment. "
+                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
+            )
         import cuda.pathfinder
 
     return cuda.pathfinder.get_cuda_path_or_home
