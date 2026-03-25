@@ -12,8 +12,8 @@ on:
       - synchronize
       - labeled
       - unlabeled
-      # - milestoned
-      # - demilestoned
+      - reopened
+      - ready_for_review
 
 jobs:
   check-metadata:
@@ -34,23 +34,72 @@ jobs:
             exit 0
           fi
 
-          LABEL_COUNT=$(echo "$LABELS" | jq 'length')
+          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name')
           ERRORS=""
 
-          if [ "$LABEL_COUNT" -eq 0 ]; then
-            ERRORS="${ERRORS}  - Missing labels: add at least one label to categorize this PR.\n"
+          # Module labels identify which package the PR touches.
+          MODULE_LABELS="cuda.bindings cuda.core cuda.pathfinder"
+          HAS_MODULE=false
+          for label in $LABEL_NAMES; do
+            for mod in $MODULE_LABELS; do
+              if [ "$label" = "$mod" ]; then
+                HAS_MODULE=true
+                break 2
+              fi
+            done
+          done
+
+          if [ "$HAS_MODULE" = "false" ]; then
+            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\`.\n"
+          fi
+
+          # Type labels categorize the kind of change.
+          TYPE_LABELS="bug enhancement feature documentation test example CI/CD packaging dependencies performance experiment RFC support P0 P1 P2"
+          HAS_TYPE=false
+          for label in $LABEL_NAMES; do
+            for typ in $TYPE_LABELS; do
+              if [ "$label" = "$typ" ]; then
+                HAS_TYPE=true
+                break 2
+              fi
+            done
+          done
+
+          if [ "$HAS_TYPE" = "false" ]; then
+            ERRORS="${ERRORS}- **Missing type label**: add at least one of: \`bug\`, \`enhancement\`, \`feature\`, \`documentation\`, \`test\`, \`example\`, \`CI/CD\`, \`packaging\`, \`dependencies\`, \`performance\`, \`experiment\`, \`RFC\`, \`support\`, \`P0\`, \`P1\`, \`P2\`.\n"
           fi
 
           if [ -z "$MILESTONE" ]; then
-            ERRORS="${ERRORS}  - Missing milestone: assign a milestone to this PR.\n"
+            ERRORS="${ERRORS}- **Missing milestone**: assign a milestone to this PR.\n"
           fi
 
+          # Block PRs with labels that indicate they are not ready to merge.
+          BLOCKED_PATTERNS="blocked DO NOT MERGE do not merge"
+          for label in $LABEL_NAMES; do
+            for pattern in $BLOCKED_PATTERNS; do
+              if echo "$label" | grep -qi "$pattern"; then
+                ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
+                break
+              fi
+            done
+          done
+
           if [ -n "$ERRORS" ]; then
-            echo "::error::This PR is missing required metadata:"
-            printf "$ERRORS"
-            echo ""
-            echo "Please update the PR at: $PR_URL"
+            echo "::error::This PR is missing required metadata. See the job summary for details."
+            {
+              echo "## PR Metadata Check Failed"
+              echo ""
+              printf "$ERRORS"
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
-          echo "PR has $LABEL_COUNT label(s) and milestone '$MILESTONE'."
+          LABEL_LIST=$(echo "$LABEL_NAMES" | paste -sd ', ' -)
+          {
+            echo "## PR Metadata Check Passed"
+            echo ""
+            echo "- **Labels**: $LABEL_LIST"
+            echo "- **Milestone**: $MILESTONE"
+          } >> "$GITHUB_STEP_SUMMARY"
