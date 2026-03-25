@@ -32,11 +32,7 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 def _import_get_cuda_path_or_home():
     """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
 
-    In isolated build environments, backend-path=["."] causes the ``cuda``
-    namespace package to resolve to only the project's ``cuda/`` directory,
-    hiding ``cuda.pathfinder`` installed in the build-env's site-packages.
-    Fix by replacing ``cuda.__path__`` with a plain list that includes the
-    site-packages ``cuda/`` directory.
+    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
     """
     try:
         import cuda.pathfinder
