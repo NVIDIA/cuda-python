@@ -4,7 +4,6 @@
 
 import functools
 from functools import partial
-import importlib.metadata
 import multiprocessing
 import platform
 import warnings

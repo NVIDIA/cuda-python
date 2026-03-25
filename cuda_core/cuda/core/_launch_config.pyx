@@ -4,10 +4,6 @@
 
 from libc.string cimport memset
 
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-)
-
 from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import (
     CUDAError,

@@ -37,7 +37,6 @@ from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_or_create_options,
     driver,
-    handle_return,
     is_sequence,
 )
 from cuda.core._utils.version import driver_version

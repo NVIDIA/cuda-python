@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import contextlib
 import re
 import warnings
 
@@ -11,7 +12,7 @@ from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
-from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
@@ -33,10 +34,8 @@ nvvm_available = pytest.mark.skipif(
     not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
 )
 
-try:
-    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
-except Exception:
-    pass
+with contextlib.suppress(Exception):
+    from cuda.core._utils.cuda_utils import nvrtc
 
 
 def _get_nvrtc_version_for_tests():

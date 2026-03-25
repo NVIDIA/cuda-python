@@ -17,10 +17,10 @@ from cuda.core._utils.cuda_utils import (
     check_or_create_options,
     driver,
 )
-from cuda.core._utils.version import binding_version
 from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
+from cuda.core._utils.version import binding_version
 
 __all__ = ["VirtualMemoryResource", "VirtualMemoryResourceOptions"]
 
@@ -100,7 +100,6 @@ class VirtualMemoryResourceOptions:
     # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
     _allocation_type = {"pinned": _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     if binding_version() >= (13, 0, 0):
-
         _allocation_type["managed"] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
