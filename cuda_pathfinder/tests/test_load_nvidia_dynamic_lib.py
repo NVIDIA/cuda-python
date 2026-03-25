@@ -89,7 +89,9 @@ def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available
         load_nvidia_dynamic_lib("known_but_unavailable")
 
 
-IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {}
+IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
+    "mathdx": r"^nvidia-libmathdx-.*$",
+}
 
 
 def _is_expected_load_nvidia_dynamic_lib_failure(libname):
