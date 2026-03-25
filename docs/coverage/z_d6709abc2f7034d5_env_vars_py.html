@@ -2,71 +2,46 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/pathfinder/_utils/env_vars.py: 90.48%</title>
+    <title>Coverage for cuda/pathfinder/_utils/env_vars.py: 94.29%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
   "b": "tests/test_utils_env_vars.py::test_nonexistent_paths_fall_back_to_text_comparison|run",
-  "c": "tests/test_utils_env_vars.py::test_prefers_cuda_home_over_cuda_path|run",
-  "d": "tests/test_utils_env_vars.py::test_warning_when_both_exist_and_are_different|run",
-  "e": "tests/test_utils_env_vars.py::test_samefile_equivalence_via_symlink_when_possible|run",
-  "f": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib[device]|run",
-  "g": "tests/test_find_nvidia_binaries.py::test_caching_per_utility|run",
-  "h": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[bin2c]|run",
-  "i": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[compute-sanitizer]|run",
-  "j": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuda-gdb]|run",
-  "k": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuda-gdbserver]|run",
-  "l": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[cuobjdump]|run",
-  "m": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[fatbinary]|run",
-  "n": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[ncu]|run",
-  "o": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsight-compute]|run",
-  "p": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsight-sys]|run",
-  "q": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nsys]|run",
-  "r": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvcc]|run",
-  "s": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvdisasm]|run",
-  "t": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvlink]|run",
-  "u": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvprof]|run",
-  "v": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvprune]|run",
-  "w": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cccl]|run",
-  "x": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
-  "y": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudart]|run",
-  "z": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufft]|run",
-  "A": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufile]|run",
-  "B": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[curand]|run",
-  "C": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
-  "D": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusparse]|run",
-  "E": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[npp]|run",
-  "F": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvcc]|run",
-  "G": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvfatbin]|run",
-  "H": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjitlink]|run",
-  "I": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
-  "J": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
-  "K": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvvm]|run",
-  "L": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
-  "M": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutensor]|run",
-  "N": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run",
-  "O": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
-  "P": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
-  "Q": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|setup",
-  "R": "tests/test_utils_env_vars.py::test_no_warning_on_windows_case_only_difference|run",
-  "S": "tests/test_utils_env_vars.py::test_no_warning_when_textually_equal_after_normalization|run",
-  "T": "tests/test_utils_env_vars.py::test_paths_differ_text_only|run",
-  "U": "tests/test_utils_env_vars.py::test_paths_differ_samefile|run",
-  "V": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing|run",
-  "W": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_without_cuda_home|run",
-  "X": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order|run",
-  "Y": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_miss_paths_are_non_fatal|run",
-  "Z": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_probe_errors_are_not_masked|run",
-  "0": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
-  "1": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
-  "2": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_includes_cuda_home_directory_listing|run",
-  "3": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_without_cuda_home|run",
-  "4": "tests/test_find_static_lib.py::test_locate_static_lib_search_order|run",
-  "5": "tests/test_utils_env_vars.py::test_empty_cuda_home_preserved|run",
-  "6": "tests/test_utils_env_vars.py::test_returns_none_when_unset|run",
-  "7": "tests/test_utils_env_vars.py::test_uses_cuda_path_if_home_missing|run"
+  "c": "tests/test_utils_env_vars.py::test_prefers_cuda_path_over_cuda_home|run",
+  "d": "tests/test_utils_env_vars.py::test_search_order_matches_implementation|run",
+  "e": "tests/test_utils_env_vars.py::test_warning_when_both_exist_and_are_different|run",
+  "f": "tests/test_utils_env_vars.py::test_samefile_equivalence_via_symlink_when_possible|run",
+  "g": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib[device]|run",
+  "h": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvcc]|run",
+  "i": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cccl]|run",
+  "j": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusparse]|run",
+  "k": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjitlink]|run",
+  "l": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
+  "m": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
+  "n": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run",
+  "o": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
+  "p": "tests/test_nvvm.py::test_add_module_to_program_fail[lazy_add_module_to_program]|run",
+  "q": "tests/test_utils_env_vars.py::test_no_warning_on_windows_case_only_difference|run",
+  "r": "tests/test_utils_env_vars.py::test_no_warning_when_textually_equal_after_normalization|run",
+  "s": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing|run",
+  "t": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order|run",
+  "u": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
+  "v": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_includes_cuda_home_directory_listing|run",
+  "w": "tests/test_find_static_lib.py::test_locate_static_lib_search_order|run",
+  "x": "tests/test_utils_env_vars.py::test_caching_behavior|run",
+  "y": "tests/test_utils_env_vars.py::test_empty_cuda_path_falls_through|run",
+  "z": "tests/test_utils_env_vars.py::test_uses_cuda_home_if_path_missing|run",
+  "A": "tests/test_utils_env_vars.py::test_paths_differ_text_only|run",
+  "B": "tests/test_utils_env_vars.py::test_paths_differ_samefile|run",
+  "C": "tests/test_find_bitcode_lib.py::test_find_bitcode_lib_not_found_error_without_cuda_home|run",
+  "D": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_miss_paths_are_non_fatal|run",
+  "E": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_canary_probe_errors_are_not_masked|run",
+  "F": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
+  "G": "tests/test_find_static_lib.py::test_find_static_lib_not_found_error_without_cuda_home|run",
+  "H": "tests/test_utils_env_vars.py::test_all_empty_returns_none|run",
+  "I": "tests/test_utils_env_vars.py::test_returns_none_when_unset|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -76,7 +51,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;pathfinder&#8201;/&#8201;_utils&#8201;/&#8201;env_vars.py</b>:
-            <span class="pc_cov">90.48%</span>
+            <span class="pc_cov">94.29%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -118,8 +93,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">21 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">19<span class="text"> run</span></button>
+            <span class="text">35 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">33<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">2<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -129,7 +104,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -147,54 +122,108 @@
     <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">import</span> <span class="nam">os</span>&nbsp;</span><span class="r"><label for="ctxs4" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">import</span> <span class="nam">warnings</span>&nbsp;</span><span class="r"><label for="ctxs5" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">_paths_differ</span><span class="op">(</span><span class="nam">a</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">b</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="str">    Return True if paths are observably different.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="str">    Strategy:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="str">    1) Compare os.path.normcase(os.path.normpath(...)) for quick, robust textual equality.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="str">       - Handles trailing slashes and case-insensitivity on Windows.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="str">    2) If still different AND both exist, use os.path.samefile to resolve symlinks/junctions.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="str">    3) Otherwise (nonexistent paths or samefile unavailable), treat as different.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">    <span class="nam">norm_a</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">47 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSbUTced</span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">    <span class="nam">norm_b</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">47 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSbUTced</span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="key">if</span> <span class="nam">norm_a</span> <span class="op">==</span> <span class="nam">norm_b</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">47 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSbUTced</span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">42 ctx</label></span><span class="ctxs">1afghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST</span></p>
-    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">6 ctx</label></span><span class="ctxs">1bUTced</span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">        <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span> <span class="key">and</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">6 ctx</label></span><span class="ctxs">1bUTced</span></p>
-    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">            <span class="com"># samefile raises on non-existent paths; only call when both exist.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">            <span class="key">return</span> <span class="key">not</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">samefile</span><span class="op">(</span><span class="nam">a</span><span class="op">,</span> <span class="nam">b</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">4 ctx</label></span><span class="ctxs">1Uced</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="key">except</span> <span class="nam">OSError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="com"># Fall through to "different" if samefile isn't applicable/available.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="com"># If normalized strings differ and we couldn't prove they're the same entry, treat as different.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">2 ctx</label></span><span class="ctxs">1bT</span></p>
-    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">def</span> <span class="nam">get_cuda_home_or_path</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="nam">cuda_home</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CUDA_HOME"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="nam">cuda_path</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CUDA_PATH"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
-    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">and</span> <span class="nam">cuda_path</span> <span class="key">and</span> <span class="nam">_paths_differ</span><span class="op">(</span><span class="nam">cuda_home</span><span class="op">,</span> <span class="nam">cuda_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="nam">warnings</span><span class="op">.</span><span class="nam">warn</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">3 ctx</label></span><span class="ctxs">1bcd</span></p>
-    <p class="run run2"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">            <span class="str">"Both CUDA_HOME and CUDA_PATH are set but differ:\n"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">            <span class="fst">f"</span><span class="fst">  CUDA_HOME=</span><span class="op">{</span><span class="nam">cuda_home</span><span class="op">}</span><span class="fst">\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">            <span class="fst">f"</span><span class="fst">  CUDA_PATH=</span><span class="op">{</span><span class="nam">cuda_path</span><span class="op">}</span><span class="fst">\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">            <span class="str">"Using CUDA_HOME (higher priority)."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">            <span class="nam">UserWarning</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">            <span class="nam">stacklevel</span><span class="op">=</span><span class="num">2</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">58 ctx</label></span><span class="ctxs">1aVWfXghijklmnopqrstuvwxyzABCDEFGHIJKYZ01LMN23O4PQ5RSbc6e7d</span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="key">return</span> <span class="nam">cuda_home</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">51 ctx</label></span><span class="ctxs">1aVfXghijklmnopqrstuvwxyzABCDEFGHIJK0LMN2O4PQ5RSbced</span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="key">return</span> <span class="nam">cuda_path</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">7 ctx</label></span><span class="ctxs">1WYZ1367</span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="str">"""Centralized CUDA environment variable handling.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="str">This module defines the canonical search order for CUDA Toolkit environment variables</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="str">used throughout cuda-python packages (cuda.pathfinder, cuda.core, cuda.bindings).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="str">Search Order Priority:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="str">    1. CUDA_PATH (higher priority)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="str">    2. CUDA_HOME (lower priority)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="str">If both are set and differ, CUDA_PATH takes precedence and a warning is issued.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="str">Important Note on Caching:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="str">    The result of get_cuda_path_or_home() is cached for the process lifetime. The first</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="str">    call determines the CUDA Toolkit path, and all subsequent calls return the cached</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="str">    value, even if environment variables change later. This ensures consistent behavior</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="str">    throughout the application lifecycle.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="key">import</span> <span class="nam">functools</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="key">import</span> <span class="nam">os</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="key">import</span> <span class="nam">warnings</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="nam">_CUDA_PATH_ENV_VARS_ORDERED</span> <span class="op">=</span> <span class="op">(</span><span class="str">"CUDA_PATH"</span><span class="op">,</span> <span class="str">"CUDA_HOME"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="key">def</span> <span class="nam">_paths_differ</span><span class="op">(</span><span class="nam">a</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">b</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs29" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="str">    Return True if paths are observably different.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="str">    Strategy:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="str">    1) Compare os.path.normcase(os.path.normpath(...)) for quick, robust textual equality.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="str">       - Handles trailing slashes and case-insensitivity on Windows.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="str">    2) If still different AND both exist, use os.path.samefile to resolve symlinks/junctions.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="str">    3) Otherwise (nonexistent paths or samefile unavailable), treat as different.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="nam">norm_a</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">20 ctx</label></span><span class="ctxs">1aghijklmnopqrbBAcfde</span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">    <span class="nam">norm_b</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normpath</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">20 ctx</label></span><span class="ctxs">1aghijklmnopqrbBAcfde</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="key">if</span> <span class="nam">norm_a</span> <span class="op">==</span> <span class="nam">norm_b</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">20 ctx</label></span><span class="ctxs">1aghijklmnopqrbBAcfde</span></p>
+    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs42"><span class="r"><label for="ctxs42" class="ctx">14 ctx</label></span><span class="ctxs">1aghijklmnopqrA</span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">7 ctx</label></span><span class="ctxs">1bBAcfde</span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">a</span><span class="op">)</span> <span class="key">and</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="nam">b</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">7 ctx</label></span><span class="ctxs">1bBAcfde</span></p>
+    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">            <span class="com"># samefile raises on non-existent paths; only call when both exist.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">            <span class="key">return</span> <span class="key">not</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">samefile</span><span class="op">(</span><span class="nam">a</span><span class="op">,</span> <span class="nam">b</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">5 ctx</label></span><span class="ctxs">1Bcfde</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="key">except</span> <span class="nam">OSError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="com"># Fall through to "different" if samefile isn't applicable/available.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">    <span class="com"># If normalized strings differ and we couldn't prove they're the same entry, treat as different.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">2 ctx</label></span><span class="ctxs">1bA</span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="op">@</span><span class="nam">functools</span><span class="op">.</span><span class="nam">cache</span>&nbsp;</span><span class="r"><label for="ctxs56" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="key">def</span> <span class="nam">get_cuda_path_or_home</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs57" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">    <span class="str">"""Get CUDA Toolkit path from environment variables.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="str">    Returns the value of CUDA_PATH or CUDA_HOME. If both are set and differ,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="str">    CUDA_PATH takes precedence and a warning is issued.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="str">    The result is cached for the process lifetime. The first call determines the CUDA</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="str">    Toolkit path, and subsequent calls return the cached value.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="str">    Returns:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="str">        Path to CUDA Toolkit, or None if neither variable is set or all are empty.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="str">    Warnings:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="str">        UserWarning: If multiple CUDA environment variables are set but point to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="str">            different locations (only on the first call).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="com"># Collect non-empty environment variables in priority order.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">    <span class="com"># Empty strings are treated as undefined &#8212; no valid CUDA path is empty.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">    <span class="nam">set_vars</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">33 ctx</label></span><span class="ctxs">1asCgthijklDEuFmnvGowpHxyqrbcIfdze</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="key">for</span> <span class="nam">var</span> <span class="key">in</span> <span class="nam">_CUDA_PATH_ENV_VARS_ORDERED</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">33 ctx</label></span><span class="ctxs">1asCgthijklDEuFmnvGowpHxyqrbcIfdze</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">val</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">var</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">33 ctx</label></span><span class="ctxs">1asCgthijklDEuFmnvGowpHxyqrbcIfdze</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">        <span class="key">if</span> <span class="nam">val</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">33 ctx</label></span><span class="ctxs">1asCgthijklDEuFmnvGowpHxyqrbcIfdze</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">            <span class="nam">set_vars</span><span class="op">[</span><span class="nam">var</span><span class="op">]</span> <span class="op">=</span> <span class="nam">val</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">26 ctx</label></span><span class="ctxs">1asgthijklumnvowpxyqrbcfdze</span></p>
+    <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">set_vars</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs82"><span class="r"><label for="ctxs82" class="ctx">33 ctx</label></span><span class="ctxs">1asCgthijklDEuFmnvGowpHxyqrbcIfdze</span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">7 ctx</label></span><span class="ctxs">1CDEFGHI</span></p>
+    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">    <span class="com"># If multiple variables are set, check if they differ and warn</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">    <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">)</span> <span class="op">></span> <span class="num">1</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">26 ctx</label></span><span class="ctxs">1asgthijklumnvowpxyqrbcfdze</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">        <span class="nam">values</span> <span class="op">=</span> <span class="nam">list</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">18 ctx</label></span><span class="ctxs">1aghijklmnopqrbcfde</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">        <span class="nam">values_differ</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">18 ctx</label></span><span class="ctxs">1aghijklmnopqrbcfde</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">        <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">values</span><span class="op">)</span> <span class="op">-</span> <span class="num">1</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">18 ctx</label></span><span class="ctxs">1aghijklmnopqrbcfde</span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">            <span class="key">if</span> <span class="nam">_paths_differ</span><span class="op">(</span><span class="nam">values</span><span class="op">[</span><span class="nam">i</span><span class="op">]</span><span class="op">[</span><span class="num">1</span><span class="op">]</span><span class="op">,</span> <span class="nam">values</span><span class="op">[</span><span class="nam">i</span> <span class="op">+</span> <span class="num">1</span><span class="op">]</span><span class="op">[</span><span class="num">1</span><span class="op">]</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">18 ctx</label></span><span class="ctxs">1aghijklmnopqrbcfde</span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">                <span class="nam">values_differ</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">                <span class="key">break</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
+    <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">        <span class="key">if</span> <span class="nam">values_differ</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">18 ctx</label></span><span class="ctxs">1aghijklmnopqrbcfde</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">            <span class="nam">var_list</span> <span class="op">=</span> <span class="str">"\n"</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="fst">f"</span><span class="fst">  </span><span class="op">{</span><span class="nam">var</span><span class="op">}</span><span class="fst">=</span><span class="op">{</span><span class="nam">val</span><span class="op">}</span><span class="fst">"</span> <span class="key">for</span> <span class="nam">var</span><span class="op">,</span> <span class="nam">val</span> <span class="key">in</span> <span class="nam">set_vars</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">            <span class="nam">warnings</span><span class="op">.</span><span class="nam">warn</span><span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
+    <p class="run run2"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Multiple CUDA environment variables are set but differ:\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">                <span class="fst">f"</span><span class="op">{</span><span class="nam">var_list</span><span class="op">}</span><span class="fst">\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Using </span><span class="op">{</span><span class="nam">_CUDA_PATH_ENV_VARS_ORDERED</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">}</span><span class="fst"> (highest priority).</span><span class="fst">"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">                <span class="nam">UserWarning</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">                <span class="nam">stacklevel</span><span class="op">=</span><span class="num">2</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="com"># Return the first (highest priority) set variable</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="key">return</span> <span class="nam">next</span><span class="op">(</span><span class="nam">iter</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">26 ctx</label></span><span class="ctxs">1asgthijklumnvowpxyqrbcfdze</span></p>
 </main>
 <footer>
     <div class="content">
@@ -204,7 +233,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
     </div>
 </footer>

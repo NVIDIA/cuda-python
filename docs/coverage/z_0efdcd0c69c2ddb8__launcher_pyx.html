@@ -8,7 +8,7 @@
     <script type="text/javascript">
         contexts = {
   "a": "tests/test_launcher.py::test_cooperative_launch|run",
-  "b": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-relaxed]|run",
+  "b": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
   "c": "tests/graph/test_advanced.py::test_graph_child_graph|run",
   "d": "tests/graph/test_advanced.py::test_graph_stream_lifetime|run",
   "e": "tests/graph/test_advanced.py::test_graph_update|run",
@@ -18,65 +18,65 @@
   "i": "tests/graph/test_basic.py::test_graph_straight|run",
   "j": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-global]|run",
   "k": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-no_graph]|run",
-  "l": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-thread_local]|run",
-  "m": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-global]|run",
-  "n": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-no_graph]|run",
-  "o": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-relaxed]|run",
-  "p": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-thread_local]|run",
-  "q": "tests/graph/test_capture_alloc.py::test_graph_alloc_with_output[global]|run",
-  "r": "tests/graph/test_capture_alloc.py::test_graph_alloc_with_output[relaxed]|run",
-  "s": "tests/graph/test_capture_alloc.py::test_graph_alloc_with_output[thread_local]|run",
-  "t": "tests/graph/test_conditional.py::test_graph_conditional_if[0]|run",
-  "u": "tests/graph/test_conditional.py::test_graph_conditional_if[1]|run",
-  "v": "tests/graph/test_conditional.py::test_graph_conditional_if[False]|run",
-  "w": "tests/graph/test_conditional.py::test_graph_conditional_if[True]|run",
-  "x": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value2]|run",
-  "y": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value3]|run",
-  "z": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value4]|run",
-  "A": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value5]|run",
-  "B": "tests/graph/test_conditional.py::test_graph_conditional_if_else[0]|run",
-  "C": "tests/graph/test_conditional.py::test_graph_conditional_if_else[1]|run",
-  "D": "tests/graph/test_conditional.py::test_graph_conditional_if_else[False]|run",
-  "E": "tests/graph/test_conditional.py::test_graph_conditional_if_else[True]|run",
-  "F": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value2]|run",
-  "G": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value3]|run",
-  "H": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
-  "I": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
-  "J": "tests/graph/test_conditional.py::test_graph_conditional_switch[0]|run",
-  "K": "tests/graph/test_conditional.py::test_graph_conditional_switch[1]|run",
-  "L": "tests/graph/test_conditional.py::test_graph_conditional_switch[2]|run",
-  "M": "tests/graph/test_conditional.py::test_graph_conditional_switch[3]|run",
-  "N": "tests/graph/test_conditional.py::test_graph_conditional_while[0]|run",
-  "O": "tests/graph/test_conditional.py::test_graph_conditional_while[1]|run",
-  "P": "tests/graph/test_conditional.py::test_graph_conditional_while[False]|run",
-  "Q": "tests/graph/test_conditional.py::test_graph_conditional_while[True]|run",
-  "R": "tests/graph/test_options.py::test_graph_build_mode|run",
-  "S": "tests/graph/test_options.py::test_graph_complete_options|run",
-  "T": "tests/graph/test_options.py::test_graph_dot_print_options|run",
-  "U": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
-  "V": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
-  "W": "tests/test_event.py::test_error_timing_incomplete|run",
-  "X": "tests/test_event.py::test_timing_success|run",
-  "Y": "tests/test_helpers.py::test_latchkernel|run",
-  "Z": "tests/test_launcher.py::test_launch_invalid_values|run",
-  "0": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
-  "1": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
-  "2": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
-  "3": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
-  "4": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
-  "5": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
-  "6": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
-  "7": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
-  "8": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
-  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
-  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
-  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
-  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "%": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
-  "'": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
-  "(": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
-  ")": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
-  "*": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
+  "l": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-relaxed]|run",
+  "m": "tests/graph/test_capture_alloc.py::test_graph_alloc[fill-thread_local]|run",
+  "n": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-global]|run",
+  "o": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-no_graph]|run",
+  "p": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-relaxed]|run",
+  "q": "tests/graph/test_capture_alloc.py::test_graph_alloc[incr-thread_local]|run",
+  "r": "tests/graph/test_capture_alloc.py::test_graph_alloc_with_output[global]|run",
+  "s": "tests/graph/test_capture_alloc.py::test_graph_alloc_with_output[relaxed]|run",
+  "t": "tests/graph/test_capture_alloc.py::test_graph_alloc_with_output[thread_local]|run",
+  "u": "tests/graph/test_conditional.py::test_graph_conditional_if[0]|run",
+  "v": "tests/graph/test_conditional.py::test_graph_conditional_if[1]|run",
+  "w": "tests/graph/test_conditional.py::test_graph_conditional_if[False]|run",
+  "x": "tests/graph/test_conditional.py::test_graph_conditional_if[True]|run",
+  "y": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value2]|run",
+  "z": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value3]|run",
+  "A": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value4]|run",
+  "B": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value5]|run",
+  "C": "tests/graph/test_conditional.py::test_graph_conditional_if_else[0]|run",
+  "D": "tests/graph/test_conditional.py::test_graph_conditional_if_else[1]|run",
+  "E": "tests/graph/test_conditional.py::test_graph_conditional_if_else[False]|run",
+  "F": "tests/graph/test_conditional.py::test_graph_conditional_if_else[True]|run",
+  "G": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value2]|run",
+  "H": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value3]|run",
+  "I": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
+  "J": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
+  "K": "tests/graph/test_conditional.py::test_graph_conditional_switch[0]|run",
+  "L": "tests/graph/test_conditional.py::test_graph_conditional_switch[1]|run",
+  "M": "tests/graph/test_conditional.py::test_graph_conditional_switch[2]|run",
+  "N": "tests/graph/test_conditional.py::test_graph_conditional_switch[3]|run",
+  "O": "tests/graph/test_conditional.py::test_graph_conditional_while[0]|run",
+  "P": "tests/graph/test_conditional.py::test_graph_conditional_while[1]|run",
+  "Q": "tests/graph/test_conditional.py::test_graph_conditional_while[False]|run",
+  "R": "tests/graph/test_conditional.py::test_graph_conditional_while[True]|run",
+  "S": "tests/graph/test_options.py::test_graph_build_mode|run",
+  "T": "tests/graph/test_options.py::test_graph_complete_options|run",
+  "U": "tests/graph/test_options.py::test_graph_dot_print_options|run",
+  "V": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "W": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "X": "tests/test_event.py::test_error_timing_incomplete|run",
+  "Y": "tests/test_event.py::test_timing_success|run",
+  "Z": "tests/test_helpers.py::test_latchkernel|run",
+  "0": "tests/test_launcher.py::test_launch_invalid_values|run",
+  "1": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True0]|run",
+  "2": "tests/test_launcher.py::test_launch_scalar_argument[bool-bool-True1]|run",
+  "3": "tests/test_launcher.py::test_launch_scalar_argument[c_bool-bool-True]|run",
+  "4": "tests/test_launcher.py::test_launch_scalar_argument[c_byte-signed char--42]|run",
+  "5": "tests/test_launcher.py::test_launch_scalar_argument[c_double-double-2.718]|run",
+  "6": "tests/test_launcher.py::test_launch_scalar_argument[c_float-float-3.14]|run",
+  "7": "tests/test_launcher.py::test_launch_scalar_argument[c_int-signed int--123456]|run",
+  "8": "tests/test_launcher.py::test_launch_scalar_argument[c_long-signed long long--123456789]|run",
+  "9": "tests/test_launcher.py::test_launch_scalar_argument[c_short-signed short--1234]|run",
+  "!": "tests/test_launcher.py::test_launch_scalar_argument[c_ubyte-unsigned char-42]|run",
+  "#": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
+  "$": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
+  "%": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
+  "'": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
+  "(": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
+  ")": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "*": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
   "+": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
   ",": "tests/test_launcher.py::test_launch_scalar_argument[float-double-2.718]|run",
   "-": "tests/test_launcher.py::test_launch_scalar_argument[int8-signed char--42]|run",
@@ -151,7 +151,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__layout_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -201,8 +201,8 @@
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef int _lazy_init() except?-1:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    global _inited, _use_ex</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    if _inited:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">80 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    if _inited:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">80 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*+,-./:;=?@[</span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    cdef int _driver_ver</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    with _lock:</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
@@ -237,31 +237,31 @@
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        launching kernel.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    cdef Stream s = Stream_accept(stream, allow_stream_protocol=True)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    _lazy_init()</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">    cdef LaunchConfig conf = check_or_create_options(LaunchConfig, config, "launch config")</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    cdef Stream s = Stream_accept(stream, allow_stream_protocol=True)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    _lazy_init()</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">    cdef LaunchConfig conf = check_or_create_options(LaunchConfig, config, "launch config")</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">    # TODO: can we ensure kernel_args is valid/safe to use here?</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    # TODO: merge with HelperKernelParams?</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    cdef ParamHolder ker_args = ParamHolder(kernel_args)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">    cdef void** args_ptr = &lt;void**>&lt;uintptr_t>(ker_args.ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">    cdef ParamHolder ker_args = ParamHolder(kernel_args)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">    cdef void** args_ptr = &lt;void**>&lt;uintptr_t>(ker_args.ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">    # Note: We now use CUkernel handles exclusively (CUDA 12+), but they can be cast to</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">    # CUfunction for use with cuLaunchKernel, as both handle types are interchangeable</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    # for kernel launch purposes.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    cdef Kernel ker = &lt;Kernel>kernel</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    cdef cydriver.CUfunction func_handle = &lt;cydriver.CUfunction>as_cu(ker._h_kernel)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    cdef Kernel ker = &lt;Kernel>kernel</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    cdef cydriver.CUfunction func_handle = &lt;cydriver.CUfunction>as_cu(ker._h_kernel)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">    # Note: CUkernel can still be launched via cuLaunchKernel (not just cuLaunchKernelEx).</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    # We check both binding &amp; driver versions here mainly to see if the "Ex" API is</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    # available and if so we use it, as it's more feature rich.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">    if _use_ex:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        drv_cfg = conf._to_native_launch_config()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        drv_cfg.hStream = as_cu(s._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        if conf.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">    if _use_ex:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">        drv_cfg = conf._to_native_launch_config()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        drv_cfg.hStream = as_cu(s._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        if conf.cooperative_launch:</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
     <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">            _check_cooperative_launch(kernel, conf, s)</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
-    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
-    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuLaunchKernelEx(&amp;drv_cfg, func_handle, args_ptr, NULL))</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijkblmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYaZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuLaunchKernelEx(&amp;drv_cfg, func_handle, args_ptr, NULL))</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">81 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZa0123456789!#$%'()*b+,-./:;=?@[</span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        # TODO: check if config has any unsupported attrs</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        HANDLE_RETURN(</span>&nbsp;</span><span class="r"></span></p>
@@ -294,7 +294,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__layout_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
     </div>
 </footer>

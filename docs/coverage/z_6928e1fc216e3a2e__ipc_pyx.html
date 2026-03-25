@@ -135,48 +135,49 @@
   "Kb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
   "Lb": "tests/test_memory.py::test_mempool_ipc_errors|run",
   "Mb": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
-  "Nb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|teardown",
-  "Ob": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|teardown",
-  "Pb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|teardown",
-  "Qb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|teardown",
-  "Rb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|teardown",
-  "Sb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|teardown",
-  "Tb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|teardown",
-  "Ub": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|teardown",
-  "Vb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|teardown",
-  "Wb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|teardown",
-  "Xb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|teardown",
-  "Yb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|teardown",
-  "Zb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|teardown",
-  "0b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|teardown",
-  "1b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|teardown",
-  "2b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|teardown",
-  "3b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|teardown",
-  "4b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|teardown",
-  "5b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|teardown",
-  "6b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|teardown",
-  "7b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|teardown",
-  "8b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|teardown",
-  "9b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|teardown",
-  "!b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|teardown",
-  "#b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|teardown",
-  "$b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|teardown",
-  "%b": "tests/test_graphics.py::TestMisc::test_gc_cleanup|run",
-  "'b": "tests/test_memory.py::test_mr_deallocate_called_on_gc|run",
-  "(b": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
-  ")b": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
-  "*b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|run",
-  "+b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|run",
-  ",b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
-  "-b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|run",
-  ".b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|run",
-  "/b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
-  ":b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
-  ";b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
-  "=b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
-  "?b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
-  "@b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
-  "[b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run"
+  "Nb": "tests/graph/test_explicit_lifetime.py::test_kernel_node_keeps_kernel_alive|run",
+  "Ob": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|teardown",
+  "Pb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|teardown",
+  "Qb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|teardown",
+  "Rb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|teardown",
+  "Sb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|teardown",
+  "Tb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|teardown",
+  "Ub": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|teardown",
+  "Vb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|teardown",
+  "Wb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|teardown",
+  "Xb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|teardown",
+  "Yb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|teardown",
+  "Zb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|teardown",
+  "0b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|teardown",
+  "1b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|teardown",
+  "2b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|teardown",
+  "3b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|teardown",
+  "4b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|teardown",
+  "5b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|teardown",
+  "6b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|teardown",
+  "7b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|teardown",
+  "8b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|teardown",
+  "9b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|teardown",
+  "!b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|teardown",
+  "#b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|teardown",
+  "$b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|teardown",
+  "%b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|teardown",
+  "'b": "tests/test_graphics.py::TestMisc::test_gc_cleanup|run",
+  "(b": "tests/test_module.py::test_kernel_keeps_library_alive|run",
+  ")b": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
+  "*b": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
+  "+b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|run",
+  ",b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|run",
+  "-b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
+  ".b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|run",
+  "/b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|run",
+  ":b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
+  ";b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
+  "=b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
+  "?b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
+  "@b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
+  "[b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
+  "]b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -239,7 +240,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -372,14 +373,14 @@
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs117" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        """Close the handle."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if self._handle >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">63 ctx</label></span><span class="ctxs">2a b e f NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$bg h i j c d %bT U V W X Y Z 0 1 2 3 4 5 6 7 8 'bm 9 ! # q $ % n o </span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            try:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">63 ctx</label></span><span class="ctxs">2a b e f NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$bg h i j c d %bT U V W X Y Z 0 1 2 3 4 5 6 7 8 'bm 9 ! # q $ % n o </span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                os.close(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">63 ctx</label></span><span class="ctxs">2a b e f NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$bg h i j c d %bT U V W X Y Z 0 1 2 3 4 5 6 7 8 'bm 9 ! # q $ % n o </span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        if self._handle >= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">64 ctx</label></span><span class="ctxs">2Nba b e f ObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%bg h i j c d 'bT U V W X Y Z 0 1 2 3 4 5 6 7 8 m 9 ! (b# q $ % n o </span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">            try:</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">64 ctx</label></span><span class="ctxs">2Nba b e f ObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%bg h i j c d 'bT U V W X Y Z 0 1 2 3 4 5 6 7 8 m 9 ! (b# q $ % n o </span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">                os.close(self._handle)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">64 ctx</label></span><span class="ctxs">2Nba b e f ObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%bg h i j c d 'bT U V W X Y Z 0 1 2 3 4 5 6 7 8 m 9 ! (b# q $ % n o </span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            finally:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                self._handle = -1</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">63 ctx</label></span><span class="ctxs">2a b e f NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$bg h i j c d %bT U V W X Y Z 0 1 2 3 4 5 6 7 8 'bm 9 ! # q $ % n o </span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                self._handle = -1</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">64 ctx</label></span><span class="ctxs">2Nba b e f ObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%bg h i j c d 'bT U V W X Y Z 0 1 2 3 4 5 6 7 8 m 9 ! (b# q $ % n o </span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">63 ctx</label></span><span class="ctxs">2a b e f NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$bg h i j c d %bT U V W X Y Z 0 1 2 3 4 5 6 7 8 'bm 9 ! # q $ % n o </span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self.close()</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">64 ctx</label></span><span class="ctxs">2Nba b e f ObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%bg h i j c d 'bT U V W X Y Z 0 1 2 3 4 5 6 7 8 m 9 ! (b# q $ % n o </span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    def __int__(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        if self._handle &lt; 0:</span>&nbsp;</span><span class="r"></span></p>
@@ -390,17 +391,17 @@
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">    def handle(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return self._handle</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">55 ctx</label></span><span class="ctxs">2(b)ba b L M e f t u v w *bN +b,bO -b.bP /b:bQ ;b=bR ?b@bS [bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return self._handle</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">55 ctx</label></span><span class="ctxs">2)b*ba b L M e f t u v w +bN ,b-bO .b/bP :b;bQ =b?bR @b[bS ]bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">    def uuid(self) -> uuid.UUID:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">55 ctx</label></span><span class="ctxs">2(b)ba b L M e f t u v w *bN +b,bO -b.bP /b:bQ ;b=bR ?b@bS [bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">55 ctx</label></span><span class="ctxs">2)b*ba b L M e f t u v w +bN ,b-bO .b/bP :b;bQ =b?bR @b[bS ]bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">def _reduce_allocation_handle(alloc_handle):</span>&nbsp;</span><span class="r"><label for="ctxs144" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">55 ctx</label></span><span class="ctxs">2(b)ba b L M e f t u v w *bN +b,bO -b.bP /b:bQ ;b=bR ?b@bS [bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
-    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">55 ctx</label></span><span class="ctxs">2(b)ba b L M e f t u v w *bN +b,bO -b.bP /b:bQ ;b=bR ?b@bS [bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
-    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">55 ctx</label></span><span class="ctxs">2(b)ba b L M e f t u v w *bN +b,bO -b.bP /b:bQ ;b=bR ?b@bS [bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">55 ctx</label></span><span class="ctxs">2)b*ba b L M e f t u v w +bN ,b-bO .b/bP :b;bQ =b?bR @b[bS ]bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
+    <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs146"><span class="r"><label for="ctxs146" class="ctx">55 ctx</label></span><span class="ctxs">2)b*ba b L M e f t u v w +bN ,b-bO .b/bP :b;bQ =b?bR @b[bS ]bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">55 ctx</label></span><span class="ctxs">2)b*ba b L M e f t u v w +bN ,b-bO .b/bP :b;bQ =b?bR @b[bS ]bx y z A B C D E F G k l H I J K r s g h i j c d q </span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint</span>&nbsp;</span><span class="r"><label for="ctxs150" class="ctx">(empty)</label></span></p>
@@ -524,7 +525,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__managed_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
     </div>
 </footer>

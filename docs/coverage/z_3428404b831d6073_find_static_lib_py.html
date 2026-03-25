@@ -75,7 +75,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_env_vars_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -98,7 +98,7 @@
     <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">from</span> <span class="nam">dataclasses</span> <span class="key">import</span> <span class="nam">dataclass</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">NoReturn</span><span class="op">,</span> <span class="nam">TypedDict</span>&nbsp;</span><span class="r"><label for="ctxs7" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_utils</span><span class="op">.</span><span class="nam">env_vars</span> <span class="key">import</span> <span class="nam">get_cuda_home_or_path</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_utils</span><span class="op">.</span><span class="nam">env_vars</span> <span class="key">import</span> <span class="nam">get_cuda_path_or_home</span>&nbsp;</span><span class="r"><label for="ctxs9" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_utils</span><span class="op">.</span><span class="nam">find_sub_dirs</span> <span class="key">import</span> <span class="nam">find_sub_dirs_all_sitepackages</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_utils</span><span class="op">.</span><span class="nam">platform_aware</span> <span class="key">import</span> <span class="nam">IS_WINDOWS</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -184,7 +184,7 @@
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs92"><span class="r"><label for="ctxs92" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="key">def</span> <span class="nam">try_with_cuda_home</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs94" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="nam">cuda_home</span> <span class="op">=</span> <span class="nam">get_cuda_home_or_path</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">4 ctx</label></span><span class="ctxs">1acdb</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="nam">cuda_home</span> <span class="op">=</span> <span class="nam">get_cuda_path_or_home</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">4 ctx</label></span><span class="ctxs">1acdb</span></p>
     <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">        <span class="key">if</span> <span class="nam">cuda_home</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">4 ctx</label></span><span class="ctxs">1acdb</span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">error_messages</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="str">"CUDA_HOME/CUDA_PATH not set"</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">            <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
@@ -241,7 +241,7 @@
     <p class="run run2"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t">            <span class="nam">name</span><span class="op">=</span><span class="nam">name</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t">            <span class="nam">abs_path</span><span class="op">=</span><span class="nam">abs_path</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t">            <span class="nam">filename</span><span class="op">=</span><span class="nam">finder</span><span class="op">.</span><span class="nam">filename</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t">            <span class="nam">found_via</span><span class="op">=</span><span class="str">"CUDA_HOME"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t">            <span class="nam">found_via</span><span class="op">=</span><span class="str">"CUDA_PATH"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t">    <span class="nam">finder</span><span class="op">.</span><span class="nam">raise_not_found_error</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
@@ -265,7 +265,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_env_vars_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
     </div>
 </footer>

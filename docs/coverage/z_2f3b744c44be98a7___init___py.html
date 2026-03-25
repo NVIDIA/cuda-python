@@ -59,8 +59,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">28 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">28<span class="text"> run</span></button>
+            <span class="text">29 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">29<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -70,7 +70,7 @@
             <a id="nextFileLink" class="nav" href="z_43b9fc2813ae0b7b_find_nvidia_binary_utility_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -146,35 +146,36 @@
     <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_static_libs</span><span class="op">.</span><span class="nam">find_static_lib</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs59" class="ctx">(empty)</label></span></p>
     <p class="run run2"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">    <span class="nam">locate_static_lib</span> <span class="key">as</span> <span class="nam">locate_static_lib</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_version</span> <span class="key">import</span> <span class="nam">__version__</span>  <span class="com"># isort: skip</span>&nbsp;</span><span class="r"><label for="ctxs63" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="com"># Indirections to help Sphinx find the docstrings.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="com">#: Mapping from short CUDA Toolkit (CTK) library names to their canonical</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="com">#: header basenames (used to validate a discovered include directory).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="com">#: Example: ``"cublas" &#8594; "cublas.h"``. The key set is platform-aware</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="com">#: (e.g., ``"cufile"`` may be Linux-only).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="nam">SUPPORTED_HEADERS_CTK</span> <span class="op">=</span> <span class="nam">_SUPPORTED_HEADERS_CTK</span>&nbsp;</span><span class="r"><label for="ctxs70" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="com">#: Tuple of supported CUDA binary utility names that can be located</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="com">#: via ``find_nvidia_binary_utility()``. Platform-aware (e.g., some</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="com">#: utilities may be available only on Linux or Windows).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="com">#: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="nam">SUPPORTED_BINARY_UTILITIES</span> <span class="op">=</span> <span class="nam">_SUPPORTED_BINARIES</span>&nbsp;</span><span class="r"><label for="ctxs76" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="com">#: Tuple of supported bitcode library names that can be resolved</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="com">#: via ``locate_bitcode_lib()`` and ``find_bitcode_lib()``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="com">#: Example value: ``"device"``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="nam">SUPPORTED_BITCODE_LIBS</span> <span class="op">=</span> <span class="nam">_SUPPORTED_BITCODE_LIBS</span>&nbsp;</span><span class="r"><label for="ctxs81" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="com">#: Tuple of supported static library names that can be resolved</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="com">#: via ``locate_static_lib()`` and ``find_static_lib()``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="com">#: Example value: ``"cudadevrt"``.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="nam">SUPPORTED_STATIC_LIBS</span> <span class="op">=</span> <span class="nam">_SUPPORTED_STATIC_LIBS</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="com"># Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="com"># It will be removed in release 1.2.4.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="nam">_find_nvidia_header_directory</span> <span class="op">=</span> <span class="nam">find_nvidia_header_directory</span>&nbsp;</span><span class="r"><label for="ctxs90" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_utils</span><span class="op">.</span><span class="nam">env_vars</span> <span class="key">import</span> <span class="nam">get_cuda_path_or_home</span> <span class="key">as</span> <span class="nam">get_cuda_path_or_home</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_version</span> <span class="key">import</span> <span class="nam">__version__</span>  <span class="com"># isort: skip</span>&nbsp;</span><span class="r"><label for="ctxs64" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="com"># Indirections to help Sphinx find the docstrings.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="com">#: Mapping from short CUDA Toolkit (CTK) library names to their canonical</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="com">#: header basenames (used to validate a discovered include directory).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="com">#: Example: ``"cublas" &#8594; "cublas.h"``. The key set is platform-aware</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="com">#: (e.g., ``"cufile"`` may be Linux-only).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="nam">SUPPORTED_HEADERS_CTK</span> <span class="op">=</span> <span class="nam">_SUPPORTED_HEADERS_CTK</span>&nbsp;</span><span class="r"><label for="ctxs71" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="com">#: Tuple of supported CUDA binary utility names that can be located</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="com">#: via ``find_nvidia_binary_utility()``. Platform-aware (e.g., some</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="com">#: utilities may be available only on Linux or Windows).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="com">#: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="nam">SUPPORTED_BINARY_UTILITIES</span> <span class="op">=</span> <span class="nam">_SUPPORTED_BINARIES</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="com">#: Tuple of supported bitcode library names that can be resolved</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="com">#: via ``locate_bitcode_lib()`` and ``find_bitcode_lib()``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="com">#: Example value: ``"device"``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="nam">SUPPORTED_BITCODE_LIBS</span> <span class="op">=</span> <span class="nam">_SUPPORTED_BITCODE_LIBS</span>&nbsp;</span><span class="r"><label for="ctxs82" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="com">#: Tuple of supported static library names that can be resolved</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="com">#: via ``locate_static_lib()`` and ``find_static_lib()``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="com">#: Example value: ``"cudadevrt"``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="nam">SUPPORTED_STATIC_LIBS</span> <span class="op">=</span> <span class="nam">_SUPPORTED_STATIC_LIBS</span>&nbsp;</span><span class="r"><label for="ctxs87" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="com"># Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="com"># It will be removed in release 1.2.4.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="nam">_find_nvidia_header_directory</span> <span class="op">=</span> <span class="nam">find_nvidia_header_directory</span>&nbsp;</span><span class="r"><label for="ctxs91" class="ctx">(empty)</label></span></p>
 </main>
 <footer>
     <div class="content">
@@ -184,7 +185,7 @@
             <a class="nav" href="z_43b9fc2813ae0b7b_find_nvidia_binary_utility_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-24 01:31 +0000
+            created at 2026-03-25 01:07 +0000
         </p>
     </div>
 </footer>
