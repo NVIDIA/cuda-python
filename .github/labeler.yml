@@ -15,4 +15,6 @@ cuda.pathfinder:
 
 CI/CD:
   - changed-files:
-    - any-glob-to-any-file: '.github/**'
+    - any-glob-to-any-file:
+      - '.github/**'
+      - 'ci/**'
