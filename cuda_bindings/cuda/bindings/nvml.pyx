@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -528,7 +528,7 @@ class Return(_FastEnum):
     See `nvmlReturn_t`.
     """
     SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
-    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
+    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with `nvmlInit()`')
     ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
     ERROR_NOT_SUPPORTED = (NVML_ERROR_NOT_SUPPORTED, 'The requested operation is not available on target device.')
     ERROR_NO_PERMISSION = (NVML_ERROR_NO_PERMISSION, 'The current user does not have permission for operation.')
@@ -759,7 +759,7 @@ class FBCSessionType(_FastEnum):
 class DetachGpuState(_FastEnum):
     """
     Is the GPU device to be removed from the kernel by
-    nvmlDeviceRemoveGpu()
+    `nvmlDeviceRemoveGpu()`
 
     See `nvmlDetachGpuState_t`.
     """
@@ -768,7 +768,7 @@ class DetachGpuState(_FastEnum):
 
 class PcieLinkState(_FastEnum):
     """
-    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+    Parent bridge PCIe link state requested by `nvmlDeviceRemoveGpu()`
 
     See `nvmlPcieLinkState_t`.
     """
@@ -19542,7 +19542,7 @@ cdef class PRMCounter_v1:
 
     @property
     def counter_id(self):
-        """Union[~_numpy.uint32, int]: Counter ID, one of nvmlPRMCounterId_t."""
+        """Union[~_numpy.uint32, int]: Counter ID, one of `nvmlPRMCounterId_t`."""
         if self._data.size == 1:
             return int(self._data.counter_id[0])
         return self._data.counter_id
@@ -20868,7 +20868,7 @@ cpdef init_v2():
 
 
 cpdef init_with_flags(unsigned int flags):
-    """nvmlInitWithFlags is a variant of nvmlInit(), that allows passing a set of boolean values modifying the behaviour of nvmlInit(). Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
+    """nvmlInitWithFlags is a variant of ``nvmlInit()``, that allows passing a set of boolean values modifying the behaviour of ``nvmlInit()``. Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
 
     Args:
         flags (unsigned int): behaviour modifier flags.
@@ -24411,7 +24411,7 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
 
 
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
-    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See ``nvmlConstants.NVML_DEVICE_NAME_BUFFER_SIZE``.
+    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
