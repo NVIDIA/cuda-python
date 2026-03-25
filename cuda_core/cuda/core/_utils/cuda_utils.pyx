@@ -60,10 +60,6 @@ def cast_to_3_tuple(label, cfg):
     return cfg + (1,) * (3 - len(cfg))
 
 
-def _reduce_3_tuple(t: tuple):
-    return t[0] * t[1] * t[2]
-
-
 cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
     if err != cydriver.CUresult.CUDA_SUCCESS:
         return _check_driver_error(err)

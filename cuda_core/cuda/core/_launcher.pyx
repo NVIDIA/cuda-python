@@ -17,7 +17,7 @@ from cuda.core._utils.cuda_utils cimport (
 )
 from cuda.core._module import Kernel
 from cuda.core._stream import Stream
-from cuda.core._utils.cuda_utils import _reduce_3_tuple
+from math import prod
 
 
 def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
@@ -62,9 +62,9 @@ cdef _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Str
     dev = stream.device
     num_sm = dev.properties.multiprocessor_count
     max_grid_size = (
-        kernel.occupancy.max_active_blocks_per_multiprocessor(_reduce_3_tuple(config.block), config.shmem_size) * num_sm
+        kernel.occupancy.max_active_blocks_per_multiprocessor(prod(config.block), config.shmem_size) * num_sm
     )
-    if _reduce_3_tuple(config.grid) > max_grid_size:
+    if prod(config.grid) > max_grid_size:
         # For now let's try not to be smart and adjust the grid size behind users' back.
         # We explicitly ask users to adjust.
         x, y, z = config.grid
