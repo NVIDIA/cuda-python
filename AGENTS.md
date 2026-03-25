@@ -12,6 +12,22 @@ guide for package-specific conventions and workflows.
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 
+# Pull requests
+
+When creating pull requests with `gh pr create`, always assign at least one
+label and a milestone. CI enforces this via the `pr-metadata-check` workflow
+and will block PRs that are missing labels or a milestone. Use `--label` and
+`--milestone` flags, for example:
+
+```
+gh pr create --title "..." --body "..." --label "bug" --milestone "v1.0"
+```
+
+If you are unsure which label or milestone to use, check the existing labels
+and milestones on the repository with `gh label list` and `gh api
+repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
+
+
 # General
 
 - When searching for text or files, prefer using `rg` or `rg --files`
