@@ -90,7 +90,6 @@ def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available
 
 
 IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
-    "cufftMp": r"^nvidia-cufftmp-.*$",
     "mathdx": r"^nvidia-libmathdx-.*$",
 }
 

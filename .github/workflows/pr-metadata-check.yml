@@ -1,0 +1,117 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Enforce assignee/label/milestone on PRs"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - assigned
+      - unassigned
+      - labeled
+      - unlabeled
+      - reopened
+      - ready_for_review
+
+jobs:
+  check-metadata:
+    name: PR has assignee, labels, and milestone
+    if: github.repository_owner == 'NVIDIA'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for assignee, labels, and milestone
+        env:
+          ASSIGNEES: ${{ toJson(github.event.pull_request.assignees) }}
+          LABELS: ${{ toJson(github.event.pull_request.labels) }}
+          MILESTONE: ${{ github.event.pull_request.milestone && github.event.pull_request.milestone.title || '' }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          if [ "$IS_BOT" = "true" ] || [ "$IS_DRAFT" = "true" ]; then
+            echo "Skipping check for bot or draft PR."
+            exit 0
+          fi
+
+          ERRORS=""
+
+          ASSIGNEE_COUNT=$(echo "$ASSIGNEES" | jq 'length')
+          if [ "$ASSIGNEE_COUNT" -eq 0 ]; then
+            ERRORS="${ERRORS}- **Missing assignee**: assign at least one person to this PR.\n"
+          fi
+
+          # Module labels identify which package the PR touches.
+          # Cross-cutting labels exempt PRs from needing a module label.
+          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name')
+          MODULE_LABELS="cuda.bindings cuda.core cuda.pathfinder"
+          MODULE_EXEMPT_LABELS="CI/CD"
+          HAS_MODULE=false
+          for label in $LABEL_NAMES; do
+            for mod in $MODULE_LABELS $MODULE_EXEMPT_LABELS; do
+              if [ "$label" = "$mod" ]; then
+                HAS_MODULE=true
+                break 2
+              fi
+            done
+          done
+
+          if [ "$HAS_MODULE" = "false" ]; then
+            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\` (or a cross-cutting label such as \`CI/CD\`).\n"
+          fi
+
+          # Type labels categorize the kind of change.
+          TYPE_LABELS="bug enhancement feature documentation test example CI/CD packaging dependencies performance experiment RFC support P0 P1 P2"
+          HAS_TYPE=false
+          for label in $LABEL_NAMES; do
+            for typ in $TYPE_LABELS; do
+              if [ "$label" = "$typ" ]; then
+                HAS_TYPE=true
+                break 2
+              fi
+            done
+          done
+
+          if [ "$HAS_TYPE" = "false" ]; then
+            ERRORS="${ERRORS}- **Missing type label**: add at least one of: \`bug\`, \`enhancement\`, \`feature\`, \`documentation\`, \`test\`, \`example\`, \`CI/CD\`, \`packaging\`, \`dependencies\`, \`performance\`, \`experiment\`, \`RFC\`, \`support\`, \`P0\`, \`P1\`, \`P2\`.\n"
+          fi
+
+          if [ -z "$MILESTONE" ]; then
+            ERRORS="${ERRORS}- **Missing milestone**: assign a milestone to this PR.\n"
+          fi
+
+          # Block PRs with labels that indicate they are not ready to merge.
+          BLOCKED_PATTERNS="blocked DO NOT MERGE do not merge"
+          for label in $LABEL_NAMES; do
+            for pattern in $BLOCKED_PATTERNS; do
+              if echo "$label" | grep -qi "$pattern"; then
+                ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
+                break
+              fi
+            done
+          done
+
+          if [ -n "$ERRORS" ]; then
+            echo "::error::This PR is missing required metadata. See the job summary for details."
+            {
+              echo "## PR Metadata Check Failed"
+              echo ""
+              printf '%b' "$ERRORS"
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          ASSIGNEE_LIST=$(echo "$ASSIGNEES" | jq -r '.[].login' | paste -sd ', ' -)
+          LABEL_LIST=$(echo "$LABEL_NAMES" | paste -sd ', ' -)
+          {
+            echo "## PR Metadata Check Passed"
+            echo ""
+            echo "- **Assignees**: $ASSIGNEE_LIST"
+            echo "- **Labels**: $LABEL_LIST"
+            echo "- **Milestone**: $MILESTONE"
+          } >> "$GITHUB_STEP_SUMMARY"
