@@ -38,10 +38,12 @@ jobs:
           ERRORS=""
 
           # Module labels identify which package the PR touches.
+          # Cross-cutting labels exempt PRs from needing a module label.
           MODULE_LABELS="cuda.bindings cuda.core cuda.pathfinder"
+          MODULE_EXEMPT_LABELS="CI/CD"
           HAS_MODULE=false
           for label in $LABEL_NAMES; do
-            for mod in $MODULE_LABELS; do
+            for mod in $MODULE_LABELS $MODULE_EXEMPT_LABELS; do
               if [ "$label" = "$mod" ]; then
                 HAS_MODULE=true
                 break 2
@@ -50,7 +52,7 @@ jobs:
           done
 
           if [ "$HAS_MODULE" = "false" ]; then
-            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\`.\n"
+            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\` (or a cross-cutting label such as \`CI/CD\`).\n"
           fi
 
           # Type labels categorize the kind of change.
@@ -89,7 +91,7 @@ jobs:
             {
               echo "## PR Metadata Check Failed"
               echo ""
-              printf "$ERRORS"
+              printf '%b' "$ERRORS"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
