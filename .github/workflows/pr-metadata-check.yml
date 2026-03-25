@@ -89,7 +89,7 @@ jobs:
             {
               echo "## PR Metadata Check Failed"
               echo ""
-              printf "$ERRORS"
+              printf '%b' "$ERRORS"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
