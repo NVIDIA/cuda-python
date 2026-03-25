@@ -15,39 +15,9 @@ from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
-
-import threading
-
 from cuda.core._module import Kernel
 from cuda.core._stream import Stream
-from cuda.core._utils.cuda_utils import (
-    _reduce_3_tuple,
-    get_binding_version,
-)
-
-
-cdef bint _inited = False
-cdef bint _use_ex = False
-cdef object _lock = threading.Lock()
-
-
-cdef int _lazy_init() except?-1:
-    global _inited, _use_ex
-    if _inited:
-        return 0
-
-    cdef int _driver_ver
-    with _lock:
-        if _inited:
-            return 0
-
-        # binding availability depends on cuda-python version
-        _py_major_minor = get_binding_version()
-        HANDLE_RETURN(cydriver.cuDriverGetVersion(&_driver_ver))
-        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
-        _inited = True
-
-    return 0
+from cuda.core._utils.cuda_utils import _reduce_3_tuple
 
 
 def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
@@ -70,7 +40,6 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
 
     """
     cdef Stream s = Stream_accept(stream, allow_stream_protocol=True)
-    _lazy_init()
     cdef LaunchConfig conf = check_or_create_options(LaunchConfig, config, "launch config")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
@@ -78,32 +47,15 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
     cdef ParamHolder ker_args = ParamHolder(kernel_args)
     cdef void** args_ptr = <void**><uintptr_t>(ker_args.ptr)
 
-    # Note: We now use CUkernel handles exclusively (CUDA 12+), but they can be cast to
-    # CUfunction for use with cuLaunchKernel, as both handle types are interchangeable
-    # for kernel launch purposes.
     cdef Kernel ker = <Kernel>kernel
     cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>as_cu(ker._h_kernel)
 
-    # Note: CUkernel can still be launched via cuLaunchKernel (not just cuLaunchKernelEx).
-    # We check both binding & driver versions here mainly to see if the "Ex" API is
-    # available and if so we use it, as it's more feature rich.
-    if _use_ex:
-        drv_cfg = conf._to_native_launch_config()
-        drv_cfg.hStream = as_cu(s._h_stream)
-        if conf.cooperative_launch:
-            _check_cooperative_launch(kernel, conf, s)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))
-    else:
-        # TODO: check if config has any unsupported attrs
-        HANDLE_RETURN(
-            cydriver.cuLaunchKernel(
-                func_handle,
-                conf.grid[0], conf.grid[1], conf.grid[2],
-                conf.block[0], conf.block[1], conf.block[2],
-                conf.shmem_size, as_cu(s._h_stream), args_ptr, NULL
-            )
-        )
+    drv_cfg = conf._to_native_launch_config()
+    drv_cfg.hStream = as_cu(s._h_stream)
+    if conf.cooperative_launch:
+        _check_cooperative_launch(kernel, conf, s)
+    with nogil:
+        HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))
 
 
 cdef _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):

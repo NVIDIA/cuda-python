@@ -40,6 +40,7 @@ from cuda.core._utils.cuda_utils import (
     handle_return,
     is_sequence,
 )
+from cuda.core._utils.version import driver_version
 
 ctypedef const char* const_char_ptr
 ctypedef void* void_ptr
@@ -641,8 +642,7 @@ def _decide_nvjitlink_or_driver() -> bool:
     if _driver_ver is not None:
         return not _use_nvjitlink_backend
 
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
+    _driver_ver = driver_version()[:2]
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"

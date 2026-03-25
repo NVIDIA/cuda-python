@@ -15,7 +15,6 @@ from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
-cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 
@@ -36,10 +35,8 @@ nvvm_available = pytest.mark.skipif(
 
 try:
     from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
-
-    _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 except Exception:
-    _cuda_driver_version = 0
+    pass
 
 
 def _get_nvrtc_version_for_tests():

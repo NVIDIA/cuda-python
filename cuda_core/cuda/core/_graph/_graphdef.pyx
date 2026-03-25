@@ -94,8 +94,8 @@ cdef bint _version_checked = False
 cdef bint _check_node_get_params():
     global _has_cuGraphNodeGetParams, _version_checked
     if not _version_checked:
-        ver = handle_return(driver.cuDriverGetVersion())
-        _has_cuGraphNodeGetParams = ver >= 13020
+        from cuda.core._utils.version import driver_version
+        _has_cuGraphNodeGetParams = driver_version() >= (13, 2, 0)
         _version_checked = True
     return _has_cuGraphNodeGetParams
 

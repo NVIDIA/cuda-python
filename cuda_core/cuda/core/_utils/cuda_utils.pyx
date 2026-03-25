@@ -298,18 +298,6 @@ def is_nested_sequence(obj):
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
 
-@functools.cache
-def get_binding_version():
-    try:
-        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
-    except importlib.metadata.PackageNotFoundError:
-        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
-    return tuple(int(v) for v in major_minor)
-
-@functools.cache
-def get_driver_version():
-    return handle_return(driver.cuDriverGetVersion())
-
 
 class Transaction:
     """
