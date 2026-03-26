@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.ComputeInstancePlacement
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ComputeInstancePlacement
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComputeInstancePlacement.__init__
+      ~ComputeInstancePlacement.from_buffer
+      ~ComputeInstancePlacement.from_data
+      ~ComputeInstancePlacement.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeInstancePlacement.ptr
+      ~ComputeInstancePlacement.size_
+      ~ComputeInstancePlacement.start
+   
+   
