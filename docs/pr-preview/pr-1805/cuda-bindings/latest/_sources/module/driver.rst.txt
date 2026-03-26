@@ -1,9 +1,27 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 ------
 driver
 ------
+
+Profiler Control
+----------------
+
+This section describes the profiler control functions of the low-level CUDA driver application programming interface.
+
+.. autofunction:: cuda.bindings.driver.cuProfilerStart
+.. autofunction:: cuda.bindings.driver.cuProfilerStop
+
+VDPAU Interoperability
+----------------------
+
+This section describes the VDPAU interoperability functions of the low-level CUDA driver application programming interface.
+
+.. autofunction:: cuda.bindings.driver.cuVDPAUGetDevice
+.. autofunction:: cuda.bindings.driver.cuVDPAUCtxCreate
+.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterVideoSurface
+.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterOutputSurface
 
 Data types used by CUDA driver
 ------------------------------
@@ -7752,24 +7770,6 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
-EGL Interoperability
---------------------
-
-This section describes the EGL interoperability functions of the low-level CUDA driver application programming interface.
-
-.. autofunction:: cuda.bindings.driver.cuGraphicsEGLRegisterImage
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnectWithFlags
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerDisconnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerAcquireFrame
-.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerReleaseFrame
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerConnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerDisconnect
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerPresentFrame
-.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerReturnFrame
-.. autofunction:: cuda.bindings.driver.cuGraphicsResourceGetMappedEglFrame
-.. autofunction:: cuda.bindings.driver.cuEventCreateFromEGLSync
-
 OpenGL Interoperability
 -----------------------
 
@@ -7798,20 +7798,20 @@ This section describes the OpenGL interoperability functions of the low-level CU
 .. autofunction:: cuda.bindings.driver.cuGraphicsGLRegisterImage
 .. autofunction:: cuda.bindings.driver.cuGLGetDevices
 
-Profiler Control
-----------------
+EGL Interoperability
+--------------------
 
-This section describes the profiler control functions of the low-level CUDA driver application programming interface.
+This section describes the EGL interoperability functions of the low-level CUDA driver application programming interface.
 
-.. autofunction:: cuda.bindings.driver.cuProfilerStart
-.. autofunction:: cuda.bindings.driver.cuProfilerStop
-
-VDPAU Interoperability
-----------------------
-
-This section describes the VDPAU interoperability functions of the low-level CUDA driver application programming interface.
-
-.. autofunction:: cuda.bindings.driver.cuVDPAUGetDevice
-.. autofunction:: cuda.bindings.driver.cuVDPAUCtxCreate
-.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterVideoSurface
-.. autofunction:: cuda.bindings.driver.cuGraphicsVDPAURegisterOutputSurface
+.. autofunction:: cuda.bindings.driver.cuGraphicsEGLRegisterImage
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerConnectWithFlags
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerDisconnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerAcquireFrame
+.. autofunction:: cuda.bindings.driver.cuEGLStreamConsumerReleaseFrame
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerConnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerDisconnect
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerPresentFrame
+.. autofunction:: cuda.bindings.driver.cuEGLStreamProducerReturnFrame
+.. autofunction:: cuda.bindings.driver.cuGraphicsResourceGetMappedEglFrame
+.. autofunction:: cuda.bindings.driver.cuEventCreateFromEGLSync

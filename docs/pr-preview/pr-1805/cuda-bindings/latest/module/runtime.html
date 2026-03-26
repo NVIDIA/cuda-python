@@ -5020,6 +5020,92 @@ cases. More information can be found about this feature in the
 <p>This section describes the memory management functions of the CUDA runtime application programming interface.</p>
 <p>Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaPitchedPtr">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaPitchedPtr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">xsz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">ysz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> based on input parameters.</p>
+<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> based on the specified input
+parameters <cite>d</cite>, <cite>p</cite>, <cite>xsz</cite>, and <cite>ysz</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>Any</em>) – Pointer to allocated memory</p></li>
+<li><p><strong>p</strong> (<em>size_t</em>) – Pitch of allocated memory in bytes</p></li>
+<li><p><strong>xsz</strong> (<em>size_t</em>) – Logical width of allocation in elements</p></li>
+<li><p><strong>ysz</strong> (<em>size_t</em>) – Logical height of allocation in elements</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> specified by <cite>d</cite>, <cite>p</cite>, <cite>xsz</cite>, and <cite>ysz</cite></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.runtime.make_cudaExtent" title="cuda.bindings.runtime.make_cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaExtent</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.make_cudaPos" title="cuda.bindings.runtime.make_cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPos</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaPos">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaPos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaPos" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> based on input parameters.</p>
+<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> based on the specified input parameters
+<cite>x</cite>, <cite>y</cite>, and <cite>z</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>size_t</em>) – X position</p></li>
+<li><p><strong>y</strong> (<em>size_t</em>) – Y position</p></li>
+<li><p><strong>z</strong> (<em>size_t</em>) – Z position</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> specified by <cite>x</cite>, <cite>y</cite>, and <cite>z</cite></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.runtime.make_cudaExtent" title="cuda.bindings.runtime.make_cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaExtent</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="cuda.bindings.runtime.make_cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPitchedPtr</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaExtent">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaExtent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaExtent" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> based on input parameters.</p>
+<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> based on the specified input
+parameters <cite>w</cite>, <cite>h</cite>, and <cite>d</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<em>size_t</em>) – Width in elements when referring to array memory, in bytes when
+referring to linear memory</p></li>
+<li><p><strong>h</strong> (<em>size_t</em>) – Height in elements</p></li>
+<li><p><strong>d</strong> (<em>size_t</em>) – Depth in elements</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> specified by <cite>w</cite>, <cite>h</cite>, and <cite>d</cite></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="cuda.bindings.runtime.make_cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPitchedPtr</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.make_cudaPos" title="cuda.bindings.runtime.make_cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPos</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMallocManaged">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMallocManaged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMallocManaged" title="Link to this definition">#</a></dt>
 <dd><p>Allocates memory that will be automatically managed by the Unified Memory system.</p>
@@ -8181,92 +8267,6 @@ where the result of each attribute query will be written to.</p></li>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeGetAttribute" title="cuda.bindings.runtime.cudaMemRangeGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeGetAttribute</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaMemAdvise" title="cuda.bindings.runtime.cudaMemAdvise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaMemPrefetchAsync" title="cuda.bindings.runtime.cudaMemPrefetchAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code></a>, <a class="reference internal" href="driver.html#cuda.bindings.driver.cuMemRangeGetAttributes" title="cuda.bindings.driver.cuMemRangeGetAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemRangeGetAttributes</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaPitchedPtr">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaPitchedPtr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">xsz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">ysz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="Link to this definition">#</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> based on input parameters.</p>
-<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> based on the specified input
-parameters <cite>d</cite>, <cite>p</cite>, <cite>xsz</cite>, and <cite>ysz</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>d</strong> (<em>Any</em>) – Pointer to allocated memory</p></li>
-<li><p><strong>p</strong> (<em>size_t</em>) – Pitch of allocated memory in bytes</p></li>
-<li><p><strong>xsz</strong> (<em>size_t</em>) – Logical width of allocation in elements</p></li>
-<li><p><strong>ysz</strong> (<em>size_t</em>) – Logical height of allocation in elements</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a> specified by <cite>d</cite>, <cite>p</cite>, <cite>xsz</cite>, and <cite>ysz</cite></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.bindings.runtime.make_cudaExtent" title="cuda.bindings.runtime.make_cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaExtent</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.make_cudaPos" title="cuda.bindings.runtime.make_cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPos</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaPos">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaPos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaPos" title="Link to this definition">#</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> based on input parameters.</p>
-<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> based on the specified input parameters
-<cite>x</cite>, <cite>y</cite>, and <cite>z</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>size_t</em>) – X position</p></li>
-<li><p><strong>y</strong> (<em>size_t</em>) – Y position</p></li>
-<li><p><strong>z</strong> (<em>size_t</em>) – Z position</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaPos" title="cuda.bindings.runtime.cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPos</span></code></a> specified by <cite>x</cite>, <cite>y</cite>, and <cite>z</cite></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.bindings.runtime.make_cudaExtent" title="cuda.bindings.runtime.make_cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaExtent</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="cuda.bindings.runtime.make_cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPitchedPtr</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.make_cudaExtent">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">make_cudaExtent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.make_cudaExtent" title="Link to this definition">#</a></dt>
-<dd><p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> based on input parameters.</p>
-<p>Returns a <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> based on the specified input
-parameters <cite>w</cite>, <cite>h</cite>, and <cite>d</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>w</strong> (<em>size_t</em>) – Width in elements when referring to array memory, in bytes when
-referring to linear memory</p></li>
-<li><p><strong>h</strong> (<em>size_t</em>) – Height in elements</p></li>
-<li><p><strong>d</strong> (<em>size_t</em>) – Depth in elements</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>cudaError_t.cudaSuccess</em> – cudaError_t.cudaSuccess</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> – <a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a> specified by <cite>w</cite>, <cite>h</cite>, and <cite>d</cite></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.bindings.runtime.make_cudaPitchedPtr" title="cuda.bindings.runtime.make_cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPitchedPtr</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.make_cudaPos" title="cuda.bindings.runtime.make_cudaPos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_cudaPos</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -15512,6 +15512,161 @@ units.</p>
 <section id="data-types-used-by-cuda-runtime">
 <h2>Data types used by CUDA Runtime<a class="headerlink" href="#data-types-used-by-cuda-runtime" title="Link to this heading">#</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureDesc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc" title="Link to this definition">#</a></dt>
+<dd><p>CUDA texture descriptor</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.addressMode">
+<span class="sig-name descname"><span class="pre">addressMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.addressMode" title="Link to this definition">#</a></dt>
+<dd><p>Texture address mode for up to 3 dimensions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="cuda.bindings.runtime.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.filterMode">
+<span class="sig-name descname"><span class="pre">filterMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.filterMode" title="Link to this definition">#</a></dt>
+<dd><p>Texture filter mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaTextureFilterMode" title="cuda.bindings.runtime.cudaTextureFilterMode">cudaTextureFilterMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.readMode">
+<span class="sig-name descname"><span class="pre">readMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.readMode" title="Link to this definition">#</a></dt>
+<dd><p>Texture read mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaTextureReadMode" title="cuda.bindings.runtime.cudaTextureReadMode">cudaTextureReadMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.sRGB">
+<span class="sig-name descname"><span class="pre">sRGB</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.sRGB" title="Link to this definition">#</a></dt>
+<dd><p>Perform sRGB-&gt;linear conversion during texture read</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.borderColor">
+<span class="sig-name descname"><span class="pre">borderColor</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.borderColor" title="Link to this definition">#</a></dt>
+<dd><p>Texture Border Color</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.normalizedCoords">
+<span class="sig-name descname"><span class="pre">normalizedCoords</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.normalizedCoords" title="Link to this definition">#</a></dt>
+<dd><p>Indicates whether texture reads are normalized or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.maxAnisotropy">
+<span class="sig-name descname"><span class="pre">maxAnisotropy</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.maxAnisotropy" title="Link to this definition">#</a></dt>
+<dd><p>Limit to the anisotropy ratio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>unsigned int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.mipmapFilterMode">
+<span class="sig-name descname"><span class="pre">mipmapFilterMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapFilterMode" title="Link to this definition">#</a></dt>
+<dd><p>Mipmap filter mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaTextureFilterMode" title="cuda.bindings.runtime.cudaTextureFilterMode">cudaTextureFilterMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.mipmapLevelBias">
+<span class="sig-name descname"><span class="pre">mipmapLevelBias</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapLevelBias" title="Link to this definition">#</a></dt>
+<dd><p>Offset applied to the supplied mipmap level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.minMipmapLevelClamp">
+<span class="sig-name descname"><span class="pre">minMipmapLevelClamp</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.minMipmapLevelClamp" title="Link to this definition">#</a></dt>
+<dd><p>Lower end of the mipmap level range to clamp access to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.maxMipmapLevelClamp">
+<span class="sig-name descname"><span class="pre">maxMipmapLevelClamp</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.maxMipmapLevelClamp" title="Link to this definition">#</a></dt>
+<dd><p>Upper end of the mipmap level range to clamp access to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.disableTrilinearOptimization">
+<span class="sig-name descname"><span class="pre">disableTrilinearOptimization</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.disableTrilinearOptimization" title="Link to this definition">#</a></dt>
+<dd><p>Disable any trilinear filtering optimizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.seamlessCubemap">
+<span class="sig-name descname"><span class="pre">seamlessCubemap</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.seamlessCubemap" title="Link to this definition">#</a></dt>
+<dd><p>Enable seamless cube map filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.getPtr" title="Link to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaEglPlaneDesc_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaEglPlaneDesc_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaEglPlaneDesc_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA EGL Plane Descriptor - structure defining each plane of a CUDA
@@ -20807,156 +20962,109 @@ order to interpret this field.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureDesc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc" title="Link to this definition">#</a></dt>
-<dd><p>CUDA texture descriptor</p>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureAddressMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="Link to this definition">#</a></dt>
+<dd><p>CUDA texture address modes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.addressMode">
-<span class="sig-name descname"><span class="pre">addressMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.addressMode" title="Link to this definition">#</a></dt>
-<dd><p>Texture address mode for up to 3 dimensions</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="cuda.bindings.runtime.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap">
+<span class="sig-name descname"><span class="pre">cudaAddressModeWrap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeWrap:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap" title="Link to this definition">#</a></dt>
+<dd><p>Wrapping address mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.filterMode">
-<span class="sig-name descname"><span class="pre">filterMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.filterMode" title="Link to this definition">#</a></dt>
-<dd><p>Texture filter mode</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaTextureFilterMode" title="cuda.bindings.runtime.cudaTextureFilterMode">cudaTextureFilterMode</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp">
+<span class="sig-name descname"><span class="pre">cudaAddressModeClamp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeClamp:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp" title="Link to this definition">#</a></dt>
+<dd><p>Clamp to edge address mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.readMode">
-<span class="sig-name descname"><span class="pre">readMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.readMode" title="Link to this definition">#</a></dt>
-<dd><p>Texture read mode</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaTextureReadMode" title="cuda.bindings.runtime.cudaTextureReadMode">cudaTextureReadMode</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror">
+<span class="sig-name descname"><span class="pre">cudaAddressModeMirror</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeMirror:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror" title="Link to this definition">#</a></dt>
+<dd><p>Mirror address mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.sRGB">
-<span class="sig-name descname"><span class="pre">sRGB</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.sRGB" title="Link to this definition">#</a></dt>
-<dd><p>Perform sRGB-&gt;linear conversion during texture read</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder">
+<span class="sig-name descname"><span class="pre">cudaAddressModeBorder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeBorder:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder" title="Link to this definition">#</a></dt>
+<dd><p>Border address mode</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureFilterMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureFilterMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureFilterMode" title="Link to this definition">#</a></dt>
+<dd><p>CUDA texture filter modes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint">
+<span class="sig-name descname"><span class="pre">cudaFilterModePoint</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureFilterMode.cudaFilterModePoint:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint" title="Link to this definition">#</a></dt>
+<dd><p>Point filter mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.borderColor">
-<span class="sig-name descname"><span class="pre">borderColor</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.borderColor" title="Link to this definition">#</a></dt>
-<dd><p>Texture Border Color</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>]</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear">
+<span class="sig-name descname"><span class="pre">cudaFilterModeLinear</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureFilterMode.cudaFilterModeLinear:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear" title="Link to this definition">#</a></dt>
+<dd><p>Linear filter mode</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureReadMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureReadMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureReadMode" title="Link to this definition">#</a></dt>
+<dd><p>CUDA texture read modes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType">
+<span class="sig-name descname"><span class="pre">cudaReadModeElementType</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureReadMode.cudaReadModeElementType:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType" title="Link to this definition">#</a></dt>
+<dd><p>Read texture as specified element type</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.normalizedCoords">
-<span class="sig-name descname"><span class="pre">normalizedCoords</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.normalizedCoords" title="Link to this definition">#</a></dt>
-<dd><p>Indicates whether texture reads are normalized or not</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat">
+<span class="sig-name descname"><span class="pre">cudaReadModeNormalizedFloat</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureReadMode.cudaReadModeNormalizedFloat:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat" title="Link to this definition">#</a></dt>
+<dd><p>Read texture as normalized float</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceBoundaryMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode" title="Link to this definition">#</a></dt>
+<dd><p>CUDA Surface boundary modes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero">
+<span class="sig-name descname"><span class="pre">cudaBoundaryModeZero</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceBoundaryMode.cudaBoundaryModeZero:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero" title="Link to this definition">#</a></dt>
+<dd><p>Zero boundary mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.maxAnisotropy">
-<span class="sig-name descname"><span class="pre">maxAnisotropy</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.maxAnisotropy" title="Link to this definition">#</a></dt>
-<dd><p>Limit to the anisotropy ratio</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned int</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp">
+<span class="sig-name descname"><span class="pre">cudaBoundaryModeClamp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceBoundaryMode.cudaBoundaryModeClamp:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp" title="Link to this definition">#</a></dt>
+<dd><p>Clamp boundary mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.mipmapFilterMode">
-<span class="sig-name descname"><span class="pre">mipmapFilterMode</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapFilterMode" title="Link to this definition">#</a></dt>
-<dd><p>Mipmap filter mode</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaTextureFilterMode" title="cuda.bindings.runtime.cudaTextureFilterMode">cudaTextureFilterMode</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap">
+<span class="sig-name descname"><span class="pre">cudaBoundaryModeTrap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceBoundaryMode.cudaBoundaryModeTrap:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap" title="Link to this definition">#</a></dt>
+<dd><p>Trap boundary mode</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceFormatMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceFormatMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceFormatMode" title="Link to this definition">#</a></dt>
+<dd><p>CUDA Surface format modes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced">
+<span class="sig-name descname"><span class="pre">cudaFormatModeForced</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceFormatMode.cudaFormatModeForced:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced" title="Link to this definition">#</a></dt>
+<dd><p>Forced format mode</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.mipmapLevelBias">
-<span class="sig-name descname"><span class="pre">mipmapLevelBias</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapLevelBias" title="Link to this definition">#</a></dt>
-<dd><p>Offset applied to the supplied mipmap level</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.minMipmapLevelClamp">
-<span class="sig-name descname"><span class="pre">minMipmapLevelClamp</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.minMipmapLevelClamp" title="Link to this definition">#</a></dt>
-<dd><p>Lower end of the mipmap level range to clamp access to</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.maxMipmapLevelClamp">
-<span class="sig-name descname"><span class="pre">maxMipmapLevelClamp</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.maxMipmapLevelClamp" title="Link to this definition">#</a></dt>
-<dd><p>Upper end of the mipmap level range to clamp access to</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.disableTrilinearOptimization">
-<span class="sig-name descname"><span class="pre">disableTrilinearOptimization</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.disableTrilinearOptimization" title="Link to this definition">#</a></dt>
-<dd><p>Disable any trilinear filtering optimizations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.seamlessCubemap">
-<span class="sig-name descname"><span class="pre">seamlessCubemap</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.seamlessCubemap" title="Link to this definition">#</a></dt>
-<dd><p>Enable seamless cube map filtering.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureDesc.getPtr">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureDesc.getPtr" title="Link to this definition">#</a></dt>
-<dd><p>Get memory address of class instance</p>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto">
+<span class="sig-name descname"><span class="pre">cudaFormatModeAuto</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceFormatMode.cudaFormatModeAuto:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto" title="Link to this definition">#</a></dt>
+<dd><p>Auto format mode</p>
 </dd></dl>
 
 </dd></dl>
@@ -26153,109 +26261,25 @@ are on the same GPU.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceBoundaryMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode" title="Link to this definition">#</a></dt>
-<dd><p>CUDA Surface boundary modes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero">
-<span class="sig-name descname"><span class="pre">cudaBoundaryModeZero</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceBoundaryMode.cudaBoundaryModeZero:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero" title="Link to this definition">#</a></dt>
-<dd><p>Zero boundary mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp">
-<span class="sig-name descname"><span class="pre">cudaBoundaryModeClamp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceBoundaryMode.cudaBoundaryModeClamp:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp" title="Link to this definition">#</a></dt>
-<dd><p>Clamp boundary mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap">
-<span class="sig-name descname"><span class="pre">cudaBoundaryModeTrap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceBoundaryMode.cudaBoundaryModeTrap:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap" title="Link to this definition">#</a></dt>
-<dd><p>Trap boundary mode</p>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureObject_t">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureObject_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureObject_t" title="Link to this definition">#</a></dt>
+<dd><p>An opaque value that represents a CUDA texture object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureObject_t.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureObject_t.getPtr" title="Link to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceFormatMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceFormatMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceFormatMode" title="Link to this definition">#</a></dt>
-<dd><p>CUDA Surface format modes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced">
-<span class="sig-name descname"><span class="pre">cudaFormatModeForced</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceFormatMode.cudaFormatModeForced:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced" title="Link to this definition">#</a></dt>
-<dd><p>Forced format mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto">
-<span class="sig-name descname"><span class="pre">cudaFormatModeAuto</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaSurfaceFormatMode.cudaFormatModeAuto:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto" title="Link to this definition">#</a></dt>
-<dd><p>Auto format mode</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureAddressMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="Link to this definition">#</a></dt>
-<dd><p>CUDA texture address modes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap">
-<span class="sig-name descname"><span class="pre">cudaAddressModeWrap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeWrap:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap" title="Link to this definition">#</a></dt>
-<dd><p>Wrapping address mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp">
-<span class="sig-name descname"><span class="pre">cudaAddressModeClamp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeClamp:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp" title="Link to this definition">#</a></dt>
-<dd><p>Clamp to edge address mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror">
-<span class="sig-name descname"><span class="pre">cudaAddressModeMirror</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeMirror:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror" title="Link to this definition">#</a></dt>
-<dd><p>Mirror address mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder">
-<span class="sig-name descname"><span class="pre">cudaAddressModeBorder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureAddressMode.cudaAddressModeBorder:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder" title="Link to this definition">#</a></dt>
-<dd><p>Border address mode</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureFilterMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureFilterMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureFilterMode" title="Link to this definition">#</a></dt>
-<dd><p>CUDA texture filter modes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint">
-<span class="sig-name descname"><span class="pre">cudaFilterModePoint</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureFilterMode.cudaFilterModePoint:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint" title="Link to this definition">#</a></dt>
-<dd><p>Point filter mode</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear">
-<span class="sig-name descname"><span class="pre">cudaFilterModeLinear</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureFilterMode.cudaFilterModeLinear:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear" title="Link to this definition">#</a></dt>
-<dd><p>Linear filter mode</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureReadMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureReadMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureReadMode" title="Link to this definition">#</a></dt>
-<dd><p>CUDA texture read modes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType">
-<span class="sig-name descname"><span class="pre">cudaReadModeElementType</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureReadMode.cudaReadModeElementType:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType" title="Link to this definition">#</a></dt>
-<dd><p>Read texture as specified element type</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat">
-<span class="sig-name descname"><span class="pre">cudaReadModeNormalizedFloat</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaTextureReadMode.cudaReadModeNormalizedFloat:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat" title="Link to this definition">#</a></dt>
-<dd><p>Read texture as normalized float</p>
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceObject_t">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceObject_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceObject_t" title="Link to this definition">#</a></dt>
+<dd><p>An opaque value that represents a CUDA Surface object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceObject_t.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceObject_t.getPtr" title="Link to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
 </dd></dl>
 
 </dd></dl>
@@ -27564,29 +27588,75 @@ order to interpret this field.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceObject_t">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceObject_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceObject_t" title="Link to this definition">#</a></dt>
-<dd><p>An opaque value that represents a CUDA Surface object</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceObject_t.getPtr">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceObject_t.getPtr" title="Link to this definition">#</a></dt>
-<dd><p>Get memory address of class instance</p>
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType1D">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType1D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType1D" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType2D">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType2D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType2D" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureObject_t">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureObject_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureObject_t" title="Link to this definition">#</a></dt>
-<dd><p>An opaque value that represents a CUDA texture object</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureObject_t.getPtr">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureObject_t.getPtr" title="Link to this definition">#</a></dt>
-<dd><p>Get memory address of class instance</p>
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType3D">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType3D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType3D" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureTypeCubemap">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureTypeCubemap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureTypeCubemap" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType1DLayered">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType1DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">241</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType1DLayered" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType2DLayered">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType2DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">242</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType2DLayered" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureTypeCubemapLayered">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureTypeCubemapLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">252</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureTypeCubemapLayered" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType1D">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType1D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType1D" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType2D">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType2D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType2D" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType3D">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType3D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType3D" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceTypeCubemap">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceTypeCubemap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemap" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType1DLayered">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType1DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">241</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType1DLayered" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType2DLayered">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType2DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">242</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType2DLayered" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered">
+<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceTypeCubemapLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">252</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.CUDA_EGL_MAX_PLANES">
@@ -28053,76 +28123,6 @@ order to interpret this field.</p>
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.bindings.runtime.cudaKernelNodeAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType1D">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType1D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType1D" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType2D">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType2D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType2D" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType3D">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType3D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType3D" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceTypeCubemap">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceTypeCubemap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType1DLayered">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType1DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">241</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType1DLayered" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceType2DLayered">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceType2DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">242</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceType2DLayered" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSurfaceTypeCubemapLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">252</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType1D">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType1D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType1D" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType2D">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType2D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType2D" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType3D">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType3D</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType3D" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureTypeCubemap">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureTypeCubemap</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureTypeCubemap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType1DLayered">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType1DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">241</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType1DLayered" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureType2DLayered">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureType2DLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">242</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureType2DLayered" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaTextureTypeCubemapLayered">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaTextureTypeCubemapLayered</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">252</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaTextureTypeCubemapLayered" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
 </section>
 </section>
 
@@ -28293,6 +28293,9 @@ order to interpret this field.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-management">Memory Management</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.make_cudaPitchedPtr"><code class="docutils literal notranslate"><span class="pre">make_cudaPitchedPtr()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.make_cudaPos"><code class="docutils literal notranslate"><span class="pre">make_cudaPos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.make_cudaExtent"><code class="docutils literal notranslate"><span class="pre">make_cudaExtent()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMallocManaged"><code class="docutils literal notranslate"><span class="pre">cudaMallocManaged()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMalloc"><code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMallocHost"><code class="docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code></a></li>
@@ -28350,9 +28353,6 @@ order to interpret this field.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemAdvise"><code class="docutils literal notranslate"><span class="pre">cudaMemAdvise()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemRangeGetAttribute"><code class="docutils literal notranslate"><span class="pre">cudaMemRangeGetAttribute()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemRangeGetAttributes"><code class="docutils literal notranslate"><span class="pre">cudaMemRangeGetAttributes()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.make_cudaPitchedPtr"><code class="docutils literal notranslate"><span class="pre">make_cudaPitchedPtr()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.make_cudaPos"><code class="docutils literal notranslate"><span class="pre">make_cudaPos()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.make_cudaExtent"><code class="docutils literal notranslate"><span class="pre">make_cudaExtent()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stream-ordered-memory-allocator">Stream Ordered Memory Allocator</a><ul class="visible nav section-nav flex-column">
@@ -28600,6 +28600,23 @@ order to interpret this field.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-types-used-by-cuda-runtime">Data types used by CUDA Runtime</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.addressMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.addressMode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.filterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.filterMode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.readMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.readMode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.sRGB"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.sRGB</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.borderColor"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.borderColor</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.normalizedCoords"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.normalizedCoords</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.maxAnisotropy"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.maxAnisotropy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapFilterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.mipmapFilterMode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapLevelBias"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.mipmapLevelBias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.minMipmapLevelClamp"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.minMipmapLevelClamp</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.maxMipmapLevelClamp"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.maxMipmapLevelClamp</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.disableTrilinearOptimization"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.disableTrilinearOptimization</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.seamlessCubemap"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.seamlessCubemap</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.getPtr()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEglPlaneDesc_st"><code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc_st</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEglPlaneDesc_st.width"><code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc_st.width</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEglPlaneDesc_st.height"><code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc_st.height</span></code></a></li>
@@ -29256,21 +29273,32 @@ order to interpret this field.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaAsyncNotificationInfo.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaAsyncNotificationInfo.getPtr()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.addressMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.addressMode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.filterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.filterMode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.readMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.readMode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.sRGB"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.sRGB</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.borderColor"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.borderColor</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.normalizedCoords"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.normalizedCoords</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.maxAnisotropy"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.maxAnisotropy</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapFilterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.mipmapFilterMode</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.mipmapLevelBias"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.mipmapLevelBias</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.minMipmapLevelClamp"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.minMipmapLevelClamp</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.maxMipmapLevelClamp"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.maxMipmapLevelClamp</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.disableTrilinearOptimization"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.disableTrilinearOptimization</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.seamlessCubemap"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.seamlessCubemap</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureDesc.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaTextureDesc.getPtr()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeWrap</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeClamp</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeMirror</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeBorder</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureFilterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode.cudaFilterModePoint</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode.cudaFilterModeLinear</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureReadMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode.cudaReadModeElementType</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode.cudaReadModeNormalizedFloat</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode.cudaBoundaryModeZero</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode.cudaBoundaryModeClamp</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode.cudaBoundaryModeTrap</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceFormatMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode.cudaFormatModeForced</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode.cudaFormatModeAuto</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEglFrameType"><code class="docutils literal notranslate"><span class="pre">cudaEglFrameType</span></code></a><ul class="visible nav section-nav flex-column">
@@ -30279,32 +30307,12 @@ order to interpret this field.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning"><code class="docutils literal notranslate"><span class="pre">cudaLogLevel.cudaLogLevelWarning</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeZero"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode.cudaBoundaryModeZero</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode.cudaBoundaryModeClamp</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceBoundaryMode.cudaBoundaryModeTrap</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureObject_t"><code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureObject_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t.getPtr()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceFormatMode"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeForced"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode.cudaFormatModeForced</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceFormatMode.cudaFormatModeAuto"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceFormatMode.cudaFormatModeAuto</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeWrap"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeWrap</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeClamp"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeClamp</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeMirror"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeMirror</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureAddressMode.cudaAddressModeBorder"><code class="docutils literal notranslate"><span class="pre">cudaTextureAddressMode.cudaAddressModeBorder</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureFilterMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModePoint"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode.cudaFilterModePoint</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureFilterMode.cudaFilterModeLinear"><code class="docutils literal notranslate"><span class="pre">cudaTextureFilterMode.cudaFilterModeLinear</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureReadMode"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeElementType"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode.cudaReadModeElementType</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureReadMode.cudaReadModeNormalizedFloat"><code class="docutils literal notranslate"><span class="pre">cudaTextureReadMode.cudaReadModeNormalizedFloat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceObject_t"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceObject_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceObject_t.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaEglPlaneDesc"><code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc</span></code></a><ul class="visible nav section-nav flex-column">
@@ -30543,14 +30551,20 @@ order to interpret this field.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaLogIterator.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaLogIterator.getPtr()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceObject_t"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceObject_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaSurfaceObject_t.getPtr()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureObject_t"><code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureObject_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t.getPtr()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1D</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2D</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType3D</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemap</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1DLayered</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2DLayered</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemapLayered</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1D</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2D</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType3D</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemap</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1DLayered</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2DLayered</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemapLayered</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.CUDA_EGL_MAX_PLANES"><code class="docutils literal notranslate"><span class="pre">runtime.CUDA_EGL_MAX_PLANES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaHostAllocDefault"><code class="docutils literal notranslate"><span class="pre">runtime.cudaHostAllocDefault</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaHostAllocPortable"><code class="docutils literal notranslate"><span class="pre">runtime.cudaHostAllocPortable</span></code></a></li>
@@ -30631,20 +30645,6 @@ order to interpret this field.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttrValue</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1D</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2D</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType3D</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemap</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1DLayered</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2DLayered</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceTypeCubemapLayered</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1D</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2D</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType3D</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureTypeCubemap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemap</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType1DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType1DLayered</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureType2DLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureType2DLayered</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaTextureTypeCubemapLayered"><code class="docutils literal notranslate"><span class="pre">runtime.cudaTextureTypeCubemapLayered</span></code></a></li>
 </ul>
 </li>
 </ul>
