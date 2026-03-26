@@ -27,8 +27,19 @@ from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyB
 
 from cuda.bindings cimport cynvrtc, cynvvm, cynvjitlink
 
-from cuda.core._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
-from cuda.core._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
+try:
+    from cuda.bindings._utils.driver_cu_result_explanations import (
+        _EXPLANATIONS as DRIVER_CU_RESULT_EXPLANATIONS,
+    )
+except ModuleNotFoundError:
+    DRIVER_CU_RESULT_EXPLANATIONS = {}
+
+try:
+    from cuda.bindings._utils.runtime_cuda_error_explanations import (
+        _EXPLANATIONS as RUNTIME_CUDA_ERROR_EXPLANATIONS,
+    )
+except ModuleNotFoundError:
+    RUNTIME_CUDA_ERROR_EXPLANATIONS = {}
 
 
 class CUDAError(Exception):
