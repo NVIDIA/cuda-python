@@ -106,7 +106,7 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: github.event_name == 'TEMPORARY_DISABLED'  # TEMPORARY: only testing Windows 3.14t
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -145,7 +145,7 @@ jobs:
         host-platform:
           - linux-64
     name: Test ${{ matrix.host-platform }}
-    if: github.event_name == 'TEMPORARY_DISABLED'  # TEMPORARY: only testing Windows 3.14t
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
@@ -168,7 +168,7 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Test ${{ matrix.host-platform }}
-    if: github.event_name == 'TEMPORARY_DISABLED'  # TEMPORARY: only testing Windows 3.14t
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
@@ -204,12 +204,11 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      matrix_filter: 'map(select(.PY_VER == "3.14t"))'  # TEMPORARY: only testing Windows 3.14t
       nruns: ${{ (github.event_name == 'schedule' && 100) || 1}}
 
   doc:
     name: Docs
-    if: github.event_name == 'TEMPORARY_DISABLED'  # TEMPORARY: only testing Windows 3.14t
+    if: ${{ github.repository_owner == 'nvidia' }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
