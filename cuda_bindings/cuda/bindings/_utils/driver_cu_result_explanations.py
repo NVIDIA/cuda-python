@@ -6,9 +6,8 @@
 # Replace the dictionary below with the output.
 # Also update the CUDA Toolkit version number below.
 
-_CTK_MAJOR_MINOR_PATCH = (13, 2, 0)
-
-_EXPLANATIONS = {
+# CUDA Toolkit v13.2.0
+DRIVER_CU_RESULT_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
         " also means that the operation being queried is complete (see"
