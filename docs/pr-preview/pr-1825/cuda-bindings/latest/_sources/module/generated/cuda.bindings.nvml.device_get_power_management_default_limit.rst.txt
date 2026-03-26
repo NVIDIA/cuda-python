@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_power\_management\_default\_limit
-=================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_power_management_default_limit
