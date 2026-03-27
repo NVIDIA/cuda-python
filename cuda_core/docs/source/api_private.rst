@@ -16,12 +16,12 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory._buffer.DevicePointerT
-   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
-   _memory._virtual_memory_resource.VirtualMemoryGranularityT
-   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
-   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
+   typing.DevicePointerT
+   typing.VirtualMemoryAllocationTypeT
+   typing.VirtualMemoryLocationTypeT
+   typing.VirtualMemoryGranularityT
+   typing.VirtualMemoryAccessTypeT
+   typing.VirtualMemoryHandleTypeT
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
@@ -41,4 +41,4 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   _stream.IsStreamT
+   typing.IsStreamT
