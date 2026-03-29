@@ -40,6 +40,11 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
             "nvidia/cuda_nvcc/nvvm/libdevice",
         ),
     },
+    "nvshmem_device": {
+        "filename": "libnvshmem_device.bc",
+        "rel_path": "lib",
+        "site_packages_dirs": ("nvidia/nvshmem/lib",),
+    },
 }
 
 # Public API: just the supported library names
