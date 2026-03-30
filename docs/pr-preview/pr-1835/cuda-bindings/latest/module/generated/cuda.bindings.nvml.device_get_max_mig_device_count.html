@@ -1,0 +1,1438 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>cuda.bindings.nvml.device_get_max_mig_device_count &#8212; cuda.bindings</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../../_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=35a8b989"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/generated/cuda.bindings.nvml.device_get_max_mig_device_count';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+
+    <link rel="canonical" href="docs/module/generated/cuda.bindings.nvml.device_get_max_mig_device_count.html" />
+    <link rel="icon" href="../../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cuda.bindings.nvml.device_get_max_pcie_link_generation" href="cuda.bindings.nvml.device_get_max_pcie_link_generation.html" />
+    <link rel="prev" title="cuda.bindings.nvml.device_get_max_customer_boost_clock" href="cuda.bindings.nvml.device_get_max_customer_boost_clock.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/1835">PR 1835</a>!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../license.html">
+    Software License Agreement
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../license.html">
+    Software License Agreement
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.1.1-notes.html">13.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.1.0-notes.html">13.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.0.3-notes.html">13.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.4-notes.html">12.9.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.3-notes.html">12.9.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.2-notes.html">12.9.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.1-notes.html">12.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.0-notes.html">12.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../driver.html">driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../runtime.html">runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nvrtc.html">nvrtc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nvvm.html">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.buf_register.html">cuda.bindings.cufile.buf_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.buf_deregister.html">cuda.bindings.cufile.buf_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.read.html">cuda.bindings.cufile.read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.write.html">cuda.bindings.cufile.write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_open.html">cuda.bindings.cufile.driver_open</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.use_count.html">cuda.bindings.cufile.use_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_get_properties.html">cuda.bindings.cufile.driver_get_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_set_poll_mode.html">cuda.bindings.cufile.driver_set_poll_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_set_max_direct_io_size.html">cuda.bindings.cufile.driver_set_max_direct_io_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_set_max_cache_size.html">cuda.bindings.cufile.driver_set_max_cache_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_set_max_pinned_mem_size.html">cuda.bindings.cufile.driver_set_max_pinned_mem_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.batch_io_set_up.html">cuda.bindings.cufile.batch_io_set_up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.batch_io_submit.html">cuda.bindings.cufile.batch_io_submit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.batch_io_get_status.html">cuda.bindings.cufile.batch_io_get_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.batch_io_cancel.html">cuda.bindings.cufile.batch_io_cancel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.batch_io_destroy.html">cuda.bindings.cufile.batch_io_destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.read_async.html">cuda.bindings.cufile.read_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.write_async.html">cuda.bindings.cufile.write_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.stream_register.html">cuda.bindings.cufile.stream_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.stream_deregister.html">cuda.bindings.cufile.stream_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.get_version.html">cuda.bindings.cufile.get_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.get_parameter_size_t.html">cuda.bindings.cufile.get_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.get_parameter_bool.html">cuda.bindings.cufile.get_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.get_parameter_string.html">cuda.bindings.cufile.get_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.set_parameter_size_t.html">cuda.bindings.cufile.set_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.set_parameter_bool.html">cuda.bindings.cufile.set_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.set_parameter_string.html">cuda.bindings.cufile.set_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.Descr.html">cuda.bindings.cufile.Descr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.IOParams.html">cuda.bindings.cufile.IOParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.OpError.html">cuda.bindings.cufile.OpError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.DriverStatusFlags.html">cuda.bindings.cufile.DriverStatusFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.DriverControlFlags.html">cuda.bindings.cufile.DriverControlFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.FeatureFlags.html">cuda.bindings.cufile.FeatureFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.FileHandleType.html">cuda.bindings.cufile.FileHandleType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.Opcode.html">cuda.bindings.cufile.Opcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.Status.html">cuda.bindings.cufile.Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.BatchMode.html">cuda.bindings.cufile.BatchMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.SizeTConfigParameter.html">cuda.bindings.cufile.SizeTConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.BoolConfigParameter.html">cuda.bindings.cufile.BoolConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.StringConfigParameter.html">cuda.bindings.cufile.StringConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.cufile.cuFileError.html">cuda.bindings.cufile.cuFileError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../nvml.html">nvml</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.compute_instance_destroy.html">cuda.bindings.nvml.compute_instance_destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.compute_instance_get_info_v2.html">cuda.bindings.nvml.compute_instance_get_info_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_clear_accounting_pids.html">cuda.bindings.nvml.device_clear_accounting_pids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_clear_cpu_affinity.html">cuda.bindings.nvml.device_clear_cpu_affinity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_clear_ecc_error_counts.html">cuda.bindings.nvml.device_clear_ecc_error_counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_clear_field_values.html">cuda.bindings.nvml.device_clear_field_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_create_gpu_instance.html">cuda.bindings.nvml.device_create_gpu_instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_create_gpu_instance_with_placement.html">cuda.bindings.nvml.device_create_gpu_instance_with_placement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_discover_gpus.html">cuda.bindings.nvml.device_discover_gpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_accounting_buffer_size.html">cuda.bindings.nvml.device_get_accounting_buffer_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_accounting_mode.html">cuda.bindings.nvml.device_get_accounting_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_accounting_pids.html">cuda.bindings.nvml.device_get_accounting_pids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_accounting_stats.html">cuda.bindings.nvml.device_get_accounting_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_active_vgpus.html">cuda.bindings.nvml.device_get_active_vgpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_adaptive_clock_info_status.html">cuda.bindings.nvml.device_get_adaptive_clock_info_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_addressing_mode.html">cuda.bindings.nvml.device_get_addressing_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_api_restriction.html">cuda.bindings.nvml.device_get_api_restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_architecture.html">cuda.bindings.nvml.device_get_architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_attributes_v2.html">cuda.bindings.nvml.device_get_attributes_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_get_auto_boosted_clocks_enabled</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_bar1_memory_info.html">cuda.bindings.nvml.device_get_bar1_memory_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_board_id.html">cuda.bindings.nvml.device_get_board_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_board_part_number.html">cuda.bindings.nvml.device_get_board_part_number</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_brand.html">cuda.bindings.nvml.device_get_brand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_bridge_chip_info.html">cuda.bindings.nvml.device_get_bridge_chip_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_bus_type.html">cuda.bindings.nvml.device_get_bus_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_c2c_mode_info_v.html">cuda.bindings.nvml.device_get_c2c_mode_info_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_capabilities.html">cuda.bindings.nvml.device_get_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_clk_mon_status.html">cuda.bindings.nvml.device_get_clk_mon_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_clock.html">cuda.bindings.nvml.device_get_clock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_clock_info.html">cuda.bindings.nvml.device_get_clock_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_clock_offsets.html">cuda.bindings.nvml.device_get_clock_offsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_compute_instance_id.html">cuda.bindings.nvml.device_get_compute_instance_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_compute_mode.html">cuda.bindings.nvml.device_get_compute_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_compute_running_processes_v3.html">cuda.bindings.nvml.device_get_compute_running_processes_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_conf_compute_gpu_attestation_report.html">cuda.bindings.nvml.device_get_conf_compute_gpu_attestation_report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_conf_compute_gpu_certificate.html">cuda.bindings.nvml.device_get_conf_compute_gpu_certificate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_conf_compute_mem_size_info.html">cuda.bindings.nvml.device_get_conf_compute_mem_size_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_conf_compute_protected_memory_usage.html">cuda.bindings.nvml.device_get_conf_compute_protected_memory_usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_cooler_info.html">cuda.bindings.nvml.device_get_cooler_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_count_v2.html">cuda.bindings.nvml.device_get_count_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_cpu_affinity.html">cuda.bindings.nvml.device_get_cpu_affinity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_cpu_affinity_within_scope.html">cuda.bindings.nvml.device_get_cpu_affinity_within_scope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_creatable_vgpus.html">cuda.bindings.nvml.device_get_creatable_vgpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_cuda_compute_capability.html">cuda.bindings.nvml.device_get_cuda_compute_capability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_curr_pcie_link_generation.html">cuda.bindings.nvml.device_get_curr_pcie_link_generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_curr_pcie_link_width.html">cuda.bindings.nvml.device_get_curr_pcie_link_width</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_current_clock_freqs.html">cuda.bindings.nvml.device_get_current_clock_freqs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_current_clocks_event_reasons.html">cuda.bindings.nvml.device_get_current_clocks_event_reasons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_decoder_utilization.html">cuda.bindings.nvml.device_get_decoder_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_default_ecc_mode.html">cuda.bindings.nvml.device_get_default_ecc_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_device_handle_from_mig_device_handle.html">cuda.bindings.nvml.device_get_device_handle_from_mig_device_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_display_active.html">cuda.bindings.nvml.device_get_display_active</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_display_mode.html">cuda.bindings.nvml.device_get_display_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_dram_encryption_mode.html">cuda.bindings.nvml.device_get_dram_encryption_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_driver_model_v2.html">cuda.bindings.nvml.device_get_driver_model_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_dynamic_pstates_info.html">cuda.bindings.nvml.device_get_dynamic_pstates_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_ecc_mode.html">cuda.bindings.nvml.device_get_ecc_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_encoder_capacity.html">cuda.bindings.nvml.device_get_encoder_capacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_encoder_sessions.html">cuda.bindings.nvml.device_get_encoder_sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_encoder_stats.html">cuda.bindings.nvml.device_get_encoder_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_encoder_utilization.html">cuda.bindings.nvml.device_get_encoder_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_enforced_power_limit.html">cuda.bindings.nvml.device_get_enforced_power_limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_fan_control_policy_v2.html">cuda.bindings.nvml.device_get_fan_control_policy_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_fan_speed.html">cuda.bindings.nvml.device_get_fan_speed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_fan_speed_rpm.html">cuda.bindings.nvml.device_get_fan_speed_rpm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_fan_speed_v2.html">cuda.bindings.nvml.device_get_fan_speed_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_fbc_sessions.html">cuda.bindings.nvml.device_get_fbc_sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_fbc_stats.html">cuda.bindings.nvml.device_get_fbc_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_field_values.html">cuda.bindings.nvml.device_get_field_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpc_clk_min_max_vf_offset.html">cuda.bindings.nvml.device_get_gpc_clk_min_max_vf_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpc_clk_vf_offset.html">cuda.bindings.nvml.device_get_gpc_clk_vf_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_fabric_info_v.html">cuda.bindings.nvml.device_get_gpu_fabric_info_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instance_by_id.html">cuda.bindings.nvml.device_get_gpu_instance_by_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instance_id.html">cuda.bindings.nvml.device_get_gpu_instance_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instance_possible_placements_v2.html">cuda.bindings.nvml.device_get_gpu_instance_possible_placements_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instance_profile_info_by_id_v.html">cuda.bindings.nvml.device_get_gpu_instance_profile_info_by_id_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instance_profile_info_v.html">cuda.bindings.nvml.device_get_gpu_instance_profile_info_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instance_remaining_capacity.html">cuda.bindings.nvml.device_get_gpu_instance_remaining_capacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_instances.html">cuda.bindings.nvml.device_get_gpu_instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_max_pcie_link_generation.html">cuda.bindings.nvml.device_get_gpu_max_pcie_link_generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gpu_operation_mode.html">cuda.bindings.nvml.device_get_gpu_operation_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_grid_licensable_features_v4.html">cuda.bindings.nvml.device_get_grid_licensable_features_v4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gsp_firmware_mode.html">cuda.bindings.nvml.device_get_gsp_firmware_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_gsp_firmware_version.html">cuda.bindings.nvml.device_get_gsp_firmware_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_handle_by_index_v2.html">cuda.bindings.nvml.device_get_handle_by_index_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_handle_by_pci_bus_id_v2.html">cuda.bindings.nvml.device_get_handle_by_pci_bus_id_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_handle_by_serial.html">cuda.bindings.nvml.device_get_handle_by_serial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_handle_by_uuid.html">cuda.bindings.nvml.device_get_handle_by_uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_handle_by_uuidv.html">cuda.bindings.nvml.device_get_handle_by_uuidv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_host_vgpu_mode.html">cuda.bindings.nvml.device_get_host_vgpu_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_hostname_v1.html">cuda.bindings.nvml.device_get_hostname_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_index.html">cuda.bindings.nvml.device_get_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_inforom_configuration_checksum.html">cuda.bindings.nvml.device_get_inforom_configuration_checksum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_inforom_image_version.html">cuda.bindings.nvml.device_get_inforom_image_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_inforom_version.html">cuda.bindings.nvml.device_get_inforom_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_irq_num.html">cuda.bindings.nvml.device_get_irq_num</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_jpg_utilization.html">cuda.bindings.nvml.device_get_jpg_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_last_bbx_flush_time.html">cuda.bindings.nvml.device_get_last_bbx_flush_time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_margin_temperature.html">cuda.bindings.nvml.device_get_margin_temperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_max_clock_info.html">cuda.bindings.nvml.device_get_max_clock_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_max_customer_boost_clock.html">cuda.bindings.nvml.device_get_max_customer_boost_clock</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">cuda.bindings.nvml.device_get_max_mig_device_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_max_pcie_link_generation.html">cuda.bindings.nvml.device_get_max_pcie_link_generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_max_pcie_link_width.html">cuda.bindings.nvml.device_get_max_pcie_link_width</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_mem_clk_min_max_vf_offset.html">cuda.bindings.nvml.device_get_mem_clk_min_max_vf_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_mem_clk_vf_offset.html">cuda.bindings.nvml.device_get_mem_clk_vf_offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_memory_affinity.html">cuda.bindings.nvml.device_get_memory_affinity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_memory_bus_width.html">cuda.bindings.nvml.device_get_memory_bus_width</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_memory_error_counter.html">cuda.bindings.nvml.device_get_memory_error_counter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_memory_info_v2.html">cuda.bindings.nvml.device_get_memory_info_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_mig_device_handle_by_index.html">cuda.bindings.nvml.device_get_mig_device_handle_by_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_mig_mode.html">cuda.bindings.nvml.device_get_mig_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_min_max_clock_of_p_state.html">cuda.bindings.nvml.device_get_min_max_clock_of_p_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_min_max_fan_speed.html">cuda.bindings.nvml.device_get_min_max_fan_speed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_minor_number.html">cuda.bindings.nvml.device_get_minor_number</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_module_id.html">cuda.bindings.nvml.device_get_module_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_mps_compute_running_processes_v3.html">cuda.bindings.nvml.device_get_mps_compute_running_processes_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_multi_gpu_board.html">cuda.bindings.nvml.device_get_multi_gpu_board</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_name.html">cuda.bindings.nvml.device_get_name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_num_fans.html">cuda.bindings.nvml.device_get_num_fans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_num_gpu_cores.html">cuda.bindings.nvml.device_get_num_gpu_cores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_numa_node_id.html">cuda.bindings.nvml.device_get_numa_node_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_bw_mode.html">cuda.bindings.nvml.device_get_nvlink_bw_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_capability.html">cuda.bindings.nvml.device_get_nvlink_capability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_error_counter.html">cuda.bindings.nvml.device_get_nvlink_error_counter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_info.html">cuda.bindings.nvml.device_get_nvlink_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_remote_device_type.html">cuda.bindings.nvml.device_get_nvlink_remote_device_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_remote_pci_info_v2.html">cuda.bindings.nvml.device_get_nvlink_remote_pci_info_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_state.html">cuda.bindings.nvml.device_get_nvlink_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_supported_bw_modes.html">cuda.bindings.nvml.device_get_nvlink_supported_bw_modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_nvlink_version.html">cuda.bindings.nvml.device_get_nvlink_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_ofa_utilization.html">cuda.bindings.nvml.device_get_ofa_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_p2p_status.html">cuda.bindings.nvml.device_get_p2p_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pci_info_ext.html">cuda.bindings.nvml.device_get_pci_info_ext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pci_info_v3.html">cuda.bindings.nvml.device_get_pci_info_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pcie_link_max_speed.html">cuda.bindings.nvml.device_get_pcie_link_max_speed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pcie_replay_counter.html">cuda.bindings.nvml.device_get_pcie_replay_counter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pcie_speed.html">cuda.bindings.nvml.device_get_pcie_speed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pcie_throughput.html">cuda.bindings.nvml.device_get_pcie_throughput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pdi.html">cuda.bindings.nvml.device_get_pdi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_performance_modes.html">cuda.bindings.nvml.device_get_performance_modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_performance_state.html">cuda.bindings.nvml.device_get_performance_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_persistence_mode.html">cuda.bindings.nvml.device_get_persistence_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_pgpu_metadata_string.html">cuda.bindings.nvml.device_get_pgpu_metadata_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_platform_info.html">cuda.bindings.nvml.device_get_platform_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_management_default_limit.html">cuda.bindings.nvml.device_get_power_management_default_limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_management_limit.html">cuda.bindings.nvml.device_get_power_management_limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_management_limit_constraints.html">cuda.bindings.nvml.device_get_power_management_limit_constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_mizer_mode_v1.html">cuda.bindings.nvml.device_get_power_mizer_mode_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_source.html">cuda.bindings.nvml.device_get_power_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_state.html">cuda.bindings.nvml.device_get_power_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_power_usage.html">cuda.bindings.nvml.device_get_power_usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_process_utilization.html">cuda.bindings.nvml.device_get_process_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_processes_utilization_info.html">cuda.bindings.nvml.device_get_processes_utilization_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_remapped_rows.html">cuda.bindings.nvml.device_get_remapped_rows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_repair_status.html">cuda.bindings.nvml.device_get_repair_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_retired_pages.html">cuda.bindings.nvml.device_get_retired_pages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_retired_pages_pending_status.html">cuda.bindings.nvml.device_get_retired_pages_pending_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_retired_pages_v2.html">cuda.bindings.nvml.device_get_retired_pages_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_row_remapper_histogram.html">cuda.bindings.nvml.device_get_row_remapper_histogram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_running_process_detail_list.html">cuda.bindings.nvml.device_get_running_process_detail_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_samples.html">cuda.bindings.nvml.device_get_samples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_serial.html">cuda.bindings.nvml.device_get_serial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_sram_ecc_error_status.html">cuda.bindings.nvml.device_get_sram_ecc_error_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_sram_unique_uncorrected_ecc_error_counts.html">cuda.bindings.nvml.device_get_sram_unique_uncorrected_ecc_error_counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_supported_clocks_event_reasons.html">cuda.bindings.nvml.device_get_supported_clocks_event_reasons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_supported_event_types.html">cuda.bindings.nvml.device_get_supported_event_types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_supported_graphics_clocks.html">cuda.bindings.nvml.device_get_supported_graphics_clocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_supported_memory_clocks.html">cuda.bindings.nvml.device_get_supported_memory_clocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_supported_performance_states.html">cuda.bindings.nvml.device_get_supported_performance_states</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_supported_vgpus.html">cuda.bindings.nvml.device_get_supported_vgpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_target_fan_speed.html">cuda.bindings.nvml.device_get_target_fan_speed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_temperature_threshold.html">cuda.bindings.nvml.device_get_temperature_threshold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_temperature_v.html">cuda.bindings.nvml.device_get_temperature_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_thermal_settings.html">cuda.bindings.nvml.device_get_thermal_settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_topology_common_ancestor.html">cuda.bindings.nvml.device_get_topology_common_ancestor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_topology_nearest_gpus.html">cuda.bindings.nvml.device_get_topology_nearest_gpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_total_ecc_errors.html">cuda.bindings.nvml.device_get_total_ecc_errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_total_energy_consumption.html">cuda.bindings.nvml.device_get_total_energy_consumption</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_unrepairable_memory_flag_v1.html">cuda.bindings.nvml.device_get_unrepairable_memory_flag_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_utilization_rates.html">cuda.bindings.nvml.device_get_utilization_rates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_uuid.html">cuda.bindings.nvml.device_get_uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vbios_version.html">cuda.bindings.nvml.device_get_vbios_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_capabilities.html">cuda.bindings.nvml.device_get_vgpu_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_heterogeneous_mode.html">cuda.bindings.nvml.device_get_vgpu_heterogeneous_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_instances_utilization_info.html">cuda.bindings.nvml.device_get_vgpu_instances_utilization_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_metadata.html">cuda.bindings.nvml.device_get_vgpu_metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_process_utilization.html">cuda.bindings.nvml.device_get_vgpu_process_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_processes_utilization_info.html">cuda.bindings.nvml.device_get_vgpu_processes_utilization_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_scheduler_capabilities.html">cuda.bindings.nvml.device_get_vgpu_scheduler_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_scheduler_log.html">cuda.bindings.nvml.device_get_vgpu_scheduler_log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_scheduler_state.html">cuda.bindings.nvml.device_get_vgpu_scheduler_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_type_creatable_placements.html">cuda.bindings.nvml.device_get_vgpu_type_creatable_placements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_type_supported_placements.html">cuda.bindings.nvml.device_get_vgpu_type_supported_placements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_vgpu_utilization.html">cuda.bindings.nvml.device_get_vgpu_utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_get_virtualization_mode.html">cuda.bindings.nvml.device_get_virtualization_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_is_mig_device_handle.html">cuda.bindings.nvml.device_is_mig_device_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_modify_drain_state.html">cuda.bindings.nvml.device_modify_drain_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_on_same_board.html">cuda.bindings.nvml.device_on_same_board</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_power_smoothing_activate_preset_profile.html">cuda.bindings.nvml.device_power_smoothing_activate_preset_profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_power_smoothing_set_state.html">cuda.bindings.nvml.device_power_smoothing_set_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param.html">cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_query_drain_state.html">cuda.bindings.nvml.device_query_drain_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_read_prm_counters_v1.html">cuda.bindings.nvml.device_read_prm_counters_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_read_write_prm_v1.html">cuda.bindings.nvml.device_read_write_prm_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_register_events.html">cuda.bindings.nvml.device_register_events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_remove_gpu_v2.html">cuda.bindings.nvml.device_remove_gpu_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_reset_gpu_locked_clocks.html">cuda.bindings.nvml.device_reset_gpu_locked_clocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_reset_memory_locked_clocks.html">cuda.bindings.nvml.device_reset_memory_locked_clocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_reset_nvlink_error_counters.html">cuda.bindings.nvml.device_reset_nvlink_error_counters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_accounting_mode.html">cuda.bindings.nvml.device_set_accounting_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_api_restriction.html">cuda.bindings.nvml.device_set_api_restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_set_auto_boosted_clocks_enabled</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_clock_offsets.html">cuda.bindings.nvml.device_set_clock_offsets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_compute_mode.html">cuda.bindings.nvml.device_set_compute_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_conf_compute_unprotected_mem_size.html">cuda.bindings.nvml.device_set_conf_compute_unprotected_mem_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_cpu_affinity.html">cuda.bindings.nvml.device_set_cpu_affinity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_default_auto_boosted_clocks_enabled.html">cuda.bindings.nvml.device_set_default_auto_boosted_clocks_enabled</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_default_fan_speed_v2.html">cuda.bindings.nvml.device_set_default_fan_speed_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_dram_encryption_mode.html">cuda.bindings.nvml.device_set_dram_encryption_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_driver_model.html">cuda.bindings.nvml.device_set_driver_model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_ecc_mode.html">cuda.bindings.nvml.device_set_ecc_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_fan_control_policy.html">cuda.bindings.nvml.device_set_fan_control_policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_fan_speed_v2.html">cuda.bindings.nvml.device_set_fan_speed_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_gpu_locked_clocks.html">cuda.bindings.nvml.device_set_gpu_locked_clocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_gpu_operation_mode.html">cuda.bindings.nvml.device_set_gpu_operation_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_hostname_v1.html">cuda.bindings.nvml.device_set_hostname_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_memory_locked_clocks.html">cuda.bindings.nvml.device_set_memory_locked_clocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_mig_mode.html">cuda.bindings.nvml.device_set_mig_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_nvlink_bw_mode.html">cuda.bindings.nvml.device_set_nvlink_bw_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold.html">cuda.bindings.nvml.device_set_nvlink_device_low_power_threshold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_persistence_mode.html">cuda.bindings.nvml.device_set_persistence_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_power_management_limit_v2.html">cuda.bindings.nvml.device_set_power_management_limit_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_power_mizer_mode_v1.html">cuda.bindings.nvml.device_set_power_mizer_mode_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_rusd_settings_v1.html">cuda.bindings.nvml.device_set_rusd_settings_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_temperature_threshold.html">cuda.bindings.nvml.device_set_temperature_threshold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_vgpu_capabilities.html">cuda.bindings.nvml.device_set_vgpu_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_vgpu_heterogeneous_mode.html">cuda.bindings.nvml.device_set_vgpu_heterogeneous_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_vgpu_scheduler_state.html">cuda.bindings.nvml.device_set_vgpu_scheduler_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_set_virtualization_mode.html">cuda.bindings.nvml.device_set_virtualization_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.device_validate_inforom.html">cuda.bindings.nvml.device_validate_inforom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.error_string.html">cuda.bindings.nvml.error_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.event_set_create.html">cuda.bindings.nvml.event_set_create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.event_set_free.html">cuda.bindings.nvml.event_set_free</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.event_set_wait_v2.html">cuda.bindings.nvml.event_set_wait_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.get_excluded_device_count.html">cuda.bindings.nvml.get_excluded_device_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.get_excluded_device_info_by_index.html">cuda.bindings.nvml.get_excluded_device_info_by_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.get_vgpu_compatibility.html">cuda.bindings.nvml.get_vgpu_compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.get_vgpu_driver_capabilities.html">cuda.bindings.nvml.get_vgpu_driver_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.get_vgpu_version.html">cuda.bindings.nvml.get_vgpu_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_create_compute_instance.html">cuda.bindings.nvml.gpu_instance_create_compute_instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_create_compute_instance_with_placement.html">cuda.bindings.nvml.gpu_instance_create_compute_instance_with_placement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_destroy.html">cuda.bindings.nvml.gpu_instance_destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_active_vgpus.html">cuda.bindings.nvml.gpu_instance_get_active_vgpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_compute_instance_by_id.html">cuda.bindings.nvml.gpu_instance_get_compute_instance_by_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_compute_instance_possible_placements.html">cuda.bindings.nvml.gpu_instance_get_compute_instance_possible_placements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_compute_instance_profile_info_v.html">cuda.bindings.nvml.gpu_instance_get_compute_instance_profile_info_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_compute_instance_remaining_capacity.html">cuda.bindings.nvml.gpu_instance_get_compute_instance_remaining_capacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_compute_instances.html">cuda.bindings.nvml.gpu_instance_get_compute_instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_creatable_vgpus.html">cuda.bindings.nvml.gpu_instance_get_creatable_vgpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_info.html">cuda.bindings.nvml.gpu_instance_get_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_vgpu_heterogeneous_mode.html">cuda.bindings.nvml.gpu_instance_get_vgpu_heterogeneous_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_vgpu_scheduler_log.html">cuda.bindings.nvml.gpu_instance_get_vgpu_scheduler_log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_vgpu_scheduler_state.html">cuda.bindings.nvml.gpu_instance_get_vgpu_scheduler_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_get_vgpu_type_creatable_placements.html">cuda.bindings.nvml.gpu_instance_get_vgpu_type_creatable_placements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_set_vgpu_heterogeneous_mode.html">cuda.bindings.nvml.gpu_instance_set_vgpu_heterogeneous_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.gpu_instance_set_vgpu_scheduler_state.html">cuda.bindings.nvml.gpu_instance_set_vgpu_scheduler_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.init_v2.html">cuda.bindings.nvml.init_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.init_with_flags.html">cuda.bindings.nvml.init_with_flags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.set_vgpu_version.html">cuda.bindings.nvml.set_vgpu_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.shutdown.html">cuda.bindings.nvml.shutdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_event_set_create.html">cuda.bindings.nvml.system_event_set_create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_event_set_free.html">cuda.bindings.nvml.system_event_set_free</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_event_set_wait.html">cuda.bindings.nvml.system_event_set_wait</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_conf_compute_capabilities.html">cuda.bindings.nvml.system_get_conf_compute_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_conf_compute_gpus_ready_state.html">cuda.bindings.nvml.system_get_conf_compute_gpus_ready_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_conf_compute_key_rotation_threshold_info.html">cuda.bindings.nvml.system_get_conf_compute_key_rotation_threshold_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_conf_compute_settings.html">cuda.bindings.nvml.system_get_conf_compute_settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_conf_compute_state.html">cuda.bindings.nvml.system_get_conf_compute_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_cuda_driver_version.html">cuda.bindings.nvml.system_get_cuda_driver_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_cuda_driver_version_v2.html">cuda.bindings.nvml.system_get_cuda_driver_version_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_driver_branch.html">cuda.bindings.nvml.system_get_driver_branch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_driver_version.html">cuda.bindings.nvml.system_get_driver_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_hic_version.html">cuda.bindings.nvml.system_get_hic_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_nvlink_bw_mode.html">cuda.bindings.nvml.system_get_nvlink_bw_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_nvml_version.html">cuda.bindings.nvml.system_get_nvml_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_process_name.html">cuda.bindings.nvml.system_get_process_name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_get_topology_gpu_set.html">cuda.bindings.nvml.system_get_topology_gpu_set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_register_events.html">cuda.bindings.nvml.system_register_events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_set_conf_compute_gpus_ready_state.html">cuda.bindings.nvml.system_set_conf_compute_gpus_ready_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_set_conf_compute_key_rotation_threshold_info.html">cuda.bindings.nvml.system_set_conf_compute_key_rotation_threshold_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.system_set_nvlink_bw_mode.html">cuda.bindings.nvml.system_set_nvlink_bw_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_count.html">cuda.bindings.nvml.unit_get_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_devices.html">cuda.bindings.nvml.unit_get_devices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_fan_speed_info.html">cuda.bindings.nvml.unit_get_fan_speed_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_handle_by_index.html">cuda.bindings.nvml.unit_get_handle_by_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_led_state.html">cuda.bindings.nvml.unit_get_led_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_psu_info.html">cuda.bindings.nvml.unit_get_psu_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_temperature.html">cuda.bindings.nvml.unit_get_temperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_get_unit_info.html">cuda.bindings.nvml.unit_get_unit_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.unit_set_led_state.html">cuda.bindings.nvml.unit_set_led_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_clear_accounting_pids.html">cuda.bindings.nvml.vgpu_instance_clear_accounting_pids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_accounting_mode.html">cuda.bindings.nvml.vgpu_instance_get_accounting_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_accounting_pids.html">cuda.bindings.nvml.vgpu_instance_get_accounting_pids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_accounting_stats.html">cuda.bindings.nvml.vgpu_instance_get_accounting_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_ecc_mode.html">cuda.bindings.nvml.vgpu_instance_get_ecc_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_encoder_capacity.html">cuda.bindings.nvml.vgpu_instance_get_encoder_capacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_encoder_sessions.html">cuda.bindings.nvml.vgpu_instance_get_encoder_sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_encoder_stats.html">cuda.bindings.nvml.vgpu_instance_get_encoder_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_fb_usage.html">cuda.bindings.nvml.vgpu_instance_get_fb_usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_fbc_sessions.html">cuda.bindings.nvml.vgpu_instance_get_fbc_sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_fbc_stats.html">cuda.bindings.nvml.vgpu_instance_get_fbc_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_frame_rate_limit.html">cuda.bindings.nvml.vgpu_instance_get_frame_rate_limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_gpu_instance_id.html">cuda.bindings.nvml.vgpu_instance_get_gpu_instance_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_gpu_pci_id.html">cuda.bindings.nvml.vgpu_instance_get_gpu_pci_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_license_info_v2.html">cuda.bindings.nvml.vgpu_instance_get_license_info_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_license_status.html">cuda.bindings.nvml.vgpu_instance_get_license_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_mdev_uuid.html">cuda.bindings.nvml.vgpu_instance_get_mdev_uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_metadata.html">cuda.bindings.nvml.vgpu_instance_get_metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_placement_id.html">cuda.bindings.nvml.vgpu_instance_get_placement_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_runtime_state_size.html">cuda.bindings.nvml.vgpu_instance_get_runtime_state_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_type.html">cuda.bindings.nvml.vgpu_instance_get_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_uuid.html">cuda.bindings.nvml.vgpu_instance_get_uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_vm_driver_version.html">cuda.bindings.nvml.vgpu_instance_get_vm_driver_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_get_vm_id.html">cuda.bindings.nvml.vgpu_instance_get_vm_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_instance_set_encoder_capacity.html">cuda.bindings.nvml.vgpu_instance_set_encoder_capacity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_bar1_info.html">cuda.bindings.nvml.vgpu_type_get_bar1_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_capabilities.html">cuda.bindings.nvml.vgpu_type_get_capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_class.html">cuda.bindings.nvml.vgpu_type_get_class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_device_id.html">cuda.bindings.nvml.vgpu_type_get_device_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_fb_reservation.html">cuda.bindings.nvml.vgpu_type_get_fb_reservation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_frame_rate_limit.html">cuda.bindings.nvml.vgpu_type_get_frame_rate_limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_framebuffer_size.html">cuda.bindings.nvml.vgpu_type_get_framebuffer_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_gpu_instance_profile_id.html">cuda.bindings.nvml.vgpu_type_get_gpu_instance_profile_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_gsp_heap_size.html">cuda.bindings.nvml.vgpu_type_get_gsp_heap_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_license.html">cuda.bindings.nvml.vgpu_type_get_license</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_max_instances.html">cuda.bindings.nvml.vgpu_type_get_max_instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_max_instances_per_gpu_instance.html">cuda.bindings.nvml.vgpu_type_get_max_instances_per_gpu_instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_max_instances_per_vm.html">cuda.bindings.nvml.vgpu_type_get_max_instances_per_vm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_name.html">cuda.bindings.nvml.vgpu_type_get_name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_num_display_heads.html">cuda.bindings.nvml.vgpu_type_get_num_display_heads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.vgpu_type_get_resolution.html">cuda.bindings.nvml.vgpu_type_get_resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.AdaptiveClockingInfoStatus.html">cuda.bindings.nvml.AdaptiveClockingInfoStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.AffinityScope.html">cuda.bindings.nvml.AffinityScope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.BrandType.html">cuda.bindings.nvml.BrandType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.BridgeChipType.html">cuda.bindings.nvml.BridgeChipType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.BusType.html">cuda.bindings.nvml.BusType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.C2CPowerState.html">cuda.bindings.nvml.C2CPowerState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCAcceptingClientRequests.html">cuda.bindings.nvml.CCAcceptingClientRequests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCSystemCpuCaps.html">cuda.bindings.nvml.CCSystemCpuCaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCSystemDevtoolsMode.html">cuda.bindings.nvml.CCSystemDevtoolsMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCSystemEnvironment.html">cuda.bindings.nvml.CCSystemEnvironment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCSystemFeature.html">cuda.bindings.nvml.CCSystemFeature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCSystemGpus.html">cuda.bindings.nvml.CCSystemGpus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CCSystemMultiGpu.html">cuda.bindings.nvml.CCSystemMultiGpu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClockId.html">cuda.bindings.nvml.ClockId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClockLimitId.html">cuda.bindings.nvml.ClockLimitId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClocksEventReasons.html">cuda.bindings.nvml.ClocksEventReasons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClockType.html">cuda.bindings.nvml.ClockType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstanceEngineProfile.html">cuda.bindings.nvml.ComputeInstanceEngineProfile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstanceProfile.html">cuda.bindings.nvml.ComputeInstanceProfile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstanceProfileCaps.html">cuda.bindings.nvml.ComputeInstanceProfileCaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeMode.html">cuda.bindings.nvml.ComputeMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CoolerControl.html">cuda.bindings.nvml.CoolerControl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CoolerTarget.html">cuda.bindings.nvml.CoolerTarget</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DetachGpuState.html">cuda.bindings.nvml.DetachGpuState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceAddressingModeType.html">cuda.bindings.nvml.DeviceAddressingModeType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceArch.html">cuda.bindings.nvml.DeviceArch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceGpuRecoveryAction.html">cuda.bindings.nvml.DeviceGpuRecoveryAction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceMig.html">cuda.bindings.nvml.DeviceMig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceVgpuCapability.html">cuda.bindings.nvml.DeviceVgpuCapability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DriverModel.html">cuda.bindings.nvml.DriverModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EccCounterType.html">cuda.bindings.nvml.EccCounterType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EnableState.html">cuda.bindings.nvml.EnableState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EncoderQuery.html">cuda.bindings.nvml.EncoderQuery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EncoderType.html">cuda.bindings.nvml.EncoderType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EventType.html">cuda.bindings.nvml.EventType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FanControlPolicy.html">cuda.bindings.nvml.FanControlPolicy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FanState.html">cuda.bindings.nvml.FanState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FBCSessionType.html">cuda.bindings.nvml.FBCSessionType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FieldId.html">cuda.bindings.nvml.FieldId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpmMetricId.html">cuda.bindings.nvml.GpmMetricId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricHealthMaskAccessTimeout.html">cuda.bindings.nvml.GpuFabricHealthMaskAccessTimeout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricHealthMaskDegradedBw.html">cuda.bindings.nvml.GpuFabricHealthMaskDegradedBw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricHealthMaskIncorrectConfiguration.html">cuda.bindings.nvml.GpuFabricHealthMaskIncorrectConfiguration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricHealthMaskRouteRecovery.html">cuda.bindings.nvml.GpuFabricHealthMaskRouteRecovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricHealthMaskRouteUnhealthy.html">cuda.bindings.nvml.GpuFabricHealthMaskRouteUnhealthy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricHealthSummary.html">cuda.bindings.nvml.GpuFabricHealthSummary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricState.html">cuda.bindings.nvml.GpuFabricState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuInstanceProfile.html">cuda.bindings.nvml.GpuInstanceProfile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuInstanceProfileCaps.html">cuda.bindings.nvml.GpuInstanceProfileCaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuOperationMode.html">cuda.bindings.nvml.GpuOperationMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuP2PCapsIndex.html">cuda.bindings.nvml.GpuP2PCapsIndex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuP2PStatus.html">cuda.bindings.nvml.GpuP2PStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuTopologyLevel.html">cuda.bindings.nvml.GpuTopologyLevel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuUtilizationDomainId.html">cuda.bindings.nvml.GpuUtilizationDomainId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuVirtualizationMode.html">cuda.bindings.nvml.GpuVirtualizationMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GridLicenseExpiryEnum.html">cuda.bindings.nvml.GridLicenseExpiryEnum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GridLicenseFeatureCode.html">cuda.bindings.nvml.GridLicenseFeatureCode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GridLicenseState.html">cuda.bindings.nvml.GridLicenseState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.HostVgpuMode.html">cuda.bindings.nvml.HostVgpuMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InforomObject.html">cuda.bindings.nvml.InforomObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InitFlag.html">cuda.bindings.nvml.InitFlag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.IntNvLinkDeviceType.html">cuda.bindings.nvml.IntNvLinkDeviceType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.LedColor.html">cuda.bindings.nvml.LedColor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.MemoryErrorType.html">cuda.bindings.nvml.MemoryErrorType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.MemoryLocation.html">cuda.bindings.nvml.MemoryLocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvFBCSessionFlag.html">cuda.bindings.nvml.NvFBCSessionFlag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvLinkCapability.html">cuda.bindings.nvml.NvLinkCapability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvLinkErrorCounter.html">cuda.bindings.nvml.NvLinkErrorCounter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkFirmwareUcodeType.html">cuda.bindings.nvml.NvlinkFirmwareUcodeType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkLowPowerThreshold.html">cuda.bindings.nvml.NvlinkLowPowerThreshold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkLowPowerThresholdUnit.html">cuda.bindings.nvml.NvlinkLowPowerThresholdUnit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkPowerState.html">cuda.bindings.nvml.NvlinkPowerState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkState.html">cuda.bindings.nvml.NvlinkState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvLinkUtilizationCountPktTypes.html">cuda.bindings.nvml.NvLinkUtilizationCountPktTypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvLinkUtilizationCountUnits.html">cuda.bindings.nvml.NvLinkUtilizationCountUnits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkVersion.html">cuda.bindings.nvml.NvlinkVersion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PageRetirementCause.html">cuda.bindings.nvml.PageRetirementCause</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PcieAtomicsCap.html">cuda.bindings.nvml.PcieAtomicsCap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PcieLinkMaxSpeed.html">cuda.bindings.nvml.PcieLinkMaxSpeed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PcieLinkState.html">cuda.bindings.nvml.PcieLinkState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PcieUtilCounter.html">cuda.bindings.nvml.PcieUtilCounter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PerfPolicyType.html">cuda.bindings.nvml.PerfPolicyType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PowerMizerMode.html">cuda.bindings.nvml.PowerMizerMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PowerProfileOperation.html">cuda.bindings.nvml.PowerProfileOperation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PowerProfileType.html">cuda.bindings.nvml.PowerProfileType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PowerScope.html">cuda.bindings.nvml.PowerScope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PowerSmoothingProfileParam.html">cuda.bindings.nvml.PowerSmoothingProfileParam</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PowerSource.html">cuda.bindings.nvml.PowerSource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PRMCounterId.html">cuda.bindings.nvml.PRMCounterId</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Pstates.html">cuda.bindings.nvml.Pstates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.RestrictedAPI.html">cuda.bindings.nvml.RestrictedAPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Return.html">cuda.bindings.nvml.Return</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.RUSD.html">cuda.bindings.nvml.RUSD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.SamplingType.html">cuda.bindings.nvml.SamplingType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.SystemEventType.html">cuda.bindings.nvml.SystemEventType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.TemperatureSensors.html">cuda.bindings.nvml.TemperatureSensors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.TemperatureThresholds.html">cuda.bindings.nvml.TemperatureThresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ThermalController.html">cuda.bindings.nvml.ThermalController</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ThermalTarget.html">cuda.bindings.nvml.ThermalTarget</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.UUIDType.html">cuda.bindings.nvml.UUIDType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ValueType.html">cuda.bindings.nvml.ValueType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuCapability.html">cuda.bindings.nvml.VgpuCapability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuDriverCapability.html">cuda.bindings.nvml.VgpuDriverCapability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuGuestInfoState.html">cuda.bindings.nvml.VgpuGuestInfoState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuPgpu.html">cuda.bindings.nvml.VgpuPgpu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuPgpuCompatibilityLimitCode.html">cuda.bindings.nvml.VgpuPgpuCompatibilityLimitCode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuPgpuVirtualizationCapMigration.html">cuda.bindings.nvml.VgpuPgpuVirtualizationCapMigration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerArr.html">cuda.bindings.nvml.VgpuSchedulerArr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerEngineType.html">cuda.bindings.nvml.VgpuSchedulerEngineType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerPolicy.html">cuda.bindings.nvml.VgpuSchedulerPolicy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuVirtualizationCapMigration.html">cuda.bindings.nvml.VgpuVirtualizationCapMigration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuVmCompatibility.html">cuda.bindings.nvml.VgpuVmCompatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuVmIdType.html">cuda.bindings.nvml.VgpuVmIdType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.AccountingStats.html">cuda.bindings.nvml.AccountingStats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1.html">cuda.bindings.nvml.ActiveVgpuInstanceInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.BAR1Memory.html">cuda.bindings.nvml.BAR1Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.BridgeChipHierarchy.html">cuda.bindings.nvml.BridgeChipHierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.BridgeChipInfo.html">cuda.bindings.nvml.BridgeChipInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.C2cModeInfo_v1.html">cuda.bindings.nvml.C2cModeInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClkMonFaultInfo.html">cuda.bindings.nvml.ClkMonFaultInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClkMonStatus.html">cuda.bindings.nvml.ClkMonStatus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ClockOffset_v1.html">cuda.bindings.nvml.ClockOffset_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstanceInfo.html">cuda.bindings.nvml.ComputeInstanceInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstancePlacement.html">cuda.bindings.nvml.ComputeInstancePlacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstanceProfileInfo_v2.html">cuda.bindings.nvml.ComputeInstanceProfileInfo_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ComputeInstanceProfileInfo_v3.html">cuda.bindings.nvml.ComputeInstanceProfileInfo_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ConfComputeGpuAttestationReport.html">cuda.bindings.nvml.ConfComputeGpuAttestationReport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ConfComputeGpuCertificate.html">cuda.bindings.nvml.ConfComputeGpuCertificate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ConfComputeMemSizeInfo.html">cuda.bindings.nvml.ConfComputeMemSizeInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ConfComputeSystemCaps.html">cuda.bindings.nvml.ConfComputeSystemCaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ConfComputeSystemState.html">cuda.bindings.nvml.ConfComputeSystemState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CoolerInfo_v1.html">cuda.bindings.nvml.CoolerInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceAddressingMode_v1.html">cuda.bindings.nvml.DeviceAddressingMode_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeviceAttributes.html">cuda.bindings.nvml.DeviceAttributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DevicePowerMizerModes_v1.html">cuda.bindings.nvml.DevicePowerMizerModes_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EccSramErrorStatus_v1.html">cuda.bindings.nvml.EccSramErrorStatus_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EccSramUniqueUncorrectedErrorCounts_v1.html">cuda.bindings.nvml.EccSramUniqueUncorrectedErrorCounts_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry_v1.html">cuda.bindings.nvml.EccSramUniqueUncorrectedErrorEntry_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EncoderSessionInfo.html">cuda.bindings.nvml.EncoderSessionInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.EventData.html">cuda.bindings.nvml.EventData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ExcludedDeviceInfo.html">cuda.bindings.nvml.ExcludedDeviceInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FBCSessionInfo.html">cuda.bindings.nvml.FBCSessionInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FBCStats.html">cuda.bindings.nvml.FBCStats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FieldValue.html">cuda.bindings.nvml.FieldValue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuDynamicPstatesInfo.html">cuda.bindings.nvml.GpuDynamicPstatesInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricInfo_v2.html">cuda.bindings.nvml.GpuFabricInfo_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuFabricInfo_v3.html">cuda.bindings.nvml.GpuFabricInfo_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuInstanceInfo.html">cuda.bindings.nvml.GpuInstanceInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuInstancePlacement.html">cuda.bindings.nvml.GpuInstancePlacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuInstanceProfileInfo_v3.html">cuda.bindings.nvml.GpuInstanceProfileInfo_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuThermalSettings.html">cuda.bindings.nvml.GpuThermalSettings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GridLicensableFeature.html">cuda.bindings.nvml.GridLicensableFeature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GridLicensableFeatures.html">cuda.bindings.nvml.GridLicensableFeatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GridLicenseExpiry.html">cuda.bindings.nvml.GridLicenseExpiry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.HwbcEntry.html">cuda.bindings.nvml.HwbcEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.LedState.html">cuda.bindings.nvml.LedState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Memory.html">cuda.bindings.nvml.Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Memory_v2.html">cuda.bindings.nvml.Memory_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkFirmwareInfo.html">cuda.bindings.nvml.NvlinkFirmwareInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkFirmwareVersion.html">cuda.bindings.nvml.NvlinkFirmwareVersion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkGetBwMode_v1.html">cuda.bindings.nvml.NvlinkGetBwMode_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvLinkInfo_v1.html">cuda.bindings.nvml.NvLinkInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvLinkInfo_v2.html">cuda.bindings.nvml.NvLinkInfo_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkSetBwMode_v1.html">cuda.bindings.nvml.NvlinkSetBwMode_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvlinkSupportedBwModes_v1.html">cuda.bindings.nvml.NvlinkSupportedBwModes_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PciInfo.html">cuda.bindings.nvml.PciInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PciInfoExt_v1.html">cuda.bindings.nvml.PciInfoExt_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PlatformInfo_v1.html">cuda.bindings.nvml.PlatformInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PlatformInfo_v2.html">cuda.bindings.nvml.PlatformInfo_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PRMCounter_v1.html">cuda.bindings.nvml.PRMCounter_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PRMCounterInput_v1.html">cuda.bindings.nvml.PRMCounterInput_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PRMCounterValue_v1.html">cuda.bindings.nvml.PRMCounterValue_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ProcessDetail_v1.html">cuda.bindings.nvml.ProcessDetail_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ProcessDetailList_v1.html">cuda.bindings.nvml.ProcessDetailList_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ProcessesUtilizationInfo_v1.html">cuda.bindings.nvml.ProcessesUtilizationInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ProcessInfo.html">cuda.bindings.nvml.ProcessInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ProcessUtilizationInfo_v1.html">cuda.bindings.nvml.ProcessUtilizationInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ProcessUtilizationSample.html">cuda.bindings.nvml.ProcessUtilizationSample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.PSUInfo.html">cuda.bindings.nvml.PSUInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.RepairStatus_v1.html">cuda.bindings.nvml.RepairStatus_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.RowRemapperHistogramValues.html">cuda.bindings.nvml.RowRemapperHistogramValues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Sample.html">cuda.bindings.nvml.Sample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.SystemConfComputeSettings_v1.html">cuda.bindings.nvml.SystemConfComputeSettings_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.SystemEventData_v1.html">cuda.bindings.nvml.SystemEventData_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.UnitFanInfo.html">cuda.bindings.nvml.UnitFanInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.UnitFanSpeeds.html">cuda.bindings.nvml.UnitFanSpeeds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.UnitInfo.html">cuda.bindings.nvml.UnitInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Utilization.html">cuda.bindings.nvml.Utilization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.Value.html">cuda.bindings.nvml.Value</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuCreatablePlacementInfo_v1.html">cuda.bindings.nvml.VgpuCreatablePlacementInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuInstancesUtilizationInfo_v1.html">cuda.bindings.nvml.VgpuInstancesUtilizationInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuInstanceUtilizationInfo_v1.html">cuda.bindings.nvml.VgpuInstanceUtilizationInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuInstanceUtilizationSample.html">cuda.bindings.nvml.VgpuInstanceUtilizationSample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuLicenseExpiry.html">cuda.bindings.nvml.VgpuLicenseExpiry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuLicenseInfo.html">cuda.bindings.nvml.VgpuLicenseInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuMetadata.html">cuda.bindings.nvml.VgpuMetadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuPgpuCompatibility.html">cuda.bindings.nvml.VgpuPgpuCompatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuPgpuMetadata.html">cuda.bindings.nvml.VgpuPgpuMetadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuPlacementList_v2.html">cuda.bindings.nvml.VgpuPlacementList_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuProcessesUtilizationInfo_v1.html">cuda.bindings.nvml.VgpuProcessesUtilizationInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuProcessUtilizationInfo_v1.html">cuda.bindings.nvml.VgpuProcessUtilizationInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerCapabilities.html">cuda.bindings.nvml.VgpuSchedulerCapabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerGetState.html">cuda.bindings.nvml.VgpuSchedulerGetState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerLog.html">cuda.bindings.nvml.VgpuSchedulerLog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerLogEntry.html">cuda.bindings.nvml.VgpuSchedulerLogEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerLogInfo_v1.html">cuda.bindings.nvml.VgpuSchedulerLogInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerParams.html">cuda.bindings.nvml.VgpuSchedulerParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerSetParams.html">cuda.bindings.nvml.VgpuSchedulerSetParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerState_v1.html">cuda.bindings.nvml.VgpuSchedulerState_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuSchedulerStateInfo_v1.html">cuda.bindings.nvml.VgpuSchedulerStateInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuTypeBar1Info_v1.html">cuda.bindings.nvml.VgpuTypeBar1Info_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuTypeIdInfo_v1.html">cuda.bindings.nvml.VgpuTypeIdInfo_v1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuVersion.html">cuda.bindings.nvml.VgpuVersion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NvmlError.html">cuda.bindings.nvml.NvmlError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.UninitializedError.html">cuda.bindings.nvml.UninitializedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InvalidArgumentError.html">cuda.bindings.nvml.InvalidArgumentError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NotSupportedError.html">cuda.bindings.nvml.NotSupportedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NoPermissionError.html">cuda.bindings.nvml.NoPermissionError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.AlreadyInitializedError.html">cuda.bindings.nvml.AlreadyInitializedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NotFoundError.html">cuda.bindings.nvml.NotFoundError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InsufficientSizeError.html">cuda.bindings.nvml.InsufficientSizeError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InsufficientPowerError.html">cuda.bindings.nvml.InsufficientPowerError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DriverNotLoadedError.html">cuda.bindings.nvml.DriverNotLoadedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.TimeoutError.html">cuda.bindings.nvml.TimeoutError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.IrqIssueError.html">cuda.bindings.nvml.IrqIssueError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.LibraryNotFoundError.html">cuda.bindings.nvml.LibraryNotFoundError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FunctionNotFoundError.html">cuda.bindings.nvml.FunctionNotFoundError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.CorruptedInforomError.html">cuda.bindings.nvml.CorruptedInforomError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuIsLostError.html">cuda.bindings.nvml.GpuIsLostError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ResetRequiredError.html">cuda.bindings.nvml.ResetRequiredError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.OperatingSystemError.html">cuda.bindings.nvml.OperatingSystemError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.LibRmVersionMismatchError.html">cuda.bindings.nvml.LibRmVersionMismatchError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InUseError.html">cuda.bindings.nvml.InUseError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.MemoryError.html">cuda.bindings.nvml.MemoryError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NoDataError.html">cuda.bindings.nvml.NoDataError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.VgpuEccNotSupportedError.html">cuda.bindings.nvml.VgpuEccNotSupportedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InsufficientResourcesError.html">cuda.bindings.nvml.InsufficientResourcesError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.FreqNotSupportedError.html">cuda.bindings.nvml.FreqNotSupportedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ArgumentVersionMismatchError.html">cuda.bindings.nvml.ArgumentVersionMismatchError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.DeprecatedError.html">cuda.bindings.nvml.DeprecatedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.NotReadyError.html">cuda.bindings.nvml.NotReadyError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.GpuNotFoundError.html">cuda.bindings.nvml.GpuNotFoundError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.InvalidStateError.html">cuda.bindings.nvml.InvalidStateError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.ResetTypeNotSupportedError.html">cuda.bindings.nvml.ResetTypeNotSupportedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.nvml.UnknownError.html">cuda.bindings.nvml.UnknownError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.utils.get_cuda_native_handle.html">cuda.bindings.utils.get_cuda_native_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html">cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda.bindings.utils.get_ptx_ver.html">cuda.bindings.utils.get_ptx_ver</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">Software License Agreement</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../api.html" class="nav-link">CUDA Python API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../nvml.html" class="nav-link">nvml</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.bindings.nvml.device_get_max_mig_device_count</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cuda-bindings-nvml-device-get-max-mig-device-count">
+<h1>cuda.bindings.nvml.device_get_max_mig_device_count<a class="headerlink" href="#cuda-bindings-nvml-device-get-max-mig-device-count" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_max_mig_device_count">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_max_mig_device_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">int</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_max_mig_device_count" title="Link to this definition">#</a></dt>
+<dd><p>Get the maximum number of MIG devices that can exist under a given parent NVML device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> (<em>intptr_t</em>) – Target device handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Count of MIG devices.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>unsigned int</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><cite>nvmlDeviceGetMaxMigDeviceCount</cite></p>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="cuda.bindings.nvml.device_get_max_customer_boost_clock.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cuda.bindings.nvml.device_get_max_customer_boost_clock</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cuda.bindings.nvml.device_get_max_pcie_link_generation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cuda.bindings.nvml.device_get_max_pcie_link_generation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.device_get_max_mig_device_count"><code class="docutils literal notranslate"><span class="pre">device_get_max_mig_device_count()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2021-2025, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
