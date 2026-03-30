@@ -63,13 +63,15 @@ sample_files = [os.path.basename(x) for x in glob.glob(samples_path + "**/*.py",
 
 
 def has_package_requirements_or_skip(example):
+    example_name = os.path.basename(example)
+
     with open(example, encoding="utf-8") as f:
         content = f.read()
 
     # The canonical regex as defined in PEP 723
     pep723 = re.search(r"(?m)^# /// (?P<type>[a-zA-Z0-9-]+)$\s(?P<content>(^#(| .*)$\s)+)^# ///$", content)
     if not pep723:
-        return
+        raise ValueError(f"PEP 723 metadata not found in {example_name}")
 
     metadata = {}
     for line in pep723.group("content").splitlines():
@@ -81,14 +83,20 @@ def has_package_requirements_or_skip(example):
         value = value.strip()
         metadata[key] = value
 
-    if "dependencies" in metadata:
-        dependencies = eval(metadata["dependencies"])  # noqa: S307
-        for dependency in dependencies:
-            name = re.match("[a-zA-Z0-9_-]+", dependency)
-            try:
-                importlib.metadata.distribution(name.string)
-            except importlib.metadata.PackageNotFoundError:
-                pytest.skip(f"Skipping {example} due to missing package requirement: {name}")
+    if "dependencies" not in metadata:
+        raise ValueError(f"PEP 723 dependencies not found in {example_name}")
+
+    missing_dependencies = []
+    dependencies = eval(metadata["dependencies"])  # noqa: S307
+    for dependency in dependencies:
+        name = re.match("[a-zA-Z0-9_-]+", dependency)
+        try:
+            importlib.metadata.distribution(name.string)
+        except importlib.metadata.PackageNotFoundError:
+            missing_dependencies.append(name.string)
+
+    if missing_dependencies:
+        pytest.skip(f"Skipping {example} due to missing package requirement: {', '.join(missing_dependencies)}")
 
 
 @pytest.mark.parametrize("example", sample_files)
@@ -103,7 +111,7 @@ def test_example(example):
     process = subprocess.run([sys.executable, example_path], capture_output=True)  # noqa: S603
     if process.returncode != 0:
         if process.stdout:
-            print(process.stdout.decode())
+            print(process.stdout.decode(errors="replace"))
         if process.stderr:
-            print(process.stderr.decode(), file=sys.stderr)
+            print(process.stderr.decode(errors="replace"), file=sys.stderr)
         raise AssertionError(f"`{example}` failed ({process.returncode})")
