@@ -67,6 +67,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Mark workspace as safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
