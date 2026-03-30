@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.event\_set\_wait\_v2
+=======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: event_set_wait_v2
