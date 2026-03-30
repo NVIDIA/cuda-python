@@ -528,7 +528,7 @@ class Return(_FastEnum):
     See `nvmlReturn_t`.
     """
     SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
-    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
+    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with `nvmlInit()`')
     ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
     ERROR_NOT_SUPPORTED = (NVML_ERROR_NOT_SUPPORTED, 'The requested operation is not available on target device.')
     ERROR_NO_PERMISSION = (NVML_ERROR_NO_PERMISSION, 'The current user does not have permission for operation.')
@@ -759,7 +759,7 @@ class FBCSessionType(_FastEnum):
 class DetachGpuState(_FastEnum):
     """
     Is the GPU device to be removed from the kernel by
-    nvmlDeviceRemoveGpu()
+    `nvmlDeviceRemoveGpu()`
 
     See `nvmlDetachGpuState_t`.
     """
@@ -768,7 +768,7 @@ class DetachGpuState(_FastEnum):
 
 class PcieLinkState(_FastEnum):
     """
-    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+    Parent bridge PCIe link state requested by `nvmlDeviceRemoveGpu()`
 
     See `nvmlPcieLinkState_t`.
     """
@@ -20287,7 +20287,7 @@ cdef class PRMCounter_v1:
 
     @property
     def counter_id(self):
-        """Union[~_numpy.uint32, int]: Counter ID, one of nvmlPRMCounterId_t."""
+        """Union[~_numpy.uint32, int]: Counter ID, one of `nvmlPRMCounterId_t`."""
         if self._data.size == 1:
             return int(self._data.counter_id[0])
         return self._data.counter_id
@@ -21613,7 +21613,7 @@ cpdef init_v2():
 
 
 cpdef init_with_flags(unsigned int flags):
-    """nvmlInitWithFlags is a variant of nvmlInit(), that allows passing a set of boolean values modifying the behaviour of nvmlInit(). Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
+    """nvmlInitWithFlags is a variant of ``nvmlInit()``, that allows passing a set of boolean values modifying the behaviour of ``nvmlInit()``. Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
 
     Args:
         flags (unsigned int): behaviour modifier flags.
