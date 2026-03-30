@@ -15,14 +15,6 @@ import pytest
 
 from cuda.core import Device, system
 
-# Each example in cuda_core/examples is tested in two ways:
-#
-# 1) Directly running the example in the same environment as the test suite.
-#    This gives access to the current development version of cuda_core.
-# 2) Running the example in a subprocess with "uv run" to verify that the PEP
-#    723 metadata works correctly and that the example can be run in isolation from
-#    the test suite.
-
 
 def has_compute_capability_9_or_higher() -> bool:
     return Device().compute_capability >= (9, 0)
@@ -44,14 +36,6 @@ def is_not_windows() -> bool:
 
 def is_x86_64() -> bool:
     return platform.machine() == "x86_64"
-
-
-def uv_installed() -> bool:
-    try:
-        subprocess.run(["uv", "--version"], check=True)  # noqa: S607
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
-    return True
 
 
 def has_cuda_path() -> bool:
