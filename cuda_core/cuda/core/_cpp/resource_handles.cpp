@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstring>
 #include <mutex>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 
@@ -1125,19 +1126,22 @@ CuLinkHandle create_culink_handle_ref(CUlinkState state) {
 // ============================================================================
 
 FileDescriptorHandle create_fd_handle(int fd) {
+#ifdef _WIN32
+    throw std::runtime_error("create_fd_handle is not supported on Windows");
+#else
     return FileDescriptorHandle(
         new int(fd),
-        [](const int* p) {
-#ifndef _WIN32
-            ::close(*p);
-#endif
-            delete p;
-        }
+        [](const int* p) { ::close(*p); delete p; }
     );
+#endif
 }
 
 FileDescriptorHandle create_fd_handle_ref(int fd) {
+#ifdef _WIN32
+    throw std::runtime_error("create_fd_handle_ref is not supported on Windows");
+#else
     return std::make_shared<const int>(fd);
+#endif
 }
 
 }  // namespace cuda_core
