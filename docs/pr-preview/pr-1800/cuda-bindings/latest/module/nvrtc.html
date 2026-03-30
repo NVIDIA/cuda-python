@@ -2364,13 +2364,13 @@ stored</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p></li>
 </ul>
 </div></blockquote>
-<p>Treat entities with no execution space annotation as <code class="docutils literal notranslate"><span class="pre">device</span></code> entities.</p>
+<p>Treat entities with no execution space annotation as <code class="docutils literal notranslate"><span class="pre">__device__</span></code> entities.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p></li>
 </ul>
 </div></blockquote>
-<p>Allow the <code class="docutils literal notranslate"><span class="pre">__int128</span></code> type in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">CUDACC_RTC_INT128</span></code> to be defined.</p>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__int128</span></code> type in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_RTC_INT128__</span></code> to be defined.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--device-float128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-float128</span></code>)</p></li>
