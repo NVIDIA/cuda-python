@@ -16,6 +16,7 @@ cuda.core.GraphBuilder
    .. automethod:: __init__
    .. automethod:: add_child
    .. automethod:: begin_building
+   .. automethod:: callback
    .. automethod:: close
    .. automethod:: complete
    .. automethod:: create_conditional_handle

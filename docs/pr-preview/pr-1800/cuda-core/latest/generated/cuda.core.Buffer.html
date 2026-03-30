@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1b483de5"></script>
+    <script src="../_static/documentation_options.js?v=1076f975"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev86';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev90';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -666,7 +666,7 @@ allocations.</p>
 asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream object to use for asynchronous deallocation. If None,
+<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>, optional) – The stream object to use for asynchronous deallocation. If None,
 the deallocation stream stored in the handle is used.</p>
 </dd>
 </dl>
@@ -689,7 +689,7 @@ the deallocation stream stored in the handle is used.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>src</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
 </dd>
@@ -716,7 +716,7 @@ allocated using the associated memory resource before the copy.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
 </dd>
@@ -744,7 +744,7 @@ asynchronous copy</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Buffer" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Buffer</span></code></a>: Must be 1, 2, or 4 bytes.</p></li>
 </ul>
 </p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Stream for the asynchronous fill operation.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Stream for the asynchronous fill operation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
