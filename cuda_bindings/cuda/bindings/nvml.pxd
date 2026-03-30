@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -52,9 +52,6 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
 ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
-ctypedef nvmlVgpuSchedulerStateInfo_v2_t VgpuSchedulerStateInfo_v2
-ctypedef nvmlVgpuSchedulerLogEntry_v2_t VgpuSchedulerLogEntry_v2
-ctypedef nvmlVgpuSchedulerState_v2_t VgpuSchedulerState_v2
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
@@ -70,7 +67,6 @@ ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurren
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
 ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
-ctypedef nvmlVgpuSchedulerLogInfo_v2_t VgpuSchedulerLogInfo_v2
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
 ctypedef nvmlPRMCounterList_v1_t PRMCounterList_v1
@@ -261,6 +257,7 @@ cpdef tuple device_get_driver_model_v2(intptr_t device)
 cpdef str device_get_vbios_version(intptr_t device)
 cpdef object device_get_bridge_chip_info(intptr_t device)
 cpdef object device_get_compute_running_processes_v3(intptr_t device)
+cpdef object device_get_graphics_running_processes_v3(intptr_t device)
 cpdef object device_get_mps_compute_running_processes_v3(intptr_t device)
 cpdef int device_on_same_board(intptr_t device1, intptr_t device2) except? 0
 cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1
@@ -420,3 +417,10 @@ cpdef object device_get_addressing_mode(intptr_t device)
 cpdef object device_get_repair_status(intptr_t device)
 cpdef object device_get_power_mizer_mode_v1(intptr_t device)
 cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
+cpdef device_vgpu_force_gsp_unload(intptr_t device)
+cpdef object device_get_vgpu_scheduler_state_v2(intptr_t device)
+cpdef object gpu_instance_get_vgpu_scheduler_state_v2(intptr_t gpu_instance)
+cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device)
+cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance)
+cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state)
+cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state)
