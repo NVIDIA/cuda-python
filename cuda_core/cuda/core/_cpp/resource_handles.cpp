@@ -12,9 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
-#ifdef _WIN32
-#include <io.h>
-#else
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 
@@ -1130,9 +1128,7 @@ FileDescriptorHandle create_fd_handle(int fd) {
     return FileDescriptorHandle(
         new int(fd),
         [](const int* p) {
-#ifdef _WIN32
-            ::_close(*p);
-#else
+#ifndef _WIN32
             ::close(*p);
 #endif
             delete p;
