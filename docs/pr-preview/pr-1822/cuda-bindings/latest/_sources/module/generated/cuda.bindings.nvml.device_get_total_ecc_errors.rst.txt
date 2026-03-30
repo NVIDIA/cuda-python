@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_total\_ecc\_errors
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_total_ecc_errors

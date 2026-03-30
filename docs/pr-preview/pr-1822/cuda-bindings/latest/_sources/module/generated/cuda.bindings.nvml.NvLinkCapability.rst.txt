@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NvLinkCapability
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: NvLinkCapability
