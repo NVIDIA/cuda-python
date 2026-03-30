@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -50,7 +50,7 @@ _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
-# conda, CUDA_HOME, canary) and go straight to system search.
+# conda, CUDA_PATH, canary) and go straight to system search.
 _DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
 
 
@@ -58,9 +58,9 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     """Load an NVIDIA driver library (system-search only).
 
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
-    the CUDA Toolkit.  They are always on the system linker path, so the
-    full CTK search cascade (site-packages, conda, CUDA_HOME, canary) is
-    unnecessary.
+    the CUDA Toolkit. They are expected to be discoverable via the platform's
+    native loader mechanisms, so the full CTK search cascade (site-packages,
+    conda, CUDA_PATH, canary) is unnecessary.
     """
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
     if loaded is not None:
@@ -234,37 +234,42 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
              - Linux: ``dlopen()``
 
-             - Windows: ``LoadLibraryW()``
+             - Windows: ``LoadLibraryExW()``
 
-           - CUDA Toolkit (CTK) system installs with system config updates are often
-             discovered via:
+             On Linux, CUDA Toolkit (CTK) system installs with system config updates are
+             usually discovered via ``/etc/ld.so.conf.d/*cuda*.conf``.
 
-             - Linux: ``/etc/ld.so.conf.d/*cuda*.conf``
-
-             - Windows: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
-               on the system ``PATH``.
+             On Windows, under Python 3.8+, CPython configures the process with
+             ``SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)``.
+             As a result, the native DLL search used here does **not** include
+             the system ``PATH``.
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
+             On Windows, this is the typical way system-installed CTK DLLs are
+             located. Note that the NVIDIA CTK installer automatically
+             adds ``CUDA_PATH`` to the system-wide environment.
 
         5. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
              standard linker path (currently ``nvvm``), attempt to derive CTK
              root by system-loading a well-known CTK canary library in a
-             subprocess and then searching relative to that root.
+             subprocess and then searching relative to that root. On Windows,
+             the canary uses the same native ``LoadLibraryExW`` semantics as
+             step 3, so there is also no ``PATH``-based discovery.
 
     **Driver libraries** (``"cuda"``, ``"nvml"``):
 
         These are part of the NVIDIA display driver (not the CUDA Toolkit) and
-        are always on the system linker path.  For these libraries the search
-        is simplified to:
+        are expected to be reachable via the native OS loader path. For these
+        libraries the search is simplified to:
 
         0. Already loaded in the current process
-        1. OS default mechanisms (``dlopen`` / ``LoadLibraryW``)
+        1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
-        The CTK-specific steps (site-packages, conda, ``CUDA_HOME``, canary
+        The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
         probe) are skipped entirely.
 
     Notes:

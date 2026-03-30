@@ -19,6 +19,9 @@ pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
+pytest-rerunfailures = "*"
+cloudpickle = "*"
+psutil = "*"
 pyglet = "*"
 
 [feature.examples.dependencies]
@@ -135,6 +138,7 @@ setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
+dlpack = "*"
 
 [package.target.linux-64.host-dependencies]
 cuda-cudart-dev_linux-64 = "*"

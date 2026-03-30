@@ -30,8 +30,6 @@ GraphNode hierarchy:
 
 from __future__ import annotations
 
-from cpython.ref cimport Py_INCREF
-
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
 from libc.stdlib cimport malloc, free
@@ -96,22 +94,17 @@ cdef bint _version_checked = False
 cdef bint _check_node_get_params():
     global _has_cuGraphNodeGetParams, _version_checked
     if not _version_checked:
-        ver = handle_return(driver.cuDriverGetVersion())
-        _has_cuGraphNodeGetParams = ver >= 13020
+        from cuda.core._utils.version import driver_version
+        _has_cuGraphNodeGetParams = driver_version() >= (13, 2, 0)
         _version_checked = True
     return _has_cuGraphNodeGetParams
 
 
-cdef extern from "Python.h":
-    void _py_decref "Py_DECREF" (void*)
-
-
-cdef void _py_host_trampoline(void* data) noexcept with gil:
-    (<object>data)()
-
-
-cdef void _py_host_destructor(void* data) noexcept with gil:
-    _py_decref(data)
+from cuda.core._graph._utils cimport (
+    _attach_host_callback_to_graph,
+    _attach_user_object,
+    _is_py_host_trampoline,
+)
 
 
 cdef void _destroy_event_handle_copy(void* ptr) noexcept nogil:
@@ -124,30 +117,6 @@ cdef void _destroy_kernel_handle_copy(void* ptr) noexcept nogil:
     del p
 
 
-cdef void _attach_user_object(
-        cydriver.CUgraph graph, void* ptr,
-        cydriver.CUhostFn destroy) except *:
-    """Create a CUDA user object and transfer ownership to the graph.
-
-    On success the graph owns the resource (via MOVE semantics).
-    On failure the destroy callback is invoked to clean up ptr,
-    then a CUDAError is raised — callers need no try/except.
-    """
-    cdef cydriver.CUuserObject user_obj = NULL
-    cdef cydriver.CUresult ret
-    with nogil:
-        ret = cydriver.cuUserObjectCreate(
-            &user_obj, ptr, destroy, 1,
-            cydriver.CU_USER_OBJECT_NO_DESTRUCTOR_SYNC)
-        if ret == cydriver.CUDA_SUCCESS:
-            ret = cydriver.cuGraphRetainUserObject(
-                graph, user_obj, 1, cydriver.CU_GRAPH_USER_OBJECT_MOVE)
-            if ret != cydriver.CUDA_SUCCESS:
-                cydriver.cuUserObjectRelease(user_obj, 1)
-    if ret != cydriver.CUDA_SUCCESS:
-        if user_obj == NULL:
-            destroy(ptr)
-        HANDLE_RETURN(ret)
 
 
 cdef class Condition:
@@ -470,7 +439,7 @@ cdef class GraphDef:
         Graph
             An executable graph that can be launched on a stream.
         """
-        from cuda.core._graph import _instantiate_graph
+        from cuda.core._graph._graph_builder import _instantiate_graph
 
         return _instantiate_graph(
             driver.CUgraph(as_intptr(self._h_graph)), options)
@@ -485,7 +454,7 @@ cdef class GraphDef:
         options : GraphDebugPrintOptions, optional
             Customizable options for the debug print.
         """
-        from cuda.core._graph import GraphDebugPrintOptions
+        from cuda.core._graph._graph_builder import GraphDebugPrintOptions
 
         cdef unsigned int flags = 0
         if options is not None:
@@ -1270,56 +1239,20 @@ cdef class GraphNode:
         cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
         cdef cydriver.CUgraphNode* deps = NULL
         cdef size_t num_deps = 0
-        cdef void* c_user_data = NULL
-        cdef object callable_obj = None
-        cdef void* fn_pyobj = NULL
 
         if pred_node != NULL:
             deps = &pred_node
             num_deps = 1
 
-        if isinstance(fn, ct._CFuncPtr):
-            Py_INCREF(fn)
-            fn_pyobj = <void*>fn
-            _attach_user_object(
-                as_cu(h_graph), fn_pyobj,
-                <cydriver.CUhostFn>_py_host_destructor)
-            node_params.fn = <cydriver.CUhostFn><uintptr_t>ct.cast(
-                fn, ct.c_void_p).value
-
-            if user_data is not None:
-                if isinstance(user_data, int):
-                    c_user_data = <void*><uintptr_t>user_data
-                else:
-                    buf = bytes(user_data)
-                    c_user_data = malloc(len(buf))
-                    if c_user_data == NULL:
-                        raise MemoryError(
-                            "failed to allocate user_data buffer")
-                    c_memcpy(c_user_data, <const char*>buf, len(buf))
-                    _attach_user_object(
-                        as_cu(h_graph), c_user_data,
-                        <cydriver.CUhostFn>free)
-
-            node_params.userData = c_user_data
-        else:
-            if user_data is not None:
-                raise ValueError(
-                    "user_data is only supported with ctypes "
-                    "function pointers")
-            callable_obj = fn
-            Py_INCREF(fn)
-            fn_pyobj = <void*>fn
-            node_params.fn = <cydriver.CUhostFn>_py_host_trampoline
-            node_params.userData = fn_pyobj
-            _attach_user_object(
-                as_cu(h_graph), fn_pyobj,
-                <cydriver.CUhostFn>_py_host_destructor)
+        _attach_host_callback_to_graph(
+            as_cu(h_graph), fn, user_data,
+            &node_params.fn, &node_params.userData)
 
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphAddHostNode(
                 &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
+        cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
         self._succ_cache = None
         return HostCallbackNode._create_with_params(
             create_graph_node_handle(new_node, h_graph), callable_obj,
@@ -1947,7 +1880,7 @@ cdef class HostCallbackNode(GraphNode):
             HANDLE_RETURN(cydriver.cuGraphHostNodeGetParams(node, &params))
 
         cdef object callable_obj = None
-        if params.fn == <cydriver.CUhostFn>_py_host_trampoline:
+        if _is_py_host_trampoline(params.fn):
             callable_obj = <object>params.userData
 
         return HostCallbackNode._create_with_params(

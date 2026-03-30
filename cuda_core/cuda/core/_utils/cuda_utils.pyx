@@ -4,7 +4,6 @@
 
 import functools
 from functools import partial
-import importlib.metadata
 import multiprocessing
 import platform
 import warnings
@@ -59,10 +58,6 @@ def cast_to_3_tuple(label, cfg):
         plural_s = "" if len(cfg) == 1 else "s"
         raise ValueError(f"{label} value{plural_s} must be >= 1 (got {cfg_orig})")
     return cfg + (1,) * (3 - len(cfg))
-
-
-def _reduce_3_tuple(t: tuple):
-    return t[0] * t[1] * t[2]
 
 
 cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
@@ -297,14 +292,6 @@ def is_nested_sequence(obj):
     """
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
-
-@functools.lru_cache
-def get_binding_version():
-    try:
-        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
-    except importlib.metadata.PackageNotFoundError:
-        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
-    return tuple(int(v) for v in major_minor)
 
 
 class Transaction:

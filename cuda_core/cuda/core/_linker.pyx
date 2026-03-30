@@ -37,7 +37,6 @@ from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_or_create_options,
     driver,
-    handle_return,
     is_sequence,
 )
 
@@ -620,9 +619,8 @@ cdef inline void Linker_annotate_error_log(Linker self, object e):
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
-_driver_ver = None
 _inited = False
-_use_nvjitlink_backend = False  # set by _decide_nvjitlink_or_driver()
+_use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
 
 # Input type mappings populated by _lazy_init() with C-level enum ints.
 _nvjitlink_input_types = None
@@ -637,12 +635,9 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
-    global _driver_ver, _driver, _use_nvjitlink_backend
-    if _driver_ver is not None:
+    global _driver, _use_nvjitlink_backend
+    if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
-
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"
@@ -668,6 +663,7 @@ def _decide_nvjitlink_or_driver() -> bool:
         )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
+    _use_nvjitlink_backend = False
     _driver = driver
     return True
 

@@ -25,6 +25,7 @@ import multiprocessing
 import platform  # no-cython-lint
 import uuid
 
+from ._peer_access_utils import plan_peer_access_update
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
@@ -281,17 +282,24 @@ cdef inline _DMR_query_peer_access(DeviceMemoryResource self):
 cdef inline _DMR_set_peer_accessible_by(DeviceMemoryResource self, devices):
     from .._device import Device
 
-    cdef set[int] target_ids = {Device(dev).device_id for dev in devices}
-    target_ids.discard(self._dev_id)
     this_dev = Device(self._dev_id)
-    cdef list bad = [dev for dev in target_ids if not this_dev.can_access_peer(dev)]
-    if bad:
-        raise ValueError(f"Device {self._dev_id} cannot access peer(s): {', '.join(map(str, bad))}")
+    cdef object resolve_device_id = lambda dev: Device(dev).device_id
+    cdef object plan
+    cdef tuple target_ids
+    cdef tuple to_add
+    cdef tuple to_rm
     if not self._mempool_owned:
         _DMR_query_peer_access(self)
-    cdef set[int] cur_ids = set(self._peer_accessible_by)
-    cdef set[int] to_add = target_ids - cur_ids
-    cdef set[int] to_rm = cur_ids - target_ids
+    plan = plan_peer_access_update(
+        owner_device_id=self._dev_id,
+        current_peer_ids=self._peer_accessible_by,
+        requested_devices=devices,
+        resolve_device_id=resolve_device_id,
+        can_access_peer=this_dev.can_access_peer,
+    )
+    target_ids = plan.target_ids
+    to_add = plan.to_add
+    to_rm = plan.to_remove
     cdef size_t count = len(to_add) + len(to_rm)
     cdef cydriver.CUmemAccessDesc* access_desc = NULL
     cdef size_t i = 0

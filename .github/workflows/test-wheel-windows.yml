@@ -208,6 +208,15 @@ jobs:
         with:
           python-version: ${{ matrix.PY_VER }}
 
+      - name: Verify LongPathsEnabled
+        run: |
+          $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled
+          echo "LongPathsEnabled = $val"
+          if ($val -ne 1) {
+            echo "::error::LongPathsEnabled is not set to 1 (see issue #1820)"
+            exit 1
+          }
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
