@@ -12,6 +12,10 @@
 #include <unordered_map>
 #include <vector>
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 namespace cuda_core {
 
 // ============================================================================
@@ -1114,6 +1118,23 @@ CuLinkHandle create_culink_handle(CUlinkState state) {
 CuLinkHandle create_culink_handle_ref(CUlinkState state) {
     auto box = std::make_shared<CuLinkBox>(CuLinkBox{state});
     return CuLinkHandle(box, &box->resource);
+}
+
+// ============================================================================
+// File Descriptor Handles
+// ============================================================================
+
+#ifndef _WIN32
+FileDescriptorHandle create_fd_handle(int fd) {
+    return FileDescriptorHandle(
+        new int(fd),
+        [](const int* p) { ::close(*p); delete p; }
+    );
+}
+#endif
+
+FileDescriptorHandle create_fd_handle_ref(int fd) {
+    return std::make_shared<const int>(fd);
 }
 
 }  // namespace cuda_core

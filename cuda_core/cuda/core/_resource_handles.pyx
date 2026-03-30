@@ -191,6 +191,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     CuLinkHandle create_culink_handle_ref "cuda_core::create_culink_handle_ref" (
         cydriver.CUlinkState state) except+ nogil
 
+    # File descriptor handles
+    FileDescriptorHandle create_fd_handle "cuda_core::create_fd_handle" (
+        int fd) except+ nogil
+    FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
+        int fd) except+ nogil
+
 
 # =============================================================================
 # CUDA Driver API capsule
