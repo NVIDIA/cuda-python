@@ -12,7 +12,9 @@
 #include <unordered_map>
 #include <vector>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -1124,14 +1126,19 @@ CuLinkHandle create_culink_handle_ref(CUlinkState state) {
 // File Descriptor Handles
 // ============================================================================
 
-#ifndef _WIN32
 FileDescriptorHandle create_fd_handle(int fd) {
     return FileDescriptorHandle(
         new int(fd),
-        [](const int* p) { ::close(*p); delete p; }
+        [](const int* p) {
+#ifdef _WIN32
+            ::_close(*p);
+#else
+            ::close(*p);
+#endif
+            delete p;
+        }
     );
 }
-#endif
 
 FileDescriptorHandle create_fd_handle_ref(int fd) {
     return std::make_shared<const int>(fd);
