@@ -48,18 +48,18 @@ def _skip_if_no_managed_mempool():
 
 
 def _driver_has_node_get_params():
-    from cuda.bindings import driver as drv
+    from cuda.core._utils.version import driver_version
 
-    return drv.cuDriverGetVersion()[1] >= 13020
+    return driver_version() >= (13, 2, 0)
 
 
 _HAS_NODE_GET_PARAMS = _driver_has_node_get_params()
 
 
 def _bindings_major_version():
-    from cuda.core._utils.cuda_utils import get_binding_version
+    from cuda.core._utils.version import binding_version
 
-    return get_binding_version()[0]
+    return binding_version()[0]
 
 
 _BINDINGS_MAJOR = _bindings_major_version()

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Enforce label/milestone on PRs"
+name: "CI: Enforce assignee/label/milestone on PRs"
 
 on:
   pull_request_target:
@@ -10,6 +10,8 @@ on:
       - opened
       - edited
       - synchronize
+      - assigned
+      - unassigned
       - labeled
       - unlabeled
       - reopened
@@ -17,12 +19,13 @@ on:
 
 jobs:
   check-metadata:
-    name: PR has labels and milestone
+    name: PR has assignee, labels, and milestone
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     steps:
-      - name: Check for labels and milestone
+      - name: Check for assignee, labels, and milestone
         env:
+          ASSIGNEES: ${{ toJson(github.event.pull_request.assignees) }}
           LABELS: ${{ toJson(github.event.pull_request.labels) }}
           MILESTONE: ${{ github.event.pull_request.milestone && github.event.pull_request.milestone.title || '' }}
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -34,14 +37,21 @@ jobs:
             exit 0
           fi
 
-          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name')
           ERRORS=""
 
+          ASSIGNEE_COUNT=$(echo "$ASSIGNEES" | jq 'length')
+          if [ "$ASSIGNEE_COUNT" -eq 0 ]; then
+            ERRORS="${ERRORS}- **Missing assignee**: assign at least one person to this PR.\n"
+          fi
+
           # Module labels identify which package the PR touches.
+          # Cross-cutting labels exempt PRs from needing a module label.
+          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name')
           MODULE_LABELS="cuda.bindings cuda.core cuda.pathfinder"
+          MODULE_EXEMPT_LABELS="CI/CD"
           HAS_MODULE=false
           for label in $LABEL_NAMES; do
-            for mod in $MODULE_LABELS; do
+            for mod in $MODULE_LABELS $MODULE_EXEMPT_LABELS; do
               if [ "$label" = "$mod" ]; then
                 HAS_MODULE=true
                 break 2
@@ -50,7 +60,7 @@ jobs:
           done
 
           if [ "$HAS_MODULE" = "false" ]; then
-            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\`.\n"
+            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\` (or a cross-cutting label such as \`CI/CD\`).\n"
           fi
 
           # Type labels categorize the kind of change.
@@ -89,17 +99,19 @@ jobs:
             {
               echo "## PR Metadata Check Failed"
               echo ""
-              printf "$ERRORS"
+              printf '%b' "$ERRORS"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
+          ASSIGNEE_LIST=$(echo "$ASSIGNEES" | jq -r '.[].login' | paste -sd ', ' -)
           LABEL_LIST=$(echo "$LABEL_NAMES" | paste -sd ', ' -)
           {
             echo "## PR Metadata Check Passed"
             echo ""
+            echo "- **Assignees**: $ASSIGNEE_LIST"
             echo "- **Labels**: $LABEL_LIST"
             echo "- **Milestone**: $MILESTONE"
           } >> "$GITHUB_STEP_SUMMARY"

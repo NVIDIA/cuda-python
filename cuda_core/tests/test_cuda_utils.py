@@ -21,7 +21,9 @@ def test_driver_cu_result_explanations_health():
         assert code in expl_dict
         known_codes.add(code)
 
-    if cuda_utils.get_binding_version() >= (13, 0):
+    from cuda.core._utils.version import binding_version
+
+    if binding_version() >= (13, 0, 0):
         # Ensure expl_dict has no codes not known as a CUresult enum
         extra_expl = sorted(set(expl_dict.keys()) - known_codes)
         assert not extra_expl
@@ -37,7 +39,9 @@ def test_runtime_cuda_error_explanations_health():
         assert code in expl_dict
         known_codes.add(code)
 
-    if cuda_utils.get_binding_version() >= (13, 0):
+    from cuda.core._utils.version import binding_version
+
+    if binding_version() >= (13, 0, 0):
         # Ensure expl_dict has no codes not known as a cudaError_t enum
         extra_expl = sorted(set(expl_dict.keys()) - known_codes)
         assert not extra_expl
