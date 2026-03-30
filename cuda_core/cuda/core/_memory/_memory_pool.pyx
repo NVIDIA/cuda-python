@@ -257,7 +257,9 @@ cdef int MP_init_current_pool(
         self._h_pool = create_mempool_handle_ref(pool)
         self._mempool_owned = False
     ELSE:
-        raise RuntimeError("not supported")
+        raise RuntimeError(
+            "Getting the current memory pool requires CUDA 13.0 or later"
+        )
     return 0
 
 
