@@ -84,15 +84,14 @@ jobs:
           fi
 
           # Block PRs with labels that indicate they are not ready to merge.
-          BLOCKED_PATTERNS="blocked DO NOT MERGE do not merge"
-          for label in $LABEL_NAMES; do
-            for pattern in $BLOCKED_PATTERNS; do
-              if echo "$label" | grep -qi "$pattern"; then
-                ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
-                break
-              fi
-            done
-          done
+          # Read labels line-by-line (jq outputs one per line) to handle
+          # multi-word label names; match with a single regex to avoid
+          # word-splitting "DO NOT MERGE" into individual grep patterns.
+          while IFS= read -r label; do
+            if echo "$label" | grep -qiE "blocked|do not merge"; then
+              ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
+            fi
+          done < <(echo "$LABELS" | jq -r '.[].name')
 
           if [ -n "$ERRORS" ]; then
             echo "::error::This PR is missing required metadata. See the job summary for details."
