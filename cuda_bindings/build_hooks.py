@@ -44,22 +44,21 @@ def _import_get_cuda_path_or_home():
     except ModuleNotFoundError as exc:
         if exc.name not in ("cuda", "cuda.pathfinder"):
             raise
-        from importlib.metadata import PackageNotFoundError, distribution
-        from pathlib import Path
-
         try:
-            dist = distribution("cuda-pathfinder")
-        except PackageNotFoundError:
+            import cuda
+        except ModuleNotFoundError:
+            cuda = None
+
+        for p in sys.path:
+            sp_cuda = os.path.join(p, "cuda")
+            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+                break
+        else:
             raise ModuleNotFoundError(
                 "cuda-pathfinder is not installed in the build environment. "
                 "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            ) from None
-        import cuda
-
-        site_cuda = str(dist.locate_file(Path("cuda")))
-        cuda_paths = list(cuda.__path__)
-        if site_cuda not in cuda_paths:
-            cuda.__path__ = cuda_paths + [site_cuda]
+            )
         import cuda.pathfinder
 
     return cuda.pathfinder.get_cuda_path_or_home
