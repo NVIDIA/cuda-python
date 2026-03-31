@@ -6,11 +6,12 @@
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
+from helpers.marks import requires
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires(np, 2, 1)
 def test_graph_child_graph(init_cuda):
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -63,7 +64,7 @@ def test_graph_child_graph(init_cuda):
     b.close()
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires(np, 2, 1)
 def test_graph_update(init_cuda):
     mod = compile_conditional_kernels(int)
     add_one = mod.get_kernel("add_one")

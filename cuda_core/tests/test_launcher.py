@@ -4,6 +4,7 @@
 import ctypes
 
 import helpers
+from helpers.marks import requires
 from helpers.misc import StreamWrapper
 
 try:
@@ -190,7 +191,7 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
 
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires(np, 2, 1)
 def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev = Device()
     dev.set_current()
@@ -289,10 +290,7 @@ def test_cooperative_launch():
         "device_memory_resource",  # kludgy, but can go away after #726 is resolved
         pytest.param(
             LegacyPinnedMemoryResource,
-            marks=pytest.mark.skipif(
-                tuple(int(i) for i in np.__version__.split(".")[:3]) < (2, 2, 5),
-                reason="need numpy 2.2.5+, numpy GH #28632",
-            ),
+            marks=requires(np, 2, 2, 5),
         ),
     ],
 )
