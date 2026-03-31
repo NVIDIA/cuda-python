@@ -70,81 +70,14 @@ nvrtc_pch_available = pytest.mark.skipif(
 )
 
 
-_libnvvm_version = None
-_libnvvm_version_attempted = False
-
-precheck_nvvm_ir = """target triple = "nvptx64-unknown-cuda"
-target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
-
-define void @dummy_kernel() {{
-  entry:
-    ret void
-}}
-
-!nvvm.annotations = !{{!0}}
-!0 = !{{void ()* @dummy_kernel, !"kernel", i32 1}}
-
-!nvvmir.version = !{{!1}}
-!1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""
-
-
-def _get_libnvvm_version_for_tests():
-    """
-    Detect libNVVM version by compiling dummy IR and analyzing the PTX output.
-
-    Workaround for the lack of direct libNVVM version API (nvbugs 5312315).
-    The approach:
-    - Compile a small dummy NVVM IR to PTX
-    - Use PTX version analysis APIs if available to infer libNVVM version
-    - Cache the result for future use
-    """
-    global _libnvvm_version, _libnvvm_version_attempted
-
-    if _libnvvm_version_attempted:
-        return _libnvvm_version
-
-    _libnvvm_version_attempted = True
-
+def _check_nvvm_arch(arch: str) -> bool:
+    """Check if the given NVVM arch is supported by the installed libNVVM."""
     try:
-        from cuda.core._program import _get_nvvm_module
+        from cuda.bindings.utils import check_nvvm_options
 
-        nvvm = _get_nvvm_module()
-
-        try:
-            from cuda.bindings.utils import get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
-        except ImportError:
-            _libnvvm_version = None
-            return _libnvvm_version
-
-        program = nvvm.create_program()
-        try:
-            major, minor, debug_major, debug_minor = nvvm.ir_version()
-            global precheck_nvvm_ir
-            precheck_nvvm_ir = precheck_nvvm_ir.format(
-                major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor
-            )
-            precheck_ir_bytes = precheck_nvvm_ir.encode("utf-8")
-            nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
-
-            options = ["-arch=compute_90"]
-            nvvm.verify_program(program, len(options), options)
-            nvvm.compile_program(program, len(options), options)
-
-            ptx_size = nvvm.get_compiled_result_size(program)
-            ptx_data = bytearray(ptx_size)
-            nvvm.get_compiled_result(program, ptx_data)
-            ptx_str = ptx_data.decode("utf-8")
-            ptx_version = get_ptx_ver(ptx_str)
-            cuda_version = get_minimal_required_cuda_ver_from_ptx_ver(ptx_version)
-            _libnvvm_version = cuda_version
-            return _libnvvm_version
-        finally:
-            nvvm.destroy_program(program)
-
+        return check_nvvm_options([f"-arch={arch}".encode()])
     except Exception:
-        _libnvvm_version = None
-        return _libnvvm_version
+        return False
 
 
 @pytest.fixture(scope="session")
@@ -525,8 +458,8 @@ def test_nvvm_compile_invalid_ir():
         pytest.param(
             ProgramOptions(name="test_sm110_1", arch="sm_110", device_code_optimize=False),
             marks=pytest.mark.skipif(
-                (_get_libnvvm_version_for_tests() or 0) < 13000,
-                reason="Compute capability 110 requires libNVVM >= 13.0",
+                not _check_nvvm_arch("compute_110"),
+                reason="Compute capability 110 not supported by installed libNVVM",
             ),
         ),
         pytest.param(
@@ -540,15 +473,15 @@ def test_nvvm_compile_invalid_ir():
                 device_code_optimize=True,
             ),
             marks=pytest.mark.skipif(
-                (_get_libnvvm_version_for_tests() or 0) < 13000,
-                reason="Compute capability 110 requires libNVVM >= 13.0",
+                not _check_nvvm_arch("compute_110"),
+                reason="Compute capability 110 not supported by installed libNVVM",
             ),
         ),
         pytest.param(
             ProgramOptions(name="test_sm110_3", arch="sm_110", link_time_optimization=True),
             marks=pytest.mark.skipif(
-                (_get_libnvvm_version_for_tests() or 0) < 13000,
-                reason="Compute capability 110 requires libNVVM >= 13.0",
+                not _check_nvvm_arch("compute_110"),
+                reason="Compute capability 110 not supported by installed libNVVM",
             ),
         ),
     ],
