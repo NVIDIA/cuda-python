@@ -35,6 +35,19 @@ def _explanation_text_from_dict_value(value):
     return value
 
 
+def _explanation_dict_text_for_cleaned_doc_compare(value) -> str:
+    """Normalize hand-maintained dict text to compare with ``clean_enum_member_docstring`` output.
+
+    Dicts follow CUDA header comments (``::cuInit()``-style refs); cleaned enum ``__doc__``
+    uses plain names after Sphinx role stripping. Strip a leading ``::`` before ``name(`` and
+    collapse whitespace so both sides use the same conventions as ``clean_enum_member_docstring``.
+    """
+    s = _explanation_text_from_dict_value(value)
+    s = re.sub(r"::([a-zA-Z_][a-zA-Z0-9_]*\()", r"\1", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
 def clean_enum_member_docstring(doc: str | None) -> str | None:
     """Turn a FastEnum member ``__doc__`` into plain text for display or fallback logic.
 
@@ -68,18 +81,20 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
-        ("a\nb  c", "a b c"),
-        ("  x  \n ", "x"),
-        (
+        pytest.param("a\nb  c", "a b c", id="collapse_whitespace"),
+        pytest.param("  x  \n ", "x", id="strip_padding"),
+        pytest.param(
             "see\n:py:obj:`~.cuInit()` or :py:obj:`cuCtxDestroy()`",
             "see cuInit() or cuCtxDestroy()",
+            id="sphinx_py_obj_roles",
         ),
-        (
+        pytest.param(
             "x :py:func:`~.cudaMalloc()` y",
             "x cudaMalloc() y",
+            id="sphinx_py_func_role",
         ),
-        ("**Note:** text", "Note: text"),
-        ("[Deprecated]\n", "[Deprecated]"),
+        pytest.param("**Note:** text", "Note: text", id="strip_bold"),
+        pytest.param("[Deprecated]\n", "[Deprecated]", id="deprecated_line"),
     ],
 )
 def test_clean_enum_member_docstring_examples(raw, expected):
@@ -92,26 +107,23 @@ def test_clean_enum_member_docstring_none_input():
 
 @pytest.mark.xfail(
     reason=(
-        "Enum member __doc__ is not byte-identical to explanation dicts in current "
-        "releases (Sphinx/RST and line breaks in __doc__ vs ::-style refs in dicts; "
-        "some deprecated codes use a short [Deprecated] docstring). Remove xfail when "
-        "dicts and generated docstrings share one source of truth."
+        "Even after clean_enum_member_docstring and dict-side ::/whitespace alignment, "
+        "some members still differ (e.g. [Deprecated] stub vs full paragraph in dict; "
+        "wording drift). Remove xfail when dicts and generated docstrings share one source."
     ),
     strict=False,
 )
 @pytest.mark.parametrize("module_name,dict_name,enum_type", _EXPLANATION_MODULES)
-def test_explanations_dict_matches_enum_member_docstrings(module_name, dict_name, enum_type):
-    """Each explanation dict value should match the corresponding enum member's __doc__.
+def test_explanations_dict_matches_cleaned_enum_docstrings(module_name, dict_name, enum_type):
+    """Hand-maintained explanation dict entries should match cleaned enum ``__doc__`` text.
 
     cuda-bindings 13.2+ attaches per-member documentation on driver ``CUresult`` and
-    runtime ``cudaError_t``; this test checks it against the hand-maintained dicts.
+    runtime ``cudaError_t``. This compares ``clean_enum_member_docstring(member.__doc__)``
+    to dict text normalized with ``_explanation_dict_text_for_cleaned_doc_compare`` (same
+    whitespace rules; strip Doxygen ``::`` before ``name(`` to align with Sphinx output).
 
-    If this fails, differences may include whitespace, line breaks, Sphinx/RST markup
-    in ``__doc__`` vs raw ``::symbol()`` text in the dicts—normalizing whitespace is
-    a possible follow-up.
-
-    Marked xfail while dict text and generated ``__doc__`` differ; run
-    ``pytest --runxfail`` on this test to print the full mismatch report.
+    Marked xfail while mismatches remain; run ``pytest --runxfail`` on this test for the
+    full mismatch report (normalized dict vs cleaned ``__doc__``).
     """
     if _get_binding_version() < _MIN_BINDING_VERSION_FOR_DOCSTRING_COMPARE:
         pytest.skip(
@@ -126,10 +138,11 @@ def test_explanations_dict_matches_enum_member_docstrings(module_name, dict_name
     for error in enum_type:
         code = int(error)
         assert code in expl_dict
-        expected = _explanation_text_from_dict_value(expl_dict[code])
-        actual = error.__doc__
-        if actual is None:
+        expected = _explanation_dict_text_for_cleaned_doc_compare(expl_dict[code])
+        raw_doc = error.__doc__
+        if raw_doc is None:
             continue
+        actual = clean_enum_member_docstring(raw_doc)
         if expected != actual:
             mismatches.append((error, expected, actual))
 
@@ -137,13 +150,13 @@ def test_explanations_dict_matches_enum_member_docstrings(module_name, dict_name
         return
 
     lines = [
-        f"{len(mismatches)} enum member(s) where dict text != __doc__ (strict equality):",
+        f"{len(mismatches)} enum member(s) where normalized dict text != clean_enum_member_docstring(__doc__):",
     ]
     for error, expected, actual in mismatches[:15]:
         lines.append(f"  {error!r}")
-        lines.append("    dict:")
+        lines.append("    dict (normalized for compare):")
         lines.extend("    | " + ln for ln in textwrap.wrap(repr(expected), width=100) or [""])
-        lines.append("    __doc__:")
+        lines.append("    cleaned __doc__:")
         lines.extend("    | " + ln for ln in textwrap.wrap(repr(actual), width=100) or [""])
     if len(mismatches) > 15:
         lines.append(f"  ... and {len(mismatches) - 15} more")
