@@ -8,7 +8,7 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
-from cuda.core._graph._graphdef import GraphDef
+from cuda.core._graph._graph_def import GraphDef
 from cuda.core._utils.cuda_utils import CUDAError
 
 

@@ -793,12 +793,12 @@ class Graph:
 
         Parameters
         ----------
-        source : :obj:`~_graph.GraphBuilder` or :obj:`~_graph._graphdef.GraphDef`
+        source : :obj:`~_graph.GraphBuilder` or :obj:`~_graph._graph_def.GraphDef`
             The graph definition to update from. A GraphBuilder must have
             finished building.
 
         """
-        from cuda.core._graph._graphdef import GraphDef
+        from cuda.core._graph._graph_def import GraphDef
 
         cdef cydriver.CUgraph cu_graph
         cdef cydriver.CUgraphExec cu_exec = <cydriver.CUgraphExec><intptr_t>int(self._mnff.graph)
