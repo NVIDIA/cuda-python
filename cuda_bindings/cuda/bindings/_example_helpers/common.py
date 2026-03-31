@@ -41,9 +41,7 @@ class KernelHelper:
         for libname in ("cudart", "cccl"):
             hdr_dir = pathfinder.find_nvidia_header_directory(libname)
             if hdr_dir is None:
-                import pytest
-
-                pytest.skip(f'pathfinder.find_nvidia_header_directory("{libname}") returned None')
+                requirement_not_met(f'pathfinder.find_nvidia_header_directory("{libname}") returned None')
             include_dirs.append(hdr_dir)
 
         prog = check_cuda_errors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
