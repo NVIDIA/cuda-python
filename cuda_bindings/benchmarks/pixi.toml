@@ -53,6 +53,10 @@ source = { features = ["cu13", "cu13-source", "bench", "cpp-bench", "dev", "bind
 [target.linux.tasks.bench]
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
 
+[target.linux.tasks.bench-smoke-test]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py", "--fast", "--loops", "1", "--min-time", "0"
+]
+
 [target.linux.tasks.bench-legacy]
 cmd = "pytest --benchmark-only --override-ini 'addopts=' $PIXI_PROJECT_ROOT/pytest-legacy/"
 
