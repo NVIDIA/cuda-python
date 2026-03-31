@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_compute\_running\_processes\_v3
-===============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_compute_running_processes_v3
