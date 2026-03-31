@@ -60,6 +60,8 @@ def _explanation_dict_text_for_cleaned_doc_compare(value) -> str:
     s = _strip_doxygen_double_colon_prefixes(s)
     s = re.sub(r"\s+", " ", s).strip()
     s = _fix_hyphenation_wordwrap_spacing(s)
+    # Manpage token only in dict text; cleaned __doc__ cites the section title alone.
+    s = s.replace("CUDART_DRIVER ", "")
     return s
 
 
@@ -101,6 +103,9 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
     if doc is None:
         return None
     s = doc
+    # Work around codegen bug (cudaErrorIncompatibleDriverContext):
+    # malformed :py:obj before `with`. Please remove after fix.
+    s = s.replace("\n:py:obj:`~.Interactions`", ' "Interactions ')
     # Sphinx roles with a single backtick-delimited target (most common on these enums).
     # Strip the role and keep the inner text; drop leading ~. used for same-module refs.
     s = re.sub(
@@ -136,6 +141,11 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
         pytest.param("[Deprecated]\n", "[Deprecated]", id="deprecated_line"),
         pytest.param("non- linear", "non-linear", id="hyphen_space_after"),
         pytest.param("word -word", "word-word", id="hyphen_space_before"),
+        pytest.param(
+            'Please see\n:py:obj:`~.Interactions`with the CUDA Driver API" for more information.',
+            'Please see "Interactions with the CUDA Driver API" for more information.',
+            id="codegen_broken_interactions_role",
+        ),
     ],
 )
 def test_clean_enum_member_docstring_examples(raw, expected):
