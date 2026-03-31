@@ -12,7 +12,7 @@ from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
 from cuda.core._graph import GraphCompleteOptions, GraphDebugPrintOptions
-from cuda.core._graph._graphdef import (
+from cuda.core._graph._graph_def import (
     AllocNode,
     ChildGraphNode,
     ConditionalNode,
