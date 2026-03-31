@@ -11,10 +11,10 @@ from cuda.core._graph._utils cimport _attach_host_callback_to_graph
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+
 from cuda.core._utils.cuda_utils import (
     driver,
-    get_binding_version,
-    get_driver_version,
     handle_return,
 )
 
@@ -140,7 +140,7 @@ class GraphCompleteOptions:
     use_node_priority: bool = False
 
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> Graph:
+def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> "Graph":
     params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
     if options:
         flags = 0
@@ -169,7 +169,7 @@ def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> 
     elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED:
         raise RuntimeError("Instantiation for device launch failed due to the nodes belonging to different contexts.")
     elif (
-        get_binding_version() >= (12, 8)
+        cy_binding_version() >= (12, 8, 0)
         and params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
     ):
         raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
@@ -322,7 +322,7 @@ class GraphBuilder:
         self._building_ended = True
         return self
 
-    def complete(self, options: GraphCompleteOptions | None = None) -> Graph:
+    def complete(self, options: GraphCompleteOptions | None = None) -> "Graph":
         """Completes the graph builder and returns the built :obj:`~_graph.Graph` object.
 
         Parameters
@@ -449,10 +449,10 @@ class GraphBuilder:
             The newly created conditional handle.
 
         """
-        if get_driver_version() < 12030:
-            raise RuntimeError(f"Driver version {get_driver_version()} does not support conditional handles")
-        if get_binding_version() < (12, 3):
-            raise RuntimeError(f"Binding version {get_binding_version()} does not support conditional handles")
+        if cy_driver_version() < (12, 3, 0):
+            raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional handles")
+        if cy_binding_version() < (12, 3, 0):
+            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional handles")
         if default_value is not None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
@@ -522,10 +522,10 @@ class GraphBuilder:
             The newly created conditional graph builder.
 
         """
-        if get_driver_version() < 12030:
-            raise RuntimeError(f"Driver version {get_driver_version()} does not support conditional if")
-        if get_binding_version() < (12, 3):
-            raise RuntimeError(f"Binding version {get_binding_version()} does not support conditional if")
+        if cy_driver_version() < (12, 3, 0):
+            raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if")
+        if cy_binding_version() < (12, 3, 0):
+            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -553,10 +553,10 @@ class GraphBuilder:
             A tuple of two new graph builders, one for the if branch and one for the else branch.
 
         """
-        if get_driver_version() < 12080:
-            raise RuntimeError(f"Driver version {get_driver_version()} does not support conditional if-else")
-        if get_binding_version() < (12, 8):
-            raise RuntimeError(f"Binding version {get_binding_version()} does not support conditional if-else")
+        if cy_driver_version() < (12, 8, 0):
+            raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if-else")
+        if cy_binding_version() < (12, 8, 0):
+            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if-else")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -587,10 +587,10 @@ class GraphBuilder:
             A tuple of new graph builders, one for each branch.
 
         """
-        if get_driver_version() < 12080:
-            raise RuntimeError(f"Driver version {get_driver_version()} does not support conditional switch")
-        if get_binding_version() < (12, 8):
-            raise RuntimeError(f"Binding version {get_binding_version()} does not support conditional switch")
+        if cy_driver_version() < (12, 8, 0):
+            raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional switch")
+        if cy_binding_version() < (12, 8, 0):
+            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional switch")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -618,10 +618,10 @@ class GraphBuilder:
             The newly created while loop graph builder.
 
         """
-        if get_driver_version() < 12030:
-            raise RuntimeError(f"Driver version {get_driver_version()} does not support conditional while loop")
-        if get_binding_version() < (12, 3):
-            raise RuntimeError(f"Binding version {get_binding_version()} does not support conditional while loop")
+        if cy_driver_version() < (12, 3, 0):
+            raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional while loop")
+        if cy_binding_version() < (12, 3, 0):
+            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional while loop")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -649,12 +649,6 @@ class GraphBuilder:
         child_graph : :obj:`~_graph.GraphBuilder`
             The child graph builder. Must have finished building.
         """
-        if (get_driver_version() < 12000) or (get_binding_version() < (12, 0)):
-            raise NotImplementedError(
-                f"Launching child graphs is not implemented for versions older than CUDA 12."
-                f"Found driver version is {get_driver_version()} and binding version is {get_binding_version()}"
-            )
-
         if not child_graph._building_ended:
             raise ValueError("Child graph has not finished building.")
 

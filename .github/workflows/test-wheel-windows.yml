@@ -208,6 +208,15 @@ jobs:
         with:
           python-version: ${{ matrix.PY_VER }}
 
+      - name: Verify LongPathsEnabled
+        run: |
+          $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled
+          echo "LongPathsEnabled = $val"
+          if ($val -ne 1) {
+            echo "::error::LongPathsEnabled is not set to 1 (see issue #1820)"
+            exit 1
+          }
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
@@ -263,7 +272,6 @@ jobs:
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
-        if: ${{ !endsWith(matrix.PY_VER, 't') }} # see issue #1820
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
@@ -272,7 +280,6 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
-        if: ${{ !endsWith(matrix.PY_VER, 't') }} # see issue #1820
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work

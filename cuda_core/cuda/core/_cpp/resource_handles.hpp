@@ -154,6 +154,7 @@ using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
+using FileDescriptorHandle = std::shared_ptr<const int>;
 
 
 // ============================================================================
@@ -478,6 +479,17 @@ CuLinkHandle create_culink_handle(CUlinkState state);
 CuLinkHandle create_culink_handle_ref(CUlinkState state);
 
 // ============================================================================
+// File descriptor handle functions
+// ============================================================================
+
+// Create an owning file descriptor handle.
+// When the last reference is released, POSIX close() is called.
+FileDescriptorHandle create_fd_handle(int fd);
+
+// Create a non-owning file descriptor handle (caller manages the fd).
+FileDescriptorHandle create_fd_handle_ref(int fd);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -596,6 +608,10 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
+    return h ? static_cast<std::intptr_t>(*h) : -1;
+}
+
 // as_py() - convert handle to Python wrapper object (returns new reference)
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
@@ -685,6 +701,10 @@ inline PyObject* as_py(const CuLinkHandle& h) noexcept {
 
 inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
+}
+
+inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
+    return PyLong_FromSsize_t(as_intptr(h));
 }
 
 }  // namespace cuda_core
