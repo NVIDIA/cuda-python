@@ -3,6 +3,7 @@
 
 import importlib
 import importlib.metadata
+import re
 import textwrap
 
 import pytest
@@ -32,6 +33,61 @@ def _explanation_text_from_dict_value(value):
     if isinstance(value, tuple):
         return "".join(value)
     return value
+
+
+def clean_enum_member_docstring(doc: str | None) -> str | None:
+    """Turn a FastEnum member ``__doc__`` into plain text for display or fallback logic.
+
+    Always: collapse all whitespace (including newlines) to single spaces and strip ends.
+
+    Best-effort: remove common Sphinx/reST inline markup seen in generated CUDA docs,
+    e.g. ``:py:obj:`~.cudaGetLastError()` `` -> ``cudaGetLastError()`` (relative ``~.`` is
+    dropped). Does not aim for perfect reST parsing—only patterns that appear on these
+    enums in practice.
+
+    Returns ``None`` if ``doc`` is ``None``; otherwise returns a non-empty or empty str.
+    """
+    if doc is None:
+        return None
+    s = doc
+    # Sphinx roles with a single backtick-delimited target (most common on these enums).
+    # Strip the role and keep the inner text; drop leading ~. used for same-module refs.
+    s = re.sub(
+        r":(?:py:)?(?:obj|func|meth|class|mod|data|const|exc):`([^`]+)`",
+        lambda m: re.sub(r"^~?\.", "", m.group(1)),
+        s,
+    )
+    # Inline emphasis / strong (rare in error blurbs)
+    s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
+    s = re.sub(r"\*([^*]+)\*", r"\1", s)
+    # Collapse whitespace (newlines -> spaces) and trim
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("a\nb  c", "a b c"),
+        ("  x  \n ", "x"),
+        (
+            "see\n:py:obj:`~.cuInit()` or :py:obj:`cuCtxDestroy()`",
+            "see cuInit() or cuCtxDestroy()",
+        ),
+        (
+            "x :py:func:`~.cudaMalloc()` y",
+            "x cudaMalloc() y",
+        ),
+        ("**Note:** text", "Note: text"),
+        ("[Deprecated]\n", "[Deprecated]"),
+    ],
+)
+def test_clean_enum_member_docstring_examples(raw, expected):
+    assert clean_enum_member_docstring(raw) == expected
+
+
+def test_clean_enum_member_docstring_none_input():
+    assert clean_enum_member_docstring(None) is None
 
 
 @pytest.mark.xfail(
