@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026-2027 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import contextlib
 from typing import Sequence
 
 _PRECHECK_NVVM_IR = """target triple = "nvptx64-unknown-cuda"
@@ -87,8 +88,6 @@ def check_nvvm_options(options: Sequence[bytes]) -> bool:
         return False
     finally:
         if program is not None:
-            try:
+            with contextlib.suppress(Exception):
                 nvvm.destroy_program(program)
-            except Exception:
-                pass
     return True
