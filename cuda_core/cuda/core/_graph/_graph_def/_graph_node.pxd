@@ -9,8 +9,6 @@ from cuda.core._resource_handles cimport GraphHandle, GraphNodeHandle
 cdef class GraphNode:
     cdef:
         GraphNodeHandle _h_node
-        tuple _pred_cache
-        tuple _succ_cache
         object __weakref__
 
     @staticmethod

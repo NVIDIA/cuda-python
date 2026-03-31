@@ -477,7 +477,7 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     # Reconstruct the kernel node through DAG traversal
     # successor.pred -> GraphNode._create -> KernelNode._create_from_driver
     # -> create_kernel_handle_ref -> handle recovery
-    reconstructed = successor.pred[0]
+    reconstructed = next(iter(successor.pred))
     assert isinstance(reconstructed, KernelNode)
     assert reconstructed.kernel.attributes.max_threads_per_block() > 0
 
