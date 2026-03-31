@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,6 +8,10 @@
 # C/C++ functions, using JIT-compiled CPU code via cffi. Requires cffi.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "cffi", "setuptools"]
+# ///
 
 import importlib
 import string
