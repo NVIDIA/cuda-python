@@ -59,6 +59,27 @@ def _explanation_dict_text_for_cleaned_doc_compare(value) -> str:
     s = _explanation_text_from_dict_value(value)
     s = _strip_doxygen_double_colon_prefixes(s)
     s = re.sub(r"\s+", " ", s).strip()
+    s = _fix_hyphenation_wordwrap_spacing(s)
+    return s
+
+
+def _fix_hyphenation_wordwrap_spacing(s: str) -> str:
+    """Remove spaces around hyphens introduced by line wrapping in generated ``__doc__`` text.
+
+    Sphinx/reflow often splits hyphenated words as ``non- linear`` or ``word -word``.
+    The explanation dicts are usually single-line and do not contain these splits; the
+    mismatch shows up on the cleaned enum side, so this runs inside
+    ``clean_enum_member_docstring`` (and the same transform is applied to dict text for
+    comparison parity).
+
+    Patterns (all lowercase ASCII letters as in the CUDA blurbs): ``[a-z]- [a-z]`` and
+    ``[a-z] -[a-z]``. Applied repeatedly until stable.
+    """
+    prev = None
+    while prev != s:
+        prev = s
+        s = re.sub(r"([a-z])- ([a-z])", r"\1-\2", s)
+        s = re.sub(r"([a-z]) -([a-z])", r"\1-\2", s)
     return s
 
 
@@ -71,6 +92,9 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
     e.g. ``:py:obj:`~.cudaGetLastError()` `` -> ``cudaGetLastError()`` (relative ``~.`` is
     dropped). Does not aim for perfect reST parsing—only patterns that appear on these
     enums in practice.
+
+    After whitespace collapse, removes spurious spaces around hyphens from line wrapping
+    (``[a-z]- [a-z]`` and ``[a-z] -[a-z]``) so ``non- linear`` matches dict ``non-linear``.
 
     Returns ``None`` if ``doc`` is ``None``; otherwise returns a non-empty or empty str.
     """
@@ -89,6 +113,7 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
     s = re.sub(r"\*([^*]+)\*", r"\1", s)
     # Collapse whitespace (newlines -> spaces) and trim
     s = re.sub(r"\s+", " ", s).strip()
+    s = _fix_hyphenation_wordwrap_spacing(s)
     return s
 
 
@@ -109,6 +134,8 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
         ),
         pytest.param("**Note:** text", "Note: text", id="strip_bold"),
         pytest.param("[Deprecated]\n", "[Deprecated]", id="deprecated_line"),
+        pytest.param("non- linear", "non-linear", id="hyphen_space_after"),
+        pytest.param("word -word", "word-word", id="hyphen_space_before"),
     ],
 )
 def test_clean_enum_member_docstring_examples(raw, expected):
