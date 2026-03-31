@@ -36,7 +36,9 @@ def _import_get_cuda_path_or_home():
     """
     try:
         import cuda.pathfinder
-    except ModuleNotFoundError:
+    except ModuleNotFoundError as exc:
+        if exc.name != "cuda.pathfinder":
+            raise
         import cuda
 
         for p in sys.path:
