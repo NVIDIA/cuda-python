@@ -4,7 +4,6 @@
 import importlib
 import importlib.metadata
 import re
-import textwrap
 
 import pytest
 
@@ -35,15 +34,30 @@ def _explanation_text_from_dict_value(value):
     return value
 
 
+def _strip_doxygen_double_colon_prefixes(s: str) -> str:
+    """Remove Doxygen-style ``::`` before CUDA identifiers in header-comment text.
+
+    Matches ``::`` only when it *starts* a reference (not C++ scope between two names):
+    use a negative lookbehind so ``Foo::Bar`` keeps the inner ``::``.
+
+    Applied repeatedly so ``::a ::b`` becomes ``a b``.
+    """
+    prev = None
+    while prev != s:
+        prev = s
+        s = re.sub(r"(?<![A-Za-z0-9_])::+([A-Za-z_][A-Za-z0-9_]*)", r"\1", s)
+    return s
+
+
 def _explanation_dict_text_for_cleaned_doc_compare(value) -> str:
     """Normalize hand-maintained dict text to compare with ``clean_enum_member_docstring`` output.
 
-    Dicts follow CUDA header comments (``::cuInit()``-style refs); cleaned enum ``__doc__``
-    uses plain names after Sphinx role stripping. Strip a leading ``::`` before ``name(`` and
-    collapse whitespace so both sides use the same conventions as ``clean_enum_member_docstring``.
+    Dicts use Doxygen ``::Symbol`` for APIs, types, and constants; cleaned enum ``__doc__``
+    uses plain names after Sphinx role stripping. Strip those ``::`` prefixes on the fly,
+    then collapse whitespace like ``clean_enum_member_docstring``.
     """
     s = _explanation_text_from_dict_value(value)
-    s = re.sub(r"::([a-zA-Z_][a-zA-Z0-9_]*\()", r"\1", s)
+    s = _strip_doxygen_double_colon_prefixes(s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
@@ -105,16 +119,42 @@ def test_clean_enum_member_docstring_none_input():
     assert clean_enum_member_docstring(None) is None
 
 
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        pytest.param("see ::CUDA_SUCCESS", "see CUDA_SUCCESS", id="type_ref"),
+        pytest.param("Foo::Bar unchanged", "Foo::Bar unchanged", id="cpp_scope_preserved"),
+        pytest.param("::cuInit() and ::CUstream", "cuInit() and CUstream", id="multiple_prefixes"),
+    ],
+)
+def test_strip_doxygen_double_colon_prefixes(raw, expected):
+    assert _strip_doxygen_double_colon_prefixes(raw) == expected
+
+
+def _enum_docstring_parity_cases():
+    for module_name, dict_name, enum_type in _EXPLANATION_MODULES:
+        for error in enum_type:
+            yield pytest.param(
+                module_name,
+                dict_name,
+                error,
+                id=f"{enum_type.__name__}.{error.name}",
+            )
+
+
 @pytest.mark.xfail(
     reason=(
-        "Even after clean_enum_member_docstring and dict-side ::/whitespace alignment, "
-        "some members still differ (e.g. [Deprecated] stub vs full paragraph in dict; "
-        "wording drift). Remove xfail when dicts and generated docstrings share one source."
+        "Some members still differ after clean_enum_member_docstring and dict-side "
+        "::/whitespace alignment (wording drift, etc.). [Deprecated] stubs are skipped. "
+        "Remove xfail when dicts and generated docstrings share one source."
     ),
     strict=False,
 )
-@pytest.mark.parametrize("module_name,dict_name,enum_type", _EXPLANATION_MODULES)
-def test_explanations_dict_matches_cleaned_enum_docstrings(module_name, dict_name, enum_type):
+@pytest.mark.parametrize(
+    "module_name,dict_name,error",
+    list(_enum_docstring_parity_cases()),
+)
+def test_explanations_dict_matches_cleaned_enum_docstrings(module_name, dict_name, error):
     """Hand-maintained explanation dict entries should match cleaned enum ``__doc__`` text.
 
     cuda-bindings 13.2+ attaches per-member documentation on driver ``CUresult`` and
@@ -122,8 +162,12 @@ def test_explanations_dict_matches_cleaned_enum_docstrings(module_name, dict_nam
     to dict text normalized with ``_explanation_dict_text_for_cleaned_doc_compare`` (same
     whitespace rules; strip Doxygen ``::`` before ``name(`` to align with Sphinx output).
 
-    Marked xfail while mismatches remain; run ``pytest --runxfail`` on this test for the
-    full mismatch report (normalized dict vs cleaned ``__doc__``).
+    Members whose ``__doc__`` is the ``[Deprecated]`` stub alone, or ends with
+    ``[Deprecated]`` after stripping whitespace, are skipped (dicts may keep longer
+    text; we do not compare those).
+
+    Marked xfail while any non-skipped member still mismatches; many cases already match
+    (reported as xpassed when this mark is present).
     """
     if _get_binding_version() < _MIN_BINDING_VERSION_FOR_DOCSTRING_COMPARE:
         pytest.skip(
@@ -134,33 +178,24 @@ def test_explanations_dict_matches_cleaned_enum_docstrings(module_name, dict_nam
     mod = importlib.import_module(f"cuda.bindings._utils.{module_name}")
     expl_dict = getattr(mod, dict_name)
 
-    mismatches = []
-    for error in enum_type:
-        code = int(error)
-        assert code in expl_dict
-        expected = _explanation_dict_text_for_cleaned_doc_compare(expl_dict[code])
-        raw_doc = error.__doc__
-        if raw_doc is None:
-            continue
-        actual = clean_enum_member_docstring(raw_doc)
-        if expected != actual:
-            mismatches.append((error, expected, actual))
+    code = int(error)
+    assert code in expl_dict
 
-    if not mismatches:
-        return
+    raw_doc = error.__doc__
+    if raw_doc is not None and raw_doc.strip().endswith("[Deprecated]"):
+        pytest.skip(f"SKIPPED: {error.name} is deprecated (__doc__ is or ends with [Deprecated])")
 
-    lines = [
-        f"{len(mismatches)} enum member(s) where normalized dict text != clean_enum_member_docstring(__doc__):",
-    ]
-    for error, expected, actual in mismatches[:15]:
-        lines.append(f"  {error!r}")
-        lines.append("    dict (normalized for compare):")
-        lines.extend("    | " + ln for ln in textwrap.wrap(repr(expected), width=100) or [""])
-        lines.append("    cleaned __doc__:")
-        lines.extend("    | " + ln for ln in textwrap.wrap(repr(actual), width=100) or [""])
-    if len(mismatches) > 15:
-        lines.append(f"  ... and {len(mismatches) - 15} more")
-    pytest.fail("\n".join(lines))
+    if raw_doc is None:
+        pytest.skip(f"SKIPPED: {error.name} has no __doc__")
+
+    expected = _explanation_dict_text_for_cleaned_doc_compare(expl_dict[code])
+    actual = clean_enum_member_docstring(raw_doc)
+    if expected != actual:
+        pytest.fail(
+            f"normalized dict != cleaned __doc__ for {error!r}:\n"
+            f"  dict (normalized for compare): {expected!r}\n"
+            f"  cleaned __doc__: {actual!r}"
+        )
 
 
 @pytest.mark.parametrize("module_name,dict_name,enum_type", _EXPLANATION_MODULES)
