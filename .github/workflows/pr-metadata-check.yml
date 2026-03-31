@@ -46,18 +46,20 @@ jobs:
 
           # Module labels identify which package the PR touches.
           # Cross-cutting labels exempt PRs from needing a module label.
-          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name')
+          # Read label names line-by-line (jq outputs one per line) so
+          # multi-word GitHub labels are not split by shell word-splitting.
           MODULE_LABELS="cuda.bindings cuda.core cuda.pathfinder"
           MODULE_EXEMPT_LABELS="CI/CD"
           HAS_MODULE=false
-          for label in $LABEL_NAMES; do
+          while IFS= read -r label; do
+            [ -n "$label" ] || continue
             for mod in $MODULE_LABELS $MODULE_EXEMPT_LABELS; do
               if [ "$label" = "$mod" ]; then
                 HAS_MODULE=true
                 break 2
               fi
             done
-          done
+          done < <(echo "$LABELS" | jq -r '.[].name')
 
           if [ "$HAS_MODULE" = "false" ]; then
             ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\` (or a cross-cutting label such as \`CI/CD\`).\n"
@@ -66,14 +68,15 @@ jobs:
           # Type labels categorize the kind of change.
           TYPE_LABELS="bug enhancement feature documentation test example CI/CD packaging dependencies performance experiment RFC support P0 P1 P2"
           HAS_TYPE=false
-          for label in $LABEL_NAMES; do
+          while IFS= read -r label; do
+            [ -n "$label" ] || continue
             for typ in $TYPE_LABELS; do
               if [ "$label" = "$typ" ]; then
                 HAS_TYPE=true
                 break 2
               fi
             done
-          done
+          done < <(echo "$LABELS" | jq -r '.[].name')
 
           if [ "$HAS_TYPE" = "false" ]; then
             ERRORS="${ERRORS}- **Missing type label**: add at least one of: \`bug\`, \`enhancement\`, \`feature\`, \`documentation\`, \`test\`, \`example\`, \`CI/CD\`, \`packaging\`, \`dependencies\`, \`performance\`, \`experiment\`, \`RFC\`, \`support\`, \`P0\`, \`P1\`, \`P2\`.\n"
@@ -110,7 +113,7 @@ jobs:
           fi
 
           ASSIGNEE_LIST=$(echo "$ASSIGNEES" | jq -r '.[].login' | paste -sd ', ' -)
-          LABEL_LIST=$(echo "$LABEL_NAMES" | paste -sd ', ' -)
+          LABEL_LIST=$(echo "$LABELS" | jq -r '.[].name' | paste -sd ', ' -)
           {
             echo "## PR Metadata Check Passed"
             echo ""
