@@ -51,27 +51,10 @@ def _import_get_cuda_path_or_home():
             ) from None
         import cuda
 
-        locate_result = str(dist.locate_file(Path("cuda")))
-        print(f"[diag] dist._path: {dist._path}", flush=True)
-        print(f"[diag] dist._path.parent: {dist._path.parent}", flush=True)
-        print(f"[diag] locate_file('cuda'): {locate_result}", flush=True)
-        print(f"[diag] locate_file exists: {os.path.isdir(locate_result)}", flush=True)
-        print(
-            f"[diag] locate_file/pathfinder exists: {os.path.isdir(os.path.join(locate_result, 'pathfinder'))}",
-            flush=True,
-        )
-        print(f"[diag] cuda.__path__ (before): {cuda.__path__}", flush=True)
-        print("[diag] sys.path:", flush=True)
-        for p in sys.path:
-            sp_cuda = os.path.join(p, "cuda")
-            has_pf = os.path.isdir(os.path.join(sp_cuda, "pathfinder"))
-            print(f"[diag]   {p}  ->  cuda/pathfinder exists: {has_pf}", flush=True)
-
-        site_cuda = locate_result
+        site_cuda = str(dist.locate_file(Path("cuda")))
         cuda_paths = list(cuda.__path__)
         if site_cuda not in cuda_paths:
             cuda.__path__ = cuda_paths + [site_cuda]
-        print(f"[diag] cuda.__path__ (after): {cuda.__path__}", flush=True)
         import cuda.pathfinder
 
     return cuda.pathfinder.get_cuda_path_or_home
