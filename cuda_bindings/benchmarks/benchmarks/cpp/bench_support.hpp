@@ -143,10 +143,13 @@ inline void print_summary(const std::string& name, const std::vector<RunResult>&
             all_values.push_back(v);
         }
     }
-    if (all_values.empty()) return;
+    if (all_values.empty())
+        return;
 
     double sum = 0;
-    for (double v : all_values) sum += v;
+    for (double v : all_values)
+        sum += v;
+
     double mean = sum / static_cast<double>(all_values.size());
 
     double sq_sum = 0;
