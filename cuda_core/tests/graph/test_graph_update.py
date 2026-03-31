@@ -145,9 +145,8 @@ def test_graph_update_conditional(init_cuda):
     assert arr[1] == 3
     assert arr[2] == 3
 
-    # Close the memory resource now because the garbage collected might
-    # de-allocate it during the next graph builder process
     b.close()
+
 
 
 # =============================================================================
