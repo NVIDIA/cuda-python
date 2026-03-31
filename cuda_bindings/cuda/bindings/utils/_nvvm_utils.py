@@ -22,7 +22,7 @@ entry:
 def check_nvvm_options(options: Sequence[bytes]) -> bool:
     """
     Abstracted from https://github.com/NVIDIA/numba-cuda/pull/681
-    
+
     Check if the specified options are supported by the current libNVVM version.
 
     The options are a list of bytes, each representing a compiler option.
@@ -31,8 +31,8 @@ def check_nvvm_options(options: Sequence[bytes]) -> bool:
     is returned.
 
     If the test program compiles successfully, True is returned.
-    
-    cuda.bindings.nvvm returns exceptions instead of return codes. 
+
+    cuda.bindings.nvvm returns exceptions instead of return codes.
 
     Parameters
     ----------
