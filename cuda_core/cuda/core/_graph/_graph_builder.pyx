@@ -140,7 +140,7 @@ class GraphCompleteOptions:
     use_node_priority: bool = False
 
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> Graph:
+def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> "Graph":
     params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
     if options:
         flags = 0
@@ -322,7 +322,7 @@ class GraphBuilder:
         self._building_ended = True
         return self
 
-    def complete(self, options: GraphCompleteOptions | None = None) -> Graph:
+    def complete(self, options: GraphCompleteOptions | None = None) -> "Graph":
         """Completes the graph builder and returns the built :obj:`~_graph.Graph` object.
 
         Parameters
