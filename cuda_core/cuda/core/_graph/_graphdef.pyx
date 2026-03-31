@@ -529,8 +529,8 @@ cdef class GraphDef:
         )
 
     @property
-    def handle(self) -> int:
-        """Return the underlying CUgraph handle."""
+    def handle(self):
+        """Return the underlying driver CUgraph handle."""
         return as_py(self._h_graph)
 
 
@@ -624,8 +624,8 @@ cdef class GraphNode:
         return GraphDef._from_handle(graph_node_get_graph(self._h_node))
 
     @property
-    def handle(self) -> int | None:
-        """Return the underlying CUgraphNode handle as an int.
+    def handle(self):
+        """Return the underlying driver CUgraphNode handle.
 
         Returns None for the entry node.
         """

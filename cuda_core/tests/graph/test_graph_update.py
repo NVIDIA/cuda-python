@@ -38,8 +38,8 @@ def test_graph_update_kernel_args(init_cuda, builder):
 
         def build(ptr):
             g = GraphDef()
-            g.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
-            g.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
+            n = g.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
+            n.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
             return g.instantiate(), g
 
     graph, _ = build(arr[0:].ctypes.data)
