@@ -1,14 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Device-side graph launch tests.
-
-Device-side graph launch allows a kernel running on the GPU to launch a CUDA graph.
-This feature requires:
-- CUDA 12.0+
-- Hopper architecture (sm_90+)
-- The kernel calling cudaGraphLaunch() must itself be launched from within a graph
-"""
+"""Tests for device-side graph launch (GPU kernel launching a CUDA graph)."""
 
 import numpy as np
 import pytest

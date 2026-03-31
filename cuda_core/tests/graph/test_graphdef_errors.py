@@ -1,12 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Tests for error handling, input validation, and edge cases in explicit graphs.
-
-These tests verify that the explicit graph API properly validates inputs,
-raises appropriate exceptions for misuse, and handles boundary conditions
-correctly.
-"""
+"""Tests for GraphDef input validation, error handling, and edge cases."""
 
 import ctypes
 

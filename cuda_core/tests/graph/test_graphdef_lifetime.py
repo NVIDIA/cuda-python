@@ -1,12 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Tests for resource lifetime management in explicit CUDA graphs.
-
-These tests verify that the RAII mechanism in GraphHandle correctly
-prevents dangling references when parent Python objects are deleted
-while child/body graph references remain alive.
-"""
+"""Tests for GraphDef resource lifetime management and RAII correctness."""
 
 import gc
 

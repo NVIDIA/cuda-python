@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Tests for explicit CUDA graph construction (GraphDef and GraphNode)."""
+"""Tests for GraphDef topology, node types, instantiation, and execution."""
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
