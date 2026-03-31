@@ -87,13 +87,16 @@ jobs:
           fi
 
           # Block PRs with labels that indicate they are not ready to merge.
-          # Match blocked labels exactly (case-insensitively) using the PR
-          # payload we already have, instead of doing substring matches.
+          # Match blocked label names exactly (case-insensitively); emit the
+          # original spelling from the payload so error text matches GitHub.
           BLOCKED_LABELS=$(jq -r '
-            [.[].name | ascii_downcase] as $pr_labels
-            | ["blocked", "do not merge"] as $blocking
-            | $pr_labels - ($pr_labels - $blocking)
+            (["blocked", "do not merge"]) as $blocking
             | .[]
+            | .name as $n
+            | if ($blocking | index($n | ascii_downcase)) != null
+              then $n
+              else empty
+              end
           ' <<<"$LABELS")
           while IFS= read -r label; do
             [ -n "$label" ] || continue
