@@ -12,7 +12,9 @@ from types import ModuleType
 
 import pyperf
 
-BENCH_DIR = Path(__file__).resolve().parent.parent / "benchmarks"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+BENCH_DIR = PROJECT_ROOT / "benchmarks"
+DEFAULT_OUTPUT = PROJECT_ROOT / "results-python.json"
 
 
 def load_module(module_path: Path) -> ModuleType:
@@ -54,6 +56,22 @@ def discover_benchmarks() -> dict[str, Callable[[int], float]]:
     return registry
 
 
+def strip_pyperf_output_args(argv: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    skip_next = False
+    for i, arg in enumerate(argv):
+        if skip_next:
+            skip_next = False
+            continue
+        if arg in ("-o", "--output", "--append"):
+            skip_next = True
+            continue
+        if arg.startswith("-o=") or arg.startswith("--output=") or arg.startswith("--append="):
+            continue
+        cleaned.append(arg)
+    return cleaned
+
+
 def parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
@@ -67,13 +85,19 @@ def parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
         action="store_true",
         help="Print discovered benchmark IDs and exit.",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help=f"JSON output file path (default: {DEFAULT_OUTPUT.name})",
+    )
     parsed, remaining = parser.parse_known_args(argv)
     return parsed, remaining
 
 
 def main() -> None:
     parsed, remaining_argv = parse_args(sys.argv[1:])
-    sys.argv = [sys.argv[0], *remaining_argv]
 
     registry = discover_benchmarks()
     if not registry:
@@ -94,9 +118,23 @@ def main() -> None:
     else:
         benchmark_ids = sorted(registry)
 
+    # Strip any --output args to avoid conflicts with our output handling
+    output_path = parsed.output.resolve()
+    remaining_argv = strip_pyperf_output_args(remaining_argv)
+    is_worker = "--worker" in remaining_argv
+
+    # Delete the file so this run starts fresh
+    if not is_worker:
+        output_path.unlink(missing_ok=True)
+
+    sys.argv = [sys.argv[0], "--append", str(output_path), *remaining_argv]
+
     runner = pyperf.Runner()
     for bench_id in benchmark_ids:
         runner.bench_time_func(bench_id, registry[bench_id])
+
+    if not is_worker:
+        print(f"\nResults saved to {output_path}")
 
 
 if __name__ == "__main__":

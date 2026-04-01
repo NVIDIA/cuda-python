@@ -46,3 +46,7 @@ endif()
 add_executable(bench_pointer_attributes_cpp bench_pointer_attributes.cpp)
 target_include_directories(bench_pointer_attributes_cpp PRIVATE "${CUDA_DRIVER_INCLUDE_DIR}")
 target_link_libraries(bench_pointer_attributes_cpp PRIVATE "${CUDA_DRIVER_LIBRARY}")
+
+add_executable(bench_ctx_device_cpp bench_ctx_device.cpp)
+target_include_directories(bench_ctx_device_cpp PRIVATE "${CUDA_DRIVER_INCLUDE_DIR}")
+target_link_libraries(bench_ctx_device_cpp PRIVATE "${CUDA_DRIVER_LIBRARY}")

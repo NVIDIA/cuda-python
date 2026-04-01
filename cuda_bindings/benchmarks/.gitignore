@@ -11,3 +11,7 @@ __pycache__/
 
 # Override root .gitignore *.cpp rule (which targets Cython-generated files)
 !benchmarks/cpp/*.cpp
+
+
+results-python.json
+results-cpp.json

@@ -76,7 +76,7 @@ cmd = ["cmake", "--build", "$PIXI_PROJECT_ROOT/.build/cpp"]
 depends-on = [{ task = "bench-cpp-configure" }]
 
 [target.linux.tasks.bench-cpp]
-cmd = ["$PIXI_PROJECT_ROOT/.build/cpp/bench_pointer_attributes_cpp"]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_cpp.py"]
 depends-on = [{ task = "bench-cpp-build" }]
 
 [target.linux.tasks.lint]
