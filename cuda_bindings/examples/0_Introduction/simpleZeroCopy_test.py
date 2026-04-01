@@ -8,6 +8,10 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import math
 import platform
@@ -15,12 +19,16 @@ import random as rnd
 import sys
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors
-from common.helper_string import check_cmd_line_flag, get_cmd_line_argument_int
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import (
+    KernelHelper,
+    check_cmd_line_flag,
+    check_cuda_errors,
+    get_cmd_line_argument_int,
+    requirement_not_met,
+)
 
 simple_zero_copy = """\
 extern "C"
@@ -40,19 +48,17 @@ def main():
     idev = 0
     b_pin_generic_memory = False
 
-    import pytest
-
     if platform.system() == "Darwin":
-        pytest.skip("simpleZeroCopy is not supported on Mac OSX")
+        requirement_not_met("simpleZeroCopy is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        pytest.skip("simpleZeroCopy is not supported on ARMv7")
+        requirement_not_met("simpleZeroCopy is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        pytest.skip("simpleZeroCopy is not supported on aarch64")
+        requirement_not_met("simpleZeroCopy is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        pytest.skip("simpleZeroCopy is not supported on sbsa")
+        requirement_not_met("simpleZeroCopy is not supported on sbsa")
 
     if check_cmd_line_flag("help"):
         print("Usage:  simpleZeroCopy [OPTION]\n", file=sys.stderr)
@@ -84,7 +90,7 @@ def main():
     device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(idev))
 
     if not device_prop.canMapHostMemory:
-        pytest.skip(f"Device {idev} does not support mapping CPU host memory!")
+        requirement_not_met(f"Device {idev} does not support mapping CPU host memory!")
 
     check_cuda_errors(cudart.cudaSetDeviceFlags(cudart.cudaDeviceMapHost))
 
@@ -131,7 +137,7 @@ def main():
     grid.x = math.ceil(nelem / float(block.x))
     grid.y = 1
     grid.z = 1
-    kernel_helper = common.KernelHelper(simple_zero_copy, idev)
+    kernel_helper = KernelHelper(simple_zero_copy, idev)
     _vector_add_gpu = kernel_helper.get_function(b"vectorAddGPU")
     kernel_args = (
         (d_a, d_b, d_c, nelem),

@@ -8,6 +8,10 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import math
 import platform
@@ -15,11 +19,14 @@ import sys
 from random import random
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import (
+    KernelHelper,
+    check_cuda_errors,
+    find_cuda_device,
+)
 
 conjugate_gradient_multi_block_cg = """\
 #line __LINE__
@@ -238,7 +245,7 @@ def main():
     )
 
     # Get kernel
-    kernel_helper = common.KernelHelper(conjugate_gradient_multi_block_cg, dev_id)
+    kernel_helper = KernelHelper(conjugate_gradient_multi_block_cg, dev_id)
     _gpu_conjugate_gradient = kernel_helper.get_function(b"gpuConjugateGradient")
 
     # Generate a random tridiagonal symmetric matrix in CSR format
