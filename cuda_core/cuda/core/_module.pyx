@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from libc.stddef cimport size_t
 
-import functools
-import threading
 from collections import namedtuple
 
 from cuda.core._device import Device
@@ -19,9 +17,9 @@ from cuda.core._resource_handles cimport (
     KernelHandle,
     create_library_handle_from_file,
     create_library_handle_from_data,
-    create_library_handle_ref,
     create_kernel_handle,
     create_kernel_handle_ref,
+    get_kernel_library,
     get_last_error,
     as_cu,
     as_py,
@@ -33,109 +31,11 @@ from cuda.core._utils.clear_error_support import (
     raise_code_path_meant_to_be_unreachable,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.cuda_utils import driver, get_binding_version
+from cuda.core._utils.version cimport cy_driver_version
+from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
 __all__ = ["Kernel", "ObjectCode"]
-
-# Lazy initialization state and synchronization
-# For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
-# For regular Python builds with GIL, the lock overhead is minimal and the code remains safe.
-cdef object _init_lock = threading.Lock()
-cdef bint _inited = False
-cdef int _py_major_ver = 0
-cdef int _py_minor_ver = 0
-cdef int _driver_ver = 0
-cdef tuple _kernel_ctypes = None
-cdef bint _paraminfo_supported = False
-
-
-cdef int _lazy_init() except -1:
-    """
-    Initialize module-level state in a thread-safe manner.
-
-    This function is thread-safe and suitable for both:
-    - Regular Python builds (with GIL)
-    - Python 3.13t free-threaded builds (without GIL)
-
-    Uses double-checked locking pattern for performance:
-    - Fast path: check without lock if already initialized
-    - Slow path: acquire lock and initialize if needed
-    """
-    global _inited
-    # Fast path: already initialized (no lock needed for read)
-    if _inited:
-        return 0
-
-    cdef int drv_ver
-    # Slow path: acquire lock and initialize
-    with _init_lock:
-        # Double-check: another thread might have initialized while we waited
-        if _inited:
-            return 0
-
-        global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes, _paraminfo_supported
-        # binding availability depends on cuda-python version
-        _py_major_ver, _py_minor_ver = get_binding_version()
-        _kernel_ctypes = (driver.CUkernel,)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuDriverGetVersion(&drv_ver))
-        _driver_ver = drv_ver
-        _paraminfo_supported = _driver_ver >= 12040
-
-        # Mark as initialized (must be last to ensure all state is set)
-        _inited = True
-
-    return 0
-
-
-# Auto-initializing accessors (cdef for internal use)
-cdef inline int _get_py_major_ver() except -1:
-    """Get the Python binding major version, initializing if needed."""
-    _lazy_init()
-    return _py_major_ver
-
-
-cdef inline int _get_py_minor_ver() except -1:
-    """Get the Python binding minor version, initializing if needed."""
-    _lazy_init()
-    return _py_minor_ver
-
-
-cdef inline int _get_driver_ver() except -1:
-    """Get the CUDA driver version, initializing if needed."""
-    _lazy_init()
-    return _driver_ver
-
-
-cdef inline tuple _get_kernel_ctypes():
-    """Get the kernel ctypes tuple, initializing if needed."""
-    _lazy_init()
-    return _kernel_ctypes
-
-
-cdef inline bint _is_paraminfo_supported() except -1:
-    """Return True if cuKernelGetParamInfo is available (driver >= 12.4)."""
-    _lazy_init()
-    return _paraminfo_supported
-
-
-@functools.cache
-def _is_cukernel_get_library_supported() -> bool:
-    """Return True when cuKernelGetLibrary is available for inverse kernel-to-library lookup.
-
-    Requires cuda-python bindings >= 12.5 and driver >= 12.5.
-    """
-    return (
-        (_get_py_major_ver(), _get_py_minor_ver()) >= (12, 5)
-        and _get_driver_ver() >= 12050
-        and hasattr(driver, "cuKernelGetLibrary")
-    )
-
-
-cdef inline LibraryHandle _make_empty_library_handle():
-    """Create an empty LibraryHandle to indicate no library loaded."""
-    return LibraryHandle()  # Empty shared_ptr
 
 
 cdef class KernelAttributes:
@@ -149,7 +49,6 @@ cdef class KernelAttributes:
         cdef KernelAttributes self = KernelAttributes.__new__(KernelAttributes)
         self._h_kernel = h_kernel
         self._cache = {}
-        _lazy_init()
         return self
 
     cdef int _get_cached_attribute(self, int device_id, cydriver.CUfunction_attribute attribute) except? -1:
@@ -493,7 +392,7 @@ cdef class Kernel:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
-    cdef Kernel _from_obj(KernelHandle h_kernel):
+    cdef Kernel _from_handle(KernelHandle h_kernel):
         cdef Kernel ker = Kernel.__new__(Kernel)
         ker._h_kernel = h_kernel
         ker._attributes = None
@@ -508,11 +407,10 @@ cdef class Kernel:
         return self._attributes
 
     cdef tuple _get_arguments_info(self, bint param_info=False):
-        if not _is_paraminfo_supported():
-            driver_ver = _get_driver_ver()
+        if cy_driver_version() < (12, 4, 0):
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
-                f"Using driver version {driver_ver // 1000}.{(driver_ver % 1000) // 10}"
+                f"Using driver version {'.'.join(map(str, cy_driver_version()))}"
             )
         cdef size_t arg_pos = 0
         cdef list param_info_data = []
@@ -567,9 +465,7 @@ cdef class Kernel:
 
     @staticmethod
     def from_handle(handle, mod: ObjectCode = None) -> Kernel:
-        """Creates a new :obj:`Kernel` object from a foreign kernel handle.
-
-        Uses a CUkernel pointer address to create a new :obj:`Kernel` object.
+        """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
         ----------
@@ -577,37 +473,37 @@ cdef class Kernel:
             Kernel handle representing the address of a foreign
             kernel object (CUkernel).
         mod : :obj:`ObjectCode`, optional
-            The ObjectCode object associated with this kernel. If not provided,
-            a placeholder ObjectCode will be created. Note that without a proper
-            ObjectCode, certain operations may be limited.
+            The ObjectCode object associated with this kernel. Provides
+            library lifetime for foreign kernels not created by
+            cuda.core.
         """
 
-        # Validate that handle is an integer
         if not isinstance(handle, int):
             raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
 
-        # Convert the integer handle to CUkernel
         cdef cydriver.CUkernel cu_kernel = <cydriver.CUkernel><void*><size_t>handle
-        cdef KernelHandle h_kernel
-        cdef cydriver.CUlibrary cu_library
-        cdef cydriver.CUresult err
-
-        # If no module provided, create a placeholder and try to get the library
-        if mod is None:
-            mod = ObjectCode._init(b"", "cubin")
-            if _is_cukernel_get_library_supported():
-                # Try to get the owning library via cuKernelGetLibrary
-                with nogil:
-                    err = cydriver.cuKernelGetLibrary(&cu_library, cu_kernel)
-                if err == cydriver.CUDA_SUCCESS:
-                    mod._h_library = create_library_handle_ref(cu_library)
-
-        # Create kernel handle with library dependency
-        h_kernel = create_kernel_handle_ref(cu_kernel, mod._h_library)
+        cdef KernelHandle h_kernel = create_kernel_handle_ref(cu_kernel)
         if not h_kernel:
             HANDLE_RETURN(get_last_error())
 
-        return Kernel._from_obj(h_kernel)
+        cdef LibraryHandle h_existing_lib = get_kernel_library(h_kernel)
+        cdef LibraryHandle h_caller_lib
+
+        if mod is not None:
+            h_caller_lib = (<ObjectCode>mod)._h_library
+            if h_existing_lib and h_caller_lib:
+                if as_cu(h_existing_lib) != as_cu(h_caller_lib):
+                    import warnings
+                    warnings.warn(
+                        "The library from the provided ObjectCode does not match "
+                        "the library associated with this kernel.",
+                        stacklevel=2,
+                    )
+
+        cdef Kernel k = Kernel._from_handle(h_kernel)
+        if mod is not None and not h_existing_lib:
+            k._keepalive = mod
+        return k
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Kernel):
@@ -652,7 +548,6 @@ cdef class ObjectCode:
 
         # _h_library is assigned during _lazy_load_module
         self._h_library = LibraryHandle()  # Empty handle
-        _lazy_init()
 
         self._code_type = code_type
         self._module = module
@@ -825,7 +720,7 @@ cdef class ObjectCode:
         cdef KernelHandle h_kernel = create_kernel_handle(self._h_library, <const char*>name)
         if not h_kernel:
             HANDLE_RETURN(get_last_error())
-        return Kernel._from_obj(h_kernel)
+        return Kernel._from_handle(h_kernel)
 
     @property
     def code(self) -> CodeTypeT:

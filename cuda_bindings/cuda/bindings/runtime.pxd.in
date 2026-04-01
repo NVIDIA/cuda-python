@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -511,7 +511,7 @@ cdef class cudaArrayMemoryRequirements:
 
 cdef class cudaPitchedPtr:
     """
-    CUDA Pitched memory pointer  ::make_cudaPitchedPtr
+    CUDA Pitched memory pointer  make_cudaPitchedPtr
 
     Attributes
     ----------
@@ -547,7 +547,7 @@ cdef class cudaPitchedPtr:
 
 cdef class cudaExtent:
     """
-    CUDA extent  ::make_cudaExtent
+    CUDA extent  make_cudaExtent
 
     Attributes
     ----------
@@ -577,7 +577,7 @@ cdef class cudaExtent:
 
 cdef class cudaPos:
     """
-    CUDA 3D position  ::make_cudaPos
+    CUDA 3D position  make_cudaPos
 
     Attributes
     ----------
@@ -979,6 +979,10 @@ cdef class cudaHostNodeParamsV2:
     {{if 'cudaHostNodeParamsV2.userData' in found_struct}}
     userData : Any
         Argument to pass to the function
+    {{endif}}
+    {{if 'cudaHostNodeParamsV2.syncMode' in found_struct}}
+    syncMode : unsigned int
+        The synchronization mode to use for the host task
     {{endif}}
 
     Methods
@@ -1423,6 +1427,10 @@ cdef class cudaFuncAttributes:
         compute capabilities.  The specific hardware unit may support
         higher cluster sizes that’s not guaranteed to be portable. See
         cudaFuncSetAttribute
+    {{endif}}
+    {{if 'cudaFuncAttributes.reserved0' in found_struct}}
+    reserved0 : int
+
     {{endif}}
     {{if 'cudaFuncAttributes.reserved' in found_struct}}
     reserved : list[int]
@@ -3018,7 +3026,7 @@ cdef class cudaDevSmResource:
     {{if 'cudaDevSmResource.flags' in found_struct}}
     flags : unsigned int
         The flags set on this SM resource. For available flags see
-        ::cudaDevSmResourceGroup_flags.
+        cudaDevSmResourceGroup_flags.
     {{endif}}
 
     Methods
@@ -3292,7 +3300,15 @@ cdef class cudaKernelNodeParamsV2:
     ----------
     {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
     func : Any
-        Kernel to launch
+        functionType = cudaKernelFucntionTypeDevice
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+    kern : cudaKernel_t
+        functionType = cudaKernelFucntionTypeKernel
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+    cuFunc : cudaFunction_t
+        functionType = cudaKernelFucntionTypeFunction
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
     gridDim : dim3
@@ -3319,16 +3335,26 @@ cdef class cudaKernelNodeParamsV2:
         Context in which to run the kernel. If NULL will try to use the
         current context.
     {{endif}}
+    {{if 'cudaKernelNodeParamsV2.functionType' in found_struct}}
+    functionType : cudaKernelFunctionType
+        Type of handle passed in the func/kern/cuFunc union above
+    {{endif}}
 
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
-    cdef cyruntime.cudaKernelNodeParamsV2 _pvt_val
+    cdef cyruntime.cudaKernelNodeParamsV2* _val_ptr
     cdef cyruntime.cudaKernelNodeParamsV2* _pvt_ptr
     {{if 'cudaKernelNodeParamsV2.func' in found_struct}}
     cdef _HelperInputVoidPtr _cyfunc
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.kern' in found_struct}}
+    cdef cudaKernel_t _kern
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.cuFunc' in found_struct}}
+    cdef cudaFunction_t _cuFunc
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.gridDim' in found_struct}}
     cdef dim3 _gridDim
@@ -3791,9 +3817,9 @@ cdef class cudaGraphEdgeData_st:
     {{endif}}
     {{if 'cudaGraphEdgeData_st.type' in found_struct}}
     type : bytes
-        This should be populated with a value from
-        ::cudaGraphDependencyType. (It is typed as char due to compiler-
-        specific layout of bitfields.) See ::cudaGraphDependencyType.
+        This should be populated with a value from cudaGraphDependencyType.
+        (It is typed as char due to compiler-specific layout of bitfields.)
+        See cudaGraphDependencyType.
     {{endif}}
     {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
     reserved : bytes
@@ -3917,7 +3943,7 @@ cdef class anon_struct16:
 {{endif}}
 {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
 
-cdef class anon_union8:
+cdef class anon_union9:
     """
     Attributes
     ----------
@@ -3966,7 +3992,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-    updateData : anon_union8
+    updateData : anon_union9
         Update data to apply. Which field is used depends on field's value
     {{endif}}
 
@@ -3981,7 +4007,7 @@ cdef class cudaGraphKernelNodeUpdate:
     cdef cudaGraphDeviceNode_t _node
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-    cdef anon_union8 _updateData
+    cdef anon_union9 _updateData
     {{endif}}
 {{endif}}
 {{if 'cudaLaunchMemSyncDomainMap_st' in found_struct}}
@@ -3991,8 +4017,8 @@ cdef class cudaLaunchMemSyncDomainMap_st:
     Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
     default, kernels are launched in domain 0. Kernel launched with
     cudaLaunchMemSyncDomainRemote will have a different domain ID. User
-    may also alter the domain ID with ::cudaLaunchMemSyncDomainMap for
-    a specific stream / graph node / kernel launch. See
+    may also alter the domain ID with cudaLaunchMemSyncDomainMap for a
+    specific stream / graph node / kernel launch. See
     cudaLaunchAttributeMemSyncDomainMap.  Domain ID range is available
     through cudaDevAttrMemSyncDomainCount.
 
@@ -4150,8 +4176,7 @@ cdef class anon_struct21:
 
 cdef class cudaLaunchAttributeValue:
     """
-    Launch attributes union; used as value field of
-    ::cudaLaunchAttribute
+    Launch attributes union; used as value field of cudaLaunchAttribute
 
     Attributes
     ----------
@@ -4171,7 +4196,7 @@ cdef class cudaLaunchAttributeValue:
     {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
-        ::cudaSynchronizationPolicy for work queued up in this stream.
+        cudaSynchronizationPolicy for work queued up in this stream.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
     clusterDim : anon_struct17
@@ -4199,9 +4224,10 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        ::cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -4211,7 +4237,7 @@ cdef class cudaLaunchAttributeValue:
     {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
         Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
-        ::cudaLaunchMemSyncDomainMap.
+        cudaLaunchMemSyncDomainMap.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
     memSyncDomain : cudaLaunchMemSyncDomain
@@ -4226,19 +4252,19 @@ cdef class cudaLaunchAttributeValue:
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
-        the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        cudaLaunchAttributeValue::clusterDim.
+        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
+        of the preferred cluster, in blocks. Must be a divisor of the grid
+        Y dimension, and must be a multiple of the `y` field of
+        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
+        of the preferred cluster, in blocks. Must be equal to the `z` field
+        of ::cudaLaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
+        flags, see ::cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -4259,6 +4285,16 @@ cdef class cudaLaunchAttributeValue:
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
         cudaLaunchAttributeNvlinkUtilCentricScheduling.
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+        Value of launch attribute
+        cudaLaunchAttributePortableClusterSizeMode
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : cudaSharedMemoryMode
+        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
+        cudaSharedMemoryMode for acceptable values.
     {{endif}}
 
     Methods
@@ -4338,7 +4374,7 @@ cdef class anon_struct22:
 {{endif}}
 {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
 
-cdef class anon_union9:
+cdef class anon_union10:
     """
     Attributes
     ----------
@@ -4370,7 +4406,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    info : anon_union9
+    info : anon_union10
         Information about the notification. `typename` must be checked in
         order to interpret this field.
     {{endif}}
@@ -4383,7 +4419,7 @@ cdef class cudaAsyncNotificationInfo:
     cdef cyruntime.cudaAsyncNotificationInfo* _val_ptr
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    cdef anon_union9 _info
+    cdef anon_union10 _info
     {{endif}}
 {{endif}}
 {{if 'cudaTextureDesc' in found_struct}}
@@ -4506,7 +4542,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union10:
+cdef class anon_union11:
     """
     Attributes
     ----------
@@ -4542,7 +4578,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
     {{if True}}
-    frame : anon_union10
+    frame : anon_union11
 
     {{endif}}
     {{if True}}
@@ -4570,7 +4606,7 @@ cdef class cudaEglFrame_st:
     cdef cyruntime.cudaEglFrame_st* _val_ptr
     cdef cyruntime.cudaEglFrame_st* _pvt_ptr
     {{if True}}
-    cdef anon_union10 _frame
+    cdef anon_union11 _frame
     {{endif}}
 {{endif}}
 {{if 'CUuuid' in found_types}}
@@ -4799,9 +4835,9 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
     {{endif}}
     {{if 'cudaGraphEdgeData_st.type' in found_struct}}
     type : bytes
-        This should be populated with a value from
-        ::cudaGraphDependencyType. (It is typed as char due to compiler-
-        specific layout of bitfields.) See ::cudaGraphDependencyType.
+        This should be populated with a value from cudaGraphDependencyType.
+        (It is typed as char due to compiler-specific layout of bitfields.)
+        See cudaGraphDependencyType.
     {{endif}}
     {{if 'cudaGraphEdgeData_st.reserved' in found_struct}}
     reserved : bytes
@@ -4886,8 +4922,8 @@ cdef class cudaLaunchMemSyncDomainMap(cudaLaunchMemSyncDomainMap_st):
     Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
     default, kernels are launched in domain 0. Kernel launched with
     cudaLaunchMemSyncDomainRemote will have a different domain ID. User
-    may also alter the domain ID with ::cudaLaunchMemSyncDomainMap for
-    a specific stream / graph node / kernel launch. See
+    may also alter the domain ID with cudaLaunchMemSyncDomainMap for a
+    specific stream / graph node / kernel launch. See
     cudaLaunchAttributeMemSyncDomainMap.  Domain ID range is available
     through cudaDevAttrMemSyncDomainCount.
 
@@ -4946,7 +4982,7 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    info : anon_union9
+    info : anon_union10
         Information about the notification. `typename` must be checked in
         order to interpret this field.
     {{endif}}
@@ -4962,8 +4998,7 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
 
 cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     """
-    Launch attributes union; used as value field of
-    ::cudaLaunchAttribute
+    Launch attributes union; used as value field of cudaLaunchAttribute
 
     Attributes
     ----------
@@ -4983,7 +5018,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
-        ::cudaSynchronizationPolicy for work queued up in this stream.
+        cudaSynchronizationPolicy for work queued up in this stream.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
     clusterDim : anon_struct17
@@ -5011,9 +5046,10 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        ::cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -5023,7 +5059,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
         Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
-        ::cudaLaunchMemSyncDomainMap.
+        cudaLaunchMemSyncDomainMap.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
     memSyncDomain : cudaLaunchMemSyncDomain
@@ -5038,19 +5074,19 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
-        the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        cudaLaunchAttributeValue::clusterDim.
+        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
+        of the preferred cluster, in blocks. Must be a divisor of the grid
+        Y dimension, and must be a multiple of the `y` field of
+        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
+        of the preferred cluster, in blocks. Must be equal to the `z` field
+        of ::cudaLaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
+        flags, see ::cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -5071,6 +5107,16 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
         cudaLaunchAttributeNvlinkUtilCentricScheduling.
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+        Value of launch attribute
+        cudaLaunchAttributePortableClusterSizeMode
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : cudaSharedMemoryMode
+        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
+        cudaSharedMemoryMode for acceptable values.
     {{endif}}
 
     Methods
@@ -5084,8 +5130,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
 
 cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     """
-    Launch attributes union; used as value field of
-    ::cudaLaunchAttribute
+    Launch attributes union; used as value field of cudaLaunchAttribute
 
     Attributes
     ----------
@@ -5105,7 +5150,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.syncPolicy' in found_struct}}
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
-        ::cudaSynchronizationPolicy for work queued up in this stream.
+        cudaSynchronizationPolicy for work queued up in this stream.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.clusterDim' in found_struct}}
     clusterDim : anon_struct17
@@ -5133,9 +5178,10 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
-        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
-        - `int` triggerAtBlockStart - If this is set to non-0, each block
-        launch will automatically trigger the event.
+        ::cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.    - `int` triggerAtBlockStart - If this
+        is set to non-0, each block launch will automatically trigger the
+        event.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.priority' in found_struct}}
     priority : int
@@ -5145,7 +5191,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     {{if 'cudaLaunchAttributeValue.memSyncDomainMap' in found_struct}}
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
         Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
-        ::cudaLaunchMemSyncDomainMap.
+        cudaLaunchMemSyncDomainMap.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.memSyncDomain' in found_struct}}
     memSyncDomain : cudaLaunchMemSyncDomain
@@ -5160,19 +5206,19 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
-        the preferred cluster, in blocks. Must be a divisor of the grid Y
-        dimension, and must be a multiple of the `y` field of
-        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
-        the preferred cluster, in blocks. Must be equal to the `z` field of
-        cudaLaunchAttributeValue::clusterDim.
+        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
+        of the preferred cluster, in blocks. Must be a divisor of the grid
+        Y dimension, and must be a multiple of the `y` field of
+        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
+        of the preferred cluster, in blocks. Must be equal to the `z` field
+        of ::cudaLaunchAttributeValue::clusterDim.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.launchCompletionEvent' in found_struct}}
     launchCompletionEvent : anon_struct20
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
-        flags, see cudaEventRecordWithFlags. Does not accept
+        flags, see ::cudaEventRecordWithFlags. Does not accept
         cudaEventRecordExternal.
     {{endif}}
     {{if 'cudaLaunchAttributeValue.deviceUpdatableKernelNode' in found_struct}}
@@ -5193,6 +5239,16 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     nvlinkUtilCentricScheduling : unsigned int
         Value of launch attribute
         cudaLaunchAttributeNvlinkUtilCentricScheduling.
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.portableClusterSizeMode' in found_struct}}
+    portableClusterSizeMode : cudaLaunchAttributePortableClusterMode
+        Value of launch attribute
+        cudaLaunchAttributePortableClusterSizeMode
+    {{endif}}
+    {{if 'cudaLaunchAttributeValue.sharedMemoryMode' in found_struct}}
+    sharedMemoryMode : cudaSharedMemoryMode
+        Value of launch attribute cudaLaunchAttributeSharedMemoryMode. See
+        cudaSharedMemoryMode for acceptable values.
     {{endif}}
 
     Methods
@@ -5263,7 +5319,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
     Attributes
     ----------
     {{if True}}
-    frame : anon_union10
+    frame : anon_union11
 
     {{endif}}
     {{if True}}

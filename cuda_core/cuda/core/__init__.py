@@ -68,3 +68,4 @@ from cuda.core._stream import (
     Stream,
     StreamOptions,
 )
+from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions

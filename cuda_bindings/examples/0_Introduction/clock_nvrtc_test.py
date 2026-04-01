@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates using the device clock for kernel timing via
+# NVRTC-compiled CUDA code.
+#
+# ################################################################################
+
 import platform
 
 import numpy as np

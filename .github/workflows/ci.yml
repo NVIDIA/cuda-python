@@ -220,7 +220,6 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       is-release: ${{ github.ref_type == 'tag' }}
 
   checks:

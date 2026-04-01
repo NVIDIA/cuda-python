@@ -163,3 +163,45 @@ def test_graph_capture_errors(init_cuda):
     with pytest.raises(RuntimeError, match="^Graph has not finished building."):
         gb.complete()
     gb.end_building().complete()
+
+
+def test_graph_capture_callback_python(init_cuda):
+    results = []
+
+    def my_callback():
+        results.append(42)
+
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+
+    with pytest.raises(ValueError, match="user_data is only supported"):
+        gb.callback(my_callback, user_data=b"hello")
+
+    gb.callback(my_callback)
+    graph = gb.end_building().complete()
+
+    graph.launch(launch_stream)
+    launch_stream.sync()
+
+    assert results == [42]
+
+
+def test_graph_capture_callback_ctypes(init_cuda):
+    import ctypes
+
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    result = [0]
+
+    @CALLBACK
+    def read_byte(data):
+        result[0] = ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
+
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    gb.callback(read_byte, user_data=bytes([0xAB]))
+    graph = gb.end_building().complete()
+
+    graph.launch(launch_stream)
+    launch_stream.sync()
+
+    assert result[0] == 0xAB

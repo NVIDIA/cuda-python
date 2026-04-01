@@ -13,7 +13,8 @@ from dataclasses import dataclass
 import threading
 from warnings import warn
 
-from cuda.bindings import driver, nvrtc
+from cuda.bindings import nvrtc
+from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 
 from libcpp.vector cimport vector
 
@@ -33,11 +34,11 @@ from cuda.core._utils.cuda_utils import (
     CUDAError,
     _handle_boolean_option,
     check_or_create_options,
-    get_binding_version,
     handle_return,
     is_nested_sequence,
     is_sequence,
 )
+from cuda.core._utils.version import binding_version, driver_version
 
 __all__ = ["Program", "ProgramOptions"]
 
@@ -402,6 +403,31 @@ class ProgramOptions:
         # Set arch to default if not provided
         if self.arch is None:
             self.arch = f"sm_{Device().arch}"
+        if self.extra_sources is not None:
+            if not is_sequence(self.extra_sources):
+                raise TypeError(
+                    "extra_sources must be a sequence of 2-tuples: ((name1, source1), (name2, source2), ...)"
+                )
+            for i, module in enumerate(self.extra_sources):
+                if not isinstance(module, tuple) or len(module) != 2:
+                    raise TypeError(
+                        f"Each extra module must be a 2-tuple (name, source)"
+                        f", got {type(module).__name__} at index {i}"
+                    )
+
+                module_name, module_source = module
+
+                if not isinstance(module_name, str):
+                    raise TypeError(f"Module name at index {i} must be a string, got {type(module_name).__name__}")
+
+                if not isinstance(module_source, (str, bytes, bytearray)):
+                    raise TypeError(
+                        f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
+                        f"or bytearray, got {type(module_source).__name__}"
+                    )
+
+                if len(module_source) == 0:
+                    raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
 
     def _prepare_nvrtc_options(self) -> list[bytes]:
         return _prepare_nvrtc_options_impl(self)
@@ -455,14 +481,31 @@ class ProgramOptions:
     def __repr__(self):
         return f"ProgramOptions(name={self.name!r}, arch={self.arch!r})"
 
+    def _prepare_extra_sources_bytes(self) -> list[tuple[bytes, bytes]] | None:
+        """Convert extra_sources to bytes format for NVVM."""
+        if self.extra_sources is None:
+            return None
+
+        result = []
+        for module_name, module_source in self.extra_sources:
+            name_bytes = module_name.encode("utf-8")
+            if isinstance(module_source, str):
+                source_bytes = module_source.encode("utf-8")
+            elif isinstance(module_source, bytearray):
+                source_bytes = bytes(module_source)
+            else:
+                source_bytes = module_source
+            result.append((name_bytes, source_bytes))
+        return result
+
 
 # =============================================================================
 # Private Classes and Helper Functions
 # =============================================================================
 
 # Module-level state for NVVM lazy loading
-cdef object_nvvm_module = None
-cdef bint _nvvm_import_attempted = False
+_nvvm_module = None
+_nvvm_import_attempted = False
 
 
 def _get_nvvm_module():
@@ -477,25 +520,28 @@ def _get_nvvm_module():
     _nvvm_import_attempted = True
 
     try:
-        version = get_binding_version()
-        if version < (12, 9):
+        version = binding_version()
+        if version < (12, 9, 0):
             raise RuntimeError(
-                f"NVVM bindings require cuda-bindings >= 12.9.0, but found {version[0]}.{version[1]}.x. "
+                f"NVVM bindings require cuda-bindings >= 12.9.0, but found {'.'.join(map(str, version))}. "
                 "Please update cuda-bindings to use NVVM features."
             )
 
-        from cuda.bindings import nvvm
-        from cuda.bindings._internal.nvvm import _inspect_function_pointer
-
-        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
-            raise RuntimeError("NVVM library (libnvvm) is not available in this Python environment. ")
+        nvvm = _optional_cuda_import(
+            "cuda.bindings.nvvm",
+            probe_function=lambda module: module.version(),  # probe triggers libnvvm load
+        )
+        if nvvm is None:
+            raise RuntimeError(
+                "NVVM support is unavailable: cuda.bindings.nvvm is missing or libnvvm cannot be loaded."
+            )
 
         _nvvm_module = nvvm
         return _nvvm_module
 
-    except RuntimeError as e:
+    except RuntimeError:
         _nvvm_module = None
-        raise e
+        raise
 
 def _find_libdevice_path():
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
@@ -533,9 +579,9 @@ cdef inline void _process_define_macro(list options, object macro) except *:
 
 cpdef bint _can_load_generated_ptx() except? -1:
     """Check if the driver can load PTX generated by the current NVRTC version."""
-    driver_ver = handle_return(driver.cuDriverGetVersion())
+    drv = driver_version()
     nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
-    return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
+    return (nvrtc_major, nvrtc_minor, 0) <= drv
 
 
 cdef inline object _translate_program_options(object options):
@@ -624,41 +670,11 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
         # Add extra modules if provided
         if options.extra_sources is not None:
-            if not is_sequence(options.extra_sources):
-                raise TypeError(
-                    "extra_sources must be a sequence of 2-tuples: ((name1, source1), (name2, source2), ...)"
-                )
-            for i, module in enumerate(options.extra_sources):
-                if not isinstance(module, tuple) or len(module) != 2:
-                    raise TypeError(
-                        f"Each extra module must be a 2-tuple (name, source)"
-                        f", got {type(module).__name__} at index {i}"
-                    )
-
-                module_name, module_source = module
-
-                if not isinstance(module_name, str):
-                    raise TypeError(f"Module name at index {i} must be a string, got {type(module_name).__name__}")
-
-                if isinstance(module_source, str):
-                    # Textual LLVM IR - encode to UTF-8 bytes
-                    module_source = module_source.encode("utf-8")
-                elif not isinstance(module_source, (bytes, bytearray)):
-                    raise TypeError(
-                        f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
-                        f"or bytearray, got {type(module_source).__name__}"
-                    )
-
-                if len(module_source) == 0:
-                    raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
-
-                # Add the module using NVVM API
-                module_bytes = module_source if isinstance(module_source, bytes) else bytes(module_source)
+            extra_sources_bytes = options._prepare_extra_sources_bytes()
+            for module_name_bytes, module_bytes in extra_sources_bytes:
                 module_ptr = <const char*>module_bytes
                 module_len = len(module_bytes)
-                module_name_bytes = module_name.encode()
                 module_name_ptr = <const char*>module_name_bytes
-
                 with nogil:
                     HANDLE_RETURN_NVVM(nvvm_prog, cynvvm.nvvmAddModuleToProgram(
                         nvvm_prog, module_ptr, module_len, module_name_ptr))

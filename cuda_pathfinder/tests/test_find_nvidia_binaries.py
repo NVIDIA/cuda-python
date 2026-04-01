@@ -57,7 +57,7 @@ def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, 
         binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir]
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
-    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
     which_mock = mocker.patch.object(
         binary_finder_module.shutil, "which", return_value=os.path.join(os.sep, "resolved", "nvcc")
     )
@@ -91,7 +91,7 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
         binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir]
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
-    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
     which_mock = mocker.patch.object(
         binary_finder_module.shutil, "which", return_value=os.path.join(os.sep, "resolved", "nvcc.exe")
     )
@@ -122,7 +122,7 @@ def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
     )
     find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
-    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
 
     result = find_nvidia_binary_utility("nvcc")
@@ -141,7 +141,7 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
     find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
-    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=cuda_home)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
     which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
 
     result = find_nvidia_binary_utility("nvcc")
@@ -161,7 +161,7 @@ def test_find_binary_cache_negative_result(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
     mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
-    mocker.patch.object(binary_finder_module, "get_cuda_home_or_path", return_value=None)
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     which_mock = mocker.patch.object(binary_finder_module.shutil, "which", return_value=None)
 
     first = find_nvidia_binary_utility("nvcc")

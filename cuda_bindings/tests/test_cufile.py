@@ -1841,7 +1841,12 @@ def test_get_stats_l3():
 def test_get_bar_size_in_kb():
     """Test cuFile BAR (Base Address Register) size retrieval."""
     # Get BAR size in kilobytes
-    bar_size_kb = cufile.get_bar_size_in_kb(0)
+    try:
+        bar_size_kb = cufile.get_bar_size_in_kb(0)
+    except cufile.cuFileError as e:
+        if get_tegra_kind() != "Thor":
+            raise
+        pytest.xfail(f"TODO(#9999): Resolve Thor: cuFileError: {e!s}")
 
     # Verify BAR size is a reasonable value
     assert isinstance(bar_size_kb, int), "BAR size should be an integer"

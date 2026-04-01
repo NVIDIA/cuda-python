@@ -5,6 +5,6 @@ backport_branch: "12.9.x"  # keep in sync with target-branch in .github/dependab
 
 cuda:
   build:
-    version: "13.1.1"
+    version: "13.2.0"
   prev_build:
     version: "12.9.1"

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import contextlib
 import re
 import warnings
 
@@ -11,11 +12,10 @@ from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
-from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
-cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 
@@ -34,12 +34,8 @@ nvvm_available = pytest.mark.skipif(
     not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
 )
 
-try:
-    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
-
-    _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
-except Exception:
-    _cuda_driver_version = 0
+with contextlib.suppress(Exception):
+    from cuda.core._utils.cuda_utils import nvrtc
 
 
 def _get_nvrtc_version_for_tests():
@@ -427,6 +423,19 @@ def test_program_compile_invalid_target_type():
         program.compile("invalid_target")
 
 
+def test_nvrtc_compile_invalid_code(init_cuda):
+    """Compiling invalid C++ exercises the HANDLE_RETURN_NVRTC error path with compilation log."""
+    from cuda.core._utils.cuda_utils import NVRTCError
+
+    code = 'extern "C" __global__ void bad_kernel() { this_symbol_is_undefined(); }'
+    program = Program(code, "c++")
+    try:
+        with pytest.raises(NVRTCError, match="compilation log"):
+            program.compile("ptx")
+    finally:
+        program.close()
+
+
 def test_program_backend_property():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
@@ -479,6 +488,20 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
     with pytest.raises(ValueError, match='Unsupported target_type="cubin" for NVVM'):
         program.compile("cubin")
     program.close()
+
+
+@nvvm_available
+def test_nvvm_compile_invalid_ir():
+    """Compiling invalid NVVM IR exercises the HANDLE_RETURN_NVVM error path."""
+    from cuda.bindings.nvvm import nvvmError
+
+    bad_ir = "this is not valid NVVM IR"
+    program = Program(bad_ir, "nvvm")
+    try:
+        with pytest.raises(nvvmError):
+            program.compile("ptx")
+    finally:
+        program.close()
 
 
 @nvvm_available
@@ -697,7 +720,7 @@ def test_cpp_program_with_extra_sources():
     # negative test with NVRTC with multiple sources
     code = 'extern "C" __global__ void my_kernel(){}'
     helper = 'extern "C" __global__ void helper(){}'
-    options = ProgramOptions(extra_sources=helper)
+    options = ProgramOptions(extra_sources=[("helper", helper)])
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
 

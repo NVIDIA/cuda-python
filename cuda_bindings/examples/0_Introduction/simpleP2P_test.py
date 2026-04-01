@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates peer-to-peer memory access and data transfer
+# between multiple GPUs.
+#
+# ################################################################################
+
 import ctypes
 import platform
 import sys
@@ -66,7 +73,7 @@ def main():
             )
             print(
                 "> Peer access from {} (GPU{}) -> {} (GPU{}) : {}\n".format(
-                    prop[j].name, j, prop[i].name, i, "Yes" if i_access_j else "No"
+                    prop[j].name, j, prop[i].name, i, "Yes" if j_access_i else "No"
                 )
             )
             if i_access_j and j_access_i:

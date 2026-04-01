@@ -1,6 +1,13 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates vector addition using multi-device memory
+# mapping (cuMemCreate, cuMemMap) with virtual address management.
+#
+# ################################################################################
+
 import ctypes
 import math
 import platform

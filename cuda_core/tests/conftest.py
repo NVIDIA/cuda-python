@@ -9,6 +9,8 @@ from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
 
+from cuda.pathfinder import get_cuda_path_or_home
+
 try:
     from cuda.bindings import driver
 except ImportError:
@@ -57,6 +59,12 @@ def skip_if_managed_memory_unsupported(device):
             pytest.skip("Device does not support managed memory pool operations")
     except AttributeError:
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+    try:
+        ManagedMemoryResource()
+    except RuntimeError as e:
+        if "requires CUDA 13.0" in str(e):
+            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+        raise
 
 
 def create_managed_memory_resource_or_skip(*args, **kwargs):
@@ -246,7 +254,22 @@ def memory_resource_factory(request, init_cuda):
     return request.param
 
 
+# Please keep in sync with the copy in the top-level conftest.py.
+def _cuda_headers_available() -> bool:
+    """Return True if CUDA headers are available, False if no CUDA path is set.
+
+    Raises AssertionError if a CUDA path is set but has no include/ subdirectory.
+    """
+    cuda_path = get_cuda_path_or_home()
+    if cuda_path is None:
+        return False
+    assert os.path.isdir(os.path.join(cuda_path, "include")), (
+        f"CUDA path {cuda_path} does not contain an 'include' subdirectory"
+    )
+    return True
+
+
 skipif_need_cuda_headers = pytest.mark.skipif(
-    not os.path.isdir(os.path.join(os.environ.get("CUDA_PATH", ""), "include")),
+    not _cuda_headers_available(),
     reason="need CUDA header",
 )

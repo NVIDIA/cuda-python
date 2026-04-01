@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -77,19 +77,19 @@ _py_anon_pod1_dtype = _numpy.dtype((
 
 
 cdef class _py_anon_pod1:
-    """Empty-initialize an instance of `_anon_pod1`.
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod1`.
 
 
-    .. seealso:: `_anon_pod1`
+    .. seealso:: `cuda_bindings_cufile__anon_pod1`
     """
     cdef:
-        _anon_pod1 *_ptr
+        cuda_bindings_cufile__anon_pod1 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod1 *>calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
+        self._ptr = <cuda_bindings_cufile__anon_pod1 *>calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -97,7 +97,7 @@ cdef class _py_anon_pod1:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod1 *ptr
+        cdef cuda_bindings_cufile__anon_pod1 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -132,7 +132,7 @@ cdef class _py_anon_pod1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            self._ptr = <cuda_bindings_cufile__anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
@@ -191,14 +191,14 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <_anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod1 *>ptr
+            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -206,7 +206,7 @@ cdef class _py_anon_pod1:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef _anon_pod3 pod = _anon_pod3()
+    cdef cuda_bindings_cufile__anon_pod3 pod = cuda_bindings_cufile__anon_pod3()
     return _numpy.dtype({
         'names': ['dev_ptr_base', 'file_offset', 'dev_ptr_offset', 'size_'],
         'formats': [_numpy.intp, _numpy.int64, _numpy.int64, _numpy.uint64],
@@ -222,19 +222,19 @@ cdef _get__py_anon_pod3_dtype_offsets():
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
-    """Empty-initialize an instance of `_anon_pod3`.
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod3`.
 
 
-    .. seealso:: `_anon_pod3`
+    .. seealso:: `cuda_bindings_cufile__anon_pod3`
     """
     cdef:
-        _anon_pod3 *_ptr
+        cuda_bindings_cufile__anon_pod3 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod3 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+        self._ptr = <cuda_bindings_cufile__anon_pod3 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -242,7 +242,7 @@ cdef class _py_anon_pod3:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod3 *ptr
+        cdef cuda_bindings_cufile__anon_pod3 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -277,7 +277,7 @@ cdef class _py_anon_pod3:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            self._ptr = <cuda_bindings_cufile__anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
@@ -358,14 +358,14 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <_anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod3 *>ptr
+            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -1351,19 +1351,19 @@ _py_anon_pod2_dtype = _numpy.dtype((
 
 
 cdef class _py_anon_pod2:
-    """Empty-initialize an instance of `_anon_pod2`.
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod2`.
 
 
-    .. seealso:: `_anon_pod2`
+    .. seealso:: `cuda_bindings_cufile__anon_pod2`
     """
     cdef:
-        _anon_pod2 *_ptr
+        cuda_bindings_cufile__anon_pod2 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod2 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
+        self._ptr = <cuda_bindings_cufile__anon_pod2 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -1371,7 +1371,7 @@ cdef class _py_anon_pod2:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod2 *ptr
+        cdef cuda_bindings_cufile__anon_pod2 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -1406,7 +1406,7 @@ cdef class _py_anon_pod2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            self._ptr = <cuda_bindings_cufile__anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
@@ -1426,7 +1426,7 @@ cdef class _py_anon_pod2:
         if self._readonly:
             raise ValueError("This _py_anon_pod2 instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+        memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(cuda_bindings_cufile__anon_pod3) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -1455,14 +1455,14 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <_anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod2 *>ptr
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -2727,6 +2727,8 @@ class DriverControlFlags(_FastEnum):
     """
     USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
     ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
+    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'Vanilla posix io mode. properties.posix_io_mode')
+    FALLBACK_IO_MODE = (CU_FILE_FALLBACK_IO_MODE, 'Fallback io mode. properties.gds_fallback_io')
 
 class FeatureFlags(_FastEnum):
     """
@@ -2819,6 +2821,8 @@ class ArrayConfigParameter(_FastEnum):
     """
     POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
     POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
+    GPU_BOUNCE_BUFFER_SLAB_SIZE_KB = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_SIZE_KB
+    GPU_BOUNCE_BUFFER_SLAB_COUNT = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_COUNT
 
 class P2PFlags(_FastEnum):
     """
@@ -2952,10 +2956,10 @@ cpdef use_count():
 
 
 cpdef driver_get_properties(intptr_t props):
-    """Gets the Driver session properties.
+    """Gets the Driver session properties If the driver is not opened, it will return the staged/default properties If the driver is opened, it will return the current properties.
 
     Args:
-        props (intptr_t): Properties to set.
+        props (intptr_t): Properties to get.
 
     .. seealso:: `cuFileDriverGetProperties`
     """
@@ -2965,7 +2969,7 @@ cpdef driver_get_properties(intptr_t props):
 
 
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
-    """Sets whether the Read/Write APIs use polling to do IO operations.
+    """Sets whether the Read/Write APIs use polling to do IO operations This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         poll (bint): boolean to indicate whether to use poll mode or not.
@@ -2979,7 +2983,7 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
 
 
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
-    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver.
+    """Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_direct_io_size (size_t): maximum allowed direct io size in KB.
@@ -2992,7 +2996,7 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
 
 
 cpdef driver_set_max_cache_size(size_t max_cache_size):
-    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering.
+    """Control parameter to set maximum GPU memory reserved per device by the library for internal buffering This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_cache_size (size_t): The maximum GPU buffer space per device used for internal use in KB.
@@ -3005,7 +3009,7 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
 
 
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
-    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister``.
+    """Sets maximum buffer space that is pinned in KB for use by ``cuFileBufRegister`` This takes place before the driver is opened. No-op if driver is already open.
 
     Args:
         max_pinned_size (size_t): maximum buffer space that is pinned in KB.

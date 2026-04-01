@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1, generator version 0.3.1.dev1322+g646ce84ec. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -528,7 +528,7 @@ class Return(_FastEnum):
     See `nvmlReturn_t`.
     """
     SUCCESS = (NVML_SUCCESS, 'The operation was successful.')
-    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with nvmlInit()')
+    ERROR_UNINITIALIZED = (NVML_ERROR_UNINITIALIZED, 'NVML was not first initialized with `nvmlInit()`')
     ERROR_INVALID_ARGUMENT = (NVML_ERROR_INVALID_ARGUMENT, 'A supplied argument is invalid.')
     ERROR_NOT_SUPPORTED = (NVML_ERROR_NOT_SUPPORTED, 'The requested operation is not available on target device.')
     ERROR_NO_PERMISSION = (NVML_ERROR_NO_PERMISSION, 'The current user does not have permission for operation.')
@@ -709,11 +709,11 @@ class DeviceGpuRecoveryAction(_FastEnum):
 
     See `nvmlDeviceGpuRecoveryAction_t`.
     """
-    GPU_RECOVERY_ACTION_NONE = NVML_GPU_RECOVERY_ACTION_NONE
-    GPU_RECOVERY_ACTION_GPU_RESET = NVML_GPU_RECOVERY_ACTION_GPU_RESET
-    GPU_RECOVERY_ACTION_NODE_REBOOT = NVML_GPU_RECOVERY_ACTION_NODE_REBOOT
-    GPU_RECOVERY_ACTION_DRAIN_P2P = NVML_GPU_RECOVERY_ACTION_DRAIN_P2P
-    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET
+    GPU_RECOVERY_ACTION_NONE = (NVML_GPU_RECOVERY_ACTION_NONE, 'No action needed.')
+    GPU_RECOVERY_ACTION_GPU_RESET = (NVML_GPU_RECOVERY_ACTION_GPU_RESET, 'Reset Gpu.')
+    GPU_RECOVERY_ACTION_NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
+    GPU_RECOVERY_ACTION_DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
+    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
 
 class FanState(_FastEnum):
     """
@@ -759,7 +759,7 @@ class FBCSessionType(_FastEnum):
 class DetachGpuState(_FastEnum):
     """
     Is the GPU device to be removed from the kernel by
-    nvmlDeviceRemoveGpu()
+    `nvmlDeviceRemoveGpu()`
 
     See `nvmlDetachGpuState_t`.
     """
@@ -768,7 +768,7 @@ class DetachGpuState(_FastEnum):
 
 class PcieLinkState(_FastEnum):
     """
-    Parent bridge PCIe link state requested by nvmlDeviceRemoveGpu()
+    Parent bridge PCIe link state requested by `nvmlDeviceRemoveGpu()`
 
     See `nvmlPcieLinkState_t`.
     """
@@ -820,6 +820,7 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
     GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
@@ -993,7 +994,56 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
     GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
     GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
-    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1. Note that changing this should also change NVML_GPM_METRICS_GET_VERSION due to struct size change.')
+    GPM_METRIC_SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
+    GPM_METRIC_SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
+    GPM_METRIC_MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
+    GPM_METRIC_DMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE, "The GPU's SM DMMA tensor activity since reboot.")
+    GPM_METRIC_HMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE, "The GPU's SM HMMA tensor activity since reboot.")
+    GPM_METRIC_IMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE, "The GPU's SM IMMA tensor activity since reboot.")
+    GPM_METRIC_DFMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE, "The GPU's SM DFMA tensor activity since reboot.")
+    GPM_METRIC_PCIE_TX = (NVML_GPM_METRIC_PCIE_TX, 'The PCIe TX traffic since reboot.')
+    GPM_METRIC_PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
+    GPM_METRIC_INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
+    GPM_METRIC_FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_TX = (NVML_GPM_METRIC_NVLINK_L1_TX, 'NvLink write for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_RX = (NVML_GPM_METRIC_NVLINK_L2_RX, 'NvLink read for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_TX = (NVML_GPM_METRIC_NVLINK_L2_TX, 'NvLink write for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_RX = (NVML_GPM_METRIC_NVLINK_L3_RX, 'NvLink read for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_TX = (NVML_GPM_METRIC_NVLINK_L3_TX, 'NvLink write for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_RX = (NVML_GPM_METRIC_NVLINK_L4_RX, 'NvLink read for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_TX = (NVML_GPM_METRIC_NVLINK_L4_TX, 'NvLink write for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_RX = (NVML_GPM_METRIC_NVLINK_L5_RX, 'NvLink read for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_TX = (NVML_GPM_METRIC_NVLINK_L5_TX, 'NvLink write for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_RX = (NVML_GPM_METRIC_NVLINK_L6_RX, 'NvLink read for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_TX = (NVML_GPM_METRIC_NVLINK_L6_TX, 'NvLink write for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_RX = (NVML_GPM_METRIC_NVLINK_L7_RX, 'NvLink read for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_TX = (NVML_GPM_METRIC_NVLINK_L7_TX, 'NvLink write for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_RX = (NVML_GPM_METRIC_NVLINK_L8_RX, 'NvLink read for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_TX = (NVML_GPM_METRIC_NVLINK_L8_TX, 'NvLink write for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_RX = (NVML_GPM_METRIC_NVLINK_L9_RX, 'NvLink read for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_TX = (NVML_GPM_METRIC_NVLINK_L9_TX, 'NvLink write for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_RX = (NVML_GPM_METRIC_NVLINK_L10_RX, 'NvLink read for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_TX = (NVML_GPM_METRIC_NVLINK_L10_TX, 'NvLink write for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_RX = (NVML_GPM_METRIC_NVLINK_L11_RX, 'NvLink read for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_TX = (NVML_GPM_METRIC_NVLINK_L11_TX, 'NvLink write for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_RX = (NVML_GPM_METRIC_NVLINK_L12_RX, 'NvLink read for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_TX = (NVML_GPM_METRIC_NVLINK_L12_TX, 'NvLink write for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_RX = (NVML_GPM_METRIC_NVLINK_L13_RX, 'NvLink read for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_TX = (NVML_GPM_METRIC_NVLINK_L13_TX, 'NvLink write for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_RX = (NVML_GPM_METRIC_NVLINK_L14_RX, 'NvLink read for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_TX = (NVML_GPM_METRIC_NVLINK_L14_TX, 'NvLink write for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_RX = (NVML_GPM_METRIC_NVLINK_L15_RX, 'NvLink read for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_TX = (NVML_GPM_METRIC_NVLINK_L15_TX, 'NvLink write for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_RX = (NVML_GPM_METRIC_NVLINK_L16_RX, 'NvLink read for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
+    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
 
 class PowerProfileType(_FastEnum):
     """
@@ -4373,7 +4423,7 @@ cdef class Value:
 
 
 cdef _get__py_anon_pod0_dtype_offsets():
-    cdef _anon_pod0 pod = _anon_pod0()
+    cdef cuda_bindings_nvml__anon_pod0 pod = cuda_bindings_nvml__anon_pod0()
     return _numpy.dtype({
         'names': ['controller', 'default_min_temp', 'default_max_temp', 'current_temp', 'target'],
         'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
@@ -4384,25 +4434,25 @@ cdef _get__py_anon_pod0_dtype_offsets():
             (<intptr_t>&(pod.currentTemp)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod0),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod0),
     })
 
 _py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
 
 cdef class _py_anon_pod0:
-    """Empty-initialize an instance of `_anon_pod0`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod0`.
 
 
-    .. seealso:: `_anon_pod0`
+    .. seealso:: `cuda_bindings_nvml__anon_pod0`
     """
     cdef:
-        _anon_pod0 *_ptr
+        cuda_bindings_nvml__anon_pod0 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod0 *>calloc(1, sizeof(_anon_pod0))
+        self._ptr = <cuda_bindings_nvml__anon_pod0 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod0")
         self._owner = None
@@ -4410,7 +4460,7 @@ cdef class _py_anon_pod0:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod0 *ptr
+        cdef cuda_bindings_nvml__anon_pod0 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -4435,20 +4485,20 @@ cdef class _py_anon_pod0:
         if not isinstance(other, _py_anon_pod0):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod0)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod0)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod0), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod0), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
+            self._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod0))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4513,7 +4563,7 @@ cdef class _py_anon_pod0:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod0 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod0), _py_anon_pod0)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod0), _py_anon_pod0)
 
     @staticmethod
     def from_data(data):
@@ -4537,14 +4587,14 @@ cdef class _py_anon_pod0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod0 obj = _py_anon_pod0.__new__(_py_anon_pod0)
         if owner is None:
-            obj._ptr = <_anon_pod0 *>malloc(sizeof(_anon_pod0))
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod0))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod0 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -6230,7 +6280,7 @@ cdef class PlatformInfo_v2:
 
 
 cdef _get__py_anon_pod1_dtype_offsets():
-    cdef _anon_pod1 pod = _anon_pod1()
+    cdef cuda_bindings_nvml__anon_pod1 pod = cuda_bindings_nvml__anon_pod1()
     return _numpy.dtype({
         'names': ['b_is_present', 'percentage', 'inc_threshold', 'dec_threshold'],
         'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
@@ -6240,25 +6290,25 @@ cdef _get__py_anon_pod1_dtype_offsets():
             (<intptr_t>&(pod.incThreshold)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.decThreshold)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod1),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod1),
     })
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
 cdef class _py_anon_pod1:
-    """Empty-initialize an instance of `_anon_pod1`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod1`.
 
 
-    .. seealso:: `_anon_pod1`
+    .. seealso:: `cuda_bindings_nvml__anon_pod1`
     """
     cdef:
-        _anon_pod1 *_ptr
+        cuda_bindings_nvml__anon_pod1 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod1 *>calloc(1, sizeof(_anon_pod1))
+        self._ptr = <cuda_bindings_nvml__anon_pod1 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -6266,7 +6316,7 @@ cdef class _py_anon_pod1:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod1 *ptr
+        cdef cuda_bindings_nvml__anon_pod1 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -6291,20 +6341,20 @@ cdef class _py_anon_pod1:
         if not isinstance(other, _py_anon_pod1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod1)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod1)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod1), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod1), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
+            self._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod1))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6358,7 +6408,7 @@ cdef class _py_anon_pod1:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod1), _py_anon_pod1)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod1), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -6382,14 +6432,14 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <_anon_pod1 *>malloc(sizeof(_anon_pod1))
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod1))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod1 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -6970,7 +7020,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
 
 cdef _get__py_anon_pod2_dtype_offsets():
-    cdef _anon_pod2 pod = _anon_pod2()
+    cdef cuda_bindings_nvml__anon_pod2 pod = cuda_bindings_nvml__anon_pod2()
     return _numpy.dtype({
         'names': ['avg_factor', 'timeslice'],
         'formats': [_numpy.uint32, _numpy.uint32],
@@ -6978,25 +7028,25 @@ cdef _get__py_anon_pod2_dtype_offsets():
             (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod2),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod2),
     })
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
 cdef class _py_anon_pod2:
-    """Empty-initialize an instance of `_anon_pod2`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod2`.
 
 
-    .. seealso:: `_anon_pod2`
+    .. seealso:: `cuda_bindings_nvml__anon_pod2`
     """
     cdef:
-        _anon_pod2 *_ptr
+        cuda_bindings_nvml__anon_pod2 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod2 *>calloc(1, sizeof(_anon_pod2))
+        self._ptr = <cuda_bindings_nvml__anon_pod2 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -7004,7 +7054,7 @@ cdef class _py_anon_pod2:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod2 *ptr
+        cdef cuda_bindings_nvml__anon_pod2 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7029,20 +7079,20 @@ cdef class _py_anon_pod2:
         if not isinstance(other, _py_anon_pod2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod2)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod2)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod2), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod2), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
+            self._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod2))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod2))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7074,7 +7124,7 @@ cdef class _py_anon_pod2:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod2), _py_anon_pod2)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod2), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -7098,14 +7148,14 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <_anon_pod2 *>malloc(sizeof(_anon_pod2))
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod2))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod2 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7113,32 +7163,32 @@ cdef class _py_anon_pod2:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef _anon_pod3 pod = _anon_pod3()
+    cdef cuda_bindings_nvml__anon_pod3 pod = cuda_bindings_nvml__anon_pod3()
     return _numpy.dtype({
         'names': ['timeslice'],
         'formats': [_numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod3),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod3),
     })
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
-    """Empty-initialize an instance of `_anon_pod3`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod3`.
 
 
-    .. seealso:: `_anon_pod3`
+    .. seealso:: `cuda_bindings_nvml__anon_pod3`
     """
     cdef:
-        _anon_pod3 *_ptr
+        cuda_bindings_nvml__anon_pod3 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod3 *>calloc(1, sizeof(_anon_pod3))
+        self._ptr = <cuda_bindings_nvml__anon_pod3 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -7146,7 +7196,7 @@ cdef class _py_anon_pod3:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod3 *ptr
+        cdef cuda_bindings_nvml__anon_pod3 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7171,20 +7221,20 @@ cdef class _py_anon_pod3:
         if not isinstance(other, _py_anon_pod3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod3)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod3)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod3), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod3), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
+            self._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod3))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod3))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7205,7 +7255,7 @@ cdef class _py_anon_pod3:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod3), _py_anon_pod3)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod3), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -7229,14 +7279,14 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <_anon_pod3 *>malloc(sizeof(_anon_pod3))
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod3))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod3 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7449,7 +7499,7 @@ cdef class VgpuSchedulerLogEntry:
 
 
 cdef _get__py_anon_pod4_dtype_offsets():
-    cdef _anon_pod4 pod = _anon_pod4()
+    cdef cuda_bindings_nvml__anon_pod4 pod = cuda_bindings_nvml__anon_pod4()
     return _numpy.dtype({
         'names': ['avg_factor', 'frequency'],
         'formats': [_numpy.uint32, _numpy.uint32],
@@ -7457,25 +7507,25 @@ cdef _get__py_anon_pod4_dtype_offsets():
             (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod4),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod4),
     })
 
 _py_anon_pod4_dtype = _get__py_anon_pod4_dtype_offsets()
 
 cdef class _py_anon_pod4:
-    """Empty-initialize an instance of `_anon_pod4`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod4`.
 
 
-    .. seealso:: `_anon_pod4`
+    .. seealso:: `cuda_bindings_nvml__anon_pod4`
     """
     cdef:
-        _anon_pod4 *_ptr
+        cuda_bindings_nvml__anon_pod4 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod4 *>calloc(1, sizeof(_anon_pod4))
+        self._ptr = <cuda_bindings_nvml__anon_pod4 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
         self._owner = None
@@ -7483,7 +7533,7 @@ cdef class _py_anon_pod4:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod4 *ptr
+        cdef cuda_bindings_nvml__anon_pod4 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7508,20 +7558,20 @@ cdef class _py_anon_pod4:
         if not isinstance(other, _py_anon_pod4):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod4)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod4)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod4), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod4), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
+            self._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod4))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod4))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7553,7 +7603,7 @@ cdef class _py_anon_pod4:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod4 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod4), _py_anon_pod4)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod4), _py_anon_pod4)
 
     @staticmethod
     def from_data(data):
@@ -7577,14 +7627,14 @@ cdef class _py_anon_pod4:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod4 obj = _py_anon_pod4.__new__(_py_anon_pod4)
         if owner is None:
-            obj._ptr = <_anon_pod4 *>malloc(sizeof(_anon_pod4))
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod4))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod4 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -7592,32 +7642,32 @@ cdef class _py_anon_pod4:
 
 
 cdef _get__py_anon_pod5_dtype_offsets():
-    cdef _anon_pod5 pod = _anon_pod5()
+    cdef cuda_bindings_nvml__anon_pod5 pod = cuda_bindings_nvml__anon_pod5()
     return _numpy.dtype({
         'names': ['timeslice'],
         'formats': [_numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof(_anon_pod5),
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod5),
     })
 
 _py_anon_pod5_dtype = _get__py_anon_pod5_dtype_offsets()
 
 cdef class _py_anon_pod5:
-    """Empty-initialize an instance of `_anon_pod5`.
+    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod5`.
 
 
-    .. seealso:: `_anon_pod5`
+    .. seealso:: `cuda_bindings_nvml__anon_pod5`
     """
     cdef:
-        _anon_pod5 *_ptr
+        cuda_bindings_nvml__anon_pod5 *_ptr
         object _owner
         bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <_anon_pod5 *>calloc(1, sizeof(_anon_pod5))
+        self._ptr = <cuda_bindings_nvml__anon_pod5 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
         self._owner = None
@@ -7625,7 +7675,7 @@ cdef class _py_anon_pod5:
         self._readonly = False
 
     def __dealloc__(self):
-        cdef _anon_pod5 *ptr
+        cdef cuda_bindings_nvml__anon_pod5 *ptr
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
@@ -7650,20 +7700,20 @@ cdef class _py_anon_pod5:
         if not isinstance(other, _py_anon_pod5):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(_anon_pod5)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod5)) == 0)
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(_anon_pod5), self._readonly)
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod5), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
+            self._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(_anon_pod5))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod5))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7684,7 +7734,7 @@ cdef class _py_anon_pod5:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod5 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(_anon_pod5), _py_anon_pod5)
+        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod5), _py_anon_pod5)
 
     @staticmethod
     def from_data(data):
@@ -7708,14 +7758,14 @@ cdef class _py_anon_pod5:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod5 obj = _py_anon_pod5.__new__(_py_anon_pod5)
         if owner is None:
-            obj._ptr = <_anon_pod5 *>malloc(sizeof(_anon_pod5))
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(_anon_pod5))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
             obj._owner = None
             obj._owned = True
         else:
-            obj._ptr = <_anon_pod5 *>ptr
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -15441,6 +15491,557 @@ cdef class PRMCounterInput_v1:
         return obj
 
 
+cdef _get_vgpu_scheduler_state_info_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerStateInfo_v2_t pod = nvmlVgpuSchedulerStateInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v2_t),
+    })
+
+vgpu_scheduler_state_info_v2_dtype = _get_vgpu_scheduler_state_info_v2_dtype_offsets()
+
+cdef class VgpuSchedulerStateInfo_v2:
+    """Empty-initialize an instance of `nvmlVgpuSchedulerStateInfo_v2_t`.
+
+
+    .. seealso:: `nvmlVgpuSchedulerStateInfo_v2_t`
+    """
+    cdef:
+        nvmlVgpuSchedulerStateInfo_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlVgpuSchedulerStateInfo_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.VgpuSchedulerStateInfo_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef VgpuSchedulerStateInfo_v2 other_
+        if not isinstance(other, VgpuSchedulerStateInfo_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def engine_id(self):
+        """int: IN: Engine whose software scheduler state info is fetched. One of NVML_VGPU_SCHEDULER_ENGINE_TYPE_*."""
+        return self._ptr[0].engineId
+
+    @engine_id.setter
+    def engine_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].engineId = val
+
+    @property
+    def scheduler_policy(self):
+        """int: OUT: Scheduler policy."""
+        return self._ptr[0].schedulerPolicy
+
+    @scheduler_policy.setter
+    def scheduler_policy(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].schedulerPolicy = val
+
+    @property
+    def avg_factor(self):
+        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode."""
+        return self._ptr[0].avgFactor
+
+    @avg_factor.setter
+    def avg_factor(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].avgFactor = val
+
+    @property
+    def timeslice(self):
+        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise."""
+        return self._ptr[0].timeslice
+
+    @timeslice.setter
+    def timeslice(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerStateInfo_v2 instance is read-only")
+        self._ptr[0].timeslice = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerStateInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), VgpuSchedulerStateInfo_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerStateInfo_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_info_v2_dtype` holding the data.
+        """
+        return __from_data(data, "vgpu_scheduler_state_info_v2_dtype", vgpu_scheduler_state_info_v2_dtype, VgpuSchedulerStateInfo_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an VgpuSchedulerStateInfo_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerStateInfo_v2 obj = VgpuSchedulerStateInfo_v2.__new__(VgpuSchedulerStateInfo_v2)
+        if owner is None:
+            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_vgpu_scheduler_log_entry_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerLogEntry_v2_t pod = nvmlVgpuSchedulerLogEntry_v2_t()
+    return _numpy.dtype({
+        'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time', 'weight'],
+        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeRun)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.weight)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_v2_t),
+    })
+
+vgpu_scheduler_log_entry_v2_dtype = _get_vgpu_scheduler_log_entry_v2_dtype_offsets()
+
+cdef class VgpuSchedulerLogEntry_v2:
+    """Empty-initialize an array of `nvmlVgpuSchedulerLogEntry_v2_t`.
+
+    The resulting object is of length `size` and of dtype `vgpu_scheduler_log_entry_v2_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `nvmlVgpuSchedulerLogEntry_v2_t`
+    """
+    cdef:
+        readonly object _data
+
+
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_v2_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_v2_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.VgpuSchedulerLogEntry_v2_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.VgpuSchedulerLogEntry_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, VgpuSchedulerLogEntry_v2)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        cpython.PyBuffer_Release(buffer)
+
+    @property
+    def timestamp(self):
+        """Union[~_numpy.uint64, int]: OUT: Timestamp in ns when this software runlist was preeempted."""
+        if self._data.size == 1:
+            return int(self._data.timestamp[0])
+        return self._data.timestamp
+
+    @timestamp.setter
+    def timestamp(self, val):
+        self._data.timestamp = val
+
+    @property
+    def time_run_total(self):
+        """Union[~_numpy.uint64, int]: OUT: Total time in ns this software runlist has run."""
+        if self._data.size == 1:
+            return int(self._data.time_run_total[0])
+        return self._data.time_run_total
+
+    @time_run_total.setter
+    def time_run_total(self, val):
+        self._data.time_run_total = val
+
+    @property
+    def time_run(self):
+        """Union[~_numpy.uint64, int]: OUT: Time in ns this software runlist ran before preemption."""
+        if self._data.size == 1:
+            return int(self._data.time_run[0])
+        return self._data.time_run
+
+    @time_run.setter
+    def time_run(self, val):
+        self._data.time_run = val
+
+    @property
+    def sw_runlist_id(self):
+        """Union[~_numpy.uint32, int]: OUT: Software runlist Id."""
+        if self._data.size == 1:
+            return int(self._data.sw_runlist_id[0])
+        return self._data.sw_runlist_id
+
+    @sw_runlist_id.setter
+    def sw_runlist_id(self, val):
+        self._data.sw_runlist_id = val
+
+    @property
+    def target_time_slice(self):
+        """Union[~_numpy.uint64, int]: OUT: The actual timeslice after deduction."""
+        if self._data.size == 1:
+            return int(self._data.target_time_slice[0])
+        return self._data.target_time_slice
+
+    @target_time_slice.setter
+    def target_time_slice(self, val):
+        self._data.target_time_slice = val
+
+    @property
+    def cumulative_preemption_time(self):
+        """Union[~_numpy.uint64, int]: OUT: Preemption time in ns for this SW runlist."""
+        if self._data.size == 1:
+            return int(self._data.cumulative_preemption_time[0])
+        return self._data.cumulative_preemption_time
+
+    @cumulative_preemption_time.setter
+    def cumulative_preemption_time(self, val):
+        self._data.cumulative_preemption_time = val
+
+    @property
+    def weight(self):
+        """Union[~_numpy.uint32, int]: OUT: Current weight of this SW runlist."""
+        if self._data.size == 1:
+            return int(self._data.weight[0])
+        return self._data.weight
+
+    @weight.setter
+    def weight(self, val):
+        self._data.weight = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return VgpuSchedulerLogEntry_v2.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_scheduler_log_entry_v2_dtype:
+            return VgpuSchedulerLogEntry_v2.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLogEntry_v2 instance with the memory from the given buffer."""
+        return VgpuSchedulerLogEntry_v2.from_data(_numpy.frombuffer(buffer, dtype=vgpu_scheduler_log_entry_v2_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerLogEntry_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `vgpu_scheduler_log_entry_v2_dtype` holding the data.
+        """
+        cdef VgpuSchedulerLogEntry_v2 obj = VgpuSchedulerLogEntry_v2.__new__(VgpuSchedulerLogEntry_v2)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != vgpu_scheduler_log_entry_v2_dtype:
+            raise ValueError("data array must be of dtype vgpu_scheduler_log_entry_v2_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an VgpuSchedulerLogEntry_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerLogEntry_v2 obj = VgpuSchedulerLogEntry_v2.__new__(VgpuSchedulerLogEntry_v2)
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+cdef _get_vgpu_scheduler_state_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerState_v2_t pod = nvmlVgpuSchedulerState_v2_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'frequency'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerState_v2_t),
+    })
+
+vgpu_scheduler_state_v2_dtype = _get_vgpu_scheduler_state_v2_dtype_offsets()
+
+cdef class VgpuSchedulerState_v2:
+    """Empty-initialize an instance of `nvmlVgpuSchedulerState_v2_t`.
+
+
+    .. seealso:: `nvmlVgpuSchedulerState_v2_t`
+    """
+    cdef:
+        nvmlVgpuSchedulerState_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlVgpuSchedulerState_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerState_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating VgpuSchedulerState_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlVgpuSchedulerState_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.VgpuSchedulerState_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef VgpuSchedulerState_v2 other_
+        if not isinstance(other, VgpuSchedulerState_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlVgpuSchedulerState_v2_t *>malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerState_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def engine_id(self):
+        """int: IN: One of NVML_VGPU_SCHEDULER_ENGINE_TYPE_*."""
+        return self._ptr[0].engineId
+
+    @engine_id.setter
+    def engine_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].engineId = val
+
+    @property
+    def scheduler_policy(self):
+        """int: IN: Scheduler policy."""
+        return self._ptr[0].schedulerPolicy
+
+    @scheduler_policy.setter
+    def scheduler_policy(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].schedulerPolicy = val
+
+    @property
+    def avg_factor(self):
+        """int: IN: Average factor in compensating the timeslice for Adaptive Round Robin mode. 0 or unspecified uses default."""
+        return self._ptr[0].avgFactor
+
+    @avg_factor.setter
+    def avg_factor(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].avgFactor = val
+
+    @property
+    def frequency(self):
+        """int: IN: Frequency for Adaptive Round Robin mode. 0 or unspecified uses default."""
+        return self._ptr[0].frequency
+
+    @frequency.setter
+    def frequency(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerState_v2 instance is read-only")
+        self._ptr[0].frequency = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerState_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v2_t), VgpuSchedulerState_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerState_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_v2_dtype` holding the data.
+        """
+        return __from_data(data, "vgpu_scheduler_state_v2_dtype", vgpu_scheduler_state_v2_dtype, VgpuSchedulerState_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an VgpuSchedulerState_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerState_v2 obj = VgpuSchedulerState_v2.__new__(VgpuSchedulerState_v2)
+        if owner is None:
+            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerState_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_excluded_device_info_dtype_offsets():
     cdef nvmlExcludedDeviceInfo_t pod = nvmlExcludedDeviceInfo_t()
     return _numpy.dtype({
@@ -16923,7 +17524,7 @@ cdef class GpuThermalSettings:
         cdef _py_anon_pod0 val_ = val
         if len(val) != 3:
             raise ValueError(f"Expected length { 3 } for field sensor, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(_anon_pod0) * 3)
+        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod0) * 3)
 
     @property
     def count(self):
@@ -17383,7 +17984,7 @@ cdef class GpuDynamicPstatesInfo:
         cdef _py_anon_pod1 val_ = val
         if len(val) != 8:
             raise ValueError(f"Expected length { 8 } for field utilization, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(_anon_pod1) * 8)
+        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod1) * 8)
 
     @property
     def flags_(self):
@@ -17686,7 +18287,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod2 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(_anon_pod2) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod2) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -17698,7 +18299,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod3) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -17826,7 +18427,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod4 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(_anon_pod4) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod4) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -17838,7 +18439,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod5 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(_anon_pod5) * 1)
+        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod5) * 1)
 
     @staticmethod
     def from_buffer(buffer):
@@ -19241,6 +19842,200 @@ cdef class NvlinkFirmwareInfo:
         return obj
 
 
+cdef _get_vgpu_scheduler_log_info_v2_dtype_offsets():
+    cdef nvmlVgpuSchedulerLogInfo_v2_t pod = nvmlVgpuSchedulerLogInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice', 'entries_count', 'log_entries'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (vgpu_scheduler_log_entry_v2_dtype, 200)],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v2_t),
+    })
+
+vgpu_scheduler_log_info_v2_dtype = _get_vgpu_scheduler_log_info_v2_dtype_offsets()
+
+cdef class VgpuSchedulerLogInfo_v2:
+    """Empty-initialize an instance of `nvmlVgpuSchedulerLogInfo_v2_t`.
+
+
+    .. seealso:: `nvmlVgpuSchedulerLogInfo_v2_t`
+    """
+    cdef:
+        nvmlVgpuSchedulerLogInfo_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlVgpuSchedulerLogInfo_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.VgpuSchedulerLogInfo_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef VgpuSchedulerLogInfo_v2 other_
+        if not isinstance(other, VgpuSchedulerLogInfo_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v2_t)) == 0)
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def log_entries(self):
+        """VgpuSchedulerLogEntry_v2: OUT: Structure to store the state and logs of a software runlist."""
+        return VgpuSchedulerLogEntry_v2.from_ptr(<intptr_t>&(self._ptr[0].logEntries), 200, self._readonly)
+
+    @log_entries.setter
+    def log_entries(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        cdef VgpuSchedulerLogEntry_v2 val_ = val
+        if len(val) != 200:
+            raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
+        memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * 200)
+
+    @property
+    def engine_id(self):
+        """int: IN: Engine whose software runlist log entries are fetched. One of One of NVML_VGPU_SCHEDULER_ENGINE_TYPE_*."""
+        return self._ptr[0].engineId
+
+    @engine_id.setter
+    def engine_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].engineId = val
+
+    @property
+    def scheduler_policy(self):
+        """int: OUT: Scheduler policy."""
+        return self._ptr[0].schedulerPolicy
+
+    @scheduler_policy.setter
+    def scheduler_policy(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].schedulerPolicy = val
+
+    @property
+    def avg_factor(self):
+        """int: OUT: Average factor in compensating the timeslice for Adaptive Round Robin mode."""
+        return self._ptr[0].avgFactor
+
+    @avg_factor.setter
+    def avg_factor(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].avgFactor = val
+
+    @property
+    def timeslice(self):
+        """int: OUT: The timeslice in ns for each software run list as configured, or the default value otherwise."""
+        return self._ptr[0].timeslice
+
+    @timeslice.setter
+    def timeslice(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].timeslice = val
+
+    @property
+    def entries_count(self):
+        """int: OUT: Count of log entries fetched."""
+        return self._ptr[0].entriesCount
+
+    @entries_count.setter
+    def entries_count(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogInfo_v2 instance is read-only")
+        self._ptr[0].entriesCount = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuSchedulerLogInfo_v2 instance with the memory from the given buffer."""
+        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), VgpuSchedulerLogInfo_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuSchedulerLogInfo_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_info_v2_dtype` holding the data.
+        """
+        return __from_data(data, "vgpu_scheduler_log_info_v2_dtype", vgpu_scheduler_log_info_v2_dtype, VgpuSchedulerLogInfo_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an VgpuSchedulerLogInfo_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuSchedulerLogInfo_v2 obj = VgpuSchedulerLogInfo_v2.__new__(VgpuSchedulerLogInfo_v2)
+        if owner is None:
+            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod = nvmlVgpuInstancesUtilizationInfo_v1_t()
     return _numpy.dtype({
@@ -19492,7 +20287,7 @@ cdef class PRMCounter_v1:
 
     @property
     def counter_id(self):
-        """Union[~_numpy.uint32, int]: Counter ID, one of nvmlPRMCounterId_t."""
+        """Union[~_numpy.uint32, int]: Counter ID, one of `nvmlPRMCounterId_t`."""
         if self._data.size == 1:
             return int(self._data.counter_id[0])
         return self._data.counter_id
@@ -20818,7 +21613,7 @@ cpdef init_v2():
 
 
 cpdef init_with_flags(unsigned int flags):
-    """nvmlInitWithFlags is a variant of nvmlInit(), that allows passing a set of boolean values modifying the behaviour of nvmlInit(). Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
+    """nvmlInitWithFlags is a variant of ``nvmlInit()``, that allows passing a set of boolean values modifying the behaviour of ``nvmlInit()``. Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
 
     Args:
         flags (unsigned int): behaviour modifier flags.
@@ -22923,6 +23718,28 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     return infos
 
 
+cpdef object device_get_graphics_running_processes_v3(intptr_t device):
+    """Get information about processes with a graphics context on a device.
+
+    Args:
+        device (intptr_t): The device handle or MIG device handle.
+
+    .. seealso:: `nvmlDeviceGetGraphicsRunningProcesses_v3`
+    """
+    cdef unsigned int[1] info_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, NULL)
+    check_status_size(__status__)
+    cdef ProcessInfo infos = ProcessInfo(info_count[0])
+    cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
+    if info_count[0] == 0:
+        return infos
+    with nogil:
+        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+    check_status(__status__)
+    return infos
+
+
 cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     """Get information about processes with a Multi-Process Service (MPS) compute context on a device.
 
@@ -24361,7 +25178,7 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
 
 
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
-    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See ``nvmlConstants.NVML_DEVICE_NAME_BUFFER_SIZE``.
+    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
 
     Args:
         vgpu_type_id (unsigned int): Handle to vGPU type.
@@ -25746,6 +26563,123 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
     """
     with nogil:
         __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>power_mizer_mode)
+    check_status(__status__)
+
+
+cpdef device_vgpu_force_gsp_unload(intptr_t device):
+    """Executes a forced GSP unload operation on a device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    .. seealso:: `nvmlDeviceVgpuForceGspUnload`
+    """
+    with nogil:
+        __status__ = nvmlDeviceVgpuForceGspUnload(<Device>device)
+    check_status(__status__)
+
+
+cpdef object device_get_vgpu_scheduler_state_v2(intptr_t device):
+    """Returns the vGPU scheduler state. The information returned in ``nvmlVgpuSchedulerStateInfo_v2_t`` is not relevant if the BEST EFFORT policy is set.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+
+    Returns:
+        nvmlVgpuSchedulerStateInfo_v2_t: Reference in which ``pSchedulerStateInfo`` is returned.
+
+    .. seealso:: `nvmlDeviceGetVgpuSchedulerState_v2`
+    """
+    cdef VgpuSchedulerStateInfo_v2 p_scheduler_state_info_py = VgpuSchedulerStateInfo_v2()
+    cdef nvmlVgpuSchedulerStateInfo_v2_t *p_scheduler_state_info = <nvmlVgpuSchedulerStateInfo_v2_t *><intptr_t>(p_scheduler_state_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuSchedulerState_v2(<Device>device, p_scheduler_state_info)
+    check_status(__status__)
+    return p_scheduler_state_info_py
+
+
+cpdef object gpu_instance_get_vgpu_scheduler_state_v2(intptr_t gpu_instance):
+    """Returns the vGPU scheduler state for the given GPU instance. The information returned in ``nvmlVgpuSchedulerStateInfo_v2_t`` is not relevant if the BEST EFFORT policy is set.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+
+    Returns:
+        nvmlVgpuSchedulerStateInfo_v2_t: Reference in which ``pSchedulerStateInfo`` is returned.
+
+    .. seealso:: `nvmlGpuInstanceGetVgpuSchedulerState_v2`
+    """
+    cdef VgpuSchedulerStateInfo_v2 p_scheduler_state_info_py = VgpuSchedulerStateInfo_v2()
+    cdef nvmlVgpuSchedulerStateInfo_v2_t *p_scheduler_state_info = <nvmlVgpuSchedulerStateInfo_v2_t *><intptr_t>(p_scheduler_state_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGpuInstanceGetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, p_scheduler_state_info)
+    check_status(__status__)
+    return p_scheduler_state_info_py
+
+
+cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device):
+    """Returns the vGPU Software scheduler logs for the device. ``pSchedulerLogInfo`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+
+    Returns:
+        nvmlVgpuSchedulerLogInfo_v2_t: Reference in which ``pSchedulerLogInfo`` is written.
+
+    .. seealso:: `nvmlDeviceGetVgpuSchedulerLog_v2`
+    """
+    cdef VgpuSchedulerLogInfo_v2 p_scheduler_log_info_py = VgpuSchedulerLogInfo_v2()
+    cdef nvmlVgpuSchedulerLogInfo_v2_t *p_scheduler_log_info = <nvmlVgpuSchedulerLogInfo_v2_t *><intptr_t>(p_scheduler_log_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuSchedulerLog_v2(<Device>device, p_scheduler_log_info)
+    check_status(__status__)
+    return p_scheduler_log_info_py
+
+
+cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance):
+    """Returns the vGPU scheduler logs for the given GPU instance. ``pSchedulerLogInfo`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+
+    Returns:
+        nvmlVgpuSchedulerLogInfo_v2_t: Reference in which ``pSchedulerLogInfo`` is written.
+
+    .. seealso:: `nvmlGpuInstanceGetVgpuSchedulerLog_v2`
+    """
+    cdef VgpuSchedulerLogInfo_v2 p_scheduler_log_info_py = VgpuSchedulerLogInfo_v2()
+    cdef nvmlVgpuSchedulerLogInfo_v2_t *p_scheduler_log_info = <nvmlVgpuSchedulerLogInfo_v2_t *><intptr_t>(p_scheduler_log_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGpuInstanceGetVgpuSchedulerLog_v2(<GpuInstance>gpu_instance, p_scheduler_log_info)
+    check_status(__status__)
+    return p_scheduler_log_info_py
+
+
+cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state):
+    """Sets the vGPU scheduler state.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+        p_scheduler_state (intptr_t): vGPU ``p_scheduler_state`` to set.
+
+    .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
+    """
+    with nogil:
+        __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
+    check_status(__status__)
+
+
+cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state):
+    """Set vGPU scheduler state for the given GPU instance.
+
+    Args:
+        gpu_instance (intptr_t): The GPU instance handle.
+        p_scheduler_state (intptr_t): Pointer to the caller-provided structure of ``nvmlVgpuSchedulerState_v2_t``.
+
+    .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
+    """
+    with nogil:
+        __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
     check_status(__status__)
 
 
@@ -27421,3 +28355,9 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
+
+
+# Cleanup some docstrings that don't parse as rst.
+device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
+GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."

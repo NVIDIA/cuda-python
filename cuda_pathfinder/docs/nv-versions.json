@@ -4,6 +4,26 @@
         "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/"
     },
     {
+        "version": "1.5.0",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.5.0/"
+    },
+    {
+        "version": "1.4.4",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.4.4/"
+    },
+    {
+        "version": "1.4.3",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.4.3/"
+    },
+    {
+        "version": "1.4.2",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.4.2/"
+    },
+    {
+        "version": "1.4.1",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.4.1/"
+    },
+    {
         "version": "1.4.0",
         "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.4.0/"
     },

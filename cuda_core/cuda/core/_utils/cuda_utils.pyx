@@ -4,7 +4,6 @@
 
 import functools
 from functools import partial
-import importlib.metadata
 import multiprocessing
 import platform
 import warnings
@@ -22,6 +21,8 @@ except ImportError:
 
 from cuda.bindings.nvvm import nvvmError
 from cuda.bindings.nvjitlink import nvJitLinkError
+
+from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
 
 from cuda.bindings cimport cynvrtc, cynvvm, cynvjitlink
 
@@ -57,10 +58,6 @@ def cast_to_3_tuple(label, cfg):
         plural_s = "" if len(cfg) == 1 else "s"
         raise ValueError(f"{label} value{plural_s} must be >= 1 (got {cfg_orig})")
     return cfg + (1,) * (3 - len(cfg))
-
-
-def _reduce_3_tuple(t: tuple):
-    return t[0] * t[1] * t[2]
 
 
 cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
@@ -296,14 +293,6 @@ def is_nested_sequence(obj):
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
 
-@functools.lru_cache
-def get_binding_version():
-    try:
-        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
-    except importlib.metadata.PackageNotFoundError:
-        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
-    return tuple(int(v) for v in major_minor)
-
 
 class Transaction:
     """
@@ -366,6 +355,64 @@ def reset_fork_warning():
     """
     global _fork_warning_checked
     _fork_warning_checked = False
+
+
+cdef inline tuple _read_fill_ptr(const char* ptr, Py_ssize_t width):
+    """Extract (value, element_size) from a raw pointer of known width."""
+    cdef unsigned int val
+    if width == 1:
+        val = (<uint8_t*>ptr)[0]
+    elif width == 2:
+        val = (<uint16_t*>ptr)[0]
+    elif width == 4:
+        val = (<uint32_t*>ptr)[0]
+    else:
+        raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
+    return (val, <unsigned int>width)
+
+
+cpdef tuple _parse_fill_value(value):
+    """Parse a fill/memset value into (raw_value, element_size).
+
+    Parameters
+    ----------
+    value : int or buffer-protocol object
+        - int: Must be in range [0, 256). Treated as 1-byte fill.
+        - bytes or buffer-protocol: Must be 1, 2, or 4 bytes.
+
+    Returns
+    -------
+    tuple of (int, int)
+        (raw_value, element_size) where element_size is 1, 2, or 4.
+
+    Raises
+    ------
+    OverflowError
+        If int value is outside [0, 256).
+    TypeError
+        If value is not an int and does not support the buffer protocol.
+    ValueError
+        If value byte length is not 1, 2, or 4.
+    """
+    cdef uint8_t byte_val
+    cdef Py_buffer buf
+
+    if isinstance(value, int):
+        byte_val = value
+        return (<unsigned int>byte_val, <unsigned int>1)
+
+    if isinstance(value, bytes):
+        return _read_fill_ptr(<const char*><bytes>value, <Py_ssize_t>len(value))
+
+    if PyObject_GetBuffer(value, &buf, PyBUF_SIMPLE) != 0:
+        raise TypeError(
+            f"value must be an int or support the buffer protocol, "
+            f"got {type(value).__name__}"
+        )
+    try:
+        return _read_fill_ptr(<const char*>buf.buf, buf.len)
+    finally:
+        PyBuffer_Release(&buf)
 
 
 def check_multiprocessing_start_method():

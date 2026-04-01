@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 cimport cuda.bindings._bindings.cynvrtc as cynvrtc
 
 {{if 'nvrtcGetErrorString' in found_functions}}
@@ -146,4 +146,16 @@ cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) ex
 
 cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return cynvrtc._nvrtcSetFlowCallback(prog, callback, payload)
+{{endif}}
+
+{{if 'nvrtcGetTileIRSize' in found_functions}}
+
+cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcGetTileIRSize(prog, TileIRSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetTileIR' in found_functions}}
+
+cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcGetTileIR(prog, TileIR)
 {{endif}}

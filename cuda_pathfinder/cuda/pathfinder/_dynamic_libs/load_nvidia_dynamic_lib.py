@@ -1,15 +1,14 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 import functools
-import json
 import struct
+import subprocess
 import sys
 from typing import TYPE_CHECKING
 
-from cuda.pathfinder._dynamic_libs.canary_probe_subprocess import probe_canary_abs_path_and_print_json
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError,
@@ -27,8 +26,15 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     find_via_ctk_root,
     run_find_steps,
 )
+from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
+    DYNAMIC_LIB_SUBPROCESS_CWD,
+    MODE_CANARY,
+    STATUS_OK,
+    DynamicLibSubprocessPayload,
+    build_dynamic_lib_subprocess_command,
+    parse_dynamic_lib_subprocess_payload,
+)
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-from cuda.pathfinder._utils.spawned_process_runner import run_in_spawned_child_process
 
 if TYPE_CHECKING:
     from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
@@ -40,10 +46,11 @@ _ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
     name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
 )
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
+_CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
-# conda, CUDA_HOME, canary) and go straight to system search.
+# conda, CUDA_PATH, canary) and go straight to system search.
 _DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
 
 
@@ -51,9 +58,9 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     """Load an NVIDIA driver library (system-search only).
 
     Driver libs (libcuda, libnvidia-ml) are part of the display driver, not
-    the CUDA Toolkit.  They are always on the system linker path, so the
-    full CTK search cascade (site-packages, conda, CUDA_HOME, canary) is
-    unnecessary.
+    the CUDA Toolkit. They are expected to be discoverable via the platform's
+    native loader mechanisms, so the full CTK search cascade (site-packages,
+    conda, CUDA_PATH, canary) is unnecessary.
     """
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
     if loaded is not None:
@@ -67,31 +74,57 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     )
 
 
-@functools.cache
-def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
-    """Resolve a canary library's absolute path in a spawned child process."""
-    result = run_in_spawned_child_process(
-        probe_canary_abs_path_and_print_json,
-        args=(libname,),
-        timeout=10.0,
-        rethrow=True,
+def _coerce_subprocess_output(output: str | bytes | None) -> str:
+    if isinstance(output, bytes):
+        return output.decode(errors="replace")
+    return "" if output is None else output
+
+
+def _raise_canary_probe_child_process_error(
+    *,
+    returncode: int | None = None,
+    timeout: float | None = None,
+    stderr: str | bytes | None = None,
+) -> None:
+    if timeout is None:
+        error_line = f"Canary probe child process exited with code {returncode}."
+    else:
+        error_line = f"Canary probe child process timed out after {timeout} seconds."
+    raise ChildProcessError(
+        f"{error_line}\n"
+        "--- stderr-from-child-process ---\n"
+        f"{_coerce_subprocess_output(stderr)}"
+        "<end-of-stderr-from-child-process>\n"
     )
 
-    # Use the final non-empty line in case earlier output lines are emitted.
-    lines = [line for line in result.stdout.splitlines() if line.strip()]
-    if not lines:
-        raise RuntimeError(f"Canary probe child process produced no stdout payload for {libname!r}")
+
+@functools.cache
+def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
+    """Resolve a canary library's absolute path in a fresh Python subprocess."""
     try:
-        payload = json.loads(lines[-1])
-    except json.JSONDecodeError:
-        raise RuntimeError(
-            f"Canary probe child process emitted invalid JSON payload for {libname!r}: {lines[-1]!r}"
-        ) from None
-    if isinstance(payload, str):
-        return payload
-    if payload is None:
-        return None
-    raise RuntimeError(f"Canary probe child process emitted unexpected payload for {libname!r}: {payload!r}")
+        result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + internal probe module
+            build_dynamic_lib_subprocess_command(MODE_CANARY, libname),
+            capture_output=True,
+            text=True,
+            timeout=_CANARY_PROBE_TIMEOUT_SECONDS,
+            check=False,
+            cwd=DYNAMIC_LIB_SUBPROCESS_CWD,
+        )
+    except subprocess.TimeoutExpired as exc:
+        _raise_canary_probe_child_process_error(timeout=exc.timeout, stderr=exc.stderr)
+
+    if result.returncode != 0:
+        _raise_canary_probe_child_process_error(returncode=result.returncode, stderr=result.stderr)
+
+    payload: DynamicLibSubprocessPayload = parse_dynamic_lib_subprocess_payload(
+        result.stdout,
+        libname=libname,
+        error_label="Canary probe child process",
+    )
+    abs_path: str | None = payload.abs_path
+    if payload.status == STATUS_OK:
+        return abs_path
+    return None
 
 
 def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
@@ -201,37 +234,42 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
              - Linux: ``dlopen()``
 
-             - Windows: ``LoadLibraryW()``
+             - Windows: ``LoadLibraryExW()``
 
-           - CUDA Toolkit (CTK) system installs with system config updates are often
-             discovered via:
+             On Linux, CUDA Toolkit (CTK) system installs with system config updates are
+             usually discovered via ``/etc/ld.so.conf.d/*cuda*.conf``.
 
-             - Linux: ``/etc/ld.so.conf.d/*cuda*.conf``
-
-             - Windows: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
-               on the system ``PATH``.
+             On Windows, under Python 3.8+, CPython configures the process with
+             ``SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)``.
+             As a result, the native DLL search used here does **not** include
+             the system ``PATH``.
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
+             On Windows, this is the typical way system-installed CTK DLLs are
+             located. Note that the NVIDIA CTK installer automatically
+             adds ``CUDA_PATH`` to the system-wide environment.
 
         5. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
              standard linker path (currently ``nvvm``), attempt to derive CTK
              root by system-loading a well-known CTK canary library in a
-             subprocess and then searching relative to that root.
+             subprocess and then searching relative to that root. On Windows,
+             the canary uses the same native ``LoadLibraryExW`` semantics as
+             step 3, so there is also no ``PATH``-based discovery.
 
     **Driver libraries** (``"cuda"``, ``"nvml"``):
 
         These are part of the NVIDIA display driver (not the CUDA Toolkit) and
-        are always on the system linker path.  For these libraries the search
-        is simplified to:
+        are expected to be reachable via the native OS loader path. For these
+        libraries the search is simplified to:
 
         0. Already loaded in the current process
-        1. OS default mechanisms (``dlopen`` / ``LoadLibraryW``)
+        1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
-        The CTK-specific steps (site-packages, conda, ``CUDA_HOME``, canary
+        The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
         probe) are skipped entirely.
 
     Notes:

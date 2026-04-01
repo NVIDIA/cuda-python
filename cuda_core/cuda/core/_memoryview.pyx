@@ -107,35 +107,6 @@ cdef class StridedMemoryView:
         it will be the Buffer instance passed to the method.
 
     """
-    cdef readonly:
-        intptr_t ptr
-        int device_id
-        bint is_device_accessible
-        bint readonly
-        object exporting_obj
-
-    cdef:
-        # If using dlpack, this is a strong reference to the result of
-        # obj.__dlpack__() so we can lazily create shape and strides from
-        # it later.  If using CAI, this is a reference to the source
-        # `__cuda_array_interface__` object.
-        object metadata
-
-        # The tensor object if has obj has __dlpack__, otherwise must be NULL
-        DLTensor *dl_tensor
-
-        # Memoized properties
-        # Either lazily inferred from dl_tensor/metadata,
-        # or explicitly provided if created with from_buffer().
-        _StridedLayout _layout
-        # Either exporting_obj if it is a Buffer, otherwise a Buffer instance
-        # with owner set to the exporting object.
-        object _buffer
-        # Either lazily inferred from dl_tensor/metadata,
-        # or explicitly provided if created with from_buffer().
-        # In the latter case, it can be None.
-        object _dtype
-
     def __init__(self, obj: object = None, stream_ptr: int | None = None) -> None:
         cdef str clsname = self.__class__.__name__
         if obj is not None:
@@ -315,6 +286,44 @@ cdef class StridedMemoryView:
             dtype = self.get_dtype()
         view_buffer_strided(view, self.get_buffer(), layout, dtype, self.readonly)
         return view
+
+    def as_tensor_map(
+        self,
+        box_dim=None,
+        *,
+        options=None,
+        element_strides=None,
+        data_type=None,
+        interleave=None,
+        swizzle=None,
+        l2_promotion=None,
+        oob_fill=None,
+    ):
+        """Create a tiled :obj:`TensorMapDescriptor` from this view.
+
+        This is the public entry point for creating tiled tensor map
+        descriptors in ``cuda.core``. Pass either ``box_dim`` and the
+        individual keyword arguments directly, or provide bundled tiled
+        options via ``options=``.
+        """
+        from cuda.core._tensor_map import TensorMapDescriptor
+
+        kwargs = {}
+        if options is not None:
+            kwargs["options"] = options
+        if element_strides is not None:
+            kwargs["element_strides"] = element_strides
+        if data_type is not None:
+            kwargs["data_type"] = data_type
+        if interleave is not None:
+            kwargs["interleave"] = interleave
+        if swizzle is not None:
+            kwargs["swizzle"] = swizzle
+        if l2_promotion is not None:
+            kwargs["l2_promotion"] = l2_promotion
+        if oob_fill is not None:
+            kwargs["oob_fill"] = oob_fill
+        return TensorMapDescriptor._from_tiled(self, box_dim, **kwargs)
 
     def copy_from(
         self, other : StridedMemoryView, stream : Stream,
@@ -1096,6 +1105,8 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     buf.exporting_obj = obj
     buf.metadata = cai_data
     buf.dl_tensor = NULL
+    # Validate shape/strides/typestr eagerly so constructor paths fail fast.
+    buf.get_layout()
     buf.ptr, buf.readonly = cai_data["data"]
     buf.is_device_accessible = True
     if buf.ptr != 0:
@@ -1138,6 +1149,8 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     buf.exporting_obj = obj
     buf.metadata = data
     buf.dl_tensor = NULL
+    # Validate shape/strides/typestr eagerly so constructor paths fail fast.
+    buf.get_layout()
     buf.ptr, buf.readonly = data["data"]
     buf.is_device_accessible = False
     buf.device_id = handle_return(driver.cuCtxGetDevice())

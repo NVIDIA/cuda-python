@@ -53,4 +53,4 @@ python = ">=3.10"
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
 
 [target.win-64.tasks.test]
-cmd = ["pytest", "%PIXI_PROJECT_ROOT%"]
+cmd = ["pytest", "$PIXI_PROJECT_ROOT"]

@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import Union
 from warnings import warn
 
+from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
 from cuda.core._utils.clear_error_support import assert_type
@@ -36,7 +37,6 @@ from cuda.core._utils.cuda_utils import (
     CUDAError,
     check_or_create_options,
     driver,
-    handle_return,
     is_sequence,
 )
 
@@ -67,7 +67,7 @@ cdef class Linker:
         Options for the linker. If not provided, default options will be used.
     """
 
-    def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
+    def __init__(self, *object_codes: ObjectCode, options: "LinkerOptions" = None):
         Linker_init(self, object_codes, options)
 
     def link(self, target_type) -> ObjectCode:
@@ -619,9 +619,8 @@ cdef inline void Linker_annotate_error_log(Linker self, object e):
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
-_driver_ver = None
 _inited = False
-_use_nvjitlink_backend = False  # set by _decide_nvjitlink_or_driver()
+_use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
 
 # Input type mappings populated by _lazy_init() with C-level enum ints.
 _nvjitlink_input_types = None
@@ -636,12 +635,9 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Return True if falling back to the cuLink* driver APIs."""
-    global _driver_ver, _driver, _use_nvjitlink_backend
-    if _driver_ver is not None:
+    global _driver, _use_nvjitlink_backend
+    if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
-
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"
@@ -649,27 +645,25 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    try:
-        __import__("cuda.bindings.nvjitlink")  # availability check
-    except ModuleNotFoundError:
+    nvjitlink_module = _optional_cuda_import(
+        "cuda.bindings.nvjitlink",
+        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
+    )
+    if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
         from cuda.bindings._internal import nvjitlink
 
-        try:
-            if _nvjitlink_has_version_symbol(nvjitlink):
-                _use_nvjitlink_backend = True
-                return False  # Use nvjitlink
-        except RuntimeError:
-            warn_detail = "not available"
-        else:
-            warn_detail = "too old (<12.3)"
+        if _nvjitlink_has_version_symbol(nvjitlink):
+            _use_nvjitlink_backend = True
+            return False  # Use nvjitlink
         warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
+            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
             f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
         )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
+    _use_nvjitlink_backend = False
     _driver = driver
     return True
 

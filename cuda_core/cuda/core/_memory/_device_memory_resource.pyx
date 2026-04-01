@@ -1,25 +1,32 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._memory_pool cimport _MemPool, _MemPoolOptions
+from cuda.core._memory._memory_pool cimport (
+    _MemPool, MP_init_create_pool, MP_raise_release_threshold,
+)
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
+from cuda.core._resource_handles cimport (
+    as_cu,
+    get_device_mempool,
+)
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
 import uuid
 
+from ._peer_access_utils import plan_peer_access_update
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
-from cuda.core._resource_handles cimport as_cu
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 
@@ -122,27 +129,12 @@ cdef class DeviceMemoryResource(_MemPool):
     associated MMR.
     """
 
+    def __cinit__(self, *args, **kwargs):
+        self._dev_id = cydriver.CU_DEVICE_INVALID
+        self._peer_accessible_by = None
+
     def __init__(self, device_id: Device | int, options=None):
-        from .._device import Device
-        cdef int dev_id = Device(device_id).device_id
-        cdef DeviceMemoryResourceOptions opts = check_or_create_options(
-            DeviceMemoryResourceOptions, options, "DeviceMemoryResource options",
-            keep_none=True
-        )
-        cdef _MemPoolOptions opts_base = _MemPoolOptions()
-
-        cdef bint ipc_enabled = False
-        if opts:
-            ipc_enabled = opts.ipc_enabled
-            if ipc_enabled and not _ipc.is_supported():
-                raise RuntimeError("IPC is not available on {platform.system()}")
-            opts_base._max_size = opts.max_size
-            opts_base._use_current = False
-        opts_base._ipc_enabled = ipc_enabled
-        opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-
-        super().__init__(dev_id, opts_base)
+        _DMR_init(self, device_id, options)
 
     def __reduce__(self):
         return DeviceMemoryResource.from_registry, (self.uuid,)
@@ -199,6 +191,7 @@ cdef class DeviceMemoryResource(_MemPool):
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
         from .._device import Device
         mr._dev_id = Device(device_id).device_id
+        mr._peer_accessible_by = ()
         return mr
 
     def get_allocation_handle(self) -> IPCAllocationHandle:
@@ -216,6 +209,43 @@ cdef class DeviceMemoryResource(_MemPool):
         return self._ipc_data._alloc_handle
 
     @property
+    def device_id(self) -> int:
+        """The associated device ordinal."""
+        return self._dev_id
+
+    @property
+    def peer_accessible_by(self):
+        """
+        Get or set the devices that can access allocations from this memory
+        pool. Access can be modified at any time and affects all allocations
+        from this memory pool.
+
+        Returns a tuple of sorted device IDs that currently have peer access to
+        allocations from this memory pool.
+
+        When setting, accepts a sequence of Device objects or device IDs.
+        Setting to an empty sequence revokes all peer access.
+
+        For non-owned pools (the default or current device pool), the state
+        is always queried from the driver to reflect changes made by other
+        wrappers or direct driver calls.
+
+        Examples
+        --------
+        >>> dmr = DeviceMemoryResource(0)
+        >>> dmr.peer_accessible_by = [1]  # Grant access to device 1
+        >>> assert dmr.peer_accessible_by == (1,)
+        >>> dmr.peer_accessible_by = []  # Revoke access
+        """
+        if not self._mempool_owned:
+            _DMR_query_peer_access(self)
+        return self._peer_accessible_by
+
+    @peer_accessible_by.setter
+    def peer_accessible_by(self, devices):
+        _DMR_set_peer_accessible_by(self, devices)
+
+    @property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
@@ -224,6 +254,115 @@ cdef class DeviceMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return False. This memory resource does not provide host-accessible buffers."""
         return False
+
+
+cdef inline _DMR_query_peer_access(DeviceMemoryResource self):
+    """Query the driver for the actual peer access state of this pool."""
+    cdef int total
+    cdef cydriver.CUmemAccess_flags flags
+    cdef cydriver.CUmemLocation location
+    cdef list peers = []
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
+
+    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    for dev_id in range(total):
+        if dev_id == self._dev_id:
+            continue
+        location.id = dev_id
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(self._h_pool), &location))
+        if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
+            peers.append(dev_id)
+
+    self._peer_accessible_by = tuple(sorted(peers))
+
+
+cdef inline _DMR_set_peer_accessible_by(DeviceMemoryResource self, devices):
+    from .._device import Device
+
+    this_dev = Device(self._dev_id)
+    cdef object resolve_device_id = lambda dev: Device(dev).device_id
+    cdef object plan
+    cdef tuple target_ids
+    cdef tuple to_add
+    cdef tuple to_rm
+    if not self._mempool_owned:
+        _DMR_query_peer_access(self)
+    plan = plan_peer_access_update(
+        owner_device_id=self._dev_id,
+        current_peer_ids=self._peer_accessible_by,
+        requested_devices=devices,
+        resolve_device_id=resolve_device_id,
+        can_access_peer=this_dev.can_access_peer,
+    )
+    target_ids = plan.target_ids
+    to_add = plan.to_add
+    to_rm = plan.to_remove
+    cdef size_t count = len(to_add) + len(to_rm)
+    cdef cydriver.CUmemAccessDesc* access_desc = NULL
+    cdef size_t i = 0
+
+    if count > 0:
+        access_desc = <cydriver.CUmemAccessDesc*>PyMem_Malloc(count * sizeof(cydriver.CUmemAccessDesc))
+        if access_desc == NULL:
+            raise MemoryError("Failed to allocate memory for access descriptors")
+
+        try:
+            for dev_id in to_add:
+                access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+                access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                access_desc[i].location.id = dev_id
+                i += 1
+
+            for dev_id in to_rm:
+                access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_NONE
+                access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                access_desc[i].location.id = dev_id
+                i += 1
+
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), access_desc, count))
+        finally:
+            if access_desc != NULL:
+                PyMem_Free(access_desc)
+
+        self._peer_accessible_by = tuple(target_ids)
+
+
+cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
+    from .._device import Device
+    cdef int dev_id = Device(device_id).device_id
+    cdef DeviceMemoryResourceOptions opts = check_or_create_options(
+        DeviceMemoryResourceOptions, options, "DeviceMemoryResource options",
+        keep_none=True
+    )
+    cdef bint ipc_enabled = False
+    cdef size_t max_size = 0
+
+    self._dev_id = dev_id
+
+    if opts is not None:
+        ipc_enabled = opts.ipc_enabled
+        if ipc_enabled and not _ipc.is_supported():
+            raise RuntimeError(f"IPC is not available on {platform.system()}")
+        max_size = opts.max_size
+
+    if opts is None:
+        self._h_pool = get_device_mempool(dev_id)
+        self._mempool_owned = False
+        MP_raise_release_threshold(self)
+    else:
+        self._peer_accessible_by = ()
+        MP_init_create_pool(
+            self,
+            cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+            dev_id,
+            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
+            ipc_enabled,
+            max_size,
+        )
 
 
 # Note: this is referenced in instructions to debug nvbug 5698116.

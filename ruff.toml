@@ -134,8 +134,9 @@ inline-quotes = "double"
 "cuda_bindings/{build_hooks.py,setup.py}" = ["N801", "N802", "N803", "N806", "N816"]
 
 # scripts and build tooling — print is the expected output method
+"qa/**" = ["T201"]
 "toolshed/**" = ["T201"]
 "ci/**" = ["T201"]
 "**/build_hooks.py" = ["T201"]
 "**/docs/**/conf.py" = ["T201", "ARG001"]
-"cuda_pathfinder/**/canary_probe_subprocess.py" = ["T201"]
+"cuda_pathfinder/**/dynamic_lib_subprocess.py" = ["T201"]
