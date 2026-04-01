@@ -23,7 +23,7 @@ static void check_cu(CUresult status, const char* message) {
 int main(int argc, char** argv) {
     bench::Options options = bench::parse_args(argc, argv);
 
-    // Setup: init CUDA, allocate memory
+    // Setup
     check_cu(cuInit(0), "cuInit failed");
 
     CUdevice device;
@@ -33,24 +33,39 @@ int main(int argc, char** argv) {
     CUctxCreateParams ctxParams = {};
     check_cu(cuCtxCreate(&ctx, &ctxParams, 0, device), "cuCtxCreate failed");
 
-    CUdeviceptr ptr;
-    check_cu(cuMemAlloc(&ptr, 1 << 18), "cuMemAlloc failed");
+    // Persistent stream for query/synchronize benchmarks
+    CUstream stream;
+    check_cu(cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING), "cuStreamCreate failed");
 
     bench::BenchmarkSuite suite(options);
 
-    // --- pointer_get_attribute ---
+    // --- stream_create_destroy ---
     {
-        unsigned int memory_type = 0;
-        suite.run("pointer_attributes.pointer_get_attribute", [&]() {
-            check_cu(
-                cuPointerGetAttribute(&memory_type, CU_POINTER_ATTRIBUTE_MEMORY_TYPE, ptr),
-                "cuPointerGetAttribute failed"
-            );
+        CUstream s;
+        suite.run("stream.stream_create_destroy", [&]() {
+            check_cu(cuStreamCreate(&s, CU_STREAM_NON_BLOCKING), "cuStreamCreate failed");
+            check_cu(cuStreamDestroy(s), "cuStreamDestroy failed");
+        });
+    }
+
+    // --- stream_query ---
+    {
+        suite.run("stream.stream_query", [&]() {
+            // cuStreamQuery returns CUDA_SUCCESS if stream is idle,
+            // CUDA_ERROR_NOT_READY if busy — both are valid here.
+            cuStreamQuery(stream);
+        });
+    }
+
+    // --- stream_synchronize ---
+    {
+        suite.run("stream.stream_synchronize", [&]() {
+            check_cu(cuStreamSynchronize(stream), "cuStreamSynchronize failed");
         });
     }
 
     // Cleanup
-    check_cu(cuMemFree(ptr), "cuMemFree failed");
+    check_cu(cuStreamDestroy(stream), "cuStreamDestroy failed");
     check_cu(cuCtxDestroy(ctx), "cuCtxDestroy failed");
 
     suite.write();

@@ -22,9 +22,6 @@ static void check_cu(CUresult status, const char* message) {
 
 int main(int argc, char** argv) {
     bench::Options options = bench::parse_args(argc, argv);
-    if (options.benchmark_name.empty()) {
-        options.benchmark_name = "ctx_device.ctx_get_current";
-    }
 
     // Setup: init CUDA and create a context
     check_cu(cuInit(0), "cuInit failed");
@@ -36,30 +33,55 @@ int main(int argc, char** argv) {
     CUctxCreateParams ctxParams = {};
     check_cu(cuCtxCreate(&ctx, &ctxParams, 0, device), "cuCtxCreate failed");
 
-    CUcontext current_ctx = nullptr;
+    bench::BenchmarkSuite suite(options);
 
-    // Run benchmark
-    auto results = bench::run_benchmark(options, [&]() {
-        check_cu(
-            cuCtxGetCurrent(&current_ctx),
-            "cuCtxGetCurrent failed"
-        );
-    });
+    // --- ctx_get_current ---
+    {
+        CUcontext current_ctx = nullptr;
+        suite.run("ctx_device.ctx_get_current", [&]() {
+            check_cu(cuCtxGetCurrent(&current_ctx), "cuCtxGetCurrent failed");
+        });
+    }
 
-    // Sanity check: the call actually returned our context
-    if (current_ctx != ctx) {
-        std::cerr << "unexpected: cuCtxGetCurrent returned a different context\n";
+    // --- ctx_set_current ---
+    {
+        suite.run("ctx_device.ctx_set_current", [&]() {
+            check_cu(cuCtxSetCurrent(ctx), "cuCtxSetCurrent failed");
+        });
+    }
+
+    // --- ctx_get_device ---
+    {
+        CUdevice dev;
+        suite.run("ctx_device.ctx_get_device", [&]() {
+            check_cu(cuCtxGetDevice(&dev), "cuCtxGetDevice failed");
+        });
+    }
+
+    // --- device_get ---
+    {
+        CUdevice dev;
+        suite.run("ctx_device.device_get", [&]() {
+            check_cu(cuDeviceGet(&dev, 0), "cuDeviceGet failed");
+        });
+    }
+
+    // --- device_get_attribute ---
+    {
+        int value = 0;
+        suite.run("ctx_device.device_get_attribute", [&]() {
+            check_cu(
+                cuDeviceGetAttribute(&value, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device),
+                "cuDeviceGetAttribute failed"
+            );
+        });
     }
 
     // Cleanup
     check_cu(cuCtxDestroy(ctx), "cuCtxDestroy failed");
 
-    // Output
-    bench::print_summary(options.benchmark_name, results);
-
-    if (!options.output_path.empty()) {
-        bench::write_pyperf_json(options.output_path, options.benchmark_name, options.loops, results);
-    }
+    // Write all results
+    suite.write();
 
     return 0;
 }

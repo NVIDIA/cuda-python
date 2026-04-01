@@ -35,6 +35,26 @@ find_library(
         "${CONDA_PREFIX_HINT}/lib/stubs"
 )
 
+# Find nvrtc.h and libnvrtc (for runtime compilation benchmarks)
+find_path(
+    NVRTC_INCLUDE_DIR
+    nvrtc.h
+    HINTS
+        "${CUDA_HOME_HINT}/include"
+        "${CONDA_PREFIX_HINT}/targets/x86_64-linux/include"
+        "${CONDA_PREFIX_HINT}/include"
+)
+
+find_library(
+    NVRTC_LIBRARY
+    NAMES nvrtc
+    HINTS
+        "${CUDA_HOME_HINT}/lib64"
+        "${CUDA_HOME_HINT}/lib"
+        "${CONDA_PREFIX_HINT}/targets/x86_64-linux/lib"
+        "${CONDA_PREFIX_HINT}/lib"
+)
+
 if(NOT CUDA_DRIVER_INCLUDE_DIR)
     message(FATAL_ERROR "Could not find cuda.h. Ensure CUDA_HOME is set or install cuda-crt-dev.")
 endif()
@@ -43,10 +63,29 @@ if(NOT CUDA_DRIVER_LIBRARY)
     message(FATAL_ERROR "Could not find libcuda. Ensure the NVIDIA driver is installed.")
 endif()
 
-add_executable(bench_pointer_attributes_cpp bench_pointer_attributes.cpp)
-target_include_directories(bench_pointer_attributes_cpp PRIVATE "${CUDA_DRIVER_INCLUDE_DIR}")
-target_link_libraries(bench_pointer_attributes_cpp PRIVATE "${CUDA_DRIVER_LIBRARY}")
+# Helper: add a benchmark that only needs the driver API
+function(add_driver_benchmark name)
+    add_executable(${name}_cpp ${name}.cpp)
+    target_include_directories(${name}_cpp PRIVATE "${CUDA_DRIVER_INCLUDE_DIR}")
+    target_link_libraries(${name}_cpp PRIVATE "${CUDA_DRIVER_LIBRARY}")
+endfunction()
 
-add_executable(bench_ctx_device_cpp bench_ctx_device.cpp)
-target_include_directories(bench_ctx_device_cpp PRIVATE "${CUDA_DRIVER_INCLUDE_DIR}")
-target_link_libraries(bench_ctx_device_cpp PRIVATE "${CUDA_DRIVER_LIBRARY}")
+# Helper: add a benchmark that needs driver API + NVRTC
+function(add_nvrtc_benchmark name)
+    add_executable(${name}_cpp ${name}.cpp)
+    target_include_directories(${name}_cpp PRIVATE "${CUDA_DRIVER_INCLUDE_DIR}" "${NVRTC_INCLUDE_DIR}")
+    target_link_libraries(${name}_cpp PRIVATE "${CUDA_DRIVER_LIBRARY}" "${NVRTC_LIBRARY}")
+endfunction()
+
+# Driver-only benchmarks
+add_driver_benchmark(bench_pointer_attributes)
+add_driver_benchmark(bench_ctx_device)
+add_driver_benchmark(bench_stream)
+add_driver_benchmark(bench_event)
+
+# NVRTC benchmarks (require nvrtc for kernel compilation)
+if(NVRTC_INCLUDE_DIR AND NVRTC_LIBRARY)
+    add_nvrtc_benchmark(bench_launch)
+else()
+    message(WARNING "NVRTC not found — skipping bench_launch. Install cuda-nvrtc-dev.")
+endif()
