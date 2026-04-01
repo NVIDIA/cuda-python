@@ -138,6 +138,14 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
     # Third-party / separately packaged headers
     # -----------------------------------------------------------------------
     HeaderDescriptorSpec(
+        name="cusolverMp",
+        packaged_with="other",
+        header_basename="cusolverMp.h",
+        site_packages_dirs=("nvidia/cu12/include", "nvidia/cu13/include"),
+        conda_targets_layout=False,
+        use_ctk_root_canary=False,
+    ),
+    HeaderDescriptorSpec(
         name="cusparseLt",
         packaged_with="other",
         header_basename="cusparseLt.h",

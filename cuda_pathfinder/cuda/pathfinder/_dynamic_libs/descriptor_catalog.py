@@ -309,6 +309,13 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         requires_rtld_deepbind=True,
     ),
     DescriptorSpec(
+        name="cusolverMp",
+        packaged_with="other",
+        linux_sonames=("libcusolverMp.so.0"),
+        site_packages_linux=("nvidia/cu12/lib", "nvidia/cu13/lib"),
+        dependencies=("cublas", "cudart", "cusolver", "nccl"),
+    ),
+    DescriptorSpec(
         name="mathdx",
         packaged_with="other",
         linux_sonames=("libmathdx.so.0",),
