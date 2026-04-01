@@ -32,26 +32,30 @@ sudo $(pixi run -e wheel -- which python) -m pyperf system tune
 To run the benchmarks combine the environment and task:
 
 ```bash
-
 # Run the Python benchmarks in the wheel environment
 pixi run -e wheel bench
 
 # Run the Python benchmarks in the source environment
 pixi run -e source bench
 
-# Run the C++ benchmarks (environment is irrelavant here)
+# Run the C++ benchmarks
 pixi run -e wheel bench-cpp
 ```
 
-## pyperf JSON
+Both runners automatically save results to JSON files in the benchmarks
+directory: `results-python.json` and `results-cpp.json`.
+
+## Output JSON and analysis
 
 The benchmarks are run using [pyperf](https://pyperf.readthedocs.io/en/latest/).
-The results are written to a JSON file in the format expected by pyperf.
+Both Python and C++ results are saved in pyperf-compatible JSON format,
+which can be analyzed with pyperf commands:
 
-The C++ benchmarks also generate a valid JSON file, in the same format.
+```bash
+# Show results and statistics
+pixi run -e wheel -- python -m pyperf stats results-python.json
+pixi run -e wheel -- python -m pyperf stats results-cpp.json
 
-```
-pixi run -e wheel bench-cpp -0 cpp.json
-
-pixi run -e wheel pyperf stats cpp.json
+# Compare C++ vs Python results
+pixi run -e wheel -- python -m pyperf compare_to results-cpp.json results-python.json
 ```

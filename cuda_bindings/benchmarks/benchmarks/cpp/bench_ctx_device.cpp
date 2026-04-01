@@ -23,7 +23,7 @@ static void check_cu(CUresult status, const char* message) {
 int main(int argc, char** argv) {
     bench::Options options = bench::parse_args(argc, argv);
     if (options.benchmark_name.empty()) {
-        options.benchmark_name = "cpp.ctx_device.ctx_get_current";
+        options.benchmark_name = "ctx_device.ctx_get_current";
     }
 
     // Setup: init CUDA and create a context

@@ -30,7 +30,7 @@ def load_module(module_path: Path) -> ModuleType:
 def benchmark_id(module_name: str, function_name: str) -> str:
     module_suffix = module_name.removeprefix("bench_")
     suffix = function_name.removeprefix("bench_")
-    return f"bindings.{module_suffix}.{suffix}"
+    return f"{module_suffix}.{suffix}"
 
 
 def discover_benchmarks() -> dict[str, Callable[[int], float]]:

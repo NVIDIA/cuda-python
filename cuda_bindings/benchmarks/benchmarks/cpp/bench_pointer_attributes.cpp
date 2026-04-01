@@ -23,7 +23,7 @@ static void check_cu(CUresult status, const char* message) {
 int main(int argc, char** argv) {
     bench::Options options = bench::parse_args(argc, argv);
     if (options.benchmark_name.empty()) {
-        options.benchmark_name = "cpp.pointer_attributes.pointer_get_attribute";
+        options.benchmark_name = "pointer_attributes.pointer_get_attribute";
     }
 
     // Setup: init CUDA, allocate memory
