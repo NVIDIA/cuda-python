@@ -311,7 +311,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="cusolverMp",
         packaged_with="other",
-        linux_sonames=("libcusolverMp.so.0"),
+        linux_sonames=("libcusolverMp.so.0", ),
         site_packages_linux=("nvidia/cu12/lib", "nvidia/cu13/lib"),
         dependencies=("cublas", "cudart", "cusolver", "nccl"),
     ),
