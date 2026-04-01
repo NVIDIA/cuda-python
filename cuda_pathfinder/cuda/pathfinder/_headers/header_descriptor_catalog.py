@@ -141,7 +141,7 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         name="cusolverMp",
         packaged_with="other",
         header_basename="cusolverMp.h",
-        site_packages_dirs=("nvidia/cu12/include", "nvidia/cu13/include"),
+        site_packages_dirs=("nvidia/cu13/include", "nvidia/cu12/include"),
         conda_targets_layout=False,
         use_ctk_root_canary=False,
     ),
