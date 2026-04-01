@@ -8,6 +8,10 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import math
 import platform
@@ -15,12 +19,16 @@ import random as rnd
 import sys
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
-from common.helper_string import check_cmd_line_flag
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import (
+    KernelHelper,
+    check_cmd_line_flag,
+    check_cuda_errors,
+    find_cuda_device,
+    requirement_not_met,
+)
 
 stream_ordered_allocation = """\
 /* Add two vectors on the GPU */
@@ -205,10 +213,8 @@ def stream_ordered_allocation_post_sync(dev, nelem, a, b, c):
 
 
 def main():
-    import pytest
-
     if platform.system() == "Darwin":
-        pytest.skip("streamOrderedAllocation is not supported on Mac OSX")
+        requirement_not_met("streamOrderedAllocation is not supported on Mac OSX")
 
     cuda.cuInit(0)
     if check_cmd_line_flag("help"):
@@ -227,10 +233,10 @@ def main():
             cudart.cudaDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev)
         )
     if not is_mem_pool_supported:
-        pytest.skip("Waiving execution as device does not support Memory Pools")
+        requirement_not_met("Waiving execution as device does not support Memory Pools")
 
     global _vector_add_gpu
-    kernel_helper = common.KernelHelper(stream_ordered_allocation, dev)
+    kernel_helper = KernelHelper(stream_ordered_allocation, dev)
     _vector_add_gpu = kernel_helper.get_function(b"vectorAddGPU")
 
     # Allocate CPU memory
