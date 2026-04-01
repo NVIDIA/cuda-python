@@ -39,6 +39,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart_linux-64-13.2.51-h376f20c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-driver-dev_linux-64-13.2.51-h376f20c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.2.51-hecca717_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.2.51-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-13.2.51-h69a702a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-13.2.51-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.2.51-h4bc722e_0.conda
@@ -164,6 +165,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart_linux-64-13.1.80-h376f20c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-driver-dev_linux-64-13.1.80-h376f20c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.1.115-hecca717_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.1.115-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.1.115-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-pathfinder-1.4.0-pyhc364b38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-13.1-h2ff5cdb_3.conda
@@ -648,6 +650,34 @@ packages:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   size: 35736655
   timestamp: 1773100338749
+- conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.1.115-hecca717_0.conda
+  sha256: 2c929c592ca1909e3944edec62b77403d256156a4010bfa17fb0b948d33e54d3
+  md5: 1096fce4abad7dd975ce6d9953fceb6a
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - cuda-nvrtc 13.1.115 hecca717_0
+  - cuda-version >=13.1,<13.2.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  constrains:
+  - cuda-nvrtc-static >=13.1.115
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  size: 35845
+  timestamp: 1768273073971
+- conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.2.51-hecca717_0.conda
+  sha256: be60eb4e84ff4846b27b323eca402b075f52caf6c138ebb06268fbaa26ef1879
+  md5: 83535200a9e77165d5291b4ac82ebf6a
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - cuda-nvrtc 13.2.51 hecca717_0
+  - cuda-version >=13.2,<13.3.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  constrains:
+  - cuda-nvrtc-static >=13.2.51
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  size: 36305
+  timestamp: 1773100458841
 - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-13.2.51-h69a702a_0.conda
   sha256: d0111ba8fa12b96d38989d2016ecec0c11410c0e566d839ed54f3925591efb0b
   md5: 03cd3639b8e13623c7b91b1cb0136402
