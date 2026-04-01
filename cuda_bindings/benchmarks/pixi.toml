@@ -29,6 +29,7 @@ cmake = "*"
 ninja = "*"
 cxx-compiler = "*"
 cuda-cudart-dev = "*"
+cuda-nvrtc-dev = "*"
 
 [feature.cpp-bench.target.linux-64.dependencies]
 cuda-crt-dev_linux-64 = "*"
@@ -78,6 +79,9 @@ depends-on = [{ task = "bench-cpp-configure" }]
 [target.linux.tasks.bench-cpp]
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_cpp.py"]
 depends-on = [{ task = "bench-cpp-build" }]
+
+[target.linux.tasks.bench-compare]
+cmd = ["python", "$PIXI_PROJECT_ROOT/compare.py"]
 
 [target.linux.tasks.lint]
 cmd = ["pre-commit", "run", "--all-files"]
