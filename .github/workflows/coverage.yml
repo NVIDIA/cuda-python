@@ -295,7 +295,7 @@ jobs:
           cuda-version: ${{ env.CUDA_VER }}
 
       - name: Download Windows wheel artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-windows-wheels
           path: ./wheels/
@@ -420,19 +420,19 @@ jobs:
           pip install coverage[toml] Cython
 
       - name: Download Linux coverage data
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-data-linux
           path: ./
 
       - name: Download cuda source code
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-source-linux
           path: ./cuda/
 
       - name: Download Windows coverage data
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-data-windows
           path: ./

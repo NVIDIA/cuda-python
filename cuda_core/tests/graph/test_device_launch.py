@@ -1,17 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Device-side graph launch tests.
-
-Device-side graph launch allows a kernel running on the GPU to launch a CUDA graph.
-This feature requires:
-- CUDA 12.0+
-- Hopper architecture (sm_90+)
-- The kernel calling cudaGraphLaunch() must itself be launched from within a graph
-"""
+"""Tests for device-side graph launch (GPU kernel launching a CUDA graph)."""
 
 import numpy as np
 import pytest
+from helpers.marks import requires_module
 
 from cuda.core import (
     Device,
@@ -82,7 +76,7 @@ def _compile_device_launcher_kernel():
     Device().compute_capability.major < 9,
     reason="Device-side graph launch requires Hopper (sm_90+) architecture",
 )
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_device_launch_basic(init_cuda):
     """Test basic device-side graph launch functionality.
 
@@ -134,7 +128,7 @@ def test_device_launch_basic(init_cuda):
     Device().compute_capability.major < 9,
     reason="Device-side graph launch requires Hopper (sm_90+) architecture",
 )
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_device_launch_multiple(init_cuda):
     """Test that device-side graph launch can be executed multiple times.
 

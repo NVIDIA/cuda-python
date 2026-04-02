@@ -7,16 +7,19 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import os
 import sys
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, find_cuda_device, requirement_not_met
 
 system_wide_atomics = """\
 #define LOOP_NUM 50
@@ -172,26 +175,24 @@ def verify(test_data, length):
 
 
 def main():
-    import pytest
-
     if os.name == "nt":
-        pytest.skip("Atomics not supported on Windows")
+        requirement_not_met("Atomics not supported on Windows")
 
     # set device
     dev_id = find_cuda_device()
     device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(dev_id))
 
     if not device_prop.managedMemory:
-        pytest.skip("Unified Memory not supported on this device")
+        requirement_not_met("Unified Memory not supported on this device")
 
     compute_mode = check_cuda_errors(
         cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeMode, dev_id)
     )
     if compute_mode == cudart.cudaComputeMode.cudaComputeModeProhibited:
-        pytest.skip("This sample requires a device in either default or process exclusive mode")
+        requirement_not_met("This sample requires a device in either default or process exclusive mode")
 
     if device_prop.major < 6:
-        pytest.skip("Requires a minimum CUDA compute 6.0 capability")
+        requirement_not_met("Requires a minimum CUDA compute 6.0 capability")
 
     num_threads = 256
     num_blocks = 64
@@ -214,7 +215,7 @@ def main():
     # To make the AND and XOR tests generate something other than 0...
     atom_arr_h[7] = atom_arr_h[9] = 0xFF
 
-    kernel_helper = common.KernelHelper(system_wide_atomics, dev_id)
+    kernel_helper = KernelHelper(system_wide_atomics, dev_id)
     _atomic_kernel = kernel_helper.get_function(b"atomicKernel")
     kernel_args = ((atom_arr,), (ctypes.c_void_p,))
     check_cuda_errors(
