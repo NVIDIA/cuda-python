@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.shutdown
-===========================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: shutdown
