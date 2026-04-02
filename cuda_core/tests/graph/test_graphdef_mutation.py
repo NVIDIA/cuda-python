@@ -380,7 +380,7 @@ def test_convert_linear_to_fan_in(init_cuda):
     for node in g.nodes():
         if isinstance(node, MemsetNode):
             node.pred.clear()
-        elif isinstance(node, KernelNode) and node != reduce_node:
+        elif isinstance(node, KernelNode) and node is not reduce_node:
             node.succ.add(reduce_node)
 
     assert len(g.edges()) == 8

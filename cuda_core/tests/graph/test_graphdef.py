@@ -661,6 +661,7 @@ def test_node_type_preserved_by_nodes(node_spec):
     matched = [n for n in all_nodes if n == node]
     assert len(matched) == 1
     assert isinstance(matched[0], spec.roundtrip_class)
+    assert matched[0] is node
 
 
 def test_node_type_preserved_by_pred_succ(node_spec):
@@ -670,6 +671,7 @@ def test_node_type_preserved_by_pred_succ(node_spec):
         matched = [s for s in predecessor.succ if s == node]
         assert len(matched) == 1
         assert isinstance(matched[0], spec.roundtrip_class)
+        assert matched[0] is node
 
 
 def test_node_attrs(node_spec):

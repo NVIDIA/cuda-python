@@ -57,9 +57,18 @@ from cuda.core._graph._utils cimport (
     _attach_user_object,
 )
 
+import weakref
+
 from cuda.core import Device
 from cuda.core._graph._graph_def._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver, handle_return
+
+_node_cache = weakref.WeakValueDictionary()
+
+
+cdef inline GraphNode _cached(GraphNode n):
+    _node_cache[<uintptr_t>n._h_node.get()] = n
+    return n
 
 
 cdef class GraphNode:
@@ -522,18 +531,30 @@ cdef inline ConditionalNode _make_conditional_node(
     n._cond_type = cond_type
     n._branches = branches
 
-    return n
+    return _cached(n)
+
 
 cdef inline GraphNode GN_create(GraphHandle h_graph, cydriver.CUgraphNode node):
+    cdef GraphNodeHandle h_node = create_graph_node_handle(node, h_graph)
+
+    # Sentinel: virtual node to represent the graph entry point.
     if node == NULL:
         n = GraphNode.__new__(GraphNode)
-        (<GraphNode>n)._h_node = create_graph_node_handle(node, h_graph)
+        (<GraphNode>n)._h_node = h_node
         return n
 
-    cdef GraphNodeHandle h_node = create_graph_node_handle(node, h_graph)
+    # Return a cached object or create and cache a new one.
+    cached = _node_cache.get(<uintptr_t>h_node.get())
+    if cached is not None:
+        return <GraphNode>cached
+    else:
+        return _cached(GN_create_impl(h_node))
+
+
+cdef inline GraphNode GN_create_impl(GraphNodeHandle h_node):
     cdef cydriver.CUgraphNodeType node_type
     with nogil:
-        HANDLE_RETURN(cydriver.cuGraphNodeGetType(node, &node_type))
+        HANDLE_RETURN(cydriver.cuGraphNodeGetType(as_cu(h_node), &node_type))
 
     if node_type == cydriver.CU_GRAPH_NODE_TYPE_EMPTY:
         return EmptyNode._create_impl(h_node)
@@ -595,10 +616,10 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
                         <cydriver.CUhostFn>_destroy_kernel_handle_copy)
 
-    return KernelNode._create_with_params(
+    return _cached(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
         conf.grid, conf.block, conf.shmem_size,
-        ker._h_kernel)
+        ker._h_kernel))
 
 
 cdef inline EmptyNode GN_join(GraphNode self, tuple nodes):
@@ -624,7 +645,7 @@ cdef inline EmptyNode GN_join(GraphNode self, tuple nodes):
         HANDLE_RETURN(cydriver.cuGraphAddEmptyNode(
             &new_node, as_cu(h_graph), deps_ptr, num_deps))
 
-    return EmptyNode._create_impl(create_graph_node_handle(new_node, h_graph))
+    return _cached(EmptyNode._create_impl(create_graph_node_handle(new_node, h_graph)))
 
 
 cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
@@ -700,9 +721,9 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
         HANDLE_RETURN(cydriver.cuGraphAddMemAllocNode(
             &new_node, as_cu(h_graph), deps, num_deps, &alloc_params))
 
-    return AllocNode._create_with_params(
+    return _cached(AllocNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), alloc_params.dptr, size,
-        device_id, memory_type, tuple(peer_ids))
+        device_id, memory_type, tuple(peer_ids)))
 
 
 cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
@@ -720,7 +741,7 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
         HANDLE_RETURN(cydriver.cuGraphAddMemFreeNode(
             &new_node, as_cu(h_graph), deps, num_deps, c_dptr))
 
-    return FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr)
+    return _cached(FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr))
 
 
 cdef inline MemsetNode GN_memset(
@@ -755,9 +776,9 @@ cdef inline MemsetNode GN_memset(
             &new_node, as_cu(h_graph), deps, num_deps,
             &memset_params, ctx))
 
-    return MemsetNode._create_with_params(
+    return _cached(MemsetNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst,
-        val, elem_size, width, height, pitch)
+        val, elem_size, width, height, pitch))
 
 
 cdef inline MemcpyNode GN_memcpy(
@@ -816,9 +837,9 @@ cdef inline MemcpyNode GN_memcpy(
         HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
             &new_node, as_cu(h_graph), deps, num_deps, &params, ctx))
 
-    return MemcpyNode._create_with_params(
+    return _cached(MemcpyNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst, c_src, size,
-        c_dst_type, c_src_type)
+        c_dst_type, c_src_type))
 
 
 cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDef child_def):
@@ -843,8 +864,8 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDef child_def):
 
     cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph, h_graph)
 
-    return ChildGraphNode._create_with_params(
-        create_graph_node_handle(new_node, h_graph), h_embedded)
+    return _cached(ChildGraphNode._create_with_params(
+        create_graph_node_handle(new_node, h_graph), h_embedded))
 
 
 cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
@@ -865,8 +886,8 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
     _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
                         <cydriver.CUhostFn>_destroy_event_handle_copy)
 
-    return EventRecordNode._create_with_params(
-        create_graph_node_handle(new_node, h_graph), ev._h_event)
+    return _cached(EventRecordNode._create_with_params(
+        create_graph_node_handle(new_node, h_graph), ev._h_event))
 
 
 cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
@@ -887,8 +908,8 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
     _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
                         <cydriver.CUhostFn>_destroy_event_handle_copy)
 
-    return EventWaitNode._create_with_params(
-        create_graph_node_handle(new_node, h_graph), ev._h_event)
+    return _cached(EventWaitNode._create_with_params(
+        create_graph_node_handle(new_node, h_graph), ev._h_event))
 
 
 cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_data):
@@ -914,6 +935,6 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
     cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
-    return HostCallbackNode._create_with_params(
+    return _cached(HostCallbackNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), callable_obj,
-        node_params.fn, node_params.userData)
+        node_params.fn, node_params.userData))
