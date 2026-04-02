@@ -27,7 +27,7 @@ from cuda.core import (
     Stream,
     system,
 )
-from cuda.core._graph._graphdef import GraphDef
+from cuda.core._graph._graph_def import GraphDef
 from cuda.core._program import _can_load_generated_ptx
 
 

@@ -5,6 +5,8 @@
 import weakref
 from dataclasses import dataclass
 
+from libc.stdint cimport intptr_t
+
 from cuda.bindings cimport cydriver
 
 from cuda.core._graph._utils cimport _attach_host_callback_to_graph
@@ -14,6 +16,7 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 
 from cuda.core._utils.cuda_utils import (
+    CUDAError,
     driver,
     handle_return,
 )
@@ -783,24 +786,42 @@ class Graph:
         """
         return self._mnff.graph
 
-    def update(self, builder: GraphBuilder):
-        """Update the graph using new build configuration from the builder.
+    def update(self, source: "GraphBuilder | GraphDef") -> None:
+        """Update the graph using a new graph definition.
 
-        The topology of the provided builder must be identical to this graph.
+        The topology of the provided source must be identical to this graph.
 
         Parameters
         ----------
-        builder : :obj:`~_graph.GraphBuilder`
-            The builder to update the graph with.
+        source : :obj:`~_graph.GraphBuilder` or :obj:`~_graph._graph_def.GraphDef`
+            The graph definition to update from. A GraphBuilder must have
+            finished building.
 
         """
-        if not builder._building_ended:
-            raise ValueError("Graph has not finished building.")
+        from cuda.core._graph._graph_def import GraphDef
 
-        # Update the graph with the new nodes from the builder
-        exec_update_result = handle_return(driver.cuGraphExecUpdate(self._mnff.graph, builder._mnff.graph))
-        if exec_update_result.result != driver.CUgraphExecUpdateResult.CU_GRAPH_EXEC_UPDATE_SUCCESS:
-            raise RuntimeError(f"Failed to update graph: {exec_update_result.result()}")
+        cdef cydriver.CUgraph cu_graph
+        cdef cydriver.CUgraphExec cu_exec = <cydriver.CUgraphExec><intptr_t>int(self._mnff.graph)
+
+        if isinstance(source, GraphBuilder):
+            if not source._building_ended:
+                raise ValueError("Graph has not finished building.")
+            cu_graph = <cydriver.CUgraph><intptr_t>int(source._mnff.graph)
+        elif isinstance(source, GraphDef):
+            cu_graph = <cydriver.CUgraph><intptr_t>int(source.handle)
+        else:
+            raise TypeError(
+                f"expected GraphBuilder or GraphDef, got {type(source).__name__}")
+
+        cdef cydriver.CUgraphExecUpdateResultInfo result_info
+        cdef cydriver.CUresult err
+        with nogil:
+            err = cydriver.cuGraphExecUpdate(cu_exec, cu_graph, &result_info)
+        if err == cydriver.CUresult.CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE:
+            reason = driver.CUgraphExecUpdateResult(result_info.result)
+            msg = f"Graph update failed: {reason.__doc__.strip()} ({reason.name})"
+            raise CUDAError(msg)
+        HANDLE_RETURN(err)
 
     def upload(self, stream: Stream):
         """Uploads the graph in a stream.
