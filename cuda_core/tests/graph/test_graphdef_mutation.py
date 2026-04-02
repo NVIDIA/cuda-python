@@ -3,22 +3,13 @@
 
 """Tests for mutating a graph definition (edge changes, node removal)."""
 
-import pytest
+import numpy as np
 from helpers.collection_interface_testers import assert_mutable_set_interface
 from helpers.graph_kernels import compile_parallel_kernels
+from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._graph._graph_def import GraphDef, KernelNode, MemsetNode
-
-try:
-    import numpy as np
-
-    _has_numpy_2_1 = tuple(int(i) for i in np.__version__.split(".")[:2]) >= (2, 1)
-except ImportError:
-    np = None
-    _has_numpy_2_1 = False
-
-_need_numpy_2_1 = pytest.mark.skipif(not _has_numpy_2_1, reason="need numpy 2.1+")
 
 
 class YRig:
@@ -143,7 +134,7 @@ class YRig:
         self._buf.close()
 
 
-@_need_numpy_2_1
+@requires_module(np, "2.1")
 class TestMutateYRig:
     """Tests that mutate the Y-shaped graph built by YRig."""
 
@@ -269,7 +260,7 @@ def test_adjacency_set_property_setter(init_cuda):
     assert hub.pred == set()
 
 
-@_need_numpy_2_1
+@requires_module(np, "2.1")
 def test_convert_linear_to_fan_in(init_cuda):
     """Chain four computations sequentially, then rewire so all pairs run in
     parallel feeding into a reduce node.
