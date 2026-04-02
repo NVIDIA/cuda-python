@@ -6,6 +6,7 @@
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
+from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core._graph._graph_def import GraphDef
@@ -13,7 +14,7 @@ from cuda.core._utils.cuda_utils import CUDAError
 
 
 @pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDef"])
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_update_kernel_args(init_cuda, builder):
     """Update redirects a kernel to write to a different pointer."""
     mod = compile_common_kernels()
@@ -59,7 +60,7 @@ def test_graph_update_kernel_args(init_cuda, builder):
     b.close()
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_update_conditional(init_cuda):
     """Update swaps conditional switch graphs with matching topology."""
     mod = compile_conditional_kernels(int)

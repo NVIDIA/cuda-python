@@ -8,6 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_conditional_kernels
+from helpers.marks import requires_module
 
 from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
 
@@ -15,7 +16,7 @@ from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryReso
 @pytest.mark.parametrize(
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_conditional_if(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -79,7 +80,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
 @pytest.mark.parametrize(
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_conditional_if_else(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -151,7 +152,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_conditional_switch(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -242,7 +243,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [True, False, 1, 0])
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_conditional_while(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")

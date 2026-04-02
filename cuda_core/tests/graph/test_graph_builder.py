@@ -6,6 +6,7 @@
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.marks import requires_module
 
 from cuda.core import Device, GraphBuilder, LaunchConfig, LegacyPinnedMemoryResource, launch
 
@@ -116,7 +117,7 @@ def test_graph_is_join_required(init_cuda):
     gb.end_building().complete()
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_graph_repeat_capture(init_cuda):
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
