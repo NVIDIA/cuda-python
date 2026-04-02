@@ -3,37 +3,43 @@
 
 """Reusable pytest marks for cuda_core tests."""
 
-import importlib
-import types
+import inspect
 
 import pytest
 
 
-def requires(module, *version):
-    """Skip the test if a module is missing or older than the given version.
+def requires_module(module, *args, **kwargs):
+    """Skip the test if a module is missing or older than required.
+
+    Thin wrapper around :func:`pytest.importorskip`.  The first argument
+    may be a module object or a string; all remaining positional and
+    keyword arguments (``minversion``, ``reason``, ``exc_type``) are
+    forwarded.
+
+    Prefer this over ``pytest.importorskip`` when:
+
+    - You need finer granularity than module scope or a test body; this
+      mark can decorate classes, individual tests, or ``pytest.param`` entries.
+    - You want to skip before fixtures run, avoiding setup costs.
+    - The module is already imported and you want to pass it directly.
 
     Usage::
 
-        @requires(np, 2, 1)
+        @requires_module("numpy", "2.1")
         def test_foo(): ...
 
 
-        @requires("scipy", 1, 12)
+        @requires_module(np, minversion="2.1")
         def test_bar(): ...
     """
-    if isinstance(module, str):
-        name = module
-        try:
-            module = importlib.import_module(name)
-        except ImportError:
-            return pytest.mark.skip(reason=f"{name} is not installed")
-    elif isinstance(module, types.ModuleType):
-        name = module.__name__
-    else:
+    if inspect.ismodule(module):
+        module = module.__name__
+    elif not isinstance(module, str):
         raise TypeError(f"expected module or string, got {type(module).__name__}")
 
-    n = len(version)
-    parts = module.__version__.split(".")[:n]
-    installed = tuple(int(p) for p in parts)
-    ver_str = ".".join(str(v) for v in version)
-    return pytest.mark.skipif(installed < version, reason=f"need {name} {ver_str}+")
+    try:
+        pytest.importorskip(module, *args, **kwargs)
+    except pytest.skip.Skipped as exc:
+        return pytest.mark.skipif(True, reason=str(exc))
+    else:
+        return pytest.mark.skipif(False, reason="")

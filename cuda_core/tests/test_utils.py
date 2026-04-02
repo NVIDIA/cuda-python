@@ -26,7 +26,7 @@ except ImportError:
     ml_dtypes = None
 import numpy as np
 import pytest
-from helpers.marks import requires
+from helpers.marks import requires_module
 
 from cuda.core import Device
 from cuda.core._dlpack import DLDeviceType
@@ -86,7 +86,7 @@ def convert_strides_to_counts(strides, itemsize):
         # readonly is fixed recently (numpy/numpy#26501)
         pytest.param(
             np.frombuffer(b""),
-            marks=requires(np, 2, 1),
+            marks=requires_module(np, "2.1"),
         ),
     ),
 )

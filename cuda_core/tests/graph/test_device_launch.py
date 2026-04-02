@@ -12,7 +12,7 @@ This feature requires:
 
 import numpy as np
 import pytest
-from helpers.marks import requires
+from helpers.marks import requires_module
 
 from cuda.core import (
     Device,
@@ -83,7 +83,7 @@ def _compile_device_launcher_kernel():
     Device().compute_capability.major < 9,
     reason="Device-side graph launch requires Hopper (sm_90+) architecture",
 )
-@requires(np, 2, 1)
+@requires_module(np, "2.1")
 def test_device_launch_basic(init_cuda):
     """Test basic device-side graph launch functionality.
 
@@ -135,7 +135,7 @@ def test_device_launch_basic(init_cuda):
     Device().compute_capability.major < 9,
     reason="Device-side graph launch requires Hopper (sm_90+) architecture",
 )
-@requires(np, 2, 1)
+@requires_module(np, "2.1")
 def test_device_launch_multiple(init_cuda):
     """Test that device-side graph launch can be executed multiple times.
 
