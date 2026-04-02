@@ -57,7 +57,7 @@ from cuda.core._graph._utils cimport (
 )
 
 from cuda.core import Device
-from cuda.core._graph._graph_def._adjacency_set import AdjacencySet
+from cuda.core._graph._graph_def._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 
@@ -124,7 +124,12 @@ cdef class GraphNode:
         return as_py(self._h_node)
 
     def discard(self):
-        """Discard this node and remove all its edges from the parent graph."""
+        """Discard this node and remove all its edges from the parent graph.
+
+        Safe to call on an already-discarded node (no-op).
+        """
+        if self not in self.graph.nodes():
+            return
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
@@ -132,22 +137,22 @@ cdef class GraphNode:
     @property
     def pred(self):
         """A mutable set-like view of this node's predecessors."""
-        return AdjacencySet(self, False)
+        return AdjacencySetProxy(self, False)
 
     @pred.setter
     def pred(self, value):
-        p = AdjacencySet(self, False)
+        p = AdjacencySetProxy(self, False)
         p.clear()
         p.update(value)
 
     @property
     def succ(self):
         """A mutable set-like view of this node's successors."""
-        return AdjacencySet(self, True)
+        return AdjacencySetProxy(self, True)
 
     @succ.setter
     def succ(self, value):
-        s = AdjacencySet(self, True)
+        s = AdjacencySetProxy(self, True)
         s.clear()
         s.update(value)
 

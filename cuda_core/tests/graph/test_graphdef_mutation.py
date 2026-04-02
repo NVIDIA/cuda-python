@@ -4,12 +4,15 @@
 """Tests for mutating a graph definition (edge changes, node removal)."""
 
 import numpy as np
+import pytest
 from helpers.collection_interface_testers import assert_mutable_set_interface
 from helpers.graph_kernels import compile_parallel_kernels
 from helpers.marks import requires_module
 
+from cuda.bindings import driver
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._graph._graph_def import GraphDef, KernelNode, MemsetNode
+from cuda.core._utils.cuda_utils import CUDAError
 
 
 class YRig:
@@ -29,6 +32,9 @@ class YRig:
     Node r computes result ``combine(R, A, B) = (A << 16) | (B & 0xFFFF)``,
     encoding both arms' results into a single int. j is a joining (empty) node
     preceeding r.
+
+    The affine operation a * m + b is noncommutative, so we can be sure the
+    graph has exactly the topology we expect by checking the final value.
     """
 
     def __init__(self):
@@ -148,8 +154,8 @@ class TestMutateYRig:
         rig.close()
 
     def test_discard_a1(self, init_cuda):
-        """Discard a1 (creates a race). Arm b yields the expected value, and the
-        final result is correctly ordered after b."""
+        """Discard a1 (creates a race on arm a). Arm b yields the expected
+        value, and the final step is correctly ordered after b completes."""
         rig = YRig()
         rig.a[1].discard()
         rig.run()
@@ -204,7 +210,7 @@ class TestMutateYRig:
 
 
 def test_adjacency_set_interface(init_cuda):
-    """Exercise every MutableSet method on AdjacencySet."""
+    """Exercise every MutableSet method on AdjacencySetProxy."""
     g = GraphDef()
     hub = g.join()
     items = [g.join() for _ in range(5)]
@@ -260,6 +266,67 @@ def test_adjacency_set_property_setter(init_cuda):
     assert hub.pred == set()
 
 
+def test_discarded_node(init_cuda):
+    """Test uses of discarded nodes."""
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(4)
+    arr = np.from_dlpack(buf).view(np.int32)
+    arr[:] = 0
+    ptr = arr[0:].ctypes.data
+
+    g = GraphDef()
+    a = g.memset(ptr, 0, 4)
+    b = a.memset(ptr, 42, 4)
+
+    assert b in g.nodes()
+    assert (a, b) in g.edges()
+
+    b.discard()
+
+    # b is removed from the graph but still usable
+    assert b not in g.nodes()
+    assert (a, b) not in g.edges()
+    assert isinstance(b, MemsetNode)
+    assert b.type == driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_KERNEL
+    assert b.pred == set()
+    assert b.succ == set()
+    assert b.handle != 0
+    assert b.dptr == ptr
+    assert b.value == 42
+    assert b.width == 4
+
+    # Repeated discard succeeds quietly.
+    b.discard()
+
+
+def test_add_wrong_type(init_cuda):
+    """Adding a non-GraphNode raises TypeError."""
+    g = GraphDef()
+    node = g.join()
+    with pytest.raises(TypeError, match="expected GraphNode"):
+        node.succ.add("not a node")
+    with pytest.raises(TypeError, match="expected GraphNode"):
+        node.succ.add(42)
+
+
+def test_cross_graph_edge(init_cuda):
+    """Adding an edge to a node from a different graph raises CUDAError."""
+    g1 = GraphDef()
+    g2 = GraphDef()
+    a = g1.join()
+    b = g2.join()
+    with pytest.raises(CUDAError):
+        a.succ.add(b)
+
+
+def test_self_edge(init_cuda):
+    """Adding a self-edge raises CUDAError."""
+    g = GraphDef()
+    node = g.join()
+    with pytest.raises(CUDAError):
+        node.succ.add(node)
+
+
 @requires_module(np, "2.1")
 def test_convert_linear_to_fan_in(init_cuda):
     """Chain four computations sequentially, then rewire so all pairs run in
@@ -293,17 +360,22 @@ def test_convert_linear_to_fan_in(init_cuda):
     g = GraphDef()
     prev = g
     for i, val in enumerate(values):
-        prev = prev.memset(ptrs[i], val, 1).launch(config, affine, ptrs[i], 2, 1)
+        prev = prev.memset(ptrs[i], val, 1)
+        prev = prev.launch(config, affine, ptrs[i], 2, 1)
     reduce_node = g.launch(config, reduce_kern, ptrs[4], ptrs[0], 4)
 
     # Rewire:
     #   - drop preds from memsets
-    #   - connect results to reduction
+    #   - connect kernel launches to the reduction
+    assert len(g.edges()) == 7
+
     for node in g.nodes():
-        if isinstance(node, MemsetNode) and len(node.pred):
-            node.pred = set()
+        if isinstance(node, MemsetNode):
+            node.pred.clear()
         elif isinstance(node, KernelNode) and node != reduce_node:
-            node.succ = {reduce_node}
+            node.succ.add(reduce_node)
+
+    assert len(g.edges()) == 8
 
     stream = Device().create_stream()
     graph = g.instantiate()

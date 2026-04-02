@@ -20,14 +20,16 @@ from collections.abc import MutableSet
 
 # ---- Python MutableSet wrapper ----------------------------------------------
 
-class AdjacencySet(MutableSet):
-    """Mutable set-like view of a node's predecessors or successors."""
+class AdjacencySetProxy(MutableSet):
+    """Mutable set proxy for a node's predecessors or successors.  Mutations
+    write through to the underlying CUDA graph."""
 
     __slots__ = ("_core",)
 
     def __init__(self, node, bint is_fwd):
         self._core = _AdjacencySetCore(node, is_fwd)
 
+    # Used by operators such as &|^ to create non-proxy views when needed.
     @classmethod
     def _from_iterable(cls, it):
         return set(it)
@@ -62,6 +64,22 @@ class AdjacencySet(MutableSet):
 
     # --- override for bulk efficiency ---
 
+    def clear(self):
+        """Remove all edges in a single driver call."""
+        members = (<_AdjacencySetCore>self._core).query()
+        if members:
+            (<_AdjacencySetCore>self._core).remove_edges(members)
+
+    def __isub__(self, it):
+        """Remove edges to all nodes in *it* in a single driver call."""
+        if it is self:
+            self.clear()
+        else:
+            to_remove = [v for v in it if isinstance(v, GraphNode) and v in self]
+            if to_remove:
+                (<_AdjacencySetCore>self._core).remove_edges(to_remove)
+        return self
+
     def update(self, *others):
         """Add edges to multiple nodes at once."""
         nodes = []
@@ -76,21 +94,28 @@ class AdjacencySet(MutableSet):
             if not isinstance(n, GraphNode):
                 raise TypeError(
                     f"expected GraphNode, got {type(n).__name__}")
-        (<_AdjacencySetCore>self._core).add_edges(nodes)
+        new = [n for n in nodes if n not in self]
+        if new:
+            (<_AdjacencySetCore>self._core).add_edges(new)
+
+    def __ior__(self, it):
+        """Add edges to all nodes in *it* in a single driver call."""
+        self.update(it)
+        return self
 
     def __repr__(self):
         return "{" + ", ".join(repr(n) for n in self) + "}"
 
 
-# ---- cdef core holding function pointer ------------------------------------
+# ---- cdef core holding a function pointer ------------------------------------
 
-# Signature shared by _get_preds and _get_succs.
+# Signature shared by driver_get_preds and driver_get_succs.
 ctypedef cydriver.CUresult (*_adj_fn_t)(
     cydriver.CUgraphNode, cydriver.CUgraphNode*, size_t*) noexcept nogil
 
 
 cdef class _AdjacencySetCore:
-    """Cythonized core implementing AdjacencySet"""
+    """Cythonized core implementing AdjacencySetProxy"""
     cdef:
         GraphNodeHandle _h_node
         GraphHandle _h_graph
@@ -101,7 +126,7 @@ cdef class _AdjacencySetCore:
         self._h_node = node._h_node
         self._h_graph = graph_node_get_graph(node._h_node)
         self._is_fwd = is_fwd
-        self._query_fn = _get_succs if is_fwd else _get_preds
+        self._query_fn = driver_get_succs if is_fwd else driver_get_preds
 
     cdef inline void _resolve_edge(
             self, GraphNode other,
@@ -144,13 +169,7 @@ cdef class _AdjacencySetCore:
         cdef cydriver.CUgraphNode c_from, c_to
         self._resolve_edge(other, &c_from, &c_to)
         with nogil:
-            HANDLE_RETURN(_add_edge(as_cu(self._h_graph), &c_from, &c_to, 1))
-
-    cdef void remove_edge(self, GraphNode other):
-        cdef cydriver.CUgraphNode c_from, c_to
-        self._resolve_edge(other, &c_from, &c_to)
-        with nogil:
-            HANDLE_RETURN(_remove_edge(as_cu(self._h_graph), &c_from, &c_to, 1))
+            HANDLE_RETURN(driver_add_edges(as_cu(self._h_graph), &c_from, &c_to, 1))
 
     cdef void add_edges(self, list nodes):
         cdef size_t n = len(nodes)
@@ -162,13 +181,32 @@ cdef class _AdjacencySetCore:
         for i in range(n):
             self._resolve_edge(<GraphNode>nodes[i], &from_vec[i], &to_vec[i])
         with nogil:
-            HANDLE_RETURN(_add_edge(
+            HANDLE_RETURN(driver_add_edges(
+                as_cu(self._h_graph), from_vec.data(), to_vec.data(), n))
+
+    cdef void remove_edge(self, GraphNode other):
+        cdef cydriver.CUgraphNode c_from, c_to
+        self._resolve_edge(other, &c_from, &c_to)
+        with nogil:
+            HANDLE_RETURN(driver_remove_edges(as_cu(self._h_graph), &c_from, &c_to, 1))
+
+    cdef void remove_edges(self, list nodes):
+        cdef size_t n = len(nodes)
+        cdef vector[cydriver.CUgraphNode] from_vec
+        cdef vector[cydriver.CUgraphNode] to_vec
+        from_vec.resize(n)
+        to_vec.resize(n)
+        cdef size_t i
+        for i in range(n):
+            self._resolve_edge(<GraphNode>nodes[i], &from_vec[i], &to_vec[i])
+        with nogil:
+            HANDLE_RETURN(driver_remove_edges(
                 as_cu(self._h_graph), from_vec.data(), to_vec.data(), n))
 
 
 # ---- driver wrappers: absorb CUDA version differences ----
 
-cdef cydriver.CUresult _get_preds(
+cdef inline cydriver.CUresult driver_get_preds(
         cydriver.CUgraphNode node, cydriver.CUgraphNode* out,
         size_t* count) noexcept nogil:
     IF CUDA_CORE_BUILD_MAJOR >= 13:
@@ -177,7 +215,7 @@ cdef cydriver.CUresult _get_preds(
         return cydriver.cuGraphNodeGetDependencies(node, out, count)
 
 
-cdef cydriver.CUresult _get_succs(
+cdef inline cydriver.CUresult driver_get_succs(
         cydriver.CUgraphNode node, cydriver.CUgraphNode* out,
         size_t* count) noexcept nogil:
     IF CUDA_CORE_BUILD_MAJOR >= 13:
@@ -186,7 +224,7 @@ cdef cydriver.CUresult _get_succs(
         return cydriver.cuGraphNodeGetDependentNodes(node, out, count)
 
 
-cdef cydriver.CUresult _add_edge(
+cdef inline cydriver.CUresult driver_add_edges(
         cydriver.CUgraph graph, cydriver.CUgraphNode* from_arr,
         cydriver.CUgraphNode* to_arr, size_t count) noexcept nogil:
     IF CUDA_CORE_BUILD_MAJOR >= 13:
@@ -197,7 +235,7 @@ cdef cydriver.CUresult _add_edge(
             graph, from_arr, to_arr, count)
 
 
-cdef cydriver.CUresult _remove_edge(
+cdef inline cydriver.CUresult driver_remove_edges(
         cydriver.CUgraph graph, cydriver.CUgraphNode* from_arr,
         cydriver.CUgraphNode* to_arr, size_t count) noexcept nogil:
     IF CUDA_CORE_BUILD_MAJOR >= 13:
