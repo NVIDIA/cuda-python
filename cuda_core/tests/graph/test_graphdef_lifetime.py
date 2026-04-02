@@ -68,7 +68,7 @@ def test_branches_survive_parent_deletion(init_cuda, builder, expected_count):
     gc.collect()
 
     for branch in branches:
-        assert branch.nodes() == ()
+        assert branch.nodes() == set()
 
 
 @pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
@@ -108,7 +108,7 @@ def test_reconstructed_body_survives_parent_deletion(init_cuda):
     del g, condition, all_nodes, cond_nodes, branches
     gc.collect()
 
-    assert body.nodes() == ()
+    assert body.nodes() == set()
 
 
 # =============================================================================

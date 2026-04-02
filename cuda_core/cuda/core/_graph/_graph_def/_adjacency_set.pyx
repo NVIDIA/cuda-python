@@ -28,6 +28,10 @@ class AdjacencySet(MutableSet):
     def __init__(self, node, bint is_fwd):
         self._core = _AdjacencySetCore(node, is_fwd)
 
+    @classmethod
+    def _from_iterable(cls, it):
+        return set(it)
+
     # --- abstract methods required by MutableSet ---
 
     def __contains__(self, x):
@@ -45,6 +49,8 @@ class AdjacencySet(MutableSet):
         if not isinstance(value, GraphNode):
             raise TypeError(
                 f"expected GraphNode, got {type(value).__name__}")
+        if value in self:
+            return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
     def discard(self, value):

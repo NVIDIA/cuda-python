@@ -123,8 +123,8 @@ cdef class GraphNode:
         """
         return as_py(self._h_node)
 
-    def remove(self):
-        """Remove this node and all its edges from the parent graph."""
+    def discard(self):
+        """Discard this node and remove all its edges from the parent graph."""
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
@@ -134,10 +134,22 @@ cdef class GraphNode:
         """A mutable set-like view of this node's predecessors."""
         return AdjacencySet(self, False)
 
+    @pred.setter
+    def pred(self, value):
+        p = AdjacencySet(self, False)
+        p.clear()
+        p.update(value)
+
     @property
     def succ(self):
         """A mutable set-like view of this node's successors."""
         return AdjacencySet(self, True)
+
+    @succ.setter
+    def succ(self, value):
+        s = AdjacencySet(self, True)
+        s.clear()
+        s.update(value)
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
