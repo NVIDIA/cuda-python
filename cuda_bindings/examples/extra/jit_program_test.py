@@ -1,6 +1,17 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates JIT compilation of CUDA kernels using NVRTC
+# and the Driver API (saxpy kernel).
+#
+# ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 
 import numpy as np

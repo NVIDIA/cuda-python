@@ -1,14 +1,24 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates isotropic finite-difference wave propagation
+# modelling across multiple GPUs with peer-to-peer halo exchange.
+#
+# ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy", "matplotlib"]
+# ///
+
 import time
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, requirement_not_met
 
 iso_propagator = """\
 extern "C"
@@ -215,7 +225,7 @@ class CudaKernels:
         check_cuda_errors(cuda.cuCtxSetCurrent(cntx))
         dev = check_cuda_errors(cuda.cuCtxGetDevice())
 
-        self.kernel_helper = common.KernelHelper(iso_propagator, int(dev))
+        self.kernel_helper = KernelHelper(iso_propagator, int(dev))
 
         # kernel to create a source fnction with some max frequency
         self.creatSource = self.kernel_helper.get_function(b"createSource")
@@ -620,8 +630,7 @@ def main():
     print(f"CUDA-capable device count: {gpu_n}")
 
     if gpu_n < 2:
-        print("Two or more GPUs with Peer-to-Peer access capability are required")
-        return
+        requirement_not_met("Two or more GPUs with Peer-to-Peer access capability are required")
 
     prop = [check_cuda_errors(cudart.cudaGetDeviceProperties(i)) for i in range(gpu_n)]
     # Check possibility for peer access
@@ -642,7 +651,7 @@ def main():
             )
             print(
                 "> Peer access from {} (GPU{}) -> {} (GPU{}) : {}\n".format(
-                    prop[j].name, j, prop[i].name, i, "Yes" if i_access_j else "No"
+                    prop[j].name, j, prop[i].name, i, "Yes" if j_access_i else "No"
                 )
             )
             if i_access_j and j_access_i:
@@ -652,9 +661,7 @@ def main():
             break
 
     if p2p_capable_gp_us[0] == -1 or p2p_capable_gp_us[1] == -1:
-        print("Two or more GPUs with Peer-to-Peer access capability are required.")
-        print("Peer to Peer access is not available amongst GPUs in the system, waiving test.")
-        return
+        requirement_not_met("Two or more GPUs with Peer-to-Peer access capability are required")
 
     # Use first pair of p2p capable GPUs detected
     gpuid = [p2p_capable_gp_us[0], p2p_capable_gp_us[1]]

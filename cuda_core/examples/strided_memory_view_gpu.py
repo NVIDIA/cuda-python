@@ -1,18 +1,17 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #
-# This demo illustrates:
-#
-#   1. The similarity between CPU and GPU JIT-compilation with C++ sources
-#   2. How to use StridedMemoryView to interface with foreign C/C++ functions
-#
-# This demo uses cffi (https://cffi.readthedocs.io/) for the CPU path, which can be
-# easily installed from pip or conda following their instructions.
+# This example demonstrates StridedMemoryView for interfacing with foreign
+# C/C++ functions, using JIT-compiled GPU code. Requires cupy.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x"]
+# ///
 
 import string
 import sys
@@ -84,7 +83,7 @@ def my_func(arr, work_stream, kernel):
     work_stream.sync()
 
 
-def run():
+def main():
     global my_func
     # Here is a concrete (very naive!) implementation on GPU:
     gpu_code = string.Template(r"""
@@ -122,4 +121,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    main()

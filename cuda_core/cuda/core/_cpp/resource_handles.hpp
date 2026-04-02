@@ -92,10 +92,14 @@ extern decltype(&cuLibraryLoadData) p_cuLibraryLoadData;
 extern decltype(&cuLibraryUnload) p_cuLibraryUnload;
 extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
+// Graph
+extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 
 // Graphics interop
+extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
 
 // ============================================================================
@@ -143,11 +147,14 @@ using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
+using GraphHandle = std::shared_ptr<const CUgraph>;
+using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
 using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
+using FileDescriptorHandle = std::shared_ptr<const int>;
 
 
 // ============================================================================
@@ -200,9 +207,12 @@ StreamHandle get_per_thread_stream();
 
 // Create an owning event handle by calling cuEventCreate.
 // The event structurally depends on the provided context handle.
+// Metadata fields are stored in the EventBox for later retrieval.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags);
+EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
+                                bool timing_disabled, bool busy_waited,
+                                bool ipc_enabled, int device_id);
 
 // Create an owning event handle without context dependency.
 // Use for temporary events that are created and destroyed in the same scope.
@@ -214,7 +224,21 @@ EventHandle create_event_handle_noctx(unsigned int flags);
 // The originating process owns the event and its context.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
+                                    bool busy_waited);
+
+// Create a non-owning event handle (references existing event).
+// Use for events that are managed by the CUDA graph or another owner.
+// The event will NOT be destroyed when the handle is released.
+// Metadata defaults to unknown (timing_disabled=true, device_id=-1).
+EventHandle create_event_handle_ref(CUevent event);
+
+// Event metadata accessors (read from EventBox via pointer arithmetic)
+bool get_event_timing_disabled(const EventHandle& h) noexcept;
+bool get_event_busy_waited(const EventHandle& h) noexcept;
+bool get_event_ipc_enabled(const EventHandle& h) noexcept;
+int get_event_device_id(const EventHandle& h) noexcept;
+ContextHandle get_event_context(const EventHandle& h) noexcept;
 
 // ============================================================================
 // Memory pool handle functions
@@ -282,6 +306,16 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 
+// Create a device pointer handle for a mapped graphics resource.
+// The pointer structurally depends on the provided graphics resource handle.
+// When the last reference is released, cuGraphicsUnmapResources is called on
+// the stored stream, then the graphics resource may be unregistered when its
+// own handle is released.
+DevicePtrHandle deviceptr_create_mapped_graphics(
+    CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream);
+
 // Callback type for MemoryResource deallocation.
 // Called from the shared_ptr deleter when a handle created via
 // deviceptr_create_with_mr is destroyed.  The implementation is responsible
@@ -345,9 +379,41 @@ LibraryHandle create_library_handle_ref(CUlibrary library);
 // Returns empty handle on error (caller must check).
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name);
 
-// Create a non-owning kernel handle with library dependency.
-// Use for borrowed kernels. The library handle keeps the library alive.
-KernelHandle create_kernel_handle_ref(CUkernel kernel, const LibraryHandle& h_library);
+// Create a kernel handle from a raw CUkernel.
+// If the kernel is already managed (in the registry), returns the owning
+// handle with library dependency. Otherwise returns a non-owning ref.
+KernelHandle create_kernel_handle_ref(CUkernel kernel);
+
+// Get the library handle associated with a kernel (from KernelBox).
+// Returns empty handle if the kernel has no library dependency.
+LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
+
+// ============================================================================
+// Graph handle functions
+// ============================================================================
+
+// Wrap an externally-created CUgraph with RAII cleanup.
+// When the last reference is released, cuGraphDestroy is called automatically.
+// The caller must have already created the graph via cuGraphCreate.
+GraphHandle create_graph_handle(CUgraph graph);
+
+// Create a non-owning graph handle that keeps h_parent alive.
+// Use for graphs owned by a child/conditional node in a parent graph.
+// The child graph will NOT be destroyed when this handle is released,
+// but h_parent will be prevented from destruction while this handle exists.
+GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+
+// ============================================================================
+// Graph node handle functions
+// ============================================================================
+
+// Create a node handle. Nodes are owned by their parent graph (not
+// independently destroyable). The GraphHandle dependency ensures the
+// graph outlives any node reference.
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph);
+
+// Extract the owning graph handle from a node handle.
+GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept;
 
 // ============================================================================
 // Graphics resource handle functions
@@ -413,6 +479,17 @@ CuLinkHandle create_culink_handle(CUlinkState state);
 CuLinkHandle create_culink_handle_ref(CUlinkState state);
 
 // ============================================================================
+// File descriptor handle functions
+// ============================================================================
+
+// Create an owning file descriptor handle.
+// When the last reference is released, POSIX close() is called.
+FileDescriptorHandle create_fd_handle(int fd);
+
+// Create a non-owning file descriptor handle (caller manages the fd).
+FileDescriptorHandle create_fd_handle_ref(int fd);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -442,6 +519,14 @@ inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
 }
 
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUgraph as_cu(const GraphHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -495,6 +580,14 @@ inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphNodeHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
 inline std::intptr_t as_intptr(const GraphicsResourceHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
@@ -515,9 +608,11 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-// as_py() - convert handle to Python wrapper object (returns new reference)
-namespace detail {
+inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
+    return h ? static_cast<std::intptr_t>(*h) : -1;
+}
 
+// as_py() - convert handle to Python wrapper object (returns new reference)
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
 #endif
@@ -530,6 +625,7 @@ inline bool py_is_finalizing() noexcept {
 #endif
 }
 
+namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
 inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
     if (py_is_finalizing()) {
@@ -574,6 +670,17 @@ inline PyObject* as_py(const KernelHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
 }
 
+inline PyObject* as_py(const GraphHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
+    if (!as_intptr(h)) {
+        Py_RETURN_NONE;
+    }
+    return detail::make_py("cuda.bindings.driver", "CUgraphNode", as_intptr(h));
+}
+
 inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
     return detail::make_py("cuda.bindings.nvrtc", "nvrtcProgram", as_intptr(h));
 }
@@ -594,6 +701,10 @@ inline PyObject* as_py(const CuLinkHandle& h) noexcept {
 
 inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
+}
+
+inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
+    return PyLong_FromSsize_t(as_intptr(h));
 }
 
 }  // namespace cuda_core

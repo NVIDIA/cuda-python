@@ -1,13 +1,23 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates using the device clock for kernel timing via
+# NVRTC-compiled CUDA code.
+#
+# ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import platform
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, find_cuda_device, requirement_not_met
 
 clock_nvrtc = """\
 extern "C" __global__  void timedReduction(const float *hinput, float *output, clock_t *timer)
@@ -58,11 +68,13 @@ def elems_to_bytes(nelems, dt):
     return nelems * np.dtype(dt).itemsize
 
 
-def main():
-    import pytest
-
+def check_requirements():
     if platform.machine() == "armv7l":
-        pytest.skip("clock_nvrtc is not supported on ARMv7")
+        requirement_not_met("clock_nvrtc is not supported on ARMv7")
+
+
+def main():
+    check_requirements()
 
     timer = np.empty(num_blocks * 2, dtype="int64")
     hinput = np.empty(num_threads * 2, dtype="float32")
@@ -71,7 +83,7 @@ def main():
         hinput[i] = i
 
     dev_id = find_cuda_device()
-    kernel_helper = common.KernelHelper(clock_nvrtc, dev_id)
+    kernel_helper = KernelHelper(clock_nvrtc, dev_id)
     kernel_addr = kernel_helper.get_function(b"timedReduction")
 
     dinput = check_cuda_errors(cuda.cuMemAlloc(hinput.nbytes))

@@ -3,6 +3,10 @@
 
 """cuda.pathfinder public APIs"""
 
+# NOTE: When adding or removing public APIs from this file, remember to update
+#     cuda_pathfinder/docs/source/api.rst
+# to keep the documentation in sync.
+
 from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as find_nvidia_binary_utility,
 )
@@ -55,6 +59,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib as locate_static_lib,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home as get_cuda_path_or_home
 
 from cuda.pathfinder._version import __version__  # isort: skip
 

@@ -25,6 +25,7 @@ cu12 = [
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
+    "nvidia-cusolvermp-cu12; sys_platform != 'win32'",
     "nvidia-cusparselt-cu12",
     "nvidia-libmathdx-cu12",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
@@ -37,11 +38,14 @@ cu13 = [
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-cudss-cu13",
     "nvidia-cufftmp-cu13; sys_platform != 'win32'",
+    "nvidia-cusolvermp-cu13; sys_platform != 'win32'",
     "nvidia-cusparselt-cu13",
+    "nvidia-libmathdx-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
 host = [
+    "nvidia-cutlass",
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
@@ -55,6 +59,18 @@ test-cu13 = [
     { include-group = "test" },
     { include-group = "cu13" },
     { include-group = "host" },
+]
+
+[tool.uv]
+conflicts = [
+    [
+        { group = "cu12" },
+        { group = "cu13" },
+    ],
+    [
+        { group = "test-cu12" },
+        { group = "test-cu13" },
+    ],
 ]
 
 [project.urls]

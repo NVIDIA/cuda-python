@@ -11,14 +11,27 @@ on:
 
 env:
   PY_VER: "3.14"
-  CUDA_VER: "13.1.0"
   LOCAL_CTK: "1"
   GPU: "a100"
   DRIVER: "latest"
 
 jobs:
+  coverage-vars:
+    runs-on: ubuntu-latest
+    outputs:
+      CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Get CUDA version
+        id: get-vars
+        run: |
+          cuda_ver=$(yq '.cuda.build.version' ci/versions.yml)
+          echo "cuda_ver=$cuda_ver" >> $GITHUB_OUTPUT
+
   coverage-linux:
     name: Coverage (Linux)
+    needs: [coverage-vars]
     runs-on: "linux-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -29,6 +42,7 @@ jobs:
     env:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
+      CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -164,6 +178,7 @@ jobs:
   # Build Windows wheels on GitHub-hosted runner (has VS, no GPU)
   build-wheel-windows:
     name: Build Wheels (Windows)
+    needs: [coverage-vars]
     runs-on: windows-2022
     permissions:
       contents: read
@@ -173,6 +188,7 @@ jobs:
     env:
       HOST_PLATFORM: "win-64"
       CUDA_PYTHON_COVERAGE: "1"
+      CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -231,7 +247,7 @@ jobs:
   # Run coverage tests on self-hosted GPU runner (no VS needed, installs pre-built wheels)
   coverage-windows:
     name: Coverage (Windows)
-    needs: [build-wheel-windows]
+    needs: [coverage-vars, build-wheel-windows]
     runs-on: "windows-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -240,6 +256,7 @@ jobs:
       HOST_PLATFORM: "win-64"
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
+      CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     defaults:
       run:
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -278,7 +295,7 @@ jobs:
           cuda-version: ${{ env.CUDA_VER }}
 
       - name: Download Windows wheel artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-windows-wheels
           path: ./wheels/
@@ -403,19 +420,19 @@ jobs:
           pip install coverage[toml] Cython
 
       - name: Download Linux coverage data
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-data-linux
           path: ./
 
       - name: Download cuda source code
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-source-linux
           path: ./cuda/
 
       - name: Download Windows coverage data
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-data-windows
           path: ./

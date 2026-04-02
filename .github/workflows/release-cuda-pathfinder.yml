@@ -40,7 +40,6 @@ jobs:
       tag: ${{ steps.vars.outputs.tag }}
       version: ${{ steps.vars.outputs.version }}
       run-id: ${{ steps.detect-run.outputs.run-id }}
-      ctk-ver: ${{ steps.ctk.outputs.ctk-ver }}
     steps:
       - name: Verify running on default branch
         run: |
@@ -76,12 +75,6 @@ jobs:
             echo "Create the release notes file before running this workflow."
             exit 1
           fi
-
-      - name: Read CTK build version
-        id: ctk
-        run: |
-          ctk_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "ctk-ver=${ctk_ver}" >> "$GITHUB_OUTPUT"
 
       - name: Detect CI run ID
         id: detect-run
@@ -146,7 +139,6 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
-      build-ctk-ver: ${{ needs.prepare.outputs.ctk-ver }}
       component: cuda-pathfinder
       git-tag: ${{ needs.prepare.outputs.tag }}
       run-id: ${{ needs.prepare.outputs.run-id }}

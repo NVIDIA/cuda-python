@@ -1,15 +1,25 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates vector addition using the CUDA Driver API with
+# unified virtual addressing.
+#
+# ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import math
 import sys
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device_drv
 
 from cuda.bindings import driver as cuda
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, find_cuda_device_drv, requirement_not_met
 
 vector_add_drv = """\
 /* Vector addition: C = A + B.
@@ -45,11 +55,9 @@ def main():
         cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cu_device)
     )
     if not uva_supported:
-        import pytest
+        requirement_not_met("Accessing pageable memory directly requires UVA")
 
-        pytest.skip("Accessing pageable memory directly requires UVA")
-
-    kernel_helper = common.KernelHelper(vector_add_drv, int(cu_device))
+    kernel_helper = KernelHelper(vector_add_drv, int(cu_device))
     _vec_add_kernel = kernel_helper.get_function(b"VecAdd_kernel")
 
     # Allocate input vectors h_A and h_B in host memory
@@ -66,31 +74,28 @@ def main():
     check_cuda_errors(cuda.cuMemcpyHtoD(d_a, h_a, nbytes))
     check_cuda_errors(cuda.cuMemcpyHtoD(d_b, h_b, nbytes))
 
-    if True:
-        # Grid/Block configuration
-        threads_per_block = 256
-        blocks_per_grid = (n + threads_per_block - 1) / threads_per_block
+    # Grid/Block configuration
+    threads_per_block = 256
+    blocks_per_grid = (n + threads_per_block - 1) / threads_per_block
 
-        kernel_args = ((d_a, d_b, d_c, n), (None, None, None, ctypes.c_int))
+    kernel_args = ((d_a, d_b, d_c, n), (None, None, None, ctypes.c_int))
 
-        # Launch the CUDA kernel
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _vec_add_kernel,
-                blocks_per_grid,
-                1,
-                1,
-                threads_per_block,
-                1,
-                1,
-                0,
-                0,
-                kernel_args,
-                0,
-            )
+    # Launch the CUDA kernel
+    check_cuda_errors(
+        cuda.cuLaunchKernel(
+            _vec_add_kernel,
+            blocks_per_grid,
+            1,
+            1,
+            threads_per_block,
+            1,
+            1,
+            0,
+            0,
+            kernel_args,
+            0,
         )
-    else:
-        pass
+    )
 
     # Copy result from device memory to host memory
     # h_C contains the result in host memory

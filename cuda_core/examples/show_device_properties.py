@@ -1,13 +1,17 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #
-# This demo illustrates how to use `cuda.core` to show the properties of the
+# This example demonstrates how to use cuda.core to show the properties of
 # CUDA devices in the system.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core"]
+# ///
 
 import sys
 
@@ -236,8 +240,12 @@ def show_device_properties():
         print("*****************************************************\n\n")
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) != 1:
         print("no command-line arguments expected", file=sys.stderr)
         sys.exit(1)
     show_device_properties()
+
+
+if __name__ == "__main__":
+    main()

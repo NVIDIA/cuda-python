@@ -26,6 +26,7 @@ from ._resource_handles cimport (
     DevicePtrHandle,
     LibraryHandle,
     KernelHandle,
+    GraphHandle,
     GraphicsResourceHandle,
     NvrtcProgramHandle,
     NvvmProgramHandle,
@@ -70,11 +71,27 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Event handles (note: _create_event_handle* are internal due to C++ overloading)
     EventHandle create_event_handle "cuda_core::create_event_handle" (
-        const ContextHandle& h_ctx, unsigned int flags) except+ nogil
+        const ContextHandle& h_ctx, unsigned int flags,
+        bint timing_disabled, bint busy_waited,
+        bint ipc_enabled, int device_id) except+ nogil
     EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
         unsigned int flags) except+ nogil
+    EventHandle create_event_handle_ref "cuda_core::create_event_handle_ref" (
+        cydriver.CUevent event) except+ nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
-        const cydriver.CUipcEventHandle& ipc_handle) except+ nogil
+        const cydriver.CUipcEventHandle& ipc_handle, bint busy_waited) except+ nogil
+
+    # Event metadata getters
+    bint get_event_timing_disabled "cuda_core::get_event_timing_disabled" (
+        const EventHandle& h) noexcept nogil
+    bint get_event_busy_waited "cuda_core::get_event_busy_waited" (
+        const EventHandle& h) noexcept nogil
+    bint get_event_ipc_enabled "cuda_core::get_event_ipc_enabled" (
+        const EventHandle& h) noexcept nogil
+    int get_event_device_id "cuda_core::get_event_device_id" (
+        const EventHandle& h) noexcept nogil
+    ContextHandle get_event_context "cuda_core::get_event_context" (
+        const EventHandle& h) noexcept nogil
 
     # Memory pool handles
     MemoryPoolHandle create_mempool_handle "cuda_core::create_mempool_handle" (
@@ -97,11 +114,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr) except+ nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
         cydriver.CUdeviceptr ptr, object owner) except+ nogil
+    DevicePtrHandle deviceptr_create_mapped_graphics "cuda_core::deviceptr_create_mapped_graphics" (
+        cydriver.CUdeviceptr ptr,
+        const GraphicsResourceHandle& h_resource,
+        const StreamHandle& h_stream) except+ nogil
 
     # MR deallocation callback
-    ctypedef void (*MRDeallocCallback)(
-        object mr, cydriver.CUdeviceptr ptr, size_t size,
-        const StreamHandle& stream) noexcept
     void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
         MRDeallocCallback cb) noexcept
     DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
@@ -126,7 +144,21 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     KernelHandle create_kernel_handle "cuda_core::create_kernel_handle" (
         const LibraryHandle& h_library, const char* name) except+ nogil
     KernelHandle create_kernel_handle_ref "cuda_core::create_kernel_handle_ref" (
-        cydriver.CUkernel kernel, const LibraryHandle& h_library) except+ nogil
+        cydriver.CUkernel kernel) except+ nogil
+    LibraryHandle get_kernel_library "cuda_core::get_kernel_library" (
+        const KernelHandle& h) noexcept nogil
+
+    # Graph handles
+    GraphHandle create_graph_handle "cuda_core::create_graph_handle" (
+        cydriver.CUgraph graph) except+ nogil
+    GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
+        cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+
+    # Graph node handles
+    GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
+        cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
+    GraphHandle graph_node_get_graph "cuda_core::graph_node_get_graph" (
+        const GraphNodeHandle& h) noexcept nogil
 
     # Graphics resource handles
     GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
@@ -155,6 +187,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUlinkState state) except+ nogil
     CuLinkHandle create_culink_handle_ref "cuda_core::create_culink_handle_ref" (
         cydriver.CUlinkState state) except+ nogil
+
+    # File descriptor handles
+    FileDescriptorHandle create_fd_handle "cuda_core::create_fd_handle" (
+        int fd) except+ nogil
+    FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
+        int fd) except+ nogil
 
 
 # =============================================================================
@@ -223,10 +261,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuLibraryUnload "reinterpret_cast<void*&>(cuda_core::p_cuLibraryUnload)"
     void* p_cuLibraryGetKernel "reinterpret_cast<void*&>(cuda_core::p_cuLibraryGetKernel)"
 
+    # Graph
+    void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
 
     # Graphics interop
+    void* p_cuGraphicsUnmapResources "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnmapResources)"
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
 
     # NVRTC
@@ -288,10 +330,14 @@ p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
 p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
 p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 
+# Graph
+p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+
 # Linker
 p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
 
 # Graphics interop
+p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
 p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
 
 # =============================================================================

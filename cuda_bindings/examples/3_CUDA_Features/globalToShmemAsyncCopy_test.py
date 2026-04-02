@@ -1,6 +1,17 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# ################################################################################
+#
+# This example demonstrates asynchronous copy from global to shared memory
+# (memcpy_async) in matrix multiplication kernels.
+#
+# ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import math
 import platform
@@ -8,12 +19,18 @@ import sys
 from enum import Enum
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
-from common.helper_string import check_cmd_line_flag, get_cmd_line_argument_int
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import (
+    KernelHelper,
+    check_cmd_line_flag,
+    check_compute_capability_too_low,
+    check_cuda_errors,
+    find_cuda_device,
+    get_cmd_line_argument_int,
+    requirement_not_met,
+)
 
 block_size = 16
 
@@ -1123,16 +1140,14 @@ def matrix_multiply(dims_a, dims_b, kernel_number):
 
 
 def main():
-    import pytest
-
-    common.pytest_skipif_compute_capability_too_low(find_cuda_device(), (7, 0))
+    check_compute_capability_too_low(find_cuda_device(), (7, 0))
 
     if platform.machine() == "qnx":
-        pytest.skip("globalToShmemAsyncCopy is not supported on QNX")
+        requirement_not_met("globalToShmemAsyncCopy is not supported on QNX")
 
     version = check_cuda_errors(cuda.cuDriverGetVersion())
     if version < 11010:
-        pytest.skip("CUDA Toolkit 11.1 or greater is required")
+        requirement_not_met("CUDA Toolkit 11.1 or greater is required")
 
     if check_cmd_line_flag("help") or check_cmd_line_flag("?"):
         print("Usage device=n (n >= 0 for deviceID)", file=sys.stderr)
@@ -1200,7 +1215,7 @@ def main():
         cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, dev_id)
     )
     if major < 7:
-        pytest.skip("globalToShmemAsyncCopy requires SM 7.0 or higher.")
+        requirement_not_met("globalToShmemAsyncCopy requires SM 7.0 or higher.")
 
     print(f"MatrixA({dims_a.x},{dims_a.y}), MatrixB({dims_b.x},{dims_b.y})")
 
@@ -1212,7 +1227,7 @@ def main():
     global _MatrixMulAsyncCopySingleStage
     global _MatrixMulNaive
     global _MatrixMulNaiveLargeChunk
-    kernel_helper = common.KernelHelper(global_to_shmem_async_copy, dev_id)
+    kernel_helper = KernelHelper(global_to_shmem_async_copy, dev_id)
     _MatrixMulAsyncCopyMultiStageLargeChunk = kernel_helper.get_function(b"MatrixMulAsyncCopyMultiStageLargeChunk")
     _MatrixMulAsyncCopyLargeChunk = kernel_helper.get_function(b"MatrixMulAsyncCopyLargeChunk")
     _MatrixMulAsyncCopyLargeChunkAWBarrier = kernel_helper.get_function(b"MatrixMulAsyncCopyLargeChunkAWBarrier")

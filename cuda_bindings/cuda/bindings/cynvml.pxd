@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from libc.stdint cimport int64_t
 
@@ -1022,7 +1022,7 @@ ctypedef struct nvmlViolationTime_t 'nvmlViolationTime_t':
     unsigned long long referenceTime
     unsigned long long violationTime
 
-ctypedef struct _anon_pod0 '_anon_pod0':
+ctypedef struct cuda_bindings_nvml__anon_pod0:
     nvmlThermalController_t controller
     int defaultMinTemp
     int defaultMaxTemp
@@ -1065,7 +1065,7 @@ ctypedef struct nvmlPlatformInfo_v1_t 'nvmlPlatformInfo_v1_t':
     unsigned char peerType
     unsigned char moduleId
 
-ctypedef struct _anon_pod1 '_anon_pod1':
+ctypedef struct cuda_bindings_nvml__anon_pod1:
     unsigned int bIsPresent
     unsigned int percentage
     unsigned int incThreshold
@@ -1077,11 +1077,11 @@ ctypedef struct nvmlVgpuPlacementList_v1_t 'nvmlVgpuPlacementList_v1_t':
     unsigned int count
     unsigned int* placementIds
 
-ctypedef struct _anon_pod2 '_anon_pod2':
+ctypedef struct cuda_bindings_nvml__anon_pod2:
     unsigned int avgFactor
     unsigned int timeslice
 
-ctypedef struct _anon_pod3 '_anon_pod3':
+ctypedef struct cuda_bindings_nvml__anon_pod3:
     unsigned int timeslice
 
 ctypedef struct nvmlVgpuSchedulerLogEntry_t 'nvmlVgpuSchedulerLogEntry_t':
@@ -1092,11 +1092,11 @@ ctypedef struct nvmlVgpuSchedulerLogEntry_t 'nvmlVgpuSchedulerLogEntry_t':
     unsigned long long targetTimeSlice
     unsigned long long cumulativePreemptionTime
 
-ctypedef struct _anon_pod4 '_anon_pod4':
+ctypedef struct cuda_bindings_nvml__anon_pod4:
     unsigned int avgFactor
     unsigned int frequency
 
-ctypedef struct _anon_pod5 '_anon_pod5':
+ctypedef struct cuda_bindings_nvml__anon_pod5:
     unsigned int timeslice
 
 ctypedef struct nvmlVgpuSchedulerCapabilities_t 'nvmlVgpuSchedulerCapabilities_t':
@@ -1308,7 +1308,7 @@ ctypedef struct nvmlComputeInstanceProfileInfo_v3_t 'nvmlComputeInstanceProfileI
     char name[96]
     unsigned int capabilities
 
-ctypedef struct _anon_pod6 '_anon_pod6':
+ctypedef struct cuda_bindings_nvml__anon_pod6:
     char* shortName
     char* longName
     char* unit
@@ -1347,7 +1347,7 @@ ctypedef struct nvmlNvlinkFirmwareVersion_t 'nvmlNvlinkFirmwareVersion_t':
     unsigned int minor
     unsigned int subMinor
 
-ctypedef union _anon_pod7 '_anon_pod7':
+ctypedef union cuda_bindings_nvml__anon_pod7:
     unsigned char inData[496]
     unsigned char outData[496]
 
@@ -1579,7 +1579,7 @@ ctypedef struct nvmlPRMCounterValue_v1_t 'nvmlPRMCounterValue_v1_t':
 
 ctypedef struct nvmlGpuThermalSettings_t 'nvmlGpuThermalSettings_t':
     unsigned int count
-    _anon_pod0 sensor[3]
+    cuda_bindings_nvml__anon_pod0 sensor[3]
 
 ctypedef struct nvmlUUID_v1_t 'nvmlUUID_v1_t':
     unsigned int version
@@ -1599,15 +1599,15 @@ ctypedef struct nvmlProcessesUtilizationInfo_v1_t 'nvmlProcessesUtilizationInfo_
 
 ctypedef struct nvmlGpuDynamicPstatesInfo_t 'nvmlGpuDynamicPstatesInfo_t':
     unsigned int flags
-    _anon_pod1 utilization[8]
+    cuda_bindings_nvml__anon_pod1 utilization[8]
 
 ctypedef union nvmlVgpuSchedulerParams_t 'nvmlVgpuSchedulerParams_t':
-    _anon_pod2 vgpuSchedDataWithARR
-    _anon_pod3 vgpuSchedData
+    cuda_bindings_nvml__anon_pod2 vgpuSchedDataWithARR
+    cuda_bindings_nvml__anon_pod3 vgpuSchedData
 
 ctypedef union nvmlVgpuSchedulerSetParams_t 'nvmlVgpuSchedulerSetParams_t':
-    _anon_pod4 vgpuSchedDataWithARR
-    _anon_pod5 vgpuSchedData
+    cuda_bindings_nvml__anon_pod4 vgpuSchedDataWithARR
+    cuda_bindings_nvml__anon_pod5 vgpuSchedData
 
 ctypedef struct nvmlVgpuLicenseInfo_t 'nvmlVgpuLicenseInfo_t':
     unsigned char isLicensed
@@ -1661,7 +1661,7 @@ ctypedef struct nvmlGpmMetric_t 'nvmlGpmMetric_t':
     unsigned int metricId
     nvmlReturn_t nvmlReturn
     double value
-    _anon_pod6 metricInfo
+    cuda_bindings_nvml__anon_pod6 metricInfo
 
 ctypedef struct nvmlWorkloadPowerProfileInfo_v1_t 'nvmlWorkloadPowerProfileInfo_v1_t':
     unsigned int version
@@ -1695,7 +1695,7 @@ ctypedef struct nvmlNvlinkFirmwareInfo_t 'nvmlNvlinkFirmwareInfo_t':
 ctypedef struct nvmlPRMTLV_v1_t 'nvmlPRMTLV_v1_t':
     unsigned dataSize
     unsigned status
-    _anon_pod7 _anon_pod_member0
+    cuda_bindings_nvml__anon_pod7 _anon_pod_member0
 
 ctypedef struct nvmlVgpuSchedulerLogInfo_v2_t 'nvmlVgpuSchedulerLogInfo_v2_t':
     unsigned int engineId
@@ -1947,6 +1947,7 @@ cdef nvmlReturn_t nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverMod
 cdef nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBridgeChipHierarchy_t* bridgeHierarchy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t* plist) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t device2, int* onSameBoard) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
@@ -2162,3 +2163,10 @@ cdef nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t 
 cdef nvmlReturn_t nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
