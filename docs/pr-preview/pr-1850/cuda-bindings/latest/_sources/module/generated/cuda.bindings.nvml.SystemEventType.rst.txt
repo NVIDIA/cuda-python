@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.SystemEventType
+==================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: SystemEventType
