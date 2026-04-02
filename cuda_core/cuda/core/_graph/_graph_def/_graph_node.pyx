@@ -48,6 +48,7 @@ from cuda.core._resource_handles cimport (
     create_graph_handle_ref,
     create_graph_node_handle,
     graph_node_get_graph,
+    invalidate_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
@@ -123,16 +124,27 @@ cdef class GraphNode:
         """
         return as_py(self._h_node)
 
-    def discard(self):
-        """Discard this node and remove all its edges from the parent graph.
+    @property
+    def is_valid(self):
+        """Whether this node is valid (not destroyed).
 
-        Safe to call on an already-discarded node (no-op).
+        Returns ``False`` after :meth:`destroy` has been called.
         """
-        if self not in self.graph.nodes():
-            return
+        return as_intptr(self._h_node) != 0
+
+    def destroy(self):
+        """Destroy this node and remove all its edges from the parent graph.
+
+        After this call, :attr:`is_valid` returns ``False`` and the node
+        cannot be re-added to any graph.  Safe to call on an
+        already-destroyed node (no-op).
+        """
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
+            return
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
+        invalidate_graph_node_handle(self._h_node)
 
     @property
     def pred(self):

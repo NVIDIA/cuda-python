@@ -9,7 +9,6 @@ from helpers.collection_interface_testers import assert_mutable_set_interface
 from helpers.graph_kernels import compile_parallel_kernels
 from helpers.marks import requires_module
 
-from cuda.bindings import driver
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._graph._graph_def import GraphDef, KernelNode, MemsetNode
 from cuda.core._utils.cuda_utils import CUDAError
@@ -153,11 +152,11 @@ class TestMutateYRig:
         assert rig.nodes == rig.initial_nodes
         rig.close()
 
-    def test_discard_a1(self, init_cuda):
-        """Discard a1 (creates a race on arm a). Arm b yields the expected
+    def test_destroy_a1(self, init_cuda):
+        """Destroy a1 (creates a race on arm a). Arm b yields the expected
         value, and the final step is correctly ordered after b completes."""
         rig = YRig()
-        rig.a[1].discard()
+        rig.a[1].destroy()
         rig.run()
         _, b_exp, _ = rig.expected_output
         assert rig.B_out == b_exp
@@ -167,10 +166,10 @@ class TestMutateYRig:
         assert rig.nodes == rig.initial_nodes - {a1}
         rig.close()
 
-    def test_discard_a2(self, init_cuda):
-        """Discard a2, connect a1--r"""
+    def test_destroy_a2(self, init_cuda):
+        """Destroy a2, connect a1--r"""
         rig = YRig()
-        rig.a[2].discard()
+        rig.a[2].destroy()
         rig.a[1].succ.add(rig.r)
         rig.A_OPS.pop()
         rig.run()
@@ -180,11 +179,11 @@ class TestMutateYRig:
         assert rig.nodes == rig.initial_nodes - {a2}
         rig.close()
 
-    def test_discard_joint(self, init_cuda):
+    def test_destroy_joint(self, init_cuda):
         """Remove the joining node and instead add edges directly to r."""
         rig = YRig()
         _, _, a2, _, b1, j, r = rig.a + rig.b + [rig.j, rig.r]
-        j.discard()
+        j.destroy()
         r.pred = {a2, b1}
         rig.run()
         assert rig.output == rig.expected_output
@@ -266,8 +265,8 @@ def test_adjacency_set_property_setter(init_cuda):
     assert hub.pred == set()
 
 
-def test_discarded_node(init_cuda):
-    """Test uses of discarded nodes."""
+def test_destroyed_node(init_cuda):
+    """Test that destroy() invalidates a node."""
     mr = LegacyPinnedMemoryResource()
     buf = mr.allocate(4)
     arr = np.from_dlpack(buf).view(np.int32)
@@ -278,25 +277,34 @@ def test_discarded_node(init_cuda):
     a = g.memset(ptr, 0, 4)
     b = a.memset(ptr, 42, 4)
 
+    assert a.is_valid
+    assert b.is_valid
     assert b in g.nodes()
     assert (a, b) in g.edges()
 
-    b.discard()
+    b.destroy()
 
-    # b is removed from the graph but still usable
+    assert not b.is_valid
     assert b not in g.nodes()
     assert (a, b) not in g.edges()
+
+    # Python object is invalid but using it does not crash.
     assert isinstance(b, MemsetNode)
-    assert b.type == driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_KERNEL
+    assert b.type is None
     assert b.pred == set()
     assert b.succ == set()
-    assert b.handle != 0
-    assert b.dptr == ptr
-    assert b.value == 42
-    assert b.width == 4
+    assert b.handle is None
+    assert b.dptr == ptr  # tolerable
+    assert b.value == 42  # tolerable
+    assert b.width == 4  # tolerable
 
-    # Repeated discard succeeds quietly.
-    b.discard()
+    # Adding an edge to a destroyed node fails.
+    with pytest.raises(CUDAError):
+        a.succ.add(b)
+
+    # Repeated destroy succeeds quietly.
+    b.destroy()
+    assert not b.is_valid
 
 
 def test_add_wrong_type(init_cuda):
