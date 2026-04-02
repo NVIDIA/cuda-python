@@ -1,0 +1,6 @@
+﻿cuda.core.system.Pstates
+========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: Pstates
