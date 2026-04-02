@@ -10,7 +10,8 @@ catalog.
 
 from __future__ import annotations
 
-from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, is_supported_on_current_machine
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _CTK_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "ctk")
@@ -18,12 +19,27 @@ _OTHER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_
 _DRIVER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "driver")
 _NON_CTK_DESCRIPTORS = _OTHER_DESCRIPTORS + _DRIVER_DESCRIPTORS
 
-SUPPORTED_LIBNAMES_COMMON = tuple(desc.name for desc in _CTK_DESCRIPTORS if desc.linux_sonames and desc.windows_dlls)
+
+def _has_supported_linux_sonames(desc: LibDescriptor) -> bool:
+    return bool(desc.linux_sonames) and is_supported_on_current_machine(desc)
+
+
+def _has_supported_windows_dlls(desc: LibDescriptor) -> bool:
+    return bool(desc.windows_dlls) and is_supported_on_current_machine(desc)
+
+
+SUPPORTED_LIBNAMES_COMMON = tuple(
+    desc.name for desc in _CTK_DESCRIPTORS if _has_supported_linux_sonames(desc) and _has_supported_windows_dlls(desc)
+)
 SUPPORTED_LIBNAMES_LINUX_ONLY = tuple(
-    desc.name for desc in _CTK_DESCRIPTORS if desc.linux_sonames and not desc.windows_dlls
+    desc.name
+    for desc in _CTK_DESCRIPTORS
+    if _has_supported_linux_sonames(desc) and not _has_supported_windows_dlls(desc)
 )
 SUPPORTED_LIBNAMES_WINDOWS_ONLY = tuple(
-    desc.name for desc in _CTK_DESCRIPTORS if desc.windows_dlls and not desc.linux_sonames
+    desc.name
+    for desc in _CTK_DESCRIPTORS
+    if _has_supported_windows_dlls(desc) and not _has_supported_linux_sonames(desc)
 )
 
 SUPPORTED_LIBNAMES_LINUX = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY
@@ -34,37 +50,57 @@ SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS if IS_WINDOWS else SUPPORTED_LIB
 DIRECT_DEPENDENCIES_CTK = {desc.name: desc.dependencies for desc in _CTK_DESCRIPTORS if desc.dependencies}
 DIRECT_DEPENDENCIES = {desc.name: desc.dependencies for desc in DESCRIPTOR_CATALOG if desc.dependencies}
 
-SUPPORTED_LINUX_SONAMES_CTK = {desc.name: desc.linux_sonames for desc in _CTK_DESCRIPTORS if desc.linux_sonames}
-SUPPORTED_LINUX_SONAMES_OTHER = {desc.name: desc.linux_sonames for desc in _OTHER_DESCRIPTORS if desc.linux_sonames}
-SUPPORTED_LINUX_SONAMES_DRIVER = {desc.name: desc.linux_sonames for desc in _DRIVER_DESCRIPTORS if desc.linux_sonames}
+SUPPORTED_LINUX_SONAMES_CTK = {
+    desc.name: desc.linux_sonames for desc in _CTK_DESCRIPTORS if _has_supported_linux_sonames(desc)
+}
+SUPPORTED_LINUX_SONAMES_OTHER = {
+    desc.name: desc.linux_sonames for desc in _OTHER_DESCRIPTORS if _has_supported_linux_sonames(desc)
+}
+SUPPORTED_LINUX_SONAMES_DRIVER = {
+    desc.name: desc.linux_sonames for desc in _DRIVER_DESCRIPTORS if _has_supported_linux_sonames(desc)
+}
 SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_OTHER | SUPPORTED_LINUX_SONAMES_DRIVER
 
-SUPPORTED_WINDOWS_DLLS_CTK = {desc.name: desc.windows_dlls for desc in _CTK_DESCRIPTORS if desc.windows_dlls}
-SUPPORTED_WINDOWS_DLLS_OTHER = {desc.name: desc.windows_dlls for desc in _OTHER_DESCRIPTORS if desc.windows_dlls}
-SUPPORTED_WINDOWS_DLLS_DRIVER = {desc.name: desc.windows_dlls for desc in _DRIVER_DESCRIPTORS if desc.windows_dlls}
+SUPPORTED_WINDOWS_DLLS_CTK = {
+    desc.name: desc.windows_dlls for desc in _CTK_DESCRIPTORS if _has_supported_windows_dlls(desc)
+}
+SUPPORTED_WINDOWS_DLLS_OTHER = {
+    desc.name: desc.windows_dlls for desc in _OTHER_DESCRIPTORS if _has_supported_windows_dlls(desc)
+}
+SUPPORTED_WINDOWS_DLLS_DRIVER = {
+    desc.name: desc.windows_dlls for desc in _DRIVER_DESCRIPTORS if _has_supported_windows_dlls(desc)
+}
 SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER | SUPPORTED_WINDOWS_DLLS_DRIVER
 
 LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = tuple(
-    desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_add_dll_directory and desc.windows_dlls
+    desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_add_dll_directory and _has_supported_windows_dlls(desc)
 )
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = tuple(
-    desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_rtld_deepbind and desc.linux_sonames
+    desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_rtld_deepbind and _has_supported_linux_sonames(desc)
 )
 
 # Based on output of toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
-    desc.name: desc.site_packages_linux for desc in _CTK_DESCRIPTORS if desc.site_packages_linux
+    desc.name: desc.site_packages_linux
+    for desc in _CTK_DESCRIPTORS
+    if desc.site_packages_linux and _has_supported_linux_sonames(desc)
 }
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
-    desc.name: desc.site_packages_linux for desc in _NON_CTK_DESCRIPTORS if desc.site_packages_linux
+    desc.name: desc.site_packages_linux
+    for desc in _NON_CTK_DESCRIPTORS
+    if desc.site_packages_linux and _has_supported_linux_sonames(desc)
 }
 SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | SITE_PACKAGES_LIBDIRS_LINUX_OTHER
 
 SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
-    desc.name: desc.site_packages_windows for desc in _CTK_DESCRIPTORS if desc.site_packages_windows
+    desc.name: desc.site_packages_windows
+    for desc in _CTK_DESCRIPTORS
+    if desc.site_packages_windows and _has_supported_windows_dlls(desc)
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
-    desc.name: desc.site_packages_windows for desc in _NON_CTK_DESCRIPTORS if desc.site_packages_windows
+    desc.name: desc.site_packages_windows
+    for desc in _NON_CTK_DESCRIPTORS
+    if desc.site_packages_windows and _has_supported_windows_dlls(desc)
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 

@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Tests verifying that the LibDescriptor registry faithfully represents
-the existing data tables in supported_nvidia_libs.py."""
+the current-platform data tables in supported_nvidia_libs.py."""
 
 import pytest
 
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import is_supported_on_current_machine
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     DIRECT_DEPENDENCIES,
@@ -33,7 +34,8 @@ def test_registry_covers_all_windows_dlls():
 
 def test_registry_has_no_extra_entries():
     expected = set(SUPPORTED_LINUX_SONAMES) | set(SUPPORTED_WINDOWS_DLLS)
-    assert set(LIB_DESCRIPTORS) == expected
+    extra = set(LIB_DESCRIPTORS) - expected
+    assert all(not is_supported_on_current_machine(LIB_DESCRIPTORS[name]) for name in extra)
 
 
 # ---------------------------------------------------------------------------
@@ -43,22 +45,30 @@ def test_registry_has_no_extra_entries():
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_linux_sonames_match(name):
-    assert LIB_DESCRIPTORS[name].linux_sonames == SUPPORTED_LINUX_SONAMES.get(name, ())
+    desc = LIB_DESCRIPTORS[name]
+    expected = desc.linux_sonames if is_supported_on_current_machine(desc) else ()
+    assert expected == SUPPORTED_LINUX_SONAMES.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_windows_dlls_match(name):
-    assert LIB_DESCRIPTORS[name].windows_dlls == SUPPORTED_WINDOWS_DLLS.get(name, ())
+    desc = LIB_DESCRIPTORS[name]
+    expected = desc.windows_dlls if is_supported_on_current_machine(desc) else ()
+    assert expected == SUPPORTED_WINDOWS_DLLS.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_site_packages_linux_match(name):
-    assert LIB_DESCRIPTORS[name].site_packages_linux == SITE_PACKAGES_LIBDIRS_LINUX.get(name, ())
+    desc = LIB_DESCRIPTORS[name]
+    expected = desc.site_packages_linux if is_supported_on_current_machine(desc) else ()
+    assert expected == SITE_PACKAGES_LIBDIRS_LINUX.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_site_packages_windows_match(name):
-    assert LIB_DESCRIPTORS[name].site_packages_windows == SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ())
+    desc = LIB_DESCRIPTORS[name]
+    expected = desc.site_packages_windows if is_supported_on_current_machine(desc) else ()
+    assert expected == SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
@@ -68,12 +78,16 @@ def test_dependencies_match(name):
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_requires_add_dll_directory_match(name):
-    assert LIB_DESCRIPTORS[name].requires_add_dll_directory == (name in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
+    desc = LIB_DESCRIPTORS[name]
+    expected = desc.requires_add_dll_directory if is_supported_on_current_machine(desc) else False
+    assert expected == (name in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_requires_rtld_deepbind_match(name):
-    assert LIB_DESCRIPTORS[name].requires_rtld_deepbind == (name in LIBNAMES_REQUIRING_RTLD_DEEPBIND)
+    desc = LIB_DESCRIPTORS[name]
+    expected = desc.requires_rtld_deepbind if is_supported_on_current_machine(desc) else False
+    assert expected == (name in LIBNAMES_REQUIRING_RTLD_DEEPBIND)
 
 
 # ---------------------------------------------------------------------------

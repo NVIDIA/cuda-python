@@ -9,6 +9,7 @@ import subprocess
 import sys
 from typing import TYPE_CHECKING
 
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import is_supported_on_current_machine
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError,
@@ -43,7 +44,9 @@ if TYPE_CHECKING:
 # (CTK, third-party, driver).
 _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
 _ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
-    name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
+    name
+    for name, desc in LIB_DESCRIPTORS.items()
+    if is_supported_on_current_machine(desc) and (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
 )
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
@@ -51,7 +54,9 @@ _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 # Driver libraries: shipped with the NVIDIA display driver, always on the
 # system linker path.  These skip all CTK search steps (site-packages,
 # conda, CUDA_PATH, canary) and go straight to system search.
-_DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
+_DRIVER_ONLY_LIBNAMES = frozenset(
+    name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver" and name in _ALL_SUPPORTED_LIBNAMES
+)
 
 
 def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
