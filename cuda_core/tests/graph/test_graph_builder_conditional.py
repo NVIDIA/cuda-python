@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Conditional graph node tests (if, if-else, switch, while)."""
+"""Tests for GraphBuilder conditional node capture (if, if-else, switch, while)."""
 
 import ctypes
 

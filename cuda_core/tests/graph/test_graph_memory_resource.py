@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Graph memory resource tests."""
+"""Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
 import pytest
 from helpers import IS_WINDOWS, IS_WSL
