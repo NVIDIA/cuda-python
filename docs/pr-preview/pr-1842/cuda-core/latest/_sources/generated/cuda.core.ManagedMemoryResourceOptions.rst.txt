@@ -1,6 +1,0 @@
-﻿cuda.core.ManagedMemoryResourceOptions
-======================================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: ManagedMemoryResourceOptions
