@@ -319,7 +319,7 @@ cdef class GraphDef:
 
         Returns
         -------
-        tuple of GraphNode
+        set of GraphNode
             All nodes in the graph.
         """
         cdef size_t num_nodes = 0
@@ -328,7 +328,7 @@ cdef class GraphDef:
             HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), NULL, &num_nodes))
 
         if num_nodes == 0:
-            return ()
+            return set()
 
         cdef vector[cydriver.CUgraphNode] nodes_vec
         nodes_vec.resize(num_nodes)
@@ -342,7 +342,7 @@ cdef class GraphDef:
 
         Returns
         -------
-        tuple of tuple
+        set of tuple
             Each element is a (from_node, to_node) pair representing
             a dependency edge in the graph.
         """
@@ -355,7 +355,7 @@ cdef class GraphDef:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, &num_edges))
 
         if num_edges == 0:
-            return ()
+            return set()
 
         cdef vector[cydriver.CUgraphNode] from_nodes
         cdef vector[cydriver.CUgraphNode] to_nodes
