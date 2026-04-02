@@ -14,8 +14,8 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core._graph._graph_def._graph_def cimport Condition, GraphDef
-from cuda.core._graph._graph_def._graph_node cimport GraphNode
+from cuda.core.graph._graph_def cimport Condition, GraphDef
+from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
@@ -31,7 +31,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from cuda.core._graph._utils cimport _is_py_host_trampoline
+from cuda.core.graph._utils cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 
@@ -237,7 +237,7 @@ cdef class AllocNode(GraphNode):
     @property
     def options(self):
         """A GraphAllocOptions reconstructed from this node's parameters."""
-        from cuda.core._graph._graph_def._graph_def import GraphAllocOptions
+        from cuda.core.graph._graph_def import GraphAllocOptions
         return GraphAllocOptions(
             device=self._device_id,
             memory_type=self._memory_type,

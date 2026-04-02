@@ -9,7 +9,7 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._graph._utils cimport _attach_host_callback_to_graph
+from cuda.core.graph._utils cimport _attach_host_callback_to_graph
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -793,12 +793,12 @@ class Graph:
 
         Parameters
         ----------
-        source : :obj:`~_graph.GraphBuilder` or :obj:`~_graph._graph_def.GraphDef`
+        source : :obj:`~graph.GraphBuilder` or :obj:`~graph.GraphDef`
             The graph definition to update from. A GraphBuilder must have
             finished building.
 
         """
-        from cuda.core._graph._graph_def import GraphDef
+        from cuda.core.graph import GraphDef
 
         cdef cydriver.CUgraph cu_graph
         cdef cydriver.CUgraphExec cu_exec = <cydriver.CUgraphExec><intptr_t>int(self._mnff.graph)
