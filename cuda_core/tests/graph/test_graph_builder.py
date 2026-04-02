@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Basic graph construction and topology tests."""
+"""GraphBuilder stream capture tests."""
 
 import numpy as np
 import pytest
@@ -206,3 +206,85 @@ def test_graph_capture_callback_ctypes(init_cuda):
     launch_stream.sync()
 
     assert result[0] == 0xAB
+
+
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+def test_graph_child_graph(init_cuda):
+    mod = compile_common_kernels()
+    add_one = mod.get_kernel("add_one")
+
+    # Allocate memory
+    launch_stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(8)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+    arr[1] = 0
+
+    # Capture the child graph
+    gb_child = Device().create_graph_builder().begin_building()
+    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    gb_child.end_building()
+
+    # Capture the parent graph
+    gb_parent = Device().create_graph_builder().begin_building()
+    launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+
+    ## Add child
+    try:
+        gb_parent.add_child(gb_child)
+    except NotImplementedError as e:
+        with pytest.raises(
+            NotImplementedError,
+            match="^Launching child graphs is not implemented for versions older than CUDA 12",
+        ):
+            raise e
+        gb_parent.end_building()
+        b.close()
+        pytest.skip("Launching child graphs is not implemented for versions older than CUDA 12")
+
+    launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    graph = gb_parent.end_building().complete()
+
+    # Parent updates first value, child updates second value
+    assert arr[0] == 0
+    assert arr[1] == 0
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    assert arr[0] == 2
+    assert arr[1] == 3
+
+    b.close()
+
+
+def test_graph_stream_lifetime(init_cuda):
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    # Create simple graph from device
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb.end_building().complete()
+
+    # Destroy simple graph and builder
+    gb.close()
+    graph.close()
+
+    # Create simple graph from stream
+    stream = Device().create_stream()
+    gb = stream.create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb.end_building().complete()
+
+    # Destroy simple graph and builder
+    gb.close()
+    graph.close()
+
+    # Verify the stream can still launch work
+    launch(stream, LaunchConfig(grid=1, block=1), empty_kernel)
+    stream.sync()
+
+    # Destroy the stream
+    stream.close()

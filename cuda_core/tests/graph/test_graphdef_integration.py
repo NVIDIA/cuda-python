@@ -1,31 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Integration tests for explicit CUDA graph construction.
-
-Three test scenarios exercise complementary subsets of node types:
-
-test_heat_diffusion
-    1D heat bar evolving toward steady state via finite differences.
-    Exercises: AllocNode, FreeNode, MemsetNode, ChildGraphNode,
-    EmptyNode, EventRecordNode, EventWaitNode, WhileNode, KernelNode,
-    MemcpyNode, HostCallbackNode.
-
-test_bisection_root
-    Find sqrt(2) by bisecting f(x) = x^2 - 2 on [0, 2], with an
-    optional Newton polish step.
-    Exercises: IfElseNode (interval halving), IfNode (refinement
-    guard), WhileNode, KernelNode, AllocNode, MemsetNode, MemcpyNode,
-    HostCallbackNode, FreeNode, EmptyNode.
-
-test_switch_dispatch
-    Apply one of four element-wise transforms selected at graph
-    creation time via a switch condition.
-    Exercises: SwitchNode, KernelNode, AllocNode, MemsetNode,
-    MemcpyNode, FreeNode.
-
-Together the three tests cover all 14 explicit-graph node types.
-"""
+"""End-to-end integration tests exercising all GraphDef node types in realistic scenarios."""
 
 import ctypes
 
@@ -33,7 +9,7 @@ import numpy as np
 import pytest
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
-from cuda.core._graph._graphdef import GraphDef
+from cuda.core._graph._graph_def import GraphDef
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 SIZEOF_FLOAT = 4
