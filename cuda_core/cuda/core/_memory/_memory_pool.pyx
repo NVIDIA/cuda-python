@@ -144,7 +144,7 @@ cdef class _MemPool(MemoryResource):
         stream = Stream_accept(stream) if stream is not None else default_stream()
         return _MP_allocate(self, size, <Stream> stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
+    def deallocate(self, ptr: "DevicePointerT", size_t size, stream: Stream | GraphBuilder | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -257,7 +257,9 @@ cdef int MP_init_current_pool(
         self._h_pool = create_mempool_handle_ref(pool)
         self._mempool_owned = False
     ELSE:
-        raise RuntimeError("not supported")
+        raise RuntimeError(
+            "Getting the current memory pool requires CUDA 13.0 or later"
+        )
     return 0
 
 

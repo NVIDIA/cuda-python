@@ -1,21 +1,25 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Advanced graph feature tests (child graphs, update, stream lifetime)."""
+"""Tests for whole-graph update (Graph.update)."""
 
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
+from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core._graph._graph_def import GraphDef
+from cuda.core._utils.cuda_utils import CUDAError
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
-def test_graph_child_graph(init_cuda):
+@pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDef"])
+@requires_module(np, "2.1")
+def test_graph_update_kernel_args(init_cuda, builder):
+    """Update redirects a kernel to write to a different pointer."""
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
 
-    # Allocate memory
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
     b = mr.allocate(8)
@@ -23,52 +27,45 @@ def test_graph_child_graph(init_cuda):
     arr[0] = 0
     arr[1] = 0
 
-    # Capture the child graph
-    gb_child = Device().create_graph_builder().begin_building()
-    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
-    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
-    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
-    gb_child.end_building()
+    if builder == "GraphBuilder":
 
-    # Capture the parent graph
-    gb_parent = Device().create_graph_builder().begin_building()
-    launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+        def build(ptr):
+            gb = Device().create_graph_builder().begin_building()
+            launch(gb, LaunchConfig(grid=1, block=1), add_one, ptr)
+            launch(gb, LaunchConfig(grid=1, block=1), add_one, ptr)
+            finished = gb.end_building()
+            return finished.complete(), finished
+    elif builder == "GraphDef":
 
-    ## Add child
-    try:
-        gb_parent.add_child(gb_child)
-    except NotImplementedError as e:
-        with pytest.raises(
-            NotImplementedError,
-            match="^Launching child graphs is not implemented for versions older than CUDA 12",
-        ):
-            raise e
-        gb_parent.end_building()
-        b.close()
-        pytest.skip("Launching child graphs is not implemented for versions older than CUDA 12")
+        def build(ptr):
+            g = GraphDef()
+            n = g.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
+            n.launch(LaunchConfig(grid=1, block=1), add_one, ptr)
+            return g.instantiate(), g
 
-    launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
-    graph = gb_parent.end_building().complete()
+    graph, _ = build(arr[0:].ctypes.data)
+    _, source1 = build(arr[1:].ctypes.data)
 
-    # Parent updates first value, child updates second value
-    assert arr[0] == 0
-    assert arr[1] == 0
     graph.launch(launch_stream)
     launch_stream.sync()
     assert arr[0] == 2
-    assert arr[1] == 3
+    assert arr[1] == 0
 
-    # Close the memory resource now because the garbage collected might
-    # de-allocate it during the next graph builder process
+    graph.update(source1)
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    assert arr[0] == 2
+    assert arr[1] == 2
+
     b.close()
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
-def test_graph_update(init_cuda):
+@requires_module(np, "2.1")
+def test_graph_update_conditional(init_cuda):
+    """Update swaps conditional switch graphs with matching topology."""
     mod = compile_conditional_kernels(int)
     add_one = mod.get_kernel("add_one")
 
-    # Allocate memory
     launch_stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
     b = mr.allocate(12)
@@ -125,9 +122,6 @@ def test_graph_update(init_cuda):
         pytest.skip("Driver does not support conditional switch")
 
     # Launch the first graph
-    assert arr[0] == 0
-    assert arr[1] == 0
-    assert arr[2] == 0
     graph = graph_variants[0].complete()
     graph.launch(launch_stream)
     launch_stream.sync()
@@ -156,32 +150,60 @@ def test_graph_update(init_cuda):
     b.close()
 
 
-def test_graph_stream_lifetime(init_cuda):
+# =============================================================================
+# Error cases
+# =============================================================================
+
+
+def test_graph_update_unfinished_builder(init_cuda):
+    """Update with an unfinished GraphBuilder raises ValueError."""
     mod = compile_common_kernels()
     empty_kernel = mod.get_kernel("empty_kernel")
 
-    # Create simple graph from device
+    gb_finished = Device().create_graph_builder().begin_building()
+    launch(gb_finished, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb_finished.end_building().complete()
+
+    gb_unfinished = Device().create_graph_builder().begin_building()
+    launch(gb_unfinished, LaunchConfig(grid=1, block=1), empty_kernel)
+
+    with pytest.raises(ValueError, match="Graph has not finished building"):
+        graph.update(gb_unfinished)
+
+    gb_unfinished.end_building()
+
+
+def test_graph_update_topology_mismatch(init_cuda):
+    """Update with a different topology raises CUDAError."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    # Two-node graph
+    gb1 = Device().create_graph_builder().begin_building()
+    launch(gb1, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb1, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb1.end_building().complete()
+
+    # Three-node graph (different topology)
+    gb2 = Device().create_graph_builder().begin_building()
+    launch(gb2, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb2, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb2, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb2.end_building()
+
+    expected = r"Graph update failed: The update failed because the topology changed \(CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED\)"
+    with pytest.raises(CUDAError, match=expected):
+        graph.update(gb2)
+
+
+def test_graph_update_wrong_type(init_cuda):
+    """Update with an invalid type raises TypeError."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
     gb = Device().create_graph_builder().begin_building()
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
     graph = gb.end_building().complete()
 
-    # Destroy simple graph and builder
-    gb.close()
-    graph.close()
-
-    # Create simple graph from stream
-    stream = Device().create_stream()
-    gb = stream.create_graph_builder().begin_building()
-    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
-    graph = gb.end_building().complete()
-
-    # Destroy simple graph and builder
-    gb.close()
-    graph.close()
-
-    # Verify the stream can still launch work
-    launch(stream, LaunchConfig(grid=1, block=1), empty_kernel)
-    stream.sync()
-
-    # Destroy the stream
-    stream.close()
+    with pytest.raises(TypeError, match="expected GraphBuilder or GraphDef"):
+        graph.update("not a graph")
