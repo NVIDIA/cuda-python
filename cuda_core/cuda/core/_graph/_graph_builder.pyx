@@ -818,6 +818,7 @@ class Graph:
         with nogil:
             err = cydriver.cuGraphExecUpdate(cu_exec, cu_graph, &result_info)
         if err != cydriver.CUresult.CUDA_SUCCESS:
+            assert err == cydriver.CUresult.CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE
             reason = driver.CUgraphExecUpdateResult(result_info.result)
             msg = f"Graph update failed: {reason.__doc__.strip()} ({reason.name})"
             raise CUDAError(msg)
