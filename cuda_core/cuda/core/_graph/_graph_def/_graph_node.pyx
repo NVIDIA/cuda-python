@@ -153,6 +153,7 @@ cdef class GraphNode:
             return
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
+        _node_cache.pop(<uintptr_t>self._h_node.get(), None)
         invalidate_graph_node_handle(self._h_node)
 
     @property
