@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=33e5ca7a"></script>
+    <script src="../_static/documentation_options.js?v=a8807590"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev107';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -677,12 +677,13 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Graph.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Graph.update" title="Link to this definition">#</a></dt>
-<dd><p>Update the graph using new build configuration from the builder.</p>
-<p>The topology of the provided builder must be identical to this graph.</p>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'GraphBuilder</span> <span class="pre">|</span> <span class="pre">GraphDef'</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Graph.update" title="Link to this definition">#</a></dt>
+<dd><p>Update the graph using a new graph definition.</p>
+<p>The topology of the provided source must be identical to this graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>builder</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – The builder to update the graph with.</p>
+<dd class="field-odd"><p><strong>source</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphDef</span></code>) – The graph definition to update from. A GraphBuilder must have
+finished building.</p>
 </dd>
 </dl>
 </dd></dl>
