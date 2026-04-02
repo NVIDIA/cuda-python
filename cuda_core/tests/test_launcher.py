@@ -290,7 +290,7 @@ def test_cooperative_launch():
         "device_memory_resource",  # kludgy, but can go away after #726 is resolved
         pytest.param(
             LegacyPinnedMemoryResource,
-            marks=requires_module(np, "2.2.5"),
+            marks=requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)"),
         ),
     ],
 )
