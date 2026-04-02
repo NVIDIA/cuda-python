@@ -325,6 +325,12 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         dependencies=("nvrtc",),
     ),
     DescriptorSpec(
+        name="cudla",
+        packaged_with="other",
+        linux_sonames=("libcudla.so.1",),
+        site_packages_linux=("nvidia/cu13/lib",),
+    ),
+    DescriptorSpec(
         name="cudss",
         packaged_with="other",
         linux_sonames=("libcudss.so.0",),
@@ -385,6 +391,11 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="driver",
         linux_sonames=("libcuda.so.1",),
         windows_dlls=("nvcuda.dll",),
+    ),
+    DescriptorSpec(
+        name="nvcudla",
+        packaged_with="driver",
+        linux_sonames=("libnvcudla.so",),
     ),
     DescriptorSpec(
         name="nvml",
