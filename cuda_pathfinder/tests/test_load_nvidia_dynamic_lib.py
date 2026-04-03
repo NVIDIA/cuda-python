@@ -11,6 +11,7 @@ from child_load_nvidia_dynamic_lib_helper import (
 )
 from local_helpers import have_distribution
 
+from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
@@ -106,14 +107,6 @@ def _is_expected_load_nvidia_dynamic_lib_failure(libname):
     return False
 
 
-def _skip_if_missing_nvcudla_runtime(libname: str, *, timeout: float) -> None:
-    if libname not in ("cudla", "nvcudla"):
-        return
-    if load_nvidia_dynamic_lib_module._loadable_via_canary_subprocess("nvcudla", timeout=timeout):
-        return
-    pytest.skip("libnvcudla.so is not loadable via canary subprocess on this host.")
-
-
 @pytest.mark.parametrize(
     "libname",
     supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else supported_nvidia_libs.SUPPORTED_LINUX_SONAMES,
@@ -128,7 +121,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
 
     if result.returncode != 0:
-        _skip_if_missing_nvcudla_runtime(libname, timeout=timeout)
+        skip_if_missing_libnvcudla_so(libname, timeout=timeout)
         raise_child_process_failed()
     assert not result.stderr
     payload = parse_dynamic_lib_subprocess_payload(
@@ -137,7 +130,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         error_label="Load subprocess child process",
     )
     if payload.status == STATUS_NOT_FOUND:
-        _skip_if_missing_nvcudla_runtime(libname, timeout=timeout)
+        skip_if_missing_libnvcudla_so(libname, timeout=timeout)
         if STRICTNESS == "all_must_work" and not _is_expected_load_nvidia_dynamic_lib_failure(libname):
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
