@@ -534,7 +534,6 @@ cdef inline ConditionalNode _make_conditional_node(
 
     return _cached(n)
 
-
 cdef inline GraphNode GN_create(GraphHandle h_graph, cydriver.CUgraphNode node):
     cdef GraphNodeHandle h_node = create_graph_node_handle(node, h_graph)
 
