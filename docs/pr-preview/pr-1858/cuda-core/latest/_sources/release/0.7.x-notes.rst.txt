@@ -1,0 +1,88 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 0.7.x Release Notes
+=================================
+
+
+Highlights
+----------
+
+- Introduced :class:`~graph.GraphDef`, an explicit graph construction API. Graphs
+  can now be built node-by-node (kernel launches, memset, memcpy, memory
+  allocation/free, child graphs, event record/wait, host callbacks, and
+  conditionals) with full control over topology. Nodes expose mutable
+  :attr:`~graph.GraphNode.pred` and :attr:`~graph.GraphNode.succ` adjacency sets
+  for edge manipulation, and individual nodes can be destroyed with
+  :meth:`~graph.GraphNode.destroy`. A ``GraphDef`` can be instantiated into an
+  executable :class:`Graph` or used to update an existing one in place.
+
+
+Breaking Changes
+----------------
+
+- The internal ``cuda.core._graph`` package has been renamed to the public
+  :mod:`cuda.core.graph`. Code that imported from ``cuda.core._graph`` must
+  update its import paths.
+
+- Building ``cuda.core`` from source now requires ``cuda-bindings`` >= 12.9.0, due to Cython-level
+  dependencies on the NVVM and nvJitLink bindings (``cynvvm``, ``cynvjitlink``). Pre-built wheels
+  are unaffected. The previous minimum was 12.8.0.
+
+
+New features
+------------
+
+- Added the :mod:`cuda.core.graph` public module containing :class:`~graph.GraphDef`,
+  :class:`~graph.GraphNode`, :class:`~graph.Condition`, :class:`~graph.GraphAllocOptions`,
+  and typed node subclasses (:class:`~graph.KernelNode`, :class:`~graph.MemsetNode`,
+  :class:`~graph.MemcpyNode`, :class:`~graph.AllocNode`, :class:`~graph.FreeNode`,
+  :class:`~graph.EmptyNode`, :class:`~graph.ChildGraphNode`,
+  :class:`~graph.EventRecordNode`, :class:`~graph.EventWaitNode`,
+  :class:`~graph.HostCallbackNode`, and conditional node types).
+
+- Added ``preferred_location_type`` option to :class:`ManagedMemoryResourceOptions`
+  for explicit control over the preferred location kind (``"device"``,
+  ``"host"``, or ``"host_numa"``). This enables NUMA-aware managed memory
+  pool placement. The existing ``preferred_location`` parameter retains full
+  backwards compatibility when ``preferred_location_type`` is not set.
+
+- Added :attr:`ManagedMemoryResource.preferred_location` property to query the
+  resolved preferred location of a managed memory pool. Returns ``None`` for no
+  preference, or a tuple such as ``("device", 0)``, ``("host", None)``, or
+  ``("host_numa", 3)``.
+
+- Added ``numa_id`` option to :class:`PinnedMemoryResourceOptions` for explicit
+  control over host NUMA node placement. When ``ipc_enabled=True`` and
+  ``numa_id`` is not set, the NUMA node is automatically derived from the
+  current CUDA device.
+
+- Added :attr:`PinnedMemoryResource.numa_id` property to query the host NUMA
+  node ID used for pool placement. Returns ``-1`` for OS-managed placement.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- Fixed IPC-enabled pinned memory pools using a hardcoded NUMA node ID of ``0``
+  instead of the NUMA node closest to the active CUDA device. On multi-NUMA
+  systems where the device is attached to a non-zero host NUMA node, this could
+  cause pool creation or allocation failures. (:issue:`1603`)
+- Fixed :attr:`DeviceMemoryResource.peer_accessible_by` returning stale results when wrapping
+  a non-owned (default) memory pool. The property now always queries the CUDA driver for
+  non-owned pools, so multiple wrappers around the same pool see consistent state. (:issue:`1720`)
+- Reduced Python overhead in :class:`Program` and :class:`Linker` by moving compilation and
+  linking operations to the C level and releasing the GIL during backend calls. This benefits
+  workloads that create many programs or linkers, and enables concurrent compilation in
+  multithreaded applications.
+- Improved optional dependency handling for NVVM and nvJitLink imports so that only genuinely
+  missing optional modules are treated as unavailable; unrelated import failures now surface
+  normally, and ``cuda.core`` now depends directly on ``cuda-pathfinder``.
