@@ -969,9 +969,20 @@ static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     );
 }
 
+static HandleRegistry<CUgraphNode, GraphNodeHandle> graph_node_registry;
+
 GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
+    if (node) {
+        if (auto h = graph_node_registry.lookup(node)) {
+            return h;
+        }
+    }
     auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
-    return GraphNodeHandle(box, &box->resource);
+    GraphNodeHandle h(box, &box->resource);
+    if (node) {
+        graph_node_registry.register_handle(node, h);
+    }
+    return h;
 }
 
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
@@ -980,6 +991,10 @@ GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
 
 void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept {
     if (h) {
+        CUgraphNode node = get_box(h)->resource;
+        if (node) {
+            graph_node_registry.unregister_handle(node);
+        }
         get_box(h)->resource = nullptr;
     }
 }

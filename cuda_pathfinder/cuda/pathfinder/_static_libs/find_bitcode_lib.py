@@ -29,6 +29,7 @@ class _BitcodeLibInfo(TypedDict):
     filename: str
     rel_path: str
     site_packages_dirs: tuple[str, ...]
+    available_on_windows: bool
 
 
 _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
@@ -39,11 +40,22 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
             "nvidia/cu13/nvvm/libdevice",
             "nvidia/cuda_nvcc/nvvm/libdevice",
         ),
+        "available_on_windows": True,
+    },
+    "nvshmem_device": {
+        "filename": "libnvshmem_device.bc",
+        "rel_path": "lib",
+        "site_packages_dirs": ("nvidia/nvshmem/lib",),
+        "available_on_windows": False,
     },
 }
 
 # Public API: just the supported library names
-SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_BITCODE_LIBS_INFO.keys()))
+SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(
+    sorted(
+        name for name, info in _SUPPORTED_BITCODE_LIBS_INFO.items() if not IS_WINDOWS or info["available_on_windows"]
+    )
+)
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
