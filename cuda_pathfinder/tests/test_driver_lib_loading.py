@@ -16,6 +16,7 @@ from child_load_nvidia_dynamic_lib_helper import (
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
 
+from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -24,7 +25,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
 )
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, PLATFORM_MACHINE, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -38,6 +39,14 @@ _NVML_DESC = LIB_DESCRIPTORS["nvml"]
 
 def _make_loaded_dl(path, found_via):
     return LoadedDL(path, False, 0xDEAD, found_via)
+
+
+def _skip_if_missing_nvcudla_runtime(libname: str, *, timeout: float) -> None:
+    if libname != "nvcudla" or PLATFORM_MACHINE != "aarch64":
+        return
+    if load_nvidia_dynamic_lib_module._loadable_via_canary_subprocess("nvcudla", timeout=timeout):
+        return
+    pytest.skip("libnvcudla.so is not loadable via canary subprocess on this host.")
 
 
 # ---------------------------------------------------------------------------
@@ -147,6 +156,7 @@ def test_real_load_driver_lib(info_summary_append, libname):
         error_label="Load subprocess child process",
     )
     if payload.status == STATUS_NOT_FOUND:
+        _skip_if_missing_nvcudla_runtime(libname, timeout=timeout)
         if STRICTNESS == "all_must_work":
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
