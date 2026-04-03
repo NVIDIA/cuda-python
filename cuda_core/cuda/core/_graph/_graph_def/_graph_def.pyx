@@ -332,18 +332,20 @@ cdef class GraphDef:
         set of GraphNode
             All nodes in the graph.
         """
-        cdef size_t num_nodes = 0
+        cdef vector[cydriver.CUgraphNode] nodes_vec
+        nodes_vec.resize(128)
+        cdef size_t num_nodes = 128
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), NULL, &num_nodes))
+            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
         if num_nodes == 0:
             return set()
 
-        cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(num_nodes)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
+        if num_nodes > 128:
+            nodes_vec.resize(num_nodes)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
         return set(GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
 
@@ -356,21 +358,12 @@ cdef class GraphDef:
             Each element is a (from_node, to_node) pair representing
             a dependency edge in the graph.
         """
-        cdef size_t num_edges = 0
-
-        with nogil:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, NULL, &num_edges))
-            ELSE:
-                HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, &num_edges))
-
-        if num_edges == 0:
-            return set()
-
         cdef vector[cydriver.CUgraphNode] from_nodes
         cdef vector[cydriver.CUgraphNode] to_nodes
-        from_nodes.resize(num_edges)
-        to_nodes.resize(num_edges)
+        from_nodes.resize(128)
+        to_nodes.resize(128)
+        cdef size_t num_edges = 128
+
         with nogil:
             IF CUDA_CORE_BUILD_MAJOR >= 13:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
@@ -378,6 +371,20 @@ cdef class GraphDef:
             ELSE:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
                     as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
+
+        if num_edges == 0:
+            return set()
+
+        if num_edges > 128:
+            from_nodes.resize(num_edges)
+            to_nodes.resize(num_edges)
+            with nogil:
+                IF CUDA_CORE_BUILD_MAJOR >= 13:
+                    HANDLE_RETURN(cydriver.cuGraphGetEdges(
+                        as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), NULL, &num_edges))
+                ELSE:
+                    HANDLE_RETURN(cydriver.cuGraphGetEdges(
+                        as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
 
         return set(
             (GraphNode._create(self._h_graph, from_nodes[i]),

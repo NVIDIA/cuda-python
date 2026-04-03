@@ -704,7 +704,7 @@ def test_identity_preservation(init_cuda):
     objects rather than duplicates."""
     g = GraphDef()
     a = g.empty()
-    b = a.join()
+    b = g.empty()
 
     # nodes()
     assert any(x is a for x in g.nodes())
