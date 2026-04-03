@@ -174,13 +174,8 @@ public:
     }
 
     void unregister_handle(const Key& key) noexcept {
-        try {
-            std::lock_guard<std::mutex> lock(mutex_);
-            auto it = map_.find(key);
-            if (it != map_.end() && it->second.expired()) {
-                map_.erase(it);
-            }
-        } catch (...) {}
+        std::lock_guard<std::mutex> lock(mutex_);
+        map_.erase(key);
     }
 
     Handle lookup(const Key& key) {
@@ -989,7 +984,7 @@ GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
     return h ? get_box(h)->h_graph : GraphHandle{};
 }
 
-void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept {
+void invalidate_graph_node(const GraphNodeHandle& h) noexcept {
     if (h) {
         CUgraphNode node = get_box(h)->resource;
         if (node) {
