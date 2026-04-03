@@ -48,7 +48,7 @@ from cuda.core._resource_handles cimport (
     create_graph_handle_ref,
     create_graph_node_handle,
     graph_node_get_graph,
-    invalidate_graph_node_handle,
+    invalidate_graph_node,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
@@ -154,7 +154,7 @@ cdef class GraphNode:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)
-        invalidate_graph_node_handle(self._h_node)
+        invalidate_graph_node(self._h_node)
 
     @property
     def pred(self):

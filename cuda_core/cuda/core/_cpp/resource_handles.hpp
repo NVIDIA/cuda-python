@@ -416,7 +416,7 @@ GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept;
 
 // Zero the CUgraphNode resource inside the handle, marking it invalid.
-void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept;
+void invalidate_graph_node(const GraphNodeHandle& h) noexcept;
 
 // ============================================================================
 // Graphics resource handle functions

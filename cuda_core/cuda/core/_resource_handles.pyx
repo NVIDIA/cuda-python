@@ -159,7 +159,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
     GraphHandle graph_node_get_graph "cuda_core::graph_node_get_graph" (
         const GraphNodeHandle& h) noexcept nogil
-    void invalidate_graph_node_handle "cuda_core::invalidate_graph_node_handle" (
+    void invalidate_graph_node "cuda_core::invalidate_graph_node" (
         const GraphNodeHandle& h) noexcept nogil
 
     # Graphics resource handles
