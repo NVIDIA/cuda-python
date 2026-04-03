@@ -134,6 +134,13 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         site_packages_dirs=("nvidia/cu13/include", "nvidia/cuda_nvcc/nvvm/include"),
         anchor_include_rel_dirs=("nvvm/include",),
     ),
+    HeaderDescriptorSpec(
+        name="cudla",
+        packaged_with="ctk",
+        header_basename="cudla.h",
+        site_packages_dirs=("nvidia/cu13/include",),
+        available_on_windows=False,
+    ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged headers
     # -----------------------------------------------------------------------
