@@ -20,6 +20,7 @@ cuda.core.graph.GraphDef
    .. automethod:: debug_dot_print
    .. automethod:: edges
    .. automethod:: embed
+   .. automethod:: empty
    .. automethod:: free
    .. automethod:: if_cond
    .. automethod:: if_else
