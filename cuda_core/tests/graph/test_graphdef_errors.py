@@ -101,10 +101,10 @@ def test_condition_from_different_graph(init_cuda):
 # =============================================================================
 
 
-def test_join_no_extra_nodes(init_cuda):
-    """join() from entry with no extra nodes creates a single empty node."""
+def test_empty_node(init_cuda):
+    """empty() creates a single entry-point empty node."""
     g = GraphDef()
-    joined = g.join()
+    joined = g.empty()
     assert isinstance(joined, EmptyNode)
     assert len(g.nodes()) == 1
 
