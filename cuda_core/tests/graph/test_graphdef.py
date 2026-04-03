@@ -699,6 +699,31 @@ def test_node_attrs_preserved_by_nodes(node_spec):
         assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
 
 
+def test_identity_preservation(init_cuda):
+    """Round-trips through nodes(), edges(), and pred/succ return extant
+    objects rather than duplicates."""
+    g = GraphDef()
+    a = g.join()
+    b = a.join()
+
+    # nodes()
+    assert any(x is a for x in g.nodes())
+    assert any(x is b for x in g.nodes())
+
+    # succ/pred
+    a.succ = {b}
+    (b2,) = a.succ
+    assert b2 is b
+
+    (a2,) = b.pred
+    assert a2 is a
+
+    # edges()
+    ((a2, b2),) = g.edges()
+    assert a2 is a
+    assert b2 is b
+
+
 # =============================================================================
 # GraphDef basics
 # =============================================================================
