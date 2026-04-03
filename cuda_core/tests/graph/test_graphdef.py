@@ -727,6 +727,7 @@ def test_identity_preservation(init_cuda):
 def test_registry_cleanup(init_cuda):
     """Node registry entries are removed on destroy() and graph teardown."""
     import gc
+
     from cuda.core._graph._graph_def._graph_node import _node_registry
 
     def registered(node):
