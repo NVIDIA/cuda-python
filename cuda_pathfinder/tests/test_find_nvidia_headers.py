@@ -40,6 +40,7 @@ STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
+    "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",
     "cute": r"^nvidia-cutlass$",
     "cutensor": r"^cutensor-.*$",

@@ -8,16 +8,19 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import math
 import platform
 import sys
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device_drv
 
 from cuda.bindings import driver as cuda
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, find_cuda_device_drv, requirement_not_met
 
 vector_add_mmap = """\
 /* Vector addition: C = A + B.
@@ -197,19 +200,17 @@ def simple_free_multi_device_mmap(dptr, size):
 
 
 def main():
-    import pytest
-
     if platform.system() == "Darwin":
-        pytest.skip("vectorAddMMAP is not supported on Mac OSX")
+        requirement_not_met("vectorAddMMAP is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        pytest.skip("vectorAddMMAP is not supported on ARMv7")
+        requirement_not_met("vectorAddMMAP is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        pytest.skip("vectorAddMMAP is not supported on aarch64")
+        requirement_not_met("vectorAddMMAP is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        pytest.skip("vectorAddMMAP is not supported on sbsa")
+        requirement_not_met("vectorAddMMAP is not supported on sbsa")
 
     n = 50000
     size = n * np.dtype(np.float32).itemsize
@@ -228,7 +229,7 @@ def main():
     )
     print(f"Device {cu_device} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {attribute_val}.")
     if not attribute_val:
-        pytest.skip(f"Device {cu_device} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
+        requirement_not_met(f"Device {cu_device} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
 
     # The vector addition happens on cuDevice, so the allocations need to be mapped there.
     mapping_devices = [cu_device]
@@ -239,7 +240,7 @@ def main():
     # Create context
     cu_context = check_cuda_errors(cuda.cuCtxCreate(None, 0, cu_device))
 
-    kernel_helper = common.KernelHelper(vector_add_mmap, int(cu_device))
+    kernel_helper = KernelHelper(vector_add_mmap, int(cu_device))
     _vec_add_kernel = kernel_helper.get_function(b"VecAdd_kernel")
 
     # Allocate input vectors h_A and h_B in host memory

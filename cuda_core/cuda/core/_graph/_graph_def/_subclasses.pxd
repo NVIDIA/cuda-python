@@ -5,53 +5,9 @@
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
+from cuda.core._graph._graph_def._graph_def cimport Condition
+from cuda.core._graph._graph_def._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport EventHandle, GraphHandle, GraphNodeHandle, KernelHandle
-
-
-cdef class Condition
-cdef class GraphDef
-cdef class GraphNode
-cdef class EmptyNode(GraphNode)
-cdef class KernelNode(GraphNode)
-cdef class AllocNode(GraphNode)
-cdef class FreeNode(GraphNode)
-cdef class MemsetNode(GraphNode)
-cdef class MemcpyNode(GraphNode)
-cdef class ChildGraphNode(GraphNode)
-cdef class EventRecordNode(GraphNode)
-cdef class EventWaitNode(GraphNode)
-cdef class HostCallbackNode(GraphNode)
-cdef class ConditionalNode(GraphNode)
-cdef class IfNode(ConditionalNode)
-cdef class IfElseNode(ConditionalNode)
-cdef class WhileNode(ConditionalNode)
-cdef class SwitchNode(ConditionalNode)
-
-
-cdef class Condition:
-    cdef:
-        cydriver.CUgraphConditionalHandle _c_handle
-        object __weakref__
-
-
-cdef class GraphDef:
-    cdef:
-        GraphHandle _h_graph
-        object __weakref__
-
-    @staticmethod
-    cdef GraphDef _from_handle(GraphHandle h_graph)
-
-
-cdef class GraphNode:
-    cdef:
-        GraphNodeHandle _h_node
-        tuple _pred_cache
-        tuple _succ_cache
-        object __weakref__
-
-    @staticmethod
-    cdef GraphNode _create(GraphHandle h_graph, cydriver.CUgraphNode node)
 
 
 cdef class EmptyNode(GraphNode):
@@ -196,7 +152,7 @@ cdef class ConditionalNode(GraphNode):
     cdef:
         Condition _condition
         cydriver.CUgraphConditionalNodeType _cond_type
-        tuple _branches  # tuple of GraphDef (non-owning wrappers)
+        tuple _branches
 
     @staticmethod
     cdef ConditionalNode _create_from_driver(GraphNodeHandle h_node)

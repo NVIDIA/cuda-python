@@ -16,6 +16,7 @@ from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
 from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
+from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._resource_handles cimport (
     ContextHandle,
     create_context_handle_ref,

@@ -67,7 +67,7 @@ cdef class Linker:
         Options for the linker. If not provided, default options will be used.
     """
 
-    def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
+    def __init__(self, *object_codes: ObjectCode, options: "LinkerOptions" = None):
         Linker_init(self, object_codes, options)
 
     def link(self, target_type) -> ObjectCode:
