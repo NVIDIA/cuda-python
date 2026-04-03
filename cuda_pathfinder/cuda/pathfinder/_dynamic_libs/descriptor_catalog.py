@@ -8,8 +8,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from cuda.pathfinder._utils.platform_aware import PLATFORM_MACHINE
-
 PackagedWith = Literal["ctk", "other", "driver"]
 
 
@@ -19,7 +17,6 @@ class DescriptorSpec:
     packaged_with: PackagedWith
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
-    platform_machines: tuple[str, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
     site_packages_windows: tuple[str, ...] = ()
     dependencies: tuple[str, ...] = ()
@@ -28,10 +25,6 @@ class DescriptorSpec:
     ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
-
-
-def is_supported_on_current_machine(desc: DescriptorSpec) -> bool:
-    return not desc.platform_machines or PLATFORM_MACHINE in desc.platform_machines
 
 
 DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
@@ -335,7 +328,6 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         name="cudla",
         packaged_with="other",
         linux_sonames=("libcudla.so.1",),
-        platform_machines=("aarch64",),
         site_packages_linux=("nvidia/cu13/lib",),
     ),
     DescriptorSpec(
@@ -404,7 +396,6 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         name="nvcudla",
         packaged_with="driver",
         linux_sonames=("libnvcudla.so",),
-        platform_machines=("aarch64",),
     ),
     DescriptorSpec(
         name="nvml",

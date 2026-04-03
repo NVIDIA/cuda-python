@@ -25,7 +25,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
 )
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, PLATFORM_MACHINE, quote_for_shell
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -42,7 +42,7 @@ def _make_loaded_dl(path, found_via):
 
 
 def _skip_if_missing_nvcudla_runtime(libname: str, *, timeout: float) -> None:
-    if libname != "nvcudla" or PLATFORM_MACHINE != "aarch64":
+    if libname != "nvcudla":
         return
     if load_nvidia_dynamic_lib_module._loadable_via_canary_subprocess("nvcudla", timeout=timeout):
         return
