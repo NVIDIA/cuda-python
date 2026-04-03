@@ -39,7 +39,7 @@ class AdjacencySetProxy(MutableSet):
     def __contains__(self, x):
         if not isinstance(x, GraphNode):
             return False
-        return x in (<_AdjacencySetCore>self._core).query()
+        return (<_AdjacencySetCore>self._core).contains(<GraphNode>x)
 
     def __iter__(self):
         return iter((<_AdjacencySetCore>self._core).query())
@@ -87,13 +87,13 @@ class AdjacencySetProxy(MutableSet):
             if isinstance(other, GraphNode):
                 nodes.append(other)
             else:
-                nodes.extend(other)
+                for n in other:
+                    if not isinstance(n, GraphNode):
+                        raise TypeError(
+                            f"expected GraphNode, got {type(n).__name__}")
+                    nodes.append(n)
         if not nodes:
             return
-        for n in nodes:
-            if not isinstance(n, GraphNode):
-                raise TypeError(
-                    f"expected GraphNode, got {type(n).__name__}")
         new = [n for n in nodes if n not in self]
         if new:
             (<_AdjacencySetCore>self._core).add_edges(new)
@@ -155,6 +155,31 @@ cdef class _AdjacencySetCore:
                 c_node, nodes_vec.data(), &count))
         return [GraphNode._create(self._h_graph, nodes_vec[i])
                 for i in range(count)]
+
+    cdef bint contains(self, GraphNode other):
+        cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)
+        cdef cydriver.CUgraphNode target = as_cu(other._h_node)
+        if c_node == NULL or target == NULL:
+            return False
+        cdef cydriver.CUgraphNode buf[16]
+        cdef size_t count = 16
+        cdef size_t i
+        with nogil:
+            HANDLE_RETURN(self._query_fn(c_node, buf, &count))
+        if count <= 16:
+            for i in range(count):
+                if buf[i] == target:
+                    return True
+        else:
+            cdef vector[cydriver.CUgraphNode] nodes_vec
+            nodes_vec.resize(count)
+            with nogil:
+                HANDLE_RETURN(self._query_fn(c_node, nodes_vec.data(), &count))
+            assert count == nodes_vec.size()
+            for i in range(count):
+                if nodes_vec[i] == target:
+                    return True
+        return False
 
     cdef Py_ssize_t count(self):
         cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)
