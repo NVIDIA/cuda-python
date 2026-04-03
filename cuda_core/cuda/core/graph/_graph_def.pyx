@@ -278,7 +278,7 @@ cdef class GraphDef:
 
         Parameters
         ----------
-        options : :obj:`~_graph.GraphCompleteOptions`, optional
+        options : :obj:`~graph.GraphCompleteOptions`, optional
             Customizable dataclass for graph instantiation options.
 
         Returns

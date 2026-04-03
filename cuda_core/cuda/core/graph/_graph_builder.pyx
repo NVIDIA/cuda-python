@@ -23,7 +23,7 @@ from cuda.core._utils.cuda_utils import (
 
 @dataclass
 class GraphDebugPrintOptions:
-    """Customizable options for :obj:`_graph.GraphBuilder.debug_dot_print()`
+    """Customizable options for :obj:`~graph.GraphBuilder.debug_dot_print()`
 
     Attributes
     ----------
@@ -119,7 +119,7 @@ class GraphDebugPrintOptions:
 
 @dataclass
 class GraphCompleteOptions:
-    """Customizable options for :obj:`_graph.GraphBuilder.complete()`
+    """Customizable options for :obj:`~graph.GraphBuilder.complete()`
 
     Attributes
     ----------
@@ -188,7 +188,7 @@ class GraphBuilder:
     them with a specified dependency tree. It speeds up the workflow by combining the
     driver activities associated with CUDA kernel launches and CUDA API calls.
 
-    Directly creating a :obj:`~_graph.GraphBuilder` is not supported due
+    Directly creating a :obj:`~graph.GraphBuilder` is not supported due
     to ambiguity. New graph builders should instead be created through a
     :obj:`~_device.Device`, or a :obj:`~_stream.stream` object.
 
@@ -326,16 +326,16 @@ class GraphBuilder:
         return self
 
     def complete(self, options: GraphCompleteOptions | None = None) -> "Graph":
-        """Completes the graph builder and returns the built :obj:`~_graph.Graph` object.
+        """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
 
         Parameters
         ----------
-        options : :obj:`~_graph.GraphCompleteOptions`, optional
+        options : :obj:`~graph.GraphCompleteOptions`, optional
             Customizable dataclass for the graph builder completion options.
 
         Returns
         -------
-        graph : :obj:`~_graph.Graph`
+        graph : :obj:`~graph.Graph`
             The newly built graph.
 
         """
@@ -351,7 +351,7 @@ class GraphBuilder:
         ----------
         path : str
             File path to use for writting debug DOT output
-        options : :obj:`~_graph.GraphDebugPrintOptions`, optional
+        options : :obj:`~graph.GraphDebugPrintOptions`, optional
             Customizable dataclass for the debug print options.
 
         """
@@ -373,7 +373,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builders : tuple[:obj:`~_graph.GraphBuilder`, ...]
+        graph_builders : tuple[:obj:`~graph.GraphBuilder`, ...]
             A tuple of split graph builders. The first graph builder in the tuple
             is always the original graph builder.
 
@@ -400,12 +400,12 @@ class GraphBuilder:
 
         Parameters
         ----------
-        *graph_builders : :obj:`~_graph.GraphBuilder`
+        *graph_builders : :obj:`~graph.GraphBuilder`
             The graph builders to join.
 
         Returns
         -------
-        graph_builder : :obj:`~_graph.GraphBuilder`
+        graph_builder : :obj:`~graph.GraphBuilder`
             The newly joined graph builder.
 
         """
@@ -521,7 +521,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builder : :obj:`~_graph.GraphBuilder`
+        graph_builder : :obj:`~graph.GraphBuilder`
             The newly created conditional graph builder.
 
         """
@@ -552,7 +552,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builders : tuple[:obj:`~_graph.GraphBuilder`, :obj:`~_graph.GraphBuilder`]
+        graph_builders : tuple[:obj:`~graph.GraphBuilder`, :obj:`~graph.GraphBuilder`]
             A tuple of two new graph builders, one for the if branch and one for the else branch.
 
         """
@@ -586,7 +586,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builders : tuple[:obj:`~_graph.GraphBuilder`, ...]
+        graph_builders : tuple[:obj:`~graph.GraphBuilder`, ...]
             A tuple of new graph builders, one for each branch.
 
         """
@@ -617,7 +617,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builder : :obj:`~_graph.GraphBuilder`
+        graph_builder : :obj:`~graph.GraphBuilder`
             The newly created while loop graph builder.
 
         """
@@ -643,13 +643,13 @@ class GraphBuilder:
         self._mnff.close()
 
     def add_child(self, child_graph: GraphBuilder):
-        """Adds the child :obj:`~_graph.GraphBuilder` builder into self.
+        """Adds the child :obj:`~graph.GraphBuilder` builder into self.
 
         The child graph builder will be added as a child node to the parent graph builder.
 
         Parameters
         ----------
-        child_graph : :obj:`~_graph.GraphBuilder`
+        child_graph : :obj:`~graph.GraphBuilder`
             The child graph builder. Must have finished building.
         """
         if not child_graph._building_ended:
@@ -743,7 +743,7 @@ class Graph:
     them with a specified dependency tree. It speeds up the workflow by combining the
     driver activities associated with CUDA kernel launches and CUDA API calls.
 
-    Graphs must be built using a :obj:`~_graph.GraphBuilder` object.
+    Graphs must be built using a :obj:`~graph.GraphBuilder` object.
 
     """
 

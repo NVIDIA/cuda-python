@@ -34,6 +34,15 @@ CUDA runtime
    _memory._ipc.IPCBufferDescriptor
 
 
+CUDA graphs
+-----------
+
+.. autosummary::
+   :toctree: generated/
+
+   graph._adjacency_set_proxy.AdjacencySetProxy
+
+
 CUDA protocols
 --------------
 

@@ -20,8 +20,6 @@ CUDA runtime
    :toctree: generated/
 
    Device
-   Graph
-   GraphBuilder
    launch
 
    :template: autosummary/cyclass.rst
@@ -43,8 +41,6 @@ CUDA runtime
    PinnedMemoryResourceOptions
    ManagedMemoryResourceOptions
    EventOptions
-   GraphCompleteOptions
-   GraphDebugPrintOptions
    StreamOptions
    LaunchConfig
    VirtualMemoryResourceOptions
@@ -60,6 +56,52 @@ CUDA runtime
    The per-thread default CUDA stream. Each host thread has its own per-thread
    default stream, and work launched on it can execute concurrently with work
    on other non-blocking streams.
+
+
+CUDA graphs
+-----------
+
+.. autosummary::
+   :toctree: generated/
+
+   graph.Graph
+   graph.GraphBuilder
+   graph.GraphDef
+
+   :template: autosummary/cyclass.rst
+
+   graph.GraphNode
+   graph.Condition
+
+   :template: dataclass.rst
+
+   graph.GraphAllocOptions
+   graph.GraphCompleteOptions
+   graph.GraphDebugPrintOptions
+
+Node types
+``````````
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   graph.EmptyNode
+   graph.KernelNode
+   graph.AllocNode
+   graph.FreeNode
+   graph.MemsetNode
+   graph.MemcpyNode
+   graph.ChildGraphNode
+   graph.EventRecordNode
+   graph.EventWaitNode
+   graph.HostCallbackNode
+   graph.ConditionalNode
+   graph.IfNode
+   graph.IfElseNode
+   graph.WhileNode
+   graph.SwitchNode
 
 
 CUDA compilation toolchain
