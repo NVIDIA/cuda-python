@@ -174,13 +174,8 @@ public:
     }
 
     void unregister_handle(const Key& key) noexcept {
-        try {
-            std::lock_guard<std::mutex> lock(mutex_);
-            auto it = map_.find(key);
-            if (it != map_.end() && it->second.expired()) {
-                map_.erase(it);
-            }
-        } catch (...) {}
+        std::lock_guard<std::mutex> lock(mutex_);
+        map_.erase(key);
     }
 
     Handle lookup(const Key& key) {
@@ -969,17 +964,32 @@ static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     );
 }
 
+static HandleRegistry<CUgraphNode, GraphNodeHandle> graph_node_registry;
+
 GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
+    if (node) {
+        if (auto h = graph_node_registry.lookup(node)) {
+            return h;
+        }
+    }
     auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
-    return GraphNodeHandle(box, &box->resource);
+    GraphNodeHandle h(box, &box->resource);
+    if (node) {
+        graph_node_registry.register_handle(node, h);
+    }
+    return h;
 }
 
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
     return h ? get_box(h)->h_graph : GraphHandle{};
 }
 
-void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept {
+void invalidate_graph_node(const GraphNodeHandle& h) noexcept {
     if (h) {
+        CUgraphNode node = get_box(h)->resource;
+        if (node) {
+            graph_node_registry.unregister_handle(node);
+        }
         get_box(h)->resource = nullptr;
     }
 }
