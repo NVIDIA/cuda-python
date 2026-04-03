@@ -74,9 +74,7 @@ def bench_launch_small_kernel(loops: int) -> float:
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuLaunchKernel(
-            _kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0
-        )
+        _cuLaunchKernel(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0)
     return time.perf_counter() - t0
 
 
@@ -89,9 +87,7 @@ def bench_launch_16_args(loops: int) -> float:
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuLaunchKernel(
-            _kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0
-        )
+        _cuLaunchKernel(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0)
     return time.perf_counter() - t0
 
 

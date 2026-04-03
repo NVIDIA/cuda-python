@@ -45,7 +45,7 @@ def alloc_persistent(size: int) -> int:
 
 
 def compile_and_load(kernel_source: str) -> int:
-    """Compile CUDA C source and returns the CUmodule handle """
+    """Compile CUDA C source and returns the CUmodule handle"""
     ensure_context()
 
     err, major = cuda.cuDeviceGetAttribute(
@@ -57,9 +57,7 @@ def compile_and_load(kernel_source: str) -> int:
     )
     assert_drv(err)
 
-    err, prog = nvrtc.nvrtcCreateProgram(
-        kernel_source.encode(), b"benchmark_kernel.cu", 0, [], []
-    )
+    err, prog = nvrtc.nvrtcCreateProgram(kernel_source.encode(), b"benchmark_kernel.cu", 0, [], [])
     assert_drv(err)
 
     arch_flag = f"--gpu-architecture=sm_{major}{minor}".encode()

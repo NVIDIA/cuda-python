@@ -60,4 +60,3 @@ def bench_device_get_attribute(loops: int) -> float:
     for _ in range(loops):
         _cuDeviceGetAttribute(_attr, _dev)
     return time.perf_counter() - t0
-

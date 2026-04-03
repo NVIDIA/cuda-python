@@ -18,7 +18,7 @@ BINARY_SUFFIX = "_cpp"
 
 
 def discover_binaries() -> dict[str, Path]:
-    """Discover C++ benchmark binaries in the build directory """
+    """Discover C++ benchmark binaries in the build directory"""
     if not BUILD_DIR.is_dir():
         return {}
 
@@ -123,8 +123,7 @@ def main() -> None:
     registry = discover_binaries()
     if not registry:
         print(
-            f"No C++ benchmark binaries found in {BUILD_DIR}.\n"
-            "Run 'pixi run bench-cpp-build' first.",
+            f"No C++ benchmark binaries found in {BUILD_DIR}.\nRun 'pixi run bench-cpp-build' first.",
             file=sys.stderr,
         )
         sys.exit(1)
