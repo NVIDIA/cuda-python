@@ -388,6 +388,7 @@ ContextHandle get_event_context(const EventHandle& h) noexcept {
     return h ? get_box(h)->h_context : ContextHandle{};
 }
 
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUevent, EventHandle> event_registry;
 
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
@@ -894,6 +895,7 @@ static const KernelBox* get_box(const KernelHandle& h) {
     );
 }
 
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUkernel, KernelHandle> kernel_registry;
 
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
@@ -964,6 +966,7 @@ static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     );
 }
 
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUgraphNode, GraphNodeHandle> graph_node_registry;
 
 GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
