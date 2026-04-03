@@ -703,7 +703,7 @@ def test_identity_preservation(init_cuda):
     """Round-trips through nodes(), edges(), and pred/succ return extant
     objects rather than duplicates."""
     g = GraphDef()
-    a = g.join()
+    a = g.empty()
     b = a.join()
 
     # nodes()
@@ -722,6 +722,49 @@ def test_identity_preservation(init_cuda):
     ((a2, b2),) = g.edges()
     assert a2 is a
     assert b2 is b
+
+
+def test_registry_cleanup(init_cuda):
+    """Node registry entries are removed on destroy() and graph teardown."""
+    import gc
+    from cuda.core._graph._graph_def._graph_node import _node_registry
+
+    def registered(node):
+        return any(v is node for v in _node_registry.values())
+
+    gc.collect()
+    assert len(_node_registry) == 0
+
+    g = GraphDef()
+    a = g.empty()
+    b = g.empty()
+    c = g.empty()
+
+    assert len(_node_registry) == 3
+    assert registered(a)
+    assert registered(b)
+    assert registered(c)
+
+    a.destroy()
+    assert len(_node_registry) == 2
+    assert not registered(a)
+    assert registered(b)
+    assert registered(c)
+
+    del g
+    gc.collect()
+    assert len(_node_registry) == 2
+    assert registered(b)
+    assert registered(c)
+
+    b.destroy()
+    assert len(_node_registry) == 1
+    assert not registered(b)
+    assert registered(c)
+
+    del c
+    gc.collect()
+    assert len(_node_registry) == 0
 
 
 # =============================================================================

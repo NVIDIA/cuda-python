@@ -143,11 +143,14 @@ cdef class _AdjacencySetCore:
         cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)
         if c_node == NULL:
             return []
-        cdef size_t count = 0
+        cdef cydriver.CUgraphNode buf[16]
+        cdef size_t count = 16
+        cdef size_t i
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, NULL, &count))
-        if count == 0:
-            return []
+            HANDLE_RETURN(self._query_fn(c_node, buf, &count))
+        if count <= 16:
+            return [GraphNode._create(self._h_graph, buf[i])
+                    for i in range(count)]
         cdef vector[cydriver.CUgraphNode] nodes_vec
         nodes_vec.resize(count)
         with nogil:
@@ -166,19 +169,23 @@ cdef class _AdjacencySetCore:
         cdef size_t i
         with nogil:
             HANDLE_RETURN(self._query_fn(c_node, buf, &count))
+
+        # Fast path for small sets.
         if count <= 16:
             for i in range(count):
                 if buf[i] == target:
                     return True
-        else:
-            cdef vector[cydriver.CUgraphNode] nodes_vec
-            nodes_vec.resize(count)
-            with nogil:
-                HANDLE_RETURN(self._query_fn(c_node, nodes_vec.data(), &count))
-            assert count == nodes_vec.size()
-            for i in range(count):
-                if nodes_vec[i] == target:
-                    return True
+            return False
+
+        # Fallback for large sets.
+        cdef vector[cydriver.CUgraphNode] nodes_vec
+        nodes_vec.resize(count)
+        with nogil:
+            HANDLE_RETURN(self._query_fn(c_node, nodes_vec.data(), &count))
+        assert count == nodes_vec.size()
+        for i in range(count):
+            if nodes_vec[i] == target:
+                return True
         return False
 
     cdef Py_ssize_t count(self):

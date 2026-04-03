@@ -159,6 +159,16 @@ cdef class GraphDef:
         """
         return self._entry.launch(config, kernel, *args)
 
+    def empty(self) -> "EmptyNode":
+        """Add an entry-point empty node (no dependencies).
+
+        Returns
+        -------
+        EmptyNode
+            A new EmptyNode with no dependencies.
+        """
+        return self._entry.join()
+
     def join(self, *nodes) -> "EmptyNode":
         """Create an empty node that depends on all given nodes.
 
