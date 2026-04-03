@@ -957,7 +957,7 @@ GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) 
 
 namespace {
 struct GraphNodeBox {
-    CUgraphNode resource;
+    mutable CUgraphNode resource;
     GraphHandle h_graph;
 };
 }  // namespace
@@ -976,6 +976,12 @@ GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_
 
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
     return h ? get_box(h)->h_graph : GraphHandle{};
+}
+
+void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept {
+    if (h) {
+        get_box(h)->resource = nullptr;
+    }
 }
 
 // ============================================================================

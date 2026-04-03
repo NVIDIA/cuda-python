@@ -712,8 +712,8 @@ def test_graphdef_entry_is_virtual(sample_graphdef):
     """Internal entry node is virtual (no pred/succ, type is None)."""
     entry = sample_graphdef._entry
     assert isinstance(entry, GraphNode)
-    assert entry.pred == ()
-    assert entry.succ == ()
+    assert entry.pred == set()
+    assert entry.succ == set()
     assert entry.type is None
 
 

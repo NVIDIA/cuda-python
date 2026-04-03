@@ -186,6 +186,7 @@ cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHand
 # Graph node handles
 cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
 cdef GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept nogil
+cdef void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept nogil
 
 # Graphics resource handles
 cdef GraphicsResourceHandle create_graphics_resource_handle(

@@ -48,6 +48,7 @@ from cuda.core._resource_handles cimport (
     create_graph_handle_ref,
     create_graph_node_handle,
     graph_node_get_graph,
+    invalidate_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
@@ -57,6 +58,7 @@ from cuda.core._graph._utils cimport (
 )
 
 from cuda.core import Device
+from cuda.core._graph._graph_def._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver, handle_return
 
 
@@ -123,32 +125,48 @@ cdef class GraphNode:
         return as_py(self._h_node)
 
     @property
-    def pred(self) -> tuple:
-        """Return the predecessor nodes (dependencies) of this node.
+    def is_valid(self):
+        """Whether this node is valid (not destroyed).
 
-        Results are cached since a node's dependencies are immutable
-        once created.
-
-        Returns
-        -------
-        tuple of GraphNode
-            The nodes that this node depends on.
+        Returns ``False`` after :meth:`destroy` has been called.
         """
-        return GN_pred(self)
+        return as_intptr(self._h_node) != 0
+
+    def destroy(self):
+        """Destroy this node and remove all its edges from the parent graph.
+
+        After this call, :attr:`is_valid` returns ``False`` and the node
+        cannot be re-added to any graph.  Safe to call on an
+        already-destroyed node (no-op).
+        """
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        if node == NULL:
+            return
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
+        invalidate_graph_node_handle(self._h_node)
 
     @property
-    def succ(self) -> tuple:
-        """Return the successor nodes (dependents) of this node.
+    def pred(self):
+        """A mutable set-like view of this node's predecessors."""
+        return AdjacencySetProxy(self, False)
 
-        Results are cached and automatically invalidated when new
-        dependent nodes are added via builder methods.
+    @pred.setter
+    def pred(self, value):
+        p = AdjacencySetProxy(self, False)
+        p.clear()
+        p.update(value)
 
-        Returns
-        -------
-        tuple of GraphNode
-            The nodes that depend on this node.
-        """
-        return GN_succ(self)
+    @property
+    def succ(self):
+        """A mutable set-like view of this node's successors."""
+        return AdjacencySetProxy(self, True)
+
+    @succ.setter
+    def succ(self, value):
+        s = AdjacencySetProxy(self, True)
+        s.clear()
+        s.update(value)
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
@@ -504,7 +522,6 @@ cdef inline ConditionalNode _make_conditional_node(
     n._cond_type = cond_type
     n._branches = branches
 
-    pred._succ_cache = None
     return n
 
 cdef inline GraphNode GN_create(GraphHandle h_graph, cydriver.CUgraphNode node):
@@ -546,72 +563,6 @@ cdef inline GraphNode GN_create(GraphHandle h_graph, cydriver.CUgraphNode node):
         return n
 
 
-cdef inline tuple GN_pred(GraphNode self):
-    if self._pred_cache is not None:
-        return self._pred_cache
-
-    cdef cydriver.CUgraphNode node = as_cu(self._h_node)
-    if node == NULL:
-        self._pred_cache = ()
-        return self._pred_cache
-
-    cdef size_t num_deps = 0
-    with nogil:
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependencies(node, NULL, NULL, &num_deps))
-        ELSE:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependencies(node, NULL, &num_deps))
-
-    if num_deps == 0:
-        self._pred_cache = ()
-        return self._pred_cache
-
-    cdef vector[cydriver.CUgraphNode] deps
-    deps.resize(num_deps)
-    with nogil:
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependencies(node, deps.data(), NULL, &num_deps))
-        ELSE:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependencies(node, deps.data(), &num_deps))
-
-    cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
-    self._pred_cache = tuple(GraphNode._create(h_graph, deps[i]) for i in range(num_deps))
-    return self._pred_cache
-
-
-cdef inline tuple GN_succ(GraphNode self):
-    if self._succ_cache is not None:
-        return self._succ_cache
-
-    cdef cydriver.CUgraphNode node = as_cu(self._h_node)
-    if node == NULL:
-        self._succ_cache = ()
-        return self._succ_cache
-
-    cdef size_t num_deps = 0
-    with nogil:
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependentNodes(node, NULL, NULL, &num_deps))
-        ELSE:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependentNodes(node, NULL, &num_deps))
-
-    if num_deps == 0:
-        self._succ_cache = ()
-        return self._succ_cache
-
-    cdef vector[cydriver.CUgraphNode] deps
-    deps.resize(num_deps)
-    with nogil:
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependentNodes(node, deps.data(), NULL, &num_deps))
-        ELSE:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetDependentNodes(node, deps.data(), &num_deps))
-
-    cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
-    self._succ_cache = tuple(GraphNode._create(h_graph, deps[i]) for i in range(num_deps))
-    return self._succ_cache
-
-
 cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, ParamHolder ker_args):
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS node_params
     cdef cydriver.CUgraphNode new_node = NULL
@@ -644,7 +595,6 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
                         <cydriver.CUhostFn>_destroy_kernel_handle_copy)
 
-    self._succ_cache = None
     return KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
         conf.grid, conf.block, conf.shmem_size,
@@ -674,9 +624,6 @@ cdef inline EmptyNode GN_join(GraphNode self, tuple nodes):
         HANDLE_RETURN(cydriver.cuGraphAddEmptyNode(
             &new_node, as_cu(h_graph), deps_ptr, num_deps))
 
-    self._succ_cache = None
-    for other in nodes:
-        (<GraphNode>other)._succ_cache = None
     return EmptyNode._create_impl(create_graph_node_handle(new_node, h_graph))
 
 
@@ -753,7 +700,6 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object options):
         HANDLE_RETURN(cydriver.cuGraphAddMemAllocNode(
             &new_node, as_cu(h_graph), deps, num_deps, &alloc_params))
 
-    self._succ_cache = None
     return AllocNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), alloc_params.dptr, size,
         device_id, memory_type, tuple(peer_ids))
@@ -774,7 +720,6 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
         HANDLE_RETURN(cydriver.cuGraphAddMemFreeNode(
             &new_node, as_cu(h_graph), deps, num_deps, c_dptr))
 
-    self._succ_cache = None
     return FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr)
 
 
@@ -810,7 +755,6 @@ cdef inline MemsetNode GN_memset(
             &new_node, as_cu(h_graph), deps, num_deps,
             &memset_params, ctx))
 
-    self._succ_cache = None
     return MemsetNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst,
         val, elem_size, width, height, pitch)
@@ -872,7 +816,6 @@ cdef inline MemcpyNode GN_memcpy(
         HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
             &new_node, as_cu(h_graph), deps, num_deps, &params, ctx))
 
-    self._succ_cache = None
     return MemcpyNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst, c_src, size,
         c_dst_type, c_src_type)
@@ -900,7 +843,6 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDef child_def):
 
     cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph, h_graph)
 
-    self._succ_cache = None
     return ChildGraphNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), h_embedded)
 
@@ -923,7 +865,6 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
     _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
                         <cydriver.CUhostFn>_destroy_event_handle_copy)
 
-    self._succ_cache = None
     return EventRecordNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event)
 
@@ -946,7 +887,6 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
     _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
                         <cydriver.CUhostFn>_destroy_event_handle_copy)
 
-    self._succ_cache = None
     return EventWaitNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event)
 
@@ -974,7 +914,6 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
     cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
-    self._succ_cache = None
     return HostCallbackNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), callable_obj,
         node_params.fn, node_params.userData)
