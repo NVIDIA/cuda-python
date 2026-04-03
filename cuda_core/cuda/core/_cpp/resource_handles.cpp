@@ -991,6 +991,10 @@ GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
 
 void invalidate_graph_node_handle(const GraphNodeHandle& h) noexcept {
     if (h) {
+        CUgraphNode node = get_box(h)->resource;
+        if (node) {
+            graph_node_registry.unregister_handle(node);
+        }
         get_box(h)->resource = nullptr;
     }
 }
