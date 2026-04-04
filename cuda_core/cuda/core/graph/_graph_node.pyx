@@ -73,7 +73,7 @@ cdef inline GraphNode _registered(GraphNode n):
 
 
 cdef class GraphNode:
-    """Base class for all graph nodes.
+    """A node in a graph definition.
 
     Nodes are created by calling builder methods on GraphDef (for
     entry-point nodes with no dependencies) or on other Nodes (for

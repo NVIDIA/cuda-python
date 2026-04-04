@@ -30,7 +30,7 @@ from cuda.core._utils.cuda_utils import driver, handle_return
 
 
 cdef class Condition:
-    """Wraps a CUgraphConditionalHandle.
+    """A condition variable for conditional graph nodes.
 
     Created by :meth:`GraphDef.create_condition` and passed to
     conditional-node builder methods (``if_cond``, ``if_else``,
@@ -92,7 +92,7 @@ class GraphAllocOptions:
 
 
 cdef class GraphDef:
-    """Represents a CUDA graph definition (CUgraph).
+    """A graph definition.
 
     A GraphDef is used to construct a graph explicitly by adding nodes
     and specifying dependencies. Once construction is complete, call

@@ -49,7 +49,7 @@ cdef bint _check_node_get_params():
 
 
 cdef class EmptyNode(GraphNode):
-    """A synchronization / join node with no operation."""
+    """An empty (synchronization) node."""
 
     @staticmethod
     cdef EmptyNode _create_impl(GraphNodeHandle h_node):
@@ -247,7 +247,7 @@ cdef class AllocNode(GraphNode):
 
 
 cdef class FreeNode(GraphNode):
-    """A memory free node.
+    """A memory deallocation node.
 
     Properties
     ----------
@@ -283,7 +283,7 @@ cdef class FreeNode(GraphNode):
 
 
 cdef class MemsetNode(GraphNode):
-    """A memory set node.
+    """A memset node.
 
     Properties
     ----------
@@ -364,7 +364,7 @@ cdef class MemsetNode(GraphNode):
 
 
 cdef class MemcpyNode(GraphNode):
-    """A memory copy node.
+    """A memcpy node.
 
     Properties
     ----------
@@ -437,7 +437,7 @@ cdef class MemcpyNode(GraphNode):
 
 
 cdef class ChildGraphNode(GraphNode):
-    """A child graph (sub-graph) node.
+    """A child graph node.
 
     Properties
     ----------
@@ -602,7 +602,7 @@ cdef class HostCallbackNode(GraphNode):
 
 
 cdef class ConditionalNode(GraphNode):
-    """Base class for conditional graph nodes.
+    """Base class for conditional nodes.
 
     When created via builder methods (if_cond, if_else, while_loop, switch),
     a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
@@ -707,7 +707,7 @@ cdef class ConditionalNode(GraphNode):
 
 
 cdef class IfNode(ConditionalNode):
-    """An if-conditional node (1 branch, executes when condition is non-zero)."""
+    """An if-conditional node."""
 
     def __repr__(self) -> str:
         return (f"<IfNode handle=0x{as_intptr(self._h_node):x}"
@@ -720,7 +720,7 @@ cdef class IfNode(ConditionalNode):
 
 
 cdef class IfElseNode(ConditionalNode):
-    """An if-else conditional node (2 branches)."""
+    """An if-else conditional node."""
 
     def __repr__(self) -> str:
         return (f"<IfElseNode handle=0x{as_intptr(self._h_node):x}"
@@ -738,7 +738,7 @@ cdef class IfElseNode(ConditionalNode):
 
 
 cdef class WhileNode(ConditionalNode):
-    """A while-loop conditional node (1 branch, repeats while condition is non-zero)."""
+    """A while-loop conditional node."""
 
     def __repr__(self) -> str:
         return (f"<WhileNode handle=0x{as_intptr(self._h_node):x}"
@@ -751,7 +751,7 @@ cdef class WhileNode(ConditionalNode):
 
 
 cdef class SwitchNode(ConditionalNode):
-    """A switch conditional node (N branches, selected by condition value)."""
+    """A switch conditional node."""
 
     def __repr__(self) -> str:
         return (f"<SwitchNode handle=0x{as_intptr(self._h_node):x}"

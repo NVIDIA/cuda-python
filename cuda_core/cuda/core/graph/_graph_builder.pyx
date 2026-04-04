@@ -23,7 +23,7 @@ from cuda.core._utils.cuda_utils import (
 
 @dataclass
 class GraphDebugPrintOptions:
-    """Customizable options for :obj:`~graph.GraphBuilder.debug_dot_print()`
+    """Options for debug_dot_print().
 
     Attributes
     ----------
@@ -119,7 +119,7 @@ class GraphDebugPrintOptions:
 
 @dataclass
 class GraphCompleteOptions:
-    """Customizable options for :obj:`~graph.GraphBuilder.complete()`
+    """Options for graph instantiation.
 
     Attributes
     ----------
@@ -182,7 +182,7 @@ def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> 
 
 
 class GraphBuilder:
-    """Represents a graph under construction.
+    """A graph under construction by stream capture.
 
     A graph groups a set of CUDA kernels and other CUDA operations together and executes
     them with a specified dependency tree. It speeds up the workflow by combining the
@@ -737,7 +737,7 @@ class GraphBuilder:
 
 
 class Graph:
-    """Represents an executable graph.
+    """An executable graph.
 
     A graph groups a set of CUDA kernels and other CUDA operations together and executes
     them with a specified dependency tree. It speeds up the workflow by combining the
