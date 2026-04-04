@@ -13,8 +13,8 @@ be considered stable and will follow semantic versioning with appropriate
 deprecation periods for breaking changes.
 
 
-CUDA runtime
-------------
+Devices and execution
+---------------------
 
 .. autosummary::
    :toctree: generated/
@@ -24,26 +24,14 @@ CUDA runtime
 
    :template: autosummary/cyclass.rst
 
-   Buffer
    Stream
    Event
-   MemoryResource
-   DeviceMemoryResource
-   GraphMemoryResource
-   PinnedMemoryResource
-   ManagedMemoryResource
-   LegacyPinnedMemoryResource
-   VirtualMemoryResource
 
    :template: dataclass.rst
 
-   DeviceMemoryResourceOptions
-   PinnedMemoryResourceOptions
-   ManagedMemoryResourceOptions
-   EventOptions
    StreamOptions
+   EventOptions
    LaunchConfig
-   VirtualMemoryResourceOptions
 
 .. data:: LEGACY_DEFAULT_STREAM
 
@@ -58,8 +46,41 @@ CUDA runtime
    on other non-blocking streams.
 
 
+Memory management
+-----------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   Buffer
+   MemoryResource
+   DeviceMemoryResource
+   GraphMemoryResource
+   PinnedMemoryResource
+   ManagedMemoryResource
+   LegacyPinnedMemoryResource
+   VirtualMemoryResource
+
+   :template: dataclass.rst
+
+   DeviceMemoryResourceOptions
+   PinnedMemoryResourceOptions
+   ManagedMemoryResourceOptions
+   VirtualMemoryResourceOptions
+
+
 CUDA graphs
 -----------
+
+A CUDA graph captures a set of GPU operations and their dependencies,
+allowing them to be defined once and launched repeatedly with minimal
+CPU overhead. Graphs can be constructed in two ways:
+:class:`~graph.GraphBuilder` captures operations from a stream, while
+:class:`~graph.GraphDef` builds a graph explicitly by adding nodes and
+edges. Both produce an executable :class:`~graph.Graph` that can be
+launched on a :class:`Stream`.
 
 .. autosummary::
    :toctree: generated/
@@ -81,6 +102,10 @@ CUDA graphs
 
 Node types
 ``````````
+
+Every graph node is a subclass of :class:`~graph.GraphNode`, which
+provides the common interface (dependencies, successors, destruction).
+Each subclass exposes attributes unique to its operation type.
 
 .. autosummary::
    :toctree: generated/

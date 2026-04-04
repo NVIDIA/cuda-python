@@ -10,22 +10,13 @@
 Highlights
 ----------
 
-- Introduced :class:`~graph.GraphDef`, an explicit graph construction API. Graphs
-  can now be built node-by-node (kernel launches, memset, memcpy, memory
-  allocation/free, child graphs, event record/wait, host callbacks, and
-  conditionals) with full control over topology. Nodes expose mutable
-  :attr:`~graph.GraphNode.pred` and :attr:`~graph.GraphNode.succ` adjacency sets
-  for edge manipulation, and individual nodes can be destroyed with
-  :meth:`~graph.GraphNode.destroy`. A ``GraphDef`` can be instantiated into an
-  executable :class:`Graph` or used to update an existing one in place.
+- Introduced support for explicit graph construction. CUDA graphs can now be
+  built programmatically by adding nodes and edges, and their topology can be
+  modified after construction.
 
 
 Breaking Changes
 ----------------
-
-- The internal ``cuda.core._graph`` package has been renamed to the public
-  :mod:`cuda.core.graph`. Code that imported from ``cuda.core._graph`` must
-  update its import paths.
 
 - Building ``cuda.core`` from source now requires ``cuda-bindings`` >= 12.9.0, due to Cython-level
   dependencies on the NVVM and nvJitLink bindings (``cynvvm``, ``cynvjitlink``). Pre-built wheels
@@ -35,13 +26,10 @@ Breaking Changes
 New features
 ------------
 
-- Added the :mod:`cuda.core.graph` public module containing :class:`~graph.GraphDef`,
-  :class:`~graph.GraphNode`, :class:`~graph.Condition`, :class:`~graph.GraphAllocOptions`,
-  and typed node subclasses (:class:`~graph.KernelNode`, :class:`~graph.MemsetNode`,
-  :class:`~graph.MemcpyNode`, :class:`~graph.AllocNode`, :class:`~graph.FreeNode`,
-  :class:`~graph.EmptyNode`, :class:`~graph.ChildGraphNode`,
-  :class:`~graph.EventRecordNode`, :class:`~graph.EventWaitNode`,
-  :class:`~graph.HostCallbackNode`, and conditional node types).
+- Added the :mod:`cuda.core.graph` public module containing
+  :class:`~graph.GraphDef` for explicit graph construction, typed node
+  subclasses, and supporting types. :class:`~graph.GraphBuilder` (stream
+  capture) also moves into this module.
 
 - Added ``preferred_location_type`` option to :class:`ManagedMemoryResourceOptions`
   for explicit control over the preferred location kind (``"device"``,

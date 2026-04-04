@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=2b47a20c"></script>
+    <script src="_static/documentation_options.js?v=8f3f2615"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev140';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev141';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -479,9 +479,12 @@
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -492,9 +495,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
@@ -665,8 +665,8 @@ reached version 1.0.0, and APIs may change between minor versions, possibly
 without deprecation warnings. Once version 1.0.0 is released, APIs will
 be considered stable and will follow semantic versioning with appropriate
 deprecation periods for breaking changes.</p>
-<section id="cuda-runtime">
-<h2>CUDA runtime<a class="headerlink" href="#cuda-runtime" title="Link to this heading">#</a></h2>
+<section id="devices-and-execution">
+<h2>Devices and execution<a class="headerlink" href="#devices-and-execution" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>([device_id])</p></td>
@@ -675,14 +675,47 @@ deprecation periods for breaking changes.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, LaunchConfig config, ...)</p></td>
 <td><p>Launches a <a class="reference internal" href="generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object with launch-time configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>(*args, **kwargs)</p></td>
-<td><p>Represent a handle to allocated memory.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a queue of GPU operations that are executed in a specific order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a record at a specific point of execution within a CUDA stream.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
+<td><p>Customizable <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
+<td><p>Customizable <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
+<td><p>Customizable launch options.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.LEGACY_DEFAULT_STREAM">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">LEGACY_DEFAULT_STREAM</span></span><a class="headerlink" href="#cuda.core.LEGACY_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
+<dd><p>The legacy default CUDA stream. All devices share the same legacy default
+stream, and work launched on it is not concurrent with work on any other
+stream.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.PER_THREAD_DEFAULT_STREAM">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></span><a class="headerlink" href="#cuda.core.PER_THREAD_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
+<dd><p>The per-thread default CUDA stream. Each host thread has its own per-thread
+default stream, and work launched on it can execute concurrently with work
+on other non-blocking streams.</p>
+</dd></dl>
+
+</section>
+<section id="memory-management">
+<h2>Memory management<a class="headerlink" href="#memory-management" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent a handle to allocated memory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></p></td>
 <td><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p></td>
@@ -714,75 +747,60 @@ deprecation periods for breaking changes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>([...])</p></td>
 <td><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
-<td><p>Customizable <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
-<td><p>Customizable <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
-<td><p>Customizable launch options.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a>(...)</p></td>
 <td><p>A configuration object for the VirtualMemoryResource</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.LEGACY_DEFAULT_STREAM">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">LEGACY_DEFAULT_STREAM</span></span><a class="headerlink" href="#cuda.core.LEGACY_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
-<dd><p>The legacy default CUDA stream. All devices share the same legacy default
-stream, and work launched on it is not concurrent with work on any other
-stream.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.PER_THREAD_DEFAULT_STREAM">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></span><a class="headerlink" href="#cuda.core.PER_THREAD_DEFAULT_STREAM" title="Link to this definition">#</a></dt>
-<dd><p>The per-thread default CUDA stream. Each host thread has its own per-thread
-default stream, and work launched on it can execute concurrently with work
-on other non-blocking streams.</p>
-</dd></dl>
-
 </section>
 <section id="cuda-graphs">
 <h2>CUDA graphs<a class="headerlink" href="#cuda-graphs" title="Link to this heading">#</a></h2>
+<p>A CUDA graph captures a set of GPU operations and their dependencies,
+allowing them to be defined once and launched repeatedly with minimal
+CPU overhead. Graphs can be constructed in two ways:
+<a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> captures operations from a stream, while
+<a class="reference internal" href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a> builds a graph explicitly by adding nodes and
+edges. Both produce an executable <a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a> that can be
+launched on a <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.Graph</span></code></a>()</p></td>
-<td><p>Represents an executable graph.</p></td>
+<td><p>An executable graph.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphBuilder</span></code></a>()</p></td>
-<td><p>Represents a graph under construction.</p></td>
+<td><p>A graph under construction by stream capture.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphDef</span></code></a>()</p></td>
-<td><p>Represents a CUDA graph definition (CUgraph).</p></td>
+<td><p>A graph definition.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphNode</span></code></a></p></td>
-<td><p>Base class for all graph nodes.</p></td>
+<td><p>A node in a graph definition.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition" title="cuda.core.graph.Condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.Condition</span></code></a></p></td>
-<td><p>Wraps a CUgraphConditionalHandle.</p></td>
+<td><p>A condition variable for conditional graph nodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html#cuda.core.graph.GraphAllocOptions" title="cuda.core.graph.GraphAllocOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphAllocOptions</span></code></a>([device, ...])</p></td>
 <td><p>Options for graph memory allocation nodes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphCompleteOptions.html#cuda.core.graph.GraphCompleteOptions" title="cuda.core.graph.GraphCompleteOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphCompleteOptions</span></code></a>([...])</p></td>
-<td><p>Customizable options for <a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.complete" title="cuda.core.graph.GraphBuilder.complete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">complete()</span></code></a></p></td>
+<td><p>Options for graph instantiation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions" title="cuda.core.graph.GraphDebugPrintOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.GraphDebugPrintOptions</span></code></a>([verbose, ...])</p></td>
-<td><p>Customizable options for <a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.debug_dot_print" title="cuda.core.graph.GraphBuilder.debug_dot_print"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_dot_print()</span></code></a></p></td>
+<td><p>Options for debug_dot_print().</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <section id="node-types">
 <h3>Node types<a class="headerlink" href="#node-types" title="Link to this heading">#</a></h3>
+<p>Every graph node is a subclass of <a class="reference internal" href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a>, which
+provides the common interface (dependencies, successors, destruction).
+Each subclass exposes attributes unique to its operation type.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode" title="cuda.core.graph.EmptyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.EmptyNode</span></code></a></p></td>
-<td><p>A synchronization / join node with no operation.</p></td>
+<td><p>An empty (synchronization) node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.KernelNode</span></code></a></p></td>
 <td><p>A kernel launch node.</p></td>
@@ -791,16 +809,16 @@ on other non-blocking streams.</p>
 <td><p>A memory allocation node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.FreeNode</span></code></a></p></td>
-<td><p>A memory free node.</p></td>
+<td><p>A memory deallocation node.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.MemsetNode</span></code></a></p></td>
-<td><p>A memory set node.</p></td>
+<td><p>A memset node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.MemcpyNode</span></code></a></p></td>
-<td><p>A memory copy node.</p></td>
+<td><p>A memcpy node.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode" title="cuda.core.graph.ChildGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ChildGraphNode</span></code></a></p></td>
-<td><p>A child graph (sub-graph) node.</p></td>
+<td><p>A child graph node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.EventRecordNode</span></code></a></p></td>
 <td><p>An event record node.</p></td>
@@ -812,19 +830,19 @@ on other non-blocking streams.</p>
 <td><p>A host callback node.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode" title="cuda.core.graph.ConditionalNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ConditionalNode</span></code></a></p></td>
-<td><p>Base class for conditional graph nodes.</p></td>
+<td><p>Base class for conditional nodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.IfNode.html#cuda.core.graph.IfNode" title="cuda.core.graph.IfNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.IfNode</span></code></a></p></td>
-<td><p>An if-conditional node (1 branch, executes when condition is non-zero).</p></td>
+<td><p>An if-conditional node.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html#cuda.core.graph.IfElseNode" title="cuda.core.graph.IfElseNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.IfElseNode</span></code></a></p></td>
-<td><p>An if-else conditional node (2 branches).</p></td>
+<td><p>An if-else conditional node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode" title="cuda.core.graph.WhileNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.WhileNode</span></code></a></p></td>
-<td><p>A while-loop conditional node (1 branch, repeats while condition is non-zero).</p></td>
+<td><p>A while-loop conditional node.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode" title="cuda.core.graph.SwitchNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.SwitchNode</span></code></a></p></td>
-<td><p>A switch conditional node (N branches, selected by condition value).</p></td>
+<td><p>A switch conditional node.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1122,11 +1140,12 @@ on other non-blocking streams.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-runtime">CUDA runtime</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#devices-and-execution">Devices and execution</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LEGACY_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-management">Memory management</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graphs">CUDA graphs</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-types">Node types</a></li>
 </ul>

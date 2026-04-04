@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2b47a20c"></script>
+    <script src="../_static/documentation_options.js?v=8f3f2615"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev140';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev141';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -477,9 +477,12 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -490,9 +493,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
@@ -661,22 +661,14 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Introduced <a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a>, an explicit graph construction API. Graphs
-can now be built node-by-node (kernel launches, memset, memcpy, memory
-allocation/free, child graphs, event record/wait, host callbacks, and
-conditionals) with full control over topology. Nodes expose mutable
-<a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.pred" title="cuda.core.graph.GraphNode.pred"><code class="xref py py-attr docutils literal notranslate"><span class="pre">pred</span></code></a> and <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.succ" title="cuda.core.graph.GraphNode.succ"><code class="xref py py-attr docutils literal notranslate"><span class="pre">succ</span></code></a> adjacency sets
-for edge manipulation, and individual nodes can be destroyed with
-<a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.destroy" title="cuda.core.graph.GraphNode.destroy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">destroy()</span></code></a>. A <code class="docutils literal notranslate"><span class="pre">GraphDef</span></code> can be instantiated into an
-executable <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code> or used to update an existing one in place.</p></li>
+<li><p>Introduced support for explicit graph construction. CUDA graphs can now be
+built programmatically by adding nodes and edges, and their topology can be
+modified after construction.</p></li>
 </ul>
 </section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>The internal <code class="docutils literal notranslate"><span class="pre">cuda.core._graph</span></code> package has been renamed to the public
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code>. Code that imported from <code class="docutils literal notranslate"><span class="pre">cuda.core._graph</span></code> must
-update its import paths.</p></li>
 <li><p>Building <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> from source now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.0, due to Cython-level
 dependencies on the NVVM and nvJitLink bindings (<code class="docutils literal notranslate"><span class="pre">cynvvm</span></code>, <code class="docutils literal notranslate"><span class="pre">cynvjitlink</span></code>). Pre-built wheels
 are unaffected. The previous minimum was 12.8.0.</p></li>
@@ -685,13 +677,10 @@ are unaffected. The previous minimum was 12.8.0.</p></li>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Added the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code> public module containing <a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a>,
-<a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.Condition.html#cuda.core.graph.Condition" title="cuda.core.graph.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.GraphAllocOptions.html#cuda.core.graph.GraphAllocOptions" title="cuda.core.graph.GraphAllocOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphAllocOptions</span></code></a>,
-and typed node subclasses (<a class="reference internal" href="../generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelNode</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemsetNode</span></code></a>,
-<a class="reference internal" href="../generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemcpyNode</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">AllocNode</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">FreeNode</span></code></a>,
-<a class="reference internal" href="../generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode" title="cuda.core.graph.EmptyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmptyNode</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode" title="cuda.core.graph.ChildGraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildGraphNode</span></code></a>,
-<a class="reference internal" href="../generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventRecordNode</span></code></a>, <a class="reference internal" href="../generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventWaitNode</span></code></a>,
-<a class="reference internal" href="../generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a>, and conditional node types).</p></li>
+<li><p>Added the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code> public module containing
+<a class="reference internal" href="../generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef" title="cuda.core.graph.GraphDef"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDef</span></code></a> for explicit graph construction, typed node
+subclasses, and supporting types. <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> (stream
+capture) also moves into this module.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code> option to <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>
 for explicit control over the preferred location kind (<code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>). This enables NUMA-aware managed memory
