@@ -661,6 +661,7 @@ def test_node_type_preserved_by_nodes(node_spec):
     matched = [n for n in all_nodes if n == node]
     assert len(matched) == 1
     assert isinstance(matched[0], spec.roundtrip_class)
+    assert matched[0] is node
 
 
 def test_node_type_preserved_by_pred_succ(node_spec):
@@ -670,6 +671,7 @@ def test_node_type_preserved_by_pred_succ(node_spec):
         matched = [s for s in predecessor.succ if s == node]
         assert len(matched) == 1
         assert isinstance(matched[0], spec.roundtrip_class)
+        assert matched[0] is node
 
 
 def test_node_attrs(node_spec):
@@ -697,6 +699,31 @@ def test_node_attrs_preserved_by_nodes(node_spec):
         assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
 
 
+def test_identity_preservation(init_cuda):
+    """Round-trips through nodes(), edges(), and pred/succ return extant
+    objects rather than duplicates."""
+    g = GraphDef()
+    a = g.join()
+    b = a.join()
+
+    # nodes()
+    assert any(x is a for x in g.nodes())
+    assert any(x is b for x in g.nodes())
+
+    # succ/pred
+    a.succ = {b}
+    (b2,) = a.succ
+    assert b2 is b
+
+    (a2,) = b.pred
+    assert a2 is a
+
+    # edges()
+    ((a2, b2),) = g.edges()
+    assert a2 is a
+    assert b2 is b
+
+
 # =============================================================================
 # GraphDef basics
 # =============================================================================
@@ -712,8 +739,8 @@ def test_graphdef_entry_is_virtual(sample_graphdef):
     """Internal entry node is virtual (no pred/succ, type is None)."""
     entry = sample_graphdef._entry
     assert isinstance(entry, GraphNode)
-    assert entry.pred == ()
-    assert entry.succ == ()
+    assert entry.pred == set()
+    assert entry.succ == set()
     assert entry.type is None
 
 

@@ -314,12 +314,12 @@ cdef class GraphDef:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(as_cu(self._h_graph), c_path, flags))
 
-    def nodes(self) -> tuple:
+    def nodes(self) -> set:
         """Return all nodes in the graph.
 
         Returns
         -------
-        tuple of GraphNode
+        set of GraphNode
             All nodes in the graph.
         """
         cdef size_t num_nodes = 0
@@ -328,21 +328,21 @@ cdef class GraphDef:
             HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), NULL, &num_nodes))
 
         if num_nodes == 0:
-            return ()
+            return set()
 
         cdef vector[cydriver.CUgraphNode] nodes_vec
         nodes_vec.resize(num_nodes)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
-        return tuple(GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
+        return set(GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
 
-    def edges(self) -> tuple:
+    def edges(self) -> set:
         """Return all edges in the graph as (from_node, to_node) pairs.
 
         Returns
         -------
-        tuple of tuple
+        set of tuple
             Each element is a (from_node, to_node) pair representing
             a dependency edge in the graph.
         """
@@ -355,7 +355,7 @@ cdef class GraphDef:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, &num_edges))
 
         if num_edges == 0:
-            return ()
+            return set()
 
         cdef vector[cydriver.CUgraphNode] from_nodes
         cdef vector[cydriver.CUgraphNode] to_nodes
@@ -369,7 +369,7 @@ cdef class GraphDef:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
                     as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
 
-        return tuple(
+        return set(
             (GraphNode._create(self._h_graph, from_nodes[i]),
              GraphNode._create(self._h_graph, to_nodes[i]))
             for i in range(num_edges)
