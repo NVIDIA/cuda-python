@@ -11,40 +11,11 @@ from cuda.core._utils import cuda_utils
 from cuda.core._utils.clear_error_support import assert_type_str_or_bytes_like, raise_code_path_meant_to_be_unreachable
 
 
-def test_driver_cu_result_explanations_health():
-    expl_dict = cuda_utils.DRIVER_CU_RESULT_EXPLANATIONS
-
-    # Ensure all CUresult enums are in expl_dict
-    known_codes = set()
-    for error in driver.CUresult:
-        code = int(error)
-        assert code in expl_dict
-        known_codes.add(code)
-
+def _skip_if_bindings_pre_enum_docstrings():
     from cuda.core._utils.version import binding_version
 
-    if binding_version() >= (13, 0, 0):
-        # Ensure expl_dict has no codes not known as a CUresult enum
-        extra_expl = sorted(set(expl_dict.keys()) - known_codes)
-        assert not extra_expl
-
-
-def test_runtime_cuda_error_explanations_health():
-    expl_dict = cuda_utils.RUNTIME_CUDA_ERROR_EXPLANATIONS
-
-    # Ensure all cudaError_t enums are in expl_dict
-    known_codes = set()
-    for error in runtime.cudaError_t:
-        code = int(error)
-        assert code in expl_dict
-        known_codes.add(code)
-
-    from cuda.core._utils.version import binding_version
-
-    if binding_version() >= (13, 0, 0):
-        # Ensure expl_dict has no codes not known as a cudaError_t enum
-        extra_expl = sorted(set(expl_dict.keys()) - known_codes)
-        assert not extra_expl
+    if binding_version() < (13, 2, 0):
+        pytest.skip("cuda-bindings < 13.2.0 may not expose enum __doc__ strings")
 
 
 def test_check_driver_error():
@@ -83,6 +54,56 @@ def test_check_runtime_error():
                 assert enum_name in msg
     # Smoke test: We don't want most to be unexpected.
     assert num_unexpected < len(driver.CUresult) * 0.5
+
+
+def test_driver_error_enum_has_non_empty_docstring():
+    _skip_if_bindings_pre_enum_docstrings()
+
+    doc = driver.CUresult.CUDA_ERROR_INVALID_VALUE.__doc__
+    assert doc is not None
+    assert doc.strip() != ""
+
+
+def test_runtime_error_enum_has_non_empty_docstring():
+    _skip_if_bindings_pre_enum_docstrings()
+
+    doc = runtime.cudaError_t.cudaErrorInvalidValue.__doc__
+    assert doc is not None
+    assert doc.strip() != ""
+
+
+def test_check_driver_error_attaches_explanation():
+    error = driver.CUresult.CUDA_ERROR_INVALID_VALUE
+    name_err, name = driver.cuGetErrorName(error)
+    assert name_err == driver.CUresult.CUDA_SUCCESS
+    desc_err, desc = driver.cuGetErrorString(error)
+    assert desc_err == driver.CUresult.CUDA_SUCCESS
+    expl = cuda_utils.DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
+    assert expl is not None
+    assert expl != desc.decode()
+
+    with pytest.raises(cuda_utils.CUDAError) as e:
+        cuda_utils._check_driver_error(error)
+
+    assert str(e.value) == f"{name.decode()}: {expl}"
+    assert str(e.value) != f"{name.decode()}: {desc.decode()}"
+
+
+def test_check_runtime_error_attaches_explanation():
+    error = runtime.cudaError_t.cudaErrorInvalidValue
+    name_err, name = runtime.cudaGetErrorName(error)
+    assert name_err == runtime.cudaError_t.cudaSuccess
+    desc_err, desc = runtime.cudaGetErrorString(error)
+    assert desc_err == runtime.cudaError_t.cudaSuccess
+    expl = cuda_utils.RUNTIME_CUDA_ERROR_EXPLANATIONS.get(int(error))
+    assert expl is not None
+    assert expl != desc.decode()
+
+    with pytest.raises(cuda_utils.CUDAError) as e:
+        cuda_utils._check_runtime_error(error)
+
+    assert str(e.value) == f"{name.decode()}: {expl}"
+    assert str(e.value) != f"{name.decode()}: {desc.decode()}"
 
 
 def test_precondition():
