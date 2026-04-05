@@ -26,6 +26,7 @@ from cuda.bindings._example_helpers import (
     KernelHelper,
     check_cuda_errors,
     find_cuda_device,
+    requirement_not_met,
 )
 
 conjugate_gradient_multi_block_cg = """\
@@ -213,31 +214,29 @@ s_sd_kname = "conjugateGradientMultiBlockCG"
 def main():
     tol = 1e-5
 
-    import pytest
-
     # WAIVE: Due to bug in NVRTC
-    return
+    requirement_not_met("conjugateGradientMultiBlockCG is currently waived due to a known NVRTC issue")
 
     if platform.system() == "Darwin":
-        pytest.skip("conjugateGradientMultiBlockCG is not supported on Mac OSX")
+        requirement_not_met("conjugateGradientMultiBlockCG is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        pytest.skip("conjugateGradientMultiBlockCG is not supported on ARMv7")
+        requirement_not_met("conjugateGradientMultiBlockCG is not supported on ARMv7")
 
     if platform.machine() == "qnx":
-        pytest.skip("conjugateGradientMultiBlockCG is not supported on QNX")
+        requirement_not_met("conjugateGradientMultiBlockCG is not supported on QNX")
 
     # This will pick the best possible CUDA capable device
     dev_id = find_cuda_device()
     device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(dev_id))
 
     if not device_prop.managedMemory:
-        pytest.skip("Unified Memory not supported on this device")
+        requirement_not_met("Unified Memory not supported on this device")
 
     # This sample requires being run on a device that supports Cooperative Kernel
     # Launch
     if not device_prop.cooperativeLaunch:
-        pytest.skip(f"Selected GPU {dev_id} does not support Cooperative Kernel Launch")
+        requirement_not_met(f"Selected GPU {dev_id} does not support Cooperative Kernel Launch")
 
     # Statistics about the GPU device
     print(
