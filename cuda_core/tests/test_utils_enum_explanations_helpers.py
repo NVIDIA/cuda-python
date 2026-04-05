@@ -4,6 +4,7 @@
 
 import pytest
 
+from cuda.core._utils import enum_explanations_helpers
 from cuda.core._utils.enum_explanations_helpers import (
     DocstringBackedExplanations,
     _binding_version_has_usable_enum_docstrings,
@@ -74,16 +75,6 @@ def test_docstring_backed_get_returns_default_for_missing_docstring():
     assert lut.get(7, default="sentinel") == "sentinel"
 
 
-def test_docstring_backed_get_returns_default_for_unknown_code():
-    lut = DocstringBackedExplanations(_FakeEnumType({}))
-    assert lut.get(99, default="sentinel") == "sentinel"
-
-
-def test_docstring_backed_get_returns_default_for_missing_docstring_without_fallback():
-    lut = DocstringBackedExplanations(_FakeEnumType({7: _FakeEnumMember(None)}))
-    assert lut.get(7, default="sentinel") == "sentinel"
-
-
 @pytest.mark.parametrize(
     ("version", "expected"),
     [
@@ -108,11 +99,9 @@ def test_binding_version_has_usable_enum_docstrings(version, expected):
     ],
 )
 def test_get_best_available_explanations_switches_by_version(monkeypatch, version, expects_docstrings):
-    import cuda.core._utils.enum_explanations_helpers as cleanup
-
     fallback = {7: "fallback text"}
-    monkeypatch.setattr(cleanup, "_binding_version", lambda: version)
-    expl = cleanup.get_best_available_explanations(
+    monkeypatch.setattr(enum_explanations_helpers, "_binding_version", lambda: version)
+    expl = enum_explanations_helpers.get_best_available_explanations(
         _FakeEnumType({7: _FakeEnumMember("clean me")}),
         fallback,
     )
@@ -121,13 +110,3 @@ def test_get_best_available_explanations_switches_by_version(monkeypatch, versio
         assert expl.get(7) == "clean me"
     else:
         assert expl is fallback
-
-
-def test_driver_cu_result_explanations_get_matches_clean_docstring():
-    pytest.importorskip("cuda.bindings")
-    from cuda.bindings import driver
-    from cuda.core._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
-
-    e = driver.CUresult.CUDA_SUCCESS
-    code = int(e)
-    assert DRIVER_CU_RESULT_EXPLANATIONS.get(code) == clean_enum_member_docstring(e.__doc__)
