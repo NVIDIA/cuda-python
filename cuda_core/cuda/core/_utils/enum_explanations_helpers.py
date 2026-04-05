@@ -69,8 +69,7 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
         return None
     s = doc
     # Known codegen bug on cudaErrorIncompatibleDriverContext. Remove once fixed
-    # in cuda-bindings code generation. Do not use a raw string for the needle:
-    # r"\n..." would not match the real newline present in __doc__.
+    # in cuda-bindings code generation.
     s = s.replace("\n:py:obj:`~.Interactions`", ' "Interactions ')
     s = re.sub(
         r":(?:py:)?(?:obj|func|meth|class|mod|data|const|exc):`([^`]+)`",
@@ -85,11 +84,9 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
 
 
 class DocstringBackedExplanations:
-    """``dict.get``-like lookup over enum-member ``__doc__`` strings.
+    """Compatibility shim exposing enum-member ``__doc__`` text via ``dict.get``.
 
-    Once the bindings-version gate says docstrings are available, use them
-    exclusively. Missing docstrings should surface as ``None`` / ``default``
-    rather than silently mixing in frozen fallback prose.
+    Keeps the existing ``.get(int(error))`` lookup shape used by ``cuda_utils.pyx``.
     """
 
     __slots__ = ("_enum_type",)
