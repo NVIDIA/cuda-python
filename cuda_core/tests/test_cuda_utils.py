@@ -12,10 +12,11 @@ from cuda.core._utils.clear_error_support import assert_type_str_or_bytes_like, 
 
 
 def _skip_if_bindings_pre_enum_docstrings():
+    from cuda.core._utils.enum_explanations_helpers import _binding_version_has_usable_enum_docstrings
     from cuda.core._utils.version import binding_version
 
-    if binding_version() < (13, 2, 0):
-        pytest.skip("cuda-bindings < 13.2.0 may not expose enum __doc__ strings")
+    if not _binding_version_has_usable_enum_docstrings(binding_version()):
+        pytest.skip("cuda-bindings version does not expose usable enum __doc__ strings")
 
 
 def test_check_driver_error():

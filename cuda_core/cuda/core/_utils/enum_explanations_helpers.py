@@ -4,9 +4,10 @@
 """Internal support for error-enum explanations.
 
 ``cuda_core`` keeps frozen 13.1.1 fallback tables for older ``cuda-bindings``
-releases. Starting with ``cuda-bindings`` 13.2.0, driver/runtime error enums
-carry usable ``__doc__`` text. This module decides which source to use and
-normalizes generated docstrings so user-facing ``CUDAError`` messages stay
+releases. Driver/runtime error enums carry usable ``__doc__`` text starting in
+the 12.x backport line at ``cuda-bindings`` 12.9.6, and in the mainline 13.x
+series at ``cuda-bindings`` 13.2.0. This module decides which source to use
+and normalizes generated docstrings so user-facing ``CUDAError`` messages stay
 close to the long-form explanation prose.
 
 The cleanup rules here were derived while validating docstring-vs-dict parity
@@ -20,7 +21,8 @@ import importlib.metadata
 import re
 from typing import Any
 
-_MIN_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (13, 2, 0)
+_MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (12, 9, 6)
+_MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (13, 2, 0)
 
 
 # ``version.pyx`` cannot be reused here (circular import via ``cuda_utils``).
@@ -31,6 +33,14 @@ def _binding_version() -> tuple[int, int, int]:
     except importlib.metadata.PackageNotFoundError:
         return (0, 0, 0)  # For very old versions of cuda-python
     return tuple(int(v) for v in parts)
+
+
+def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -> bool:
+    """Whether released bindings are known to carry usable error-enum ``__doc__`` text."""
+    return (
+        _MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS <= version < (13, 0, 0)
+        or version >= _MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS
+    )
 
 
 def _strip_doxygen_double_colon_prefixes(s: str) -> str:
@@ -119,9 +129,10 @@ def get_best_available_explanations(
 ) -> DocstringBackedExplanations | dict[int, str | tuple[str, ...]]:
     """Pick one explanation source per bindings version.
 
-    ``cuda-bindings`` < 13.2.0: use the frozen 13.1.1 fallback tables.
-    ``cuda-bindings`` >= 13.2.0: use enum-member ``__doc__`` exclusively.
+    Use enum-member ``__doc__`` only for bindings versions known to expose
+    usable per-member text (12.9.6+ in the 12.x backport line, 13.2.0+ in the
+    13.x mainline). Otherwise keep using the frozen 13.1.1 fallback tables.
     """
-    if _binding_version() < _MIN_BINDING_VERSION_FOR_ENUM_DOCSTRINGS:
+    if not _binding_version_has_usable_enum_docstrings(_binding_version()):
         return fallback
     return DocstringBackedExplanations(enum_type)

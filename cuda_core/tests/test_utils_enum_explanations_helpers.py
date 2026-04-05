@@ -6,6 +6,7 @@ import pytest
 
 from cuda.core._utils.enum_explanations_helpers import (
     DocstringBackedExplanations,
+    _binding_version_has_usable_enum_docstrings,
     _strip_doxygen_double_colon_prefixes,
     clean_enum_member_docstring,
 )
@@ -96,25 +97,43 @@ def test_docstring_backed_get_returns_default_for_missing_docstring_without_fall
     assert lut.get(7, default="sentinel") == "sentinel"
 
 
-def test_get_best_available_explanations_uses_fallback_before_13_2(monkeypatch):
+@pytest.mark.parametrize(
+    ("version", "expected"),
+    [
+        pytest.param((12, 9, 5), False, id="before_12_9_6"),
+        pytest.param((12, 9, 6), True, id="from_12_9_6"),
+        pytest.param((13, 0, 0), False, id="13_0_mainline_gap"),
+        pytest.param((13, 1, 1), False, id="13_1_1"),
+        pytest.param((13, 2, 0), True, id="from_13_2_0"),
+    ],
+)
+def test_binding_version_has_usable_enum_docstrings(version, expected):
+    assert _binding_version_has_usable_enum_docstrings(version) is expected
+
+
+@pytest.mark.parametrize(
+    ("version", "expects_docstrings"),
+    [
+        pytest.param((12, 9, 5), False, id="before_12_9_6"),
+        pytest.param((12, 9, 6), True, id="from_12_9_6"),
+        pytest.param((13, 0, 0), False, id="13_0_mainline_gap"),
+        pytest.param((13, 2, 0), True, id="from_13_2_0"),
+    ],
+)
+def test_get_best_available_explanations_switches_by_version(monkeypatch, version, expects_docstrings):
     import cuda.core._utils.enum_explanations_helpers as cleanup
 
     fallback = {7: "fallback text"}
-    monkeypatch.setattr(cleanup, "_binding_version", lambda: (13, 1, 1))
-    assert cleanup.get_best_available_explanations(_FakeEnumType({7: _FakeEnumMember("doc")}), fallback) is fallback
-
-
-def test_get_best_available_explanations_prefers_docstrings_from_13_2(monkeypatch):
-    import cuda.core._utils.enum_explanations_helpers as cleanup
-
-    fallback = {7: "fallback text"}
-    monkeypatch.setattr(cleanup, "_binding_version", lambda: (13, 2, 0))
+    monkeypatch.setattr(cleanup, "_binding_version", lambda: version)
     expl = cleanup.get_best_available_explanations(
         _FakeEnumType({7: _FakeEnumMember("clean me")}),
         fallback,
     )
-    assert isinstance(expl, DocstringBackedExplanations)
-    assert expl.get(7) == "clean me"
+    if expects_docstrings:
+        assert isinstance(expl, DocstringBackedExplanations)
+        assert expl.get(7) == "clean me"
+    else:
+        assert expl is fallback
 
 
 def test_driver_cu_result_explanations_get_matches_clean_docstring():
