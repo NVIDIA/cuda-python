@@ -7,7 +7,6 @@ import pytest
 from cuda.core._utils.enum_explanations_helpers import (
     DocstringBackedExplanations,
     _binding_version_has_usable_enum_docstrings,
-    _strip_doxygen_double_colon_prefixes,
     clean_enum_member_docstring,
 )
 
@@ -61,18 +60,6 @@ def test_clean_enum_member_docstring_examples(raw, expected):
 
 def test_clean_enum_member_docstring_none_input():
     assert clean_enum_member_docstring(None) is None
-
-
-@pytest.mark.parametrize(
-    ("raw", "expected"),
-    [
-        pytest.param("see ::CUDA_SUCCESS", "see CUDA_SUCCESS", id="type_ref"),
-        pytest.param("Foo::Bar unchanged", "Foo::Bar unchanged", id="cpp_scope_preserved"),
-        pytest.param("::cuInit() and ::CUstream", "cuInit() and CUstream", id="multiple_prefixes"),
-    ],
-)
-def test_strip_doxygen_double_colon_prefixes(raw, expected):
-    assert _strip_doxygen_double_colon_prefixes(raw) == expected
 
 
 def test_docstring_backed_get_returns_default_for_non_enum_code():

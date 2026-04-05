@@ -8,11 +8,11 @@ releases. Driver/runtime error enums carry usable ``__doc__`` text starting in
 the 12.x backport line at ``cuda-bindings`` 12.9.6, and in the mainline 13.x
 series at ``cuda-bindings`` 13.2.0. This module decides which source to use
 and normalizes generated docstrings so user-facing ``CUDAError`` messages stay
-close to the long-form explanation prose.
+presentable.
 
-The cleanup rules here were derived while validating docstring-vs-dict parity
-in PR #1805. Keep them narrow and remove them when codegen / fallback support is
-no longer needed.
+The cleanup rules here were derived while validating generated enum docstrings
+in PR #1805. Keep them narrow and remove them when codegen quirks or fallback
+support are no longer needed.
 """
 
 from __future__ import annotations
@@ -43,25 +43,11 @@ def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -
     )
 
 
-def _strip_doxygen_double_colon_prefixes(s: str) -> str:
-    """Remove Doxygen-style ``::`` before CUDA identifiers (not C++ ``Foo::Bar`` scope).
-
-    The frozen fallback tables come from CUDA header comments and therefore use
-    Doxygen ``::name`` references. Generated enum ``__doc__`` text uses Sphinx
-    roles instead, so parity checks need a small amount of normalization.
-    """
-    prev = None
-    while prev != s:
-        prev = s
-        s = re.sub(r"(?<![A-Za-z0-9_])::+([A-Za-z_][A-Za-z0-9_]*)", r"\1", s)
-    return s
-
-
 def _fix_hyphenation_wordwrap_spacing(s: str) -> str:
     """Remove spaces around hyphens introduced by line wrapping in generated ``__doc__`` text.
 
     This is a narrow workaround for wrapped forms such as ``non- linear`` that
-    otherwise differ from the single-line fallback prose.
+    would otherwise look awkward in user-facing messages.
     """
     prev = None
     while prev != s:
@@ -74,10 +60,10 @@ def _fix_hyphenation_wordwrap_spacing(s: str) -> str:
 def clean_enum_member_docstring(doc: str | None) -> str | None:
     """Turn an enum member ``__doc__`` into plain text.
 
-    The generated enum docstrings are already close to the fallback explanation
-    prose, but not byte-identical: they may contain Sphinx inline roles, line
-    wrapping, or a small known codegen defect. Normalize only those differences
-    so the text is suitable for user-facing error messages.
+    The generated enum docstrings are already close to user-facing prose, but
+    they may contain Sphinx inline roles, line wrapping, or a small known
+    codegen defect. Normalize only those differences so the text is suitable
+    for error messages.
     """
     if doc is None:
         return None
