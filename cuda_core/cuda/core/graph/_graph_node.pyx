@@ -44,7 +44,6 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_intptr,
     as_py,
-    create_event_handle_ref,
     create_graph_handle_ref,
     create_graph_node_handle,
     graph_node_get_graph,
@@ -59,9 +58,8 @@ from cuda.core.graph._utils cimport (
 
 import weakref
 
-from cuda.core import Device
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import driver
 
 # See _cpp/REGISTRY_DESIGN.md (Level 2: Resource Handle -> Python Object)
 _node_registry = weakref.WeakValueDictionary()

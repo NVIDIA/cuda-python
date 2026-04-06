@@ -26,7 +26,6 @@ from cuda.core._resource_handles cimport (
     create_event_handle_ref,
     create_graph_handle_ref,
     create_kernel_handle_ref,
-    create_graph_node_handle,
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
