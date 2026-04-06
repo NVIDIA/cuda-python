@@ -607,6 +607,7 @@ cdef inline int _smv_get_dl_device(
             device_type = _kDLCUDA
             device_id = buf.device_id
         elif d and h:
+            # Keep in sync with Buffer.__dlpack_device__() and setup_dl_tensor_device().
             if buf.is_managed:
                 device_type = _kDLCUDAManaged
             else:

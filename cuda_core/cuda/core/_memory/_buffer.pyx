@@ -328,7 +328,9 @@ cdef class Buffer:
         if d and (not h):
             return (DLDeviceType.kDLCUDA, self.device_id)
         if d and h:
-            # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
+            # Keep in sync with setup_dl_tensor_device() and _smv_get_dl_device().
+            if self.is_managed:
+                return (DLDeviceType.kDLCUDAManaged, 0)
             return (DLDeviceType.kDLCUDAHost, 0)
         if (not d) and h:
             return (DLDeviceType.kDLCPU, 0)

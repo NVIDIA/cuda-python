@@ -95,7 +95,8 @@ cdef inline int setup_dl_tensor_device(DLTensor* dl_tensor, object buf) except -
         device.device_type = _kDLCUDA
         device.device_id = buf.device_id
     elif buf.is_device_accessible and buf.is_host_accessible:
-        device.device_type = _kDLCUDAHost
+        # Keep in sync with Buffer.__dlpack_device__() and _smv_get_dl_device().
+        device.device_type = _kDLCUDAManaged if buf.is_managed else _kDLCUDAHost
         device.device_id = 0
     elif not buf.is_device_accessible and buf.is_host_accessible:
         device.device_type = _kDLCPU
