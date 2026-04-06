@@ -63,6 +63,7 @@ from cuda.core import Device
 from cuda.core._graph._graph_def._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver, handle_return
 
+# See _cpp/REGISTRY_DESIGN.md (Level 2: Resource Handle -> Python Object)
 _node_registry = weakref.WeakValueDictionary()
 
 

@@ -58,8 +58,7 @@ cdef class EmptyNode(GraphNode):
         return n
 
     def __repr__(self) -> str:
-        cdef Py_ssize_t n = len(self.pred)
-        return f"<EmptyNode with {n} {'pred' if n == 1 else 'preds'}>"
+        return f"<EmptyNode handle=0x{as_intptr(self._h_node):x}>"
 
 
 cdef class KernelNode(GraphNode):
@@ -108,7 +107,8 @@ cdef class KernelNode(GraphNode):
             h_kernel)
 
     def __repr__(self) -> str:
-        return (f"<KernelNode grid={self._grid} block={self._block}>")
+        return (f"<KernelNode handle=0x{as_intptr(self._h_node):x}"
+                f" kernel=0x{as_intptr(self._h_kernel):x}>")
 
     @property
     def grid(self) -> tuple:
@@ -207,7 +207,8 @@ cdef class AllocNode(GraphNode):
             <int>params.poolProps.location.id, memory_type, tuple(peer_ids))
 
     def __repr__(self) -> str:
-        return f"<AllocNode dptr=0x{self._dptr:x} size={self._bytesize}>"
+        return (f"<AllocNode handle=0x{as_intptr(self._h_node):x}"
+                f" dptr=0x{self._dptr:x} size={self._bytesize}>")
 
     @property
     def dptr(self) -> int:
@@ -273,7 +274,7 @@ cdef class FreeNode(GraphNode):
         return FreeNode._create_with_params(h_node, dptr)
 
     def __repr__(self) -> str:
-        return f"<FreeNode dptr=0x{self._dptr:x}>"
+        return f"<FreeNode handle=0x{as_intptr(self._h_node):x} dptr=0x{self._dptr:x}>"
 
     @property
     def dptr(self) -> int:
@@ -328,8 +329,8 @@ cdef class MemsetNode(GraphNode):
             params.elementSize, params.width, params.height, params.pitch)
 
     def __repr__(self) -> str:
-        return (f"<MemsetNode dptr=0x{self._dptr:x} "
-                f"value={self._value} elem={self._element_size}>")
+        return (f"<MemsetNode handle=0x{as_intptr(self._h_node):x}"
+                f" dptr=0x{self._dptr:x} value={self._value}>")
 
     @property
     def dptr(self) -> int:
@@ -416,8 +417,8 @@ cdef class MemcpyNode(GraphNode):
     def __repr__(self) -> str:
         cdef str dt = "H" if self._dst_type == cydriver.CU_MEMORYTYPE_HOST else "D"
         cdef str st = "H" if self._src_type == cydriver.CU_MEMORYTYPE_HOST else "D"
-        return (f"<MemcpyNode dst=0x{self._dst:x}({dt}) "
-                f"src=0x{self._src:x}({st}) size={self._size}>")
+        return (f"<MemcpyNode handle=0x{as_intptr(self._h_node):x}"
+                f" dst=0x{self._dst:x}({dt}) src=0x{self._src:x}({st}) size={self._size}>")
 
     @property
     def dst(self) -> int:
@@ -465,12 +466,8 @@ cdef class ChildGraphNode(GraphNode):
         return ChildGraphNode._create_with_params(h_node, h_child)
 
     def __repr__(self) -> str:
-        cdef cydriver.CUgraph g = as_cu(self._h_child_graph)
-        cdef size_t num_nodes = 0
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(g, NULL, &num_nodes))
-        cdef Py_ssize_t n = <Py_ssize_t>num_nodes
-        return f"<ChildGraphNode with {n} {'subnode' if n == 1 else 'subnodes'}>"
+        return (f"<ChildGraphNode handle=0x{as_intptr(self._h_node):x}"
+                f" child=0x{as_intptr(self._h_child_graph):x}>")
 
     @property
     def child_graph(self) -> "GraphDef":
@@ -507,7 +504,8 @@ cdef class EventRecordNode(GraphNode):
         return EventRecordNode._create_with_params(h_node, h_event)
 
     def __repr__(self) -> str:
-        return f"<EventRecordNode event=0x{as_intptr(self._h_event):x}>"
+        return (f"<EventRecordNode handle=0x{as_intptr(self._h_node):x}"
+                f" event=0x{as_intptr(self._h_event):x}>")
 
     @property
     def event(self) -> Event:
@@ -544,7 +542,8 @@ cdef class EventWaitNode(GraphNode):
         return EventWaitNode._create_with_params(h_node, h_event)
 
     def __repr__(self) -> str:
-        return f"<EventWaitNode event=0x{as_intptr(self._h_event):x}>"
+        return (f"<EventWaitNode handle=0x{as_intptr(self._h_node):x}"
+                f" event=0x{as_intptr(self._h_event):x}>")
 
     @property
     def event(self) -> Event:
@@ -591,8 +590,10 @@ cdef class HostCallbackNode(GraphNode):
     def __repr__(self) -> str:
         if self._callable is not None:
             name = getattr(self._callable, '__name__', '?')
-            return f"<HostCallbackNode callback={name}>"
-        return f"<HostCallbackNode cfunc=0x{<uintptr_t>self._fn:x}>"
+            return (f"<HostCallbackNode handle=0x{as_intptr(self._h_node):x}"
+                    f" callback={name}>")
+        return (f"<HostCallbackNode handle=0x{as_intptr(self._h_node):x}"
+                f" cfunc=0x{<uintptr_t>self._fn:x}>")
 
     @property
     def callback_fn(self):
@@ -672,7 +673,7 @@ cdef class ConditionalNode(GraphNode):
         return n
 
     def __repr__(self) -> str:
-        return "<ConditionalNode>"
+        return f"<ConditionalNode handle=0x{as_intptr(self._h_node):x}>"
 
     @property
     def condition(self) -> Condition | None:
@@ -709,7 +710,8 @@ cdef class IfNode(ConditionalNode):
     """An if-conditional node (1 branch, executes when condition is non-zero)."""
 
     def __repr__(self) -> str:
-        return f"<IfNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
+        return (f"<IfNode handle=0x{as_intptr(self._h_node):x}"
+                f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
     def then(self) -> "GraphDef":
@@ -721,7 +723,8 @@ cdef class IfElseNode(ConditionalNode):
     """An if-else conditional node (2 branches)."""
 
     def __repr__(self) -> str:
-        return f"<IfElseNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
+        return (f"<IfElseNode handle=0x{as_intptr(self._h_node):x}"
+                f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
     def then(self) -> "GraphDef":
@@ -738,7 +741,8 @@ cdef class WhileNode(ConditionalNode):
     """A while-loop conditional node (1 branch, repeats while condition is non-zero)."""
 
     def __repr__(self) -> str:
-        return f"<WhileNode condition=0x{<unsigned long long>self._condition._c_handle:x}>"
+        return (f"<WhileNode handle=0x{as_intptr(self._h_node):x}"
+                f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
 
     @property
     def body(self) -> "GraphDef":
@@ -750,6 +754,5 @@ cdef class SwitchNode(ConditionalNode):
     """A switch conditional node (N branches, selected by condition value)."""
 
     def __repr__(self) -> str:
-        cdef Py_ssize_t n = len(self._branches)
-        return (f"<SwitchNode condition=0x{<unsigned long long>self._condition._c_handle:x}"
-                f" with {n} {'branch' if n == 1 else 'branches'}>")
+        return (f"<SwitchNode handle=0x{as_intptr(self._h_node):x}"
+                f" condition=0x{<unsigned long long>self._condition._c_handle:x}>")
