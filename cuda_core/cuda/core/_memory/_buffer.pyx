@@ -34,7 +34,7 @@ if sys.version_info >= (3, 12):
 else:
     BufferProtocol = object
 
-from cuda.core._dlpack import DLDeviceType, make_py_capsule
+from cuda.core._dlpack import DLDeviceType, classify_dl_device, make_py_capsule
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
 
@@ -323,18 +323,7 @@ cdef class Buffer:
         return capsule
 
     def __dlpack_device__(self) -> tuple[int, int]:
-        cdef bint d = self.is_device_accessible
-        cdef bint h = self.is_host_accessible
-        if d and (not h):
-            return (DLDeviceType.kDLCUDA, self.device_id)
-        if d and h:
-            # Keep in sync with setup_dl_tensor_device() and _smv_get_dl_device().
-            if self.is_managed:
-                return (DLDeviceType.kDLCUDAManaged, 0)
-            return (DLDeviceType.kDLCUDAHost, 0)
-        if (not d) and h:
-            return (DLDeviceType.kDLCPU, 0)
-        raise BufferError("buffer is neither device-accessible nor host-accessible")
+        return classify_dl_device(self)
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688.
