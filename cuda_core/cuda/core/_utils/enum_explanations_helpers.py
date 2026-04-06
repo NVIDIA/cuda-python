@@ -74,9 +74,13 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
     # Known codegen bug on cudaErrorIncompatibleDriverContext. Remove once fixed
     # in cuda-bindings code generation.
     s = s.replace("\n:py:obj:`~.Interactions`", ' "Interactions ')
+    # Drop a leading "~." or "." after removing the surrounding RST inline role.
     s = _RST_INLINE_ROLE_RE.sub(lambda m: re.sub(r"^~?\.", "", m.group(1)), s)
+    # Strip simple bold emphasis markers.
     s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
+    # Strip simple italic emphasis markers.
     s = re.sub(r"\*([^*]+)\*", r"\1", s)
+    # Collapse wrapped lines and repeated spaces.
     s = re.sub(r"\s+", " ", s).strip()
     s = _fix_hyphenation_wordwrap_spacing(s)
     return s
