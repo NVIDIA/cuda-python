@@ -55,38 +55,39 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     """
     try:
         from cuda.bindings import nvvm
-        from cuda.bindings._internal.nvvm import _inspect_function_pointer
-
-        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+    except ModuleNotFoundError as exc:
+        if exc.name == "nvvm":
             return False
-    except Exception:
-        return False
+        raise
+   
+    from cuda.bindings._internal.nvvm import _inspect_function_pointer
 
-    program = None
+    if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+        return False
+        
+    program = nvvm.create_program()
+
+    major, minor, debug_major, debug_minor = nvvm.ir_version()
+    precheck_ir = _PRECHECK_NVVM_IR.format(
+        major=major,
+        minor=minor,
+        debug_major=debug_major,
+        debug_minor=debug_minor,
+    )
+    precheck_ir_bytes = precheck_ir.encode("utf-8")
+    nvvm.add_module_to_program(
+        program,
+        precheck_ir_bytes,
+        len(precheck_ir_bytes),
+        "precheck.ll",
+    )
+
     try:
-        program = nvvm.create_program()
-
-        major, minor, debug_major, debug_minor = nvvm.ir_version()
-        precheck_ir = _PRECHECK_NVVM_IR.format(
-            major=major,
-            minor=minor,
-            debug_major=debug_major,
-            debug_minor=debug_minor,
-        )
-        precheck_ir_bytes = precheck_ir.encode("utf-8")
-        nvvm.add_module_to_program(
-            program,
-            precheck_ir_bytes,
-            len(precheck_ir_bytes),
-            "precheck.ll",
-        )
-
-        nvvm.verify_program(program, len(options), options)
         nvvm.compile_program(program, len(options), options)
-    except Exception:
-        return False
+    except nvvm.nvvmError as e:
+        if e.status == nvvm.Result.ERROR_INVALID_OPTION:
+            return False
+        raise
     finally:
-        if program is not None:
-            with contextlib.suppress(Exception):
-                nvvm.destroy_program(program)
+        nvvm.destroy_program(program)
     return True
