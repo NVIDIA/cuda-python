@@ -1,0 +1,6 @@
+﻿cuda.core.system.CoolerTarget
+=============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: CoolerTarget
