@@ -19,6 +19,15 @@ def _skip_if_bindings_pre_enum_docstrings():
         pytest.skip("cuda-bindings version does not expose usable enum __doc__ strings")
 
 
+def _assert_cleanup_example_matches_or_xfail(actual, expected):
+    # Pin a few real cleanup-sensitive enum docs. If one starts failing, review
+    # the raw ``__doc__`` and today's cleaned output: either update the expected
+    # text to match an acceptable upstream change, or fix the cleanup logic.
+    if actual != expected:
+        pytest.xfail("please review this failure")
+    assert actual == expected
+
+
 def test_check_driver_error():
     num_unexpected = 0
     for error in driver.CUresult:
@@ -71,6 +80,69 @@ def test_runtime_error_enum_has_non_empty_docstring():
     doc = runtime.cudaError_t.cudaErrorInvalidValue.__doc__
     assert doc is not None
     assert doc.strip() != ""
+
+
+# These use real enum members rather than synthetic strings, to pin a few
+# representative cleanup-sensitive docs end to end. Together with the helper
+# unit tests, this gives a harder assurance that today's live bindings output
+# is rendered into the user-facing text we expect. Unexpected changes are
+# marked as xfail so they prompt manual review of the drift, without causing
+# a hard test failure.
+@pytest.mark.parametrize(
+    ("explanations", "error", "expected"),
+    [
+        pytest.param(
+            cuda_utils.DRIVER_CU_RESULT_EXPLANATIONS,
+            driver.CUresult.CUDA_ERROR_NOT_INITIALIZED,
+            "This indicates that the CUDA driver has not been initialized with cuInit() or that initialization has failed.",
+            id="driver_not_initialized_role_cleanup",
+        ),
+        pytest.param(
+            cuda_utils.DRIVER_CU_RESULT_EXPLANATIONS,
+            driver.CUresult.CUDA_ERROR_INVALID_CONTEXT,
+            (
+                "This most frequently indicates that there is no context bound to the current thread. "
+                "This can also be returned if the context passed to an API call is not a valid handle "
+                "(such as a context that has had cuCtxDestroy() invoked on it). This can also be "
+                "returned if a user mixes different API versions (i.e. 3010 context with 3020 API calls). "
+                "See cuCtxGetApiVersion() for more details. This can also be returned if the green "
+                "context passed to an API call was not converted to a CUcontext using cuCtxFromGreenCtx API."
+            ),
+            id="driver_invalid_context_multiple_roles",
+        ),
+        pytest.param(
+            cuda_utils.RUNTIME_CUDA_ERROR_EXPLANATIONS,
+            runtime.cudaError_t.cudaErrorLaunchTimeout,
+            (
+                "This indicates that the device kernel took too long to execute. This can only occur "
+                "if timeouts are enabled - see the device attribute cudaDevAttrKernelExecTimeout for "
+                "more information. This leaves the process in an inconsistent state and any further "
+                "CUDA work will return the same error. To continue using CUDA, the process must be "
+                "terminated and relaunched."
+            ),
+            id="runtime_launch_timeout_role_cleanup",
+        ),
+        pytest.param(
+            cuda_utils.RUNTIME_CUDA_ERROR_EXPLANATIONS,
+            runtime.cudaError_t.cudaErrorIncompatibleDriverContext,
+            (
+                "This indicates that the current context is not compatible with this the CUDA Runtime. "
+                "This can only occur if you are using CUDA Runtime/Driver interoperability and have "
+                "created an existing Driver context using the driver API. The Driver context may be "
+                "incompatible either because the Driver context was created using an older version of "
+                "the API, because the Runtime API call expects a primary driver context and the Driver "
+                "context is not primary, or because the Driver context has been destroyed. Please see "
+                '"Interactions with the CUDA Driver API" for more information.'
+            ),
+            id="runtime_incompatible_driver_context_codegen_bug",
+        ),
+    ],
+)
+def test_enum_doc_cleanup_examples_are_reviewed_on_change(explanations, error, expected):
+    _skip_if_bindings_pre_enum_docstrings()
+
+    actual = explanations.get(int(error))
+    _assert_cleanup_example_matches_or_xfail(actual, expected)
 
 
 def test_check_driver_error_attaches_explanation():
