@@ -12,7 +12,7 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._graph._graph_def._graph_node cimport GraphNode
+from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     GraphHandle,
     as_cu,
@@ -30,7 +30,7 @@ from cuda.core._utils.cuda_utils import driver, handle_return
 
 
 cdef class Condition:
-    """Wraps a CUgraphConditionalHandle.
+    """A condition variable for conditional graph nodes.
 
     Created by :meth:`GraphDef.create_condition` and passed to
     conditional-node builder methods (``if_cond``, ``if_else``,
@@ -92,7 +92,7 @@ class GraphAllocOptions:
 
 
 cdef class GraphDef:
-    """Represents a CUDA graph definition (CUgraph).
+    """A graph definition.
 
     A GraphDef is used to construct a graph explicitly by adding nodes
     and specifying dependencies. Once construction is complete, call
@@ -288,7 +288,7 @@ cdef class GraphDef:
 
         Parameters
         ----------
-        options : :obj:`~_graph.GraphCompleteOptions`, optional
+        options : :obj:`~graph.GraphCompleteOptions`, optional
             Customizable dataclass for graph instantiation options.
 
         Returns
@@ -296,7 +296,7 @@ cdef class GraphDef:
         Graph
             An executable graph that can be launched on a stream.
         """
-        from cuda.core._graph._graph_builder import _instantiate_graph
+        from cuda.core.graph._graph_builder import _instantiate_graph
 
         return _instantiate_graph(
             driver.CUgraph(as_intptr(self._h_graph)), options)
@@ -311,7 +311,7 @@ cdef class GraphDef:
         options : GraphDebugPrintOptions, optional
             Customizable options for the debug print.
         """
-        from cuda.core._graph._graph_builder import GraphDebugPrintOptions
+        from cuda.core.graph._graph_builder import GraphDebugPrintOptions
 
         cdef unsigned int flags = 0
         if options is not None:

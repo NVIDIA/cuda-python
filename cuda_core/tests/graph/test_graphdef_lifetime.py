@@ -10,7 +10,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, EventOptions, Kernel, LaunchConfig
-from cuda.core._graph._graph_def import (
+from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
     GraphDef,

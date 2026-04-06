@@ -11,8 +11,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
-from cuda.core._graph import GraphCompleteOptions, GraphDebugPrintOptions
-from cuda.core._graph._graph_def import (
+from cuda.core.graph import (
     AllocNode,
     ChildGraphNode,
     ConditionalNode,
@@ -21,6 +20,8 @@ from cuda.core._graph._graph_def import (
     EventWaitNode,
     FreeNode,
     GraphAllocOptions,
+    GraphCompleteOptions,
+    GraphDebugPrintOptions,
     GraphDef,
     GraphNode,
     HostCallbackNode,
@@ -728,7 +729,7 @@ def test_registry_cleanup(init_cuda):
     """Node registry entries are removed on destroy() and graph teardown."""
     import gc
 
-    from cuda.core._graph._graph_def._graph_node import _node_registry
+    from cuda.core.graph._graph_node import _node_registry
 
     def registered(node):
         return any(v is node for v in _node_registry.values())

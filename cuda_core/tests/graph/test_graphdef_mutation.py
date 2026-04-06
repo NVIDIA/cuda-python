@@ -10,8 +10,8 @@ from helpers.graph_kernels import compile_parallel_kernels
 from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
-from cuda.core._graph._graph_def import GraphDef, KernelNode, MemsetNode
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.graph import GraphDef, KernelNode, MemsetNode
 
 
 class YRig:
