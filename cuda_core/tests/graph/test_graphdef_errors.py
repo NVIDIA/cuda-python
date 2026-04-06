@@ -10,12 +10,12 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
-from cuda.core._graph._graph_def import (
+from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.graph import (
     Condition,
     EmptyNode,
     GraphDef,
 )
-from cuda.core._utils.cuda_utils import CUDAError
 
 SIZEOF_INT = ctypes.sizeof(ctypes.c_int)
 
@@ -101,10 +101,10 @@ def test_condition_from_different_graph(init_cuda):
 # =============================================================================
 
 
-def test_join_no_extra_nodes(init_cuda):
-    """join() from entry with no extra nodes creates a single empty node."""
+def test_empty_node(init_cuda):
+    """empty() creates a single entry-point empty node."""
     g = GraphDef()
-    joined = g.join()
+    joined = g.empty()
     assert isinstance(joined, EmptyNode)
     assert len(g.nodes()) == 1
 

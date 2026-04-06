@@ -18,8 +18,8 @@ from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core._graph._graph_def._graph_def cimport Condition, GraphDef
-from cuda.core._graph._graph_def._subclasses cimport (
+from cuda.core.graph._graph_def cimport Condition, GraphDef
+from cuda.core.graph._subclasses cimport (
     AllocNode,
     ChildGraphNode,
     ConditionalNode,
@@ -52,7 +52,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core._graph._utils cimport (
+from cuda.core.graph._utils cimport (
     _attach_host_callback_to_graph,
     _attach_user_object,
 )
@@ -60,9 +60,10 @@ from cuda.core._graph._utils cimport (
 import weakref
 
 from cuda.core import Device
-from cuda.core._graph._graph_def._adjacency_set_proxy import AdjacencySetProxy
+from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver, handle_return
 
+# See _cpp/REGISTRY_DESIGN.md (Level 2: Resource Handle -> Python Object)
 _node_registry = weakref.WeakValueDictionary()
 
 
@@ -72,7 +73,7 @@ cdef inline GraphNode _registered(GraphNode n):
 
 
 cdef class GraphNode:
-    """Base class for all graph nodes.
+    """A node in a graph definition.
 
     Nodes are created by calling builder methods on GraphDef (for
     entry-point nodes with no dependencies) or on other Nodes (for

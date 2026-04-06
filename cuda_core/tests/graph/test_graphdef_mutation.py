@@ -10,8 +10,8 @@ from helpers.graph_kernels import compile_parallel_kernels
 from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
-from cuda.core._graph._graph_def import GraphDef, KernelNode, MemsetNode
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.graph import GraphDef, KernelNode, MemsetNode
 
 
 class YRig:
@@ -211,16 +211,16 @@ class TestMutateYRig:
 def test_adjacency_set_interface(init_cuda):
     """Exercise every MutableSet method on AdjacencySetProxy."""
     g = GraphDef()
-    hub = g.join()
-    items = [g.join() for _ in range(5)]
+    hub = g.empty()
+    items = [g.empty() for _ in range(5)]
     assert_mutable_set_interface(hub.succ, items)
 
 
 def test_adjacency_set_pred_direction(init_cuda):
     """Verify that pred works symmetrically with succ."""
     g = GraphDef()
-    target = g.join()
-    x, y, z = (g.join() for _ in range(3))
+    target = g.empty()
+    x, y, z = (g.empty() for _ in range(3))
 
     pred = target.pred
     assert pred == set()
@@ -242,8 +242,8 @@ def test_adjacency_set_pred_direction(init_cuda):
 def test_adjacency_set_property_setter(init_cuda):
     """Verify that assigning to node.pred or node.succ replaces all edges."""
     g = GraphDef()
-    hub = g.join()
-    a, b, c = (g.join() for _ in range(3))
+    hub = g.empty()
+    a, b, c = (g.empty() for _ in range(3))
 
     hub.succ = {a, b}
     assert hub.succ == {a, b}
@@ -310,7 +310,7 @@ def test_destroyed_node(init_cuda):
 def test_add_wrong_type(init_cuda):
     """Adding a non-GraphNode raises TypeError."""
     g = GraphDef()
-    node = g.join()
+    node = g.empty()
     with pytest.raises(TypeError, match="expected GraphNode"):
         node.succ.add("not a node")
     with pytest.raises(TypeError, match="expected GraphNode"):
@@ -321,8 +321,8 @@ def test_cross_graph_edge(init_cuda):
     """Adding an edge to a node from a different graph raises CUDAError."""
     g1 = GraphDef()
     g2 = GraphDef()
-    a = g1.join()
-    b = g2.join()
+    a = g1.empty()
+    b = g2.empty()
     with pytest.raises(CUDAError):
         a.succ.add(b)
 
@@ -330,7 +330,7 @@ def test_cross_graph_edge(init_cuda):
 def test_self_edge(init_cuda):
     """Adding a self-edge raises CUDAError."""
     g = GraphDef()
-    node = g.join()
+    node = g.empty()
     with pytest.raises(CUDAError):
         node.succ.add(node)
 

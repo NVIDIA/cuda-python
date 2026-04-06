@@ -5,8 +5,8 @@
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._graph._graph_def._graph_def cimport Condition
-from cuda.core._graph._graph_def._graph_node cimport GraphNode
+from cuda.core.graph._graph_def cimport Condition
+from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport EventHandle, GraphHandle, GraphNodeHandle, KernelHandle
 
 
