@@ -34,7 +34,7 @@ if sys.version_info >= (3, 12):
 else:
     BufferProtocol = object
 
-from cuda.core._dlpack import DLDeviceType, classify_dl_device, make_py_capsule
+from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
 
