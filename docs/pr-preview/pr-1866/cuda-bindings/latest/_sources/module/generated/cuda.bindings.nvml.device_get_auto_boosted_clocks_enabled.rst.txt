@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_auto\_boosted\_clocks\_enabled
+==============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_auto_boosted_clocks_enabled
