@@ -607,8 +607,10 @@ cdef inline int _smv_get_dl_device(
             device_type = _kDLCUDA
             device_id = buf.device_id
         elif d and h:
-            # We do not currently differentiate pinned vs managed here.
-            device_type = _kDLCUDAHost
+            if buf.is_managed:
+                device_type = _kDLCUDAManaged
+            else:
+                device_type = _kDLCUDAHost
             device_id = 0
         elif (not d) and h:
             device_type = _kDLCPU

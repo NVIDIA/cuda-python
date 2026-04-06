@@ -397,6 +397,12 @@ cdef class Buffer:
         return self._mem_attrs.is_host_accessible
 
     @property
+    def is_managed(self) -> bool:
+        """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
+        _init_mem_attrs(self)
+        return self._mem_attrs.is_managed
+
+    @property
     def is_mapped(self) -> bool:
         """Return True if this buffer is mapped into the process via IPC."""
         return getattr(self._ipc_data, "is_mapped", False)
@@ -459,6 +465,7 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = False
         out.device_id = -1
+        out.is_managed = False
     elif (
         is_managed
         or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
@@ -467,10 +474,12 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = True
         out.device_id = device_id
+        out.is_managed = is_managed
     elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
         out.is_host_accessible = False
         out.is_device_accessible = True
         out.device_id = device_id
+        out.is_managed = False
     else:
         with cython.gil:
             raise ValueError(f"Unsupported memory type: {memory_type}")
