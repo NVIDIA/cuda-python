@@ -36,6 +36,7 @@ cu13 = [
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "cutensor-cu13",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
+    "nvidia-cudla; platform_system == 'Linux' and platform_machine == 'aarch64'",
     "nvidia-cudss-cu13",
     "nvidia-cufftmp-cu13; sys_platform != 'win32'",
     "nvidia-cusolvermp-cu13; sys_platform != 'win32'",
