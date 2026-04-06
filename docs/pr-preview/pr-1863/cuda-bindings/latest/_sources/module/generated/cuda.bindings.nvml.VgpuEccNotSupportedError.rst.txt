@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.VgpuEccNotSupportedError
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: VgpuEccNotSupportedError
