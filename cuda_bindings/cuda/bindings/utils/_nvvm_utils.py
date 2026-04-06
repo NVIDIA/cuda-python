@@ -20,7 +20,7 @@ entry:
 """
 
 
-def check_nvvm_options(options: Sequence[bytes]) -> bool:
+def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     """
     Abstracted from https://github.com/NVIDIA/numba-cuda/pull/681
 
@@ -81,9 +81,8 @@ def check_nvvm_options(options: Sequence[bytes]) -> bool:
             "precheck.ll",
         )
 
-        options_list = [opt.decode("utf-8") if isinstance(opt, bytes) else opt for opt in options]
-        nvvm.verify_program(program, len(options_list), options_list)
-        nvvm.compile_program(program, len(options_list), options_list)
+        nvvm.verify_program(program, len(options), options)
+        nvvm.compile_program(program, len(options), options)
     except Exception:
         return False
     finally:

@@ -73,9 +73,9 @@ nvrtc_pch_available = pytest.mark.skipif(
 def _check_nvvm_arch(arch: str) -> bool:
     """Check if the given NVVM arch is supported by the installed libNVVM."""
     try:
-        from cuda.bindings.utils import check_nvvm_options
+        from cuda.bindings.utils import check_nvvm_compiler_options
 
-        return check_nvvm_options([f"-arch={arch}".encode()])
+        return check_nvvm_compiler_options([f"-arch={arch}".encode()])
     except Exception:
         return False
 
