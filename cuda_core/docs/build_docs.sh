@@ -5,6 +5,9 @@
 
 set -ex
 
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+cd "${SCRIPT_DIR}"
+
 if [[ "$#" == "0" ]]; then
     LATEST_ONLY="0"
 elif [[ "$#" == "1" && "$1" == "latest-only" ]]; then
@@ -21,13 +24,11 @@ if [[ -z "${SPHINX_CUDA_CORE_VER}" ]]; then
                                   | awk -F'+' '{print $1}')
 fi
 
-# build the docs (in parallel)
-SPHINXOPTS="-j 4 -d build/.doctrees" make html
-
-# for debugging/developing (conf.py), please comment out the above line and
-# use the line below instead, as we must build in serial to avoid getting
-# obsecure Sphinx errors
-#SPHINXOPTS="-v" make html
+# build the docs. Allow callers to override SPHINXOPTS for serial/debug runs.
+if [[ -z "${SPHINXOPTS:-}" ]]; then
+    SPHINXOPTS="-j 4 -d build/.doctrees"
+fi
+make html
 
 # to support version dropdown menu
 cp ./versions.json build/html
