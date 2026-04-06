@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 cimport cpython
-from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN

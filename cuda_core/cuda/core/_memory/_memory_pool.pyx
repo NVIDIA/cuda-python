@@ -16,11 +16,11 @@ from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
     create_mempool_handle,
-    create_mempool_handle_ref,
     deviceptr_alloc_from_pool,
     as_cu,
     as_py,
 )
+from cuda.core._resource_handles cimport create_mempool_handle_ref  # no-cython-lint
 
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
