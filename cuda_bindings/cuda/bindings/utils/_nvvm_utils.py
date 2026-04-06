@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import contextlib
 from typing import Sequence
 
 _PRECHECK_NVVM_IR = """target triple = "nvptx64-unknown-cuda"
@@ -59,12 +58,12 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
         if exc.name == "nvvm":
             return False
         raise
-   
+
     from cuda.bindings._internal.nvvm import _inspect_function_pointer
 
     if _inspect_function_pointer("__nvvmCreateProgram") == 0:
         return False
-        
+
     program = nvvm.create_program()
 
     major, minor, debug_major, debug_minor = nvvm.ir_version()

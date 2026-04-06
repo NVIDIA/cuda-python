@@ -80,6 +80,7 @@ def _check_nvvm_arch(arch: str) -> bool:
         raise
     return check_nvvm_compiler_options([f"-arch={arch}"])
 
+
 @pytest.fixture(scope="session")
 def nvvm_ir():
     """Generate working NVVM IR with proper version metadata.
