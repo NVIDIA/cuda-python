@@ -19,6 +19,9 @@ pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
 pytest-repeat = "*"
+pytest-rerunfailures = "*"
+cloudpickle = "*"
+psutil = "*"
 pyglet = "*"
 
 [feature.examples.dependencies]
@@ -46,7 +49,7 @@ CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 
 [feature.examples.target.win-64.activation.env]
-CUDA_HOME = '%CONDA_PREFIX%\Library'
+CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
@@ -80,7 +83,7 @@ CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 
 [feature.cython-tests.target.win-64.activation.env]
-CUDA_HOME = '%CONDA_PREFIX%\Library'
+CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cu13.dependencies]
 cuda-version = "13.2.*"
@@ -121,7 +124,7 @@ CUDA_HOME = "$PREFIX/targets/sbsa-linux"
 CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
 
 [package.build.target.win-64.config.env]
-CUDA_HOME = '%PREFIX%\Library'
+CUDA_HOME = "$PREFIX/Library"
 
 # TODO: revisit this
 # [package.build-dependencies]
@@ -135,6 +138,7 @@ setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
+dlpack = "*"
 
 [package.target.linux-64.host-dependencies]
 cuda-cudart-dev_linux-64 = "*"
@@ -162,7 +166,7 @@ cuda-pathfinder = "*"
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
 
 [target.win-64.tasks.build-cython-tests]
-cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
+cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
 
 [target.linux.tasks.test]
 cmd = [
@@ -176,7 +180,7 @@ depends-on = [{ task = "build-cython-tests" }]
 [target.win-64.tasks.test]
 cmd = [
     "pytest",
-    "%PIXI_PROJECT_ROOT%",
+    "$PIXI_PROJECT_ROOT",
     "--override-ini",
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]

@@ -10,7 +10,8 @@ import pytest
 import cuda.core
 from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
-from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
 
 try:
     import numba
@@ -34,11 +35,7 @@ __global__ void saxpy(const T a,
 
 @pytest.fixture(scope="module")
 def cuda12_4_prerequisite_check():
-    # binding availability depends on cuda-python version
-    # and version of underlying CUDA toolkit
-    _py_major_ver, _ = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    return _py_major_ver >= 12 and _driver_ver >= 12040
+    return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
 
 
 def test_kernel_attributes_init_disabled():

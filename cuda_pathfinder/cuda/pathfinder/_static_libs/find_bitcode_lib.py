@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass
 from typing import NoReturn, TypedDict
 
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
@@ -29,6 +29,7 @@ class _BitcodeLibInfo(TypedDict):
     filename: str
     rel_path: str
     site_packages_dirs: tuple[str, ...]
+    available_on_windows: bool
 
 
 _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
@@ -39,11 +40,22 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
             "nvidia/cu13/nvvm/libdevice",
             "nvidia/cuda_nvcc/nvvm/libdevice",
         ),
+        "available_on_windows": True,
+    },
+    "nvshmem_device": {
+        "filename": "libnvshmem_device.bc",
+        "rel_path": "lib",
+        "site_packages_dirs": ("nvidia/nvshmem/lib",),
+        "available_on_windows": False,
     },
 }
 
 # Public API: just the supported library names
-SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_BITCODE_LIBS_INFO.keys()))
+SUPPORTED_BITCODE_LIBS: tuple[str, ...] = tuple(
+    sorted(
+        name for name, info in _SUPPORTED_BITCODE_LIBS_INFO.items() if not IS_WINDOWS or info["available_on_windows"]
+    )
+)
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -89,7 +101,7 @@ class _FindBitcodeLib:
         return None
 
     def try_with_cuda_home(self) -> str | None:
-        cuda_home = get_cuda_home_or_path()
+        cuda_home = get_cuda_path_or_home()
         if cuda_home is None:
             self.error_messages.append("CUDA_HOME/CUDA_PATH not set")
             return None
@@ -145,7 +157,7 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
             name=name,
             abs_path=abs_path,
             filename=finder.filename,
-            found_via="CUDA_HOME",
+            found_via="CUDA_PATH",
         )
 
     finder.raise_not_found_error()

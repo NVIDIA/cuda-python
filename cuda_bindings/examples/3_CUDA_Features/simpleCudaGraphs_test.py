@@ -8,15 +8,22 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import random as rnd
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import (
+    KernelHelper,
+    check_cuda_errors,
+    find_cuda_device,
+)
 
 THREADS_PER_BLOCK = 512
 GRAPH_LAUNCH_ITERATIONS = 3
@@ -378,7 +385,7 @@ def main():
 
     global _reduce
     global _reduceFinal
-    kernel_helper = common.KernelHelper(simple_cuda_graphs, dev_id)
+    kernel_helper = KernelHelper(simple_cuda_graphs, dev_id)
     _reduce = kernel_helper.get_function(b"reduce")
     _reduceFinal = kernel_helper.get_function(b"reduceFinal")
 

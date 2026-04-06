@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -47,12 +47,6 @@ __import__("sys").modules[__spec__.name + ".utils"] = utils
 
 from cuda.core._device import Device
 from cuda.core._event import Event, EventOptions
-from cuda.core._graph import (
-    Graph,
-    GraphBuilder,
-    GraphCompleteOptions,
-    GraphDebugPrintOptions,
-)
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._launcher import launch
 from cuda.core._layout import _StridedLayout
@@ -74,3 +68,9 @@ from cuda.core._memory import (
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._stream import Stream, StreamOptions
+from cuda.core.graph import (
+    Graph,
+    GraphBuilder,
+    GraphCompleteOptions,
+    GraphDebugPrintOptions,
+)

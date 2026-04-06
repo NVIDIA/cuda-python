@@ -183,7 +183,7 @@ cdef class Buffer:
 
         Parameters
         ----------
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
         """
@@ -207,7 +207,7 @@ cdef class Buffer:
         ----------
         dst : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
@@ -238,7 +238,7 @@ cdef class Buffer:
         ----------
         src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
@@ -263,7 +263,7 @@ cdef class Buffer:
         value : int | :obj:`collections.abc.Buffer`
             - int: Must be in range [0, 256). Converted to 1 byte.
             - :obj:`collections.abc.Buffer`: Must be 1, 2, or 4 bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Stream for the asynchronous fill operation.
 
         Raises
@@ -500,7 +500,7 @@ cdef class MemoryResource:
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream on which to perform the allocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
@@ -522,7 +522,7 @@ cdef class MemoryResource:
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream on which to perform the deallocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.

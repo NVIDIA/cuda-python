@@ -16,6 +16,7 @@ from child_load_nvidia_dynamic_lib_helper import (
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
 
+from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -147,6 +148,7 @@ def test_real_load_driver_lib(info_summary_append, libname):
         error_label="Load subprocess child process",
     )
     if payload.status == STATUS_NOT_FOUND:
+        skip_if_missing_libnvcudla_so(libname, timeout=timeout)
         if STRICTNESS == "all_must_work":
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")

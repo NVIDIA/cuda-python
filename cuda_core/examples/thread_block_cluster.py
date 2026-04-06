@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,6 +9,10 @@
 # Requires compute capability >= 9.0 and CUDA_PATH.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core"]
+# ///
 
 import os
 import sys
@@ -23,6 +27,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
+from cuda.pathfinder import get_cuda_path_or_home
 
 # print cluster info using a kernel and store results in pinned memory
 code = r"""
@@ -65,9 +70,9 @@ def main():
         print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
         sys.exit(1)
 
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    cuda_path = get_cuda_path_or_home()
     if cuda_path is None:
-        print("this example requires a valid CUDA_PATH environment variable set", file=sys.stderr)
+        print("This example requires CUDA_PATH or CUDA_HOME to point to a CUDA toolkit.", file=sys.stderr)
         sys.exit(1)
     cuda_include = os.path.join(cuda_path, "include")
     if not os.path.isdir(cuda_include):

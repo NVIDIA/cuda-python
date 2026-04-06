@@ -41,6 +41,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const NvJitLinkValue] NvJitLinkHandle
 
     ctypedef shared_ptr[const cydriver.CUlinkState] CuLinkHandle
+    ctypedef shared_ptr[const int] FileDescriptorHandle
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
@@ -73,6 +74,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(NvvmProgramHandle h) noexcept nogil
     intptr_t as_intptr(NvJitLinkHandle h) noexcept nogil
     intptr_t as_intptr(CuLinkHandle h) noexcept nogil
+    intptr_t as_intptr(FileDescriptorHandle h) noexcept nogil
 
     # as_py() - convert handle to Python wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -89,6 +91,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(NvvmProgramHandle h)
     object as_py(NvJitLinkHandle h)
     object as_py(CuLinkHandle h)
+    object as_py(FileDescriptorHandle h)
 
 
 # =============================================================================
@@ -183,6 +186,7 @@ cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHand
 # Graph node handles
 cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
 cdef GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept nogil
+cdef void invalidate_graph_node(const GraphNodeHandle& h) noexcept nogil
 
 # Graphics resource handles
 cdef GraphicsResourceHandle create_graphics_resource_handle(
@@ -203,3 +207,7 @@ cdef NvJitLinkHandle create_nvjitlink_handle_ref(cynvjitlink.nvJitLinkHandle han
 # cuLink handles
 cdef CuLinkHandle create_culink_handle(cydriver.CUlinkState state) except+ nogil
 cdef CuLinkHandle create_culink_handle_ref(cydriver.CUlinkState state) except+ nogil
+
+# File descriptor handles
+cdef FileDescriptorHandle create_fd_handle(int fd) except+ nogil
+cdef FileDescriptorHandle create_fd_handle_ref(int fd) except+ nogil

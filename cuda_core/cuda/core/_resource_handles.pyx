@@ -120,9 +120,6 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const StreamHandle& h_stream) except+ nogil
 
     # MR deallocation callback
-    ctypedef void (*MRDeallocCallback)(
-        object mr, cydriver.CUdeviceptr ptr, size_t size,
-        const StreamHandle& stream) noexcept
     void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
         MRDeallocCallback cb) noexcept
     DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
@@ -162,6 +159,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
     GraphHandle graph_node_get_graph "cuda_core::graph_node_get_graph" (
         const GraphNodeHandle& h) noexcept nogil
+    void invalidate_graph_node "cuda_core::invalidate_graph_node" (
+        const GraphNodeHandle& h) noexcept nogil
 
     # Graphics resource handles
     GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
@@ -190,6 +189,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUlinkState state) except+ nogil
     CuLinkHandle create_culink_handle_ref "cuda_core::create_culink_handle_ref" (
         cydriver.CUlinkState state) except+ nogil
+
+    # File descriptor handles
+    FileDescriptorHandle create_fd_handle "cuda_core::create_fd_handle" (
+        int fd) except+ nogil
+    FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
+        int fd) except+ nogil
 
 
 # =============================================================================

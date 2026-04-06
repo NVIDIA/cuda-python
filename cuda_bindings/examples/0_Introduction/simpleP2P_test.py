@@ -8,16 +8,19 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
 import ctypes
 import platform
 import sys
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, requirement_not_met
 
 simplep2p = """\
 extern "C"
@@ -32,19 +35,17 @@ __global__ void SimpleKernel(float *src, float *dst)
 
 
 def main():
-    import pytest
-
     if platform.system() == "Darwin":
-        pytest.skip("simpleP2P is not supported on Mac OSX")
+        requirement_not_met("simpleP2P is not supported on Mac OSX")
 
     if platform.machine() == "armv7l":
-        pytest.skip("simpleP2P is not supported on ARMv7")
+        requirement_not_met("simpleP2P is not supported on ARMv7")
 
     if platform.machine() == "aarch64":
-        pytest.skip("simpleP2P is not supported on aarch64")
+        requirement_not_met("simpleP2P is not supported on aarch64")
 
     if platform.machine() == "sbsa":
-        pytest.skip("simpleP2P is not supported on sbsa")
+        requirement_not_met("simpleP2P is not supported on sbsa")
 
     # Number of GPUs
     print("Checking for multiple GPUs...")
@@ -52,7 +53,7 @@ def main():
     print(f"CUDA-capable device count: {gpu_n}")
 
     if gpu_n < 2:
-        pytest.skip("Two or more GPUs with Peer-to-Peer access capability are required")
+        requirement_not_met("Two or more GPUs with Peer-to-Peer access capability are required")
 
     prop = [check_cuda_errors(cudart.cudaGetDeviceProperties(i)) for i in range(gpu_n)]
     # Check possibility for peer access
@@ -73,7 +74,7 @@ def main():
             )
             print(
                 "> Peer access from {} (GPU{}) -> {} (GPU{}) : {}\n".format(
-                    prop[j].name, j, prop[i].name, i, "Yes" if i_access_j else "No"
+                    prop[j].name, j, prop[i].name, i, "Yes" if j_access_i else "No"
                 )
             )
             if i_access_j and j_access_i:
@@ -83,7 +84,7 @@ def main():
             break
 
     if p2p_capable_gp_us[0] == -1 or p2p_capable_gp_us[1] == -1:
-        pytest.skip("Peer to Peer access is not available amongst GPUs in the system")
+        requirement_not_met("Peer to Peer access is not available amongst GPUs in the system")
 
     # Use first pair of p2p capable GPUs detected
     gpuid = [p2p_capable_gp_us[0], p2p_capable_gp_us[1]]
@@ -158,7 +159,7 @@ def main():
     _simple_kernel = [None] * 2
     kernel_args = [None] * 2
 
-    kernel_helper[1] = common.KernelHelper(simplep2p, gpuid[1])
+    kernel_helper[1] = KernelHelper(simplep2p, gpuid[1])
     _simple_kernel[1] = kernel_helper[1].get_function(b"SimpleKernel")
     kernel_args[1] = ((g0, g1), (ctypes.c_void_p, ctypes.c_void_p))
     check_cuda_errors(
@@ -183,7 +184,7 @@ def main():
     # output to the GPU 0 buffer
     print(f"Run kernel on GPU{gpuid[0]}, taking source data from GPU{gpuid[1]} and writing to GPU{gpuid[0]}...")
     check_cuda_errors(cudart.cudaSetDevice(gpuid[0]))
-    kernel_helper[0] = common.KernelHelper(simplep2p, gpuid[0])
+    kernel_helper[0] = KernelHelper(simplep2p, gpuid[0])
     _simple_kernel[0] = kernel_helper[0].get_function(b"SimpleKernel")
     kernel_args[0] = ((g1, g0), (ctypes.c_void_p, ctypes.c_void_p))
     check_cuda_errors(

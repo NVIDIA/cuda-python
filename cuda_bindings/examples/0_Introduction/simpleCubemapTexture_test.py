@@ -7,16 +7,21 @@
 #
 # ################################################################################
 
+
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numpy"]
+# ///
+
+
 import ctypes
 import sys
 import time
 
 import numpy as np
-from common import common
-from common.helper_cuda import check_cuda_errors, find_cuda_device
 
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._example_helpers import KernelHelper, check_cuda_errors, find_cuda_device, requirement_not_met
 
 simple_cubemap_texture = """\
 extern "C"
@@ -97,9 +102,7 @@ def main():
         f"CUDA device [{device_props.name}] has {device_props.multiProcessorCount} Multi-Processors SM {device_props.major}.{device_props.minor}"
     )
     if device_props.major < 2:
-        import pytest
-
-        pytest.skip("Test requires SM 2.0 or higher for support of Texture Arrays.")
+        requirement_not_met("Test requires SM 2.0 or higher for support of Texture Arrays.")
 
     # Generate input data for layered texture
     width = 64
@@ -162,7 +165,7 @@ def main():
         f"Covering Cubemap data array of {width}~3 x {num_layers}: Grid size is {dim_grid.x} x {dim_grid.y}, each block has 8 x 8 threads"
     )
 
-    kernel_helper = common.KernelHelper(simple_cubemap_texture, dev_id)
+    kernel_helper = KernelHelper(simple_cubemap_texture, dev_id)
     _transform_kernel = kernel_helper.get_function(b"transformKernel")
     kernel_args = ((d_data, width, tex), (ctypes.c_void_p, ctypes.c_int, None))
     check_cuda_errors(

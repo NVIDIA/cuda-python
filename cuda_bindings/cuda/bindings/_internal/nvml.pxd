@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1406+gd8426ea19.d20260316. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from ..cynvml cimport *
 
@@ -139,6 +139,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverMo
 cdef nvmlReturn_t _nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBridgeChipHierarchy_t* bridgeHierarchy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t* plist) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t device2, int* onSameBoard) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
@@ -354,3 +355,10 @@ cdef nvmlReturn_t _nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t
 cdef nvmlReturn_t _nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t _nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
