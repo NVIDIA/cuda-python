@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import importlib.metadata
 import re
+from collections.abc import Callable
 from typing import Any
 
 _MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (12, 9, 6)
@@ -26,6 +27,8 @@ _MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (13, 2, 0)
 _RST_INLINE_ROLE_RE = re.compile(r":(?:[a-z]+:)?[a-z]+:`([^`]+)`")
 _WORDWRAP_HYPHEN_AFTER_RE = re.compile(r"(?<=[0-9A-Za-z_])- (?=[0-9A-Za-z_])")
 _WORDWRAP_HYPHEN_BEFORE_RE = re.compile(r"(?<=[0-9A-Za-z_]) -(?=[0-9A-Za-z_])")
+_ExplanationTable = dict[int, str | tuple[str, ...]]
+_ExplanationTableLoader = Callable[[], _ExplanationTable]
 
 
 # ``version.pyx`` cannot be reused here (circular import via ``cuda_utils``).
@@ -111,8 +114,9 @@ class DocstringBackedExplanations:
 
 
 def get_best_available_explanations(
-    enum_type: Any, fallback: dict[int, str | tuple[str, ...]]
-) -> DocstringBackedExplanations | dict[int, str | tuple[str, ...]]:
+    enum_type: Any,
+    fallback: _ExplanationTable | _ExplanationTableLoader,
+) -> DocstringBackedExplanations | _ExplanationTable:
     """Pick one explanation source per bindings version.
 
     Use enum-member ``__doc__`` only for bindings versions known to expose
@@ -120,5 +124,7 @@ def get_best_available_explanations(
     13.x mainline). Otherwise keep using the frozen 13.1.1 fallback tables.
     """
     if not _binding_version_has_usable_enum_docstrings(_binding_version()):
+        if callable(fallback):
+            return fallback()
         return fallback
     return DocstringBackedExplanations(enum_type)

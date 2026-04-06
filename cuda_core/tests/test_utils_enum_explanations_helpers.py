@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import importlib
+import sys
+
 import pytest
 
 from cuda.core._utils import enum_explanations_helpers
@@ -124,3 +127,44 @@ def test_get_best_available_explanations_switches_by_version(monkeypatch, versio
         assert expl.get(7) == "clean me"
     else:
         assert expl is fallback
+
+
+def test_get_best_available_explanations_calls_loader_before_docstrings(monkeypatch):
+    fallback = {7: "fallback text"}
+    calls = []
+
+    def load_fallback():
+        calls.append("loaded")
+        return fallback
+
+    monkeypatch.setattr(enum_explanations_helpers, "_binding_version", lambda: (13, 1, 1))
+    expl = enum_explanations_helpers.get_best_available_explanations(
+        _FakeEnumType({7: _FakeEnumMember("clean me")}),
+        load_fallback,
+    )
+    assert expl is fallback
+    assert calls == ["loaded"]
+
+
+def test_driver_explanations_module_skips_fallback_import_when_docstrings_available(monkeypatch):
+    import cuda.core._utils.driver_cu_result_explanations as driver_explanations
+
+    monkeypatch.setattr(enum_explanations_helpers, "_binding_version", lambda: (13, 2, 0))
+    sys.modules.pop("cuda.core._utils.driver_cu_result_explanations_frozen", None)
+
+    importlib.reload(driver_explanations)
+
+    assert "cuda.core._utils.driver_cu_result_explanations_frozen" not in sys.modules
+    assert isinstance(driver_explanations.DRIVER_CU_RESULT_EXPLANATIONS, DocstringBackedExplanations)
+
+
+def test_runtime_explanations_module_skips_fallback_import_when_docstrings_available(monkeypatch):
+    import cuda.core._utils.runtime_cuda_error_explanations as runtime_explanations
+
+    monkeypatch.setattr(enum_explanations_helpers, "_binding_version", lambda: (13, 2, 0))
+    sys.modules.pop("cuda.core._utils.runtime_cuda_error_explanations_frozen", None)
+
+    importlib.reload(runtime_explanations)
+
+    assert "cuda.core._utils.runtime_cuda_error_explanations_frozen" not in sys.modules
+    assert isinstance(runtime_explanations.RUNTIME_CUDA_ERROR_EXPLANATIONS, DocstringBackedExplanations)
