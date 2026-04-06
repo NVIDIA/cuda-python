@@ -23,6 +23,9 @@ from typing import Any
 
 _MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (12, 9, 6)
 _MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS = (13, 2, 0)
+_RST_INLINE_ROLE_RE = re.compile(r":(?:[a-z]+:)?[a-z]+:`([^`]+)`")
+_WORDWRAP_HYPHEN_AFTER_RE = re.compile(r"(?<=[0-9A-Za-z_])- (?=[0-9A-Za-z_])")
+_WORDWRAP_HYPHEN_BEFORE_RE = re.compile(r"(?<=[0-9A-Za-z_]) -(?=[0-9A-Za-z_])")
 
 
 # ``version.pyx`` cannot be reused here (circular import via ``cuda_utils``).
@@ -46,14 +49,14 @@ def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -
 def _fix_hyphenation_wordwrap_spacing(s: str) -> str:
     """Remove spaces around hyphens introduced by line wrapping in generated ``__doc__`` text.
 
-    This is a narrow workaround for wrapped forms such as ``non- linear`` that
-    would otherwise look awkward in user-facing messages.
+    This targets asymmetric wrap artifacts such as ``non- linear`` or
+    ``GPU- Direct`` while leaving intentional ``a - b`` separators alone.
     """
     prev = None
     while prev != s:
         prev = s
-        s = re.sub(r"([a-z])- ([a-z])", r"\1-\2", s)
-        s = re.sub(r"([a-z]) -([a-z])", r"\1-\2", s)
+        s = _WORDWRAP_HYPHEN_AFTER_RE.sub("-", s)
+        s = _WORDWRAP_HYPHEN_BEFORE_RE.sub("-", s)
     return s
 
 
@@ -71,11 +74,7 @@ def clean_enum_member_docstring(doc: str | None) -> str | None:
     # Known codegen bug on cudaErrorIncompatibleDriverContext. Remove once fixed
     # in cuda-bindings code generation.
     s = s.replace("\n:py:obj:`~.Interactions`", ' "Interactions ')
-    s = re.sub(
-        r":(?:py:)?(?:obj|func|meth|class|mod|data|const|exc):`([^`]+)`",
-        lambda m: re.sub(r"^~?\.", "", m.group(1)),
-        s,
-    )
+    s = _RST_INLINE_ROLE_RE.sub(lambda m: re.sub(r"^~?\.", "", m.group(1)), s)
     s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
     s = re.sub(r"\*([^*]+)\*", r"\1", s)
     s = re.sub(r"\s+", " ", s).strip()
