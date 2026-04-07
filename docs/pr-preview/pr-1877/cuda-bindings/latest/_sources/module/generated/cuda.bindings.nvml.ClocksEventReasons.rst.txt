@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.ClocksEventReasons
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: ClocksEventReasons

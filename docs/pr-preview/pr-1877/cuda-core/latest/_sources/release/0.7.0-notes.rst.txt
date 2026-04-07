@@ -1,0 +1,129 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 0.7.0 Release Notes
+=================================
+
+
+Highlights
+----------
+
+- Introduced support for explicit graph construction. CUDA graphs can now be
+  built programmatically by adding nodes and edges, and their topology can be
+  modified after construction.
+- Added CUDA-OpenGL interoperability support, enabling zero-copy sharing of
+  GPU memory between CUDA compute kernels and OpenGL renderers.
+- Added :class:`TensorMapDescriptor` for Hopper+ TMA (Tensor Memory Accelerator)
+  bulk data movement, with automatic kernel argument integration.
+- :class:`~utils.StridedMemoryView` now supports DLPack export via
+  ``from_dlpack()`` array API.
+
+
+Breaking Changes
+----------------
+
+- Building ``cuda.core`` from source now requires ``cuda-bindings`` >= 12.9.0, due to Cython-level
+  dependencies on the NVVM and nvJitLink bindings (``cynvvm``, ``cynvjitlink``). Pre-built wheels
+  are unaffected. The previous minimum was 12.8.0.
+
+
+New features
+------------
+
+- Added the :mod:`cuda.core.graph` public module containing
+  :class:`~graph.GraphDef` for explicit graph construction, typed node
+  subclasses, and supporting types. :class:`~graph.GraphBuilder` (stream
+  capture) also moves into this module.
+
+- Added :meth:`~graph.GraphBuilder.callback` for CPU callbacks during stream
+  capture, mirroring the existing :meth:`~graph.GraphDef.callback` API.
+
+- Added :class:`GraphicsResource` for CUDA-OpenGL interoperability.
+  Factory classmethods :meth:`~GraphicsResource.from_gl_buffer` and
+  :meth:`~GraphicsResource.from_gl_image` register OpenGL objects for CUDA
+  access, and mapping returns a :class:`Buffer` for zero-copy kernel use.
+
+- Added :class:`TensorMapDescriptor` wrapping the CUDA driver's ``CUtensorMap``
+  for Hopper+ TMA (Tensor Memory Accelerator) bulk data movement.
+  :class:`~utils.StridedMemoryView` gains an :meth:`~utils.StridedMemoryView.as_tensor_map`
+  method for convenient descriptor creation, with automatic dtype inference, stride
+  computation, and first-class kernel argument integration.
+
+- Added DLPack export support to :class:`~utils.StridedMemoryView` via
+  ``__dlpack__`` and ``__dlpack_device__``, complementing the existing import
+  path.
+
+- Added the DLPack C exchange API (``__dlpack_c_exchange_api__``) to
+  :class:`~utils.StridedMemoryView`.
+
+- Added NVRTC precompiled header (PCH) runtime APIs to :class:`Program`:
+  :meth:`~Program.get_pch_create_status`, :meth:`~Program.get_pch_heap_size_required`,
+  :meth:`~Program.get_pch_heap_size` (static), and :meth:`~Program.set_pch_heap_size`
+  (static). Requires NVRTC 12.8+.
+
+- Added ``preferred_location_type`` option to :class:`ManagedMemoryResourceOptions`
+  for explicit control over the preferred location kind (``"device"``,
+  ``"host"``, or ``"host_numa"``). This enables NUMA-aware managed memory
+  pool placement. The existing ``preferred_location`` parameter retains full
+  backwards compatibility when ``preferred_location_type`` is not set.
+
+- Added :attr:`ManagedMemoryResource.preferred_location` property to query the
+  resolved preferred location of a managed memory pool. Returns ``None`` for no
+  preference, or a tuple such as ``("device", 0)``, ``("host", None)``, or
+  ``("host_numa", 3)``.
+
+- Added ``numa_id`` option to :class:`PinnedMemoryResourceOptions` for explicit
+  control over host NUMA node placement. When ``ipc_enabled=True`` and
+  ``numa_id`` is not set, the NUMA node is automatically derived from the
+  current CUDA device.
+
+- Added :attr:`PinnedMemoryResource.numa_id` property to query the host NUMA
+  node ID used for pool placement. Returns ``-1`` for OS-managed placement.
+
+- Added support for CUDA 13.2.
+
+
+New examples
+------------
+
+- ``gl_interop_plasma.py``: Real-time plasma effect demonstrating CUDA-OpenGL
+  interoperability via :class:`GraphicsResource`.
+- ``tma_tensor_map.py``: TMA bulk data movement using
+  :class:`TensorMapDescriptor` on Hopper+ GPUs.
+
+
+Fixes and enhancements
+----------------------
+
+- Fixed managed memory buffers being misclassified as ``kDLCUDAHost`` in DLPack
+  device mapping. They are now correctly reported as ``kDLCUDAManaged``.
+  (:issue:`1863`)
+- Fixed IPC-enabled pinned memory pools using a hardcoded NUMA node ID of ``0``
+  instead of the NUMA node closest to the active CUDA device. On multi-NUMA
+  systems where the device is attached to a non-zero host NUMA node, this could
+  cause pool creation or allocation failures. (:issue:`1603`)
+- Fixed :attr:`DeviceMemoryResource.peer_accessible_by` returning stale results when wrapping
+  a non-owned (default) memory pool. The property now always queries the CUDA driver for
+  non-owned pools, so multiple wrappers around the same pool see consistent state. (:issue:`1720`)
+- Fixed a bare ``except`` clause in stream acceptance that silently swallowed all exceptions,
+  including ``KeyboardInterrupt`` and ``SystemExit``. Only the expected "protocol not
+  supported" case is now caught. (:issue:`1631`)
+- :class:`~utils.StridedMemoryView` now validates strides at construction time so unsupported
+  layouts fail immediately instead of on first metadata access. (:issue:`1429`)
+- IPC file descriptor cleanup now uses a C++ ``shared_ptr`` with a POSIX deleter, avoiding
+  cryptic errors when a :class:`DeviceMemoryResource` is destroyed during Python shutdown.
+- Improved error message when ``ManagedMemoryResource()`` is called without options on platforms
+  that lack a default managed memory pool (e.g. WSL2). (:issue:`1617`)
+- Handle properties on core API objects now return ``None`` during Python shutdown instead of
+  crashing.
+- Reduced Python overhead in :class:`Program` and :class:`Linker` by moving compilation and
+  linking operations to the C level and releasing the GIL during backend calls. This benefits
+  workloads that create many programs or linkers, and enables concurrent compilation in
+  multithreaded applications.
+- Error enum explanations are now derived from ``cuda-bindings`` docstrings when available
+  (bindings 12.9.6+ or 13.2.0+), with frozen tables as fallback for older versions.
+- Improved optional dependency handling for NVVM and nvJitLink imports so that only genuinely
+  missing optional modules are treated as unavailable; unrelated import failures now surface
+  normally, and ``cuda.core`` now depends directly on ``cuda-pathfinder``.
