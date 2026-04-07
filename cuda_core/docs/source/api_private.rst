@@ -17,11 +17,11 @@ CUDA runtime
    :toctree: generated/
 
    typing.DevicePointerT
-   typing.VirtualMemoryAllocationTypeT
-   typing.VirtualMemoryLocationTypeT
-   typing.VirtualMemoryGranularityT
-   typing.VirtualMemoryAccessTypeT
-   typing.VirtualMemoryHandleTypeT
+   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
+   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
+   _memory._virtual_memory_resource.VirtualMemoryGranularityT
+   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
+   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
