@@ -1,0 +1,133 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Enforce assignee/label/milestone on PRs"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - assigned
+      - unassigned
+      - labeled
+      - unlabeled
+      - reopened
+      - ready_for_review
+
+jobs:
+  check-metadata:
+    name: PR has assignee, labels, and milestone
+    if: github.repository_owner == 'NVIDIA'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for assignee, labels, and milestone
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          if [ "$IS_BOT" = "true" ] || [ "$IS_DRAFT" = "true" ]; then
+            echo "Skipping check for bot or draft PR."
+            exit 0
+          fi
+
+          # Fetch live PR data to avoid stale event payload (race condition
+          # when labels/milestone are added shortly after PR creation).
+          PR_JSON=$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}")
+          ASSIGNEES=$(echo "$PR_JSON" | jq '.assignees')
+          LABELS=$(echo "$PR_JSON" | jq '.labels')
+          MILESTONE=$(echo "$PR_JSON" | jq -r '.milestone.title // empty')
+
+          ERRORS=""
+
+          ASSIGNEE_COUNT=$(echo "$ASSIGNEES" | jq 'length')
+          if [ "$ASSIGNEE_COUNT" -eq 0 ]; then
+            ERRORS="${ERRORS}- **Missing assignee**: assign at least one person to this PR.\n"
+          fi
+
+          # Module labels identify which package the PR touches.
+          # Cross-cutting labels exempt PRs from needing a module label.
+          # Read label names line-by-line (jq outputs one per line) so
+          # multi-word GitHub labels are not split by shell word-splitting.
+          MODULE_LABELS="cuda.bindings cuda.core cuda.pathfinder"
+          MODULE_EXEMPT_LABELS="CI/CD"
+          HAS_MODULE=false
+          while IFS= read -r label; do
+            [ -n "$label" ] || continue
+            for mod in $MODULE_LABELS $MODULE_EXEMPT_LABELS; do
+              if [ "$label" = "$mod" ]; then
+                HAS_MODULE=true
+                break 2
+              fi
+            done
+          done < <(echo "$LABELS" | jq -r '.[].name')
+
+          if [ "$HAS_MODULE" = "false" ]; then
+            ERRORS="${ERRORS}- **Missing module label**: add at least one of: \`cuda.bindings\`, \`cuda.core\`, \`cuda.pathfinder\` (or a cross-cutting label such as \`CI/CD\`).\n"
+          fi
+
+          # Type labels categorize the kind of change.
+          TYPE_LABELS="bug enhancement feature documentation test example CI/CD packaging dependencies performance experiment RFC support P0 P1 P2"
+          HAS_TYPE=false
+          while IFS= read -r label; do
+            [ -n "$label" ] || continue
+            for typ in $TYPE_LABELS; do
+              if [ "$label" = "$typ" ]; then
+                HAS_TYPE=true
+                break 2
+              fi
+            done
+          done < <(echo "$LABELS" | jq -r '.[].name')
+
+          if [ "$HAS_TYPE" = "false" ]; then
+            ERRORS="${ERRORS}- **Missing type label**: add at least one of: \`bug\`, \`enhancement\`, \`feature\`, \`documentation\`, \`test\`, \`example\`, \`CI/CD\`, \`packaging\`, \`dependencies\`, \`performance\`, \`experiment\`, \`RFC\`, \`support\`, \`P0\`, \`P1\`, \`P2\`.\n"
+          fi
+
+          if [ -z "$MILESTONE" ]; then
+            ERRORS="${ERRORS}- **Missing milestone**: assign a milestone to this PR.\n"
+          fi
+
+          # Block PRs with labels that indicate they are not ready to merge.
+          # Match blocked label names exactly (case-insensitively); emit the
+          # original spelling from the payload so error text matches GitHub.
+          BLOCKED_LABELS=$(jq -r '
+            (["blocked", "do not merge"]) as $blocking
+            | .[]
+            | .name as $n
+            | if ($blocking | index($n | ascii_downcase)) != null
+              then $n
+              else empty
+              end
+          ' <<<"$LABELS")
+          while IFS= read -r label; do
+            [ -n "$label" ] || continue
+            ERRORS="${ERRORS}- **Blocked label detected**: label \`$label\` prevents merging. Remove it when the PR is ready.\n"
+          done <<<"$BLOCKED_LABELS"
+
+          if [ -n "$ERRORS" ]; then
+            echo "::error::This PR is missing required metadata. See the job summary for details."
+            {
+              echo "## PR Metadata Check Failed"
+              echo ""
+              printf '%b' "$ERRORS"
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          ASSIGNEE_LIST=$(echo "$ASSIGNEES" | jq -r '.[].login' | paste -sd ', ' -)
+          LABEL_LIST=$(echo "$LABELS" | jq -r '.[].name' | paste -sd ', ' -)
+          {
+            echo "## PR Metadata Check Passed"
+            echo ""
+            echo "- **Assignees**: $ASSIGNEE_LIST"
+            echo "- **Labels**: $LABEL_LIST"
+            echo "- **Milestone**: $MILESTONE"
+          } >> "$GITHUB_STEP_SUMMARY"
