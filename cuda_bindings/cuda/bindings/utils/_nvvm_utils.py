@@ -78,7 +78,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
             len(precheck_ir_bytes),
             "precheck.ll",
         )
-    
+
         nvvm.compile_program(program, len(options), options)
     except nvvm.nvvmError as e:
         if e.status == nvvm.Result.ERROR_INVALID_OPTION:
