@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.GraphCompleteOptions &#8212; cuda.core</title>
+    <title>cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,26 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=94463b6a"></script>
+    <script src="../_static/documentation_options.js?v=56e75f72"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.GraphCompleteOptions';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev112';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev124';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.GraphCompleteOptions.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.GraphDebugPrintOptions" href="cuda.core.GraphDebugPrintOptions.html" />
-    <link rel="prev" title="cuda.core.EventOptions" href="cuda.core.EventOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -216,7 +214,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -419,7 +417,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -491,19 +489,20 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -514,12 +513,30 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.GraphCompleteOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.KernelNode.html">cuda.core.graph.KernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.AllocNode.html">cuda.core.graph.AllocNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.FreeNode.html">cuda.core.graph.FreeNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.MemsetNode.html">cuda.core.graph.MemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.MemcpyNode.html">cuda.core.graph.MemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ChildGraphNode.html">cuda.core.graph.ChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EventRecordNode.html">cuda.core.graph.EventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EventWaitNode.html">cuda.core.graph.EventWaitNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html">cuda.core.graph.HostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ConditionalNode.html">cuda.core.graph.ConditionalNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfNode.html">cuda.core.graph.IfNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -642,10 +659,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.GraphCompleteOptions</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy</span></li>
   </ul>
 </nav>
 </div>
@@ -662,66 +676,57 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-graphcompleteoptions">
-<h1>cuda.core.GraphCompleteOptions<a class="headerlink" href="#cuda-core-graphcompleteoptions" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-graph-adjacency-set-proxy-adjacencysetproxy">
+<h1>cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy<a class="headerlink" href="#cuda-core-graph-adjacency-set-proxy-adjacencysetproxy" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.GraphCompleteOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">GraphCompleteOptions</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.graph._adjacency_set_proxy.</span></span><span class="sig-name descname"><span class="pre">AdjacencySetProxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_fwd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy" title="Link to this definition">#</a></dt>
+<dd><p>Mutable set proxy for a node’s predecessors or successors.  Mutations
+write through to the underlying CUDA graph.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">is_fwd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">auto_free_on_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">upload_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">device_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">use_node_priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.add" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphCompleteOptions" title="Link to this definition">#</a></dt>
-<dd><p>Customizable options for <code class="xref py py-obj docutils literal notranslate"><span class="pre">_graph.GraphBuilder.complete()</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphCompleteOptions.auto_free_on_launch">
-<span class="sig-name descname"><span class="pre">auto_free_on_launch</span></span><a class="headerlink" href="#cuda.core.GraphCompleteOptions.auto_free_on_launch" title="Link to this definition">#</a></dt>
-<dd><p>Automatically free memory allocated in a graph before relaunching. (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
-</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.clear" title="Link to this definition">#</a></dt>
+<dd><p>Remove all edges in a single driver call.</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphCompleteOptions.upload_stream">
-<span class="sig-name descname"><span class="pre">upload_stream</span></span><a class="headerlink" href="#cuda.core.GraphCompleteOptions.upload_stream" title="Link to this definition">#</a></dt>
-<dd><p>Stream to use to automatically upload the graph after completion. (Default to None)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream">Stream</a>, optional</p>
-</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.discard">
+<span class="sig-name descname"><span class="pre">discard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.discard" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.isdisjoint">
+<span class="sig-name descname"><span class="pre">isdisjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.isdisjoint" title="Link to this definition">#</a></dt>
+<dd><p>Return True if two sets have a null intersection.</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphCompleteOptions.device_launch">
-<span class="sig-name descname"><span class="pre">device_launch</span></span><a class="headerlink" href="#cuda.core.GraphCompleteOptions.device_launch" title="Link to this definition">#</a></dt>
-<dd><p>Configure the graph to be launchable from the device. This flag can only
-be used on platforms which support unified addressing. This flag cannot be
-used in conjunction with auto_free_on_launch. (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
-</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.pop" title="Link to this definition">#</a></dt>
+<dd><p>Return the popped value.  Raise KeyError if empty.</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphCompleteOptions.use_node_priority">
-<span class="sig-name descname"><span class="pre">use_node_priority</span></span><a class="headerlink" href="#cuda.core.GraphCompleteOptions.use_node_priority" title="Link to this definition">#</a></dt>
-<dd><p>Run the graph using the per-node priority attributes rather than the
-priority of the stream it is launched into. (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
-</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.remove" title="Link to this definition">#</a></dt>
+<dd><p>Remove an element. If not a member, raise a KeyError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">others</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.update" title="Link to this definition">#</a></dt>
+<dd><p>Add edges to multiple nodes at once.</p>
 </dd></dl>
 
 </dd></dl>
@@ -738,24 +743,6 @@ priority of the stream it is launched into. (Default to False)</p>
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cuda.core.EventOptions.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.EventOptions</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cuda.core.GraphDebugPrintOptions.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.GraphDebugPrintOptions</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -777,11 +764,15 @@ priority of the stream it is launched into. (Default to False)</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphCompleteOptions"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphCompleteOptions.auto_free_on_launch"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.auto_free_on_launch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphCompleteOptions.upload_stream"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.upload_stream</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphCompleteOptions.device_launch"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.device_launch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphCompleteOptions.use_node_priority"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.use_node_priority</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.__init__"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.add"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.add()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.clear"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.clear()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.discard"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.discard()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.isdisjoint"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.isdisjoint()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.pop"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.pop()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.remove"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph._adjacency_set_proxy.AdjacencySetProxy.update"><code class="docutils literal notranslate"><span class="pre">AdjacencySetProxy.update()</span></code></a></li>
 </ul>
 </li>
 </ul>

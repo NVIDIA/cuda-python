@@ -1281,26 +1281,26 @@
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>This page links to the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> examples shipped in the
-<a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_bindings/examples">cuda-python repository</a>.
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/|cuda_bindings_github_ref|/cuda_bindings/examples">cuda-python repository</a>.
 Use it as a quick index when you want a runnable sample for a specific API area
 or CUDA feature.</p>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/clock_nvrtc_test.py">clock_nvrtc_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/clock_nvrtc.py">clock_nvrtc.py</a>
 uses NVRTC-compiled CUDA code and the device clock to time a reduction
 kernel.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py">simpleCubemapTexture_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>
 demonstrates cubemap texture sampling and transformation.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleP2P_test.py">simpleP2P_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_p2p.py">simple_p2p.py</a>
 shows peer-to-peer memory access and transfers between multiple GPUs.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleZeroCopy_test.py">simpleZeroCopy_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_zero_copy.py">simple_zero_copy.py</a>
 uses zero-copy mapped host memory for vector addition.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/systemWideAtomics_test.py">systemWideAtomics_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/system_wide_atomics.py">system_wide_atomics.py</a>
 demonstrates system-wide atomic operations on managed memory.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/vectorAddDrv_test.py">vectorAddDrv_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/vector_add_drv.py">vector_add_drv.py</a>
 uses the CUDA Driver API and unified virtual addressing for vector addition.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/vectorAddMMAP_test.py">vectorAddMMAP_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/vector_add_mmap.py">vector_add_mmap.py</a>
 uses virtual memory management APIs such as <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> and
 <code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code> for vector addition.</p></li>
 </ul>
@@ -1308,7 +1308,7 @@ uses virtual memory management APIs such as <code class="docutils literal notran
 <section id="concepts-and-techniques">
 <h2>Concepts and techniques<a class="headerlink" href="#concepts-and-techniques" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/2_Concepts_and_Techniques/streamOrderedAllocation_test.py">streamOrderedAllocation_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/2_Concepts_and_Techniques/stream_ordered_allocation.py">stream_ordered_allocation.py</a>
 demonstrates <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> together with
 memory-pool release thresholds.</p></li>
 </ul>
@@ -1316,33 +1316,33 @@ memory-pool release thresholds.</p></li>
 <section id="cuda-features">
 <h2>CUDA features<a class="headerlink" href="#cuda-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/3_CUDA_Features/globalToShmemAsyncCopy_test.py">globalToShmemAsyncCopy_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/3_CUDA_Features/global_to_shmem_async_copy.py">global_to_shmem_async_copy.py</a>
 compares asynchronous global-to-shared-memory copy strategies in matrix
 multiplication kernels.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/3_CUDA_Features/simpleCudaGraphs_test.py">simpleCudaGraphs_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/3_CUDA_Features/simple_cuda_graphs.py">simple_cuda_graphs.py</a>
 shows both manual CUDA graph construction and stream-capture-based replay.</p></li>
 </ul>
 </section>
 <section id="libraries-and-tools">
 <h2>Libraries and tools<a class="headerlink" href="#libraries-and-tools" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/4_CUDA_Libraries/conjugateGradientMultiBlockCG_test.py">conjugateGradientMultiBlockCG_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/4_CUDA_Libraries/conjugate_gradient_multi_block_cg.py">conjugate_gradient_multi_block_cg.py</a>
 implements a conjugate-gradient solver with cooperative groups and
 multi-block synchronization.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/4_CUDA_Libraries/nvidia_smi.py">nvidia_smi.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/4_CUDA_Libraries/nvidia_smi.py">nvidia_smi.py</a>
 uses NVML to implement a Python subset of <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>.</p></li>
 </ul>
 </section>
 <section id="advanced-and-interoperability">
 <h2>Advanced and interoperability<a class="headerlink" href="#advanced-and-interoperability" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/extra/isoFDModelling_test.py">isoFDModelling_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/iso_fd_modelling.py">iso_fd_modelling.py</a>
 runs isotropic finite-difference wave propagation across multiple GPUs with
 peer-to-peer halo exchange.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/extra/jit_program_test.py">jit_program_test.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/jit_program.py">jit_program.py</a>
 JIT-compiles a SAXPY kernel with NVRTC and launches it through the Driver
 API.</p></li>
-<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/extra/numba_emm_plugin.py">numba_emm_plugin.py</a>
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/extra/numba_emm_plugin.py">numba_emm_plugin.py</a>
 shows how to back Numba’s EMM interface with the NVIDIA CUDA Python Driver
 API.</p></li>
 </ul>

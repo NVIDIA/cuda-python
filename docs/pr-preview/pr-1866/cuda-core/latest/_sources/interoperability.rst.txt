@@ -70,9 +70,9 @@ a few iterations to ensure correctness.
 for extracting the metadata (such as pointer address, shape, strides, and
 dtype) from any Python objects supporting either CAI or DLPack and returning a
 :class:`~utils.StridedMemoryView` object. See the
-`strided_memory_view_cpu.py <https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view_cpu.py>`_
+`strided_memory_view_cpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_cpu.py>`_
 and
-`strided_memory_view_gpu.py <https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view_gpu.py>`_
+`strided_memory_view_gpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_gpu.py>`_
 examples for end-to-end CPU and GPU variants. Alternatively, a
 :class:`~utils.StridedMemoryView` object can be explicitly constructed without
 using the decorator. This provides a *concrete implementation* to both

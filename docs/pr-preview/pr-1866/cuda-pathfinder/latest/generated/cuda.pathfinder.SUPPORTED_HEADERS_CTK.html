@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=73275c37"></script>
+    <script src="../_static/documentation_options.js?v=d75fd82e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -429,6 +429,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.5.2-notes.html">1.5.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.5.1-notes.html">1.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.5.0-notes.html">1.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.4.4-notes.html">1.4.4</a></li>
@@ -508,7 +509,7 @@
 <h1>cuda.pathfinder.SUPPORTED_HEADERS_CTK<a class="headerlink" href="#cuda-pathfinder-supported-headers-ctk" title="Link to this heading">#</a></h1>
 <dl class="py data">
 <dt class="sig sig-object py" id="cuda.pathfinder.SUPPORTED_HEADERS_CTK">
-<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_HEADERS_CTK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cccl':</span> <span class="pre">'cuda/std/version',</span> <span class="pre">'cublas':</span> <span class="pre">'cublas.h',</span> <span class="pre">'cudart':</span> <span class="pre">'cuda_runtime.h',</span> <span class="pre">'cufft':</span> <span class="pre">'cufft.h',</span> <span class="pre">'cufile':</span> <span class="pre">'cufile.h',</span> <span class="pre">'curand':</span> <span class="pre">'curand.h',</span> <span class="pre">'cusolver':</span> <span class="pre">'cusolverDn.h',</span> <span class="pre">'cusparse':</span> <span class="pre">'cusparse.h',</span> <span class="pre">'npp':</span> <span class="pre">'npp.h',</span> <span class="pre">'nvcc':</span> <span class="pre">'fatbinary_section.h',</span> <span class="pre">'nvfatbin':</span> <span class="pre">'nvFatbin.h',</span> <span class="pre">'nvjitlink':</span> <span class="pre">'nvJitLink.h',</span> <span class="pre">'nvjpeg':</span> <span class="pre">'nvjpeg.h',</span> <span class="pre">'nvrtc':</span> <span class="pre">'nvrtc.h',</span> <span class="pre">'nvvm':</span> <span class="pre">'nvvm.h'}</span></em><a class="headerlink" href="#cuda.pathfinder.SUPPORTED_HEADERS_CTK" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_HEADERS_CTK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cccl':</span> <span class="pre">'cuda/std/version',</span> <span class="pre">'cublas':</span> <span class="pre">'cublas.h',</span> <span class="pre">'cudart':</span> <span class="pre">'cuda_runtime.h',</span> <span class="pre">'cudla':</span> <span class="pre">'cudla.h',</span> <span class="pre">'cufft':</span> <span class="pre">'cufft.h',</span> <span class="pre">'cufile':</span> <span class="pre">'cufile.h',</span> <span class="pre">'curand':</span> <span class="pre">'curand.h',</span> <span class="pre">'cusolver':</span> <span class="pre">'cusolverDn.h',</span> <span class="pre">'cusparse':</span> <span class="pre">'cusparse.h',</span> <span class="pre">'npp':</span> <span class="pre">'npp.h',</span> <span class="pre">'nvcc':</span> <span class="pre">'fatbinary_section.h',</span> <span class="pre">'nvfatbin':</span> <span class="pre">'nvFatbin.h',</span> <span class="pre">'nvjitlink':</span> <span class="pre">'nvJitLink.h',</span> <span class="pre">'nvjpeg':</span> <span class="pre">'nvjpeg.h',</span> <span class="pre">'nvrtc':</span> <span class="pre">'nvrtc.h',</span> <span class="pre">'nvvm':</span> <span class="pre">'nvvm.h',</span> <span class="pre">'profiler':</span> <span class="pre">'cuda_profiler_api.h'}</span></em><a class="headerlink" href="#cuda.pathfinder.SUPPORTED_HEADERS_CTK" title="Link to this definition">#</a></dt>
 <dd><p>Mapping from short CUDA Toolkit (CTK) library names to their canonical
 header basenames (used to validate a discovered include directory).
 Example: <code class="docutils literal notranslate"><span class="pre">&quot;cublas&quot;</span> <span class="pre">→</span> <span class="pre">&quot;cublas.h&quot;</span></code>. The key set is platform-aware

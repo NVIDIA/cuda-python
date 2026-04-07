@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.GraphDebugPrintOptions &#8212; cuda.core</title>
+    <title>cuda.core.graph.Condition &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=94463b6a"></script>
+    <script src="../_static/documentation_options.js?v=56e75f72"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.GraphDebugPrintOptions';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.graph.Condition';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev112';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev124';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.GraphDebugPrintOptions.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.graph.Condition.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.StreamOptions" href="cuda.core.StreamOptions.html" />
-    <link rel="prev" title="cuda.core.GraphCompleteOptions" href="cuda.core.GraphCompleteOptions.html" />
+    <link rel="next" title="cuda.core.graph.GraphAllocOptions" href="cuda.core.graph.GraphAllocOptions.html" />
+    <link rel="prev" title="cuda.core.graph.GraphNode" href="cuda.core.graph.GraphNode.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -498,12 +498,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -514,12 +515,30 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.KernelNode.html">cuda.core.graph.KernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.AllocNode.html">cuda.core.graph.AllocNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.FreeNode.html">cuda.core.graph.FreeNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.MemsetNode.html">cuda.core.graph.MemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.MemcpyNode.html">cuda.core.graph.MemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ChildGraphNode.html">cuda.core.graph.ChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EventRecordNode.html">cuda.core.graph.EventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EventWaitNode.html">cuda.core.graph.EventWaitNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html">cuda.core.graph.HostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ConditionalNode.html">cuda.core.graph.ConditionalNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfNode.html">cuda.core.graph.IfNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -645,7 +664,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.GraphDebugPrintOptions</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.graph.Condition</span></li>
   </ul>
 </nav>
 </div>
@@ -662,205 +681,31 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-graphdebugprintoptions">
-<h1>cuda.core.GraphDebugPrintOptions<a class="headerlink" href="#cuda-core-graphdebugprintoptions" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-graph-condition">
+<h1>cuda.core.graph.Condition<a class="headerlink" href="#cuda-core-graph-condition" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">GraphDebugPrintOptions</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.graph.Condition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.graph.</span></span><span class="sig-name descname"><span class="pre">Condition</span></span><a class="headerlink" href="#cuda.core.graph.Condition" title="Link to this definition">#</a></dt>
+<dd><p>A condition variable for conditional graph nodes.</p>
+<p>Created by <a class="reference internal" href="cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.create_condition" title="cuda.core.graph.GraphDef.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDef.create_condition()</span></code></a> and passed to
+conditional-node builder methods (<code class="docutils literal notranslate"><span class="pre">if_cond</span></code>, <code class="docutils literal notranslate"><span class="pre">if_else</span></code>,
+<code class="docutils literal notranslate"><span class="pre">while_loop</span></code>, <code class="docutils literal notranslate"><span class="pre">switch</span></code>). The underlying value is set at
+runtime by device code via <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional</span></code>.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph.Condition.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.Condition.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">runtime_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">kernel_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">memcpy_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">memset_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">host_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">event_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">ext_semas_signal_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">ext_semas_wait_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">kernel_node_attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">handles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">mem_alloc_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">mem_free_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">batch_mem_op_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">extra_topo_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">conditional_node_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions" title="Link to this definition">#</a></dt>
-<dd><p>Customizable options for <code class="xref py py-obj docutils literal notranslate"><span class="pre">_graph.GraphBuilder.debug_dot_print()</span></code></p>
+<p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.verbose">
-<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.verbose" title="Link to this definition">#</a></dt>
-<dd><p>Output all debug data as if every debug flag is enabled (Default to False)</p>
+<dt class="sig sig-object py" id="cuda.core.graph.Condition.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.graph.Condition.handle" title="Link to this definition">#</a></dt>
+<dd><p>driver.CUgraphConditionalHandle</p>
+<p>The raw CUgraphConditionalHandle as an int.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.runtime_types">
-<span class="sig-name descname"><span class="pre">runtime_types</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.runtime_types" title="Link to this definition">#</a></dt>
-<dd><p>Use CUDA Runtime structures for output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.kernel_node_params">
-<span class="sig-name descname"><span class="pre">kernel_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.kernel_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds kernel parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.memcpy_node_params">
-<span class="sig-name descname"><span class="pre">memcpy_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.memcpy_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds memcpy parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.memset_node_params">
-<span class="sig-name descname"><span class="pre">memset_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.memset_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds memset parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.host_node_params">
-<span class="sig-name descname"><span class="pre">host_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.host_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds host parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.event_node_params">
-<span class="sig-name descname"><span class="pre">event_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.event_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds event parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.ext_semas_signal_node_params">
-<span class="sig-name descname"><span class="pre">ext_semas_signal_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.ext_semas_signal_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds external semaphore signal parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.ext_semas_wait_node_params">
-<span class="sig-name descname"><span class="pre">ext_semas_wait_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.ext_semas_wait_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds external semaphore wait parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.kernel_node_attributes">
-<span class="sig-name descname"><span class="pre">kernel_node_attributes</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.kernel_node_attributes" title="Link to this definition">#</a></dt>
-<dd><p>Adds kernel node attributes to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.handles">
-<span class="sig-name descname"><span class="pre">handles</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.handles" title="Link to this definition">#</a></dt>
-<dd><p>Adds node handles and every kernel function handle to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.mem_alloc_node_params">
-<span class="sig-name descname"><span class="pre">mem_alloc_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.mem_alloc_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds memory alloc parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.mem_free_node_params">
-<span class="sig-name descname"><span class="pre">mem_free_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.mem_free_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds memory free parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.batch_mem_op_node_params">
-<span class="sig-name descname"><span class="pre">batch_mem_op_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.batch_mem_op_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds batch mem op parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.extra_topo_info">
-<span class="sig-name descname"><span class="pre">extra_topo_info</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.extra_topo_info" title="Link to this definition">#</a></dt>
-<dd><p>Adds edge numbering information (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.GraphDebugPrintOptions.conditional_node_params">
-<span class="sig-name descname"><span class="pre">conditional_node_params</span></span><a class="headerlink" href="#cuda.core.GraphDebugPrintOptions.conditional_node_params" title="Link to this definition">#</a></dt>
-<dd><p>Adds conditional node parameter values to output (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p>Condition.handle</p>
 </dd>
 </dl>
 </dd></dl>
@@ -880,20 +725,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.GraphCompleteOptions.html"
+       href="cuda.core.graph.GraphNode.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.GraphCompleteOptions</p>
+        <p class="prev-next-title">cuda.core.graph.GraphNode</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.StreamOptions.html"
+       href="cuda.core.graph.GraphAllocOptions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.StreamOptions</p>
+        <p class="prev-next-title">cuda.core.graph.GraphAllocOptions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -918,23 +763,9 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.verbose"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.verbose</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.runtime_types"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.runtime_types</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.kernel_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.kernel_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.memcpy_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.memcpy_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.memset_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.memset_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.host_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.host_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.event_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.event_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.ext_semas_signal_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.ext_semas_signal_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.ext_semas_wait_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.ext_semas_wait_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.kernel_node_attributes"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.kernel_node_attributes</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.handles"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.handles</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.mem_alloc_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.mem_alloc_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.mem_free_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.mem_free_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.batch_mem_op_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.batch_mem_op_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.extra_topo_info"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.extra_topo_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.conditional_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.conditional_node_params</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.Condition"><code class="docutils literal notranslate"><span class="pre">Condition</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.Condition.__init__"><code class="docutils literal notranslate"><span class="pre">Condition.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.Condition.handle"><code class="docutils literal notranslate"><span class="pre">Condition.handle</span></code></a></li>
 </ul>
 </li>
 </ul>

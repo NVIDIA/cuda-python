@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.Graph
-===============
+cuda.core.graph.Condition
+=========================
 
-.. currentmodule:: cuda.core
+.. currentmodule:: cuda.core.graph
 
-.. autoclass:: Graph
+.. autoclass:: Condition
 
    
    
@@ -14,10 +14,6 @@ cuda.core.Graph
 
    
    .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: launch
-   .. automethod:: update
-   .. automethod:: upload
 
    
    
@@ -27,6 +23,6 @@ cuda.core.Graph
    .. rubric:: Attributes
 
    
-   .. autoproperty:: handle
+   .. autoattribute:: handle
    
    
