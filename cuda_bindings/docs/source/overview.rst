@@ -25,9 +25,9 @@ code into
 `PTX <https://docs.nvidia.com/cuda/parallel-thread-execution/index.html>`_ and
 then extract the function to be called at a later point in the application. You
 construct your device code in the form of a string and compile it with
-`NVRTC <http://docs.nvidia.com/cuda/nvrtc/index.html>`_, a runtime compilation
+`NVRTC <https://docs.nvidia.com/cuda/nvrtc/index.html>`_, a runtime compilation
 library for CUDA C++. Using the NVIDIA `Driver
-API <http://docs.nvidia.com/cuda/cuda-driver-api/index.html>`_, manually create a
+API <https://docs.nvidia.com/cuda/cuda-driver-api/index.html>`_, manually create a
 CUDA context and all required resources on the GPU, then launch the compiled
 CUDA C++ code and retrieve the results from the GPU. Now that you have an
 overview, jump into a commonly used example for parallel programming:
@@ -428,7 +428,7 @@ Putting it all together:
    )
 
 The final step is to construct a ``kernelParams`` argument that fulfills all of the launch API conditions. This is made easy because each array object comes
-with a `ctypes <https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes>`_ data attribute that returns the underlying ``void*`` pointer value.
+with NumPy's `ctypes data attribute <https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes>`_ that returns the underlying ``void*`` pointer value.
 
 By having the final array object contain all pointers, we fulfill the contiguous array requirement:
 

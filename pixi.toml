@@ -12,6 +12,7 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 [environments]
 cu12 = { features = ["cu12"] }
 cu13 = { features = ["cu13"] }
+docs = { features = [], solve-group = "docs" }
 
 [activation.env]
 PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
@@ -47,6 +48,38 @@ depends-on = [
     { task = "test-pathfinder" },
     { task = "test-bindings" },
     { task = "test-core" },
+]
+
+[target.linux.tasks.docs-pathfinder]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_pathfinder",
+    "-e",
+    "docs",
+    "build-docs",
+]
+
+[target.linux.tasks.docs-bindings]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_bindings",
+    "-e",
+    "docs",
+    "build-docs",
+]
+
+[target.linux.tasks.docs-core]
+cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_core", "-e", "docs", "build-docs"]
+
+[target.linux.tasks.docs]
+depends-on = [
+    { task = "docs-pathfinder" },
+    { task = "docs-bindings" },
+    { task = "docs-core" },
 ]
 
 [dependencies]

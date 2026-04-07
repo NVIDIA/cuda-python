@@ -5,6 +5,10 @@
 from sphinx.ext.autodoc import ClassDocumenter
 
 
+def _sanitize_enum_member_doc(doc: str) -> str:
+    return doc.replace("`", "``").replace("*", r"\*")
+
+
 class EnumDocumenter(ClassDocumenter):
     objtype = "enum"
     directivetype = ClassDocumenter.objtype
@@ -14,6 +18,18 @@ class EnumDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, _membername, _isattr, _parent):
         return hasattr(member, "__members__")
+
+    def get_doc(self):
+        docs = super().get_doc()
+
+        if (
+            docs
+            and self.object.__module__ == "cuda.bindings.nvml"
+            and self.object.__name__ == "GpmMetricId"
+        ):
+            return [["GPM Metric Identifiers.", "", "See ``nvmlGpmMetricId_t``."]]
+
+        return docs
 
     def add_content(self, more_content):
         super().add_content(more_content)
@@ -29,7 +45,10 @@ class EnumDocumenter(ClassDocumenter):
 
             self.add_line(f"**{member_name}**: {member_value}", source_name)
             if enum_member.__doc__:
-                self.add_line(f"    {enum_member.__doc__}", source_name)
+                member_doc = enum_member.__doc__
+                if enum_object.__module__ == "cuda.bindings.nvml" and enum_object.__name__ == "GpmMetricId":
+                    member_doc = _sanitize_enum_member_doc(member_doc)
+                self.add_line(f"    {member_doc}", source_name)
             self.add_line("", source_name)
 
 
