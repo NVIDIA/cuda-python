@@ -46,6 +46,7 @@ jobs:
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
@@ -65,6 +66,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
+
+      - name: Fix workspace ownership
+        run: |
+          chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
