@@ -44,9 +44,7 @@ def _is_nvfatbin_available():
         return False
 
 
-nvfatbin_available = pytest.mark.skipif(
-    not _is_nvfatbin_available(), reason="nvfatbin bindings not available"
-)
+nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nvfatbin bindings not available")
 
 
 @pytest.fixture(scope="module")
@@ -126,9 +124,7 @@ def get_saxpy_fatbin(init_cuda):
     sym_map = mod.symbol_mapping
 
     # Compile to PTX targeting the second arch
-    ptx_mod = Program(
-        SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{second_arch}")
-    ).compile(
+    ptx_mod = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{second_arch}")).compile(
         "ptx",
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
