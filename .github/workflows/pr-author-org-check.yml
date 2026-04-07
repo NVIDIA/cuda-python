@@ -64,6 +64,13 @@ jobs:
             TOUCHES_RESTRICTED_PATHS=true
           fi
 
+          write_matching_restricted_paths() {
+            echo "- **Matched restricted paths**:"
+            echo '```text'
+            printf '%s\n' "$MATCHING_RESTRICTED_PATHS"
+            echo '```'
+          }
+
           IS_ALLOWED=false
           case "$AUTHOR_ASSOCIATION" in
             MEMBER|OWNER)
@@ -80,6 +87,8 @@ jobs:
               echo "- **Author association**: $AUTHOR_ASSOCIATION"
               echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
               echo ""
+              write_matching_restricted_paths
+              echo ""
               echo "- **Policy**: See \`cuda_bindings/LICENSE\` and \`cuda_python/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` or \`cuda_python/\`."
               echo ""
               echo "Please update the PR at: $PR_URL"
@@ -94,4 +103,8 @@ jobs:
             echo "- **Author association**: $AUTHOR_ASSOCIATION"
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
+              echo ""
+              write_matching_restricted_paths
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
