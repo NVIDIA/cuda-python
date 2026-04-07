@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.PinnedMemoryResourceOptions &#8212; cuda.core</title>
+    <title>cuda.core.typing.IsStreamT &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.PinnedMemoryResourceOptions';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.typing.IsStreamT';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -59,13 +59,11 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.PinnedMemoryResourceOptions.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.typing.IsStreamT.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.ManagedMemoryResourceOptions" href="cuda.core.ManagedMemoryResourceOptions.html" />
-    <link rel="prev" title="cuda.core.DeviceMemoryResourceOptions" href="cuda.core.DeviceMemoryResourceOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -209,7 +207,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -405,7 +403,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -477,11 +475,11 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
@@ -498,7 +496,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
@@ -646,10 +644,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.PinnedMemoryResourceOptions</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.typing.IsStreamT</span></li>
   </ul>
 </nav>
 </div>
@@ -666,63 +661,20 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-pinnedmemoryresourceoptions">
-<h1>cuda.core.PinnedMemoryResourceOptions<a class="headerlink" href="#cuda-core-pinnedmemoryresourceoptions" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">PinnedMemoryResourceOptions</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">ipc_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">numa_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions" title="Link to this definition">#</a></dt>
-<dd><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code> options.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions.ipc_enabled">
-<span class="sig-name descname"><span class="pre">ipc_enabled</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions.ipc_enabled" title="Link to this definition">#</a></dt>
-<dd><p>Specifies whether to create an IPC-enabled memory pool. When set to
-True, the memory pool and its allocations can be shared with other
-processes. (Default to False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions.max_size">
-<span class="sig-name descname"><span class="pre">max_size</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions.max_size" title="Link to this definition">#</a></dt>
-<dd><p>Maximum pool size. When set to 0, defaults to a system-dependent value.
-(Default to 0)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions.numa_id">
-<span class="sig-name descname"><span class="pre">numa_id</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions.numa_id" title="Link to this definition">#</a></dt>
-<dd><p>Host NUMA node ID for pool placement. When set to None (the default),
-the behavior depends on <code class="docutils literal notranslate"><span class="pre">ipc_enabled</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ipc_enabled=False</span></code>: OS-managed placement (location type HOST).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code>: automatically derived from the current CUDA
-device’s <code class="docutils literal notranslate"><span class="pre">host_numa_id</span></code> attribute, requiring an active CUDA
-context.</p></li>
-</ul>
-<p>When set to a non-negative integer, that NUMA node is used explicitly
-regardless of <code class="docutils literal notranslate"><span class="pre">ipc_enabled</span></code> (location type HOST_NUMA).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or None, optional</p>
-</dd>
-</dl>
+  <section id="cuda-core-typing-isstreamt">
+<h1>cuda.core.typing.IsStreamT<a class="headerlink" href="#cuda-core-typing-isstreamt" title="Link to this heading">#</a></h1>
+<dl class="py class protocol">
+<dt class="sig sig-object py" id="cuda.core.typing.IsStreamT">
+<em class="property"><span class="pre">protocol</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.typing.</span></span><span class="sig-name descname"><span class="pre">IsStreamT</span></span><a class="headerlink" href="#cuda.core.typing.IsStreamT" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Protocol</span></code></a>.</p>
+<p>Classes that implement this protocol must have the following methods / attributes:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.typing.IsStreamT.__cuda_stream__">
+<span class="sig-name descname"><span class="pre">__cuda_stream__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.typing.IsStreamT.__cuda_stream__" title="Link to this definition">#</a></dt>
+<dd><p>For any Python object that is meant to be interpreted as a CUDA stream, the intent
+can be communicated by implementing this protocol that returns a 2-tuple: The protocol
+version number (currently <code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code>. Both values
+should be Python <cite>int</cite>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -739,24 +691,6 @@ regardless of <code class="docutils literal notranslate"><span class="pre">ipc_e
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cuda.core.DeviceMemoryResourceOptions.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.DeviceMemoryResourceOptions</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cuda.core.ManagedMemoryResourceOptions.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.ManagedMemoryResourceOptions</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -778,10 +712,8 @@ regardless of <code class="docutils literal notranslate"><span class="pre">ipc_e
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions.ipc_enabled"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions.ipc_enabled</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions.max_size"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions.max_size</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions.numa_id"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions.numa_id</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.typing.IsStreamT"><code class="docutils literal notranslate"><span class="pre">IsStreamT</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.typing.IsStreamT.__cuda_stream__"><code class="docutils literal notranslate"><span class="pre">IsStreamT.__cuda_stream__()</span></code></a></li>
 </ul>
 </li>
 </ul>

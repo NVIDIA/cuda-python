@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=aa9645d5"></script>
+    <script src="_static/documentation_options.js?v=9d6ecfbf"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev120';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev123';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -686,7 +686,7 @@ method ensures that the same device/context is picked up by and shared with
 in Python. While we encourage new Python projects to start using streams (and other
 CUDA types) from <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, we understand that there are already several projects
 exposing their own stream types.</p>
-<p>To address this issue, we propose the <a class="reference internal" href="generated/cuda.core._stream.IsStreamT.html#cuda.core._stream.IsStreamT.__cuda_stream__" title="cuda.core._stream.IsStreamT.__cuda_stream__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__cuda_stream__</span></code></a> protocol
+<p>To address this issue, we propose the <code class="xref py py-attr docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol
 (currently version 0) as follows: For any Python objects that are meant to be interpreted
 as a stream, they should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> <em>method</em> that returns a 2-tuple: The
 version number (<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <code class="docutils literal notranslate"><span class="pre">int</span></code>):</p>
