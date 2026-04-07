@@ -60,7 +60,6 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.2.0', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.2.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.2.0', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest' }
-    # WSL runners
     - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest', FLAVOR: 'wsl' }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.2.0', LOCAL_CTK: '0', GPU: 'rtx4090',    GPU_COUNT: '1', DRIVER: 'latest', FLAVOR: 'wsl' }
   nightly: []
