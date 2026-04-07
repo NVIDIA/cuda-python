@@ -50,6 +50,8 @@ jobs:
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+        PIP_CACHE_DIR: "/tmp/pip-cache"
+        PIP_ROOT_USER_ACTION: "ignore"
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
