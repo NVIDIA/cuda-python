@@ -62,7 +62,9 @@ int main(int argc, char** argv) {
         });
     }
 
-    // --- event_query ---
+    // Re-sync so event is in a known completed state after the record benchmark
+    check_cu(cuStreamSynchronize(stream), "cuStreamSynchronize failed");
+
     {
         suite.run("event.event_query", [&]() {
             // Returns CUDA_SUCCESS if complete, CUDA_ERROR_NOT_READY if not
