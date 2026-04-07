@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_vgpu\_scheduler\_state
+======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_vgpu_scheduler_state
