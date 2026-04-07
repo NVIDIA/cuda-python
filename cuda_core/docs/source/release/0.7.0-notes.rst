@@ -53,7 +53,7 @@ New features
 
 - Added DLPack export support to :class:`~utils.StridedMemoryView` via
   ``__dlpack__`` and ``__dlpack_device__``, complementing the existing import
-  path. The vendored ``dlpack.h`` has been updated to DLPack v1.3.
+  path.
 
 - Added the DLPack C exchange API (``__dlpack_c_exchange_api__``) to
   :class:`~utils.StridedMemoryView`.
