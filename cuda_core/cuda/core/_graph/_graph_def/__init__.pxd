@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core.graph._graph_def cimport Condition, GraphDef
-from cuda.core.graph._graph_node cimport GraphNode
-from cuda.core.graph._subclasses cimport (
+from cuda.core._graph._graph_def._graph_def cimport Condition, GraphDef
+from cuda.core._graph._graph_def._graph_node cimport GraphNode
+from cuda.core._graph._graph_def._subclasses cimport (
     AllocNode,
     ChildGraphNode,
     ConditionalNode,

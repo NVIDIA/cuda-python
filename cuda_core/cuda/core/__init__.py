@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -31,6 +31,12 @@ finally:
 from cuda.core import system, utils
 from cuda.core._device import Device
 from cuda.core._event import Event, EventOptions
+from cuda.core._graph import (
+    Graph,
+    GraphBuilder,
+    GraphCompleteOptions,
+    GraphDebugPrintOptions,
+)
 from cuda.core._graphics import GraphicsResource
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._launcher import launch
@@ -63,12 +69,3 @@ from cuda.core._stream import (
     StreamOptions,
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
-from cuda.core.graph import (
-    Condition,
-    Graph,
-    GraphAllocOptions,
-    GraphBuilder,
-    GraphCompleteOptions,
-    GraphDebugPrintOptions,
-    GraphDef,
-)

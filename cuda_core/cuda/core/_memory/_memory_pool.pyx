@@ -129,7 +129,7 @@ cdef class _MemPool(MemoryResource):
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream on which to perform the allocation asynchronously.
             If None, an internal stream is used.
 
@@ -153,7 +153,7 @@ cdef class _MemPool(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream on which to perform the deallocation asynchronously.
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.

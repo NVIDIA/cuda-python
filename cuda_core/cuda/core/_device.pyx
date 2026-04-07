@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -23,6 +23,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
 )
 
+from cuda.core._graph import GraphBuilder
 from cuda.core._stream import IsStreamT, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
@@ -1361,17 +1362,15 @@ class Device:
         self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    def create_graph_builder(self) -> "GraphBuilder":
-        """Create a new :obj:`~graph.GraphBuilder` object.
+    def create_graph_builder(self) -> GraphBuilder:
+        """Create a new :obj:`~_graph.GraphBuilder` object.
 
         Returns
         -------
-        :obj:`~graph.GraphBuilder`
+        :obj:`~_graph.GraphBuilder`
             Newly created graph builder object.
 
         """
-        from cuda.core.graph._graph_builder import GraphBuilder
-
         self._check_context_initialized()
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
 

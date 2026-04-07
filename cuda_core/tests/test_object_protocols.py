@@ -27,8 +27,8 @@ from cuda.core import (
     Stream,
     system,
 )
+from cuda.core._graph._graph_def import GraphDef
 from cuda.core._program import _can_load_generated_ptx
-from cuda.core.graph import GraphDef
 
 
 def _skip_if_no_mempool():

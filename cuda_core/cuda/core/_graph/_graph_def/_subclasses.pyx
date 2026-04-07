@@ -14,8 +14,8 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_def cimport Condition, GraphDef
-from cuda.core.graph._graph_node cimport GraphNode
+from cuda.core._graph._graph_def._graph_def cimport Condition, GraphDef
+from cuda.core._graph._graph_def._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
@@ -30,7 +30,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from cuda.core.graph._utils cimport _is_py_host_trampoline
+from cuda.core._graph._utils cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 
@@ -48,7 +48,7 @@ cdef bint _check_node_get_params():
 
 
 cdef class EmptyNode(GraphNode):
-    """An empty (synchronization) node."""
+    """A synchronization / join node with no operation."""
 
     @staticmethod
     cdef EmptyNode _create_impl(GraphNodeHandle h_node):
@@ -237,7 +237,7 @@ cdef class AllocNode(GraphNode):
     @property
     def options(self):
         """A GraphAllocOptions reconstructed from this node's parameters."""
-        from cuda.core.graph._graph_def import GraphAllocOptions
+        from cuda.core._graph._graph_def._graph_def import GraphAllocOptions
         return GraphAllocOptions(
             device=self._device_id,
             memory_type=self._memory_type,
@@ -246,7 +246,7 @@ cdef class AllocNode(GraphNode):
 
 
 cdef class FreeNode(GraphNode):
-    """A memory deallocation node.
+    """A memory free node.
 
     Properties
     ----------
@@ -282,7 +282,7 @@ cdef class FreeNode(GraphNode):
 
 
 cdef class MemsetNode(GraphNode):
-    """A memset node.
+    """A memory set node.
 
     Properties
     ----------
@@ -363,7 +363,7 @@ cdef class MemsetNode(GraphNode):
 
 
 cdef class MemcpyNode(GraphNode):
-    """A memcpy node.
+    """A memory copy node.
 
     Properties
     ----------
@@ -436,7 +436,7 @@ cdef class MemcpyNode(GraphNode):
 
 
 cdef class ChildGraphNode(GraphNode):
-    """A child graph node.
+    """A child graph (sub-graph) node.
 
     Properties
     ----------
@@ -601,7 +601,7 @@ cdef class HostCallbackNode(GraphNode):
 
 
 cdef class ConditionalNode(GraphNode):
-    """Base class for conditional nodes.
+    """Base class for conditional graph nodes.
 
     When created via builder methods (if_cond, if_else, while_loop, switch),
     a specific subclass (IfNode, IfElseNode, WhileNode, SwitchNode) is
@@ -706,7 +706,7 @@ cdef class ConditionalNode(GraphNode):
 
 
 cdef class IfNode(ConditionalNode):
-    """An if-conditional node."""
+    """An if-conditional node (1 branch, executes when condition is non-zero)."""
 
     def __repr__(self) -> str:
         return (f"<IfNode handle=0x{as_intptr(self._h_node):x}"
@@ -719,7 +719,7 @@ cdef class IfNode(ConditionalNode):
 
 
 cdef class IfElseNode(ConditionalNode):
-    """An if-else conditional node."""
+    """An if-else conditional node (2 branches)."""
 
     def __repr__(self) -> str:
         return (f"<IfElseNode handle=0x{as_intptr(self._h_node):x}"
@@ -737,7 +737,7 @@ cdef class IfElseNode(ConditionalNode):
 
 
 cdef class WhileNode(ConditionalNode):
-    """A while-loop conditional node."""
+    """A while-loop conditional node (1 branch, repeats while condition is non-zero)."""
 
     def __repr__(self) -> str:
         return (f"<WhileNode handle=0x{as_intptr(self._h_node):x}"
@@ -750,7 +750,7 @@ cdef class WhileNode(ConditionalNode):
 
 
 cdef class SwitchNode(ConditionalNode):
-    """A switch conditional node."""
+    """A switch conditional node (N branches, selected by condition value)."""
 
     def __repr__(self) -> str:
         return (f"<SwitchNode handle=0x{as_intptr(self._h_node):x}"

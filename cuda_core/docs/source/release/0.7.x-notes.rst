@@ -10,9 +10,7 @@
 Highlights
 ----------
 
-- Introduced support for explicit graph construction. CUDA graphs can now be
-  built programmatically by adding nodes and edges, and their topology can be
-  modified after construction.
+None.
 
 
 Breaking Changes
@@ -25,11 +23,6 @@ Breaking Changes
 
 New features
 ------------
-
-- Added the :mod:`cuda.core.graph` public module containing
-  :class:`~graph.GraphDef` for explicit graph construction, typed node
-  subclasses, and supporting types. :class:`~graph.GraphBuilder` (stream
-  capture) also moves into this module.
 
 - Added ``preferred_location_type`` option to :class:`ManagedMemoryResourceOptions`
   for explicit control over the preferred location kind (``"device"``,
