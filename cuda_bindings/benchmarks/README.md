@@ -10,7 +10,7 @@ Each Python benchmark has a C++ counterpart, which is used to compare the
 operations. We try to make each implementation perform small operations
 and nearly the same work as possible and are run under similar conditions.
 
-These are **note** throughput benchmarks to measure the overall performance
+These are **not** throughput benchmarks to measure the overall performance
 of kernels and applications.
 
 ## Usage
