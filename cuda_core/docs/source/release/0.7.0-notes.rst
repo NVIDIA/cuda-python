@@ -21,14 +21,6 @@ Highlights
   ``from_dlpack()`` array API.
 
 
-Breaking Changes
-----------------
-
-- Building ``cuda.core`` from source now requires ``cuda-bindings`` >= 12.9.0, due to Cython-level
-  dependencies on the NVVM and nvJitLink bindings (``cynvvm``, ``cynvjitlink``). Pre-built wheels
-  are unaffected. The previous minimum was 12.8.0.
-
-
 New features
 ------------
 
