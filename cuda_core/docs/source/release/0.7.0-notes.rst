@@ -13,12 +13,12 @@ Highlights
 - Introduced support for explicit graph construction. CUDA graphs can now be
   built programmatically by adding nodes and edges, and their topology can be
   modified after construction.
-- Added CUDA-Graphics (OpenGL) interoperability support, enabling zero-copy
-  sharing of GPU memory between CUDA compute kernels and OpenGL renderers.
+- Added CUDA-OpenGL interoperability support, enabling zero-copy sharing of
+  GPU memory between CUDA compute kernels and OpenGL renderers.
 - Added :class:`TensorMapDescriptor` for Hopper+ TMA (Tensor Memory Accelerator)
   bulk data movement, with automatic kernel argument integration.
 - :class:`~utils.StridedMemoryView` now supports DLPack export via
-  ``__dlpack__`` / ``__dlpack_device__`` and the C exchange API.
+  ``from_dlpack()`` array API.
 
 
 Breaking Changes
@@ -46,15 +46,17 @@ New features
   access, and mapping returns a :class:`Buffer` for zero-copy kernel use.
 
 - Added :class:`TensorMapDescriptor` wrapping the CUDA driver's ``CUtensorMap``
-  for Hopper+ TMA (Tensor Memory Accelerator) bulk data movement. Supports tiled
-  and im2col descriptor creation via :meth:`~TensorMapDescriptor.from_tiled` and
-  :meth:`~TensorMapDescriptor.from_im2col`, with automatic dtype inference, stride
+  for Hopper+ TMA (Tensor Memory Accelerator) bulk data movement.
+  :class:`~utils.StridedMemoryView` gains an :meth:`~utils.StridedMemoryView.as_tensor_map`
+  method for convenient descriptor creation, with automatic dtype inference, stride
   computation, and first-class kernel argument integration.
 
 - Added DLPack export support to :class:`~utils.StridedMemoryView` via
   ``__dlpack__`` and ``__dlpack_device__``, complementing the existing import
-  path. The DLPack C exchange API (``__dlpack_c_exchange_api__``) is also
-  exposed. The vendored ``dlpack.h`` has been updated to DLPack v1.3.
+  path. The vendored ``dlpack.h`` has been updated to DLPack v1.3.
+
+- Added the DLPack C exchange API (``__dlpack_c_exchange_api__``) to
+  :class:`~utils.StridedMemoryView`.
 
 - Added NVRTC precompiled header (PCH) runtime APIs to :class:`Program`:
   :meth:`~Program.get_pch_create_status`, :meth:`~Program.get_pch_heap_size_required`,
