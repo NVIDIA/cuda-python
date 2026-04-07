@@ -31,19 +31,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          if ! TOUCHES_RESTRICTED_PATHS=$(
+          if ! MATCHING_RESTRICTED_PATHS=$(
             gh api \
               --paginate \
-              --slurp \
               --jq '
-                flatten
-                | any(
-                    .[];
+                .[]
+                | select(
                     (.filename | startswith("cuda_bindings/"))
                     or ((.previous_filename // "") | startswith("cuda_bindings/"))
                     or (.filename | startswith("cuda_python/"))
                     or ((.previous_filename // "") | startswith("cuda_python/"))
                   )
+                | .filename
               ' \
               "repos/$REPO/pulls/$PR_NUMBER/files"
           ); then
@@ -58,6 +57,11 @@ jobs:
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1
+          fi
+
+          TOUCHES_RESTRICTED_PATHS=false
+          if [ -n "$MATCHING_RESTRICTED_PATHS" ]; then
+            TOUCHES_RESTRICTED_PATHS=true
           fi
 
           IS_ALLOWED=false
