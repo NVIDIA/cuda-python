@@ -522,7 +522,7 @@ CUDA objects
 Certain CUDA kernels use native CUDA types as their parameters such as ``cudaTextureObject_t``. These types require special handling since they're neither a primitive ctype nor a custom user type. Since ``cuda.bindings`` exposes each of them as Python classes, they each implement ``getPtr()`` and ``__int__()``. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under `Tips and Tricks <https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#>`_.
 
 For this example, lets use the ``transformKernel`` from
-`examples/0_Introduction/simpleCubemapTexture_test.py <https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py>`_.
+`simple_cubemap_texture.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py>`_.
 The :doc:`examples` page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.
 

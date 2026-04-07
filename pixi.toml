@@ -49,37 +49,5 @@ depends-on = [
     { task = "test-core" },
 ]
 
-# Docs Tasks
-# Builds the package-local Sphinx docs through each package's docs environment.
-#
-# Usage: pixi run docs | pixi run docs-bindings | pixi run docs-core
-[target.linux.tasks.docs-bindings]
-cmd = [
-    "pixi",
-    "run",
-    "--manifest-path",
-    "$PIXI_PROJECT_ROOT/cuda_bindings",
-    "-e",
-    "docs",
-    "build-docs",
-]
-
-[target.linux.tasks.docs-core]
-cmd = [
-    "pixi",
-    "run",
-    "--manifest-path",
-    "$PIXI_PROJECT_ROOT/cuda_core",
-    "-e",
-    "docs",
-    "build-docs",
-]
-
-[target.linux.tasks.docs]
-depends-on = [
-    { task = "docs-bindings" },
-    { task = "docs-core" },
-]
-
 [dependencies]
 ruff = ">=0.15.3,<0.16"

@@ -58,37 +58,10 @@ cuda-version = "12.*"
 [feature.cu13.dependencies]
 cuda-version = "13.2.*"
 
-[feature.docs.dependencies]
-cython = "*"
-myst-parser = "*"
-numpy = "*"
-numpydoc = "*"
-pip = "*"
-pydata-sphinx-theme = "*"
-pytest = "*"
-scipy = "*"
-sphinx = "<8.2.0"
-sphinx-copybutton = "*"
-myst-nb = "*"
-enum_tools = "*"
-sphinx-toolbox = "*"
-pyclibrary = "*"
-python = "3.12.*"
-
-[feature.docs.pypi-dependencies]
-nvidia-sphinx-theme = "*"
-
-[feature.docs.target.linux-64.dependencies]
-make = "*"
-
-[feature.docs.target.linux-aarch64.dependencies]
-make = "*"
-
 [environments]
 default = { features = ["test", "cython-tests"], solve-group = "default" }
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
-docs = { features = ["cu13", "docs"], solve-group = "docs" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -169,20 +142,6 @@ cmd = [
     "norecursedirs=examples", # include cython tests (ignore by default config)
 ]
 depends-on = [{ task = "build-cython-tests" }]
-
-[target.linux.tasks.build-docs]
-cmd = [
-    "bash",
-    "-lc",
-    "cd \"$PIXI_PROJECT_ROOT/docs\" && rm -rf build source/module/generated && ./build_docs.sh latest-only && rm -rf source/module/generated",
-]
-
-[target.linux.tasks.build-docs-release]
-cmd = [
-    "bash",
-    "-lc",
-    "cd \"$PIXI_PROJECT_ROOT/docs\" && rm -rf build source/module/generated && ./build_docs.sh && rm -rf source/module/generated",
-]
 
 [target.win-64.tasks.test]
 cmd = [

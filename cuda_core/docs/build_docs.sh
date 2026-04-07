@@ -24,6 +24,10 @@ if [[ -z "${SPHINX_CUDA_CORE_VER}" ]]; then
                                   | awk -F'+' '{print $1}')
 fi
 
+if [[ "${LATEST_ONLY}" == "1" && -z "${BUILD_PREVIEW:-}" && -z "${BUILD_LATEST:-}" ]]; then
+    export BUILD_LATEST=1
+fi
+
 # build the docs. Allow callers to override SPHINXOPTS for serial/debug runs.
 if [[ -z "${SPHINXOPTS:-}" ]]; then
     SPHINXOPTS="-j 4 -d build/.doctrees"
