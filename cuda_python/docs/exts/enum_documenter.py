@@ -22,11 +22,7 @@ class EnumDocumenter(ClassDocumenter):
     def get_doc(self):
         docs = super().get_doc()
 
-        if (
-            docs
-            and self.object.__module__ == "cuda.bindings.nvml"
-            and self.object.__name__ == "GpmMetricId"
-        ):
+        if docs and self.object.__module__ == "cuda.bindings.nvml" and self.object.__name__ == "GpmMetricId":
             return [["GPM Metric Identifiers.", "", "See ``nvmlGpmMetricId_t``."]]
 
         return docs

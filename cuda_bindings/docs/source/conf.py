@@ -121,6 +121,7 @@ intersphinx_mapping = {
     "cufile": ("https://docs.nvidia.com/gpudirect-storage/api-reference-guide/", None),
 }
 
+
 def _sanitize_generated_docstring(lines):
     doc_lines = inspect.cleandoc("\n".join(lines)).splitlines()
     if not doc_lines:
@@ -151,6 +152,7 @@ def rewrite_source(app, docname, source):
         text = text.replace(".. module:: cuda.bindings\n\n", "", 1)
 
     source[0] = text
+
 
 suppress_warnings = [
     # for warnings about multiple possible targets, see NVIDIA/cuda-python#152
