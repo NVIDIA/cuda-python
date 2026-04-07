@@ -33,6 +33,22 @@ __global__ void saxpy(const T a,
 """
 
 
+def _is_nvfatbin_available():
+    """Check if nvfatbin bindings are available."""
+    try:
+        from cuda.bindings import nvfatbin
+
+        nvfatbin.version()
+        return True
+    except Exception:
+        return False
+
+
+nvfatbin_available = pytest.mark.skipif(
+    not _is_nvfatbin_available(), reason="nvfatbin bindings not available"
+)
+
+
 @pytest.fixture(scope="module")
 def cuda12_4_prerequisite_check():
     return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
@@ -88,6 +104,44 @@ def get_saxpy_kernel_ltoir(init_cuda):
     prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
     mod = prog.compile("ltoir", name_expressions=("saxpy<float>", "saxpy<double>"))
     return mod
+
+
+@pytest.fixture
+def get_saxpy_fatbin(init_cuda):
+    from cuda.bindings import nvfatbin
+
+    dev = Device()
+    arch = dev.arch
+
+    # Compile to cubin for current device arch
+    prog = Program(SAXPY_KERNEL, code_type="c++")
+    mod = prog.compile(
+        "cubin",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
+
+    # Also compile to PTX for a second arch
+    ptx_mod = Program(SAXPY_KERNEL, code_type="c++").compile(
+        "ptx",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    ptx = ptx_mod.code
+
+    # Pick a second arch different from the current device
+    second_arch = "75" if arch != "75" else "80"
+
+    # Create fatbin with both cubin + PTX
+    handle = nvfatbin.create([], 0)
+    nvfatbin.add_cubin(handle, cubin, len(cubin), arch, "saxpy")
+    nvfatbin.add_ptx(handle, ptx, len(ptx), second_arch, "saxpy", f"-arch=sm_{second_arch}")
+    fatbin_size = nvfatbin.size(handle)
+    fatbin = bytearray(fatbin_size)
+    nvfatbin.get(handle, fatbin)
+    nvfatbin.destroy(handle)
+
+    return bytes(fatbin), sym_map
 
 
 def test_get_kernel(init_cuda):
@@ -218,6 +272,28 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     assert mod_obj.code == str(ltoir_file)
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
+
+
+@nvfatbin_available
+def test_object_code_load_fatbin(get_saxpy_fatbin):
+    fatbin, sym_map = get_saxpy_fatbin
+    assert isinstance(fatbin, bytes)
+    mod_obj = ObjectCode.from_fatbin(fatbin, symbol_mapping=sym_map)
+    assert mod_obj.code == fatbin
+    assert mod_obj.code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+@nvfatbin_available
+def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path):
+    fatbin, sym_map = get_saxpy_fatbin
+    assert isinstance(fatbin, bytes)
+    fatbin_file = tmp_path / "test.fatbin"
+    fatbin_file.write_bytes(fatbin)
+    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(fatbin_file)
+    assert mod_obj.code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
