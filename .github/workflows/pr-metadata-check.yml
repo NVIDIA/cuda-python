@@ -39,10 +39,11 @@ jobs:
 
           # Fetch live PR data to avoid stale event payload (race condition
           # when labels/milestone are added shortly after PR creation).
-          PR_JSON=$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}")
+          PR_JSON=$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" \
+            --jq '{assignees: .assignees, labels: .labels, milestone: (.milestone.title // empty)}')
           ASSIGNEES=$(echo "$PR_JSON" | jq '.assignees')
           LABELS=$(echo "$PR_JSON" | jq '.labels')
-          MILESTONE=$(echo "$PR_JSON" | jq -r '.milestone.title // empty')
+          MILESTONE=$(echo "$PR_JSON" | jq -r '.milestone')
 
           ERRORS=""
 
