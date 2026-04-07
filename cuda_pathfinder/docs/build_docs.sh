@@ -26,7 +26,7 @@ if [[ -z "${SPHINX_CUDA_PATHFINDER_VER}" ]]; then
 fi
 
 # build the docs (in parallel)
-SPHINXOPTS="-j 4 -d build/.doctrees" make html
+SPHINXOPTS="-W --keep-going -j 4 -d build/.doctrees" make html
 
 # for debugging/developing (conf.py), please comment out the above line and
 # use the line below instead, as we must build in serial to avoid getting

@@ -30,7 +30,7 @@ fi
 
 # build the docs. Allow callers to override SPHINXOPTS for serial/debug runs.
 if [[ -z "${SPHINXOPTS:-}" ]]; then
-    SPHINXOPTS="-j 4 -d build/.doctrees"
+    SPHINXOPTS="-W --keep-going -j 4 -d build/.doctrees"
 fi
 make html
 
