@@ -25,10 +25,10 @@ jobs:
     steps:
       - name: Check for assignee, labels, and milestone
         env:
-          ASSIGNEES: ${{ toJson(github.event.pull_request.assignees) }}
-          LABELS: ${{ toJson(github.event.pull_request.labels) }}
-          MILESTONE: ${{ github.event.pull_request.milestone && github.event.pull_request.milestone.title || '' }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IS_BOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'pre-commit-ci[bot]' || github.actor == 'copy-pr-bot[bot]' }}
           IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
@@ -36,6 +36,13 @@ jobs:
             echo "Skipping check for bot or draft PR."
             exit 0
           fi
+
+          # Fetch live PR data to avoid stale event payload (race condition
+          # when labels/milestone are added shortly after PR creation).
+          PR_JSON=$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}")
+          ASSIGNEES=$(echo "$PR_JSON" | jq '.assignees')
+          LABELS=$(echo "$PR_JSON" | jq '.labels')
+          MILESTONE=$(echo "$PR_JSON" | jq -r '.milestone.title // empty')
 
           ERRORS=""
 
