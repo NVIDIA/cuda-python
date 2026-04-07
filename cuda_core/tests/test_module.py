@@ -113,6 +113,9 @@ def get_saxpy_fatbin(init_cuda):
     dev = Device()
     arch = dev.arch
 
+    # Pick a second arch different from the current device
+    second_arch = "75" if arch != "75" else "80"
+
     # Compile to cubin for current device arch
     prog = Program(SAXPY_KERNEL, code_type="c++")
     mod = prog.compile(
@@ -122,15 +125,14 @@ def get_saxpy_fatbin(init_cuda):
     cubin = mod.code
     sym_map = mod.symbol_mapping
 
-    # Also compile to PTX for a second arch
-    ptx_mod = Program(SAXPY_KERNEL, code_type="c++").compile(
+    # Compile to PTX targeting the second arch
+    ptx_mod = Program(
+        SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{second_arch}")
+    ).compile(
         "ptx",
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
     ptx = ptx_mod.code
-
-    # Pick a second arch different from the current device
-    second_arch = "75" if arch != "75" else "80"
 
     # Create fatbin with both cubin + PTX
     handle = nvfatbin.create([], 0)
