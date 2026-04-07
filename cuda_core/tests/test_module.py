@@ -117,7 +117,7 @@ def get_saxpy_fatbin(init_cuda):
     second_arch = "75" if arch != "75" else "80"
 
     # Compile to cubin for current device arch
-    prog = Program(SAXPY_KERNEL, code_type="c++")
+    prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{arch}"))
     mod = prog.compile(
         "cubin",
         name_expressions=("saxpy<float>", "saxpy<double>"),
