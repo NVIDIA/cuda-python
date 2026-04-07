@@ -1,0 +1,93 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Check PR author organization for restricted paths"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+jobs:
+  check-author-org:
+    name: PR author may modify restricted paths
+    if: github.repository_owner == 'NVIDIA'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Check PR author organization for restricted paths
+        env:
+          # PR metadata inputs
+          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+          # API request context/auth
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          if ! TOUCHES_RESTRICTED_PATHS=$(
+            gh api \
+              --paginate \
+              --slurp \
+              --jq '
+                flatten
+                | any(
+                    .[];
+                    (.filename | startswith("cuda_bindings/"))
+                    or ((.previous_filename // "") | startswith("cuda_bindings/"))
+                    or (.filename | startswith("cuda_python/"))
+                    or ((.previous_filename // "") | startswith("cuda_python/"))
+                  )
+              ' \
+              "repos/$REPO/pulls/$PR_NUMBER/files"
+          ); then
+            echo "::error::Failed to inspect the PR file list."
+            {
+              echo "## PR Author Organization Check Failed"
+              echo ""
+              echo "- **Error**: Failed to inspect the PR file list."
+              echo "- **Author**: $PR_AUTHOR"
+              echo "- **Author association**: $AUTHOR_ASSOCIATION"
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          IS_ALLOWED=false
+          case "$AUTHOR_ASSOCIATION" in
+            MEMBER|OWNER)
+              IS_ALLOWED=true
+              ;;
+          esac
+
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$IS_ALLOWED" = "false" ]; then
+            echo "::error::This PR failed the author organization check. See the job summary for details."
+            {
+              echo "## PR Author Organization Check Failed"
+              echo ""
+              echo "- **Author**: $PR_AUTHOR"
+              echo "- **Author association**: $AUTHOR_ASSOCIATION"
+              echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+              echo ""
+              echo "- **Policy**: See \`cuda_bindings/LICENSE\` and \`cuda_python/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` or \`cuda_python/\`."
+              echo ""
+              echo "Please update the PR at: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          {
+            echo "## PR Author Organization Check Passed"
+            echo ""
+            echo "- **Author**: $PR_AUTHOR"
+            echo "- **Author association**: $AUTHOR_ASSOCIATION"
+            echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
+            echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+          } >> "$GITHUB_STEP_SUMMARY"
