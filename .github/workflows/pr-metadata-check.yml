@@ -42,7 +42,6 @@ jobs:
           IS_DRAFT: ${{ github.event.pull_request.draft }}
 
           # API request context/auth
-          GITHUB_API_URL: ${{ github.api_url }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
@@ -119,33 +118,23 @@ jobs:
 
           # Only NVIDIA organization members may change code under cuda_bindings.
           if [ "$AUTHOR_ASSOCIATION" != "MEMBER" ] && [ "$AUTHOR_ASSOCIATION" != "OWNER" ]; then
-            page=1
-            TOUCHES_CUDA_BINDINGS=false
-            while true; do
-              FILES_JSON=$(curl --silent --show-error --fail \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                "$GITHUB_API_URL/repos/$REPO/pulls/$PR_NUMBER/files?per_page=100&page=$page")
-
-              if jq -e '
-                .[]
-                | select(
-                    (.filename | startswith("cuda_bindings/"))
-                    or ((.previous_filename // "") | startswith("cuda_bindings/"))
-                  )
-              ' <<<"$FILES_JSON" >/dev/null; then
-                TOUCHES_CUDA_BINDINGS=true
-                break
-              fi
-
-              FILE_COUNT=$(jq 'length' <<<"$FILES_JSON")
-              if [ "$FILE_COUNT" -lt 100 ]; then
-                break
-              fi
-
-              page=$((page + 1))
-            done
+            if ! TOUCHES_CUDA_BINDINGS=$(
+              gh api \
+                --paginate \
+                --slurp \
+                --jq '
+                  flatten
+                  | any(
+                      .[];
+                      (.filename | startswith("cuda_bindings/"))
+                      or ((.previous_filename // "") | startswith("cuda_bindings/"))
+                    )
+                ' \
+                "repos/$REPO/pulls/$PR_NUMBER/files"
+            ); then
+              echo "::error::Failed to inspect the PR file list."
+              exit 1
+            fi
 
             if [ "$TOUCHES_CUDA_BINDINGS" = "true" ]; then
               ERRORS="${ERRORS}- **cuda_bindings policy**: See \`cuda_bindings/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` (PR author \`$PR_AUTHOR\` has association \`$AUTHOR_ASSOCIATION\`).\n"
