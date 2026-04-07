@@ -53,7 +53,7 @@ New features
 - Added NVRTC precompiled header (PCH) support (CUDA 12.8+).
   :class:`ProgramOptions` gains ``pch``, ``create_pch``, ``use_pch``,
   ``pch_dir``, and related options. :attr:`Program.pch_status` reports the
-  PCH creation outcome, and ``compile()`` automatically resizes the NVRTC
+  PCH creation outcome, and :meth:`~Program.compile` automatically resizes the NVRTC
   PCH heap and retries when PCH creation fails due to heap exhaustion.
 
 - Added NUMA-aware managed memory pool placement.
