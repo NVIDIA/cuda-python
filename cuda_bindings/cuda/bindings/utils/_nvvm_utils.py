@@ -25,7 +25,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
 
     Check if the specified options are supported by the current libNVVM version.
 
-    The options are a list of bytes, each representing a compiler option.
+    The options are a list of strings, each representing a compiler option.
 
     If the test program fails to compile, the options are not supported and False
     is returned.
@@ -37,7 +37,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     Parameters
     ----------
     options : Sequence[bytes]
-        List of compiler options as bytes (e.g., [b"-arch=compute_90", b"-g"]).
+        List of compiler options as strings (e.g., ["-arch=compute_90", "-g"]).
 
     Returns
     -------
@@ -47,7 +47,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     Examples
     --------
     >>> from cuda.bindings.utils import check_nvvm_options
-    >>> check_nvvm_options([b"-arch=compute_90", b"-g"])
+    >>> check_nvvm_options(["-arch=compute_90", "-g"])
     True
     """
     try:
