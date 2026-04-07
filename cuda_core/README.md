@@ -4,7 +4,7 @@ Currently under active development; see [the documentation](https://nvidia.githu
 
 ## Installing
 
-Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) for instructions and required/optional dependencies.
+Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-core/latest/install.html) for instructions and required/optional dependencies.
 
 ## Developing
 
