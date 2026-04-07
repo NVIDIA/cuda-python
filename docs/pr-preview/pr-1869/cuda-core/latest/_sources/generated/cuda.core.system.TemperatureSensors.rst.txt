@@ -1,0 +1,6 @@
+﻿cuda.core.system.TemperatureSensors
+===================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: TemperatureSensors

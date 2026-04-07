@@ -1,0 +1,6 @@
+﻿cuda.core.system.FanControlPolicy
+=================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: FanControlPolicy
