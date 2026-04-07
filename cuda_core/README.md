@@ -1,4 +1,4 @@
-# `cuda.core`: (experimental) Pythonic CUDA module
+# `cuda.core`: Pythonic CUDA module
 
 Currently under active development; see [the documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/) for more details.
 
