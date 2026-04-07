@@ -21,14 +21,6 @@ Highlights
   ``from_dlpack()`` array API.
 
 
-Breaking Changes
-----------------
-
-- Building ``cuda.core`` from source now requires ``cuda-bindings`` >= 12.9.0, due to Cython-level
-  dependencies on the NVVM and nvJitLink bindings (``cynvvm``, ``cynvjitlink``). Pre-built wheels
-  are unaffected. The previous minimum was 12.8.0.
-
-
 New features
 ------------
 
@@ -58,29 +50,24 @@ New features
 - Added the DLPack C exchange API (``__dlpack_c_exchange_api__``) to
   :class:`~utils.StridedMemoryView`.
 
-- Added NVRTC precompiled header (PCH) runtime APIs to :class:`Program`:
-  :meth:`~Program.get_pch_create_status`, :meth:`~Program.get_pch_heap_size_required`,
-  :meth:`~Program.get_pch_heap_size` (static), and :meth:`~Program.set_pch_heap_size`
-  (static). Requires NVRTC 12.8+.
+- Added NVRTC precompiled header (PCH) support (CUDA 12.8+).
+  :class:`ProgramOptions` gains ``pch``, ``create_pch``, ``use_pch``,
+  ``pch_dir``, and related options. :attr:`Program.pch_status` reports the
+  PCH creation outcome, and :meth:`~Program.compile` automatically resizes the NVRTC
+  PCH heap and retries when PCH creation fails due to heap exhaustion.
 
-- Added ``preferred_location_type`` option to :class:`ManagedMemoryResourceOptions`
-  for explicit control over the preferred location kind (``"device"``,
-  ``"host"``, or ``"host_numa"``). This enables NUMA-aware managed memory
-  pool placement. The existing ``preferred_location`` parameter retains full
-  backwards compatibility when ``preferred_location_type`` is not set.
+- Added NUMA-aware managed memory pool placement.
+  :class:`ManagedMemoryResourceOptions` gains a ``preferred_location_type``
+  option (``"device"``, ``"host"``, or ``"host_numa"``), and
+  :attr:`ManagedMemoryResource.preferred_location` queries the resolved
+  location. The existing ``preferred_location`` parameter retains full
+  backwards compatibility.
 
-- Added :attr:`ManagedMemoryResource.preferred_location` property to query the
-  resolved preferred location of a managed memory pool. Returns ``None`` for no
-  preference, or a tuple such as ``("device", 0)``, ``("host", None)``, or
-  ``("host_numa", 3)``.
-
-- Added ``numa_id`` option to :class:`PinnedMemoryResourceOptions` for explicit
-  control over host NUMA node placement. When ``ipc_enabled=True`` and
-  ``numa_id`` is not set, the NUMA node is automatically derived from the
-  current CUDA device.
-
-- Added :attr:`PinnedMemoryResource.numa_id` property to query the host NUMA
-  node ID used for pool placement. Returns ``-1`` for OS-managed placement.
+- Added NUMA-aware pinned memory pool placement.
+  :class:`PinnedMemoryResourceOptions` gains a ``numa_id`` option, and
+  :attr:`PinnedMemoryResource.numa_id` queries the host NUMA node ID used for
+  pool placement. When ``ipc_enabled=True`` and ``numa_id`` is not set, the
+  NUMA node is automatically derived from the current CUDA device.
 
 - Added support for CUDA 13.2.
 
@@ -99,23 +86,23 @@ Fixes and enhancements
 
 - Fixed managed memory buffers being misclassified as ``kDLCUDAHost`` in DLPack
   device mapping. They are now correctly reported as ``kDLCUDAManaged``.
-  (:issue:`1863`)
+  (`#1863 <https://github.com/NVIDIA/cuda-python/pull/1863>`__)
 - Fixed IPC-enabled pinned memory pools using a hardcoded NUMA node ID of ``0``
   instead of the NUMA node closest to the active CUDA device. On multi-NUMA
   systems where the device is attached to a non-zero host NUMA node, this could
-  cause pool creation or allocation failures. (:issue:`1603`)
+  cause pool creation or allocation failures. (`#1603 <https://github.com/NVIDIA/cuda-python/issues/1603>`__)
 - Fixed :attr:`DeviceMemoryResource.peer_accessible_by` returning stale results when wrapping
   a non-owned (default) memory pool. The property now always queries the CUDA driver for
-  non-owned pools, so multiple wrappers around the same pool see consistent state. (:issue:`1720`)
+  non-owned pools, so multiple wrappers around the same pool see consistent state. (`#1720 <https://github.com/NVIDIA/cuda-python/issues/1720>`__)
 - Fixed a bare ``except`` clause in stream acceptance that silently swallowed all exceptions,
   including ``KeyboardInterrupt`` and ``SystemExit``. Only the expected "protocol not
-  supported" case is now caught. (:issue:`1631`)
+  supported" case is now caught. (`#1631 <https://github.com/NVIDIA/cuda-python/issues/1631>`__)
 - :class:`~utils.StridedMemoryView` now validates strides at construction time so unsupported
-  layouts fail immediately instead of on first metadata access. (:issue:`1429`)
+  layouts fail immediately instead of on first metadata access. (`#1429 <https://github.com/NVIDIA/cuda-python/issues/1429>`__)
 - IPC file descriptor cleanup now uses a C++ ``shared_ptr`` with a POSIX deleter, avoiding
   cryptic errors when a :class:`DeviceMemoryResource` is destroyed during Python shutdown.
-- Improved error message when ``ManagedMemoryResource()`` is called without options on platforms
-  that lack a default managed memory pool (e.g. WSL2). (:issue:`1617`)
+- Improved error message when :class:`ManagedMemoryResource` is called without options on platforms
+  that lack a default managed memory pool (e.g. WSL2). (`#1617 <https://github.com/NVIDIA/cuda-python/issues/1617>`__)
 - Handle properties on core API objects now return ``None`` during Python shutdown instead of
   crashing.
 - Reduced Python overhead in :class:`Program` and :class:`Linker` by moving compilation and

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=2d7df2c3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev129';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -685,14 +685,6 @@ bulk data movement, with automatic kernel argument integration.</p></li>
 <code class="docutils literal notranslate"><span class="pre">from_dlpack()</span></code> array API.</p></li>
 </ul>
 </section>
-<section id="breaking-changes">
-<h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Building <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> from source now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> &gt;= 12.9.0, due to Cython-level
-dependencies on the NVVM and nvJitLink bindings (<code class="docutils literal notranslate"><span class="pre">cynvvm</span></code>, <code class="docutils literal notranslate"><span class="pre">cynvjitlink</span></code>). Pre-built wheels
-are unaffected. The previous minimum was 12.8.0.</p></li>
-</ul>
-</section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -716,25 +708,22 @@ computation, and first-class kernel argument integration.</p></li>
 path.</p></li>
 <li><p>Added the DLPack C exchange API (<code class="docutils literal notranslate"><span class="pre">__dlpack_c_exchange_api__</span></code>) to
 <a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>.</p></li>
-<li><p>Added NVRTC precompiled header (PCH) runtime APIs to <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>:
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_pch_create_status()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_pch_heap_size_required()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_pch_heap_size()</span></code> (static), and <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_pch_heap_size()</span></code>
-(static). Requires NVRTC 12.8+.</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code> option to <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a>
-for explicit control over the preferred location kind (<code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
-<code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>). This enables NUMA-aware managed memory
-pool placement. The existing <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> parameter retains full
-backwards compatibility when <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code> is not set.</p></li>
-<li><p>Added <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.preferred_location" title="cuda.core.ManagedMemoryResource.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ManagedMemoryResource.preferred_location</span></code></a> property to query the
-resolved preferred location of a managed memory pool. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> for no
-preference, or a tuple such as <code class="docutils literal notranslate"><span class="pre">(&quot;device&quot;,</span> <span class="pre">0)</span></code>, <code class="docutils literal notranslate"><span class="pre">(&quot;host&quot;,</span> <span class="pre">None)</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">(&quot;host_numa&quot;,</span> <span class="pre">3)</span></code>.</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> option to <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a> for explicit
-control over host NUMA node placement. When <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> and
-<code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not set, the NUMA node is automatically derived from the
-current CUDA device.</p></li>
-<li><p>Added <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.numa_id" title="cuda.core.PinnedMemoryResource.numa_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PinnedMemoryResource.numa_id</span></code></a> property to query the host NUMA
-node ID used for pool placement. Returns <code class="docutils literal notranslate"><span class="pre">-1</span></code> for OS-managed placement.</p></li>
+<li><p>Added NVRTC precompiled header (PCH) support (CUDA 12.8+).
+<a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> gains <code class="docutils literal notranslate"><span class="pre">pch</span></code>, <code class="docutils literal notranslate"><span class="pre">create_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, and related options. <code class="xref py py-attr docutils literal notranslate"><span class="pre">Program.pch_status</span></code> reports the
+PCH creation outcome, and <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> automatically resizes the NVRTC
+PCH heap and retries when PCH creation fails due to heap exhaustion.</p></li>
+<li><p>Added NUMA-aware managed memory pool placement.
+<a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html#cuda.core.ManagedMemoryResourceOptions" title="cuda.core.ManagedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a> gains a <code class="docutils literal notranslate"><span class="pre">preferred_location_type</span></code>
+option (<code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>), and
+<a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.preferred_location" title="cuda.core.ManagedMemoryResource.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ManagedMemoryResource.preferred_location</span></code></a> queries the resolved
+location. The existing <code class="docutils literal notranslate"><span class="pre">preferred_location</span></code> parameter retains full
+backwards compatibility.</p></li>
+<li><p>Added NUMA-aware pinned memory pool placement.
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a> gains a <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> option, and
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.numa_id" title="cuda.core.PinnedMemoryResource.numa_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PinnedMemoryResource.numa_id</span></code></a> queries the host NUMA node ID used for
+pool placement. When <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> and <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not set, the
+NUMA node is automatically derived from the current CUDA device.</p></li>
 <li><p>Added support for CUDA 13.2.</p></li>
 </ul>
 </section>
@@ -752,23 +741,23 @@ interoperability via <a class="reference internal" href="../generated/cuda.core.
 <ul class="simple">
 <li><p>Fixed managed memory buffers being misclassified as <code class="docutils literal notranslate"><span class="pre">kDLCUDAHost</span></code> in DLPack
 device mapping. They are now correctly reported as <code class="docutils literal notranslate"><span class="pre">kDLCUDAManaged</span></code>.
-(<a href="#id1"><span class="problematic" id="id2">:issue:`1863`</span></a>)</p></li>
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1863">#1863</a>)</p></li>
 <li><p>Fixed IPC-enabled pinned memory pools using a hardcoded NUMA node ID of <code class="docutils literal notranslate"><span class="pre">0</span></code>
 instead of the NUMA node closest to the active CUDA device. On multi-NUMA
 systems where the device is attached to a non-zero host NUMA node, this could
-cause pool creation or allocation failures. (<a href="#id3"><span class="problematic" id="id4">:issue:`1603`</span></a>)</p></li>
+cause pool creation or allocation failures. (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1603">#1603</a>)</p></li>
 <li><p>Fixed <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.peer_accessible_by" title="cuda.core.DeviceMemoryResource.peer_accessible_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.peer_accessible_by</span></code></a> returning stale results when wrapping
 a non-owned (default) memory pool. The property now always queries the CUDA driver for
-non-owned pools, so multiple wrappers around the same pool see consistent state. (<a href="#id5"><span class="problematic" id="id6">:issue:`1720`</span></a>)</p></li>
+non-owned pools, so multiple wrappers around the same pool see consistent state. (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1720">#1720</a>)</p></li>
 <li><p>Fixed a bare <code class="docutils literal notranslate"><span class="pre">except</span></code> clause in stream acceptance that silently swallowed all exceptions,
 including <code class="docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code> and <code class="docutils literal notranslate"><span class="pre">SystemExit</span></code>. Only the expected “protocol not
-supported” case is now caught. (<a href="#id7"><span class="problematic" id="id8">:issue:`1631`</span></a>)</p></li>
+supported” case is now caught. (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1631">#1631</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> now validates strides at construction time so unsupported
-layouts fail immediately instead of on first metadata access. (<a href="#id9"><span class="problematic" id="id10">:issue:`1429`</span></a>)</p></li>
+layouts fail immediately instead of on first metadata access. (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1429">#1429</a>)</p></li>
 <li><p>IPC file descriptor cleanup now uses a C++ <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code> with a POSIX deleter, avoiding
 cryptic errors when a <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> is destroyed during Python shutdown.</p></li>
-<li><p>Improved error message when <code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource()</span></code> is called without options on platforms
-that lack a default managed memory pool (e.g. WSL2). (<a href="#id11"><span class="problematic" id="id12">:issue:`1617`</span></a>)</p></li>
+<li><p>Improved error message when <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> is called without options on platforms
+that lack a default managed memory pool (e.g. WSL2). (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1617">#1617</a>)</p></li>
 <li><p>Handle properties on core API objects now return <code class="docutils literal notranslate"><span class="pre">None</span></code> during Python shutdown instead of
 crashing.</p></li>
 <li><p>Reduced Python overhead in <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> by moving compilation and
@@ -825,7 +814,6 @@ normally, and <code class="docutils literal notranslate"><span class="pre">cuda.
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-examples">New examples</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
