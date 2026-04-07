@@ -49,8 +49,6 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     >>> from cuda.bindings.utils import check_nvvm_options
     >>> check_nvvm_options([b"-arch=compute_90", b"-g"])
     True
-    >>> check_nvvm_options([b"-arch=compute_90", b"-numba-debug"])
-    True  # if -numba-debug is supported by the installed libNVVM
     """
     try:
         from cuda.bindings import nvvm
@@ -65,23 +63,22 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
         return False
 
     program = nvvm.create_program()
-
-    major, minor, debug_major, debug_minor = nvvm.ir_version()
-    precheck_ir = _PRECHECK_NVVM_IR.format(
-        major=major,
-        minor=minor,
-        debug_major=debug_major,
-        debug_minor=debug_minor,
-    )
-    precheck_ir_bytes = precheck_ir.encode("utf-8")
-    nvvm.add_module_to_program(
-        program,
-        precheck_ir_bytes,
-        len(precheck_ir_bytes),
-        "precheck.ll",
-    )
-
     try:
+        major, minor, debug_major, debug_minor = nvvm.ir_version()
+        precheck_ir = _PRECHECK_NVVM_IR.format(
+            major=major,
+            minor=minor,
+            debug_major=debug_major,
+            debug_minor=debug_minor,
+        )
+        precheck_ir_bytes = precheck_ir.encode("utf-8")
+        nvvm.add_module_to_program(
+            program,
+            precheck_ir_bytes,
+            len(precheck_ir_bytes),
+            "precheck.ll",
+        )
+    
         nvvm.compile_program(program, len(options), options)
     except nvvm.nvvmError as e:
         if e.status == nvvm.Result.ERROR_INVALID_OPTION:
