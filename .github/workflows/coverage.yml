@@ -380,11 +380,40 @@ jobs:
           sys.exit(result['code'])
           PYTEST_EOF
 
-      - name: Run cuda.core tests
+      # Same 8MB stack thread as bindings: Cython linetrace under coverage on Windows
+      # can need a larger stack than the default thread size.
+      - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true
         run: |
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
-          "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_core/tests"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" << PYTEST_EOF
+          import os
+          import sys
+          import threading
+          import pytest
+
+          os.chdir(r'${{ steps.install-root.outputs.INSTALL_ROOT }}')
+          threading.stack_size(8 * 1024 * 1024)
+          result = {'code': 1}
+
+          def _run():
+              workspace = os.environ['GITHUB_WORKSPACE']
+              result['code'] = pytest.main([
+                  '-v',
+                  '--cov=./cuda',
+                  '--cov-append',
+                  '--cov-context=test',
+                  f'--cov-config={workspace}/.coveragerc',
+                  f'{workspace}/cuda_core/tests'
+              ])
+
+          t = threading.Thread(target=_run)
+          t.start()
+          t.join()
+
+          print(f'cuda.core tests exit code: {result["code"]}')
+          sys.exit(result['code'])
+          PYTEST_EOF
 
       - name: Copy Windows coverage file to workspace
         run: |
