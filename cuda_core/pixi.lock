@@ -3655,7 +3655,7 @@ packages:
   timestamp: 1773098940991
 - conda: .
   name: cuda-core
-  version: 0.6.0
+  version: 0.7.0
   build: py314h356c398_0
   subdir: win-64
   variants:
@@ -3678,7 +3678,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.6.0
+  version: 0.7.0
   build: py314h5e6f764_0
   subdir: win-64
   variants:
@@ -3702,7 +3702,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.6.0
+  version: 0.7.0
   build: py314h9a28ecd_0
   subdir: linux-aarch64
   variants:
@@ -3724,7 +3724,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.6.0
+  version: 0.7.0
   build: py314ha6d028f_0
   subdir: linux-64
   variants:
@@ -3746,7 +3746,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.6.0
+  version: 0.7.0
   build: py314hb727236_0
   subdir: linux-64
   variants:
@@ -3768,7 +3768,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.6.0
+  version: 0.7.0
   build: py314he8946ed_0
   subdir: linux-aarch64
   variants:
