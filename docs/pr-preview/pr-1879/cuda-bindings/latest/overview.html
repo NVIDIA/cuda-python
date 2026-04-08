@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Motivation" href="motivation.html" />
+    <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="Installation" href="install.html" />
 
 
@@ -210,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="api.html">
     CUDA Python API Reference
@@ -420,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="motivation.html">
     Motivation
   </a>
@@ -550,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">CUDA Python API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1283,13 +1298,14 @@ code into
 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> and
 then extract the function to be called at a later point in the application. You
 construct your device code in the form of a string and compile it with
-<a class="reference external" href="http://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a>, a runtime compilation
-library for CUDA C++. Using the NVIDIA <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
+<a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a>, a runtime compilation
+library for CUDA C++. Using the NVIDIA <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
 API</a>, manually create a
 CUDA context and all required resources on the GPU, then launch the compiled
 CUDA C++ code and retrieve the results from the GPU. Now that you have an
 overview, jump into a commonly used example for parallel programming:
-<a class="reference external" href="https://developer.nvidia.com/blog/six-ways-saxpy/">SAXPY</a>.</p>
+<a class="reference external" href="https://developer.nvidia.com/blog/six-ways-saxpy/">SAXPY</a>. For more
+end-to-end samples, see the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page.</p>
 <p>The first thing to do is import the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
 API</a> and
 <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a> modules from the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
@@ -1510,8 +1526,8 @@ was used for application performance.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>nsys<span class="w"> </span>profile<span class="w"> </span>-s<span class="w"> </span>none<span class="w"> </span>-t<span class="w"> </span>cuda<span class="w"> </span>--stats<span class="o">=</span><span class="nb">true</span><span class="w"> </span>&lt;executable&gt;
 </pre></div>
 </div>
-<div class="pst-scrollable-table-container"><table class="table" id="id5">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id4">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id4" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p>C++</p></th>
@@ -1573,8 +1589,8 @@ maximize performance ({numref}``Figure 1``).</p>
 </pre></div>
 </div>
 <p>The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id6">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id6" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id5">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>NumPy type</p></th>
 <th class="head"><p>Corresponding kernel types</p></th>
@@ -1669,7 +1685,7 @@ maximize performance ({numref}``Figure 1``).</p>
 </pre></div>
 </div>
 <p>The final step is to construct a <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument that fulfills all of the launch API conditions. This is made easy because each array object comes
-with a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes">ctypes</a> data attribute that returns the underlying <code class="docutils literal notranslate"><span class="pre">void*</span></code> pointer value.</p>
+with NumPy’s <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes">ctypes data attribute</a> that returns the underlying <code class="docutils literal notranslate"><span class="pre">void*</span></code> pointer value.</p>
 <p>By having the final array object contain all pointers, we fulfill the contiguous array requirement:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelParams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
 </pre></div>
@@ -1748,7 +1764,10 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <section id="cuda-objects">
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
-<p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py">examples/0_Introduction/simpleCubemapTexture_test.py</a>:</p>
+<p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py">simple_cubemap_texture.py</a>.
+The <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page links to more samples covering textures, graphs,
+memory mapping, and multi-GPU workflows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
 <span class="s2">extern &quot;C&quot;</span>
 <span class="s2">__global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)</span>
@@ -1812,11 +1831,11 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
       </div>
     </a>
     <a class="right-next"
-       href="motivation.html"
+       href="examples.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Motivation</p>
+        <p class="prev-next-title">Examples</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

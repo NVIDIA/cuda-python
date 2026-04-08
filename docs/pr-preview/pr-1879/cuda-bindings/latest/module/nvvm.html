@@ -210,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../api.html">
     CUDA Python API Reference
@@ -420,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../motivation.html">
     Motivation
   </a>
@@ -550,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1275,234 +1290,191 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.version">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvvm.version" title="Link to this definition">#</a></dt>
-<dd><p>Get the NVVM version.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>int: NVVM major version number.</p></li>
-<li><p>int: NVVM minor version number.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A 2-tuple containing</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv411nvvmVersionPiPi" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmVersion</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the NVVM version.
+
+:returns:
+
+          - int: NVVM major version number.
+          - int: NVVM minor version number.
+:rtype: A 2-tuple containing
+
+.. seealso:: `nvvmVersion`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.ir_version">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">ir_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvvm.ir_version" title="Link to this definition">#</a></dt>
-<dd><p>Get the NVVM IR version.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>int: NVVM IR major version number.</p></li>
-<li><p>int: NVVM IR minor version number.</p></li>
-<li><p>int: NVVM IR debug metadata major version number.</p></li>
-<li><p>int: NVVM IR debug metadata minor version number.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A 4-tuple containing</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv413nvvmIRVersionPiPiPiPi" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmIRVersion</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the NVVM IR version.
+
+:returns:
+
+          - int: NVVM IR major version number.
+          - int: NVVM IR minor version number.
+          - int: NVVM IR debug metadata major version number.
+          - int: NVVM IR debug metadata minor version number.
+:rtype: A 4-tuple containing
+
+.. seealso:: `nvvmIRVersion`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.create_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">create_program</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">intptr_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvvm.create_program" title="Link to this definition">#</a></dt>
-<dd><p>Create a program, and set the value of its handle to <code class="docutils literal notranslate"><span class="pre">*prog</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NVVM program.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>intptr_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv417nvvmCreateProgramP11nvvmProgram" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmCreateProgram</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Create a program, and set the value of its handle to ``*prog``.
+
+:returns: NVVM program.
+:rtype: intptr_t
+
+.. seealso:: `nvvmCreateProgram`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.add_module_to_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">add_module_to_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.add_module_to_program" title="Link to this definition">#</a></dt>
-<dd><p>Add a module level NVVM IR to a program.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode or text representation.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv422nvvmAddModuleToProgram11nvvmProgramPKc6size_tPKc" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmAddModuleToProgram</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Add a module level NVVM IR to a program.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+:param buffer: NVVM IR module in the bitcode or text representation.
+:type buffer: bytes
+:param size: Size of the NVVM IR module.
+:type size: size_t
+:param name: Name of the NVVM IR module. If NULL, &quot;&lt;unnamed&gt;&quot; is used as the name.
+:type name: str
+
+.. seealso:: `nvvmAddModuleToProgram`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.lazy_add_module_to_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">lazy_add_module_to_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.lazy_add_module_to_program" title="Link to this definition">#</a></dt>
-<dd><p>Add a module level NVVM IR to a program.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – NVVM IR module in the bitcode representation.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv426nvvmLazyAddModuleToProgram11nvvmProgramPKc6size_tPKc" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmLazyAddModuleToProgram</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Add a module level NVVM IR to a program.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+:param buffer: NVVM IR module in the bitcode representation.
+:type buffer: bytes
+:param size: Size of the NVVM IR module.
+:type size: size_t
+:param name: Name of the NVVM IR module. If NULL, &quot;&lt;unnamed&gt;&quot; is used as the name.
+:type name: str
+
+.. seealso:: `nvvmLazyAddModuleToProgram`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.compile_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">compile_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">num_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.compile_program" title="Link to this definition">#</a></dt>
-<dd><p>Compile the NVVM program.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
-<ul>
-<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
-to a valid sequence of ‘char’, or</p></li>
-<li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
-</ul>
-</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv418nvvmCompileProgram11nvvmProgramiPPKc" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmCompileProgram</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Compile the NVVM program.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+:param num_options: Number of compiler ``options`` passed.
+:type num_options: int
+:param options: Compiler options in the form of C string array. It can be:
+
+                - an :class:`int` as the pointer address to the nested sequence, or
+                - a Python sequence of :class:`int`\s, each of which is a pointer address
+                  to a valid sequence of &#39;char&#39;, or
+                - a nested Python sequence of ``str``.
+:type options: object
+
+.. seealso:: `nvvmCompileProgram`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.verify_program">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">verify_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">num_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.verify_program" title="Link to this definition">#</a></dt>
-<dd><p>Verify the NVVM program.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
-<ul>
-<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
-to a valid sequence of ‘char’, or</p></li>
-<li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
-</ul>
-</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv417nvvmVerifyProgram11nvvmProgramiPPKc" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmVerifyProgram</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Verify the NVVM program.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+:param num_options: Number of compiler ``options`` passed.
+:type num_options: int
+:param options: Compiler options in the form of C string array. It can be:
+
+                - an :class:`int` as the pointer address to the nested sequence, or
+                - a Python sequence of :class:`int`\s, each of which is a pointer address
+                  to a valid sequence of &#39;char&#39;, or
+                - a nested Python sequence of ``str``.
+:type options: object
+
+.. seealso:: `nvvmVerifyProgram`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_compiled_result_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_compiled_result_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvvm.get_compiled_result_size" title="Link to this definition">#</a></dt>
-<dd><p>Get the size of the compiled result.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Size of the compiled result (including the trailing NULL).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>size_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv425nvvmGetCompiledResultSize11nvvmProgramP6size_t" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmGetCompiledResultSize</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the size of the compiled result.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+
+:returns: Size of the compiled result (including the trailing NULL).
+:rtype: size_t
+
+.. seealso:: `nvvmGetCompiledResultSize`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_compiled_result">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_compiled_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.get_compiled_result" title="Link to this definition">#</a></dt>
-<dd><p>Get the compiled result.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv421nvvmGetCompiledResult11nvvmProgramPc" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmGetCompiledResult</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the compiled result.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+:param buffer: Compiled result.
+:type buffer: bytes
+
+.. seealso:: `nvvmGetCompiledResult`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_program_log_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_program_log_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvvm.get_program_log_size" title="Link to this definition">#</a></dt>
-<dd><p>Get the Size of Compiler/Verifier Message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Size of the compilation/verification log (including the trailing NULL).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>size_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv421nvvmGetProgramLogSize11nvvmProgramP6size_t" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmGetProgramLogSize</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the Size of Compiler/Verifier Message.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+
+:returns: Size of the compilation/verification log (including the trailing NULL).
+:rtype: size_t
+
+.. seealso:: `nvvmGetProgramLogSize`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.get_program_log">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">get_program_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.get_program_log" title="Link to this definition">#</a></dt>
-<dd><p>Get the Compiler/Verifier Message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compilation/Verification log.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv417nvvmGetProgramLog11nvvmProgramPc" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmGetProgramLog</span></code></a></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the Compiler/Verifier Message.
+
+:param prog: NVVM program.
+:type prog: intptr_t
+:param buffer: Compilation/Verification log.
+:type buffer: bytes
+
+.. seealso:: `nvvmGetProgramLog`
+</pre></div>
 </div>
 </dd></dl>
 
@@ -1512,8 +1484,11 @@ to a valid sequence of ‘char’, or</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvvm.Result" title="Link to this definition">#</a></dt>
-<dd><p>NVVM API call result code.</p>
-<p>See <a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/index.html#_CPPv410nvvmResult" title="(in libNVVM API v4.0)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvvmResult</span></code></a>.</p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>NVVM API call result code.
+
+See `nvvmResult`.
+</pre></div>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.Result.SUCCESS">
 <span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.SUCCESS:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvvm.Result.SUCCESS" title="Link to this definition">#</a></dt>

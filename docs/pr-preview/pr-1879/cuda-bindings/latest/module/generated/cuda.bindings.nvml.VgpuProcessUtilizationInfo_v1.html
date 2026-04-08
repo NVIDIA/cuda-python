@@ -210,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -420,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -550,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1274,17 +1289,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.VgpuProcessUtilizationInfo_v1">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">VgpuProcessUtilizationInfo_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.VgpuProcessUtilizationInfo_v1" title="Link to this definition">#</a></dt>
-<dd><p>Empty-initialize an array of <cite>nvmlVgpuProcessUtilizationInfo_v1_t</cite>.</p>
-<p>The resulting object is of length <cite>size</cite> and of dtype <cite>vgpu_process_utilization_info_v1_dtype</cite>.
-If default-constructed, the instance represents a single struct.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – number of structs, default=1.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuProcessUtilizationInfo_v1_t</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an array of `nvmlVgpuProcessUtilizationInfo_v1_t`.
+
+The resulting object is of length `size` and of dtype `vgpu_process_utilization_info_v1_dtype`.
+If default-constructed, the instance represents a single struct.
+
+:param size: number of structs, default=1.
+:type size: int
+
+.. seealso:: `nvmlVgpuProcessUtilizationInfo_v1_t`
+</pre></div>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.VgpuProcessUtilizationInfo_v1.__init__">
@@ -1298,13 +1312,13 @@ If default-constructed, the instance represents a single struct.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_buffer</span></code>(buffer)</p></td>
-<td><p>Create an VgpuProcessUtilizationInfo_v1 instance with the memory from the given buffer.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
-<td><p>Create an VgpuProcessUtilizationInfo_v1 instance wrapping the given NumPy array.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
-<td><p>Create an VgpuProcessUtilizationInfo_v1 instance wrapping the given pointer.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -1313,37 +1327,37 @@ If default-constructed, the instance represents a single struct.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dec_util</span></code></p></td>
-<td><p>Decoder Util Value.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enc_util</span></code></p></td>
-<td><p>Encoder Util Value.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">jpg_util</span></code></p></td>
-<td><p>Jpeg Util Value.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mem_util</span></code></p></td>
-<td><p>Frame Buffer Memory Util Value.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ofa_util</span></code></p></td>
-<td><p>Ofa Util Value.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pid</span></code></p></td>
-<td><p>PID of process running within the vGPU VM.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_name</span></code></p></td>
-<td><p>(array of length 64).Name of process running within the vGPU VM.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ptr</span></code></p></td>
-<td><p>Get the pointer address to the data as Python <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sm_util</span></code></p></td>
-<td><p>SM (3D/Compute) Util Value.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_stamp</span></code></p></td>
-<td><p>CPU Timestamp in microseconds.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vgpu_instance</span></code></p></td>
-<td><p>vGPU Instance</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>

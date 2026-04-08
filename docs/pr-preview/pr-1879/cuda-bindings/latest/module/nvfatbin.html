@@ -210,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../api.html">
     CUDA Python API Reference
@@ -420,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../motivation.html">
     Motivation
   </a>
@@ -550,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1279,46 +1294,36 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.create">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">options_count</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">intptr_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.create" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinCreate creates a new handle.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An array of strings, each containing a single option. It can be:</p>
-<ul>
-<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
-to a valid sequence of ‘char’, or</p></li>
-<li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
-</ul>
-</p></li>
-<li><p><strong>options_count</strong> (<em>size_t</em>) – Number of options.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Address of nvFatbin handle.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>intptr_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinCreate</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinCreate creates a new handle.
+
+:param options: An array of strings, each containing a single option. It can be:
+
+                - an :class:`int` as the pointer address to the nested sequence, or
+                - a Python sequence of :class:`int`\s, each of which is a pointer address
+                  to a valid sequence of &#39;char&#39;, or
+                - a nested Python sequence of ``str``.
+:type options: object
+:param options_count: Number of options.
+:type options_count: size_t
+
+:returns: Address of nvFatbin handle.
+:rtype: intptr_t
+
+.. seealso:: `nvFatbinCreate`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.destroy">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.destroy" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinDestroy frees the memory associated with the given handle.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinDestroy</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinDestroy frees the memory associated with the given handle.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+
+.. seealso:: `nvFatbinDestroy`
+</pre></div>
 </div>
 </dd></dl>
 
@@ -1336,43 +1341,44 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.add_ptx" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinAddPTX adds PTX to the fatbinary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The PTX code.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – The size of the PTX code.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this PTX is for (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the PTX, useful when extracting the fatbin with tools like cuobjdump.</p></li>
-<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinAddPTX</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinAddPTX adds PTX to the fatbinary.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+:param code: The PTX code.
+:type code: bytes
+:param size: The size of the PTX code.
+:type size: size_t
+:param arch: The numerical architecture that this PTX is for (the XX of any sm_XX, lto_XX, or compute_XX).
+:type arch: str
+:param identifier: Name of the PTX, useful when extracting the fatbin with tools like cuobjdump.
+:type identifier: str
+:param options_cmd_line: Options used during JIT compilation.
+:type options_cmd_line: str
+
+.. seealso:: `nvFatbinAddPTX`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.add_cubin">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">add_cubin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.add_cubin" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinAddCubin adds a CUDA binary to the fatbinary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The cubin.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – The size of the cubin.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this cubin is for (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the cubin, useful when extracting the fatbin with tools like cuobjdump.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinAddCubin</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinAddCubin adds a CUDA binary to the fatbinary.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+:param code: The cubin.
+:type code: bytes
+:param size: The size of the cubin.
+:type size: size_t
+:param arch: The numerical architecture that this cubin is for (the XX of any sm_XX, lto_XX, or compute_XX).
+:type arch: str
+:param identifier: Name of the cubin, useful when extracting the fatbin with tools like cuobjdump.
+:type identifier: str
+
+.. seealso:: `nvFatbinAddCubin`
+</pre></div>
 </div>
 </dd></dl>
 
@@ -1390,41 +1396,40 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.add_ltoir" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinAddLTOIR adds LTOIR to the fatbinary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The LTOIR code.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – The size of the LTOIR code.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this LTOIR is for (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the LTOIR, useful when extracting the fatbin with tools like cuobjdump.</p></li>
-<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinAddLTOIR</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinAddLTOIR adds LTOIR to the fatbinary.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+:param code: The LTOIR code.
+:type code: bytes
+:param size: The size of the LTOIR code.
+:type size: size_t
+:param arch: The numerical architecture that this LTOIR is for (the XX of any sm_XX, lto_XX, or compute_XX).
+:type arch: str
+:param identifier: Name of the LTOIR, useful when extracting the fatbin with tools like cuobjdump.
+:type identifier: str
+:param options_cmd_line: Options used during JIT compilation.
+:type options_cmd_line: str
+
+.. seealso:: `nvFatbinAddLTOIR`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.add_reloc">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">add_reloc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.add_reloc" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The host object image.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – The size of the host object image code.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinAddReloc</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+:param code: The host object image.
+:type code: bytes
+:param size: The size of the host object image code.
+:type size: size_t
+
+.. seealso:: `nvFatbinAddReloc`
+</pre></div>
 </div>
 </dd></dl>
 
@@ -1441,97 +1446,81 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.add_tile_ir" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinAddTileIR adds Tile IR to the fatbinary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The Tile IR.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – The size of the Tile IR.</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.</p></li>
-<li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinAddTileIR</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinAddTileIR adds Tile IR to the fatbinary.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+:param code: The Tile IR.
+:type code: bytes
+:param size: The size of the Tile IR.
+:type size: size_t
+:param identifier: Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.
+:type identifier: str
+:param options_cmd_line: Options used during JIT compilation.
+:type options_cmd_line: str
+
+.. seealso:: `nvFatbinAddTileIR`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.size" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinSize returns the fatbinary’s size.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The fatbinary’s size.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>size_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinSize</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinSize returns the fatbinary&#39;s size.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+
+:returns: The fatbinary&#39;s size.
+:rtype: size_t
+
+.. seealso:: `nvFatbinSize`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.get">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.get" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinGet returns the completed fatbinary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
-<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – memory to store fatbinary.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinGet</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinGet returns the completed fatbinary.
+
+:param handle: nvFatbin handle.
+:type handle: intptr_t
+:param buffer: memory to store fatbinary.
+:type buffer: bytes
+
+.. seealso:: `nvFatbinGet`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.get_error_string">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">get_error_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">result</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.get_error_string" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinGetErrorString returns an error description string for each error code.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="#cuda.bindings.nvfatbin.Result" title="cuda.bindings.nvfatbin.Result"><em>Result</em></a>) – error code.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinGetErrorString</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinGetErrorString returns an error description string for each error code.
+
+:param result: error code.
+:type result: Result
+
+.. seealso:: `nvFatbinGetErrorString`
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.version">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvfatbin.version" title="Link to this definition">#</a></dt>
-<dd><p>nvFatbinVersion returns the current version of nvFatbin.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>unsigned int: The major version.</p></li>
-<li><p>unsigned int: The minor version.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A 2-tuple containing</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinVersion</span></code></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nvFatbinVersion returns the current version of nvFatbin.
+
+:returns:
+
+          - unsigned int: The major version.
+          - unsigned int: The minor version.
+:rtype: A 2-tuple containing
+
+.. seealso:: `nvFatbinVersion`
+</pre></div>
 </div>
 </dd></dl>
 
@@ -1541,9 +1530,12 @@ to a valid sequence of ‘char’, or</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvfatbin.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvfatbin.Result" title="Link to this definition">#</a></dt>
-<dd><p>The enumerated type nvFatbinResult defines API call result codes.
-nvFatbin APIs return nvFatbinResult codes to indicate the result.</p>
-<p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvFatbinResult</span></code>.</p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>The enumerated type nvFatbinResult defines API call result codes.
+nvFatbin APIs return nvFatbinResult codes to indicate the result.
+
+See `nvFatbinResult`.
+</pre></div>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvfatbin.Result.SUCCESS">
 <span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.SUCCESS:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvfatbin.Result.SUCCESS" title="Link to this definition">#</a></dt>
