@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Check PR author organization for restricted paths"
+name: "CI: Check PR author signals for restricted paths"
 
 on:
+  # Label updates on fork PRs require pull_request_target permissions.
+  # TODO BEFORE MERGING: change to pull_request_target
   pull_request:
     types:
       - opened
@@ -13,24 +15,33 @@ on:
 
 jobs:
   check-author-org:
-    name: PR author may modify restricted paths
+    name: PR author signals recorded for restricted paths
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
+      issues: write
       pull-requests: read
     steps:
-      - name: Check PR author organization for restricted paths
+      - name: Inspect PR author signals for restricted paths
         env:
           # PR metadata inputs
           AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
+          EXISTING_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
 
+          # Workflow policy inputs
+          PUBLIC_MEMBER_ORG: NVIDIA
+          REVIEW_LABEL: Check-PR-author-ORG
+
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
+          GITHUB_API_URL: ${{ github.api_url }}
           REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
+
           if ! MATCHING_RESTRICTED_PATHS=$(
             gh api \
               --paginate \
@@ -71,40 +82,104 @@ jobs:
             echo '```'
           }
 
-          IS_ALLOWED=false
+          HAS_TRUE_POSITIVE_SIGNAL=false
+          LABEL_ACTION="not needed (no restricted paths)"
+          PUBLIC_MEMBER_CHECK="not needed (no restricted paths)"
+          TRUE_POSITIVE_SIGNALS="(none)"
+
           case "$AUTHOR_ASSOCIATION" in
-            COLLABORATOR|MEMBER|OWNER)
-              IS_ALLOWED=true
+            MEMBER|OWNER)
+              HAS_TRUE_POSITIVE_SIGNAL=true
+              LABEL_ACTION="not needed (author association is a true positive)"
+              PUBLIC_MEMBER_CHECK="skipped (author association is a true positive)"
+              TRUE_POSITIVE_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
               ;;
           esac
 
-          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$IS_ALLOWED" = "false" ]; then
-            echo "::error::This PR failed the author organization check. See the job summary for details."
-            {
-              echo "## PR Author Organization Check Failed"
-              echo ""
-              echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
-              echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-              echo ""
-              write_matching_restricted_paths
-              echo ""
-              echo "- **Policy**: See \`cuda_bindings/LICENSE\` and \`cuda_python/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` or \`cuda_python/\`."
-              echo ""
-              echo "Please update the PR at: $PR_URL"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 1
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+            PUBLIC_MEMBER_STATUS=$(curl \
+              --silent \
+              --show-error \
+              --output /dev/null \
+              --write-out '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$GITHUB_API_URL/orgs/$PUBLIC_MEMBER_ORG/public_members/$PR_AUTHOR")
+
+            case "$PUBLIC_MEMBER_STATUS" in
+              204)
+                HAS_TRUE_POSITIVE_SIGNAL=true
+                LABEL_ACTION="not needed (public org membership is a true positive)"
+                PUBLIC_MEMBER_CHECK="204 (public member)"
+                TRUE_POSITIVE_SIGNALS="public_org_membership:$PUBLIC_MEMBER_ORG"
+                ;;
+              404)
+                PUBLIC_MEMBER_CHECK="404 (not a public member)"
+                ;;
+              *)
+                echo "::error::Failed to determine whether the PR author is a public $PUBLIC_MEMBER_ORG member."
+                {
+                  echo "## PR Author Organization Check Failed"
+                  echo ""
+                  echo "- **Error**: Unexpected HTTP status from \`/orgs/$PUBLIC_MEMBER_ORG/public_members/$PR_AUTHOR\`: \`$PUBLIC_MEMBER_STATUS\`."
+                  echo "- **Author**: $PR_AUTHOR"
+                  echo "- **Author association**: $AUTHOR_ASSOCIATION"
+                  echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+                  echo ""
+                  write_matching_restricted_paths
+                  echo ""
+                  echo "Please update the PR at: $PR_URL"
+                } >> "$GITHUB_STEP_SUMMARY"
+                exit 1
+                ;;
+            esac
+          fi
+
+          LABEL_ALREADY_PRESENT=false
+          if jq -e --arg label "$REVIEW_LABEL" '.[] == $label' <<<"$EXISTING_LABELS" >/dev/null; then
+            LABEL_ALREADY_PRESENT=true
+          fi
+
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+            if [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
+              LABEL_ACTION="already present"
+            elif ! gh issue edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
+              echo "::error::Failed to add the $REVIEW_LABEL label."
+              {
+                echo "## PR Author Organization Check Failed"
+                echo ""
+                echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
+                echo "- **Author**: $PR_AUTHOR"
+                echo "- **Author association**: $AUTHOR_ASSOCIATION"
+                echo "- **Public $PUBLIC_MEMBER_ORG membership check**: $PUBLIC_MEMBER_CHECK"
+                echo ""
+                write_matching_restricted_paths
+                echo ""
+                echo "Please update the PR at: $PR_URL"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            else
+              LABEL_ACTION="added"
+            fi
           fi
 
           {
-            echo "## PR Author Organization Check Passed"
+            echo "## PR Author Organization Check Completed"
             echo ""
             echo "- **Author**: $PR_AUTHOR"
             echo "- **Author association**: $AUTHOR_ASSOCIATION"
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+            echo "- **Public $PUBLIC_MEMBER_ORG membership check**: $PUBLIC_MEMBER_CHECK"
+            echo "- **True positive signals**: $TRUE_POSITIVE_SIGNALS"
+            echo "- **Label action**: $LABEL_ACTION"
             if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
               echo ""
               write_matching_restricted_paths
+            fi
+            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+              echo ""
+              echo "- **Manual follow-up**: No true positive signal was found, so \`$REVIEW_LABEL\` is required."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
