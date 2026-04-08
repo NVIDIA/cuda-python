@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=9d6ecfbf"></script>
+    <script src="_static/documentation_options.js?v=56e75f72"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev124';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -524,6 +524,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -598,6 +601,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
@@ -853,6 +857,31 @@ Each subclass exposes attributes unique to its operation type.</p>
 </table>
 </div>
 </section>
+</section>
+<section id="graphics-interoperability">
+<h2>Graphics interoperability<a class="headerlink" href="#graphics-interoperability" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource" title="cuda.core.GraphicsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphicsResource</span></code></a>()</p></td>
+<td><p>RAII wrapper for a CUDA graphics resource (<code class="docutils literal notranslate"><span class="pre">CUgraphicsResource</span></code>).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="tensor-memory-accelerator-tma">
+<h2>Tensor Memory Accelerator (TMA)<a class="headerlink" href="#tensor-memory-accelerator-tma" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html#cuda.core.TensorMapDescriptor" title="cuda.core.TensorMapDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code></a>()</p></td>
+<td><p>Describes a TMA (Tensor Memory Accelerator) tensor map for Hopper+ GPUs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html#cuda.core.TensorMapDescriptorOptions" title="cuda.core.TensorMapDescriptorOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TensorMapDescriptorOptions</span></code></a>(box_dim[, ...])</p></td>
+<td><p>Options for <code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.StridedMemoryView.as_tensor_map()</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 <section id="cuda-compilation-toolchain">
 <h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
@@ -1155,6 +1184,8 @@ Each subclass exposes attributes unique to its operation type.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-types">Node types</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics-interoperability">Graphics interoperability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tensor-memory-accelerator-tma">Tensor Memory Accelerator (TMA)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information-and-nvidia-management-library-nvml">CUDA system information and NVIDIA Management Library (NVML)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-functions">Basic functions</a></li>
