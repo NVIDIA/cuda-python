@@ -44,6 +44,7 @@ all = [
 test = [
     "cython>=3.2,<3.3",
     "setuptools>=77.0.0",
+    "matplotlib>=3.5.0",  # Required by isoFDModelling_test.py
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",

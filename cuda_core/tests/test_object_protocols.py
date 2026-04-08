@@ -27,8 +27,8 @@ from cuda.core import (
     Stream,
     system,
 )
-from cuda.core._graph._graphdef import GraphDef
 from cuda.core._program import _can_load_generated_ptx
+from cuda.core.graph import GraphDef
 
 
 def _skip_if_no_mempool():
@@ -685,20 +685,20 @@ REPR_PATTERNS = [
     ("sample_graphdef", r"<GraphDef handle=0x[0-9a-f]+>"),
     ("sample_condition", r"<Condition handle=0x[0-9a-f]+>"),
     ("sample_root_node", r"<GraphNode entry>"),
-    ("sample_empty_node", r"<EmptyNode with \d+ preds?>"),
-    ("sample_alloc_node", r"<AllocNode dptr=0x[0-9a-f]+ size=\d+>"),
-    ("sample_kernel_node", r"<KernelNode grid=\(\d+, \d+, \d+\) block=\(\d+, \d+, \d+\)>"),
-    ("sample_free_node", r"<FreeNode dptr=0x[0-9a-f]+>"),
-    ("sample_memset_node", r"<MemsetNode dptr=0x[0-9a-f]+ value=\d+ elem=\d+>"),
-    ("sample_memcpy_node", r"<MemcpyNode dst=0x[0-9a-f]+\([DH]\) src=0x[0-9a-f]+\([DH]\) size=\d+>"),
-    ("sample_child_graph_node", r"<ChildGraphNode with \d+ subnodes?>"),
-    ("sample_event_record_node", r"<EventRecordNode event=0x[0-9a-f]+>"),
-    ("sample_event_wait_node", r"<EventWaitNode event=0x[0-9a-f]+>"),
-    ("sample_host_callback_node", r"<HostCallbackNode callback=\w+>"),
-    ("sample_if_node", r"<IfNode condition=0x[0-9a-f]+>"),
-    ("sample_if_else_node", r"<IfElseNode condition=0x[0-9a-f]+>"),
-    ("sample_while_node", r"<WhileNode condition=0x[0-9a-f]+>"),
-    ("sample_switch_node", r"<SwitchNode condition=0x[0-9a-f]+ with \d+ branches?>"),
+    ("sample_empty_node", r"<EmptyNode handle=0x[0-9a-f]+>"),
+    ("sample_alloc_node", r"<AllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\d+>"),
+    ("sample_kernel_node", r"<KernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+>"),
+    ("sample_free_node", r"<FreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>"),
+    ("sample_memset_node", r"<MemsetNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ value=\d+>"),
+    ("sample_memcpy_node", r"<MemcpyNode handle=0x[0-9a-f]+ dst=0x[0-9a-f]+\([DH]\) src=0x[0-9a-f]+\([DH]\) size=\d+>"),
+    ("sample_child_graph_node", r"<ChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+>"),
+    ("sample_event_record_node", r"<EventRecordNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+>"),
+    ("sample_event_wait_node", r"<EventWaitNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+>"),
+    ("sample_host_callback_node", r"<HostCallbackNode handle=0x[0-9a-f]+ callback=\w+>"),
+    ("sample_if_node", r"<IfNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>"),
+    ("sample_if_else_node", r"<IfElseNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>"),
+    ("sample_while_node", r"<WhileNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>"),
+    ("sample_switch_node", r"<SwitchNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>"),
 ]
 
 

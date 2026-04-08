@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool, MP_init_create_pool, MP_init_current_pool
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    check_or_create_options,
-)
+from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
+from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
@@ -226,12 +226,25 @@ cdef inline _MMR_init(ManagedMemoryResource self, options):
         )
 
         if opts is None:
-            MP_init_current_pool(
-                self,
-                loc_type,
-                loc_id,
-                cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED,
-            )
+            try:
+                MP_init_current_pool(
+                    self,
+                    loc_type,
+                    loc_id,
+                    cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED,
+                )
+            except CUDAError as e:
+                if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+                    from .._device import Device
+                    if not Device().properties.concurrent_managed_access:
+                        raise RuntimeError(
+                            "The default memory pool on this device does not support "
+                            "managed allocations (concurrent managed access is not "
+                            "available). Use "
+                            "ManagedMemoryResource(options=ManagedMemoryResourceOptions(...)) "
+                            "to create a dedicated managed pool."
+                        ) from e
+                raise
         else:
             MP_init_create_pool(
                 self,
