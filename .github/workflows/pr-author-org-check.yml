@@ -4,7 +4,6 @@
 name: "CI: Check PR author organization for restricted paths"
 
 on:
-  # TODO BEFORE MERGING: change to pull_request_target
   pull_request:
     types:
       - opened
@@ -18,22 +17,18 @@ jobs:
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
-      issues: write
       pull-requests: read
     steps:
       - name: Check PR author organization for restricted paths
         env:
           # PR metadata inputs
           AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
-          LABELS: ${{ toJson(github.event.pull_request.labels) }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
 
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
-          ORG_NAME: NVIDIA
-          ORG_REVIEW_LABEL: Check-PR-Author-ORG
           REPO: ${{ github.repository }}
         run: |
           if ! MATCHING_RESTRICTED_PATHS=$(
@@ -41,14 +36,13 @@ jobs:
               --paginate \
               --jq '
                 .[]
-                | if (.filename | startswith("cuda_bindings/"))
+                | select(
+                    (.filename | startswith("cuda_bindings/"))
+                    or ((.previous_filename // "") | startswith("cuda_bindings/"))
                     or (.filename | startswith("cuda_python/"))
-                  then .filename
-                  elif ((.previous_filename // "") | startswith("cuda_bindings/"))
                     or ((.previous_filename // "") | startswith("cuda_python/"))
-                  then "\(.previous_filename) -> \(.filename)"
-                  else empty
-                  end
+                  )
+                | .filename
               ' \
               "repos/$REPO/pulls/$PR_NUMBER/files"
           ); then
@@ -70,17 +64,6 @@ jobs:
             TOUCHES_RESTRICTED_PATHS=true
           fi
 
-          HAS_ORG_REVIEW_LABEL=false
-          while IFS= read -r label; do
-            [ -n "$label" ] || continue
-            if [ "$label" = "$ORG_REVIEW_LABEL" ]; then
-              HAS_ORG_REVIEW_LABEL=true
-              break
-            fi
-          done < <(echo "$LABELS" | jq -r '.[].name')
-
-          REVIEW_LABEL_ACTION="none"
-
           write_matching_restricted_paths() {
             echo "- **Matched restricted paths**:"
             echo '```text'
@@ -88,143 +71,40 @@ jobs:
             echo '```'
           }
 
-          write_review_label_action() {
-            [ "$REVIEW_LABEL_ACTION" != "none" ] || return 0
-            echo "- **Review label action**: $REVIEW_LABEL_ACTION \`$ORG_REVIEW_LABEL\`"
-          }
+          IS_ALLOWED=false
+          case "$AUTHOR_ASSOCIATION" in
+            MEMBER|OWNER)
+              IS_ALLOWED=true
+              ;;
+          esac
 
-          ensure_org_review_label_present() {
-            if [ "$HAS_ORG_REVIEW_LABEL" = "false" ]; then
-              if ! gh issue edit "$PR_NUMBER" --repo "$REPO" --add-label "$ORG_REVIEW_LABEL" >/dev/null; then
-                echo "::error::Failed to add label $ORG_REVIEW_LABEL."
-                exit 1
-              fi
-              HAS_ORG_REVIEW_LABEL=true
-              REVIEW_LABEL_ACTION="added"
-            fi
-          }
-
-          ensure_org_review_label_absent() {
-            if [ "$HAS_ORG_REVIEW_LABEL" = "true" ]; then
-              if ! gh issue edit "$PR_NUMBER" --repo "$REPO" --remove-label "$ORG_REVIEW_LABEL" >/dev/null; then
-                echo "::error::Failed to remove label $ORG_REVIEW_LABEL."
-                exit 1
-              fi
-              HAS_ORG_REVIEW_LABEL=false
-              REVIEW_LABEL_ACTION="removed"
-            fi
-          }
-
-          if [ "$TOUCHES_RESTRICTED_PATHS" = "false" ]; then
-            ensure_org_review_label_absent
-            {
-              echo "## PR Author Organization Check Passed"
-              echo ""
-              echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
-              echo "- **Touches restricted paths**: false"
-              echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-              write_review_label_action
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-
-          # Use curl here because the 204/404/302 HTTP status is the signal we
-          # need. gh api treats 404 as a command failure, but 404 is an expected
-          # "not a member" outcome for this check.
-          if ! MEMBERSHIP_STATUS=$(
-            curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/orgs/$ORG_NAME/members/$PR_AUTHOR"
-          ); then
-            echo "::error::Failed to query organization membership."
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$IS_ALLOWED" = "false" ]; then
+            echo "::error::This PR failed the author organization check. See the job summary for details."
             {
               echo "## PR Author Organization Check Failed"
               echo ""
-              echo "- **Error**: Failed to query organization membership."
               echo "- **Author**: $PR_AUTHOR"
               echo "- **Author association**: $AUTHOR_ASSOCIATION"
-              echo "- **Organization membership query**: failed"
               echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
               echo ""
               write_matching_restricted_paths
+              echo ""
+              echo "- **Policy**: See \`cuda_bindings/LICENSE\` and \`cuda_python/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` or \`cuda_python/\`."
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
-          case "$MEMBERSHIP_STATUS" in
-            204)
-              ensure_org_review_label_absent
-              {
-                echo "## PR Author Organization Check Passed"
-                echo ""
-                echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
-                echo "- **Organization membership query**: \`204\` (member)"
-                echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-                echo ""
-                write_matching_restricted_paths
-                write_review_label_action
-              } >> "$GITHUB_STEP_SUMMARY"
-              ;;
-            302)
-              ensure_org_review_label_present
-              echo "::warning::Could not determine conclusively whether $PR_AUTHOR is a member of $ORG_NAME. Added label $ORG_REVIEW_LABEL for manual review."
-              {
-                echo "## PR Author Organization Check Inconclusive"
-                echo ""
-                echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
-                echo "- **Organization membership query**: \`302\` (inconclusive)"
-                echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-                echo ""
-                write_matching_restricted_paths
-                write_review_label_action
-                echo ""
-                echo "- **Next step**: Review whether the PR author should be allowed to modify these restricted paths."
-                echo ""
-                echo "Please update the PR at: $PR_URL"
-              } >> "$GITHUB_STEP_SUMMARY"
-              ;;
-            404)
-              ensure_org_review_label_absent
-              echo "::error::This PR failed the author organization check. See the job summary for details."
-              {
-                echo "## PR Author Organization Check Failed"
-                echo ""
-                echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
-                echo "- **Organization membership query**: \`404\` (not a member)"
-                echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-                echo ""
-                write_matching_restricted_paths
-                write_review_label_action
-                echo ""
-                echo "- **Policy**: See \`cuda_bindings/LICENSE\` and \`cuda_python/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` or \`cuda_python/\`."
-                echo ""
-                echo "Please update the PR at: $PR_URL"
-              } >> "$GITHUB_STEP_SUMMARY"
-              exit 1
-              ;;
-            *)
-              echo "::error::Unexpected response from organization membership query: HTTP $MEMBERSHIP_STATUS."
-              {
-                echo "## PR Author Organization Check Failed"
-                echo ""
-                echo "- **Error**: Unexpected response from organization membership query."
-                echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
-                echo "- **Organization membership query**: \`$MEMBERSHIP_STATUS\`"
-                echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-                echo ""
-                write_matching_restricted_paths
-                echo ""
-                echo "Please update the PR at: $PR_URL"
-              } >> "$GITHUB_STEP_SUMMARY"
-              exit 1
-              ;;
-          esac
+          {
+            echo "## PR Author Organization Check Passed"
+            echo ""
+            echo "- **Author**: $PR_AUTHOR"
+            echo "- **Author association**: $AUTHOR_ASSOCIATION"
+            echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
+            echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
+              echo ""
+              write_matching_restricted_paths
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
