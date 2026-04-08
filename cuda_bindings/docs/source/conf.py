@@ -26,6 +26,15 @@ author = "NVIDIA"
 release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 
 
+def _github_examples_ref():
+    if int(os.environ.get("BUILD_PREVIEW", 0)) or int(os.environ.get("BUILD_LATEST", 0)):
+        return "main"
+    return f"v{release}"
+
+
+GITHUB_EXAMPLES_REF = _github_examples_ref()
+
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -98,6 +107,10 @@ html_static_path = ["_static"]
 
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
+
+rst_epilog = f"""
+.. |cuda_bindings_github_ref| replace:: {GITHUB_EXAMPLES_REF}
+"""
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
