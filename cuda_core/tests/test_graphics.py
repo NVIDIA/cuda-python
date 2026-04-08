@@ -8,9 +8,11 @@ import ctypes.util
 import gc
 import os
 import sys
+from unittest.mock import patch
 
 import numpy as np
 import pytest
+
 from cuda.core import (
     Buffer,
     Device,
@@ -138,6 +140,13 @@ def _gl_context_and_texture(width=16, height=16):
             pass
 
 
+def _create_stream():
+    """Create a CUDA stream for testing."""
+    dev = Device(0)
+    dev.set_current()
+    return dev.create_stream()
+
+
 # ---------------------------------------------------------------------------
 # Register flags parsing tests
 # ---------------------------------------------------------------------------
@@ -189,6 +198,8 @@ class TestFromGLBuffer:
         with _gl_context_and_buffer() as (gl_buf, nbytes):
             resource = GraphicsResource.from_gl_buffer(gl_buf)
             assert resource.handle != 0
+            assert resource.resource_handle == resource.handle
+            assert not isinstance(resource, Buffer)
             assert not resource.is_mapped
             resource.close()
 
@@ -227,30 +238,38 @@ class TestFromGLImage:
 class TestMapUnmap:
     def test_map_returns_buffer(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            mapped = resource.map()
+            mapped = resource.map(stream=stream)
             assert resource.is_mapped
-            # mapped is a _MappedBufferContext; its .handle and .size delegate to Buffer
+            assert isinstance(mapped, Buffer)
+            assert mapped is not resource
             assert mapped.size > 0
             assert mapped.handle != 0
-            resource.unmap()
+            assert resource.handle != mapped.handle
+            resource.unmap(stream=stream)
+            assert mapped.handle == 0
             assert not resource.is_mapped
             resource.close()
 
     def test_context_manager_unmaps(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map() as buf:
+            with resource.map(stream=stream) as buf:
                 assert isinstance(buf, Buffer)
                 assert resource.is_mapped
                 assert buf.size > 0
+                assert buf.handle != 0
+            assert buf.handle == 0
             assert not resource.is_mapped
             resource.close()
 
     def test_context_manager_unmaps_on_exception(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with pytest.raises(ValueError, match="test error"), resource.map() as _buf:
+            with pytest.raises(ValueError, match="test error"), resource.map(stream=stream) as _buf:
                 assert resource.is_mapped
                 raise ValueError("test error")
             # Must be unmapped even after exception
@@ -261,22 +280,70 @@ class TestMapUnmap:
         """End-to-end: register, map, create StridedMemoryView."""
         nbytes = 256 * 4  # 256 float32 elements
         with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            with resource.map() as buf:
+            with resource.map(stream=stream) as buf:
                 view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
                 assert view.ptr == int(buf.handle)
                 assert view.shape == (256,)
                 assert view.is_device_accessible
             resource.close()
 
+    def test_from_gl_buffer_with_stream_context_manager(self):
+        """Register + auto-map via from_gl_buffer(stream=), then create StridedMemoryView."""
+        nbytes = 256 * 4  # 256 float32 elements
+        with _gl_context_and_buffer(nbytes=nbytes) as (gl_buf, _):
+            stream = _create_stream()
+            with GraphicsResource.from_gl_buffer(gl_buf, stream=stream) as buf:
+                assert isinstance(buf, Buffer)
+                assert buf.size == nbytes
+                view = StridedMemoryView.from_buffer(buf, shape=(256,), dtype=np.float32)
+                assert view.ptr == int(buf.handle)
+                assert view.shape == (256,)
+                assert view.is_device_accessible
+            assert buf.handle == 0
+            assert buf.size == 0
+
+    def test_resource_context_manager_auto_closes(self):
+        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard") as resource:
+                assert isinstance(resource, GraphicsResource)
+                assert resource.handle != 0
+                assert not resource.is_mapped
+            assert resource.handle == 0
+
+    def test_resource_context_manager_can_map_inside_scope(self):
+        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+            stream = _create_stream()
+            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
+                assert isinstance(buf, Buffer)
+                assert buf.handle != 0
+
+    def test_chained_map_context_manager_unmaps(self):
+        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+            stream = _create_stream()
+            with GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard").map(stream=stream) as buf:
+                assert isinstance(buf, Buffer)
+                assert buf.handle != 0
+                assert buf.size > 0
+            assert buf.handle == 0
+            assert buf.size == 0
+
     def test_map_with_stream(self):
         with _gl_context_and_buffer(nbytes=4096) as (gl_buf, nbytes):
-            dev = Device(0)
-            dev.set_current()
-            stream = dev.create_stream()
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
             with resource.map(stream=stream) as buf:
                 assert buf.size > 0
+            resource.close()
+
+    def test_map_with_default_stream(self):
+        with _gl_context_and_buffer(nbytes=4096) as (gl_buf, _):
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
+            with resource.map() as buf:
+                assert isinstance(buf, Buffer)
+                assert buf.size > 0
+            assert not resource.is_mapped
             resource.close()
 
 
@@ -288,10 +355,11 @@ class TestMapUnmap:
 class TestErrorHandling:
     def test_double_map_raises(self):
         with _gl_context_and_buffer() as (gl_buf, nbytes):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf)
-            resource.map()
+            resource.map(stream=stream)
             with pytest.raises(RuntimeError, match="already mapped"):
-                resource.map()
+                resource.map(stream=stream)
             resource.unmap()
             resource.close()
 
@@ -304,10 +372,11 @@ class TestErrorHandling:
 
     def test_map_after_close_raises(self):
         with _gl_context_and_buffer() as (gl_buf, nbytes):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf)
             resource.close()
             with pytest.raises(RuntimeError, match="has been closed"):
-                resource.map()
+                resource.map(stream=stream)
 
     def test_unmap_after_close_raises(self):
         with _gl_context_and_buffer() as (gl_buf, nbytes):
@@ -319,10 +388,42 @@ class TestErrorHandling:
     def test_close_while_mapped(self):
         """close() should unmap before unregistering."""
         with _gl_context_and_buffer() as (gl_buf, nbytes):
+            stream = _create_stream()
             resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
-            resource.map()
+            buf = resource.map(stream=stream)
             assert resource.is_mapped
             resource.close()  # Should unmap + unregister without error
+            assert not resource.is_mapped
+            assert buf.handle == 0
+
+    def test_close_while_mapped_passes_stream_override(self):
+        with _gl_context_and_buffer() as (gl_buf, _):
+            map_stream = _create_stream()
+            close_stream = _create_stream()
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
+            resource.map(stream=map_stream)
+
+            original_close = Buffer.close
+
+            def tracking_close(self, stream=None):
+                tracking_close.calls.append(stream)
+                return original_close(self, stream=stream)
+
+            tracking_close.calls = []
+
+            with patch.object(Buffer, "close", new=tracking_close):
+                resource.close(stream=close_stream)
+
+            assert tracking_close.calls == [close_stream]
+            assert not resource.is_mapped
+
+    def test_buffer_close_updates_resource_state(self):
+        with _gl_context_and_buffer() as (gl_buf, _):
+            stream = _create_stream()
+            resource = GraphicsResource.from_gl_buffer(gl_buf, flags="write_discard")
+            buf = resource.map(stream=stream)
+            assert resource.is_mapped
+            buf.close()
             assert not resource.is_mapped
 
 
@@ -355,3 +456,9 @@ class TestMisc:
             resource.close()
             r = repr(resource)
             assert "closed" in r
+
+    def test_graphics_resource_is_not_a_buffer(self):
+        with _gl_context_and_buffer() as (gl_buf, nbytes):
+            resource = GraphicsResource.from_gl_buffer(gl_buf)
+            assert not isinstance(resource, Buffer)
+            resource.close()

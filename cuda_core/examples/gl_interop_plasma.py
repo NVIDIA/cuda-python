@@ -4,10 +4,12 @@
 
 # ################################################################################
 #
-# Real-time Plasma Effect -- CUDA/OpenGL Interop with cuda.core.GraphicsResource
+# This example demonstrates cuda.core.GraphicsResource for CUDA/OpenGL
+# interop: a CUDA kernel writes pixels directly into an OpenGL PBO with
+# zero copies through the CPU. Requires pyglet.
 #
 # ################################################################################
-#
+
 # What this example teaches
 # =========================
 # How to use cuda.core.GraphicsResource to let a CUDA kernel write pixels
@@ -18,12 +20,12 @@
 # Normally, getting CUDA results onto the screen would require:
 #   CUDA -> CPU memory -> OpenGL  (two slow copies across the PCIe bus)
 #
-# GraphicsResource eliminates the CPU round-trip.  The pixel data stays
+# GraphicsResource eliminates the CPU round-trip. The pixel data stays
 # on the GPU the entire time:
 #
 #   1. OpenGL allocates a PBO (Pixel Buffer Object) -- a raw GPU buffer.
 #   2. GraphicsResource.from_gl_buffer() registers that PBO with CUDA.
-#      Now both CUDA and OpenGL have access to the *same* GPU memory.
+#      Now both CUDA and OpenGL have access to the same GPU memory.
 #
 #   +----------------------+       +---------------------+
 #   |    OpenGL PBO        |       |  GraphicsResource   |
@@ -39,29 +41,29 @@
 #   4. glTexSubImage2D -- OpenGL copies PBO into a texture (GPU-to-GPU)
 #   5. draw            -- OpenGL renders the texture to the window
 #
-#   Why is there a copy in step 4?  OpenGL can only render from a
-#   "texture" object, not from a raw buffer. The glTexSubImage2D step
+#   Why is there a copy in step 4? OpenGL can only render from a
+#   texture object, not from a raw buffer. The glTexSubImage2D step
 #   copies the PBO bytes into a texture, but this happens entirely on
 #   the GPU and it is very fast. The big win from GraphicsResource is
-#   that we never copy pixels from the CPU to the GPU and then and back.
+#   that we never copy pixels from the CPU to the GPU and then back.
 #
 # What you should see
 # ===================
-# A window showing smoothly animated, colorful swirling patterns (a "plasma"
-# effect popular in the demoscene).  The window title shows the current FPS.
+# A window showing smoothly animated, colorful swirling patterns (a plasma
+# effect popular in the demoscene). The window title shows the current FPS.
 # Close the window or press Escape to exit.
 #
-# Requirements
-# ============
-#   pip install pyglet
-#
-# ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core>0.6.0", "pyglet"]
+# ///
 
 import ctypes
 import sys
 import time
 
 import numpy as np
+
 from cuda.core import (
     Device,
     GraphicsResource,
@@ -93,8 +95,8 @@ def setup_cuda(kernel_source):
     dev.set_current()
     stream = dev.create_stream()
 
-    opts = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
-    prog = Program(kernel_source, code_type="c++", options=opts)
+    program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
+    prog = Program(kernel_source, code_type="c++", options=program_options)
     mod = prog.compile("cubin")
     kernel = mod.get_kernel("plasma")
 
@@ -353,7 +355,6 @@ def main():
         resource.close()
 
     pyglet.app.run(interval=0)
-    print("done!")
 
 
 # ======================== GPU code (CUDA + GLSL) ============================

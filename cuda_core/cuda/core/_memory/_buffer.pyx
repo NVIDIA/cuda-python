@@ -5,8 +5,7 @@
 from __future__ import annotations
 
 cimport cython
-from libc.stdint cimport uint8_t, uint16_t, uint32_t, uintptr_t
-from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
+from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
@@ -25,7 +24,7 @@ from cuda.core._resource_handles cimport (
 )
 
 from cuda.core._stream cimport Stream, Stream_accept
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
 from typing import TypeVar
@@ -35,7 +34,7 @@ if sys.version_info >= (3, 12):
 else:
     BufferProtocol = object
 
-from cuda.core._dlpack import DLDeviceType, make_py_capsule
+from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._device import Device
 
@@ -183,11 +182,18 @@ cdef class Buffer:
 
         Parameters
         ----------
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
         """
         Buffer_close(self, stream)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -200,7 +206,7 @@ cdef class Buffer:
         ----------
         dst : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
@@ -231,7 +237,7 @@ cdef class Buffer:
         ----------
         src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
@@ -256,7 +262,7 @@ cdef class Buffer:
         value : int | :obj:`collections.abc.Buffer`
             - int: Must be in range [0, 256). Converted to 1 byte.
             - :obj:`collections.abc.Buffer`: Must be 1, 2, or 4 bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Stream for the asynchronous fill operation.
 
         Raises
@@ -271,27 +277,27 @@ cdef class Buffer:
 
         """
         cdef Stream s_stream = Stream_accept(stream)
+        cdef unsigned int val
+        cdef unsigned int elem_size
+        val, elem_size = _parse_fill_value(value)
 
-        # Handle int case: 1-byte fill with automatic overflow checking.
-        if isinstance(value, int):
-            Buffer_fill_uint8(self, value, s_stream._h_stream)
-            return
+        cdef size_t buffer_size = self._size
+        cdef cydriver.CUdeviceptr dst = as_cu(self._h_ptr)
+        cdef cydriver.CUstream s = as_cu(s_stream._h_stream)
 
-        # Handle bytes case: direct pointer access without intermediate objects.
-        if isinstance(value, bytes):
-            Buffer_fill_from_ptr(self, <const char*><bytes>value, len(value), s_stream._h_stream)
-            return
-
-        # General buffer protocol path using C buffer API.
-        cdef Py_buffer buf
-        if PyObject_GetBuffer(value, &buf, PyBUF_SIMPLE) != 0:
-            raise TypeError(
-                f"value must be an int or support the buffer protocol, got {type(value).__name__}"
-            )
-        try:
-            Buffer_fill_from_ptr(self, <const char*>buf.buf, buf.len, s_stream._h_stream)
-        finally:
-            PyBuffer_Release(&buf)
+        if elem_size == 1:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD8Async(dst, val, buffer_size, s))
+        elif elem_size == 2:
+            if buffer_size & 0x1:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD16Async(dst, val, buffer_size // 2, s))
+        elif elem_size == 4:
+            if buffer_size & 0x3:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD32Async(dst, val, buffer_size // 4, s))
 
     def __dlpack__(
         self,
@@ -317,16 +323,7 @@ cdef class Buffer:
         return capsule
 
     def __dlpack_device__(self) -> tuple[int, int]:
-        cdef bint d = self.is_device_accessible
-        cdef bint h = self.is_host_accessible
-        if d and (not h):
-            return (DLDeviceType.kDLCUDA, self.device_id)
-        if d and h:
-            # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
-            return (DLDeviceType.kDLCUDAHost, 0)
-        if (not d) and h:
-            return (DLDeviceType.kDLCPU, 0)
-        raise BufferError("buffer is neither device-accessible nor host-accessible")
+        return classify_dl_device(self)
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688.
@@ -391,6 +388,12 @@ cdef class Buffer:
         return self._mem_attrs.is_host_accessible
 
     @property
+    def is_managed(self) -> bool:
+        """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
+        _init_mem_attrs(self)
+        return self._mem_attrs.is_managed
+
+    @property
     def is_mapped(self) -> bool:
         """Return True if this buffer is mapped into the process via IPC."""
         return getattr(self._ipc_data, "is_mapped", False)
@@ -453,6 +456,7 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = False
         out.device_id = -1
+        out.is_managed = False
     elif (
         is_managed
         or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
@@ -461,10 +465,12 @@ cdef inline int _query_memory_attrs(
         out.is_host_accessible = True
         out.is_device_accessible = True
         out.device_id = device_id
+        out.is_managed = is_managed
     elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
         out.is_host_accessible = False
         out.is_device_accessible = True
         out.device_id = device_id
+        out.is_managed = False
     else:
         with cython.gil:
             raise ValueError(f"Unsupported memory type: {memory_type}")
@@ -490,7 +496,7 @@ cdef class MemoryResource:
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream on which to perform the allocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
@@ -512,7 +518,7 @@ cdef class MemoryResource:
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream on which to perform the deallocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
@@ -569,36 +575,3 @@ cdef inline void Buffer_close(Buffer self, object stream):
     self._memory_resource = None
     self._ipc_data = None
     self._owner = None
-
-
-cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, StreamHandle h_stream) except? -1:
-    cdef cydriver.CUdeviceptr ptr = as_cu(self._h_ptr)
-    cdef cydriver.CUstream s = as_cu(h_stream)
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemsetD8Async(ptr, value, self._size, s))
-    return 0
-
-
-cdef inline int Buffer_fill_from_ptr(
-    Buffer self, const char* ptr, size_t width, StreamHandle h_stream
-) except? -1:
-    cdef size_t buffer_size = self._size
-    cdef cydriver.CUdeviceptr dst = as_cu(self._h_ptr)
-    cdef cydriver.CUstream s = as_cu(h_stream)
-
-    if width == 1:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD8Async(dst, (<uint8_t*>ptr)[0], buffer_size, s))
-    elif width == 2:
-        if buffer_size & 0x1:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD16Async(dst, (<uint16_t*>ptr)[0], buffer_size // 2, s))
-    elif width == 4:
-        if buffer_size & 0x3:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD32Async(dst, (<uint32_t*>ptr)[0], buffer_size // 4, s))
-    else:
-        raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
-    return 0

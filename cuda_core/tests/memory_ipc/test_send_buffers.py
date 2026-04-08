@@ -5,8 +5,9 @@ import multiprocessing as mp
 from itertools import cycle
 
 import pytest
-from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from helpers.buffers import PatternGen
+
+from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
 CHILD_TIMEOUT_SEC = 30
 NBYTES = 64

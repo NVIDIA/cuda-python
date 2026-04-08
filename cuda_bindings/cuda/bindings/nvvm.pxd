@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -39,3 +39,4 @@ cpdef size_t get_compiled_result_size(intptr_t prog) except? 0
 cpdef get_compiled_result(intptr_t prog, buffer)
 cpdef size_t get_program_log_size(intptr_t prog) except? 0
 cpdef get_program_log(intptr_t prog, buffer)
+cpdef int llvm_version(arch) except? 0

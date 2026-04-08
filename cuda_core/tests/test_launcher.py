@@ -1,9 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
 
 import helpers
+from helpers.marks import requires_module
 from helpers.misc import StreamWrapper
 
 try:
@@ -12,6 +13,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
+
+from conftest import skipif_need_cuda_headers
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -23,8 +26,6 @@ from cuda.core import (
 )
 from cuda.core._memory import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-
-from conftest import skipif_need_cuda_headers
 
 
 def test_launch_config_init(init_cuda):
@@ -190,7 +191,7 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
 
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.1")
 def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev = Device()
     dev.set_current()
@@ -289,10 +290,7 @@ def test_cooperative_launch():
         "device_memory_resource",  # kludgy, but can go away after #726 is resolved
         pytest.param(
             LegacyPinnedMemoryResource,
-            marks=pytest.mark.skipif(
-                tuple(int(i) for i in np.__version__.split(".")[:3]) < (2, 2, 5),
-                reason="need numpy 2.2.5+, numpy GH #28632",
-            ),
+            marks=requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)"),
         ),
     ],
 )
@@ -382,3 +380,10 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
 
     # Verify buffer is properly closed
     assert buffer.handle == 0, f"{name} buffer should be closed"
+
+
+def test_kernel_arg_unsupported_type():
+    from cuda.core._kernel_arg_handler import ParamHolder
+
+    with pytest.raises(TypeError, match="unsupported type"):
+        ParamHolder(["not_a_valid_kernel_arg"])

@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._memory._memory_pool cimport _MemPool, _MemPoolOptions
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    check_or_create_options,
-)
+from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._memory._memory_pool cimport MP_init_create_pool, MP_init_current_pool  # no-cython-lint
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
+from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
@@ -26,12 +26,35 @@ cdef class ManagedMemoryResourceOptions:
     Attributes
     ----------
     preferred_location : int | None, optional
-        The preferred device location for the managed memory.
-        Use a device ID (0, 1, 2, ...) for device preference, -1 for CPU/host,
-        or None to let the driver decide.
-        (Default to None)
+        A location identifier (device ordinal or NUMA node ID) whose
+        meaning depends on ``preferred_location_type``.
+        (Default to ``None``)
+
+    preferred_location_type : ``"device"`` | ``"host"`` | ``"host_numa"`` | None, optional
+        Controls how ``preferred_location`` is interpreted.
+
+        When set to ``None`` (the default), legacy behavior is used:
+        ``preferred_location`` is interpreted as a device ordinal,
+        ``-1`` for host, or ``None`` for no preference.
+
+        When set explicitly, the type determines both the kind of
+        preferred location and the valid values for
+        ``preferred_location``:
+
+        - ``"device"``: prefer a specific GPU. ``preferred_location``
+          must be a device ordinal (``>= 0``).
+        - ``"host"``: prefer host memory (OS-managed NUMA placement).
+          ``preferred_location`` must be ``None``.
+        - ``"host_numa"``: prefer a specific host NUMA node.
+          ``preferred_location`` must be a NUMA node ID (``>= 0``),
+          or ``None`` to derive the NUMA node from the current CUDA
+          device's ``host_numa_id`` attribute (requires an active
+          CUDA context).
+
+        (Default to ``None``)
     """
     preferred_location: int | None = None
+    preferred_location_type: str | None = None
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -64,40 +87,29 @@ cdef class ManagedMemoryResource(_MemPool):
     """
 
     def __init__(self, options=None):
-        cdef ManagedMemoryResourceOptions opts = check_or_create_options(
-            ManagedMemoryResourceOptions, options, "ManagedMemoryResource options",
-            keep_none=True
-        )
-        cdef _MemPoolOptions opts_base = _MemPoolOptions()
+        _MMR_init(self, options)
 
-        cdef int device_id = -1
-        cdef object preferred_location = None
-        if opts:
-            preferred_location = opts.preferred_location
-            if preferred_location is not None:
-                device_id = preferred_location
-            opts_base._use_current = False
+    @property
+    def device_id(self) -> int:
+        """The preferred device ordinal, or -1 if the preferred location is not a device."""
+        if self._pref_loc_type == "device":
+            return self._pref_loc_id
+        return -1
 
-        opts_base._ipc_enabled = False  # IPC not supported for managed memory pools
+    @property
+    def preferred_location(self) -> tuple | None:
+        """The preferred location for managed memory allocations.
 
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            # Set location based on preferred_location
-            if preferred_location is None:
-                # Let the driver decide
-                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
-            elif device_id == -1:
-                # CPU/host preference
-                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            else:
-                # Device preference
-                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-
-            opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
-
-            super().__init__(device_id, opts_base)
-            _check_concurrent_managed_access()
-        ELSE:
-            raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
+        Returns ``None`` if no preferred location is set (driver decides),
+        or a tuple ``(type, id)`` where *type* is one of ``"device"``,
+        ``"host"``, or ``"host_numa"``, and *id* is the device ordinal,
+        ``None`` (for ``"host"``), or the NUMA node ID, respectively.
+        """
+        if self._pref_loc_type is None:
+            return None
+        if self._pref_loc_type == "host":
+            return ("host", None)
+        return (self._pref_loc_type, self._pref_loc_id)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -108,6 +120,144 @@ cdef class ManagedMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
+
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    cdef tuple _VALID_LOCATION_TYPES = ("device", "host", "host_numa")
+
+
+    cdef _resolve_preferred_location(ManagedMemoryResourceOptions opts):
+        """Resolve preferred location options into driver and stored values.
+
+        Returns a 4-tuple:
+            (CUmemLocationType, loc_id, pref_loc_type_str, pref_loc_id)
+        """
+        cdef object pref_loc = opts.preferred_location if opts is not None else None
+        cdef object pref_type = opts.preferred_location_type if opts is not None else None
+
+        if pref_type is not None and pref_type not in _VALID_LOCATION_TYPES:
+            raise ValueError(
+                f"preferred_location_type must be one of {_VALID_LOCATION_TYPES!r} "
+                f"or None, got {pref_type!r}"
+            )
+
+        if pref_type is None:
+            # Legacy behavior
+            if pref_loc is None:
+                return (
+                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE,
+                    -1, None, -1,
+                )
+            if pref_loc == -1:
+                return (
+                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
+                    -1, "host", -1,
+                )
+            if pref_loc < 0:
+                raise ValueError(
+                    f"preferred_location must be a device ordinal (>= 0), -1 for "
+                    f"host, or None for no preference, got {pref_loc}"
+                )
+            return (
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+                pref_loc, "device", pref_loc,
+            )
+
+        if pref_type == "device":
+            if pref_loc is None or pref_loc < 0:
+                raise ValueError(
+                    f"preferred_location must be a device ordinal (>= 0) when "
+                    f"preferred_location_type is 'device', got {pref_loc!r}"
+                )
+            return (
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+                pref_loc, "device", pref_loc,
+            )
+
+        if pref_type == "host":
+            if pref_loc is not None:
+                raise ValueError(
+                    f"preferred_location must be None when "
+                    f"preferred_location_type is 'host', got {pref_loc!r}"
+                )
+            return (
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
+                -1, "host", -1,
+            )
+
+        # pref_type == "host_numa"
+        if pref_loc is None:
+            from .._device import Device
+            dev = Device()
+            numa_id = dev.properties.host_numa_id
+            if numa_id < 0:
+                raise RuntimeError(
+                    "Cannot determine host NUMA ID for the current CUDA device. "
+                    "The system may not support NUMA, or no CUDA context is "
+                    "active. Set preferred_location to an explicit NUMA node ID "
+                    "or call Device.set_current() first."
+                )
+            return (
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
+                numa_id, "host_numa", numa_id,
+            )
+        if pref_loc < 0:
+            raise ValueError(
+                f"preferred_location must be a NUMA node ID (>= 0) or None "
+                f"when preferred_location_type is 'host_numa', got {pref_loc}"
+            )
+        return (
+            cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
+            pref_loc, "host_numa", pref_loc,
+        )
+
+
+cdef inline _MMR_init(ManagedMemoryResource self, options):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef ManagedMemoryResourceOptions opts = check_or_create_options(
+            ManagedMemoryResourceOptions, options, "ManagedMemoryResource options",
+            keep_none=True
+        )
+        cdef cydriver.CUmemLocationType loc_type
+        cdef int loc_id
+
+        loc_type, loc_id, self._pref_loc_type, self._pref_loc_id = (
+            _resolve_preferred_location(opts)
+        )
+
+        if opts is None:
+            try:
+                MP_init_current_pool(
+                    self,
+                    loc_type,
+                    loc_id,
+                    cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED,
+                )
+            except CUDAError as e:
+                if "CUDA_ERROR_NOT_SUPPORTED" in str(e):
+                    from .._device import Device
+                    if not Device().properties.concurrent_managed_access:
+                        raise RuntimeError(
+                            "The default memory pool on this device does not support "
+                            "managed allocations (concurrent managed access is not "
+                            "available). Use "
+                            "ManagedMemoryResource(options=ManagedMemoryResourceOptions(...)) "
+                            "to create a dedicated managed pool."
+                        ) from e
+                raise
+        else:
+            MP_init_create_pool(
+                self,
+                loc_type,
+                loc_id,
+                cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED,
+                False,
+                0,
+            )
+
+        _check_concurrent_managed_access()
+    ELSE:
+        raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
 
 
 cdef bint _concurrent_access_warned = False

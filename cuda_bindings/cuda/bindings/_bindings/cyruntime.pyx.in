@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 include "../cyruntime_functions.pxi"
 
 import os
@@ -773,6 +773,15 @@ cdef cudaError_t _cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr,
     return cudaFuncSetAttribute(func, attr, value)
 {{endif}}
 
+{{if 'cudaFuncGetParamCount' in found_functions}}
+
+cdef cudaError_t _cudaFuncGetParamCount(const void* func, size_t* paramCount) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef bint usePTDS = cudaPythonInit()
+    if usePTDS:
+        return ptds._cudaFuncGetParamCount(func, paramCount)
+    return cudaFuncGetParamCount(func, paramCount)
+{{endif}}
+
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
 cdef cudaError_t _cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -780,6 +789,15 @@ cdef cudaError_t _cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void*
     if usePTDS:
         return ptds._cudaLaunchHostFunc(stream, fn, userData)
     return cudaLaunchHostFunc(stream, fn, userData)
+{{endif}}
+
+{{if 'cudaLaunchHostFunc_v2' in found_functions}}
+
+cdef cudaError_t _cudaLaunchHostFunc_v2(cudaStream_t stream, cudaHostFn_t fn, void* userData, unsigned int syncMode) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef bint usePTDS = cudaPythonInit()
+    if usePTDS:
+        return ptds._cudaLaunchHostFunc_v2(stream, fn, userData, syncMode)
+    return cudaLaunchHostFunc_v2(stream, fn, userData, syncMode)
 {{endif}}
 
 {{if 'cudaFuncSetSharedMemConfig' in found_functions}}
@@ -1167,6 +1185,24 @@ cdef cudaError_t _cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opL
     if usePTDS:
         return ptds._cudaMemcpy3DBatchAsync(numOps, opList, flags, stream)
     return cudaMemcpy3DBatchAsync(numOps, opList, flags, stream)
+{{endif}}
+
+{{if 'cudaMemcpyWithAttributesAsync' in found_functions}}
+
+cdef cudaError_t _cudaMemcpyWithAttributesAsync(void* dst, const void* src, size_t size, cudaMemcpyAttributes* attr, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef bint usePTDS = cudaPythonInit()
+    if usePTDS:
+        return ptds._cudaMemcpyWithAttributesAsync(dst, src, size, attr, stream)
+    return cudaMemcpyWithAttributesAsync(dst, src, size, attr, stream)
+{{endif}}
+
+{{if 'cudaMemcpy3DWithAttributesAsync' in found_functions}}
+
+cdef cudaError_t _cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef bint usePTDS = cudaPythonInit()
+    if usePTDS:
+        return ptds._cudaMemcpy3DWithAttributesAsync(op, flags, stream)
+    return cudaMemcpy3DWithAttributesAsync(op, flags, stream)
 {{endif}}
 
 {{if 'cudaMemcpy2DAsync' in found_functions}}
@@ -2526,6 +2562,15 @@ cdef cudaError_t _cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodePara
     if usePTDS:
         return ptds._cudaGraphNodeSetParams(node, nodeParams)
     return cudaGraphNodeSetParams(node, nodeParams)
+{{endif}}
+
+{{if 'cudaGraphNodeGetParams' in found_functions}}
+
+cdef cudaError_t _cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef bint usePTDS = cudaPythonInit()
+    if usePTDS:
+        return ptds._cudaGraphNodeGetParams(node, nodeParams)
+    return cudaGraphNodeGetParams(node, nodeParams)
 {{endif}}
 
 {{if 'cudaGraphExecNodeSetParams' in found_functions}}

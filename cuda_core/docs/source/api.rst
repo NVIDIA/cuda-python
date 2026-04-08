@@ -13,41 +13,25 @@ be considered stable and will follow semantic versioning with appropriate
 deprecation periods for breaking changes.
 
 
-CUDA runtime
-------------
+Devices and execution
+---------------------
 
 .. autosummary::
    :toctree: generated/
 
    Device
-   Graph
-   GraphBuilder
    launch
 
    :template: autosummary/cyclass.rst
 
-   Buffer
    Stream
    Event
-   MemoryResource
-   DeviceMemoryResource
-   GraphMemoryResource
-   PinnedMemoryResource
-   ManagedMemoryResource
-   LegacyPinnedMemoryResource
-   VirtualMemoryResource
 
    :template: dataclass.rst
 
-   DeviceMemoryResourceOptions
-   PinnedMemoryResourceOptions
-   ManagedMemoryResourceOptions
-   EventOptions
-   GraphCompleteOptions
-   GraphDebugPrintOptions
    StreamOptions
+   EventOptions
    LaunchConfig
-   VirtualMemoryResourceOptions
 
 .. data:: LEGACY_DEFAULT_STREAM
 
@@ -62,11 +46,122 @@ CUDA runtime
    on other non-blocking streams.
 
 
+Memory management
+-----------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   Buffer
+   MemoryResource
+   DeviceMemoryResource
+   GraphMemoryResource
+   PinnedMemoryResource
+   ManagedMemoryResource
+   LegacyPinnedMemoryResource
+   VirtualMemoryResource
+
+   :template: dataclass.rst
+
+   DeviceMemoryResourceOptions
+   PinnedMemoryResourceOptions
+   ManagedMemoryResourceOptions
+   VirtualMemoryResourceOptions
+
+
+CUDA graphs
+-----------
+
+A CUDA graph captures a set of GPU operations and their dependencies,
+allowing them to be defined once and launched repeatedly with minimal
+CPU overhead. Graphs can be constructed in two ways:
+:class:`~graph.GraphBuilder` captures operations from a stream, while
+:class:`~graph.GraphDef` builds a graph explicitly by adding nodes and
+edges. Both produce an executable :class:`~graph.Graph` that can be
+launched on a :class:`Stream`.
+
+.. autosummary::
+   :toctree: generated/
+
+   graph.Graph
+   graph.GraphBuilder
+   graph.GraphDef
+
+   :template: autosummary/cyclass.rst
+
+   graph.GraphNode
+   graph.Condition
+
+   :template: dataclass.rst
+
+   graph.GraphAllocOptions
+   graph.GraphCompleteOptions
+   graph.GraphDebugPrintOptions
+
+Node types
+``````````
+
+Every graph node is a subclass of :class:`~graph.GraphNode`, which
+provides the common interface (dependencies, successors, destruction).
+Each subclass exposes attributes unique to its operation type.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   graph.EmptyNode
+   graph.KernelNode
+   graph.AllocNode
+   graph.FreeNode
+   graph.MemsetNode
+   graph.MemcpyNode
+   graph.ChildGraphNode
+   graph.EventRecordNode
+   graph.EventWaitNode
+   graph.HostCallbackNode
+   graph.ConditionalNode
+   graph.IfNode
+   graph.IfElseNode
+   graph.WhileNode
+   graph.SwitchNode
+
+
+Graphics interoperability
+-------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   GraphicsResource
+
+
+Tensor Memory Accelerator (TMA)
+-------------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   TensorMapDescriptor
+
+   :template: dataclass.rst
+
+   TensorMapDescriptorOptions
+
+
 CUDA compilation toolchain
 --------------------------
 
 .. autosummary::
    :toctree: generated/
+
+   :template: autosummary/cyclass.rst
 
    Program
    Linker
@@ -82,6 +177,9 @@ CUDA compilation toolchain
 CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
+Basic functions
+```````````````
+
 .. autosummary::
    :toctree: generated/
 
@@ -94,35 +192,61 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_topology_common_ancestor
    system.get_p2p_status
 
+Events
+``````
+
+.. autosummary::
+   :toctree: generated/
+
    system.register_events
    system.RegisteredSystemEvents
    system.SystemEvent
    system.SystemEvents
    system.SystemEventType
 
+Enums
+`````
+
+.. autosummary::
+   :toctree: generated/
+
+   system.AddressingMode
+   system.AffinityScope
+   system.BrandType
+   system.ClockId
+   system.ClocksEventReasons
+   system.CoolerControl
+   system.CoolerTarget
+   system.DeviceArch
+   system.EventType
+   system.FanControlPolicy
+   system.FieldId
+   system.InforomObject
+   system.PcieUtilCounter
+   system.Pstates
+   system.TemperatureSensors
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalTarget
+
+Types
+`````
+
+.. autosummary::
+   :toctree: generated/
+
    :template: autosummary/cyclass.rst
 
    system.Device
-   system.AddressingMode
-   system.AffinityScope
    system.BAR1MemoryInfo
-   system.BrandType
-   system.ClockId
    system.ClockInfo
    system.ClockOffsets
-   system.ClocksEventReasons
    system.ClockType
-   system.CoolerControl
    system.CoolerInfo
-   system.CoolerTarget
-   system.DeviceArch
    system.DeviceAttributes
    system.DeviceEvents
    system.EventData
-   system.EventType
-   system.FanControlPolicy
    system.FanInfo
-   system.FieldId
    system.FieldValue
    system.FieldValues
    system.GpuDynamicPstatesInfo
@@ -131,19 +255,12 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.GpuP2PStatus
    system.GpuTopologyLevel
    system.InforomInfo
-   system.InforomObject
    system.MemoryInfo
-   system.PcieUtilCounter
    system.PciInfo
-   system.Pstates
    system.RepairStatus
    system.Temperature
-   system.TemperatureSensors
-   system.TemperatureThresholds
-   system.ThermalController
    system.ThermalSensor
    system.ThermalSettings
-   system.ThermalTarget
 
 .. module:: cuda.core.utils
 

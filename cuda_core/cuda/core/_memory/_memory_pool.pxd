@@ -10,13 +10,30 @@ from cuda.core._resource_handles cimport MemoryPoolHandle
 
 cdef class _MemPool(MemoryResource):
     cdef:
-        int                   _dev_id
         MemoryPoolHandle      _h_pool
         bint                  _mempool_owned
         IPCDataForMR          _ipc_data
         object                _attributes
-        object                _peer_accessible_by
         object                __weakref__
+
+
+cdef int MP_init_create_pool(
+    _MemPool self,
+    cydriver.CUmemLocationType loc_type,
+    int loc_id,
+    cydriver.CUmemAllocationType alloc_type,
+    bint ipc_enabled,
+    size_t max_size,
+) except? -1
+
+cdef int MP_init_current_pool(
+    _MemPool self,
+    cydriver.CUmemLocationType loc_type,
+    int loc_id,
+    cydriver.CUmemAllocationType alloc_type,
+) except? -1
+
+cdef int MP_raise_release_threshold(_MemPool self) except? -1
 
 
 cdef class _MemPoolAttributes:
@@ -27,13 +44,3 @@ cdef class _MemPoolAttributes:
     cdef _MemPoolAttributes _init(MemoryPoolHandle h_pool)
 
     cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except? -1
-
-
-cdef class _MemPoolOptions:
-
-    cdef:
-        bint _ipc_enabled
-        size_t _max_size
-        cydriver.CUmemLocationType _location
-        cydriver.CUmemAllocationType _type
-        bint _use_current

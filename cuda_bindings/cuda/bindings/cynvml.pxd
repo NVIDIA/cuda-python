@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from libc.stdint cimport int64_t
 
@@ -472,6 +472,7 @@ ctypedef enum nvmlGpmMetricId_t "nvmlGpmMetricId_t":
     NVML_GPM_METRIC_ANY_TENSOR_UTIL "NVML_GPM_METRIC_ANY_TENSOR_UTIL" = 5
     NVML_GPM_METRIC_DFMA_TENSOR_UTIL "NVML_GPM_METRIC_DFMA_TENSOR_UTIL" = 6
     NVML_GPM_METRIC_HMMA_TENSOR_UTIL "NVML_GPM_METRIC_HMMA_TENSOR_UTIL" = 7
+    NVML_GPM_METRIC_DMMA_TENSOR_UTIL "NVML_GPM_METRIC_DMMA_TENSOR_UTIL" = 8
     NVML_GPM_METRIC_IMMA_TENSOR_UTIL "NVML_GPM_METRIC_IMMA_TENSOR_UTIL" = 9
     NVML_GPM_METRIC_DRAM_BW_UTIL "NVML_GPM_METRIC_DRAM_BW_UTIL" = 10
     NVML_GPM_METRIC_FP64_UTIL "NVML_GPM_METRIC_FP64_UTIL" = 11
@@ -645,7 +646,56 @@ ctypedef enum nvmlGpmMetricId_t "nvmlGpmMetricId_t":
     NVML_GPM_METRIC_GR7_CTXSW_REQUESTS "NVML_GPM_METRIC_GR7_CTXSW_REQUESTS" = 207
     NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ "NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ" = 208
     NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT "NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT" = 209
-    NVML_GPM_METRIC_MAX "NVML_GPM_METRIC_MAX" = 210
+    NVML_GPM_METRIC_SM_CYCLES_ELAPSED "NVML_GPM_METRIC_SM_CYCLES_ELAPSED" = 248
+    NVML_GPM_METRIC_SM_CYCLES_ACTIVE "NVML_GPM_METRIC_SM_CYCLES_ACTIVE" = 249
+    NVML_GPM_METRIC_MMA_CYCLES_ACTIVE "NVML_GPM_METRIC_MMA_CYCLES_ACTIVE" = 250
+    NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE "NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE" = 251
+    NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE "NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE" = 252
+    NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE "NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE" = 253
+    NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE "NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE" = 254
+    NVML_GPM_METRIC_PCIE_TX "NVML_GPM_METRIC_PCIE_TX" = 255
+    NVML_GPM_METRIC_PCIE_RX "NVML_GPM_METRIC_PCIE_RX" = 256
+    NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE "NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE" = 257
+    NVML_GPM_METRIC_FP64_CYCLES_ACTIVE "NVML_GPM_METRIC_FP64_CYCLES_ACTIVE" = 258
+    NVML_GPM_METRIC_FP32_CYCLES_ACTIVE "NVML_GPM_METRIC_FP32_CYCLES_ACTIVE" = 259
+    NVML_GPM_METRIC_FP16_CYCLES_ACTIVE "NVML_GPM_METRIC_FP16_CYCLES_ACTIVE" = 260
+    NVML_GPM_METRIC_NVLINK_L0_RX "NVML_GPM_METRIC_NVLINK_L0_RX" = 261
+    NVML_GPM_METRIC_NVLINK_L0_TX "NVML_GPM_METRIC_NVLINK_L0_TX" = 262
+    NVML_GPM_METRIC_NVLINK_L1_RX "NVML_GPM_METRIC_NVLINK_L1_RX" = 263
+    NVML_GPM_METRIC_NVLINK_L1_TX "NVML_GPM_METRIC_NVLINK_L1_TX" = 264
+    NVML_GPM_METRIC_NVLINK_L2_RX "NVML_GPM_METRIC_NVLINK_L2_RX" = 265
+    NVML_GPM_METRIC_NVLINK_L2_TX "NVML_GPM_METRIC_NVLINK_L2_TX" = 266
+    NVML_GPM_METRIC_NVLINK_L3_RX "NVML_GPM_METRIC_NVLINK_L3_RX" = 267
+    NVML_GPM_METRIC_NVLINK_L3_TX "NVML_GPM_METRIC_NVLINK_L3_TX" = 268
+    NVML_GPM_METRIC_NVLINK_L4_RX "NVML_GPM_METRIC_NVLINK_L4_RX" = 269
+    NVML_GPM_METRIC_NVLINK_L4_TX "NVML_GPM_METRIC_NVLINK_L4_TX" = 270
+    NVML_GPM_METRIC_NVLINK_L5_RX "NVML_GPM_METRIC_NVLINK_L5_RX" = 271
+    NVML_GPM_METRIC_NVLINK_L5_TX "NVML_GPM_METRIC_NVLINK_L5_TX" = 272
+    NVML_GPM_METRIC_NVLINK_L6_RX "NVML_GPM_METRIC_NVLINK_L6_RX" = 273
+    NVML_GPM_METRIC_NVLINK_L6_TX "NVML_GPM_METRIC_NVLINK_L6_TX" = 274
+    NVML_GPM_METRIC_NVLINK_L7_RX "NVML_GPM_METRIC_NVLINK_L7_RX" = 275
+    NVML_GPM_METRIC_NVLINK_L7_TX "NVML_GPM_METRIC_NVLINK_L7_TX" = 276
+    NVML_GPM_METRIC_NVLINK_L8_RX "NVML_GPM_METRIC_NVLINK_L8_RX" = 277
+    NVML_GPM_METRIC_NVLINK_L8_TX "NVML_GPM_METRIC_NVLINK_L8_TX" = 278
+    NVML_GPM_METRIC_NVLINK_L9_RX "NVML_GPM_METRIC_NVLINK_L9_RX" = 279
+    NVML_GPM_METRIC_NVLINK_L9_TX "NVML_GPM_METRIC_NVLINK_L9_TX" = 280
+    NVML_GPM_METRIC_NVLINK_L10_RX "NVML_GPM_METRIC_NVLINK_L10_RX" = 281
+    NVML_GPM_METRIC_NVLINK_L10_TX "NVML_GPM_METRIC_NVLINK_L10_TX" = 282
+    NVML_GPM_METRIC_NVLINK_L11_RX "NVML_GPM_METRIC_NVLINK_L11_RX" = 283
+    NVML_GPM_METRIC_NVLINK_L11_TX "NVML_GPM_METRIC_NVLINK_L11_TX" = 284
+    NVML_GPM_METRIC_NVLINK_L12_RX "NVML_GPM_METRIC_NVLINK_L12_RX" = 285
+    NVML_GPM_METRIC_NVLINK_L12_TX "NVML_GPM_METRIC_NVLINK_L12_TX" = 286
+    NVML_GPM_METRIC_NVLINK_L13_RX "NVML_GPM_METRIC_NVLINK_L13_RX" = 287
+    NVML_GPM_METRIC_NVLINK_L13_TX "NVML_GPM_METRIC_NVLINK_L13_TX" = 288
+    NVML_GPM_METRIC_NVLINK_L14_RX "NVML_GPM_METRIC_NVLINK_L14_RX" = 289
+    NVML_GPM_METRIC_NVLINK_L14_TX "NVML_GPM_METRIC_NVLINK_L14_TX" = 290
+    NVML_GPM_METRIC_NVLINK_L15_RX "NVML_GPM_METRIC_NVLINK_L15_RX" = 291
+    NVML_GPM_METRIC_NVLINK_L15_TX "NVML_GPM_METRIC_NVLINK_L15_TX" = 292
+    NVML_GPM_METRIC_NVLINK_L16_RX "NVML_GPM_METRIC_NVLINK_L16_RX" = 293
+    NVML_GPM_METRIC_NVLINK_L16_TX "NVML_GPM_METRIC_NVLINK_L16_TX" = 294
+    NVML_GPM_METRIC_NVLINK_L17_RX "NVML_GPM_METRIC_NVLINK_L17_RX" = 295
+    NVML_GPM_METRIC_NVLINK_L17_TX "NVML_GPM_METRIC_NVLINK_L17_TX" = 296
+    NVML_GPM_METRIC_MAX "NVML_GPM_METRIC_MAX" = 333
 
 ctypedef enum nvmlPowerProfileType_t "nvmlPowerProfileType_t":
     NVML_POWER_PROFILE_MAX_P "NVML_POWER_PROFILE_MAX_P" = 0
@@ -972,7 +1022,7 @@ ctypedef struct nvmlViolationTime_t 'nvmlViolationTime_t':
     unsigned long long referenceTime
     unsigned long long violationTime
 
-ctypedef struct _anon_pod0 '_anon_pod0':
+ctypedef struct cuda_bindings_nvml__anon_pod0:
     nvmlThermalController_t controller
     int defaultMinTemp
     int defaultMaxTemp
@@ -1015,7 +1065,7 @@ ctypedef struct nvmlPlatformInfo_v1_t 'nvmlPlatformInfo_v1_t':
     unsigned char peerType
     unsigned char moduleId
 
-ctypedef struct _anon_pod1 '_anon_pod1':
+ctypedef struct cuda_bindings_nvml__anon_pod1:
     unsigned int bIsPresent
     unsigned int percentage
     unsigned int incThreshold
@@ -1027,11 +1077,11 @@ ctypedef struct nvmlVgpuPlacementList_v1_t 'nvmlVgpuPlacementList_v1_t':
     unsigned int count
     unsigned int* placementIds
 
-ctypedef struct _anon_pod2 '_anon_pod2':
+ctypedef struct cuda_bindings_nvml__anon_pod2:
     unsigned int avgFactor
     unsigned int timeslice
 
-ctypedef struct _anon_pod3 '_anon_pod3':
+ctypedef struct cuda_bindings_nvml__anon_pod3:
     unsigned int timeslice
 
 ctypedef struct nvmlVgpuSchedulerLogEntry_t 'nvmlVgpuSchedulerLogEntry_t':
@@ -1042,11 +1092,11 @@ ctypedef struct nvmlVgpuSchedulerLogEntry_t 'nvmlVgpuSchedulerLogEntry_t':
     unsigned long long targetTimeSlice
     unsigned long long cumulativePreemptionTime
 
-ctypedef struct _anon_pod4 '_anon_pod4':
+ctypedef struct cuda_bindings_nvml__anon_pod4:
     unsigned int avgFactor
     unsigned int frequency
 
-ctypedef struct _anon_pod5 '_anon_pod5':
+ctypedef struct cuda_bindings_nvml__anon_pod5:
     unsigned int timeslice
 
 ctypedef struct nvmlVgpuSchedulerCapabilities_t 'nvmlVgpuSchedulerCapabilities_t':
@@ -1258,7 +1308,7 @@ ctypedef struct nvmlComputeInstanceProfileInfo_v3_t 'nvmlComputeInstanceProfileI
     char name[96]
     unsigned int capabilities
 
-ctypedef struct _anon_pod6 '_anon_pod6':
+ctypedef struct cuda_bindings_nvml__anon_pod6:
     char* shortName
     char* longName
     char* unit
@@ -1297,7 +1347,7 @@ ctypedef struct nvmlNvlinkFirmwareVersion_t 'nvmlNvlinkFirmwareVersion_t':
     unsigned int minor
     unsigned int subMinor
 
-ctypedef union _anon_pod7 '_anon_pod7':
+ctypedef union cuda_bindings_nvml__anon_pod7:
     unsigned char inData[496]
     unsigned char outData[496]
 
@@ -1310,6 +1360,27 @@ ctypedef struct nvmlRusdSettings_v1_t 'nvmlRusdSettings_v1_t':
 
 ctypedef struct nvmlPRMCounterInput_v1_t 'nvmlPRMCounterInput_v1_t':
     unsigned int localPort
+
+ctypedef struct nvmlVgpuSchedulerStateInfo_v2_t 'nvmlVgpuSchedulerStateInfo_v2_t':
+    unsigned int engineId
+    unsigned int schedulerPolicy
+    unsigned int avgFactor
+    unsigned int timeslice
+
+ctypedef struct nvmlVgpuSchedulerLogEntry_v2_t 'nvmlVgpuSchedulerLogEntry_v2_t':
+    unsigned long long timestamp
+    unsigned long long timeRunTotal
+    unsigned long long timeRun
+    unsigned int swRunlistId
+    unsigned long long targetTimeSlice
+    unsigned long long cumulativePreemptionTime
+    unsigned int weight
+
+ctypedef struct nvmlVgpuSchedulerState_v2_t 'nvmlVgpuSchedulerState_v2_t':
+    unsigned int engineId
+    unsigned int schedulerPolicy
+    unsigned int avgFactor
+    unsigned int frequency
 
 ctypedef nvmlPciInfoExt_v1_t nvmlPciInfoExt_t 'nvmlPciInfoExt_t'
 ctypedef nvmlCoolerInfo_v1_t nvmlCoolerInfo_t 'nvmlCoolerInfo_t'
@@ -1508,7 +1579,7 @@ ctypedef struct nvmlPRMCounterValue_v1_t 'nvmlPRMCounterValue_v1_t':
 
 ctypedef struct nvmlGpuThermalSettings_t 'nvmlGpuThermalSettings_t':
     unsigned int count
-    _anon_pod0 sensor[3]
+    cuda_bindings_nvml__anon_pod0 sensor[3]
 
 ctypedef struct nvmlUUID_v1_t 'nvmlUUID_v1_t':
     unsigned int version
@@ -1528,15 +1599,15 @@ ctypedef struct nvmlProcessesUtilizationInfo_v1_t 'nvmlProcessesUtilizationInfo_
 
 ctypedef struct nvmlGpuDynamicPstatesInfo_t 'nvmlGpuDynamicPstatesInfo_t':
     unsigned int flags
-    _anon_pod1 utilization[8]
+    cuda_bindings_nvml__anon_pod1 utilization[8]
 
 ctypedef union nvmlVgpuSchedulerParams_t 'nvmlVgpuSchedulerParams_t':
-    _anon_pod2 vgpuSchedDataWithARR
-    _anon_pod3 vgpuSchedData
+    cuda_bindings_nvml__anon_pod2 vgpuSchedDataWithARR
+    cuda_bindings_nvml__anon_pod3 vgpuSchedData
 
 ctypedef union nvmlVgpuSchedulerSetParams_t 'nvmlVgpuSchedulerSetParams_t':
-    _anon_pod4 vgpuSchedDataWithARR
-    _anon_pod5 vgpuSchedData
+    cuda_bindings_nvml__anon_pod4 vgpuSchedDataWithARR
+    cuda_bindings_nvml__anon_pod5 vgpuSchedData
 
 ctypedef struct nvmlVgpuLicenseInfo_t 'nvmlVgpuLicenseInfo_t':
     unsigned char isLicensed
@@ -1590,7 +1661,7 @@ ctypedef struct nvmlGpmMetric_t 'nvmlGpmMetric_t':
     unsigned int metricId
     nvmlReturn_t nvmlReturn
     double value
-    _anon_pod6 metricInfo
+    cuda_bindings_nvml__anon_pod6 metricInfo
 
 ctypedef struct nvmlWorkloadPowerProfileInfo_v1_t 'nvmlWorkloadPowerProfileInfo_v1_t':
     unsigned int version
@@ -1624,7 +1695,15 @@ ctypedef struct nvmlNvlinkFirmwareInfo_t 'nvmlNvlinkFirmwareInfo_t':
 ctypedef struct nvmlPRMTLV_v1_t 'nvmlPRMTLV_v1_t':
     unsigned dataSize
     unsigned status
-    _anon_pod7 _anon_pod_member0
+    cuda_bindings_nvml__anon_pod7 _anon_pod_member0
+
+ctypedef struct nvmlVgpuSchedulerLogInfo_v2_t 'nvmlVgpuSchedulerLogInfo_v2_t':
+    unsigned int engineId
+    unsigned int schedulerPolicy
+    unsigned int avgFactor
+    unsigned int timeslice
+    unsigned int entriesCount
+    nvmlVgpuSchedulerLogEntry_v2_t logEntries[200]
 
 ctypedef nvmlVgpuTypeIdInfo_v1_t nvmlVgpuTypeIdInfo_t 'nvmlVgpuTypeIdInfo_t'
 ctypedef nvmlVgpuTypeMaxInstance_v1_t nvmlVgpuTypeMaxInstance_t 'nvmlVgpuTypeMaxInstance_t'
@@ -1707,7 +1786,7 @@ ctypedef struct nvmlGpmMetricsGet_t 'nvmlGpmMetricsGet_t':
     unsigned int numMetrics
     nvmlGpmSample_t sample1
     nvmlGpmSample_t sample2
-    nvmlGpmMetric_t metrics[210]
+    nvmlGpmMetric_t metrics[333]
 
 ctypedef nvmlWorkloadPowerProfileInfo_v1_t nvmlWorkloadPowerProfileInfo_t 'nvmlWorkloadPowerProfileInfo_t'
 ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t nvmlWorkloadPowerProfileCurrentProfiles_t 'nvmlWorkloadPowerProfileCurrentProfiles_t'
@@ -1868,6 +1947,7 @@ cdef nvmlReturn_t nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverMod
 cdef nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBridgeChipHierarchy_t* bridgeHierarchy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t* plist) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t device2, int* onSameBoard) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
@@ -2083,3 +2163,10 @@ cdef nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t 
 cdef nvmlReturn_t nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil

@@ -38,7 +38,6 @@ from cuda.core._resource_handles cimport (
     as_py,
 )
 
-from cuda.core._graph import GraphBuilder
 
 
 @dataclass
@@ -354,17 +353,19 @@ cdef class Stream:
 
         return Stream._init(obj=_stream_holder())
 
-    def create_graph_builder(self) -> GraphBuilder:
-        """Create a new :obj:`~_graph.GraphBuilder` object.
+    def create_graph_builder(self) -> "GraphBuilder":
+        """Create a new :obj:`~graph.GraphBuilder` object.
 
         The new graph builder will be associated with this stream.
 
         Returns
         -------
-        :obj:`~_graph.GraphBuilder`
+        :obj:`~graph.GraphBuilder`
             Newly created graph builder object.
 
         """
+        from cuda.core.graph._graph_builder import GraphBuilder
+
         return GraphBuilder._init(stream=self, is_stream_owner=False)
 
 
@@ -466,22 +467,20 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
 # Helper for API functions that accept either Stream or GraphBuilder. Performs
 # needed checks and returns the relevant stream.
 cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
+    from cuda.core.graph._graph_builder import GraphBuilder
+
     if isinstance(arg, Stream):
         return <Stream>(arg)
     elif isinstance(arg, GraphBuilder):
         return <Stream>(arg.stream)
-    elif allow_stream_protocol:
-        try:
-            stream = Stream._init(arg)
-        except:
-            pass
-        else:
-            warnings.warn(
-                "Passing foreign stream objects to this function via the "
-                "stream protocol is deprecated. Convert the object explicitly "
-                "using Stream(obj) instead.",
-                stacklevel=2,
-                category=DeprecationWarning,
-            )
-            return <Stream>(stream)
+    elif allow_stream_protocol and hasattr(arg, "__cuda_stream__"):
+        stream = Stream._init(arg)
+        warnings.warn(
+            "Passing foreign stream objects to this function via the "
+            "stream protocol is deprecated. Convert the object explicitly "
+            "using Stream(obj) instead.",
+            stacklevel=2,
+            category=DeprecationWarning,
+        )
+        return <Stream>(stream)
     raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")

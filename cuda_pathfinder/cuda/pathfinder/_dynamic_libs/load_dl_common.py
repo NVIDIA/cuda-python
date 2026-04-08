@@ -1,13 +1,25 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import DIRECT_DEPENDENCIES
+if TYPE_CHECKING:
+    from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
 
 class DynamicLibNotFoundError(RuntimeError):
+    pass
+
+
+class DynamicLibNotAvailableError(DynamicLibNotFoundError):
+    pass
+
+
+class DynamicLibUnknownError(DynamicLibNotFoundError):
     pass
 
 
@@ -16,9 +28,9 @@ class LoadedDL:
     abs_path: str | None
     was_already_loaded_from_elsewhere: bool
     _handle_uint: int  # Platform-agnostic unsigned pointer value
-    found_via: str
+    found_via: str  # "CUDA_PATH" covers both CUDA_PATH and CUDA_HOME env vars
 
 
-def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:
-    for dep in DIRECT_DEPENDENCIES.get(libname, ()):
+def load_dependencies(desc: LibDescriptor, load_func: Callable[[str], LoadedDL]) -> None:
+    for dep in desc.dependencies:
         load_func(dep)

@@ -34,13 +34,16 @@ _extensions = None
 
 
 @functools.cache
-def _get_cuda_paths() -> list[str]:
-    CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
-    if not CUDA_HOME:
-        raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
-    CUDA_HOME = CUDA_HOME.split(os.pathsep)
-    print("CUDA paths:", CUDA_HOME)
-    return CUDA_HOME
+def _get_cuda_path() -> str:
+    # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
+    # build backend runs in an isolated venv where the cuda namespace package
+    # from backend-path shadows the installed cuda-pathfinder. See #1803 for
+    # a workaround to apply after cuda-pathfinder >= 1.5 is released.
+    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    if not cuda_path:
+        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+    print("CUDA path:", cuda_path)
+    return cuda_path
 
 
 # -----------------------------------------------------------------------
@@ -133,8 +136,8 @@ def _fetch_header_paths(required_headers, include_path_list):
     if missing_headers:
         error_message = "Couldn't find required headers: "
         error_message += ", ".join(missing_headers)
-        cuda_paths = _get_cuda_paths()
-        raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{cuda_paths}")')
+        cuda_path = _get_cuda_path()
+        raise RuntimeError(f'{error_message}\nIs CUDA_PATH setup correctly? (CUDA_PATH="{cuda_path}")')
 
     return header_dict
 
@@ -176,12 +179,12 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
             CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
             print(f"Found CUDA_VERSION: {CUDA_VERSION}", flush=True)
 
-        found_types += {key for key in parser.defs["types"]}
-        found_types += {key for key in parser.defs["structs"]}
-        found_types += {key for key in parser.defs["unions"]}
-        found_types += {key for key in parser.defs["enums"]}
-        found_functions += {key for key in parser.defs["functions"]}
-        found_values += {key for key in parser.defs["values"]}
+        found_types += set(parser.defs["types"])
+        found_types += set(parser.defs["structs"])
+        found_types += set(parser.defs["unions"])
+        found_types += set(parser.defs["enums"])
+        found_functions += set(parser.defs["functions"])
+        found_values += set(parser.defs["values"])
 
         for key, value in parser.defs["structs"].items():
             struct_list[key] = _Struct(key, value["members"])
@@ -189,7 +192,7 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
             struct_list[key] = _Struct(key, value["members"])
 
         for key, value in struct_list.items():
-            if key.startswith("anon_union") or key.startswith("anon_struct"):
+            if key.startswith(("anon_union", "anon_struct")):
                 continue
 
             found_struct += [key]
@@ -291,7 +294,7 @@ def _build_cuda_bindings(strip=False):
 
     global _extensions
 
-    cuda_paths = _get_cuda_paths()
+    cuda_path = _get_cuda_path()
 
     if os.environ.get("PARALLEL_LEVEL") is not None:
         warn(
@@ -307,7 +310,7 @@ def _build_cuda_bindings(strip=False):
     compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
     # Parse CUDA headers
-    include_path_list = [os.path.join(path, "include") for path in cuda_paths]
+    include_path_list = [os.path.join(cuda_path, "include")]
     header_dict = _fetch_header_paths(_REQUIRED_HEADERS, include_path_list)
     found_types, found_functions, found_values, found_struct, struct_list = _parse_headers(
         header_dict, include_path_list, parser_caching
@@ -347,7 +350,7 @@ def _build_cuda_bindings(strip=False):
     ] + include_path_list
     library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
     cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
-    library_dirs.extend(os.path.join(prefix, subdir) for prefix in cuda_paths for subdir in cudalib_subdirs)
+    library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
 
     extra_compile_args = []
     extra_link_args = []
@@ -408,14 +411,14 @@ def _build_cuda_bindings(strip=False):
         )
 
     # Cythonize
-    cython_directives = dict(language_level=3, embedsignature=True, binding=True, freethreading_compatible=True)
+    cython_directives = {"language_level": 3, "embedsignature": True, "binding": True, "freethreading_compatible": True}
     if compile_for_coverage:
         cython_directives["linetrace"] = True
 
     _extensions = cythonize(
         extensions,
         nthreads=nthreads,
-        build_dir="build/cython",
+        build_dir="." if compile_for_coverage else "build/cython",
         compiler_directives=cython_directives,
         **extra_cythonize_kwargs,
     )

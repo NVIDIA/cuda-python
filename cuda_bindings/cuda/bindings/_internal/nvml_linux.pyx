@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -188,6 +188,7 @@ cdef void* __nvmlDeviceGetDriverModel_v2 = NULL
 cdef void* __nvmlDeviceGetVbiosVersion = NULL
 cdef void* __nvmlDeviceGetBridgeChipInfo = NULL
 cdef void* __nvmlDeviceGetComputeRunningProcesses_v3 = NULL
+cdef void* __nvmlDeviceGetGraphicsRunningProcesses_v3 = NULL
 cdef void* __nvmlDeviceGetMPSComputeRunningProcesses_v3 = NULL
 cdef void* __nvmlDeviceGetRunningProcessDetailList = NULL
 cdef void* __nvmlDeviceOnSameBoard = NULL
@@ -403,10 +404,18 @@ cdef void* __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = NULL
 cdef void* __nvmlDeviceGetUnrepairableMemoryFlag_v1 = NULL
 cdef void* __nvmlDeviceReadPRMCounters_v1 = NULL
 cdef void* __nvmlDeviceSetRusdSettings_v1 = NULL
+cdef void* __nvmlDeviceVgpuForceGspUnload = NULL
+cdef void* __nvmlDeviceGetVgpuSchedulerState_v2 = NULL
+cdef void* __nvmlGpuInstanceGetVgpuSchedulerState_v2 = NULL
+cdef void* __nvmlDeviceGetVgpuSchedulerLog_v2 = NULL
+cdef void* __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = NULL
+cdef void* __nvmlDeviceSetVgpuSchedulerState_v2 = NULL
+cdef void* __nvmlGpuInstanceSetVgpuSchedulerState_v2 = NULL
 
 
 cdef void* load_library() except* with gil:
-    return dlopen("libnvidia-ml.so.1", RTLD_NOW | RTLD_GLOBAL)
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvml")._handle_uint
+    return <void*>handle
 
 
 cdef int _init_nvml() except -1 nogil:
@@ -1314,6 +1323,13 @@ cdef int _init_nvml() except -1 nogil:
             if handle == NULL:
                 handle = load_library()
             __nvmlDeviceGetComputeRunningProcesses_v3 = dlsym(handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
+
+        global __nvmlDeviceGetGraphicsRunningProcesses_v3
+        __nvmlDeviceGetGraphicsRunningProcesses_v3 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
+        if __nvmlDeviceGetGraphicsRunningProcesses_v3 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetGraphicsRunningProcesses_v3 = dlsym(handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
 
         global __nvmlDeviceGetMPSComputeRunningProcesses_v3
         __nvmlDeviceGetMPSComputeRunningProcesses_v3 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
@@ -2820,6 +2836,55 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlDeviceSetRusdSettings_v1 = dlsym(handle, 'nvmlDeviceSetRusdSettings_v1')
 
+        global __nvmlDeviceVgpuForceGspUnload
+        __nvmlDeviceVgpuForceGspUnload = dlsym(RTLD_DEFAULT, 'nvmlDeviceVgpuForceGspUnload')
+        if __nvmlDeviceVgpuForceGspUnload == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceVgpuForceGspUnload = dlsym(handle, 'nvmlDeviceVgpuForceGspUnload')
+
+        global __nvmlDeviceGetVgpuSchedulerState_v2
+        __nvmlDeviceGetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerState_v2')
+        if __nvmlDeviceGetVgpuSchedulerState_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerState_v2')
+
+        global __nvmlGpuInstanceGetVgpuSchedulerState_v2
+        __nvmlGpuInstanceGetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
+        if __nvmlGpuInstanceGetVgpuSchedulerState_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlGpuInstanceGetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
+
+        global __nvmlDeviceGetVgpuSchedulerLog_v2
+        __nvmlDeviceGetVgpuSchedulerLog_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerLog_v2')
+        if __nvmlDeviceGetVgpuSchedulerLog_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetVgpuSchedulerLog_v2 = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerLog_v2')
+
+        global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
+        __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
+        if __nvmlGpuInstanceGetVgpuSchedulerLog_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
+
+        global __nvmlDeviceSetVgpuSchedulerState_v2
+        __nvmlDeviceSetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetVgpuSchedulerState_v2')
+        if __nvmlDeviceSetVgpuSchedulerState_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceSetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlDeviceSetVgpuSchedulerState_v2')
+
+        global __nvmlGpuInstanceSetVgpuSchedulerState_v2
+        __nvmlGpuInstanceSetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
+        if __nvmlGpuInstanceSetVgpuSchedulerState_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlGpuInstanceSetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
+
         __py_nvml_init = True
         return 0
 
@@ -3225,6 +3290,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetComputeRunningProcesses_v3
     data["__nvmlDeviceGetComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetComputeRunningProcesses_v3
+
+    global __nvmlDeviceGetGraphicsRunningProcesses_v3
+    data["__nvmlDeviceGetGraphicsRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetGraphicsRunningProcesses_v3
 
     global __nvmlDeviceGetMPSComputeRunningProcesses_v3
     data["__nvmlDeviceGetMPSComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetMPSComputeRunningProcesses_v3
@@ -3870,6 +3938,27 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceSetRusdSettings_v1
     data["__nvmlDeviceSetRusdSettings_v1"] = <intptr_t>__nvmlDeviceSetRusdSettings_v1
+
+    global __nvmlDeviceVgpuForceGspUnload
+    data["__nvmlDeviceVgpuForceGspUnload"] = <intptr_t>__nvmlDeviceVgpuForceGspUnload
+
+    global __nvmlDeviceGetVgpuSchedulerState_v2
+    data["__nvmlDeviceGetVgpuSchedulerState_v2"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerState_v2
+
+    global __nvmlGpuInstanceGetVgpuSchedulerState_v2
+    data["__nvmlGpuInstanceGetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState_v2
+
+    global __nvmlDeviceGetVgpuSchedulerLog_v2
+    data["__nvmlDeviceGetVgpuSchedulerLog_v2"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerLog_v2
+
+    global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
+    data["__nvmlGpuInstanceGetVgpuSchedulerLog_v2"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog_v2
+
+    global __nvmlDeviceSetVgpuSchedulerState_v2
+    data["__nvmlDeviceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlDeviceSetVgpuSchedulerState_v2
+
+    global __nvmlGpuInstanceSetVgpuSchedulerState_v2
+    data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
 
     func_ptrs = data
     return data
@@ -5163,6 +5252,16 @@ cdef nvmlReturn_t _nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, 
         with gil:
             raise FunctionNotFoundError("function nvmlDeviceGetComputeRunningProcesses_v3 is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*, nvmlProcessInfo_t*) noexcept nogil>__nvmlDeviceGetComputeRunningProcesses_v3)(
+        device, infoCount, infos)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetGraphicsRunningProcesses_v3
+    _check_or_init_nvml()
+    if __nvmlDeviceGetGraphicsRunningProcesses_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetGraphicsRunningProcesses_v3 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*, nvmlProcessInfo_t*) noexcept nogil>__nvmlDeviceGetGraphicsRunningProcesses_v3)(
         device, infoCount, infos)
 
 
@@ -7314,3 +7413,73 @@ cdef nvmlReturn_t _nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSet
             raise FunctionNotFoundError("function nvmlDeviceSetRusdSettings_v1 is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRusdSettings_v1_t*) noexcept nogil>__nvmlDeviceSetRusdSettings_v1)(
         device, settings)
+
+
+cdef nvmlReturn_t _nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceVgpuForceGspUnload
+    _check_or_init_nvml()
+    if __nvmlDeviceVgpuForceGspUnload == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceVgpuForceGspUnload is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t) noexcept nogil>__nvmlDeviceVgpuForceGspUnload)(
+        device)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetVgpuSchedulerState_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetVgpuSchedulerState_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetVgpuSchedulerState_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlVgpuSchedulerStateInfo_v2_t*) noexcept nogil>__nvmlDeviceGetVgpuSchedulerState_v2)(
+        device, pSchedulerStateInfo)
+
+
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlGpuInstanceGetVgpuSchedulerState_v2
+    _check_or_init_nvml()
+    if __nvmlGpuInstanceGetVgpuSchedulerState_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlGpuInstanceGetVgpuSchedulerState_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlGpuInstance_t, nvmlVgpuSchedulerStateInfo_v2_t*) noexcept nogil>__nvmlGpuInstanceGetVgpuSchedulerState_v2)(
+        gpuInstance, pSchedulerStateInfo)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetVgpuSchedulerLog_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetVgpuSchedulerLog_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetVgpuSchedulerLog_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlVgpuSchedulerLogInfo_v2_t*) noexcept nogil>__nvmlDeviceGetVgpuSchedulerLog_v2)(
+        device, pSchedulerLogInfo)
+
+
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
+    _check_or_init_nvml()
+    if __nvmlGpuInstanceGetVgpuSchedulerLog_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlGpuInstanceGetVgpuSchedulerLog_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlGpuInstance_t, nvmlVgpuSchedulerLogInfo_v2_t*) noexcept nogil>__nvmlGpuInstanceGetVgpuSchedulerLog_v2)(
+        gpuInstance, pSchedulerLogInfo)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetVgpuSchedulerState_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceSetVgpuSchedulerState_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetVgpuSchedulerState_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlVgpuSchedulerState_v2_t*) noexcept nogil>__nvmlDeviceSetVgpuSchedulerState_v2)(
+        device, pSchedulerState)
+
+
+cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlGpuInstanceSetVgpuSchedulerState_v2
+    _check_or_init_nvml()
+    if __nvmlGpuInstanceSetVgpuSchedulerState_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlGpuInstanceSetVgpuSchedulerState_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlGpuInstance_t, nvmlVgpuSchedulerState_v2_t*) noexcept nogil>__nvmlGpuInstanceSetVgpuSchedulerState_v2)(
+        gpuInstance, pSchedulerState)
