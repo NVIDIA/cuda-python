@@ -107,7 +107,7 @@ examples = { features = ["cu13", "examples", "local-deps"], solve-group = "examp
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.6.0"
+version = "0.7.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }

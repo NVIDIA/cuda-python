@@ -19,7 +19,7 @@ dynamic = [
     "readme",
 ]
 requires-python = '>=3.10'
-description = "cuda.core: (experimental) pythonic CUDA module"
+description = "cuda.core: pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }
 ]
