@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -701,67 +701,37 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.compute_instance_id">
 <span class="sig-name descname"><span class="pre">compute_instance_id</span></span><a class="headerlink" href="#cuda.core.system.EventData.compute_instance_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The Compute instance ID for MIG devices.</p>
+<dd><p>The Compute instance ID for MIG devices.</p>
 <p>Only valid for events of type <code class="xref py py-attr docutils literal notranslate"><span class="pre">EventType.EVENT_TYPE_XID_CRITICAL_ERROR</span></code>.</p>
 <p>Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> for other event types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.compute_instance_id</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.system.EventData.device" title="Link to this definition">#</a></dt>
-<dd><p>Device</p>
-<p>The device on which the event occurred.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.device</p>
-</dd>
-</dl>
+<dd><p>The device on which the event occurred.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.event_data">
 <span class="sig-name descname"><span class="pre">event_data</span></span><a class="headerlink" href="#cuda.core.system.EventData.event_data" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Returns Xid error for the device in the event of
-<a href="#id1"><span class="problematic" id="id2">:member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`</span></a>.</p>
+<dd><p>Returns Xid error for the device in the event of
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">EVENT_TYPE_XID_CRITICAL_ERROR</span></code>.</p>
 <p>Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> for other event types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.event_data</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.event_type">
 <span class="sig-name descname"><span class="pre">event_type</span></span><a class="headerlink" href="#cuda.core.system.EventData.event_type" title="Link to this definition">#</a></dt>
-<dd><p>EventType</p>
-<p>The type of event that was triggered.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.event_type</p>
-</dd>
-</dl>
+<dd><p>The type of event that was triggered.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.gpu_instance_id">
 <span class="sig-name descname"><span class="pre">gpu_instance_id</span></span><a class="headerlink" href="#cuda.core.system.EventData.gpu_instance_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The GPU instance ID for MIG devices.</p>
+<dd><p>The GPU instance ID for MIG devices.</p>
 <p>Only valid for events of type <code class="xref py py-attr docutils literal notranslate"><span class="pre">EventType.EVENT_TYPE_XID_CRITICAL_ERROR</span></code>.</p>
 <p>Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> for other event types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.gpu_instance_id</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

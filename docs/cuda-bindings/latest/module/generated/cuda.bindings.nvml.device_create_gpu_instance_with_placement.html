@@ -1297,25 +1297,20 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">intptr_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_create_gpu_instance_with_placement" title="Link to this definition">#</a></dt>
-<dd><p>Create GPU instance with the specified placement.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>profile_id</strong> (<em>unsigned int</em>) – The GPU instance profile ID. See <code class="docutils literal notranslate"><span class="pre">nvmlDeviceGetGpuInstanceProfileInfo</span></code>.</p></li>
-<li><p><strong>placement</strong> (<em>intptr_t</em>) – The requested placement. See <code class="docutils literal notranslate"><span class="pre">nvmlDeviceGetGpuInstancePossiblePlacements_v2</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns the GPU instance handle.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>intptr_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceCreateGpuInstanceWithPlacement</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Create GPU instance with the specified placement.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param profile_id: The GPU instance profile ID. See ``nvmlDeviceGetGpuInstanceProfileInfo``.
+:type profile_id: unsigned int
+:param placement: The requested placement. See ``nvmlDeviceGetGpuInstancePossiblePlacements_v2``.
+:type placement: intptr_t
+
+:returns: Returns the GPU instance handle.
+:rtype: intptr_t
+
+.. seealso:: `nvmlDeviceCreateGpuInstanceWithPlacement`
+</pre></div>
 </div>
 </dd></dl>
 

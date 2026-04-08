@@ -1297,25 +1297,20 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_vgpu_type_supported_placements" title="Link to this definition">#</a></dt>
-<dd><p>Query the supported vGPU placement ID of the vGPU type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – Identifier of the target device.</p></li>
-<li><p><strong>vgpu_type_id</strong> (<em>unsigned int</em>) – Handle to vGPU type. The vGPU type ID.</p></li>
-<li><p><strong>mode</strong> (<em>unsigned int</em>) – The placement mode. 0: Heterogeneous, 1: Homogeneous.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pointer to the vGPU placement structure <code class="docutils literal notranslate"><span class="pre">nvmlVgpuPlacementList_t</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nvmlVgpuPlacementList_v2_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetVgpuTypeSupportedPlacements</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query the supported vGPU placement ID of the vGPU type.
+
+:param device: Identifier of the target device.
+:type device: intptr_t
+:param vgpu_type_id: Handle to vGPU type. The vGPU type ID.
+:type vgpu_type_id: unsigned int
+:param mode: The placement mode. 0: Heterogeneous, 1: Homogeneous.
+:type mode: unsigned int
+
+:returns: Pointer to the vGPU placement structure ``nvmlVgpuPlacementList_t``.
+:rtype: nvmlVgpuPlacementList_v2_t
+
+.. seealso:: `nvmlDeviceGetVgpuTypeSupportedPlacements`
+</pre></div>
 </div>
 </dd></dl>
 

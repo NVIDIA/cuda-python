@@ -1289,21 +1289,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_handle_by_pci_bus_id_v2">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_handle_by_pci_bus_id_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pci_bus_id</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">intptr_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_handle_by_pci_bus_id_v2" title="Link to this definition">#</a></dt>
-<dd><p>Acquire the handle for a particular device, based on its PCI bus id.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pci_bus_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The PCI bus id of the target GPU Accept the following formats (all numbers in hexadecimal): domain:bus:device.function in format x:x:x.x domain:bus:device in format x:x:x bus:device.function in format x:x.x.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the device handle.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>intptr_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetHandleByPciBusId_v2</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Acquire the handle for a particular device, based on its PCI bus id.
+
+:param pci_bus_id: The PCI bus id of the target GPU Accept the following formats (all numbers in hexadecimal): domain:bus:device.function in format x:x:x.x domain:bus:device in format x:x:x bus:device.function in format x:x.x.
+:type pci_bus_id: str
+
+:returns: Reference in which to return the device handle.
+:rtype: intptr_t
+
+.. seealso:: `nvmlDeviceGetHandleByPciBusId_v2`
+</pre></div>
 </div>
 </dd></dl>
 

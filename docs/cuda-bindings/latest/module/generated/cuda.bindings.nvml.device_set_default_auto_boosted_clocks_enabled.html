@@ -1297,19 +1297,15 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_set_default_auto_boosted_clocks_enabled" title="Link to this definition">#</a></dt>
-<dd><p>Try to set the default state of Auto Boosted clocks on a device. This is the default state that Auto Boosted clocks will return to when no compute running processes (e.g. CUDA application which have an active context) are running.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>enabled</strong> (<a class="reference internal" href="cuda.bindings.nvml.EnableState.html#cuda.bindings.nvml.EnableState" title="cuda.bindings.nvml.EnableState"><em>EnableState</em></a>) – What state to try to set default Auto Boosted clocks of the target device to.</p></li>
-<li><p><strong>flags</strong> (<em>unsigned int</em>) – Flags that change the default behavior. Currently Unused.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceSetDefaultAutoBoostedClocksEnabled</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>:param device: The identifier of the target device.
+:type device: intptr_t
+:param enabled: What state to try to set default Auto Boosted clocks of the target device to.
+:type enabled: EnableState
+:param flags: Flags that change the default behavior. Currently Unused.
+:type flags: unsigned int
+
+.. seealso:: `nvmlDeviceSetDefaultAutoBoostedClocksEnabled`
+</pre></div>
 </div>
 </dd></dl>
 

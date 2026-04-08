@@ -1289,24 +1289,18 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_api_restriction">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_api_restriction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">api_type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_api_restriction" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the root/admin permissions on the target API. See <code class="docutils literal notranslate"><span class="pre">nvmlRestrictedAPI_t</span></code> for the list of supported APIs. If an API is restricted only root users can call that API. See <code class="docutils literal notranslate"><span class="pre">nvmlDeviceSetAPIRestriction</span></code> to change current permissions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>api_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.RestrictedAPI.html#cuda.bindings.nvml.RestrictedAPI" title="cuda.bindings.nvml.RestrictedAPI"><em>RestrictedAPI</em></a>) – Target API type for this operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the current restriction NVML_FEATURE_ENABLED indicates that the API is root-only NVML_FEATURE_DISABLED indicates that the API is accessible to all users.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetAPIRestriction</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves the root/admin permissions on the target API. See ``nvmlRestrictedAPI_t`` for the list of supported APIs. If an API is restricted only root users can call that API. See ``nvmlDeviceSetAPIRestriction`` to change current permissions.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param api_type: Target API type for this operation.
+:type api_type: RestrictedAPI
+
+:returns: Reference in which to return the current restriction NVML_FEATURE_ENABLED indicates that the API is root-only NVML_FEATURE_DISABLED indicates that the API is accessible to all users.
+:rtype: int
+
+.. seealso:: `nvmlDeviceGetAPIRestriction`
+</pre></div>
 </div>
 </dd></dl>
 

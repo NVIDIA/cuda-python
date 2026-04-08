@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1032,11 +1032,6 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 when the optional <a class="reference external" href="https://github.com/jax-ml/ml_dtypes">ml_dtypes</a> package is
 installed. If <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> is not available and such a tensor is encountered,
 a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> will be raised.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>StridedMemoryView.dtype</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1044,34 +1039,18 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 <span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.shape" title="Link to this definition">#</a></dt>
 <dd><p>tuple[int, …]</p>
 <p>Shape of the tensor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>StridedMemoryView.shape</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.size">
 <span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>StridedMemoryView.size</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.strides">
 <span class="sig-name descname"><span class="pre">strides</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.strides" title="Link to this definition">#</a></dt>
 <dd><p>tuple[int, …] | None</p>
 <p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>StridedMemoryView.strides</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

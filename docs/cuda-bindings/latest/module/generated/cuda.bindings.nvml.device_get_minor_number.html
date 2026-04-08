@@ -1289,21 +1289,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_minor_number">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_minor_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">int</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_minor_number" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves minor number for the device. The minor number for the device is such that the Nvidia device node file for each GPU will have the form /dev/nvidia[minor number].</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the minor number for the device.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned int</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetMinorNumber</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves minor number for the device. The minor number for the device is such that the Nvidia device node file for each GPU will have the form /dev/nvidia[minor number].
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+
+:returns: Reference in which to return the minor number for the device.
+:rtype: unsigned int
+
+.. seealso:: `nvmlDeviceGetMinorNumber`
+</pre></div>
 </div>
 </dd></dl>
 

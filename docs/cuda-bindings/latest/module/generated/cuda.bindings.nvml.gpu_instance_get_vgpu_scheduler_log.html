@@ -1289,21 +1289,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.gpu_instance_get_vgpu_scheduler_log">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">gpu_instance_get_vgpu_scheduler_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">gpu_instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.gpu_instance_get_vgpu_scheduler_log" title="Link to this definition">#</a></dt>
-<dd><p>Returns the vGPU scheduler logs for the given GPU instance. <code class="docutils literal notranslate"><span class="pre">pSchedulerLogInfo</span></code> points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed <code class="docutils literal notranslate"><span class="pre">NVML_SCHEDULER_SW_MAX_LOG_ENTRIES</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>gpu_instance</strong> (<em>intptr_t</em>) – The GPU instance handle.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which <code class="docutils literal notranslate"><span class="pre">pSchedulerLogInfo</span></code> is written.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nvmlVgpuSchedulerLogInfo_v1_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlGpuInstanceGetVgpuSchedulerLog</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Returns the vGPU scheduler logs for the given GPU instance. ``pSchedulerLogInfo`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
+
+:param gpu_instance: The GPU instance handle.
+:type gpu_instance: intptr_t
+
+:returns: Reference in which ``pSchedulerLogInfo`` is written.
+:rtype: nvmlVgpuSchedulerLogInfo_v1_t
+
+.. seealso:: `nvmlGpuInstanceGetVgpuSchedulerLog`
+</pre></div>
 </div>
 </dd></dl>
 

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -795,13 +795,7 @@ is used.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.device_id">
 <span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.device_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The preferred device ordinal, or -1 if the preferred location is not a device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ManagedMemoryResource.device_id</p>
-</dd>
-</dl>
+<dd><p>The preferred device ordinal, or -1 if the preferred location is not a device.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -819,13 +813,7 @@ is used.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_device_accessible">
 <span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True. This memory resource provides device-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ManagedMemoryResource.is_device_accessible</p>
-</dd>
-</dl>
+<dd><p>Return True. This memory resource provides device-accessible buffers.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -843,13 +831,7 @@ is used.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_host_accessible">
 <span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True. This memory resource provides host-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ManagedMemoryResource.is_host_accessible</p>
-</dd>
-</dl>
+<dd><p>Return True. This memory resource provides host-accessible buffers.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -886,11 +868,6 @@ another process.  If True, allocation is not permitted.</p>
 or a tuple <code class="docutils literal notranslate"><span class="pre">(type,</span> <span class="pre">id)</span></code> where <em>type</em> is one of <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code>, and <em>id</em> is the device ordinal,
 <code class="docutils literal notranslate"><span class="pre">None</span></code> (for <code class="docutils literal notranslate"><span class="pre">&quot;host&quot;</span></code>), or the NUMA node ID, respectively.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ManagedMemoryResource.preferred_location</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">

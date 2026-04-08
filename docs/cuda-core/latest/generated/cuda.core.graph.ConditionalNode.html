@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1103,15 +1103,9 @@ evaluates to a non-zero value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.ConditionalNode.branches">
 <span class="sig-name descname"><span class="pre">branches</span></span><a class="headerlink" href="#cuda.core.graph.ConditionalNode.branches" title="Link to this definition">#</a></dt>
-<dd><p>tuple</p>
-<p>The body graphs for each branch as a tuple of GraphDef.</p>
+<dd><p>The body graphs for each branch as a tuple of GraphDef.</p>
 <p>Returns an empty tuple when reconstructed from the driver
 pre-CUDA 13.2.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ConditionalNode.branches</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1121,11 +1115,6 @@ pre-CUDA 13.2.</p>
 <p>The conditional type as a string: ‘if’, ‘while’, or ‘switch’.</p>
 <p>Returns None when reconstructed from the driver pre-CUDA 13.2,
 as the conditional type cannot be determined.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ConditionalNode.cond_type</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1133,11 +1122,6 @@ as the conditional type cannot be determined.</p>
 <span class="sig-name descname"><span class="pre">condition</span></span><a class="headerlink" href="#cuda.core.graph.ConditionalNode.condition" title="Link to this definition">#</a></dt>
 <dd><p>Condition | None</p>
 <p>The condition variable controlling execution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ConditionalNode.condition</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">

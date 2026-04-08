@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1065,27 +1065,15 @@ evaluates to a non-zero value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.KernelNode.block">
 <span class="sig-name descname"><span class="pre">block</span></span><a class="headerlink" href="#cuda.core.graph.KernelNode.block" title="Link to this definition">#</a></dt>
-<dd><p>tuple</p>
-<p>Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>KernelNode.block</p>
-</dd>
-</dl>
+<dd><p>Block dimensions as a 3-tuple (blockDimX, blockDimY, blockDimZ).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.KernelNode.config">
 <span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#cuda.core.graph.KernelNode.config" title="Link to this definition">#</a></dt>
-<dd><p>LaunchConfig</p>
-<p>A LaunchConfig reconstructed from this node’s grid, block, and shmem_size.</p>
+<dd><p>A LaunchConfig reconstructed from this node’s grid, block, and shmem_size.</p>
 <p>Note: cluster dimensions and cooperative_launch are not preserved
 by the CUDA driver’s kernel node params, so they are not included.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>KernelNode.config</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1103,13 +1091,7 @@ by the CUDA driver’s kernel node params, so they are not included.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.KernelNode.grid">
 <span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#cuda.core.graph.KernelNode.grid" title="Link to this definition">#</a></dt>
-<dd><p>tuple</p>
-<p>Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>KernelNode.grid</p>
-</dd>
-</dl>
+<dd><p>Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ).</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1135,13 +1117,7 @@ by the CUDA driver’s kernel node params, so they are not included.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.KernelNode.kernel">
 <span class="sig-name descname"><span class="pre">kernel</span></span><a class="headerlink" href="#cuda.core.graph.KernelNode.kernel" title="Link to this definition">#</a></dt>
-<dd><p>Kernel</p>
-<p>The Kernel object for this launch node.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>KernelNode.kernel</p>
-</dd>
-</dl>
+<dd><p>The Kernel object for this launch node.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1153,13 +1129,7 @@ by the CUDA driver’s kernel node params, so they are not included.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.KernelNode.shmem_size">
 <span class="sig-name descname"><span class="pre">shmem_size</span></span><a class="headerlink" href="#cuda.core.graph.KernelNode.shmem_size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Dynamic shared memory size in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>KernelNode.shmem_size</p>
-</dd>
-</dl>
+<dd><p>Dynamic shared memory size in bytes.</p>
 </dd></dl>
 
 <dl class="py attribute">

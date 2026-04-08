@@ -1297,25 +1297,20 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_nvlink_error_counter" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the specified error counter value Please refer to <code class="docutils literal notranslate"><span class="pre">nvmlNvLinkErrorCounter_t</span></code> for error counters that are available.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>link</strong> (<em>unsigned int</em>) – Specifies the NvLink link to be queried.</p></li>
-<li><p><strong>counter</strong> (<a class="reference internal" href="cuda.bindings.nvml.NvLinkErrorCounter.html#cuda.bindings.nvml.NvLinkErrorCounter" title="cuda.bindings.nvml.NvLinkErrorCounter"><em>NvLinkErrorCounter</em></a>) – Specifies the NvLink counter to be queried.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returned counter value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned long long</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetNvLinkErrorCounter</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves the specified error counter value Please refer to ``nvmlNvLinkErrorCounter_t`` for error counters that are available.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param link: Specifies the NvLink link to be queried.
+:type link: unsigned int
+:param counter: Specifies the NvLink counter to be queried.
+:type counter: NvLinkErrorCounter
+
+:returns: Returned counter value.
+:rtype: unsigned long long
+
+.. seealso:: `nvmlDeviceGetNvLinkErrorCounter`
+</pre></div>
 </div>
 </dd></dl>
 

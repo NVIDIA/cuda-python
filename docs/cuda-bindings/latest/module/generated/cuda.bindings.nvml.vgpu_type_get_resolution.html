@@ -1296,28 +1296,21 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.vgpu_type_get_resolution" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve vGPU display head’s maximum supported resolution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vgpu_type_id</strong> (<em>unsigned int</em>) – Handle to vGPU type.</p></li>
-<li><p><strong>display_ind_ex</strong> (<em>unsigned int</em>) – Zero-based index of display head.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p>unsigned int: Pointer to maximum number of pixels in X dimension.</p></li>
-<li><p>unsigned int: Pointer to maximum number of pixels in Y dimension.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A 2-tuple containing</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuTypeGetResolution</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieve vGPU display head&#39;s maximum supported resolution.
+
+:param vgpu_type_id: Handle to vGPU type.
+:type vgpu_type_id: unsigned int
+:param display_ind_ex: Zero-based index of display head.
+:type display_ind_ex: unsigned int
+
+:returns:
+
+          - unsigned int: Pointer to maximum number of pixels in X dimension.
+          - unsigned int: Pointer to maximum number of pixels in Y dimension.
+:rtype: A 2-tuple containing
+
+.. seealso:: `nvmlVgpuTypeGetResolution`
+</pre></div>
 </div>
 </dd></dl>
 

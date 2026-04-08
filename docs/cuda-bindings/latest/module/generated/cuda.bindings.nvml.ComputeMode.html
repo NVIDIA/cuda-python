@@ -1289,10 +1289,13 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.ComputeMode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">ComputeMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.ComputeMode" title="Link to this definition">#</a></dt>
-<dd><p>Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA
 4.0. Earlier CUDA versions supported a single exclusive mode, which is
-equivalent to NVML_COMPUTEMODE_EXCLUSIVE_THREAD in CUDA 4.0 and beyond.</p>
-<p>See <cite>nvmlComputeMode_t</cite>.</p>
+equivalent to NVML_COMPUTEMODE_EXCLUSIVE_THREAD in CUDA 4.0 and beyond.
+
+See `nvmlComputeMode_t`.
+</pre></div>
+</div>
 <dl class="simple">
 <dt><strong>COMPUTEMODE_DEFAULT</strong>: 0</dt><dd><p>Default compute mode – multiple contexts per device.</p>
 </dd>

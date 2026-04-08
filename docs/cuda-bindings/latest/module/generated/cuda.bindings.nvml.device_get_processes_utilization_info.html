@@ -1296,23 +1296,19 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_processes_utilization_info" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the recent utilization and process ID for all running processes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>Device</em>) – The identifier of the target device.</p></li>
-<li><p><strong>last_seen_time_stamp</strong> (<em>unsigned long long</em>) – Timestamp in microseconds. Set it to 0 to read utilization based
-on all the samples maintained by the driver’s internal sample buffer. Set to a timeStamp retrieved from
-a previous query to read utilization since the previous query.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The processes utilization information structure.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.bindings.nvml.ProcessesUtilizationInfo_v1.html#cuda.bindings.nvml.ProcessesUtilizationInfo_v1" title="cuda.bindings.nvml.ProcessesUtilizationInfo_v1">ProcessesUtilizationInfo_v1</a></p>
-</dd>
-</dl>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves the recent utilization and process ID for all running processes
+
+:param device: The identifier of the target device.
+:type device: Device
+:param last_seen_time_stamp: Timestamp in microseconds. Set it to 0 to read utilization based
+                             on all the samples maintained by the driver&#39;s internal sample buffer. Set to a timeStamp retrieved from
+                             a previous query to read utilization since the previous query.
+:type last_seen_time_stamp: unsigned long long
+
+:returns: The processes utilization information structure.
+:rtype: ProcessesUtilizationInfo_v1
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

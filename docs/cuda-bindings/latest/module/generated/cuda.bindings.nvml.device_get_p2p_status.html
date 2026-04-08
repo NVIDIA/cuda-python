@@ -1297,25 +1297,20 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_p2p_status" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the status for a given p2p capability index between a given pair of GPU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device1</strong> (<em>intptr_t</em>) – The first device.</p></li>
-<li><p><strong>device2</strong> (<em>intptr_t</em>) – The second device.</p></li>
-<li><p><strong>p2p_ind_ex</strong> (<a class="reference internal" href="cuda.bindings.nvml.GpuP2PCapsIndex.html#cuda.bindings.nvml.GpuP2PCapsIndex" title="cuda.bindings.nvml.GpuP2PCapsIndex"><em>GpuP2PCapsIndex</em></a>) – p2p Capability Index being looked for between <code class="docutils literal notranslate"><span class="pre">device1</span></code> and <code class="docutils literal notranslate"><span class="pre">device2</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the status of the <code class="docutils literal notranslate"><span class="pre">p2p_ind_ex</span></code> between <code class="docutils literal notranslate"><span class="pre">device1</span></code> and <code class="docutils literal notranslate"><span class="pre">device2</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetP2PStatus</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieve the status for a given p2p capability index between a given pair of GPU.
+
+:param device1: The first device.
+:type device1: intptr_t
+:param device2: The second device.
+:type device2: intptr_t
+:param p2p_ind_ex: p2p Capability Index being looked for between ``device1`` and ``device2``.
+:type p2p_ind_ex: GpuP2PCapsIndex
+
+:returns: Reference in which to return the status of the ``p2p_ind_ex`` between ``device1`` and ``device2``.
+:rtype: int
+
+.. seealso:: `nvmlDeviceGetP2PStatus`
+</pre></div>
 </div>
 </dd></dl>
 

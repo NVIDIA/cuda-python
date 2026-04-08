@@ -1289,24 +1289,18 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_on_same_board">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_on_same_board</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_on_same_board" title="Link to this definition">#</a></dt>
-<dd><p>Check if the GPU devices are on the same physical board.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device1</strong> (<em>intptr_t</em>) – The first GPU device.</p></li>
-<li><p><strong>device2</strong> (<em>intptr_t</em>) – The second GPU device.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the status. Non-zero indicates that the GPUs are on the same board.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceOnSameBoard</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Check if the GPU devices are on the same physical board.
+
+:param device1: The first GPU device.
+:type device1: intptr_t
+:param device2: The second GPU device.
+:type device2: intptr_t
+
+:returns: Reference in which to return the status. Non-zero indicates that the GPUs are on the same board.
+:rtype: int
+
+.. seealso:: `nvmlDeviceOnSameBoard`
+</pre></div>
 </div>
 </dd></dl>
 

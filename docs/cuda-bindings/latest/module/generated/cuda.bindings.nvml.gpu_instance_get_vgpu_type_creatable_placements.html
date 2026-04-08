@@ -1296,21 +1296,17 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.gpu_instance_get_vgpu_type_creatable_placements" title="Link to this definition">#</a></dt>
-<dd><p>Query the creatable vGPU placement ID of the vGPU type within a GPU instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>gpu_instance</strong> (<em>GpuInstance</em>) – The identifier of the target GPU Instance.</p></li>
-<li><p><strong>vgpu_type_id</strong> (<em>unsigned int</em>) – The vGPU type ID.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The vGPU placement list structure.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.bindings.nvml.VgpuPlacementList_v2.html#cuda.bindings.nvml.VgpuPlacementList_v2" title="cuda.bindings.nvml.VgpuPlacementList_v2">VgpuPlacementList_v2</a></p>
-</dd>
-</dl>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query the creatable vGPU placement ID of the vGPU type within a GPU instance.
+
+:param gpu_instance: The identifier of the target GPU Instance.
+:type gpu_instance: GpuInstance
+:param vgpu_type_id: The vGPU type ID.
+:type vgpu_type_id: unsigned int
+
+:returns: The vGPU placement list structure.
+:rtype: VgpuPlacementList_v2
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

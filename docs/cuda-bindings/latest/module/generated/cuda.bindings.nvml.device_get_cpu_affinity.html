@@ -1289,18 +1289,13 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_get_cpu_affinity">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_get_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">cpu_set_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_cpu_affinity" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves an array of unsigned ints (sized to cpu_set_size) of bitmasks with the ideal CPU affinity for the device For example, if processors 0, 1, 32, and 33 are ideal for the device and cpu_set_size == 2, result[0] = 0x3, result[1] = 0x3 This is equivalent to calling <code class="docutils literal notranslate"><span class="pre">nvmlDeviceGetCpuAffinityWithinScope</span></code> with <code class="docutils literal notranslate"><span class="pre">NVML_AFFINITY_SCOPE_NODE</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>cpu_set_size</strong> (<em>unsigned int</em>) – The size of the cpuSet array that is safe to access.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetCpuAffinity</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>:param device: The identifier of the target device.
+:type device: intptr_t
+:param cpu_set_size: The size of the cpuSet array that is safe to access.
+:type cpu_set_size: unsigned int
+
+.. seealso:: `nvmlDeviceGetCpuAffinity`
+</pre></div>
 </div>
 </dd></dl>
 

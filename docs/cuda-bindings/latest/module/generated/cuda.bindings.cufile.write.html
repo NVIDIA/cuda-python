@@ -1299,27 +1299,24 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.write" title="Link to this definition">#</a></dt>
-<dd><p>write data from a specified device or host memory to a registered file handle.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fh</strong> (<em>intptr_t</em>) – <code class="docutils literal notranslate"><span class="pre">CUfileHandle_t</span></code> opaque file handle.</p></li>
-<li><p><strong>buf_ptr_base</strong> (<em>intptr_t</em>) – base address of buffer in device or host memory.</p></li>
-<li><p><strong>size</strong> (<em>size_t</em>) – size bytes to write.</p></li>
-<li><p><strong>file_offset</strong> (<em>off_t</em>) – file-offset from begining of the file.</p></li>
-<li><p><strong>buf_ptr_offset</strong> (<em>off_t</em>) – offset relative to the buf_ptr_base pointer to write from.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>number of bytes written on success.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ssize_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>cuFileWrite</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>write data from a specified device or host memory to a registered file handle.
+
+:param fh: ``CUfileHandle_t`` opaque file handle.
+:type fh: intptr_t
+:param buf_ptr_base: base address of buffer in device or host memory.
+:type buf_ptr_base: intptr_t
+:param size: size bytes to write.
+:type size: size_t
+:param file_offset: file-offset from begining of the file.
+:type file_offset: off_t
+:param buf_ptr_offset: offset relative to the buf_ptr_base pointer to write from.
+:type buf_ptr_offset: off_t
+
+:returns: number of bytes written on success.
+:rtype: ssize_t
+
+.. seealso:: `cuFileWrite`
+</pre></div>
 </div>
 </dd></dl>
 

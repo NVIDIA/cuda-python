@@ -1289,21 +1289,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.vgpu_type_get_bar1_info">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">vgpu_type_get_bar1_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">vgpu_type_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.vgpu_type_get_bar1_info" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve the BAR1 info for given vGPU type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vgpu_type_id</strong> (<em>unsigned int</em>) – Handle to vGPU type.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pointer to the vGPU type BAR1 information structure <code class="docutils literal notranslate"><span class="pre">nvmlVgpuTypeBar1Info_t</span></code>.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nvmlVgpuTypeBar1Info_v1_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuTypeGetBAR1Info</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieve the BAR1 info for given vGPU type.
+
+:param vgpu_type_id: Handle to vGPU type.
+:type vgpu_type_id: unsigned int
+
+:returns: Pointer to the vGPU type BAR1 information structure ``nvmlVgpuTypeBar1Info_t``.
+:rtype: nvmlVgpuTypeBar1Info_v1_t
+
+.. seealso:: `nvmlVgpuTypeGetBAR1Info`
+</pre></div>
 </div>
 </dd></dl>
 

@@ -1289,26 +1289,20 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.vgpu_instance_get_encoder_stats">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">vgpu_instance_get_encoder_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">vgpu_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.vgpu_instance_get_encoder_stats" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the current encoder statistics of a vGPU Instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vgpu_instance</strong> (<em>unsigned int</em>) – Identifier of the target vGPU instance.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p>unsigned int: Reference to an unsigned int for count of active encoder sessions.</p></li>
-<li><p>unsigned int: Reference to an unsigned int for trailing average FPS of all active sessions.</p></li>
-<li><p>unsigned int: Reference to an unsigned int for encode latency in microseconds.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A 3-tuple containing</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuInstanceGetEncoderStats</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves the current encoder statistics of a vGPU Instance.
+
+:param vgpu_instance: Identifier of the target vGPU instance.
+:type vgpu_instance: unsigned int
+
+:returns:
+
+          - unsigned int: Reference to an unsigned int for count of active encoder sessions.
+          - unsigned int: Reference to an unsigned int for trailing average FPS of all active sessions.
+          - unsigned int: Reference to an unsigned int for encode latency in microseconds.
+:rtype: A 3-tuple containing
+
+.. seealso:: `nvmlVgpuInstanceGetEncoderStats`
+</pre></div>
 </div>
 </dd></dl>
 

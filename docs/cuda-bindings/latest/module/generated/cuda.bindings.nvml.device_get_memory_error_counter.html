@@ -1298,26 +1298,22 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_memory_error_counter" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the requested memory error counter for the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>error_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.MemoryErrorType.html#cuda.bindings.nvml.MemoryErrorType" title="cuda.bindings.nvml.MemoryErrorType"><em>MemoryErrorType</em></a>) – Flag that specifies the type of error.</p></li>
-<li><p><strong>counter_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.EccCounterType.html#cuda.bindings.nvml.EccCounterType" title="cuda.bindings.nvml.EccCounterType"><em>EccCounterType</em></a>) – Flag that specifies the counter-type of the errors.</p></li>
-<li><p><strong>location_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.MemoryLocation.html#cuda.bindings.nvml.MemoryLocation" title="cuda.bindings.nvml.MemoryLocation"><em>MemoryLocation</em></a>) – Specifies the location of the counter.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the ECC counter.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned long long</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetMemoryErrorCounter</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves the requested memory error counter for the device.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param error_type: Flag that specifies the type of error.
+:type error_type: MemoryErrorType
+:param counter_type: Flag that specifies the counter-type of the errors.
+:type counter_type: EccCounterType
+:param location_type: Specifies the location of the counter.
+:type location_type: MemoryLocation
+
+:returns: Reference in which to return the ECC counter.
+:rtype: unsigned long long
+
+.. seealso:: `nvmlDeviceGetMemoryErrorCounter`
+</pre></div>
 </div>
 </dd></dl>
 

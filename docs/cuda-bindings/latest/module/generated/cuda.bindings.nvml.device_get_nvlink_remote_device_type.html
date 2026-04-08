@@ -1296,24 +1296,18 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_nvlink_remote_device_type" title="Link to this definition">#</a></dt>
-<dd><p>Get the NVLink device type of the remote device connected over the given link.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The device handle of the target GPU.</p></li>
-<li><p><strong>link</strong> (<em>unsigned int</em>) – The NVLink link index on the target GPU.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pointer in which the output remote device type is returned.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetNvLinkRemoteDeviceType</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get the NVLink device type of the remote device connected over the given link.
+
+:param device: The device handle of the target GPU.
+:type device: intptr_t
+:param link: The NVLink link index on the target GPU.
+:type link: unsigned int
+
+:returns: Pointer in which the output remote device type is returned.
+:rtype: int
+
+.. seealso:: `nvmlDeviceGetNvLinkRemoteDeviceType`
+</pre></div>
 </div>
 </dd></dl>
 

@@ -1296,24 +1296,18 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">int</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.gpu_instance_get_compute_instance_remaining_capacity" title="Link to this definition">#</a></dt>
-<dd><p>Get compute instance profile capacity.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>gpu_instance</strong> (<em>intptr_t</em>) – The identifier of the target GPU instance.</p></li>
-<li><p><strong>profile_id</strong> (<em>unsigned int</em>) – The compute instance profile ID. See <code class="docutils literal notranslate"><span class="pre">nvmlGpuInstanceGetComputeInstanceProfileInfo</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns remaining instance count for the profile ID.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned int</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlGpuInstanceGetComputeInstanceRemainingCapacity</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Get compute instance profile capacity.
+
+:param gpu_instance: The identifier of the target GPU instance.
+:type gpu_instance: intptr_t
+:param profile_id: The compute instance profile ID. See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+:type profile_id: unsigned int
+
+:returns: Returns remaining instance count for the profile ID.
+:rtype: unsigned int
+
+.. seealso:: `nvmlGpuInstanceGetComputeInstanceRemainingCapacity`
+</pre></div>
 </div>
 </dd></dl>
 

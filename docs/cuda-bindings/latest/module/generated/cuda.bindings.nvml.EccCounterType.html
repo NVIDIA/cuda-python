@@ -1289,13 +1289,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.EccCounterType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">EccCounterType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.EccCounterType" title="Link to this definition">#</a></dt>
-<dd><p>ECC counter types.  Note: Volatile counts are reset each time the
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ECC counter types.  Note: Volatile counts are reset each time the
 driver loads. On Windows this is once per boot. On Linux this can be
 more frequent. On Linux the driver unloads when no active clients
 exist. If persistence mode is enabled or there is always a driver
 client active (e.g. X11), then Linux also sees per-boot behavior. If
-not, volatile counts are reset each time a compute app is run.</p>
-<p>See <cite>nvmlEccCounterType_t</cite>.</p>
+not, volatile counts are reset each time a compute app is run.
+
+See `nvmlEccCounterType_t`.
+</pre></div>
+</div>
 <dl class="simple">
 <dt><strong>VOLATILE_ECC</strong>: 0</dt><dd><p>Volatile counts are reset each time the driver loads.</p>
 </dd>

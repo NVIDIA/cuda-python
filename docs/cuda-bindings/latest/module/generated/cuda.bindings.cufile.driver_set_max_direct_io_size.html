@@ -1289,15 +1289,11 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.cufile.driver_set_max_direct_io_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.cufile.</span></span><span class="sig-name descname"><span class="pre">driver_set_max_direct_io_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">max_direct_io_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.driver_set_max_direct_io_size" title="Link to this definition">#</a></dt>
-<dd><p>Control parameter to set max IO size(KB) used by the library to talk to nvidia-fs driver This takes place before the driver is opened. No-op if driver is already open.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>max_direct_io_size</strong> (<em>size_t</em>) – maximum allowed direct io size in KB.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>cuFileDriverSetMaxDirectIOSize</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>:param max_direct_io_size: maximum allowed direct io size in KB.
+:type max_direct_io_size: size_t
+
+.. seealso:: `cuFileDriverSetMaxDirectIOSize`
+</pre></div>
 </div>
 </dd></dl>
 

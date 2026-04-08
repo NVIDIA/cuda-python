@@ -1297,19 +1297,17 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_set_fan_control_policy" title="Link to this definition">#</a></dt>
-<dd><p>Sets current fan control policy.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p></li>
-<li><p><strong>fan</strong> (<em>unsigned int</em>) – The index of the fan, starting at zero.</p></li>
-<li><p><strong>policy</strong> (<em>unsigned int</em>) – The fan control <code class="docutils literal notranslate"><span class="pre">policy</span></code> to set.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceSetFanControlPolicy</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Sets current fan control policy.
+
+:param device: The identifier of the target ``device``.
+:type device: intptr_t
+:param fan: The index of the fan, starting at zero.
+:type fan: unsigned int
+:param policy: The fan control ``policy`` to set.
+:type policy: unsigned int
+
+.. seealso:: `nvmlDeviceSetFanControlPolicy`
+</pre></div>
 </div>
 </dd></dl>
 

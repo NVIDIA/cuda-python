@@ -1296,24 +1296,18 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_gpu_instance_profile_info_v" title="Link to this definition">#</a></dt>
-<dd><p>Versioned wrapper around <code class="docutils literal notranslate"><span class="pre">nvmlDeviceGetGpuInstanceProfileInfo</span></code> that accepts a versioned <code class="docutils literal notranslate"><span class="pre">nvmlGpuInstanceProfileInfo_v3_t</span></code> or later output structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>profile</strong> (<em>unsigned int</em>) – One of the NVML_GPU_INSTANCE_PROFILE_*.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns detailed profile information.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nvmlGpuInstanceProfileInfo_v3_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetGpuInstanceProfileInfoV</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Versioned wrapper around ``nvmlDeviceGetGpuInstanceProfileInfo`` that accepts a versioned ``nvmlGpuInstanceProfileInfo_v3_t`` or later output structure.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param profile: One of the NVML_GPU_INSTANCE_PROFILE_*.
+:type profile: unsigned int
+
+:returns: Returns detailed profile information.
+:rtype: nvmlGpuInstanceProfileInfo_v3_t
+
+.. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoV`
+</pre></div>
 </div>
 </dd></dl>
 

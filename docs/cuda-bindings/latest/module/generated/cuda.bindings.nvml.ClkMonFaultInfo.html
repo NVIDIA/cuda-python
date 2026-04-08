@@ -1289,17 +1289,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.ClkMonFaultInfo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">ClkMonFaultInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.ClkMonFaultInfo" title="Link to this definition">#</a></dt>
-<dd><p>Empty-initialize an array of <cite>nvmlClkMonFaultInfo_t</cite>.</p>
-<p>The resulting object is of length <cite>size</cite> and of dtype <cite>clk_mon_fault_info_dtype</cite>.
-If default-constructed, the instance represents a single struct.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – number of structs, default=1.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlClkMonFaultInfo_t</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an array of `nvmlClkMonFaultInfo_t`.
+
+The resulting object is of length `size` and of dtype `clk_mon_fault_info_dtype`.
+If default-constructed, the instance represents a single struct.
+
+:param size: number of structs, default=1.
+:type size: int
+
+.. seealso:: `nvmlClkMonFaultInfo_t`
+</pre></div>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.ClkMonFaultInfo.__init__">
@@ -1313,13 +1312,13 @@ If default-constructed, the instance represents a single struct.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_buffer</span></code>(buffer)</p></td>
-<td><p>Create an ClkMonFaultInfo instance with the memory from the given buffer.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
-<td><p>Create an ClkMonFaultInfo instance wrapping the given NumPy array.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, size_t size=1, ...)</p></td>
-<td><p>Create an ClkMonFaultInfo instance wrapping the given pointer.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -1328,13 +1327,13 @@ If default-constructed, the instance represents a single struct.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clk_api_domain</span></code></p></td>
-<td><p>Union[~_numpy.uint32, int]:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clk_domain_fault_mask</span></code></p></td>
-<td><p>Union[~_numpy.uint32, int]:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ptr</span></code></p></td>
-<td><p>Get the pointer address to the data as Python <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>

@@ -1296,23 +1296,18 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.get_vgpu_compatibility" title="Link to this definition">#</a></dt>
-<dd><p>Takes a vGPU instance metadata structure read from vgpu_instance_get_metadata() and a vGPU metadata structure
-for a physical GPU read from device_get_vgpu_metadata, and returns compatibility information of the vGPU instance
-and the physical GPU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vgpu_metadata</strong> (<a class="reference internal" href="cuda.bindings.nvml.VgpuMetadata.html#cuda.bindings.nvml.VgpuMetadata" title="cuda.bindings.nvml.VgpuMetadata"><em>VgpuMetadata</em></a>) – The vGPU instance metadata.</p></li>
-<li><p><strong>pgpu_metadata</strong> (<a class="reference internal" href="cuda.bindings.nvml.VgpuPgpuMetadata.html#cuda.bindings.nvml.VgpuPgpuMetadata" title="cuda.bindings.nvml.VgpuPgpuMetadata"><em>VgpuPgpuMetadata</em></a>) – The physical GPU metadata.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Compatibility information.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.bindings.nvml.VgpuPgpuCompatibility.html#cuda.bindings.nvml.VgpuPgpuCompatibility" title="cuda.bindings.nvml.VgpuPgpuCompatibility">VgpuPgpuCompatibility</a></p>
-</dd>
-</dl>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>for a physical GPU read from device_get_vgpu_metadata, and returns compatibility information of the vGPU instance
+and the physical GPU.
+
+:param vgpu_metadata: The vGPU instance metadata.
+:type vgpu_metadata: VgpuMetadata
+:param pgpu_metadata: The physical GPU metadata.
+:type pgpu_metadata: VgpuPgpuMetadata
+
+:returns: Compatibility information.
+:rtype: VgpuPgpuCompatibility
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

@@ -1296,24 +1296,18 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.vgpu_instance_get_accounting_stats" title="Link to this definition">#</a></dt>
-<dd><p>Queries process’s accounting stats.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vgpu_instance</strong> (<em>unsigned int</em>) – The identifier of the target vGPU instance.</p></li>
-<li><p><strong>pid</strong> (<em>unsigned int</em>) – Process Id of the target process to query stats for.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the process’s accounting stats.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>nvmlAccountingStats_t</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuInstanceGetAccountingStats</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Queries process&#39;s accounting stats.
+
+:param vgpu_instance: The identifier of the target vGPU instance.
+:type vgpu_instance: unsigned int
+:param pid: Process Id of the target process to query stats for.
+:type pid: unsigned int
+
+:returns: Reference in which to return the process&#39;s accounting stats.
+:rtype: nvmlAccountingStats_t
+
+.. seealso:: `nvmlVgpuInstanceGetAccountingStats`
+</pre></div>
 </div>
 </dd></dl>
 

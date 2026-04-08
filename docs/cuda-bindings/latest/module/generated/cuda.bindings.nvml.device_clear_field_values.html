@@ -1289,16 +1289,15 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_clear_field_values">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_clear_field_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_clear_field_values" title="Link to this definition">#</a></dt>
-<dd><p>Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>Device</em>) – The device handle of the GPU to request field values for</p></li>
-<li><p><strong>values</strong> (<a class="reference internal" href="cuda.bindings.nvml.FieldValue.html#cuda.bindings.nvml.FieldValue" title="cuda.bindings.nvml.FieldValue"><em>FieldValue</em></a>) – FieldValue instance to hold field values. Each value’s fieldId must be populated
-prior to this call</p></li>
-</ul>
-</dd>
-</dl>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.
+
+:param device: The device handle of the GPU to request field values for
+:type device: Device
+:param values: FieldValue instance to hold field values. Each value&#39;s fieldId must be populated
+               prior to this call
+:type values: FieldValue
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

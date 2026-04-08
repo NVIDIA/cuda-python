@@ -1296,18 +1296,15 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_power_smoothing_update_preset_profile_param" title="Link to this definition">#</a></dt>
-<dd><p>Update the value of a specific profile parameter contained within <code class="docutils literal notranslate"><span class="pre">nvmlPowerSmoothingProfile_v1_t</span></code>. Requires root/admin permissions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>profile</strong> (<em>intptr_t</em>) – Reference to <code class="docutils literal notranslate"><span class="pre">nvmlPowerSmoothingProfile_v1_t</span></code> struct.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDevicePowerSmoothingUpdatePresetProfileParam</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Update the value of a specific profile parameter contained within ``nvmlPowerSmoothingProfile_v1_t``. Requires root/admin permissions.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param profile: Reference to ``nvmlPowerSmoothingProfile_v1_t`` struct.
+:type profile: intptr_t
+
+.. seealso:: `nvmlDevicePowerSmoothingUpdatePresetProfileParam`
+</pre></div>
 </div>
 </dd></dl>
 

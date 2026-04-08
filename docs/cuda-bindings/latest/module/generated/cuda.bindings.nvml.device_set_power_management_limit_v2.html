@@ -1297,19 +1297,17 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_set_power_management_limit_v2" title="Link to this definition">#</a></dt>
-<dd><p>Set new power limit of this device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>power_scope</strong> (<a class="reference internal" href="cuda.bindings.nvml.PowerScope.html#cuda.bindings.nvml.PowerScope" title="cuda.bindings.nvml.PowerScope"><em>PowerScope</em></a>) – Device type</p></li>
-<li><p><strong>power_value_mw</strong> (<em>unsigned int</em>) – Power value to retrieve or set in milliwatts</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceSetPowerManagementLimit_v2</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Set new power limit of this device.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param power_scope: Device type
+:type power_scope: PowerScope
+:param power_value_mw: Power value to retrieve or set in milliwatts
+:type power_value_mw: unsigned int
+
+.. seealso:: `nvmlDeviceSetPowerManagementLimit_v2`
+</pre></div>
 </div>
 </dd></dl>
 

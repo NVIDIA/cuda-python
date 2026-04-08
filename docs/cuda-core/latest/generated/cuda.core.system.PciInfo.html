@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5675101"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -760,109 +760,55 @@ is the PCIe throughput over that interval.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.base_class">
 <span class="sig-name descname"><span class="pre">base_class</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.base_class" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The 8-bit PCI base class code</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.base_class</p>
-</dd>
-</dl>
+<dd><p>The 8-bit PCI base class code</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.bus">
 <span class="sig-name descname"><span class="pre">bus</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.bus" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The bus on which the device resides, 0 to 255</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.bus</p>
-</dd>
-</dl>
+<dd><p>The bus on which the device resides, 0 to 255</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.bus_id">
 <span class="sig-name descname"><span class="pre">bus_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.bus_id" title="Link to this definition">#</a></dt>
-<dd><p>str</p>
-<p>The tuple domain:bus:device.function PCI identifier string</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.bus_id</p>
-</dd>
-</dl>
+<dd><p>The tuple domain:bus:device.function PCI identifier string</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.device" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The device’s id on the bus, 0 to 31</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.device</p>
-</dd>
-</dl>
+<dd><p>The device’s id on the bus, 0 to 31</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.device_id">
 <span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.device_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The PCI device id of the device</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.device_id</p>
-</dd>
-</dl>
+<dd><p>The PCI device id of the device</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.domain">
 <span class="sig-name descname"><span class="pre">domain</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.domain" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The PCI domain on which the device’s bus resides, 0 to 0xffffffff</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.domain</p>
-</dd>
-</dl>
+<dd><p>The PCI domain on which the device’s bus resides, 0 to 0xffffffff</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.sub_class">
 <span class="sig-name descname"><span class="pre">sub_class</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.sub_class" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The 8-bit PCI sub class code</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.sub_class</p>
-</dd>
-</dl>
+<dd><p>The 8-bit PCI sub class code</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.subsystem_id">
 <span class="sig-name descname"><span class="pre">subsystem_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.subsystem_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The subsystem device ID</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.subsystem_id</p>
-</dd>
-</dl>
+<dd><p>The subsystem device ID</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.vendor_id">
 <span class="sig-name descname"><span class="pre">vendor_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.vendor_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The PCI vendor id of the device</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PciInfo.vendor_id</p>
-</dd>
-</dl>
+<dd><p>The PCI vendor id of the device</p>
 </dd></dl>
 
 </dd></dl>
