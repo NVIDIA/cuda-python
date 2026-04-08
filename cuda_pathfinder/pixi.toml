@@ -59,7 +59,7 @@ nvidia-sphinx-theme = "*"
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-pathfinder"
-version = "1.5.0"
+version = "1.3.4a0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }

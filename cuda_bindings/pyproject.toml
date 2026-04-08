@@ -32,7 +32,7 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA",
 ]
 dynamic = ["version", "readme"]
-dependencies = ["cuda-pathfinder >=1.5"]
+dependencies = ["cuda-pathfinder >=1.4.2"]
 
 [project.optional-dependencies]
 all = [
