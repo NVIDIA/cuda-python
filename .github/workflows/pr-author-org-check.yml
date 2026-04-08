@@ -73,7 +73,7 @@ jobs:
 
           IS_ALLOWED=false
           case "$AUTHOR_ASSOCIATION" in
-            MEMBER|OWNER)
+            COLLABORATOR|MEMBER|OWNER)
               IS_ALLOWED=true
               ;;
           esac
