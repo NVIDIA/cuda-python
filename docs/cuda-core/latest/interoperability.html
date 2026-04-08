@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=56e75f72"></script>
+    <script src="_static/documentation_options.js?v=f29fdb6b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev124';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev125';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -717,13 +717,16 @@ While the designs are robust, <em>implementing</em> such protocols can be tricky
 a few iterations to ensure correctness.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> offers a <a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html#cuda.core.utils.args_viewable_as_strided_memory" title="cuda.core.utils.args_viewable_as_strided_memory"><code class="xref py py-func docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory()</span></code></a> decorator for
 extracting the metadata (such as pointer address, shape, strides, and dtype) from any
-Python objects supporting either CAI or DLPack and returning a <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> object, see the
-<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view.py">strided_memory_view.py</a>
-example. Alternatively, a <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> object can be explicitly
-constructed without using the decorator. This provides a <em>concrete implementation</em> to both
-protocols that is <strong>array-library-agnostic</strong>, so that all Python projects can just rely on this
-without either re-implementing (the consumer-side of) the protocols or tying to any particular
-array libraries.</p>
+Python objects supporting either CAI or DLPack and returning a <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>
+object. See the
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view_constructors.py">strided_memory_view_constructors.py</a>
+example for the explicit constructors, or
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view_cpu.py">strided_memory_view_cpu.py</a>
+and
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view_gpu.py">strided_memory_view_gpu.py</a>
+for decorator-based workflows. This provides a <em>concrete implementation</em> to both protocols that is
+<strong>array-library-agnostic</strong>, so that all Python projects can just rely on this without either
+re-implementing (the consumer-side of) the protocols or tying to any particular array libraries.</p>
 <p>The <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.is_device_accessible" title="cuda.core.utils.StridedMemoryView.is_device_accessible"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a> attribute can be used to check
 whether or not the underlying buffer can be accessed on GPU.</p>
 <p>The <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> class supports narrow data types (e.g., <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>) when the optional
