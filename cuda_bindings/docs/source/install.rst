@@ -74,57 +74,6 @@ For example:
 
    $ conda install -c conda-forge cuda-python cuda-version=13
 
-Development environment
------------------------
-
-The sections above cover end-user installation. The section below describes a
-repeatable setup for *developing* in this repository (editable installs and
-running tests). It intentionally does not duplicate the canonical install
-instructions.
-
-Development with uv
-~~~~~~~~~~~~~~~~~~~
-
-`uv`_ is a fast Python package and project manager.
-
-.. code-block:: console
-
-   $ git clone https://github.com/NVIDIA/cuda-python
-   $ cd cuda-python/cuda_bindings
-   $ uv venv
-   $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
-   $ uv pip install -e . --group test
-
-Run the test suite:
-
-.. code-block:: console
-
-   $ python -m pytest tests
-
-.. _uv: https://docs.astral.sh/uv/
-
-Development with pixi
-~~~~~~~~~~~~~~~~~~~~~
-
-`pixi`_ provides a reproducible development environment via the workspace
-``pixi.toml`` in the repository root.
-
-.. code-block:: console
-
-   $ git clone https://github.com/NVIDIA/cuda-python
-   $ cd cuda-python
-   $ pixi run -e cu13 test-bindings
-
-To run the full repository test matrix (pathfinder → bindings → core):
-
-.. code-block:: console
-
-   $ pixi run -e cu13 test
-
-Use ``-e cu12`` to test against CUDA 12 instead.
-
-.. _pixi: https://pixi.sh/
-
 Installing from Source
 ----------------------
 
@@ -138,11 +87,11 @@ Requirements
 
 [^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
-Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_HOME`` (or ``CUDA_PATH``) environment variable to specify the location of your headers. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_HOME`` with:
+Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_PATH`` (or ``CUDA_HOME``) environment variable to specify the location of your headers. If both are set, ``CUDA_PATH`` takes precedence. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_PATH`` with:
 
 .. code-block:: console
 
-   $ export CUDA_HOME=/usr/local/cuda
+   $ export CUDA_PATH=/usr/local/cuda
 
 See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
 
