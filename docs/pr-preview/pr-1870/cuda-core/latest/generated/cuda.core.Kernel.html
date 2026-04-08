@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0eeec1cc"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev121';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -524,6 +524,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -598,7 +601,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.7.x-notes.html">0.7.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
@@ -708,6 +711,42 @@ cuda.core.</p></li>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Kernel.arguments_info">
+<span class="sig-name descname"><span class="pre">arguments_info</span></span><a class="headerlink" href="#cuda.core.Kernel.arguments_info" title="Link to this definition">#</a></dt>
+<dd><p>list[ParamInfo]</p>
+<p>list[ParamInfo]: (offset, size) for each argument of this function</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Kernel.attributes">
+<span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.Kernel.attributes" title="Link to this definition">#</a></dt>
+<dd><p>Get the read-only attributes of this kernel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Kernel.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Kernel.handle" title="Link to this definition">#</a></dt>
+<dd><p>Return the underlying kernel handle object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Kernel.handle)</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Kernel.num_arguments">
+<span class="sig-name descname"><span class="pre">num_arguments</span></span><a class="headerlink" href="#cuda.core.Kernel.num_arguments" title="Link to this definition">#</a></dt>
+<dd><p>int : The number of arguments of this function</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Kernel.occupancy">
+<span class="sig-name descname"><span class="pre">occupancy</span></span><a class="headerlink" href="#cuda.core.Kernel.occupancy" title="Link to this definition">#</a></dt>
+<dd><p>Get the occupancy information for launching this kernel.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -764,6 +803,11 @@ cuda.core.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.from_handle"><code class="docutils literal notranslate"><span class="pre">Kernel.from_handle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.arguments_info"><code class="docutils literal notranslate"><span class="pre">Kernel.arguments_info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.attributes"><code class="docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.handle"><code class="docutils literal notranslate"><span class="pre">Kernel.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.num_arguments"><code class="docutils literal notranslate"><span class="pre">Kernel.num_arguments</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.occupancy"><code class="docutils literal notranslate"><span class="pre">Kernel.occupancy</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core._memory._buffer.DevicePointerT &#8212; cuda.core</title>
+    <title>cuda.core.typing.IsStreamT &#8212; cuda.core</title>
   
   
   
@@ -44,22 +44,22 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0eeec1cc"></script>
+    <script src="../_static/documentation_options.js?v=611fd518"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core._memory._buffer.DevicePointerT';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.typing.IsStreamT';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev121';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev127';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core._memory._buffer.DevicePointerT.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.typing.IsStreamT.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -522,6 +522,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -596,7 +599,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.7.x-notes.html">0.7.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
@@ -645,7 +648,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core._memory._buffer.DevicePointerT</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.typing.IsStreamT</span></li>
   </ul>
 </nav>
 </div>
@@ -662,13 +665,22 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-memory-buffer-devicepointert">
-<h1>cuda.core._memory._buffer.DevicePointerT<a class="headerlink" href="#cuda-core-memory-buffer-devicepointert" title="Link to this heading">#</a></h1>
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core._memory._buffer.DevicePointerT">
-<span class="sig-prename descclassname"><span class="pre">cuda.core._memory._buffer.</span></span><span class="sig-name descname"><span class="pre">DevicePointerT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">cuda.bindings.driver.CUdeviceptr</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></em><a class="headerlink" href="#cuda.core._memory._buffer.DevicePointerT" title="Link to this definition">#</a></dt>
-<dd><p>Represent a PEP 604 union type</p>
-<p>E.g. for int | str</p>
+  <section id="cuda-core-typing-isstreamt">
+<h1>cuda.core.typing.IsStreamT<a class="headerlink" href="#cuda-core-typing-isstreamt" title="Link to this heading">#</a></h1>
+<dl class="py class protocol">
+<dt class="sig sig-object py" id="cuda.core.typing.IsStreamT">
+<em class="property"><span class="pre">protocol</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.typing.</span></span><span class="sig-name descname"><span class="pre">IsStreamT</span></span><a class="headerlink" href="#cuda.core.typing.IsStreamT" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Protocol</span></code></a>.</p>
+<p>Classes that implement this protocol must have the following methods / attributes:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.typing.IsStreamT.__cuda_stream__">
+<span class="sig-name descname"><span class="pre">__cuda_stream__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.typing.IsStreamT.__cuda_stream__" title="Link to this definition">#</a></dt>
+<dd><p>For any Python object that is meant to be interpreted as a CUDA stream, the intent
+can be communicated by implementing this protocol that returns a 2-tuple: The protocol
+version number (currently <code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code>. Both values
+should be Python <cite>int</cite>.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -704,7 +716,10 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._buffer.DevicePointerT"><code class="docutils literal notranslate"><span class="pre">DevicePointerT</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.typing.IsStreamT"><code class="docutils literal notranslate"><span class="pre">IsStreamT</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.typing.IsStreamT.__cuda_stream__"><code class="docutils literal notranslate"><span class="pre">IsStreamT.__cuda_stream__()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
