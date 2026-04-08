@@ -43,6 +43,10 @@ jobs:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
+      # Suppress pip warnings in container jobs running as root.
+      # This must be at the job level (not container.env) so that actions
+      # running on the host (e.g. setup-python's internal pip upgrade) also see it.
+      PIP_ROOT_USER_ACTION: "ignore"
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -51,7 +55,6 @@ jobs:
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
         PIP_CACHE_DIR: "/tmp/pip-cache"
-        PIP_ROOT_USER_ACTION: "ignore"
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
