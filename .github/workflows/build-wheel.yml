@@ -177,12 +177,20 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host/${{ env.SCCACHE_PATH }}" --show-stats
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.bindings)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_bindings.json
+          label: "cuda.bindings"
 
       - name: List the cuda.bindings artifacts directory
         run: |
@@ -235,12 +243,20 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.core)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_core.json
+          label: "cuda.core"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
@@ -414,12 +430,20 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core_prev.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.core prev)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_core_prev.json
+          label: "cuda.core (prev CTK)"
 
       - name: List the cuda.core artifacts directory and rename
         run: |

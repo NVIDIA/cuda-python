@@ -1,0 +1,69 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: sccache summary
+description: Parse sccache stats JSON and write a summary table to GITHUB_STEP_SUMMARY
+
+# Inspired by NVIDIA/cccl's prepare-execution-summary.py (PR #3621).
+# Only counts C/C++ and CUDA language hits (excludes PTX/CUBIN which are
+# not included in sccache's compile_requests counter).
+
+inputs:
+  json-file:
+    description: "Path to the sccache stats JSON file (from sccache --show-stats --stats-format=json)"
+    required: true
+  label:
+    description: "Label for the stats row (e.g. cuda.bindings, cuda.core)"
+    required: false
+    default: "sccache"
+
+runs:
+  using: composite
+  steps:
+    - name: Report sccache stats
+      shell: bash --noprofile --norc -euo pipefail {0}
+      run: |
+        json_file="${{ inputs.json-file }}"
+        label="${{ inputs.label }}"
+
+        if [ ! -f "$json_file" ]; then
+          echo "::warning::sccache stats file not found: $json_file"
+          exit 0
+        fi
+
+        python3 - "$json_file" "$label" <<'PYEOF'
+        import json, sys
+
+        json_file, label = sys.argv[1], sys.argv[2]
+        with open(json_file) as f:
+            stats = json.load(f)["stats"]
+
+        requests = stats.get("compile_requests", 0)
+        # Only count C/C++ and CUDA hits (PTX/CUBIN are not in compile_requests)
+        counted_languages = {"C/C++", "CUDA"}
+        hits = sum(
+            v for k, v in stats.get("cache_hits", {}).get("counts", {}).items()
+            if k in counted_languages
+        )
+        misses = requests - hits
+        pct = int(100 * hits / requests) if requests > 0 else 0
+
+        with open(sys.argv[1].replace(".json", "") + "_summary.md", "w") as out:
+            out.write(f"### \U0001f4ca {label} — sccache stats\n")
+            out.write("| Hit Rate | Hits | Misses | Requests |\n")
+            out.write("|----------|------|--------|----------|\n")
+            out.write(f"| {pct}% | {hits} | {misses} | {requests} |\n")
+
+        # Also write to GITHUB_STEP_SUMMARY
+        import os
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY", "")
+        if summary_file:
+            with open(summary_file, "a") as sf:
+                sf.write(f"### \U0001f4ca {label} — sccache stats\n")
+                sf.write("| Hit Rate | Hits | Misses | Requests |\n")
+                sf.write("|----------|------|--------|----------|\n")
+                sf.write(f"| {pct}% | {hits} | {misses} | {requests} |\n\n")
+
+        print(f"{label}: {pct}% hit rate ({hits}/{requests})")
+        PYEOF
