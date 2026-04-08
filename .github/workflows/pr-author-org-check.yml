@@ -55,7 +55,11 @@ jobs:
                     or (.filename | startswith("cuda_python/"))
                     or ((.previous_filename // "") | startswith("cuda_python/"))
                   )
-                | .filename
+                | if (.previous_filename // "") != "" then
+                    "\(.previous_filename) -> \(.filename)"
+                  else
+                    .filename
+                  end
               ' \
               "repos/$REPO/pulls/$PR_NUMBER/files"
           ); then
