@@ -117,6 +117,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -207,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -227,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -417,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -547,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1280,26 +1298,22 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_memory_error_counter" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the requested memory error counter for the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
-<li><p><strong>error_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.MemoryErrorType.html#cuda.bindings.nvml.MemoryErrorType" title="cuda.bindings.nvml.MemoryErrorType"><em>MemoryErrorType</em></a>) – Flag that specifies the type of error.</p></li>
-<li><p><strong>counter_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.EccCounterType.html#cuda.bindings.nvml.EccCounterType" title="cuda.bindings.nvml.EccCounterType"><em>EccCounterType</em></a>) – Flag that specifies the counter-type of the errors.</p></li>
-<li><p><strong>location_type</strong> (<a class="reference internal" href="cuda.bindings.nvml.MemoryLocation.html#cuda.bindings.nvml.MemoryLocation" title="cuda.bindings.nvml.MemoryLocation"><em>MemoryLocation</em></a>) – Specifies the location of the counter.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reference in which to return the ECC counter.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned long long</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceGetMemoryErrorCounter</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Retrieves the requested memory error counter for the device.
+
+:param device: The identifier of the target device.
+:type device: intptr_t
+:param error_type: Flag that specifies the type of error.
+:type error_type: MemoryErrorType
+:param counter_type: Flag that specifies the counter-type of the errors.
+:type counter_type: EccCounterType
+:param location_type: Specifies the location of the counter.
+:type location_type: MemoryLocation
+
+:returns: Reference in which to return the ECC counter.
+:rtype: unsigned long long
+
+.. seealso:: `nvmlDeviceGetMemoryErrorCounter`
+</pre></div>
 </div>
 </dd></dl>
 

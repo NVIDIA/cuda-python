@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/documentation_options.js?v=80ce5f77"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -117,6 +117,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -193,6 +196,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -212,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -227,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
     Contributing
@@ -389,6 +399,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -476,6 +493,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -683,67 +701,37 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.compute_instance_id">
 <span class="sig-name descname"><span class="pre">compute_instance_id</span></span><a class="headerlink" href="#cuda.core.system.EventData.compute_instance_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The Compute instance ID for MIG devices.</p>
+<dd><p>The Compute instance ID for MIG devices.</p>
 <p>Only valid for events of type <code class="xref py py-attr docutils literal notranslate"><span class="pre">EventType.EVENT_TYPE_XID_CRITICAL_ERROR</span></code>.</p>
 <p>Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> for other event types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.compute_instance_id</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.system.EventData.device" title="Link to this definition">#</a></dt>
-<dd><p>Device</p>
-<p>The device on which the event occurred.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.device</p>
-</dd>
-</dl>
+<dd><p>The device on which the event occurred.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.event_data">
 <span class="sig-name descname"><span class="pre">event_data</span></span><a class="headerlink" href="#cuda.core.system.EventData.event_data" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Returns Xid error for the device in the event of
-<a href="#id1"><span class="problematic" id="id2">:member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`</span></a>.</p>
+<dd><p>Returns Xid error for the device in the event of
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">EVENT_TYPE_XID_CRITICAL_ERROR</span></code>.</p>
 <p>Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> for other event types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.event_data</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.event_type">
 <span class="sig-name descname"><span class="pre">event_type</span></span><a class="headerlink" href="#cuda.core.system.EventData.event_type" title="Link to this definition">#</a></dt>
-<dd><p>EventType</p>
-<p>The type of event that was triggered.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.event_type</p>
-</dd>
-</dl>
+<dd><p>The type of event that was triggered.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.EventData.gpu_instance_id">
 <span class="sig-name descname"><span class="pre">gpu_instance_id</span></span><a class="headerlink" href="#cuda.core.system.EventData.gpu_instance_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The GPU instance ID for MIG devices.</p>
+<dd><p>The GPU instance ID for MIG devices.</p>
 <p>Only valid for events of type <code class="xref py py-attr docutils literal notranslate"><span class="pre">EventType.EVENT_TYPE_XID_CRITICAL_ERROR</span></code>.</p>
 <p>Raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> for other event types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>EventData.gpu_instance_id</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

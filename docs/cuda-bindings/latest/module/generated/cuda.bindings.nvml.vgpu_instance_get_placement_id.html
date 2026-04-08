@@ -117,6 +117,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -207,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -227,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -417,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -547,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1277,21 +1295,16 @@
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">unsigned</span> <span class="pre">int</span></span></span><a class="headerlink" href="#cuda.bindings.nvml.vgpu_instance_get_placement_id" title="Link to this definition">#</a></dt>
-<dd><p>Query the placement ID of active vGPU instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vgpu_instance</strong> (<em>unsigned int</em>) – Identifier of the target vGPU instance.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The placement ID</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unsigned int</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuInstanceGetPlacementId</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Query the placement ID of active vGPU instance.
+
+:param vgpu_instance: Identifier of the target vGPU instance.
+:type vgpu_instance: unsigned int
+
+:returns: The placement ID
+:rtype: unsigned int
+
+.. seealso:: `nvmlVgpuInstanceGetPlacementId`
+</pre></div>
 </div>
 </dd></dl>
 

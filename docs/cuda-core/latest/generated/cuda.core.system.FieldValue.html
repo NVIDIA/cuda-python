@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/documentation_options.js?v=80ce5f77"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -117,6 +117,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -193,6 +196,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -212,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -227,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
     Contributing
@@ -389,6 +399,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -476,6 +493,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -684,52 +702,28 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FieldValue.field_id">
 <span class="sig-name descname"><span class="pre">field_id</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.field_id" title="Link to this definition">#</a></dt>
-<dd><p>FieldId</p>
-<p>The field ID.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FieldValue.field_id</p>
-</dd>
-</dl>
+<dd><p>The field ID.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FieldValue.latency_usec">
 <span class="sig-name descname"><span class="pre">latency_usec</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.latency_usec" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>How long this field value took to update (in usec) within NVML. This may
+<dd><p>How long this field value took to update (in usec) within NVML. This may
 be averaged across several fields that are serviced by the same driver
 call.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FieldValue.latency_usec</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FieldValue.scope_id">
 <span class="sig-name descname"><span class="pre">scope_id</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.scope_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The scope ID.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FieldValue.scope_id</p>
-</dd>
-</dl>
+<dd><p>The scope ID.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FieldValue.timestamp">
 <span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.timestamp" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The CPU timestamp (in microseconds since 1970) at which the value was
+<dd><p>The CPU timestamp (in microseconds since 1970) at which the value was
 sampled.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FieldValue.timestamp</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -740,9 +734,6 @@ sampled.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cuda.core.system.NvmlError</strong> – If there was an error retrieving the field value.</p>
-</dd>
-<dt class="field-even">Type<span class="colon">:</span></dt>
-<dd class="field-even"><p>FieldValue.value</p>
 </dd>
 </dl>
 </dd></dl>

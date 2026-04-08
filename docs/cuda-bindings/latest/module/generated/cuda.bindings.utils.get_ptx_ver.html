@@ -117,6 +117,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -207,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -227,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -417,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -547,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1271,34 +1289,30 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.utils.get_ptx_ver">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.utils.</span></span><span class="sig-name descname"><span class="pre">get_ptx_ver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.bindings.utils.get_ptx_ver" title="Link to this definition">#</a></dt>
-<dd><p>Extract the PTX ISA version string from PTX source code.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The PTX assembly source code as a string.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The PTX ISA version string, e.g., “8.8”.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the .version directive is not found in the PTX source.</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ptx</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="gp">... </span><span class="s1">.version 8.8</span>
-<span class="gp">... </span><span class="s1">.target sm_86</span>
-<span class="gp">... </span><span class="s1">.address_size 64</span>
-<span class="gp">...</span>
-<span class="gp">... </span><span class="s1">.visible .entry test_kernel()</span>
-<span class="gp">... </span><span class="s1">{</span>
-<span class="gp">... </span><span class="s1">    ret;</span>
-<span class="gp">... </span><span class="s1">}</span>
-<span class="gp">... </span><span class="s1">&#39;&#39;&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_ptx_ver</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
-<span class="go">&#39;8.8&#39;</span>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Extract the PTX ISA version string from PTX source code.
+
+:param ptx: The PTX assembly source code as a string.
+:type ptx: str
+
+:returns: The PTX ISA version string, e.g., &quot;8.8&quot;.
+:rtype: str
+
+:raises ValueError: If the .version directive is not found in the PTX source.
+
+.. rubric:: Examples
+
+&gt;&gt;&gt; ptx = r&#39;&#39;&#39;
+... .version 8.8
+... .target sm_86
+... .address_size 64
+...
+... .visible .entry test_kernel()
+... {
+...     ret;
+... }
+... &#39;&#39;&#39;
+&gt;&gt;&gt; get_ptx_ver(ptx)
+&#39;8.8&#39;
 </pre></div>
 </div>
 </dd></dl>

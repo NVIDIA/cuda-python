@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/documentation_options.js?v=80ce5f77"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -117,6 +117,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
+</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -193,6 +196,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -212,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -227,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
     Contributing
@@ -389,6 +399,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -476,6 +493,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -690,15 +708,9 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FanInfo.control_policy">
 <span class="sig-name descname"><span class="pre">control_policy</span></span><a class="headerlink" href="#cuda.core.system.FanInfo.control_policy" title="Link to this definition">#</a></dt>
-<dd><p>FanControlPolicy</p>
-<p>The current fan control policy.</p>
+<dd><p>The current fan control policy.</p>
 <p>For Maxwell™ or newer fully supported devices.</p>
 <p>For all CUDA-capable discrete products with fans.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FanInfo.control_policy</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -714,66 +726,44 @@
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FanInfo.min_max_speed</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FanInfo.speed">
 <span class="sig-name descname"><span class="pre">speed</span></span><a class="headerlink" href="#cuda.core.system.FanInfo.speed" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Get/set the intended operating speed of the device’s fan.</p>
+<dd><p>Get/set the intended operating speed of the device’s fan.</p>
 <p>For all discrete products with dedicated fans.</p>
 <p>Note: The reported speed is the intended fan speed.  If the fan is
 physically blocked and unable to spin, the output will not match the
 actual fan speed.</p>
 <p>The fan speed is expressed as a percentage of the product’s maximum
 noise tolerance fan speed.  This value may exceed 100% in certain cases.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FanInfo.speed</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FanInfo.speed_rpm">
 <span class="sig-name descname"><span class="pre">speed_rpm</span></span><a class="headerlink" href="#cuda.core.system.FanInfo.speed_rpm" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>The intended operating speed of the device’s fan in rotations per minute
+<dd><p>The intended operating speed of the device’s fan in rotations per minute
 (RPM).</p>
 <p>For Maxwell™ or newer fully supported devices.</p>
 <p>For all discrete products with dedicated fans.</p>
 <p>Note: The reported speed is the intended fan speed.  If the fan is
 physically blocked and unable to spin, the output will not match the
 actual fan speed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FanInfo.speed_rpm</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.FanInfo.target_speed">
 <span class="sig-name descname"><span class="pre">target_speed</span></span><a class="headerlink" href="#cuda.core.system.FanInfo.target_speed" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Retrieves the intended target speed of the device’s specified fan.</p>
+<dd><p>Retrieves the intended target speed of the device’s specified fan.</p>
 <p>For all discrete products with dedicated fans.</p>
 <p>Normally, the driver dynamically adjusts the fan based on
-the needs of the GPU.  But when user set fan speed using <a href="#id1"><span class="problematic" id="id2">:property:`speed`</span></a>
-the driver will attempt to make the fan achieve the setting in
-<a href="#id3"><span class="problematic" id="id4">:property:`speed`</span></a>.  The actual current speed of the fan
-is reported in <a href="#id5"><span class="problematic" id="id6">:property:`speed`</span></a>.</p>
+the needs of the GPU. But when users set fan speed using <code class="docutils literal notranslate"><span class="pre">speed</span></code>,
+the driver will attempt to make the fan achieve that setting.
+The actual current speed of the fan is reported in <code class="docutils literal notranslate"><span class="pre">speed</span></code>.</p>
 <p>The fan speed is expressed as a percentage of the product’s maximum
 noise tolerance fan speed.  This value may exceed 100% in certain cases.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FanInfo.target_speed</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>
