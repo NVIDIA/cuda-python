@@ -214,9 +214,6 @@ cmd = [
 ]
 depends-on = [{ task = "build-cython-tests" }]
 
-[target.linux.tasks.build-docs]
-depends-on = [{ task = "docs-build" }]
-
 [target.win-64.tasks.test]
 cmd = [
     "pytest",

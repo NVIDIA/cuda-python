@@ -73,7 +73,7 @@ cmd = [
 ]
 
 [target.linux.tasks.docs-core]
-cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_core", "-e", "docs", "build-docs"]
+cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_core", "-e", "docs", "docs-build"]
 
 [target.linux.tasks.docs]
 depends-on = [
