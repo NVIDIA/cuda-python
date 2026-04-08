@@ -117,9 +117,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -210,15 +207,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -230,13 +227,6 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
-
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -427,13 +417,6 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -564,7 +547,6 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1289,17 +1271,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_remove_gpu_v2">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_remove_gpu_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">pci_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">gpu_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link_state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_remove_gpu_v2" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached. If other processes are attached, this call will return NVML_ERROR_IN_USE and the GPU will be returned to its original &quot;draining&quot; state. Note: the only situation where a process can still be attached after :func:`device_modify_drain_state` is called to initiate the draining state is if that process was using, and is still using, a GPU before the call was made. Also note, persistence mode counts as an attachment to the GPU thus it must be disabled prior to this call.
-
-:param pci_info: The PCI address of the GPU to be removed.
-:type pci_info: intptr_t
-:param gpu_state: Whether the GPU is to be removed, from the OS see ``nvmlDetachGpuState_t``.
-:type gpu_state: DetachGpuState
-:param link_state: Requested upstream PCIe link state, see ``nvmlPcieLinkState_t``.
-:type link_state: PcieLinkState
-
-.. seealso:: `nvmlDeviceRemoveGpu_v2`
-</pre></div>
+<dd><p>This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached. If other processes are attached, this call will return NVML_ERROR_IN_USE and the GPU will be returned to its original “draining” state. Note: the only situation where a process can still be attached after <a class="reference internal" href="cuda.bindings.nvml.device_modify_drain_state.html#cuda.bindings.nvml.device_modify_drain_state" title="cuda.bindings.nvml.device_modify_drain_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">device_modify_drain_state()</span></code></a> is called to initiate the draining state is if that process was using, and is still using, a GPU before the call was made. Also note, persistence mode counts as an attachment to the GPU thus it must be disabled prior to this call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pci_info</strong> (<em>intptr_t</em>) – The PCI address of the GPU to be removed.</p></li>
+<li><p><strong>gpu_state</strong> (<a class="reference internal" href="cuda.bindings.nvml.DetachGpuState.html#cuda.bindings.nvml.DetachGpuState" title="cuda.bindings.nvml.DetachGpuState"><em>DetachGpuState</em></a>) – Whether the GPU is to be removed, from the OS see <code class="docutils literal notranslate"><span class="pre">nvmlDetachGpuState_t</span></code>.</p></li>
+<li><p><strong>link_state</strong> (<a class="reference internal" href="cuda.bindings.nvml.PcieLinkState.html#cuda.bindings.nvml.PcieLinkState" title="cuda.bindings.nvml.PcieLinkState"><em>PcieLinkState</em></a>) – Requested upstream PCIe link state, see <code class="docutils literal notranslate"><span class="pre">nvmlPcieLinkState_t</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><cite>nvmlDeviceRemoveGpu_v2</cite></p>
 </div>
 </dd></dl>
 

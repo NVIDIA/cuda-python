@@ -117,9 +117,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -210,15 +207,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -230,13 +227,6 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
-
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../api.html">
     CUDA Python API Reference
@@ -427,13 +417,6 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../examples.html">
-    Examples
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-internal" href="../motivation.html">
     Motivation
   </a>
@@ -564,7 +547,6 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1282,7 +1264,7 @@
                 <article class="bd-article">
                   
   <section id="cuda-bindings-12-9-1-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.1 Release notes<a class="headerlink" href="#cuda-bindings-12-9-1-release-notes" title="Link to this heading">#</a></h1>
+<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.1 Release notes<a class="headerlink" href="#cuda-bindings-12-9-1-release-notes" title="Link to this heading">#</a></h1>
 <p>Released on Aug 6, 2025</p>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
@@ -1315,8 +1297,8 @@ released before calling the underlying C APIs.</p></li>
 <h2>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>All Python bindings now have the GIL released when calling into the underlying C APIs.</p></li>
-<li><p>Added PTX utilities including <code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimal_required_cuda_ver_from_ptx_ver()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">get_ptx_ver()</span></code>.</p></li>
-<li><p>Common CUDA objects such as <code class="xref py py-class docutils literal notranslate"><span class="pre">cudaStream_t</span></code> now compare equal if the underlying address is the same.</p></li>
+<li><p>Added PTX utilities including <a class="reference internal" href="../module/generated/cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html#cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver" title="cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimal_required_cuda_ver_from_ptx_ver()</span></code></a> and <a class="reference internal" href="../module/generated/cuda.bindings.utils.get_ptx_ver.html#cuda.bindings.utils.get_ptx_ver" title="cuda.bindings.utils.get_ptx_ver"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_ptx_ver()</span></code></a>.</p></li>
+<li><p>Common CUDA objects such as <a class="reference internal" href="../module/runtime.html#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-class docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a> now compare equal if the underlying address is the same.</p></li>
 <li><p>Add a binding to <code class="docutils literal notranslate"><span class="pre">nvvmGetErrorString()</span></code>.</p></li>
 <li><p>Build the bindings with Cython profile hooks disabled.</p></li>
 <li><p>The internal pathfinder module is now isolated to a standalone package <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> and made as a required dependency.</p></li>

@@ -117,9 +117,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -210,15 +207,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -230,13 +227,6 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
-
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -427,13 +417,6 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -564,7 +547,6 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1299,24 +1281,27 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.cufile.write" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>write data from a specified device or host memory to a registered file handle.
-
-:param fh: ``CUfileHandle_t`` opaque file handle.
-:type fh: intptr_t
-:param buf_ptr_base: base address of buffer in device or host memory.
-:type buf_ptr_base: intptr_t
-:param size: size bytes to write.
-:type size: size_t
-:param file_offset: file-offset from begining of the file.
-:type file_offset: off_t
-:param buf_ptr_offset: offset relative to the buf_ptr_base pointer to write from.
-:type buf_ptr_offset: off_t
-
-:returns: number of bytes written on success.
-:rtype: ssize_t
-
-.. seealso:: `cuFileWrite`
-</pre></div>
+<dd><p>write data from a specified device or host memory to a registered file handle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fh</strong> (<em>intptr_t</em>) – <code class="docutils literal notranslate"><span class="pre">CUfileHandle_t</span></code> opaque file handle.</p></li>
+<li><p><strong>buf_ptr_base</strong> (<em>intptr_t</em>) – base address of buffer in device or host memory.</p></li>
+<li><p><strong>size</strong> (<em>size_t</em>) – size bytes to write.</p></li>
+<li><p><strong>file_offset</strong> (<em>off_t</em>) – file-offset from begining of the file.</p></li>
+<li><p><strong>buf_ptr_offset</strong> (<em>off_t</em>) – offset relative to the buf_ptr_base pointer to write from.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>number of bytes written on success.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ssize_t</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><cite>cuFileWrite</cite></p>
 </div>
 </dd></dl>
 

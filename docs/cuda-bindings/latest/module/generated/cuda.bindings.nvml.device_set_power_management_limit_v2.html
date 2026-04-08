@@ -117,9 +117,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -210,15 +207,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../environment_variables.html">
+    Environment Variables
   </a>
 </li>
 
@@ -230,13 +227,6 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
-
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -427,13 +417,6 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -564,7 +547,6 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1297,17 +1279,19 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_set_power_management_limit_v2" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Set new power limit of this device.
-
-:param device: The identifier of the target device.
-:type device: intptr_t
-:param power_scope: Device type
-:type power_scope: PowerScope
-:param power_value_mw: Power value to retrieve or set in milliwatts
-:type power_value_mw: unsigned int
-
-.. seealso:: `nvmlDeviceSetPowerManagementLimit_v2`
-</pre></div>
+<dd><p>Set new power limit of this device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier of the target device.</p></li>
+<li><p><strong>power_scope</strong> (<a class="reference internal" href="cuda.bindings.nvml.PowerScope.html#cuda.bindings.nvml.PowerScope" title="cuda.bindings.nvml.PowerScope"><em>PowerScope</em></a>) – Device type</p></li>
+<li><p><strong>power_value_mw</strong> (<em>unsigned int</em>) – Power value to retrieve or set in milliwatts</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><cite>nvmlDeviceSetPowerManagementLimit_v2</cite></p>
 </div>
 </dd></dl>
 

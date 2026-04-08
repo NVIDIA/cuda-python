@@ -1,0 +1,6 @@
+﻿cuda.core.system.InforomObject
+==============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: InforomObject
