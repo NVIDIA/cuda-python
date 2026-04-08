@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Check PR author organization for restricted paths"
+name: "CI: Check PR author signals for restricted paths"
 
 on:
+  # Label updates on fork PRs require pull_request_target permissions.
+  # TODO BEFORE MERGING: change to pull_request_target
   pull_request:
     types:
       - opened
@@ -13,24 +15,35 @@ on:
 
 jobs:
   check-author-org:
-    name: PR author may modify restricted paths
+    name: PR author signals recorded for restricted paths
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
+      issues: write
       pull-requests: read
     steps:
-      - name: Check PR author organization for restricted paths
+      - name: Inspect PR author signals for restricted paths
         env:
           # PR metadata inputs
           AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
+          EXISTING_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+
+          # Workflow policy inputs
+          REVIEW_LABEL: Check-PR-author-ORG
+
+          # Checked-in allowlist inputs
+          INTERNAL_AUTHOR_ALLOWLIST: |
+            rwgk
 
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
+
           if ! MATCHING_RESTRICTED_PATHS=$(
             gh api \
               --paginate \
@@ -71,40 +84,78 @@ jobs:
             echo '```'
           }
 
-          IS_ALLOWED=false
-          case "$AUTHOR_ASSOCIATION" in
-            COLLABORATOR|MEMBER|OWNER)
-              IS_ALLOWED=true
-              ;;
-          esac
+          HAS_TRUE_POSITIVE_SIGNAL=false
+          ALLOWLIST_CHECK="not needed (no restricted paths)"
+          LABEL_ACTION="not needed (no restricted paths)"
+          TRUE_POSITIVE_SIGNALS="(none)"
+          PR_AUTHOR_CANONICAL=${PR_AUTHOR,,}
 
-          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$IS_ALLOWED" = "false" ]; then
-            echo "::error::This PR failed the author organization check. See the job summary for details."
-            {
-              echo "## PR Author Organization Check Failed"
-              echo ""
-              echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
-              echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-              echo ""
-              write_matching_restricted_paths
-              echo ""
-              echo "- **Policy**: See \`cuda_bindings/LICENSE\` and \`cuda_python/LICENSE\`. Only NVIDIA organization members may modify files under \`cuda_bindings/\` or \`cuda_python/\`."
-              echo ""
-              echo "Please update the PR at: $PR_URL"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 1
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
+            case "$AUTHOR_ASSOCIATION" in
+              MEMBER|OWNER)
+                HAS_TRUE_POSITIVE_SIGNAL=true
+                ALLOWLIST_CHECK="skipped (author association is a true positive)"
+                LABEL_ACTION="not needed (author association is a true positive)"
+                TRUE_POSITIVE_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
+                ;;
+            esac
+
+            if [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+              if printf '%s\n' "$INTERNAL_AUTHOR_ALLOWLIST" | tr '[:upper:]' '[:lower:]' | grep -Fxq "$PR_AUTHOR_CANONICAL"; then
+                HAS_TRUE_POSITIVE_SIGNAL=true
+                ALLOWLIST_CHECK="matched ($PR_AUTHOR_CANONICAL)"
+                LABEL_ACTION="not needed (workflow allowlist is a true positive)"
+                TRUE_POSITIVE_SIGNALS="workflow_allowlist:$PR_AUTHOR_CANONICAL"
+              else
+                ALLOWLIST_CHECK="not matched ($PR_AUTHOR_CANONICAL)"
+              fi
+            fi
+          fi
+
+          LABEL_ALREADY_PRESENT=false
+          if jq -e --arg label "$REVIEW_LABEL" '.[] == $label' <<<"$EXISTING_LABELS" >/dev/null; then
+            LABEL_ALREADY_PRESENT=true
+          fi
+
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+            if [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
+              LABEL_ACTION="already present"
+            elif ! gh issue edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
+              echo "::error::Failed to add the $REVIEW_LABEL label."
+              {
+                echo "## PR Author Organization Check Failed"
+                echo ""
+                echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
+                echo "- **Author**: $PR_AUTHOR"
+                echo "- **Author association**: $AUTHOR_ASSOCIATION"
+                echo "- **Allowlist check**: $ALLOWLIST_CHECK"
+                echo ""
+                write_matching_restricted_paths
+                echo ""
+                echo "Please update the PR at: $PR_URL"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            else
+              LABEL_ACTION="added"
+            fi
           fi
 
           {
-            echo "## PR Author Organization Check Passed"
+            echo "## PR Author Organization Check Completed"
             echo ""
             echo "- **Author**: $PR_AUTHOR"
             echo "- **Author association**: $AUTHOR_ASSOCIATION"
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+            echo "- **Allowlist check**: $ALLOWLIST_CHECK"
+            echo "- **True positive signals**: $TRUE_POSITIVE_SIGNALS"
+            echo "- **Label action**: $LABEL_ACTION"
             if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
               echo ""
               write_matching_restricted_paths
+            fi
+            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+              echo ""
+              echo "- **Manual follow-up**: No true positive signal was found, so \`$REVIEW_LABEL\` is required."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
