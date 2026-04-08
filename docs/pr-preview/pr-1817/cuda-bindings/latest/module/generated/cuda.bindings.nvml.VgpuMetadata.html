@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
 
 
@@ -51,12 +51,13 @@
     <script src="../../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'module/generated/cuda.bindings.nvml.VgpuMetadata';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
     <link rel="canonical" href="docs/module/generated/cuda.bindings.nvml.VgpuMetadata.html" />
     <link rel="icon" href="../../_static/favicon.png"/>
@@ -70,18 +71,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
 
 
   </head>
 
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-default-mode="">
+
 
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-
 
   
   <div id="pst-scroll-pixel-helper"></div>
@@ -117,7 +122,7 @@
 </aside>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -205,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -225,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -415,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -545,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1269,10 +1289,11 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.VgpuMetadata">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">VgpuMetadata</span></span><a class="headerlink" href="#cuda.bindings.nvml.VgpuMetadata" title="Link to this definition">#</a></dt>
-<dd><p>Empty-initialize an instance of <cite>nvmlVgpuMetadata_t</cite>.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlVgpuMetadata_t</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Empty-initialize an instance of `nvmlVgpuMetadata_t`.
+
+
+.. seealso:: `nvmlVgpuMetadata_t`
+</pre></div>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.VgpuMetadata.__init__">
@@ -1286,13 +1307,13 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_buffer</span></code>(buffer)</p></td>
-<td><p>Create an VgpuMetadata instance with the memory from the given buffer.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code>(data)</p></td>
-<td><p>Create an VgpuMetadata instance wrapping the given NumPy array.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ptr</span></code>(intptr_t ptr, bool readonly=False)</p></td>
-<td><p>Create an VgpuMetadata instance wrapping the given pointer.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -1301,34 +1322,34 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">guest_driver_version</span></code></p></td>
-<td><p>(array of length 80).</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">guest_info_state</span></code></p></td>
-<td><p>int:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">guest_vgpu_version</span></code></p></td>
-<td><p>int:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">host_driver_version</span></code></p></td>
-<td><p>(array of length 80).</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">opaque_data</span></code></p></td>
-<td><p>(array of length 4).</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">opaque_data_size</span></code></p></td>
-<td><p>int:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ptr</span></code></p></td>
-<td><p>Get the pointer address to the data as Python <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">revision</span></code></p></td>
-<td><p>int:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">version</span></code></p></td>
-<td><p>int:</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vgpu_virtualization_caps</span></code></p></td>
-<td><p>int:</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -1384,9 +1405,9 @@
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.VgpuMetadata"><code class="docutils literal notranslate"><span class="pre">VgpuMetadata</span></code></a><ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.VgpuMetadata"><code class="docutils literal notranslate"><span class="pre">VgpuMetadata</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvml.VgpuMetadata.__init__"><code class="docutils literal notranslate"><span class="pre">VgpuMetadata.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -1408,8 +1429,8 @@
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
 
 
   <footer class="bd-footer">

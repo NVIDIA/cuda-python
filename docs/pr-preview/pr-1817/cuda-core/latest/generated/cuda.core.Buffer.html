@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,51 +37,56 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
 
 
-    <script src="../_static/documentation_options.js?v=409ad652"></script>
+    <script src="../_static/documentation_options.js?v=7a7a92da"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.Buffer';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev108';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev19';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
     <link rel="canonical" href="docs/generated/cuda.core.Buffer.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.Stream" href="cuda.core.Stream.html" />
-    <link rel="prev" title="cuda.core.launch" href="cuda.core.launch.html" />
+    <link rel="next" title="cuda.core.MemoryResource" href="cuda.core.MemoryResource.html" />
+    <link rel="prev" title="cuda.core.LaunchConfig" href="cuda.core.LaunchConfig.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
 
 
   </head>
 
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-default-mode="">
+
 
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-
 
   
   <div id="pst-scroll-pixel-helper"></div>
@@ -117,7 +122,7 @@
 </aside>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -191,6 +196,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -210,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -225,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
     Contributing
@@ -387,6 +399,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../install.html">
     Installation
   </a>
@@ -474,16 +493,18 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -494,12 +515,33 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.KernelNode.html">cuda.core.graph.KernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.AllocNode.html">cuda.core.graph.AllocNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.FreeNode.html">cuda.core.graph.FreeNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.MemsetNode.html">cuda.core.graph.MemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.MemcpyNode.html">cuda.core.graph.MemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ChildGraphNode.html">cuda.core.graph.ChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EventRecordNode.html">cuda.core.graph.EventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.EventWaitNode.html">cuda.core.graph.EventWaitNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html">cuda.core.graph.HostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ConditionalNode.html">cuda.core.graph.ConditionalNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfNode.html">cuda.core.graph.IfNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -574,6 +616,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
@@ -660,13 +703,13 @@ allocations.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.close" title="Link to this definition">#</a></dt>
 <dd><p>Deallocate this buffer asynchronously on the given stream.</p>
 <p>This buffer is released back to their memory resource
 asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>, optional) – The stream object to use for asynchronous deallocation. If None,
+<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream object to use for asynchronous deallocation. If None,
 the deallocation stream stored in the handle is used.</p>
 </dd>
 </dl>
@@ -689,7 +732,7 @@ the deallocation stream stored in the handle is used.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>src</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Keyword argument specifying the stream for the
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
 </dd>
@@ -716,7 +759,7 @@ allocated using the associated memory resource before the copy.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Keyword argument specifying the stream for the
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
 </dd>
@@ -731,7 +774,7 @@ asynchronous copy</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferProtocol</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.fill" title="Link to this definition">#</a></dt>
@@ -744,7 +787,7 @@ asynchronous copy</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Buffer" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Buffer</span></code></a>: Must be 1, 2, or 4 bytes.</p></li>
 </ul>
 </p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code>) – Stream for the asynchronous fill operation.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Stream for the asynchronous fill operation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -818,102 +861,60 @@ non-owning reference.  The pointer will NOT be freed when the
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.device_id">
 <span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.Buffer.device_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Return the device ordinal of this buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.device_id</p>
-</dd>
-</dl>
+<dd><p>Return the device ordinal of this buffer.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.handle">
 <span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Buffer.handle" title="Link to this definition">#</a></dt>
-<dd><p>DevicePointerT</p>
-<p>Return the buffer handle object.</p>
+<dd><p>Return the buffer handle object.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>This handle is a Python object. To get the memory address of the underlying C
 handle, call <code class="docutils literal notranslate"><span class="pre">int(Buffer.handle)</span></code>.</p>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.handle</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.is_device_accessible">
 <span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.Buffer.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True if this buffer can be accessed by the GPU, otherwise False.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.is_device_accessible</p>
-</dd>
-</dl>
+<dd><p>Return True if this buffer can be accessed by the GPU, otherwise False.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.is_host_accessible">
 <span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.Buffer.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True if this buffer can be accessed by the CPU, otherwise False.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.is_host_accessible</p>
-</dd>
-</dl>
+<dd><p>Return True if this buffer can be accessed by the CPU, otherwise False.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Buffer.is_managed">
+<span class="sig-name descname"><span class="pre">is_managed</span></span><a class="headerlink" href="#cuda.core.Buffer.is_managed" title="Link to this definition">#</a></dt>
+<dd><p>Return True if this buffer is CUDA managed (unified) memory, otherwise False.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.is_mapped">
 <span class="sig-name descname"><span class="pre">is_mapped</span></span><a class="headerlink" href="#cuda.core.Buffer.is_mapped" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True if this buffer is mapped into the process via IPC.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.is_mapped</p>
-</dd>
-</dl>
+<dd><p>Return True if this buffer is mapped into the process via IPC.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.memory_resource">
 <span class="sig-name descname"><span class="pre">memory_resource</span></span><a class="headerlink" href="#cuda.core.Buffer.memory_resource" title="Link to this definition">#</a></dt>
-<dd><p>MemoryResource</p>
-<p>Return the memory resource associated with this buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.memory_resource</p>
-</dd>
-</dl>
+<dd><p>Return the memory resource associated with this buffer.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.owner">
 <span class="sig-name descname"><span class="pre">owner</span></span><a class="headerlink" href="#cuda.core.Buffer.owner" title="Link to this definition">#</a></dt>
-<dd><p>object</p>
-<p>Return the object holding external allocation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.owner</p>
-</dd>
-</dl>
+<dd><p>Return the object holding external allocation.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Buffer.size">
 <span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.Buffer.size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Return the memory size of this buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Buffer.size</p>
-</dd>
-</dl>
+<dd><p>Return the memory size of this buffer.</p>
 </dd></dl>
 
 </dd></dl>
@@ -931,20 +932,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.launch.html"
+       href="cuda.core.LaunchConfig.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.launch</p>
+        <p class="prev-next-title">cuda.core.LaunchConfig</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.Stream.html"
+       href="cuda.core.MemoryResource.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.Stream</p>
+        <p class="prev-next-title">cuda.core.MemoryResource</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -967,9 +968,9 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.__init__"><code class="docutils literal notranslate"><span class="pre">Buffer.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.close"><code class="docutils literal notranslate"><span class="pre">Buffer.close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_from"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a></li>
@@ -982,6 +983,7 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_managed"><code class="docutils literal notranslate"><span class="pre">Buffer.is_managed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.is_mapped"><code class="docutils literal notranslate"><span class="pre">Buffer.is_mapped</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.memory_resource"><code class="docutils literal notranslate"><span class="pre">Buffer.memory_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.owner"><code class="docutils literal notranslate"><span class="pre">Buffer.owner</span></code></a></li>
@@ -1006,8 +1008,8 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
 
 
   <footer class="bd-footer">

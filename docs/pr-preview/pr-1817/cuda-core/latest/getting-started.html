@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,51 +37,56 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
 
 
-    <script src="_static/documentation_options.js?v=409ad652"></script>
+    <script src="_static/documentation_options.js?v=7a7a92da"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting-started';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev108';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev19';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
     <link rel="canonical" href="docs/getting-started.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="install.html" />
+    <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="cuda.core: Pythonic access to CUDA core functionality" href="index.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
 
 
   </head>
 
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+  <body data-default-mode="">
+
 
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
-
 
   
   <div id="pst-scroll-pixel-helper"></div>
@@ -117,7 +122,7 @@
 </aside>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -191,6 +196,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="install.html">
     Installation
   </a>
@@ -210,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -225,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="contribute.html">
     Contributing
@@ -387,6 +399,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="install.html">
     Installation
   </a>
@@ -474,16 +493,18 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Graph.html">cuda.core.Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -494,12 +515,33 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDef.html">cuda.core.graph.GraphDef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphNode.html">cuda.core.graph.GraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Condition.html">cuda.core.graph.Condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphAllocOptions.html">cuda.core.graph.GraphAllocOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphCompleteOptions.html">cuda.core.graph.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDebugPrintOptions.html">cuda.core.graph.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.EmptyNode.html">cuda.core.graph.EmptyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.KernelNode.html">cuda.core.graph.KernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.AllocNode.html">cuda.core.graph.AllocNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.FreeNode.html">cuda.core.graph.FreeNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.MemsetNode.html">cuda.core.graph.MemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.MemcpyNode.html">cuda.core.graph.MemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ChildGraphNode.html">cuda.core.graph.ChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.EventRecordNode.html">cuda.core.graph.EventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.EventWaitNode.html">cuda.core.graph.EventWaitNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.HostCallbackNode.html">cuda.core.graph.HostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ConditionalNode.html">cuda.core.graph.ConditionalNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfNode.html">cuda.core.graph.IfNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -574,6 +616,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
@@ -659,14 +702,16 @@ including:</p>
 <li><p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> class for GPU device operations and context management.</p></li>
 <li><p><a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> and <a class="reference internal" href="generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code></a> classes for memory allocation and management.</p></li>
 <li><p><a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> for JIT compilation of CUDA kernels.</p></li>
-<li><p><a class="reference internal" href="generated/cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> for building and executing CUDA graphs.</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code> for building and executing CUDA graphs.</p></li>
 <li><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> and <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> for asynchronous execution and timing.</p></li>
 </ul>
 </section>
 <section id="example-compiling-and-launching-a-cuda-kernel">
 <h2>Example: Compiling and Launching a CUDA kernel<a class="headerlink" href="#example-compiling-and-launching-a-cuda-kernel" title="Link to this heading">#</a></h2>
 <p>To get a taste for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, let’s walk through a simple example that compiles and launches a vector addition kernel.
-You can find the complete example in <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples/vector_add.py">vector_add.py</a>.</p>
+You can find the complete example in <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/vector_add.py">vector_add.py</a>
+and browse the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a> for the rest of the shipped
+workflows.</p>
 <p>First, we define a string containing the CUDA C++ kernel. Note that this is a templated kernel:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute c = a + b</span>
 <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -703,8 +748,10 @@ Note the use of the <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 <p>Next, we retrieve the compiled kernel from the CUBIN and prepare the arguments and kernel configuration.
-We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but you can use PyTorch tensors too
-(we show how to do this in one of our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples">examples</a>).</p>
+We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but
+you can use PyTorch tensors too (see
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
+and the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ker</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">)</span>
 
 <span class="c1"># Prepare input/output arrays (using CuPy)</span>
@@ -730,9 +777,11 @@ Note the clean, Pythonic interface, and absence of any direct calls to the CUDA 
 </section>
 <section id="examples-and-recipes">
 <h2>Examples and Recipes<a class="headerlink" href="#examples-and-recipes" title="Link to this heading">#</a></h2>
-<p>As we mentioned before, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> can do much more than just compile and launch kernels.</p>
-<p>The best way to explore and learn the different features <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> is through
-our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples">examples</a>. Find one that matches your use-case, and modify it to fit your needs!</p>
+<p>As we mentioned before, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> can do much more than just compile and
+launch kernels.</p>
+<p>Browse the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a> for direct links to every shipped
+example, including multi-GPU workflows, CUDA graphs, memory utilities, and
+interop-focused recipes.</p>
 </section>
 </section>
 
@@ -756,11 +805,11 @@ our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tr
       </div>
     </a>
     <a class="right-next"
-       href="install.html"
+       href="examples.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Installation</p>
+        <p class="prev-next-title">Examples</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -783,8 +832,8 @@ our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tr
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-cuda-core">What is <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-compiling-and-launching-a-cuda-kernel">Example: Compiling and Launching a CUDA kernel</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-and-recipes">Examples and Recipes</a></li>
@@ -806,8 +855,8 @@ our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tr
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
 
 
   <footer class="bd-footer">
