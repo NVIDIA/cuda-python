@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=f29fdb6b"></script>
+    <script src="_static/documentation_options.js?v=c5675101"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev126';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="install.html" />
+    <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="cuda.core: Pythonic access to CUDA core functionality" href="index.html" />
 
 
@@ -196,6 +196,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="install.html">
     Installation
   </a>
@@ -215,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="environment_variables.html">
-    Environment Variables
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="contribute.html">
     Contributing
@@ -392,6 +399,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="install.html">
     Installation
   </a>
@@ -479,6 +493,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -694,7 +709,9 @@ including:</p>
 <section id="example-compiling-and-launching-a-cuda-kernel">
 <h2>Example: Compiling and Launching a CUDA kernel<a class="headerlink" href="#example-compiling-and-launching-a-cuda-kernel" title="Link to this heading">#</a></h2>
 <p>To get a taste for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, let’s walk through a simple example that compiles and launches a vector addition kernel.
-You can find the complete example in <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples/vector_add.py">vector_add.py</a>.</p>
+You can find the complete example in <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/vector_add.py">vector_add.py</a>
+and browse the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a> for the rest of the shipped
+workflows.</p>
 <p>First, we define a string containing the CUDA C++ kernel. Note that this is a templated kernel:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute c = a + b</span>
 <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -731,8 +748,10 @@ Note the use of the <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 <p>Next, we retrieve the compiled kernel from the CUBIN and prepare the arguments and kernel configuration.
-We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but you can use PyTorch tensors too
-(we show how to do this in one of our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples">examples</a>).</p>
+We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but
+you can use PyTorch tensors too (see
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
+and the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ker</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">)</span>
 
 <span class="c1"># Prepare input/output arrays (using CuPy)</span>
@@ -758,9 +777,11 @@ Note the clean, Pythonic interface, and absence of any direct calls to the CUDA 
 </section>
 <section id="examples-and-recipes">
 <h2>Examples and Recipes<a class="headerlink" href="#examples-and-recipes" title="Link to this heading">#</a></h2>
-<p>As we mentioned before, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> can do much more than just compile and launch kernels.</p>
-<p>The best way to explore and learn the different features <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> is through
-our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples">examples</a>. Find one that matches your use-case, and modify it to fit your needs!</p>
+<p>As we mentioned before, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> can do much more than just compile and
+launch kernels.</p>
+<p>Browse the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a> for direct links to every shipped
+example, including multi-GPU workflows, CUDA graphs, memory utilities, and
+interop-focused recipes.</p>
 </section>
 </section>
 
@@ -784,11 +805,11 @@ our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tr
       </div>
     </a>
     <a class="right-next"
-       href="install.html"
+       href="examples.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Installation</p>
+        <p class="prev-next-title">Examples</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
