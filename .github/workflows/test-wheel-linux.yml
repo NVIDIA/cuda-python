@@ -78,11 +78,6 @@ jobs:
     runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    env:
-      # Suppress pip warnings in container jobs running as root.
-      # This must be at the job level (not container.env) so that actions
-      # running on the host (e.g. setup-python's internal pip upgrade) also see it.
-      PIP_ROOT_USER_ACTION: "ignore"
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
