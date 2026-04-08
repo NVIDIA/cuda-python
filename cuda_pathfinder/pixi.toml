@@ -16,6 +16,25 @@ pytest-mock = "*"
 pytest-repeat = "*"
 pytest-randomly = "*"
 
+# Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
+[feature.docs.dependencies]
+python = "3.12.*"
+cython = "*"
+enum_tools = "*"
+make = "*"
+myst-nb = "*"
+myst-parser = "*"
+numpy = "*"
+numpydoc = "*"
+pip = "*"
+pyclibrary = "*"
+pydata-sphinx-theme = "*"
+pytest = "*"
+scipy = "*"
+sphinx = "<8.2.0"
+sphinx-copybutton = "*"
+sphinx-toolbox = "*"
+
 [feature.cu12.system-requirements]
 cuda = "12"
 
@@ -32,6 +51,10 @@ cuda-version = ">=13.1,<14"
 default = { features = ["cu13", "test"], solve-group = "default" }
 cu13 = { features = ["cu13", "test"], solve-group = "default" }
 cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
+docs = { features = ["docs"], solve-group = "docs" }
+
+[feature.docs.pypi-dependencies]
+nvidia-sphinx-theme = "*"
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -51,6 +74,13 @@ python = ">=3.10"
 
 [target.linux.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
+
+[target.linux.tasks.build-docs]
+cmd = [
+    "bash",
+    "-lc",
+    "rm -rf \"$PIXI_PROJECT_ROOT/docs/build\" \"$PIXI_PROJECT_ROOT/docs/source/generated\" && cd \"$PIXI_PROJECT_ROOT/docs\" && ./build_docs.sh",
+]
 
 [target.win-64.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]

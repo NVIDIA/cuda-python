@@ -9,6 +9,7 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import inspect
 import os
 import sys
 from pathlib import Path
@@ -103,7 +104,7 @@ if os.environ.get("CI"):
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = []  # ["_static"] does not exist in our environment
 
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
@@ -120,7 +121,45 @@ intersphinx_mapping = {
     "cufile": ("https://docs.nvidia.com/gpudirect-storage/api-reference-guide/", None),
 }
 
+
+def _sanitize_generated_docstring(lines):
+    doc_lines = inspect.cleandoc("\n".join(lines)).splitlines()
+    if not doc_lines:
+        return
+
+    if "(" in doc_lines[0] and ")" in doc_lines[0]:
+        doc_lines = doc_lines[1:]
+        while doc_lines and not doc_lines[0].strip():
+            doc_lines.pop(0)
+
+    if not doc_lines:
+        lines[:] = []
+        return
+
+    lines[:] = [".. code-block:: text", ""]
+    lines.extend(f"   {line}" if line else "   " for line in doc_lines)
+
+
+def autodoc_process_docstring(app, what, name, obj, options, lines):
+    if name.startswith("cuda.bindings."):
+        _sanitize_generated_docstring(lines)
+
+
+def rewrite_source(app, docname, source):
+    text = source[0]
+
+    if docname.startswith("release/"):
+        text = text.replace(".. module:: cuda.bindings\n\n", "", 1)
+
+    source[0] = text
+
+
 suppress_warnings = [
     # for warnings about multiple possible targets, see NVIDIA/cuda-python#152
     "ref.python",
 ]
+
+
+def setup(app):
+    app.connect("autodoc-process-docstring", autodoc_process_docstring)
+    app.connect("source-read", rewrite_source)

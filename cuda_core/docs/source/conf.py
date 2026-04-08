@@ -10,6 +10,7 @@
 # -- Path setup --------------------------------------------------------------
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -101,7 +102,7 @@ if os.environ.get("CI"):
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = []  # ["_static"] does not exist in our environment
 
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
@@ -116,13 +117,38 @@ intersphinx_mapping = {
     "cuda.bindings": ("https://nvidia.github.io/cuda-python/cuda-bindings/latest", None),
 }
 
+suppress_warnings = [
+    # For warnings about multiple possible targets, see NVIDIA/cuda-python#152.
+    "ref.python",
+]
+
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
 section_titles = ["Returns"]
 
 
+def _strip_generated_attribute_metadata(what, name, lines):
+    if what != "attribute" or not lines:
+        return
+
+    member_name = ".".join(name.split(".")[-2:])
+    bogus_type_line = f":type: {member_name}"
+
+    if not any(line.strip() == bogus_type_line for line in lines):
+        return
+
+    lines[:] = [line for line in lines if line.strip() != bogus_type_line]
+
+    if lines and re.match(r"^'?[A-Za-z_]\w*'?$", lines[0].strip()):
+        lines.pop(0)
+        while lines and not lines[0].strip():
+            lines.pop(0)
+
+
 def autodoc_process_docstring(app, what, name, obj, options, lines):
+    _strip_generated_attribute_metadata(what, name, lines)
+
     if name.startswith("cuda.core._system.System"):
         name = name.replace("._system.System", ".system")
         # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns",
