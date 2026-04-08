@@ -17,10 +17,6 @@ inputs:
     description: "Label for the stats row (e.g. cuda.bindings, cuda.core)"
     required: false
     default: "sccache"
-  build-step:
-    description: "Name of the cibuildwheel build step (for deep-link in summary)"
-    required: false
-    default: ""
 
 runs:
   using: composite
@@ -30,7 +26,6 @@ runs:
       env:
         SCCACHE_JSON: ${{ inputs.json-file }}
         SCCACHE_LABEL: ${{ inputs.label }}
-        SCCACHE_BUILD_STEP: ${{ inputs.build-step }}
       run: |
         if [ ! -f "$SCCACHE_JSON" ]; then
           echo "::warning::sccache stats file not found: $SCCACHE_JSON"
@@ -38,11 +33,10 @@ runs:
         fi
 
         python3 - <<'PYEOF'
-        import json, os, urllib.parse
+        import json, os
 
         json_file = os.environ["SCCACHE_JSON"]
         label = os.environ["SCCACHE_LABEL"]
-        build_step = os.environ.get("SCCACHE_BUILD_STEP", "")
 
         with open(json_file) as f:
             stats = json.load(f)["stats"]
@@ -62,20 +56,13 @@ runs:
         total = hits + misses
         pct = int(100 * hits / total) if total > 0 else 0
 
-        # Build a deep-link to the cibuildwheel step if step name is provided.
-        # GHA step summary links use the format: #step:N:L but we can't know the
-        # step number here. Instead, link to the job page with a search hint.
-        link_note = ""
-        if build_step:
-            link_note = f"\n\n_Full stats in the **{build_step}** step log._\n"
-
         summary_file = os.environ.get("GITHUB_STEP_SUMMARY", "")
         if summary_file:
             with open(summary_file, "a") as sf:
                 sf.write(f"### 📊 {label} — sccache stats\n")
                 sf.write("| Hit Rate | Hits | Misses | Requests |\n")
                 sf.write("|----------|------|--------|----------|\n")
-                sf.write(f"| {pct}% | {hits} | {misses} | {total} |{link_note}\n")
+                sf.write(f"| {pct}% | {hits} | {misses} | {total} |\n\n")
 
         print(f"{label}: {pct}% hit rate ({hits}/{total})")
         PYEOF
