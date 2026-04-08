@@ -191,6 +191,7 @@ jobs:
         with:
           json-file: sccache_bindings.json
           label: "cuda.bindings"
+          build-step: "Build cuda.bindings wheel"
 
       - name: List the cuda.bindings artifacts directory
         run: |
@@ -257,6 +258,7 @@ jobs:
         with:
           json-file: sccache_core.json
           label: "cuda.core"
+          build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
@@ -444,6 +446,7 @@ jobs:
         with:
           json-file: sccache_core_prev.json
           label: "cuda.core (prev CTK)"
+          build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
