@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=56e75f72"></script>
+    <script src="_static/documentation_options.js?v=890576da"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev124';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev128';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -539,6 +539,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -613,6 +616,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
@@ -701,7 +705,7 @@ method ensures that the same device/context is picked up by and shared with
 in Python. While we encourage new Python projects to start using streams (and other
 CUDA types) from <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, we understand that there are already several projects
 exposing their own stream types.</p>
-<p>To address this issue, we propose the <a class="reference internal" href="generated/cuda.core._stream.IsStreamT.html#cuda.core._stream.IsStreamT.__cuda_stream__" title="cuda.core._stream.IsStreamT.__cuda_stream__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__cuda_stream__</span></code></a> protocol
+<p>To address this issue, we propose the <code class="xref py py-attr docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol
 (currently version 0) as follows: For any Python objects that are meant to be interpreted
 as a stream, they should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> <em>method</em> that returns a 2-tuple: The
 version number (<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <code class="docutils literal notranslate"><span class="pre">int</span></code>):</p>
@@ -730,15 +734,15 @@ a few iterations to ensure correctness.</p>
 for extracting the metadata (such as pointer address, shape, strides, and
 dtype) from any Python objects supporting either CAI or DLPack and returning a
 <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> object. See the
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_constructors.py">strided_memory_view_constructors.py</a>
+example for the explicit constructors, or
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_cpu.py">strided_memory_view_cpu.py</a>
 and
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_gpu.py">strided_memory_view_gpu.py</a>
-examples for end-to-end CPU and GPU variants. Alternatively, a
-<a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> object can be explicitly constructed without
-using the decorator. This provides a <em>concrete implementation</em> to both
-protocols that is <strong>array-library-agnostic</strong>, so that all Python projects can
-just rely on this without either re-implementing (the consumer-side of) the
-protocols or tying to any particular array libraries.</p>
+for decorator-based workflows. This provides a <em>concrete implementation</em> to
+both protocols that is <strong>array-library-agnostic</strong>, so that all Python projects
+can just rely on this without either re-implementing (the consumer-side of)
+the protocols or tying to any particular array libraries.</p>
 <p>The <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.is_device_accessible" title="cuda.core.utils.StridedMemoryView.is_device_accessible"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a> attribute can be used to check
 whether or not the underlying buffer can be accessed on GPU.</p>
 <p>The <a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> class supports narrow data types (e.g., <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>) when the optional

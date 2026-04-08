@@ -1,0 +1,6 @@
+﻿cuda.core.TensorMapDescriptorOptions
+====================================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: TensorMapDescriptorOptions

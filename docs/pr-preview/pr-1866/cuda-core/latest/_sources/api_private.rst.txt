@@ -16,7 +16,7 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory._buffer.DevicePointerT
+   typing.DevicePointerT
    _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
    _memory._virtual_memory_resource.VirtualMemoryGranularityT
@@ -50,4 +50,4 @@ CUDA protocols
    :toctree: generated/
    :template: protocol.rst
 
-   _stream.IsStreamT
+   typing.IsStreamT

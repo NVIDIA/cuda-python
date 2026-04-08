@@ -27,7 +27,7 @@ cuda.core.Linker
    .. rubric:: Attributes
 
    
-   .. autoproperty:: backend
-   .. autoproperty:: handle
+   .. autoattribute:: backend
+   .. autoattribute:: handle
    
    

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=56e75f72"></script>
+    <script src="../_static/documentation_options.js?v=890576da"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev124';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev128';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cuda.core.Linker" href="cuda.core.Linker.html" />
-    <link rel="prev" title="cuda.core.graph.SwitchNode" href="cuda.core.graph.SwitchNode.html" />
+    <link rel="prev" title="cuda.core.TensorMapDescriptorOptions" href="cuda.core.TensorMapDescriptorOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -539,6 +539,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
@@ -613,6 +616,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.7.0-notes.html">0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.6.0-notes.html">0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
@@ -753,6 +757,70 @@ Used for template instantiation and similar cases.</p></li>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Program.backend">
+<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#cuda.core.Program.backend" title="Link to this definition">#</a></dt>
+<dd><p>str</p>
+<p>Return this Program instance’s underlying backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Program.backend</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Program.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Program.handle" title="Link to this definition">#</a></dt>
+<dd><p>ProgramHandleT</p>
+<p>Return the underlying handle object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The type of the returned object depends on the backend.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Program.handle)</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Program.handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Program.pch_status">
+<span class="sig-name descname"><span class="pre">pch_status</span></span><a class="headerlink" href="#cuda.core.Program.pch_status" title="Link to this definition">#</a></dt>
+<dd><p>str | None</p>
+<p>PCH creation outcome from the most recent <a class="reference internal" href="#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> call.</p>
+<p>Possible values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;created&quot;</span></code> — PCH file was written successfully.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;not_attempted&quot;</span></code> — PCH creation was not attempted (e.g. the
+compiler decided not to, or automatic PCH processing skipped it).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;failed&quot;</span></code> — an error prevented PCH creation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> — PCH was not requested, the program has not been
+compiled yet, the backend is not NVRTC (e.g. PTX or NVVM),
+or the NVRTC bindings are too old to report status.</p></li>
+</ul>
+<p>When <code class="docutils literal notranslate"><span class="pre">create_pch</span></code> is set in <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> and the PCH
+heap is too small, <a class="reference internal" href="#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> automatically resizes the heap
+and retries, so <code class="docutils literal notranslate"><span class="pre">&quot;created&quot;</span></code> should be the common outcome.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>PCH is only supported for <code class="docutils literal notranslate"><span class="pre">code_type=&quot;c++&quot;</span></code> programs that
+use the NVRTC backend. For PTX and NVVM programs this property
+always returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Program.pch_status</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -768,12 +836,12 @@ Used for template instantiation and similar cases.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.graph.SwitchNode.html"
+       href="cuda.core.TensorMapDescriptorOptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.graph.SwitchNode</p>
+        <p class="prev-next-title">cuda.core.TensorMapDescriptorOptions</p>
       </div>
     </a>
     <a class="right-next"
@@ -810,6 +878,9 @@ Used for template instantiation and similar cases.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.__init__"><code class="docutils literal notranslate"><span class="pre">Program.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.close"><code class="docutils literal notranslate"><span class="pre">Program.close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.compile"><code class="docutils literal notranslate"><span class="pre">Program.compile()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.backend"><code class="docutils literal notranslate"><span class="pre">Program.backend</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.handle"><code class="docutils literal notranslate"><span class="pre">Program.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.pch_status"><code class="docutils literal notranslate"><span class="pre">Program.pch_status</span></code></a></li>
 </ul>
 </li>
 </ul>
