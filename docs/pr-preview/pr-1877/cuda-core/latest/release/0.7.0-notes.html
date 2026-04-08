@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2d7df2c3"></script>
+    <script src="../_static/documentation_options.js?v=ce599591"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev129';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6.1.dev130';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -710,7 +710,7 @@ path.</p></li>
 <a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>.</p></li>
 <li><p>Added NVRTC precompiled header (PCH) support (CUDA 12.8+).
 <a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> gains <code class="docutils literal notranslate"><span class="pre">pch</span></code>, <code class="docutils literal notranslate"><span class="pre">create_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>,
-<code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, and related options. <code class="xref py py-attr docutils literal notranslate"><span class="pre">Program.pch_status</span></code> reports the
+<code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>, and related options. <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.pch_status" title="cuda.core.Program.pch_status"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Program.pch_status</span></code></a> reports the
 PCH creation outcome, and <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> automatically resizes the NVRTC
 PCH heap and retries when PCH creation fails due to heap exhaustion.</p></li>
 <li><p>Added NUMA-aware managed memory pool placement.

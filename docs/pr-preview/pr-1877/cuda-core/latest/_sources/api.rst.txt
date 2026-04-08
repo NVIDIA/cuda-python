@@ -161,6 +161,8 @@ CUDA compilation toolchain
 .. autosummary::
    :toctree: generated/
 
+   :template: autosummary/cyclass.rst
+
    Program
    Linker
    ObjectCode
