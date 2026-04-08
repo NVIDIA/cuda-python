@@ -91,6 +91,29 @@ cuda-version = "13.2.*"
 [feature.cu12.dependencies]
 cuda-version = "12.*"
 
+[feature.docs.dependencies]
+cuda-core = { path = "." }
+cython = "*"
+myst-parser = "*"
+numpy = "*"
+numpydoc = "*"
+pip = "*"
+pydata-sphinx-theme = "*"
+pytest = "*"
+scipy = "*"
+sphinx = "<8.2.0"
+sphinx-copybutton = "*"
+myst-nb = "*"
+enum_tools = "*"
+sphinx-toolbox = "*"
+pyclibrary = "*"
+
+[feature.docs.pypi-dependencies]
+nvidia-sphinx-theme = "*"
+
+[feature.docs.target.linux.dependencies]
+make = "*"
+
 # We keep both cu12 and cu13 because cuda.core works with either major version.
 # The local sibling checkouts are wired into the default/cu13/examples workflows;
 # cu12 intentionally solves against published packages instead.
@@ -103,11 +126,12 @@ default = { features = [
 cu13 = { features = ["cu13", "test", "cython-tests", "local-deps"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 examples = { features = ["cu13", "examples", "local-deps"], solve-group = "examples" }
+docs = { features = ["cu13", "docs", "local-deps"], solve-group = "docs" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.6.0"
+version = "0.7.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
@@ -164,6 +188,19 @@ cuda-pathfinder = "*"
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
+
+[target.linux.tasks.docs-build]
+cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh"]
+default-environment = "docs"
+
+[target.linux.tasks.docs-build-latest]
+cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
+default-environment = "docs"
+
+[target.linux.tasks.docs-debug]
+cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
+env = { SPHINXOPTS = "-v -j 1 -d build/.doctrees" }
+default-environment = "docs"
 
 [target.win-64.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]

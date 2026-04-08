@@ -66,15 +66,19 @@ designs gearing toward *stream-ordered* operations so as to avoid unnecessary sy
 While the designs are robust, *implementing* such protocols can be tricky and often requires
 a few iterations to ensure correctness.
 
-``cuda.core`` offers a :func:`~utils.args_viewable_as_strided_memory` decorator for
-extracting the metadata (such as pointer address, shape, strides, and dtype) from any
-Python objects supporting either CAI or DLPack and returning a :class:`~utils.StridedMemoryView` object, see the
-`strided_memory_view.py <https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/strided_memory_view.py>`_
-example. Alternatively, a :class:`~utils.StridedMemoryView` object can be explicitly
-constructed without using the decorator. This provides a *concrete implementation* to both
-protocols that is **array-library-agnostic**, so that all Python projects can just rely on this
-without either re-implementing (the consumer-side of) the protocols or tying to any particular
-array libraries.
+``cuda.core`` offers a :func:`~utils.args_viewable_as_strided_memory` decorator
+for extracting the metadata (such as pointer address, shape, strides, and
+dtype) from any Python objects supporting either CAI or DLPack and returning a
+:class:`~utils.StridedMemoryView` object. See the
+`strided_memory_view_constructors.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_constructors.py>`_
+example for the explicit constructors, or
+`strided_memory_view_cpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_cpu.py>`_
+and
+`strided_memory_view_gpu.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_core_github_ref|/cuda_core/examples/strided_memory_view_gpu.py>`_
+for decorator-based workflows. This provides a *concrete implementation* to
+both protocols that is **array-library-agnostic**, so that all Python projects
+can just rely on this without either re-implementing (the consumer-side of)
+the protocols or tying to any particular array libraries.
 
 The :attr:`~utils.StridedMemoryView.is_device_accessible` attribute can be used to check
 whether or not the underlying buffer can be accessed on GPU.
