@@ -84,28 +84,28 @@ jobs:
             echo '```'
           }
 
-          HAS_TRUE_POSITIVE_SIGNAL=false
+          HAS_TRUSTED_SIGNAL=false
           ALLOWLIST_CHECK="not needed (no restricted paths)"
           LABEL_ACTION="not needed (no restricted paths)"
-          TRUE_POSITIVE_SIGNALS="(none)"
+          TRUSTED_SIGNALS="(none)"
           PR_AUTHOR_CANONICAL=${PR_AUTHOR,,}
 
           if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
             case "$AUTHOR_ASSOCIATION" in
               MEMBER|OWNER)
-                HAS_TRUE_POSITIVE_SIGNAL=true
-                ALLOWLIST_CHECK="skipped (author association is a true positive)"
-                LABEL_ACTION="not needed (author association is a true positive)"
-                TRUE_POSITIVE_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
+                HAS_TRUSTED_SIGNAL=true
+                ALLOWLIST_CHECK="skipped (author association is a trusted signal)"
+                LABEL_ACTION="not needed (author association is a trusted signal)"
+                TRUSTED_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
                 ;;
             esac
 
-            if [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+            if [ "$HAS_TRUSTED_SIGNAL" = "false" ]; then
               if printf '%s\n' "$INTERNAL_AUTHOR_ALLOWLIST" | tr '[:upper:]' '[:lower:]' | grep -Fxq "$PR_AUTHOR_CANONICAL"; then
-                HAS_TRUE_POSITIVE_SIGNAL=true
+                HAS_TRUSTED_SIGNAL=true
                 ALLOWLIST_CHECK="matched ($PR_AUTHOR_CANONICAL)"
-                LABEL_ACTION="not needed (workflow allowlist is a true positive)"
-                TRUE_POSITIVE_SIGNALS="workflow_allowlist:$PR_AUTHOR_CANONICAL"
+                LABEL_ACTION="not needed (workflow allowlist is a trusted signal)"
+                TRUSTED_SIGNALS="workflow_allowlist:$PR_AUTHOR_CANONICAL"
               else
                 ALLOWLIST_CHECK="not matched ($PR_AUTHOR_CANONICAL)"
               fi
@@ -117,7 +117,7 @@ jobs:
             LABEL_ALREADY_PRESENT=true
           fi
 
-          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUSTED_SIGNAL" = "false" ]; then
             if [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
               LABEL_ACTION="already present"
             elif ! gh issue edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
@@ -148,14 +148,14 @@ jobs:
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
             echo "- **Allowlist check**: $ALLOWLIST_CHECK"
-            echo "- **True positive signals**: $TRUE_POSITIVE_SIGNALS"
+            echo "- **Trusted signals**: $TRUSTED_SIGNALS"
             echo "- **Label action**: $LABEL_ACTION"
             if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
               echo ""
               write_matching_restricted_paths
             fi
-            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUE_POSITIVE_SIGNAL" = "false" ]; then
+            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUSTED_SIGNAL" = "false" ]; then
               echo ""
-              echo "- **Manual follow-up**: No true positive signal was found, so \`$REVIEW_LABEL\` is required."
+              echo "- **Manual follow-up**: No trusted signal was found, so \`$REVIEW_LABEL\` is required."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
