@@ -30,7 +30,6 @@ Credit: Emilio Castillo (ecastillo@nvidia.com) – original tensor-bridge POC.
 """
 
 from libc.stdint cimport intptr_t, int8_t, int16_t, int32_t, int64_t, uint8_t
-from libc.stddef cimport size_t
 
 from cuda.core._memoryview cimport StridedMemoryView
 from cuda.core._layout cimport _StridedLayout
@@ -176,14 +175,14 @@ cdef dict _build_itemsize_map():
     }
 
 
-cdef size_t _get_aoti_itemsize(int32_t dtype_code) except 0:
+cdef int _get_aoti_itemsize(int32_t dtype_code) except -1:
     global _aoti_itemsize_map
     if _aoti_itemsize_map is None:
         _aoti_itemsize_map = _build_itemsize_map()
     result = _aoti_itemsize_map.get(dtype_code)
     if result is None:
         raise TypeError(f"Unsupported AOTI dtype code: {dtype_code}")
-    return <size_t>result
+    return <int>result
 
 
 # ---------------------------------------------------------------------------
@@ -244,7 +243,8 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     cdef int32_t dtype_code
     cdef int32_t device_type, device_index
     cdef StridedMemoryView buf
-    cdef size_t itemsize
+    cdef int itemsize
+    cdef intptr_t _stream_ptr_int
     cdef _StridedLayout layout
 
     check_aoti(aoti_torch_get_data_ptr(handle, &data_ptr),
@@ -283,8 +283,10 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         buf.is_device_accessible = True
 
         # -- stream ordering (matches the DLPack contract) --
-        if stream_ptr is not None and int(stream_ptr) != -1:
-            sync_torch_stream(device_index, <intptr_t>(int(stream_ptr)))
+        if stream_ptr is not None:
+            _stream_ptr_int = int(stream_ptr)
+            if _stream_ptr_int != -1:
+                sync_torch_stream(device_index, _stream_ptr_int)
     else:
         raise BufferError(
             f"Unsupported device type from torch tensor "
