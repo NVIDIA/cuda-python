@@ -36,6 +36,9 @@ from cuda.core._memory import Buffer
 # ---------------------------------------------------------------------------
 
 cdef object _tensor_bridge = None
+# Cache: type(obj) -> True/False for the torch tensor check.
+# Once a type is seen, we never re-check.
+cdef dict _torch_type_cache = {}
 # Tri-state: None = not checked, True/False = result of version check
 cdef object _torch_version_ok = None
 
@@ -58,9 +61,15 @@ cdef inline bint _torch_version_check():
 
 
 cdef inline bint _is_torch_tensor(object obj):
-    cdef str mod = type(obj).__module__ or ""
-    return mod.startswith("torch") and hasattr(obj, "data_ptr") \
+    cdef type tp = type(obj)
+    cdef object cached = _torch_type_cache.get(tp)
+    if cached is not None:
+        return <bint>cached
+    cdef str mod = tp.__module__ or ""
+    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
         and _torch_version_check()
+    _torch_type_cache[tp] = result
+    return result
 
 
 cdef object _get_tensor_bridge():
