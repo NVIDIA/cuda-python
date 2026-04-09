@@ -141,15 +141,7 @@ cdef class StridedMemoryView:
         cdef str clsname = self.__class__.__name__
         if obj is not None:
             # populate self's attributes
-            if _is_torch_tensor(obj):
-                warnings.warn(
-                    f"Constructing a {clsname} directly from a torch.Tensor is deprecated; "
-                    "Use `StridedMemoryView.from_any_interface` instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, self)
-            elif check_has_dlpack(obj):
+            if check_has_dlpack(obj):
                 warnings.warn(
                     f"Constructing a {clsname} directly from a DLPack-supporting object is deprecated; "
                     "Use `StridedMemoryView.from_dlpack` or `StridedMemoryView.from_any_interface` instead.",
@@ -187,6 +179,9 @@ cdef class StridedMemoryView:
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        if _is_torch_tensor(obj):
+            _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, buf)
+            return buf
         view_as_dlpack(obj, stream_ptr, buf)
         return buf
 
@@ -202,6 +197,9 @@ cdef class StridedMemoryView:
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        if _is_torch_tensor(obj):
+            _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, buf)
+            return buf
         view_as_cai(obj, stream_ptr, buf)
         return buf
 
@@ -215,6 +213,9 @@ cdef class StridedMemoryView:
             An object implementing the `__array_interface__ <https://numpy.org/doc/stable/reference/arrays.interface.html>`_ protocol (e.g., a numpy array).
         """
         cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        if _is_torch_tensor(obj):
+            _get_tensor_bridge().view_as_torch_tensor(obj, None, buf)
+            return buf
         view_as_array_interface(obj, buf)
         return buf
 
@@ -222,24 +223,19 @@ cdef class StridedMemoryView:
     def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
         """Create a view by automatically selecting the best available protocol.
 
-        For ``torch.Tensor`` objects a fast path via the AOTI stable C ABI is
-        used (no DLPack/CAI overhead).  Otherwise tries
-        `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
+        Tries `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
         `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
+        ``torch.Tensor`` objects are transparently handled via a fast AOTI path
+        regardless of which protocol is selected.
 
         Parameters
         ----------
         obj : object
-            An object implementing `DLPack <https://dmlc.github.io/dlpack/latest/>`_,
-            `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_,
-            or a ``torch.Tensor``.
+            An object implementing `DLPack <https://dmlc.github.io/dlpack/latest/>`_ or
+            `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
         stream_ptr : int, optional
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
-        if _is_torch_tensor(obj):
-            buf = StridedMemoryView.__new__(cls)
-            _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, buf)
-            return buf
         if check_has_dlpack(obj):
             return cls.from_dlpack(obj, stream_ptr)
         return cls.from_cuda_array_interface(obj, stream_ptr)
@@ -969,21 +965,13 @@ cdef class _StridedMemoryViewProxy:
     cdef readonly:
         object obj
         bint has_dlpack
-    cdef:
-        bint _is_torch
 
     def __init__(self, obj):
         self.obj = obj
-        self._is_torch = _is_torch_tensor(obj)
-        if not self._is_torch:
-            self.has_dlpack = check_has_dlpack(obj)
-        else:
-            self.has_dlpack = False
+        self.has_dlpack = check_has_dlpack(obj)
 
     cpdef StridedMemoryView view(self, stream_ptr=None):
-        if self._is_torch:
-            return _get_tensor_bridge().view_as_torch_tensor(self.obj, stream_ptr)
-        elif self.has_dlpack:
+        if self.has_dlpack:
             return StridedMemoryView.from_dlpack(self.obj, stream_ptr)
         else:
             return StridedMemoryView.from_cuda_array_interface(self.obj, stream_ptr)
