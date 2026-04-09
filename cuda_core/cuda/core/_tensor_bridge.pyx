@@ -33,6 +33,13 @@ from libc.stdint cimport intptr_t, int8_t, int16_t, int32_t, int64_t, uint8_t
 
 from cuda.core._memoryview cimport StridedMemoryView
 from cuda.core._layout cimport _StridedLayout
+from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport (
+    EventHandle,
+    create_event_handle_noctx,
+    as_cu,
+)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 cdef extern from "Python.h":
     ctypedef struct PyObject:
@@ -72,6 +79,9 @@ cdef extern from "_include/aoti_shim.h":
     AOTITorchError aoti_torch_get_device_index(AtenTensorHandle, int32_t*)
     int32_t aoti_torch_device_type_cpu()
     int32_t aoti_torch_device_type_cuda()
+
+    # stream
+    AOTITorchError aoti_torch_get_current_cuda_stream(int32_t, void**)
 
 import numpy
 
@@ -184,30 +194,39 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     obj : torch.Tensor
         The source tensor.
     stream_ptr : int or None
-        Consumer stream pointer (currently unused — no stream ordering
-        is performed for torch tensors).
+        Consumer stream pointer.  When not ``-1``, stream ordering is
+        established between PyTorch's current CUDA stream (the producer)
+        and the consumer stream, matching the DLPack contract.
     view : StridedMemoryView, optional
         If provided, populate this existing view in-place.  Otherwise a
         new instance is created.
     """
     cdef AtenTensorHandle handle = pyobj_to_aten_handle(obj)
     cdef AOTITorchError err
+    cdef void* data_ptr
+    cdef int64_t ndim
+    cdef int64_t* sizes_ptr
+    cdef int64_t* strides_ptr
+    cdef int32_t dtype_code
+    cdef int32_t device_type, device_index
+    cdef StridedMemoryView buf
+    cdef void* producer_s
+    cdef intptr_t consumer_s
+    cdef EventHandle h_event
+    cdef int itemsize
+    cdef _StridedLayout layout
 
     # -- data pointer --
-    cdef void* data_ptr
     err = aoti_torch_get_data_ptr(handle, &data_ptr)
     if err != 0:
         raise RuntimeError("aoti_torch_get_data_ptr failed")
 
     # -- ndim --
-    cdef int64_t ndim
     err = aoti_torch_get_dim(handle, &ndim)
     if err != 0:
         raise RuntimeError("aoti_torch_get_dim failed")
 
     # -- shape / strides (borrowed pointers, valid while obj alive) --
-    cdef int64_t* sizes_ptr
-    cdef int64_t* strides_ptr
     err = aoti_torch_get_sizes(handle, &sizes_ptr)
     if err != 0:
         raise RuntimeError("aoti_torch_get_sizes failed")
@@ -216,13 +235,11 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         raise RuntimeError("aoti_torch_get_strides failed")
 
     # -- dtype --
-    cdef int32_t dtype_code
     err = aoti_torch_get_dtype(handle, &dtype_code)
     if err != 0:
         raise RuntimeError("aoti_torch_get_dtype failed")
 
     # -- device --
-    cdef int32_t device_type, device_index
     err = aoti_torch_get_device_type(handle, &device_type)
     if err != 0:
         raise RuntimeError("aoti_torch_get_device_type failed")
@@ -231,7 +248,6 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         raise RuntimeError("aoti_torch_get_device_index failed")
 
     # -- populate StridedMemoryView --
-    cdef StridedMemoryView buf
     if view is not None:
         buf = <StridedMemoryView>view
     else:
@@ -250,6 +266,25 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     elif device_type == _DEVICE_TYPE_CUDA:
         buf.device_id = <int>device_index
         buf.is_device_accessible = True
+
+        # -- stream ordering (matches the DLPack contract) --
+        if stream_ptr is not None and int(stream_ptr) != -1:
+            err = aoti_torch_get_current_cuda_stream(device_index,
+                                                     &producer_s)
+            if err != 0:
+                raise RuntimeError(
+                    "aoti_torch_get_current_cuda_stream failed")
+            consumer_s = <intptr_t>(int(stream_ptr))
+            if <intptr_t>producer_s != consumer_s:
+                with nogil:
+                    h_event = create_event_handle_noctx(
+                        cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                    HANDLE_RETURN(cydriver.cuEventRecord(
+                        as_cu(h_event),
+                        <cydriver.CUstream>producer_s))
+                    HANDLE_RETURN(cydriver.cuStreamWaitEvent(
+                        <cydriver.CUstream>consumer_s,
+                        as_cu(h_event), 0))
     else:
         raise BufferError(
             f"Unsupported device type from torch tensor "
@@ -261,8 +296,8 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
 
     # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
     # safe even though they are borrowed pointers.
-    cdef int itemsize = _get_aoti_itemsize(dtype_code)
-    cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
+    itemsize = _get_aoti_itemsize(dtype_code)
+    layout = _StridedLayout.__new__(_StridedLayout)
     layout.init_from_ptr(
         <int>ndim,
         sizes_ptr,

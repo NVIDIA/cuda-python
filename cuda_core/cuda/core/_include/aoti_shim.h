@@ -71,6 +71,11 @@ AOTITorchError aoti_torch_get_device_index(
 int32_t aoti_torch_device_type_cpu(void);
 int32_t aoti_torch_device_type_cuda(void);
 
+/* ---- stream -------------------------------------------------------------- */
+
+AOTITorchError aoti_torch_get_current_cuda_stream(
+    int32_t device_index, void** ret_stream);
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif
