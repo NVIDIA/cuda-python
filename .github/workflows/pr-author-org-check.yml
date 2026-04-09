@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Check PR author signals for restricted paths"
+name: "CI: Restricted Paths Guard"
 
 on:
   # Label updates on fork PRs require pull_request_target permissions.
@@ -15,7 +15,7 @@ on:
 
 jobs:
   check-author-org:
-    name: PR author signals recorded for restricted paths
+    name: Label for manual review
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
