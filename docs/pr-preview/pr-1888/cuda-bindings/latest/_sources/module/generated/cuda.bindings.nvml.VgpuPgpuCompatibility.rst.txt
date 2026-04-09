@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.VgpuPgpuCompatibility
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuPgpuCompatibility
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuPgpuCompatibility.__init__
+      ~VgpuPgpuCompatibility.from_buffer
+      ~VgpuPgpuCompatibility.from_data
+      ~VgpuPgpuCompatibility.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuPgpuCompatibility.compatibility_limit_code
+      ~VgpuPgpuCompatibility.ptr
+      ~VgpuPgpuCompatibility.vgpu_vm_compatibility
+   
+   
