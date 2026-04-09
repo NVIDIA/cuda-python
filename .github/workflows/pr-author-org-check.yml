@@ -34,10 +34,6 @@ jobs:
           # Workflow policy inputs
           REVIEW_LABEL: Check-PR-author-ORG
 
-          # Checked-in allowlist inputs
-          INTERNAL_AUTHOR_ALLOWLIST: |
-            rwgk
-
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -89,31 +85,17 @@ jobs:
           }
 
           HAS_TRUSTED_SIGNAL=false
-          ALLOWLIST_CHECK="not needed (no restricted paths)"
           LABEL_ACTION="not needed (no restricted paths)"
           TRUSTED_SIGNALS="(none)"
-          PR_AUTHOR_CANONICAL=${PR_AUTHOR,,}
 
           if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
             case "$AUTHOR_ASSOCIATION" in
-              MEMBER|OWNER)
+              COLLABORATOR|MEMBER|OWNER)
                 HAS_TRUSTED_SIGNAL=true
-                ALLOWLIST_CHECK="skipped (author association is a trusted signal)"
                 LABEL_ACTION="not needed (author association is a trusted signal)"
                 TRUSTED_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
                 ;;
             esac
-
-            if [ "$HAS_TRUSTED_SIGNAL" = "false" ]; then
-              if printf '%s\n' "$INTERNAL_AUTHOR_ALLOWLIST" | tr '[:upper:]' '[:lower:]' | grep -Fxq "$PR_AUTHOR_CANONICAL"; then
-                HAS_TRUSTED_SIGNAL=true
-                ALLOWLIST_CHECK="matched ($PR_AUTHOR_CANONICAL)"
-                LABEL_ACTION="not needed (workflow allowlist is a trusted signal)"
-                TRUSTED_SIGNALS="workflow_allowlist:$PR_AUTHOR_CANONICAL"
-              else
-                ALLOWLIST_CHECK="not matched ($PR_AUTHOR_CANONICAL)"
-              fi
-            fi
           fi
 
           LABEL_ALREADY_PRESENT=false
@@ -132,7 +114,6 @@ jobs:
                 echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
                 echo "- **Author**: $PR_AUTHOR"
                 echo "- **Author association**: $AUTHOR_ASSOCIATION"
-                echo "- **Allowlist check**: $ALLOWLIST_CHECK"
                 echo ""
                 write_matching_restricted_paths
                 echo ""
@@ -151,7 +132,6 @@ jobs:
             echo "- **Author association**: $AUTHOR_ASSOCIATION"
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-            echo "- **Allowlist check**: $ALLOWLIST_CHECK"
             echo "- **Trusted signals**: $TRUSTED_SIGNALS"
             echo "- **Label action**: $LABEL_ACTION"
             if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
