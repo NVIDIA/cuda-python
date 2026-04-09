@@ -14,8 +14,8 @@ on:
       - ready_for_review
 
 jobs:
-  check-author-org:
-    name: Label for manual review
+  restricted-paths-guard:
+    name: Apply review label if needed
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
@@ -61,7 +61,7 @@ jobs:
           ); then
             echo "::error::Failed to inspect the PR file list."
             {
-              echo "## PR Author Organization Check Failed"
+              echo "## Restricted Paths Guard Failed"
               echo ""
               echo "- **Error**: Failed to inspect the PR file list."
               echo "- **Author**: $PR_AUTHOR"
@@ -109,7 +109,7 @@ jobs:
             elif ! gh issue edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
               echo "::error::Failed to add the $REVIEW_LABEL label."
               {
-                echo "## PR Author Organization Check Failed"
+                echo "## Restricted Paths Guard Failed"
                 echo ""
                 echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
                 echo "- **Author**: $PR_AUTHOR"
@@ -126,7 +126,7 @@ jobs:
           fi
 
           {
-            echo "## PR Author Organization Check Completed"
+            echo "## Restricted Paths Guard Completed"
             echo ""
             echo "- **Author**: $PR_AUTHOR"
             echo "- **Author association**: $AUTHOR_ASSOCIATION"
