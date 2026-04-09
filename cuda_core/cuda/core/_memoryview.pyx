@@ -10,7 +10,9 @@ from libc.stdint cimport intptr_t
 from cuda.core._layout cimport _StridedLayout, get_strides_ptr
 from cuda.core._stream import Stream
 
+import ctypes
 import functools
+import sys
 import warnings
 
 import numpy
@@ -34,11 +36,31 @@ from cuda.core._memory import Buffer
 # ---------------------------------------------------------------------------
 
 cdef object _tensor_bridge = None
+# Tri-state: None = not checked, True/False = result of version check
+cdef object _torch_version_ok = None
+
+cdef inline bint _torch_version_check():
+    """Return True if torch >= 2.3 (AOTI ABI requirement). Memoized."""
+    global _torch_version_ok
+    if _torch_version_ok is not None:
+        return <bint>_torch_version_ok
+    torch = sys.modules.get("torch")
+    if torch is None:
+        _torch_version_ok = False
+        return False
+    try:
+        major, minor = int(torch.__version__.split(".")[0]), \
+                       int(torch.__version__.split(".")[1])
+        _torch_version_ok = (major, minor) >= (2, 3)
+    except (ValueError, IndexError):
+        _torch_version_ok = False
+    return <bint>_torch_version_ok
 
 
 cdef inline bint _is_torch_tensor(object obj):
     cdef str mod = type(obj).__module__ or ""
-    return mod.startswith("torch") and hasattr(obj, "data_ptr")
+    return mod.startswith("torch") and hasattr(obj, "data_ptr") \
+        and _torch_version_check()
 
 
 cdef object _get_tensor_bridge():
@@ -46,7 +68,6 @@ cdef object _get_tensor_bridge():
     global _tensor_bridge
     if _tensor_bridge is not None:
         return _tensor_bridge
-    import ctypes, sys
     torch_C = sys.modules.get("torch._C")
     if torch_C is None:
         raise RuntimeError(
