@@ -32,7 +32,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
 
           # Workflow policy inputs
-          REVIEW_LABEL: Check-PR-author-ORG
+          REVIEW_LABEL: Needs-Restricted-Paths-Review
 
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
