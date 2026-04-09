@@ -712,3 +712,134 @@ def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, a
     smv = api(a, stream_ptr=0)
     with pytest.raises(NotImplementedError, match=r"requires `ml_dtypes`"):
         smv.dtype  # noqa: B018
+
+
+# ===================================================================
+# Tensor bridge (torch.Tensor fast path via AOTI stable C ABI)
+# ===================================================================
+
+_torch_skip = pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
+
+
+@_torch_skip
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        pytest.param("float16", id="float16"),
+        pytest.param("float32", id="float32"),
+        pytest.param("float64", id="float64"),
+        pytest.param("int8", id="int8"),
+        pytest.param("int16", id="int16"),
+        pytest.param("int32", id="int32"),
+        pytest.param("int64", id="int64"),
+        pytest.param("uint8", id="uint8"),
+        pytest.param("bool", id="bool"),
+        pytest.param("complex64", id="complex64"),
+        pytest.param("complex128", id="complex128"),
+    ],
+)
+def test_torch_tensor_bridge_dtypes(init_cuda, dtype):
+    """Verify that dtype mapping via the tensor bridge matches torch's own dtype."""
+    torch_dtype = getattr(torch, dtype)
+    a = torch.tensor([1, 0, 1], dtype=torch_dtype, device="cuda")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.dtype.itemsize == a.element_size()
+    assert smv.ptr == a.data_ptr()
+
+
+@_torch_skip
+@pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
+def test_torch_tensor_bridge_bfloat16(init_cuda):
+    a = torch.tensor([1, 2, 3], dtype=torch.bfloat16, device="cuda")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.dtype == np.dtype("bfloat16")
+    assert smv.ptr == a.data_ptr()
+
+
+@_torch_skip
+def test_torch_tensor_bridge_cuda_1d(init_cuda):
+    a = torch.arange(12, dtype=torch.float32, device="cuda")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == (12,)
+    assert smv.strides in (None, (1,))  # C-contiguous may be None
+    assert smv.dtype == np.dtype(np.float32)
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+    assert smv.readonly is False
+    assert smv.exporting_obj is a
+
+
+@_torch_skip
+def test_torch_tensor_bridge_cuda_nd(init_cuda):
+    a = torch.arange(24, dtype=torch.float32, device="cuda").reshape(2, 3, 4)
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == (2, 3, 4)
+    assert smv.dtype == np.dtype(np.float32)
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is True
+
+
+@_torch_skip
+def test_torch_tensor_bridge_non_contiguous(init_cuda):
+    """Transposed tensor should have non-trivial strides."""
+    a = torch.arange(12, dtype=torch.float32, device="cuda").reshape(3, 4).t()
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.shape == (4, 3)
+    # torch.stride() returns element counts, same as StridedMemoryView
+    assert smv.strides == tuple(a.stride())
+    assert smv.ptr == a.data_ptr()
+
+
+@_torch_skip
+def test_torch_tensor_bridge_sliced(init_cuda):
+    """Sliced tensor should have correct data_ptr (accounts for storage offset)."""
+    base = torch.arange(100, dtype=torch.int64, device="cuda")
+    a = base[10:20]
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == (10,)
+    assert smv.dtype == np.dtype(np.int64)
+
+
+@_torch_skip
+def test_torch_tensor_bridge_scalar(init_cuda):
+    a = torch.tensor(42.0, dtype=torch.float32, device="cuda")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == ()
+    assert smv.dtype == np.dtype(np.float32)
+
+
+@_torch_skip
+def test_torch_tensor_bridge_empty(init_cuda):
+    a = torch.empty(0, dtype=torch.float32, device="cuda")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.shape == (0,)
+    assert smv.dtype == np.dtype(np.float32)
+
+
+@_torch_skip
+def test_torch_tensor_bridge_cpu(init_cuda):
+    a = torch.arange(5, dtype=torch.float32, device="cpu")
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=-1)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == (5,)
+    assert smv.device_id == -1
+    assert smv.is_device_accessible is False
+
+
+@_torch_skip
+def test_torch_tensor_bridge_decorator(init_cuda):
+    """Verify tensor bridge works through the args_viewable_as_strided_memory decorator."""
+    @args_viewable_as_strided_memory((0,))
+    def fn(tensor, stream):
+        return tensor.view(stream.handle)
+
+    a = torch.arange(6, dtype=torch.float32, device="cuda").reshape(2, 3)
+    stream = Device().create_stream()
+    smv = fn(a, stream)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == (2, 3)
+    assert smv.dtype == np.dtype(np.float32)

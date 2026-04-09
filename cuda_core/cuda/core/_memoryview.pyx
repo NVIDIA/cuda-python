@@ -29,6 +29,35 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._memory import Buffer
 
 
+# ---------------------------------------------------------------------------
+# Lazy tensor bridge (avoids loading _tensor_bridge.so until torch is used)
+# ---------------------------------------------------------------------------
+
+cdef object _tensor_bridge = None
+
+
+cdef inline bint _is_torch_tensor(object obj):
+    cdef str mod = type(obj).__module__ or ""
+    return mod.startswith("torch") and hasattr(obj, "data_ptr")
+
+
+cdef object _get_tensor_bridge():
+    """Bootstrap AOTI symbols, then import _tensor_bridge on first use."""
+    global _tensor_bridge
+    if _tensor_bridge is not None:
+        return _tensor_bridge
+    import ctypes, sys
+    torch_C = sys.modules.get("torch._C")
+    if torch_C is None:
+        raise RuntimeError(
+            "torch._C is not loaded; cannot initialise the tensor bridge. "
+            "Make sure PyTorch is imported before passing a torch.Tensor.")
+    ctypes.CDLL(torch_C.__file__, mode=ctypes.RTLD_GLOBAL)
+    from cuda.core import _tensor_bridge as tb
+    _tensor_bridge = tb
+    return _tensor_bridge
+
+
 try:
     from ml_dtypes import bfloat16
 except ImportError:
@@ -112,7 +141,15 @@ cdef class StridedMemoryView:
         cdef str clsname = self.__class__.__name__
         if obj is not None:
             # populate self's attributes
-            if check_has_dlpack(obj):
+            if _is_torch_tensor(obj):
+                warnings.warn(
+                    f"Constructing a {clsname} directly from a torch.Tensor is deprecated; "
+                    "Use `StridedMemoryView.from_any_interface` instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, self)
+            elif check_has_dlpack(obj):
                 warnings.warn(
                     f"Constructing a {clsname} directly from a DLPack-supporting object is deprecated; "
                     "Use `StridedMemoryView.from_dlpack` or `StridedMemoryView.from_any_interface` instead.",
@@ -185,17 +222,24 @@ cdef class StridedMemoryView:
     def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
         """Create a view by automatically selecting the best available protocol.
 
-        Tries `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
+        For ``torch.Tensor`` objects a fast path via the AOTI stable C ABI is
+        used (no DLPack/CAI overhead).  Otherwise tries
+        `DLPack <https://dmlc.github.io/dlpack/latest/>`_ first, then falls back to
         `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
 
         Parameters
         ----------
         obj : object
-            An object implementing `DLPack <https://dmlc.github.io/dlpack/latest/>`_ or
-            `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_.
+            An object implementing `DLPack <https://dmlc.github.io/dlpack/latest/>`_,
+            `__cuda_array_interface__ <https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html>`_,
+            or a ``torch.Tensor``.
         stream_ptr : int, optional
             Stream pointer for synchronization. If ``None``, no synchronization is performed.
         """
+        if _is_torch_tensor(obj):
+            buf = StridedMemoryView.__new__(cls)
+            _get_tensor_bridge().view_as_torch_tensor(obj, stream_ptr, buf)
+            return buf
         if check_has_dlpack(obj):
             return cls.from_dlpack(obj, stream_ptr)
         return cls.from_cuda_array_interface(obj, stream_ptr)
@@ -921,13 +965,21 @@ cdef class _StridedMemoryViewProxy:
     cdef readonly:
         object obj
         bint has_dlpack
+    cdef:
+        bint _is_torch
 
     def __init__(self, obj):
         self.obj = obj
-        self.has_dlpack = check_has_dlpack(obj)
+        self._is_torch = _is_torch_tensor(obj)
+        if not self._is_torch:
+            self.has_dlpack = check_has_dlpack(obj)
+        else:
+            self.has_dlpack = False
 
     cpdef StridedMemoryView view(self, stream_ptr=None):
-        if self.has_dlpack:
+        if self._is_torch:
+            return _get_tensor_bridge().view_as_torch_tensor(self.obj, stream_ptr)
+        elif self.has_dlpack:
             return StridedMemoryView.from_dlpack(self.obj, stream_ptr)
         else:
             return StridedMemoryView.from_cuda_array_interface(self.obj, stream_ptr)
