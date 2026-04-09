@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES.
  * All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -35,17 +35,11 @@ AOTITorchError aoti_torch_get_data_ptr(
 AOTITorchError aoti_torch_get_dim(
     AtenTensorHandle tensor, int64_t* ret_dim);
 
-AOTITorchError aoti_torch_get_numel(
-    AtenTensorHandle tensor, int64_t* ret_numel);
-
 AOTITorchError aoti_torch_get_sizes(
     AtenTensorHandle tensor, int64_t** ret_sizes);
 
 AOTITorchError aoti_torch_get_strides(
     AtenTensorHandle tensor, int64_t** ret_strides);
-
-AOTITorchError aoti_torch_get_storage_offset(
-    AtenTensorHandle tensor, int64_t* ret_storage_offset);
 
 /* ---- dtype ------------------------------------------------------------- */
 

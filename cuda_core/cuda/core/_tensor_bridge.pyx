@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -29,7 +29,7 @@ Credit: Emilio Castillo (ecastillo@nvidia.com) – original tensor-bridge POC.
    importing this module so that the AOTI symbols are visible.
 """
 
-from libc.stdint cimport intptr_t, int32_t, int64_t
+from libc.stdint cimport intptr_t, int8_t, int16_t, int32_t, int64_t, uint8_t
 
 from cuda.core._memoryview cimport StridedMemoryView
 from cuda.core._layout cimport _StridedLayout
@@ -50,7 +50,6 @@ cdef extern from "_include/aoti_shim.h":
     AOTITorchError aoti_torch_get_dim(AtenTensorHandle, int64_t*)
     AOTITorchError aoti_torch_get_sizes(AtenTensorHandle, int64_t**)
     AOTITorchError aoti_torch_get_strides(AtenTensorHandle, int64_t**)
-    AOTITorchError aoti_torch_get_storage_offset(AtenTensorHandle, int64_t*)
 
     # dtype
     AOTITorchError aoti_torch_get_dtype(AtenTensorHandle, int32_t*)
@@ -86,6 +85,7 @@ import numpy
 cdef int32_t _DEVICE_TYPE_CPU  = aoti_torch_device_type_cpu()
 cdef int32_t _DEVICE_TYPE_CUDA = aoti_torch_device_type_cuda()
 cdef dict _aoti_dtype_map = None
+cdef dict _aoti_itemsize_map = None
 
 
 # ---------------------------------------------------------------------------
@@ -134,6 +134,39 @@ cdef object _get_aoti_dtype(int32_t dtype_code):
     if result is None:
         raise TypeError(f"Unsupported AOTI dtype code: {dtype_code}")
     return result
+
+
+def resolve_aoti_dtype(int32_t dtype_code):
+    """Python-callable wrapper around _get_aoti_dtype (for lazy resolution)."""
+    return _get_aoti_dtype(dtype_code)
+
+
+cdef dict _build_itemsize_map():
+    return {
+        aoti_torch_dtype_bool():       sizeof(uint8_t),
+        aoti_torch_dtype_uint8():      sizeof(uint8_t),
+        aoti_torch_dtype_int8():       sizeof(int8_t),
+        aoti_torch_dtype_float16():    sizeof(int16_t),    # no C float16
+        aoti_torch_dtype_bfloat16():   sizeof(int16_t),    # no C bfloat16
+        aoti_torch_dtype_int16():      sizeof(int16_t),
+        aoti_torch_dtype_complex32():  2 * sizeof(int16_t),  # no C complex32
+        aoti_torch_dtype_float32():    sizeof(float),
+        aoti_torch_dtype_int32():      sizeof(int32_t),
+        aoti_torch_dtype_complex64():  2 * sizeof(float),
+        aoti_torch_dtype_float64():    sizeof(double),
+        aoti_torch_dtype_int64():      sizeof(int64_t),
+        aoti_torch_dtype_complex128(): 2 * sizeof(double),
+    }
+
+
+cdef int _get_aoti_itemsize(int32_t dtype_code) except -1:
+    global _aoti_itemsize_map
+    if _aoti_itemsize_map is None:
+        _aoti_itemsize_map = _build_itemsize_map()
+    result = _aoti_itemsize_map.get(dtype_code)
+    if result is None:
+        raise TypeError(f"Unsupported AOTI dtype code: {dtype_code}")
+    return <int>result
 
 
 # ---------------------------------------------------------------------------
@@ -222,16 +255,19 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
             f"Unsupported device type from torch tensor "
             f"(AOTI device type id: {device_type})")
 
-    buf._dtype = _get_aoti_dtype(dtype_code)
+    # Defer full numpy dtype resolution until first .dtype access.
+    # Store the raw AOTI dtype code in metadata for lazy lookup.
+    buf.metadata = <int>dtype_code
 
     # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
     # safe even though they are borrowed pointers.
+    cdef int itemsize = _get_aoti_itemsize(dtype_code)
     cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     layout.init_from_ptr(
         <int>ndim,
         sizes_ptr,
         strides_ptr,
-        buf._dtype.itemsize,
+        itemsize,
     )
     buf._layout = layout
 

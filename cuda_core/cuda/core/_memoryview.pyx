@@ -524,6 +524,10 @@ cdef class StridedMemoryView:
         if self._dtype is None:
             if self.dl_tensor != NULL:
                 self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+            elif isinstance(self.metadata, int):
+                # AOTI dtype code stored by the torch tensor bridge
+                self._dtype = _get_tensor_bridge().resolve_aoti_dtype(
+                    self.metadata)
             elif self.metadata is not None:
                 self._dtype = _typestr2dtype(self.metadata["typestr"])
         return self._dtype
