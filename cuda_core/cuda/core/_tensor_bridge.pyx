@@ -103,7 +103,14 @@ cdef dict _aoti_itemsize_map = None
 # ---------------------------------------------------------------------------
 
 cdef inline AtenTensorHandle pyobj_to_aten_handle(object obj):
-    """Extract AtenTensorHandle by offsetting past PyObject_HEAD."""
+    """Extract AtenTensorHandle by offsetting past PyObject_HEAD.
+
+    In PyTorch 2.3–2.9 the first field after PyObject_HEAD is
+    ``c10::MaybeOwned<at::Tensor> cdata``; from 2.10 onward it is
+    ``at::Tensor cdata``.  In both cases the address of ``cdata``
+    is usable as an ``AtenTensorHandle`` (``at::Tensor*``) for the
+    AOTI stable C ABI functions.
+    """
     return <AtenTensorHandle>(<char*><PyObject*>obj + sizeof(PyObject))
 
 
