@@ -107,10 +107,11 @@ cdef inline AtenTensorHandle pyobj_to_aten_handle(object obj):
     return <AtenTensorHandle>(<char*><PyObject*>obj + sizeof(PyObject))
 
 
-cdef inline void check_aoti(AOTITorchError err, const char* name) except *:
+cdef inline int check_aoti(AOTITorchError err, const char* name) except? -1:
     """Raise RuntimeError if an AOTI call returned a non-zero error code."""
     if err != 0:
         raise RuntimeError(f"{name.decode()} failed")
+    return 0
 
 
 # ---------------------------------------------------------------------------
