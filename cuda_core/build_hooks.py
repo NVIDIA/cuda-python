@@ -28,13 +28,41 @@ get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
+# Please keep in sync with the copy in cuda_bindings/build_hooks.py.
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
+    """
+    try:
+        import cuda.pathfinder
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.pathfinder"):
+            raise
+        try:
+            import cuda
+        except ModuleNotFoundError:
+            cuda = None
+
+        for p in sys.path:
+            sp_cuda = os.path.join(p, "cuda")
+            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+                break
+        else:
+            raise ModuleNotFoundError(
+                "cuda-pathfinder is not installed in the build environment. "
+                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
+            )
+        import cuda.pathfinder
+
+    return cuda.pathfinder.get_cuda_path_or_home
+
+
 @functools.cache
 def _get_cuda_path() -> str:
-    # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
-    # build backend runs in an isolated venv where the cuda namespace package
-    # from backend-path shadows the installed cuda-pathfinder. See #1803 for
-    # a workaround to apply after cuda-pathfinder >= 1.5 is released.
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
