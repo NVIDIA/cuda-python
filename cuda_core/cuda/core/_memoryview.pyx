@@ -1166,6 +1166,16 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
                         as_cu(h_event), <cydriver.CUstream>producer_s))
                     HANDLE_RETURN(cydriver.cuStreamWaitEvent(
                         <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
+        elif _is_torch_tensor(obj):
+            # PyTorch's __cuda_array_interface__ reports version 2 and
+            # omits the "stream" field, so the standard CAI sync path
+            # above is a no-op for torch tensors.  This is unsafe: the
+            # consumer has no guarantee that the producer's work is
+            # visible.  We fix this by querying PyTorch's current CUDA
+            # stream via the AOTI stable C ABI and performing the same
+            # event-based stream ordering.
+            _get_tensor_bridge().sync_torch_stream(
+                buf.device_id, <intptr_t>(stream_ptr))
 
     return buf
 

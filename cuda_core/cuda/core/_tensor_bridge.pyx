@@ -180,6 +180,36 @@ cdef int _get_aoti_itemsize(int32_t dtype_code) except -1:
 
 
 # ---------------------------------------------------------------------------
+# Stream ordering helper
+# ---------------------------------------------------------------------------
+
+cpdef void sync_torch_stream(int32_t device_index,
+                             intptr_t consumer_s) except *:
+    """Establish stream ordering between PyTorch's current CUDA stream
+    and the given consumer stream.
+
+    Records an event on PyTorch's current stream (the producer) and makes
+    the consumer stream wait on it.  This is a no-op if both streams are
+    the same.
+    """
+    cdef AOTITorchError err
+    cdef void* producer_s
+    cdef EventHandle h_event
+
+    err = aoti_torch_get_current_cuda_stream(device_index, &producer_s)
+    if err != 0:
+        raise RuntimeError("aoti_torch_get_current_cuda_stream failed")
+    if <intptr_t>producer_s != consumer_s:
+        with nogil:
+            h_event = create_event_handle_noctx(
+                cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+            HANDLE_RETURN(cydriver.cuEventRecord(
+                as_cu(h_event), <cydriver.CUstream>producer_s))
+            HANDLE_RETURN(cydriver.cuStreamWaitEvent(
+                <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
+
+
+# ---------------------------------------------------------------------------
 # Public API: construct StridedMemoryView from a torch.Tensor
 # ---------------------------------------------------------------------------
 
@@ -210,9 +240,6 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     cdef int32_t dtype_code
     cdef int32_t device_type, device_index
     cdef StridedMemoryView buf
-    cdef void* producer_s
-    cdef intptr_t consumer_s
-    cdef EventHandle h_event
     cdef int itemsize
     cdef _StridedLayout layout
 
@@ -269,22 +296,7 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
 
         # -- stream ordering (matches the DLPack contract) --
         if stream_ptr is not None and int(stream_ptr) != -1:
-            err = aoti_torch_get_current_cuda_stream(device_index,
-                                                     &producer_s)
-            if err != 0:
-                raise RuntimeError(
-                    "aoti_torch_get_current_cuda_stream failed")
-            consumer_s = <intptr_t>(int(stream_ptr))
-            if <intptr_t>producer_s != consumer_s:
-                with nogil:
-                    h_event = create_event_handle_noctx(
-                        cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
-                    HANDLE_RETURN(cydriver.cuEventRecord(
-                        as_cu(h_event),
-                        <cydriver.CUstream>producer_s))
-                    HANDLE_RETURN(cydriver.cuStreamWaitEvent(
-                        <cydriver.CUstream>consumer_s,
-                        as_cu(h_event), 0))
+            sync_torch_stream(device_index, <intptr_t>(int(stream_ptr)))
     else:
         raise BufferError(
             f"Unsupported device type from torch tensor "
