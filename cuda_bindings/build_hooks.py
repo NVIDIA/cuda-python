@@ -33,40 +33,10 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 _extensions = None
 
 
-# Please keep in sync with the copy in cuda_core/build_hooks.py.
-def _import_get_cuda_path_or_home():
-    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
-
-    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
-    """
-    try:
-        import cuda.pathfinder
-    except ModuleNotFoundError as exc:
-        if exc.name not in ("cuda", "cuda.pathfinder"):
-            raise
-        try:
-            import cuda
-        except ModuleNotFoundError:
-            cuda = None
-
-        for p in sys.path:
-            sp_cuda = os.path.join(p, "cuda")
-            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
-                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
-                break
-        else:
-            raise ModuleNotFoundError(
-                "cuda-pathfinder is not installed in the build environment. "
-                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            )
-        import cuda.pathfinder
-
-    return cuda.pathfinder.get_cuda_path_or_home
-
-
 @functools.cache
 def _get_cuda_path() -> str:
-    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    from cuda.pathfinder import get_cuda_path_or_home
+
     cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
@@ -266,7 +236,7 @@ def _generate_output(infile, template_vars):
 
 
 def _rename_architecture_specific_files():
-    path = os.path.join("cuda", "bindings", "_internal")
+    path = os.path.join("src", "cuda", "bindings", "_internal")
     if sys.platform == "linux":
         src_files = glob.glob(os.path.join(path, "*_linux.pyx"))
     elif sys.platform == "win32":
@@ -290,7 +260,10 @@ def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compi
     libraries = libraries if libraries else []
     exts = []
     for pyx in files:
-        mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
+        mod_path = pyx.replace(".pyx", "").replace(os.sep, "/")
+        if mod_path.startswith("src/"):
+            mod_path = mod_path[len("src/") :]
+        mod_name = mod_path.replace("/", ".")
         exts.append(
             Extension(
                 mod_name,
@@ -346,12 +319,12 @@ def _build_cuda_bindings(strip=False):
 
     # Generate code from .in templates
     path_list = [
-        os.path.join("cuda"),
-        os.path.join("cuda", "bindings"),
-        os.path.join("cuda", "bindings", "_bindings"),
-        os.path.join("cuda", "bindings", "_internal"),
-        os.path.join("cuda", "bindings", "_lib"),
-        os.path.join("cuda", "bindings", "utils"),
+        os.path.join("src", "cuda"),
+        os.path.join("src", "cuda", "bindings"),
+        os.path.join("src", "cuda", "bindings", "_bindings"),
+        os.path.join("src", "cuda", "bindings", "_internal"),
+        os.path.join("src", "cuda", "bindings", "_lib"),
+        os.path.join("src", "cuda", "bindings", "utils"),
     ]
     input_files = []
     for path in path_list:
@@ -375,6 +348,7 @@ def _build_cuda_bindings(strip=False):
     # Prepare compile/link arguments
     include_dirs = [
         os.path.dirname(sysconfig.get_path("include")),
+        "src",
     ] + include_path_list
     library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
     cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
@@ -415,21 +389,21 @@ def _build_cuda_bindings(strip=False):
     # Build extension list
     extensions = []
     static_runtime_libraries = ["cudart_static", "rt"] if sys.platform == "linux" else ["cudart_static"]
-    cuda_bindings_files = glob.glob("cuda/bindings/*.pyx")
+    cuda_bindings_files = glob.glob("src/cuda/bindings/*.pyx")
     if sys.platform == "win32":
         cuda_bindings_files = [f for f in cuda_bindings_files if "cufile" not in f]
     sources_list = [
         # private
-        (["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"], None),
-        (["cuda/bindings/_bindings/cynvrtc.pyx"], None),
-        (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
-        (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
+        (["src/cuda/bindings/_bindings/cydriver.pyx", "src/cuda/bindings/_bindings/loader.cpp"], None),
+        (["src/cuda/bindings/_bindings/cynvrtc.pyx"], None),
+        (["src/cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
+        (["src/cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
         # utils
-        (["cuda/bindings/utils/*.pyx"], None),
+        (["src/cuda/bindings/utils/*.pyx"], None),
         # public
         *(([f], None) for f in cuda_bindings_files),
         # internal files used by generated bindings
-        (["cuda/bindings/_internal/utils.pyx"], None),
+        (["src/cuda/bindings/_internal/utils.pyx"], None),
         *(([f], None) for f in dst_files if f.endswith(".pyx")),
     ]
 
@@ -446,6 +420,7 @@ def _build_cuda_bindings(strip=False):
     _extensions = cythonize(
         extensions,
         nthreads=nthreads,
+        include_path=["src"],
         build_dir="." if compile_for_coverage else "build/cython",
         compiler_directives=cython_directives,
         **extra_cythonize_kwargs,
