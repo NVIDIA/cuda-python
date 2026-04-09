@@ -30,6 +30,7 @@ Credit: Emilio Castillo (ecastillo@nvidia.com) – original tensor-bridge POC.
 """
 
 from libc.stdint cimport intptr_t, int8_t, int16_t, int32_t, int64_t, uint8_t
+from libc.stddef cimport size_t
 
 from cuda.core._memoryview cimport StridedMemoryView
 from cuda.core._layout cimport _StridedLayout
@@ -107,6 +108,12 @@ cdef inline AtenTensorHandle pyobj_to_aten_handle(object obj):
     return <AtenTensorHandle>(<char*><PyObject*>obj + sizeof(PyObject))
 
 
+cdef inline void check_aoti(AOTITorchError err, const char* name) except *:
+    """Raise RuntimeError if an AOTI call returned a non-zero error code."""
+    if err != 0:
+        raise RuntimeError(f"{name.decode()} failed")
+
+
 # ---------------------------------------------------------------------------
 # dtype mapping (AOTI int32 -> numpy dtype)
 # ---------------------------------------------------------------------------
@@ -169,14 +176,14 @@ cdef dict _build_itemsize_map():
     }
 
 
-cdef int _get_aoti_itemsize(int32_t dtype_code) except -1:
+cdef size_t _get_aoti_itemsize(int32_t dtype_code) except 0:
     global _aoti_itemsize_map
     if _aoti_itemsize_map is None:
         _aoti_itemsize_map = _build_itemsize_map()
     result = _aoti_itemsize_map.get(dtype_code)
     if result is None:
         raise TypeError(f"Unsupported AOTI dtype code: {dtype_code}")
-    return <int>result
+    return <size_t>result
 
 
 # ---------------------------------------------------------------------------
@@ -192,13 +199,11 @@ cpdef void sync_torch_stream(int32_t device_index,
     the consumer stream wait on it.  This is a no-op if both streams are
     the same.
     """
-    cdef AOTITorchError err
     cdef void* producer_s
     cdef EventHandle h_event
 
-    err = aoti_torch_get_current_cuda_stream(device_index, &producer_s)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_current_cuda_stream failed")
+    check_aoti(aoti_torch_get_current_cuda_stream(device_index, &producer_s),
+               b"aoti_torch_get_current_cuda_stream")
     if <intptr_t>producer_s != consumer_s:
         with nogil:
             h_event = create_event_handle_noctx(
@@ -232,7 +237,6 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         new instance is created.
     """
     cdef AtenTensorHandle handle = pyobj_to_aten_handle(obj)
-    cdef AOTITorchError err
     cdef void* data_ptr
     cdef int64_t ndim
     cdef int64_t* sizes_ptr
@@ -240,39 +244,23 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     cdef int32_t dtype_code
     cdef int32_t device_type, device_index
     cdef StridedMemoryView buf
-    cdef int itemsize
+    cdef size_t itemsize
     cdef _StridedLayout layout
 
-    # -- data pointer --
-    err = aoti_torch_get_data_ptr(handle, &data_ptr)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_data_ptr failed")
-
-    # -- ndim --
-    err = aoti_torch_get_dim(handle, &ndim)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_dim failed")
-
-    # -- shape / strides (borrowed pointers, valid while obj alive) --
-    err = aoti_torch_get_sizes(handle, &sizes_ptr)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_sizes failed")
-    err = aoti_torch_get_strides(handle, &strides_ptr)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_strides failed")
-
-    # -- dtype --
-    err = aoti_torch_get_dtype(handle, &dtype_code)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_dtype failed")
-
-    # -- device --
-    err = aoti_torch_get_device_type(handle, &device_type)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_device_type failed")
-    err = aoti_torch_get_device_index(handle, &device_index)
-    if err != 0:
-        raise RuntimeError("aoti_torch_get_device_index failed")
+    check_aoti(aoti_torch_get_data_ptr(handle, &data_ptr),
+               b"aoti_torch_get_data_ptr")
+    check_aoti(aoti_torch_get_dim(handle, &ndim),
+               b"aoti_torch_get_dim")
+    check_aoti(aoti_torch_get_sizes(handle, &sizes_ptr),
+               b"aoti_torch_get_sizes")
+    check_aoti(aoti_torch_get_strides(handle, &strides_ptr),
+               b"aoti_torch_get_strides")
+    check_aoti(aoti_torch_get_dtype(handle, &dtype_code),
+               b"aoti_torch_get_dtype")
+    check_aoti(aoti_torch_get_device_type(handle, &device_type),
+               b"aoti_torch_get_device_type")
+    check_aoti(aoti_torch_get_device_index(handle, &device_index),
+               b"aoti_torch_get_device_index")
 
     # -- populate StridedMemoryView --
     if view is not None:

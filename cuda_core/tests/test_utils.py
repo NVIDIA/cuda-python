@@ -804,6 +804,18 @@ def test_torch_tensor_bridge_sliced(init_cuda):
 
 
 @_torch_skip
+def test_torch_tensor_bridge_sliced_2d(init_cuda):
+    """2D sliced tensor should have correct data_ptr, shape, and strides."""
+    base = torch.arange(60, dtype=torch.float32, device="cuda").reshape(6, 10)
+    a = base[1:4, 2:7]
+    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
+    assert smv.ptr == a.data_ptr()
+    assert smv.shape == (3, 5)
+    assert smv.strides == (10, 1)  # element strides
+    assert smv.dtype == np.dtype(np.float32)
+
+
+@_torch_skip
 def test_torch_tensor_bridge_scalar(init_cuda):
     a = torch.tensor(42.0, dtype=torch.float32, device="cuda")
     smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
