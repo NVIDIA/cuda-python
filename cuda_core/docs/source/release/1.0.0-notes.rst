@@ -28,8 +28,8 @@ Fixes and enhancements
   ``from_cuda_array_interface``, ``from_array_interface``, or
   ``from_any_interface``), tensor metadata is read directly from the underlying
   C struct, bypassing the DLPack and CUDA Array Interface protocol overhead.
-  This yields ~10-20x faster ``StridedMemoryView`` construction for PyTorch
-  tensors.  Proper CUDA stream ordering is established between PyTorch's current
+  This yields ~7-20x faster ``StridedMemoryView`` construction for PyTorch
+  tensors (depending on whether stream ordering is required).  Proper CUDA stream ordering is established between PyTorch's current
   stream and the consumer stream, matching the DLPack synchronization contract.
   Requires PyTorch >= 2.3.
   (`#749 <https://github.com/NVIDIA/cuda-python/issues/749>`__)
