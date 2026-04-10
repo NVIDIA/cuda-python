@@ -33,7 +33,7 @@ jobs:
     env:
       BUILD_TYPE: ${{ inputs.build-type }}
       ARCH: ${{ (inputs.host-platform == 'linux-64' && 'amd64') ||
-            (inputs.host-platform == 'linux-aarch64' && 'arm64') }}
+                (inputs.host-platform == 'linux-aarch64' && 'arm64') }}
     outputs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
       OLD_BRANCH: ${{ steps.compute-matrix.outputs.OLD_BRANCH }}
