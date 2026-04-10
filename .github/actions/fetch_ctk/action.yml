@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -103,7 +103,7 @@ runs:
         function populate_cuda_path() {
           # take the component name as a argument
           function download() {
-            curl -kLSs $1 -o $2
+            curl -LSs $1 -o $2
           }
           CTK_COMPONENT=$1
           CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
