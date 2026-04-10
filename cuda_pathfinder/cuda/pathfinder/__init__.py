@@ -11,6 +11,15 @@ from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as find_nvidia_binary_utility,
 )
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES as _SUPPORTED_BINARIES
+from cuda.pathfinder._compatibility import (
+    CompatibilityCheckError as CompatibilityCheckError,
+)
+from cuda.pathfinder._compatibility import (
+    CompatibilityInsufficientMetadataError as CompatibilityInsufficientMetadataError,
+)
+from cuda.pathfinder._compatibility import (
+    WithCompatibilityChecks as WithCompatibilityChecks,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError as DynamicLibNotAvailableError,
 )

@@ -1,0 +1,575 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+import ctypes
+import functools
+import importlib.metadata
+import json
+import os
+import re
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TypeAlias, cast
+
+from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
+    find_nvidia_binary_utility as _find_nvidia_binary_utility,
+)
+from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES_ALL
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
+    load_nvidia_dynamic_lib as _load_nvidia_dynamic_lib,
+)
+from cuda.pathfinder._headers.find_nvidia_headers import (
+    LocatedHeaderDir,
+)
+from cuda.pathfinder._headers.find_nvidia_headers import (
+    locate_nvidia_header_directory as _locate_nvidia_header_directory,
+)
+from cuda.pathfinder._headers.header_descriptor import HEADER_DESCRIPTORS
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    LocatedBitcodeLib,
+)
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    locate_bitcode_lib as _locate_bitcode_lib,
+)
+from cuda.pathfinder._static_libs.find_static_lib import (
+    LocatedStaticLib,
+)
+from cuda.pathfinder._static_libs.find_static_lib import (
+    locate_static_lib as _locate_static_lib,
+)
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+
+ItemKind: TypeAlias = str
+PackagedWith: TypeAlias = str
+ConstraintOperator: TypeAlias = str
+ConstraintArg: TypeAlias = int | str | tuple[str, int] | None
+DriverVersionArg: TypeAlias = int | None
+
+_CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
+_REQUIRES_DIST_RE = re.compile(
+    r"^\s*(?P<name>[A-Za-z0-9_.-]+)\s*==\s*(?P<version>[0-9][A-Za-z0-9.+-]*?)(?:\.\*)?(?:\s*;|$)"
+)
+
+_STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
+    "cudadevrt": "ctk",
+}
+_BITCODE_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
+    "device": "ctk",
+    "nvshmem_device": "other",
+}
+_BINARY_PACKAGED_WITH: dict[str, PackagedWith] = dict.fromkeys(SUPPORTED_BINARIES_ALL, "ctk")
+
+
+class CompatibilityCheckError(RuntimeError):
+    """Raised when compatibility checks reject a resolved item."""
+
+
+class CompatibilityInsufficientMetadataError(CompatibilityCheckError):
+    """Raised when v1 compatibility checks cannot reach a definitive answer."""
+
+
+@dataclass(frozen=True, slots=True)
+class CtkMetadata:
+    ctk_version: CtkVersion
+    ctk_root: str | None
+    source: str
+
+
+@dataclass(frozen=True, slots=True)
+class CtkVersion:
+    major: int
+    minor: int
+
+    def __str__(self) -> str:
+        return f"{self.major}.{self.minor}"
+
+
+@dataclass(frozen=True, slots=True)
+class ComparisonConstraint:
+    operator: ConstraintOperator
+    value: int
+
+    def matches(self, candidate: int) -> bool:
+        if self.operator == "==":
+            return candidate == self.value
+        if self.operator == "<":
+            return candidate < self.value
+        if self.operator == "<=":
+            return candidate <= self.value
+        if self.operator == ">":
+            return candidate > self.value
+        if self.operator == ">=":
+            return candidate >= self.value
+        raise AssertionError(f"Unsupported operator: {self.operator!r}")
+
+    def __str__(self) -> str:
+        return f"{self.operator}{self.value}"
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedItem:
+    name: str
+    kind: ItemKind
+    packaged_with: PackagedWith
+    abs_path: str
+    found_via: str | None
+    ctk_root: str | None
+    ctk_version: CtkVersion | None
+    ctk_version_source: str | None
+
+    def describe(self) -> str:
+        found_via = "" if self.found_via is None else f" via {self.found_via}"
+        return f"{self.kind} {self.name!r}{found_via} at {self.abs_path!r}"
+
+
+@dataclass(frozen=True, slots=True)
+class CompatibilityResult:
+    status: str
+    message: str
+
+    def require_compatible(self) -> None:
+        if self.status == "compatible":
+            return
+        if self.status == "insufficient_metadata":
+            raise CompatibilityInsufficientMetadataError(self.message)
+        raise CompatibilityCheckError(self.message)
+
+
+def _coerce_constraint(name: str, raw_value: ConstraintArg) -> ComparisonConstraint | None:
+    if raw_value is None:
+        return None
+    if isinstance(raw_value, int):
+        return ComparisonConstraint("==", raw_value)
+    if isinstance(raw_value, tuple):
+        if len(raw_value) != 2:
+            raise ValueError(f"{name} tuple constraints must have exactly two elements.")
+        operator, value = raw_value
+        if operator not in ("==", "<", "<=", ">", ">="):
+            raise ValueError(f"{name} has unsupported operator {operator!r}.")
+        if not isinstance(value, int):
+            raise ValueError(f"{name} constraint value must be an integer.")
+        return ComparisonConstraint(operator, value)
+    if isinstance(raw_value, str):
+        match = re.fullmatch(r"\s*(==|<|<=|>|>=)?\s*(\d+)\s*", raw_value)
+        if match is None:
+            raise ValueError(f"{name} must be an int, a (operator, value) tuple, or a string like '>=12'.")
+        operator = match.group(1) or "=="
+        value = int(match.group(2))
+        return ComparisonConstraint(operator, value)
+    raise ValueError(f"{name} must be an int, a (operator, value) tuple, or a string like '>=12'.")
+
+
+def _driver_major(driver_version: int) -> int:
+    return driver_version // 1000
+
+
+def _parse_ctk_version(cuda_version: str) -> CtkVersion | None:
+    match = _CTK_VERSION_RE.match(cuda_version)
+    if match is None:
+        return None
+    return CtkVersion(major=int(match.group("major")), minor=int(match.group("minor")))
+
+
+def _normalize_distribution_name(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def _distribution_name(dist: importlib.metadata.Distribution) -> str | None:
+    # Work around mypy's typing of Distribution.metadata as PackageMetadata:
+    # the runtime object behaves like a string mapping, but mypy does not
+    # expose Mapping.get() on PackageMetadata.
+    metadata = cast(Mapping[str, str], dist.metadata)
+    return metadata.get("Name")
+
+
+@functools.cache
+def _owned_distribution_candidates(abs_path: str) -> tuple[tuple[str, str], ...]:
+    normalized_abs_path = os.path.normpath(os.path.abspath(abs_path))
+    matches: set[tuple[str, str]] = set()
+    for dist in importlib.metadata.distributions():
+        dist_name = _distribution_name(dist)
+        if not dist_name:
+            continue
+        for file in dist.files or ():
+            candidate_abs_path = os.path.normpath(os.path.abspath(str(dist.locate_file(file))))
+            if candidate_abs_path == normalized_abs_path:
+                matches.add((dist_name, dist.version))
+    return tuple(sorted(matches))
+
+
+@functools.cache
+def _cuda_toolkit_requirement_maps() -> tuple[tuple[str, CtkVersion, dict[str, tuple[str, ...]]], ...]:
+    results: list[tuple[str, CtkVersion, dict[str, tuple[str, ...]]]] = []
+    for dist in importlib.metadata.distributions():
+        dist_name = _distribution_name(dist)
+        if _normalize_distribution_name(dist_name or "") != "cuda-toolkit":
+            continue
+        ctk_version = _parse_ctk_version(dist.version)
+        if ctk_version is None:
+            continue
+        requirement_map: dict[str, set[str]] = {}
+        for requirement in dist.requires or ():
+            match = _REQUIRES_DIST_RE.match(requirement)
+            if match is None:
+                continue
+            req_name = _normalize_distribution_name(match.group("name"))
+            requirement_map.setdefault(req_name, set()).add(match.group("version"))
+        results.append(
+            (
+                dist.version,
+                ctk_version,
+                {name: tuple(sorted(prefixes)) for name, prefixes in requirement_map.items()},
+            )
+        )
+    return tuple(results)
+
+
+def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
+    matched_versions: dict[CtkVersion, str] = {}
+    for owner_name, owner_version in _owned_distribution_candidates(abs_path):
+        normalized_owner_name = _normalize_distribution_name(owner_name)
+        for toolkit_dist_version, ctk_version, requirement_map in _cuda_toolkit_requirement_maps():
+            requirement_prefixes = requirement_map.get(normalized_owner_name, ())
+            if not any(
+                owner_version == prefix or owner_version.startswith(prefix + ".") for prefix in requirement_prefixes
+            ):
+                continue
+            matched_versions[ctk_version] = (
+                f"wheel metadata via {owner_name}=={owner_version} pinned by cuda-toolkit=={toolkit_dist_version}"
+            )
+    if len(matched_versions) != 1:
+        return None
+    [(ctk_version, source)] = matched_versions.items()
+    return CtkMetadata(ctk_version=ctk_version, ctk_root=None, source=source)
+
+
+@functools.cache
+def _read_ctk_version(ctk_root: str) -> CtkVersion | None:
+    version_json_path = os.path.join(ctk_root, "version.json")
+    if not os.path.isfile(version_json_path):
+        return None
+    with open(version_json_path, encoding="utf-8") as fobj:
+        payload = json.load(fobj)
+    if not isinstance(payload, dict):
+        return None
+    cuda_entry = payload.get("cuda")
+    if not isinstance(cuda_entry, dict):
+        return None
+    cuda_version = cuda_entry.get("version")
+    if not isinstance(cuda_version, str):
+        return None
+    return _parse_ctk_version(cuda_version)
+
+
+def _find_enclosing_ctk_root(abs_path: str) -> str | None:
+    current = Path(abs_path)
+    if current.is_file():
+        current = current.parent
+    for candidate in (current, *current.parents):
+        ctk_root = str(candidate)
+        if _read_ctk_version(ctk_root) is not None:
+            return ctk_root
+    return None
+
+
+def _ctk_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
+    ctk_root = _find_enclosing_ctk_root(abs_path)
+    if ctk_root is not None:
+        ctk_version = _read_ctk_version(ctk_root)
+        if ctk_version is not None:
+            version_json_path = os.path.join(ctk_root, "version.json")
+            return CtkMetadata(
+                ctk_version=ctk_version,
+                ctk_root=ctk_root,
+                source=f"version.json at {version_json_path}",
+            )
+    return _wheel_metadata_for_abs_path(abs_path)
+
+
+def _resolve_item(
+    *,
+    name: str,
+    kind: ItemKind,
+    packaged_with: PackagedWith,
+    abs_path: str,
+    found_via: str | None,
+) -> ResolvedItem:
+    ctk_metadata = _ctk_metadata_for_abs_path(abs_path)
+    return ResolvedItem(
+        name=name,
+        kind=kind,
+        packaged_with=packaged_with,
+        abs_path=abs_path,
+        found_via=found_via,
+        ctk_root=None if ctk_metadata is None else ctk_metadata.ctk_root,
+        ctk_version=None if ctk_metadata is None else ctk_metadata.ctk_version,
+        ctk_version_source=None if ctk_metadata is None else ctk_metadata.source,
+    )
+
+
+def _resolve_dynamic_lib_item(libname: str, loaded: LoadedDL) -> ResolvedItem:
+    if loaded.abs_path is None:
+        raise CompatibilityInsufficientMetadataError(
+            f"Could not determine an absolute path for dynamic library {libname!r}."
+        )
+    desc = LIB_DESCRIPTORS[libname]
+    return _resolve_item(
+        name=libname,
+        kind="dynamic-lib",
+        packaged_with=desc.packaged_with,
+        abs_path=loaded.abs_path,
+        found_via=loaded.found_via,
+    )
+
+
+def _resolve_header_item(libname: str, located: LocatedHeaderDir) -> ResolvedItem:
+    if located.abs_path is None:
+        raise CompatibilityInsufficientMetadataError(
+            f"Could not determine an absolute path for header directory {libname!r}."
+        )
+    desc = HEADER_DESCRIPTORS[libname]
+    metadata_abs_path = os.path.join(located.abs_path, desc.header_basename)
+    return _resolve_item(
+        name=libname,
+        kind="header-dir",
+        packaged_with=desc.packaged_with,
+        abs_path=metadata_abs_path,
+        found_via=located.found_via,
+    )
+
+
+def _resolve_static_lib_item(located: LocatedStaticLib) -> ResolvedItem:
+    packaged_with = _STATIC_LIBS_PACKAGED_WITH[located.name]
+    return _resolve_item(
+        name=located.name,
+        kind="static-lib",
+        packaged_with=packaged_with,
+        abs_path=located.abs_path,
+        found_via=located.found_via,
+    )
+
+
+def _resolve_bitcode_lib_item(located: LocatedBitcodeLib) -> ResolvedItem:
+    packaged_with = _BITCODE_LIBS_PACKAGED_WITH[located.name]
+    return _resolve_item(
+        name=located.name,
+        kind="bitcode-lib",
+        packaged_with=packaged_with,
+        abs_path=located.abs_path,
+        found_via=located.found_via,
+    )
+
+
+def _resolve_binary_item(utility_name: str, abs_path: str) -> ResolvedItem:
+    packaged_with = _BINARY_PACKAGED_WITH[utility_name]
+    return _resolve_item(
+        name=utility_name,
+        kind="binary",
+        packaged_with=packaged_with,
+        abs_path=abs_path,
+        found_via=None,
+    )
+
+
+def compatibility_check(driver_version: int, item1: ResolvedItem, item2: ResolvedItem) -> CompatibilityResult:
+    for item in (item1, item2):
+        if item.packaged_with != "ctk":
+            return CompatibilityResult(
+                status="insufficient_metadata",
+                message=(
+                    "v1 compatibility checks only give definitive answers for "
+                    f"packaged_with='ctk' items. {item.describe()} is packaged_with={item.packaged_with!r}."
+                ),
+            )
+        if item.ctk_version is None or item.ctk_version_source is None:
+            return CompatibilityResult(
+                status="insufficient_metadata",
+                message=(
+                    "v1 compatibility checks require either an enclosing CUDA Toolkit root "
+                    "with version.json or wheel metadata that can be traced to an installed "
+                    f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
+                ),
+            )
+
+    assert item1.ctk_version is not None
+    assert item2.ctk_version is not None
+
+    if item1.ctk_version != item2.ctk_version:
+        return CompatibilityResult(
+            status="incompatible",
+            message=(
+                f"{item1.describe()} resolves to CTK {item1.ctk_version}, while "
+                f"{item2.describe()} resolves to CTK {item2.ctk_version}. "
+                "v1 requires an exact CTK major.minor match."
+            ),
+        )
+
+    driver_major = _driver_major(driver_version)
+    if driver_major < item1.ctk_version.major:
+        return CompatibilityResult(
+            status="incompatible",
+            message=(
+                f"Driver version {driver_version} only supports CUDA major version {driver_major}, "
+                f"but {item1.describe()} requires CTK {item1.ctk_version}. "
+                "v1 requires driver_major >= ctk_major."
+            ),
+        )
+
+    return CompatibilityResult(
+        status="compatible",
+        message=(
+            f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}, "
+            f"and driver version {driver_version} satisfies the v1 driver guard rail."
+        ),
+    )
+
+
+def _query_driver_version() -> int:
+    loaded_cuda = _load_nvidia_dynamic_lib("cuda")
+    if loaded_cuda.abs_path is None:
+        raise CompatibilityCheckError('Could not determine an absolute path for the driver library "cuda".')
+    if IS_WINDOWS:
+        loader_cls_obj = vars(ctypes).get("WinDLL")
+        if loader_cls_obj is None:
+            raise CompatibilityCheckError("ctypes.WinDLL is unavailable on this platform.")
+        loader_cls = cast(Callable[[str], ctypes.CDLL], loader_cls_obj)
+    else:
+        loader_cls = ctypes.CDLL
+    driver_lib = loader_cls(loaded_cuda.abs_path)
+    cu_driver_get_version = driver_lib.cuDriverGetVersion
+    cu_driver_get_version.argtypes = [ctypes.POINTER(ctypes.c_int)]
+    cu_driver_get_version.restype = ctypes.c_int
+    version = ctypes.c_int()
+    status = cu_driver_get_version(ctypes.byref(version))
+    if status != 0:
+        raise CompatibilityCheckError(
+            f"Failed to query CUDA driver version via cuDriverGetVersion() (status={status})."
+        )
+    return version.value
+
+
+class WithCompatibilityChecks:
+    """Resolve CUDA artifacts while enforcing minimal v1 compatibility guard rails."""
+
+    def __init__(
+        self,
+        *,
+        ctk_major: ConstraintArg = None,
+        ctk_minor: ConstraintArg = None,
+        driver_version: DriverVersionArg = None,
+    ) -> None:
+        self._ctk_major_constraint = _coerce_constraint("ctk_major", ctk_major)
+        self._ctk_minor_constraint = _coerce_constraint("ctk_minor", ctk_minor)
+        self._driver_version = driver_version
+        self._resolved_items: list[ResolvedItem] = []
+
+    def _get_driver_version(self) -> int:
+        if self._driver_version is None:
+            self._driver_version = _query_driver_version()
+        return self._driver_version
+
+    def _enforce_supported_packaging(self, item: ResolvedItem) -> None:
+        if item.packaged_with == "ctk":
+            return
+        raise CompatibilityInsufficientMetadataError(
+            "v1 compatibility checks only give definitive answers for "
+            f"packaged_with='ctk' items. {item.describe()} is packaged_with={item.packaged_with!r}."
+        )
+
+    def _enforce_ctk_metadata(self, item: ResolvedItem) -> None:
+        if item.ctk_version is not None and item.ctk_version_source is not None:
+            return
+        raise CompatibilityInsufficientMetadataError(
+            "v1 compatibility checks require either an enclosing CUDA Toolkit root "
+            "with version.json or wheel metadata that can be traced to an installed "
+            f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
+        )
+
+    def _enforce_constraints(self, item: ResolvedItem) -> None:
+        assert item.ctk_version is not None
+        if self._ctk_major_constraint is not None and not self._ctk_major_constraint.matches(item.ctk_version.major):
+            raise CompatibilityCheckError(
+                f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy "
+                f"ctk_major{self._ctk_major_constraint}."
+            )
+        if self._ctk_minor_constraint is not None and not self._ctk_minor_constraint.matches(item.ctk_version.minor):
+            raise CompatibilityCheckError(
+                f"{item.describe()} resolves to CTK {item.ctk_version}, which does not satisfy "
+                f"ctk_minor{self._ctk_minor_constraint}."
+            )
+
+    def _anchor_item(self) -> ResolvedItem | None:
+        if not self._resolved_items:
+            return None
+        return self._resolved_items[0]
+
+    def _remember(self, item: ResolvedItem) -> None:
+        if item not in self._resolved_items:
+            self._resolved_items.append(item)
+
+    def _register_and_check(self, item: ResolvedItem) -> None:
+        self._enforce_supported_packaging(item)
+        self._enforce_ctk_metadata(item)
+        self._enforce_constraints(item)
+        anchor = self._anchor_item()
+        if anchor is None:
+            anchor = item
+        compatibility_check(self._get_driver_version(), anchor, item).require_compatible()
+        self._remember(item)
+
+    def load_nvidia_dynamic_lib(self, libname: str) -> LoadedDL:
+        """Load a CUDA dynamic library and reject v1-incompatible resolutions."""
+        loaded = _load_nvidia_dynamic_lib(libname)
+        self._register_and_check(_resolve_dynamic_lib_item(libname, loaded))
+        return loaded
+
+    def locate_nvidia_header_directory(self, libname: str) -> LocatedHeaderDir | None:
+        """Locate a CUDA header directory and reject v1-incompatible resolutions."""
+        located = _locate_nvidia_header_directory(libname)
+        if located is None:
+            return None
+        self._register_and_check(_resolve_header_item(libname, located))
+        return located
+
+    def find_nvidia_header_directory(self, libname: str) -> str | None:
+        """Locate a CUDA header directory and return only the path string."""
+        located = self.locate_nvidia_header_directory(libname)
+        return None if located is None else located.abs_path
+
+    def locate_static_lib(self, name: str) -> LocatedStaticLib:
+        """Locate a CUDA static library and reject v1-incompatible resolutions."""
+        located = _locate_static_lib(name)
+        self._register_and_check(_resolve_static_lib_item(located))
+        return located
+
+    def find_static_lib(self, name: str) -> str:
+        """Locate a CUDA static library and return only the path string."""
+        abs_path = self.locate_static_lib(name).abs_path
+        assert isinstance(abs_path, str)
+        return abs_path
+
+    def locate_bitcode_lib(self, name: str) -> LocatedBitcodeLib:
+        """Locate a CUDA bitcode library and reject v1-incompatible resolutions."""
+        located = _locate_bitcode_lib(name)
+        self._register_and_check(_resolve_bitcode_lib_item(located))
+        return located
+
+    def find_bitcode_lib(self, name: str) -> str:
+        """Locate a CUDA bitcode library and return only the path string."""
+        abs_path = self.locate_bitcode_lib(name).abs_path
+        assert isinstance(abs_path, str)
+        return abs_path
+
+    def find_nvidia_binary_utility(self, utility_name: str) -> str | None:
+        """Locate a CUDA binary utility and reject v1-incompatible resolutions."""
+        abs_path = _find_nvidia_binary_utility(utility_name)
+        if abs_path is None:
+            return None
+        self._register_and_check(_resolve_binary_item(utility_name, abs_path))
+        assert isinstance(abs_path, str)
+        return abs_path
