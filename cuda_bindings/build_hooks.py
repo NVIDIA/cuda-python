@@ -459,12 +459,13 @@ def _build_cuda_bindings(debug=False):
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
-    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    debug = config_settings.get("debug", False) if config_settings else False
     _build_cuda_bindings(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(debug=True)
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
