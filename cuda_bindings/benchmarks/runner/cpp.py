@@ -43,7 +43,7 @@ def strip_output_args(argv: list[str]) -> list[str]:
         if arg in ("-o", "--output"):
             skip_next = True
             continue
-        if arg.startswith("-o=") or arg.startswith("--output="):
+        if arg.startswith(("-o=", "--output=")):
             continue
         cleaned.append(arg)
     return cleaned
@@ -161,7 +161,7 @@ def main() -> None:
             binary = registry[name]
             tmp_json = tmpdir_path / f"{name}.json"
             cmd = [str(binary), "-o", str(tmp_json), *passthrough_argv]
-            result = subprocess.run(cmd)
+            result = subprocess.run(cmd, check=False)  # noqa: S603
             if result.returncode != 0:
                 print(f"FAILED: {name} (exit code {result.returncode})", file=sys.stderr)
                 failed = True

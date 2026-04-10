@@ -66,7 +66,7 @@ def strip_pyperf_output_args(argv: list[str]) -> list[str]:
         if arg in ("-o", "--output", "--append"):
             skip_next = True
             continue
-        if arg.startswith("-o=") or arg.startswith("--output=") or arg.startswith("--append="):
+        if arg.startswith(("-o=", "--output=", "--append=")):
             continue
         cleaned.append(arg)
     return cleaned
