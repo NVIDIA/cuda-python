@@ -12,11 +12,18 @@ The ``pyobj_to_aten_handle`` trick exploits the internal layout of
 
     struct THPVariable {
         PyObject_HEAD
-        MaybeOwned<at::Tensor> cdata;   // <-- this IS the AtenTensorHandle
+        at::Tensor cdata;   // <-- &cdata is usable as AtenTensorHandle
+        ...
     };
 
-Offsetting past ``PyObject_HEAD`` gives us the ``at::Tensor`` pointer
-without any Python attribute access or method calls (~10 ns per tensor).
+In PyTorch 2.3–2.9 ``cdata`` was ``c10::MaybeOwned<at::Tensor>``;
+from 2.10 onward it is ``at::Tensor``.  In both cases ``&cdata``
+(offset ``sizeof(PyObject)`` from the start of the object) is accepted
+by the AOTI stable C ABI functions as an ``AtenTensorHandle``.
+
+Offsetting past ``PyObject_HEAD`` gives us the handle
+without any Python attribute access or method calls (~14 ns for all
+7 metadata queries).
 
 Credit: Emilio Castillo (ecastillo@nvidia.com) – original tensor-bridge POC.
 
