@@ -204,8 +204,8 @@ cdef int _get_aoti_itemsize(int32_t dtype_code) except -1:
 # Stream ordering helper
 # ---------------------------------------------------------------------------
 
-cpdef void sync_torch_stream(int32_t device_index,
-                             intptr_t consumer_s) except *:
+cpdef int sync_torch_stream(int32_t device_index,
+                            intptr_t consumer_s) except? -1:
     """Establish stream ordering between PyTorch's current CUDA stream
     and the given consumer stream.
 
@@ -226,6 +226,7 @@ cpdef void sync_torch_stream(int32_t device_index,
                 as_cu(h_event), <cydriver.CUstream>producer_s))
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(
                 <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
+    return 0
 
 
 # ---------------------------------------------------------------------------
