@@ -311,7 +311,7 @@ def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compi
 # Main build function
 
 
-def _build_cuda_bindings(strip=False):
+def _build_cuda_bindings(debug=False):
     """Build all cuda-bindings extensions.
 
     All CUDA-dependent logic (header parsing, code generation, cythonization)
@@ -383,21 +383,23 @@ def _build_cuda_bindings(strip=False):
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
         extra_compile_args += [
             "-std=c++14",
             "-fpermissive",
             "-Wno-deprecated-declarations",
             "-fno-var-tracking-assignments",
         ]
-        if "--debug" in sys.argv:
+        if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
             extra_compile_args += ["-O3"]
-            if strip and sys.platform == "linux":
-                extra_link_args += ["-Wl,--strip-all"]
+            extra_link_args += ["-Wl,--strip-all"]
     if compile_for_coverage:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
@@ -457,10 +459,13 @@ def _build_cuda_bindings(strip=False):
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(strip=True)
+    debug = config_settings.get("debug", False) if config_settings else False
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(strip=False)
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
