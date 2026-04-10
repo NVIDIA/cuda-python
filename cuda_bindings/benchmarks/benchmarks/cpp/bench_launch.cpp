@@ -71,21 +71,13 @@ static const char* KERNEL_SOURCE = R"(
 extern "C" __global__ void empty_kernel() { return; }
 extern "C" __global__ void small_kernel(float *f) { *f = 0.0f; }
 
-#define ITEM_PARAM(x, T) T x
-#define REP1(x, T)   , ITEM_PARAM(x, T)
-#define REP2(x, T)   REP1(x##0, T)   REP1(x##1, T)
-#define REP4(x, T)   REP2(x##0, T)   REP2(x##1, T)
-#define REP8(x, T)   REP4(x##0, T)   REP4(x##1, T)
-#define REP16(x, T)  REP8(x##0, T)   REP8(x##1, T)
-
 extern "C" __global__
 void small_kernel_16_args(
-    ITEM_PARAM(F, int*)
-    REP1(A, int*)
-    REP2(A, int*)
-    REP4(A, int*)
-    REP8(A, int*))
-{ *F = 0; }
+    int* a0,  int* a1,  int* a2,  int* a3,
+    int* a4,  int* a5,  int* a6,  int* a7,
+    int* a8,  int* a9,  int* a10, int* a11,
+    int* a12, int* a13, int* a14, int* a15)
+{ *a0 = 0; }
 )";
 
 
