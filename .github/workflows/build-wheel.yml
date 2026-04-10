@@ -84,7 +84,7 @@ jobs:
         env:
           YQ_VERSION: v4.52.5
           YQ_SHA256: 47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c
-          YQ_DIR: yq_latest
+          YQ_DIR: yq
         shell: pwsh -command ". '{0}'"
         run: |
           $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_amd64.exe"
