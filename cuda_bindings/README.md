@@ -10,6 +10,15 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 
 This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
+## Debugging
+
+Editable installs have debuggable binaries by default.  To build a non-editable
+debug build, pass the `debug=True` configuration option to `pip` or `uv`:
+
+```
+pip install -v ./cuda_bindings -C="debug=True"
+```
+
 ## Testing
 
 Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.

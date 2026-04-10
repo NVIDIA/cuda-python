@@ -91,7 +91,7 @@ def _determine_cuda_major_version() -> str:
 _extensions = None
 
 
-def _build_cuda_core(strip=False):
+def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
     # is installed. Otherwise, cimport any cuda.bindings modules would fail!
@@ -137,8 +137,15 @@ def _build_cuda_core(strip=False):
     all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
     extra_compile_args = []
     extra_link_args = []
-    if strip and sys.platform == "linux":
-        extra_link_args += ["-Wl,--strip-all"]
+    extra_cythonize_kwargs = {}
+    if sys.platform != "win32":
+        if debug:
+            extra_cythonize_kwargs["gdb_debug"] = True
+            extra_compile_args += ["-g", "-O0"]
+            extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
+        else:
+            extra_compile_args += ["-O3"]
+            extra_link_args += ["-Wl,--strip-all"]
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
@@ -173,6 +180,7 @@ def _build_cuda_core(strip=False):
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
+        **extra_cythonize_kwargs,
     )
 
     return
@@ -258,7 +266,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_core(strip=False)
+    _build_cuda_core(debug=True)
     wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
     # Patch the .pth file to add Cython include paths
@@ -269,7 +277,8 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_core(strip=True)
+    debug = config_settings.get("debug", False) if config_settings else False
+    _build_cuda_core(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
