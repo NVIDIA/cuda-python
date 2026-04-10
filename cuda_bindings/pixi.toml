@@ -12,16 +12,34 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
 cuda-version = ["12.*", "13.2.*"]
 
-[dependencies]
-cuda-bindings = { path = "." }
-
 [feature.test.dependencies]
+cuda-bindings = { path = "." }
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
 pytest-randomly = "*"
 pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
+
+# Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
+[feature.docs.dependencies]
+cuda-bindings = "13.2.*"
+python = "3.12.*"
+cython = "*"
+enum_tools = "*"
+make = "*"
+myst-nb = "*"
+myst-parser = "*"
+numpy = "*"
+numpydoc = "*"
+pip = "*"
+pyclibrary = "*"
+pydata-sphinx-theme = "*"
+pytest = "*"
+scipy = "*"
+sphinx = "<8.2.0"
+sphinx-copybutton = "*"
+sphinx-toolbox = "*"
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
@@ -62,6 +80,10 @@ cuda-version = "13.2.*"
 default = { features = ["test", "cython-tests"], solve-group = "default" }
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
+docs = { features = ["cu13", "docs"], solve-group = "docs" }
+
+[feature.docs.pypi-dependencies]
+nvidia-sphinx-theme = "*"
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -142,6 +164,13 @@ cmd = [
     "norecursedirs=examples", # include cython tests (ignore by default config)
 ]
 depends-on = [{ task = "build-cython-tests" }]
+
+[target.linux.tasks.build-docs]
+cmd = [
+    "bash",
+    "-lc",
+    "rm -rf \"$PIXI_PROJECT_ROOT/docs/build\" \"$PIXI_PROJECT_ROOT/docs/source/generated\" && cd \"$PIXI_PROJECT_ROOT/docs\" && ./build_docs.sh",
+]
 
 [target.win-64.tasks.test]
 cmd = [

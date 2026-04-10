@@ -10,7 +10,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, EventOptions, Kernel, LaunchConfig
-from cuda.core._graph._graph_def import (
+from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
     GraphDef,
@@ -68,7 +68,7 @@ def test_branches_survive_parent_deletion(init_cuda, builder, expected_count):
     gc.collect()
 
     for branch in branches:
-        assert branch.nodes() == ()
+        assert branch.nodes() == set()
 
 
 @pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
@@ -108,7 +108,7 @@ def test_reconstructed_body_survives_parent_deletion(init_cuda):
     del g, condition, all_nodes, cond_nodes, branches
     gc.collect()
 
-    assert body.nodes() == ()
+    assert body.nodes() == set()
 
 
 # =============================================================================
@@ -477,7 +477,7 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     # Reconstruct the kernel node through DAG traversal
     # successor.pred -> GraphNode._create -> KernelNode._create_from_driver
     # -> create_kernel_handle_ref -> handle recovery
-    reconstructed = successor.pred[0]
+    reconstructed = next(iter(successor.pred))
     assert isinstance(reconstructed, KernelNode)
     assert reconstructed.kernel.attributes.max_threads_per_block() > 0
 

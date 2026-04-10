@@ -62,10 +62,9 @@ cdef class FanInfo:
         For all discrete products with dedicated fans.
 
         Normally, the driver dynamically adjusts the fan based on
-        the needs of the GPU.  But when user set fan speed using :property:`speed`
-        the driver will attempt to make the fan achieve the setting in
-        :property:`speed`.  The actual current speed of the fan
-        is reported in :property:`speed`.
+        the needs of the GPU. But when users set fan speed using ``speed``,
+        the driver will attempt to make the fan achieve that setting.
+        The actual current speed of the fan is reported in ``speed``.
 
         The fan speed is expressed as a percentage of the product's maximum
         noise tolerance fan speed.  This value may exceed 100% in certain cases.

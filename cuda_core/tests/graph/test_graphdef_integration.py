@@ -9,8 +9,8 @@ import numpy as np
 import pytest
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
-from cuda.core._graph._graph_def import GraphDef
 from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core.graph import GraphDef
 
 SIZEOF_FLOAT = 4
 SIZEOF_INT = 4

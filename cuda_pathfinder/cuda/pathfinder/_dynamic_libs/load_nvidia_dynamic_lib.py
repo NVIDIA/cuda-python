@@ -99,14 +99,18 @@ def _raise_canary_probe_child_process_error(
 
 
 @functools.cache
-def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
+def _resolve_system_loaded_abs_path_in_subprocess(
+    libname: str,
+    *,
+    timeout: float = _CANARY_PROBE_TIMEOUT_SECONDS,
+) -> str | None:
     """Resolve a canary library's absolute path in a fresh Python subprocess."""
     try:
         result = subprocess.run(  # noqa: S603 - trusted argv: current interpreter + internal probe module
             build_dynamic_lib_subprocess_command(MODE_CANARY, libname),
             capture_output=True,
             text=True,
-            timeout=_CANARY_PROBE_TIMEOUT_SECONDS,
+            timeout=timeout,
             check=False,
             cwd=DYNAMIC_LIB_SUBPROCESS_CWD,
         )
@@ -125,6 +129,11 @@ def _resolve_system_loaded_abs_path_in_subprocess(libname: str) -> str | None:
     if payload.status == STATUS_OK:
         return abs_path
     return None
+
+
+def _loadable_via_canary_subprocess(libname: str, *, timeout: float = _CANARY_PROBE_TIMEOUT_SECONDS) -> bool:
+    """Return True if the canary subprocess can resolve ``libname`` via system search."""
+    return _resolve_system_loaded_abs_path_in_subprocess(libname, timeout=timeout) is not None
 
 
 def _try_ctk_root_canary(ctx: SearchContext) -> str | None:

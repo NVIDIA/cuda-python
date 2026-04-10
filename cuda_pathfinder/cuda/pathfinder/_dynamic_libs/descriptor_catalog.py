@@ -290,6 +290,12 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         anchor_rel_dirs_windows=("extras/CUPTI/lib64", "bin"),
         ctk_root_canary_anchor_libnames=("cudart",),
     ),
+    DescriptorSpec(
+        name="cudla",
+        packaged_with="ctk",
+        linux_sonames=("libcudla.so.1",),
+        site_packages_linux=("nvidia/cu13/lib",),
+    ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged libraries
     # -----------------------------------------------------------------------
@@ -385,6 +391,11 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="driver",
         linux_sonames=("libcuda.so.1",),
         windows_dlls=("nvcuda.dll",),
+    ),
+    DescriptorSpec(
+        name="nvcudla",
+        packaged_with="driver",
+        linux_sonames=("libnvcudla.so",),
     ),
     DescriptorSpec(
         name="nvml",

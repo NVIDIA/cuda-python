@@ -11,8 +11,7 @@ from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
-from cuda.core._graph import GraphCompleteOptions, GraphDebugPrintOptions
-from cuda.core._graph._graph_def import (
+from cuda.core.graph import (
     AllocNode,
     ChildGraphNode,
     ConditionalNode,
@@ -21,6 +20,8 @@ from cuda.core._graph._graph_def import (
     EventWaitNode,
     FreeNode,
     GraphAllocOptions,
+    GraphCompleteOptions,
+    GraphDebugPrintOptions,
     GraphDef,
     GraphNode,
     HostCallbackNode,
@@ -661,6 +662,7 @@ def test_node_type_preserved_by_nodes(node_spec):
     matched = [n for n in all_nodes if n == node]
     assert len(matched) == 1
     assert isinstance(matched[0], spec.roundtrip_class)
+    assert matched[0] is node
 
 
 def test_node_type_preserved_by_pred_succ(node_spec):
@@ -670,6 +672,7 @@ def test_node_type_preserved_by_pred_succ(node_spec):
         matched = [s for s in predecessor.succ if s == node]
         assert len(matched) == 1
         assert isinstance(matched[0], spec.roundtrip_class)
+        assert matched[0] is node
 
 
 def test_node_attrs(node_spec):
@@ -697,6 +700,75 @@ def test_node_attrs_preserved_by_nodes(node_spec):
         assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
 
 
+def test_identity_preservation(init_cuda):
+    """Round-trips through nodes(), edges(), and pred/succ return extant
+    objects rather than duplicates."""
+    g = GraphDef()
+    a = g.empty()
+    b = g.empty()
+
+    # nodes()
+    assert any(x is a for x in g.nodes())
+    assert any(x is b for x in g.nodes())
+
+    # succ/pred
+    a.succ = {b}
+    (b2,) = a.succ
+    assert b2 is b
+
+    (a2,) = b.pred
+    assert a2 is a
+
+    # edges()
+    ((a2, b2),) = g.edges()
+    assert a2 is a
+    assert b2 is b
+
+
+def test_registry_cleanup(init_cuda):
+    """Node registry entries are removed on destroy() and graph teardown."""
+    import gc
+
+    from cuda.core.graph._graph_node import _node_registry
+
+    def registered(node):
+        return any(v is node for v in _node_registry.values())
+
+    gc.collect()
+    assert len(_node_registry) == 0
+
+    g = GraphDef()
+    a = g.empty()
+    b = g.empty()
+    c = g.empty()
+
+    assert len(_node_registry) == 3
+    assert registered(a)
+    assert registered(b)
+    assert registered(c)
+
+    a.destroy()
+    assert len(_node_registry) == 2
+    assert not registered(a)
+    assert registered(b)
+    assert registered(c)
+
+    del g
+    gc.collect()
+    assert len(_node_registry) == 2
+    assert registered(b)
+    assert registered(c)
+
+    b.destroy()
+    assert len(_node_registry) == 1
+    assert not registered(b)
+    assert registered(c)
+
+    del c
+    gc.collect()
+    assert len(_node_registry) == 0
+
+
 # =============================================================================
 # GraphDef basics
 # =============================================================================
@@ -712,8 +784,8 @@ def test_graphdef_entry_is_virtual(sample_graphdef):
     """Internal entry node is virtual (no pred/succ, type is None)."""
     entry = sample_graphdef._entry
     assert isinstance(entry, GraphNode)
-    assert entry.pred == ()
-    assert entry.succ == ()
+    assert entry.pred == set()
+    assert entry.succ == set()
     assert entry.type is None
 
 

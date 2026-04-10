@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 import cuda.pathfinder._headers.find_nvidia_headers as find_nvidia_headers_module
+from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
@@ -158,6 +159,8 @@ def test_locate_ctk_headers(info_summary_append, libname):
         h_filename = SUPPORTED_HEADERS_CTK[libname]
         assert os.path.isfile(os.path.join(hdr_dir, h_filename))
     if STRICTNESS == "all_must_work":
+        if libname == "cudla":
+            skip_if_missing_libnvcudla_so(libname, timeout=30)
         assert hdr_dir is not None
 
 

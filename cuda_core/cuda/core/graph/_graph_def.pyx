@@ -12,25 +12,24 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._graph._graph_def._graph_node cimport GraphNode
+from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     GraphHandle,
     as_cu,
     as_intptr,
     as_py,
     create_graph_handle,
-    create_graph_handle_ref,
     create_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from dataclasses import dataclass
 
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import driver
 
 
 cdef class Condition:
-    """Wraps a CUgraphConditionalHandle.
+    """A condition variable for conditional graph nodes.
 
     Created by :meth:`GraphDef.create_condition` and passed to
     conditional-node builder methods (``if_cond``, ``if_else``,
@@ -92,7 +91,7 @@ class GraphAllocOptions:
 
 
 cdef class GraphDef:
-    """Represents a CUDA graph definition (CUgraph).
+    """A graph definition.
 
     A GraphDef is used to construct a graph explicitly by adding nodes
     and specifying dependencies. Once construction is complete, call
@@ -158,6 +157,16 @@ cdef class GraphDef:
         See :meth:`GraphNode.launch` for full documentation.
         """
         return self._entry.launch(config, kernel, *args)
+
+    def empty(self) -> "EmptyNode":
+        """Add an entry-point empty node (no dependencies).
+
+        Returns
+        -------
+        EmptyNode
+            A new EmptyNode with no dependencies.
+        """
+        return self._entry.join()
 
     def join(self, *nodes) -> "EmptyNode":
         """Create an empty node that depends on all given nodes.
@@ -278,7 +287,7 @@ cdef class GraphDef:
 
         Parameters
         ----------
-        options : :obj:`~_graph.GraphCompleteOptions`, optional
+        options : :obj:`~graph.GraphCompleteOptions`, optional
             Customizable dataclass for graph instantiation options.
 
         Returns
@@ -286,7 +295,7 @@ cdef class GraphDef:
         Graph
             An executable graph that can be launched on a stream.
         """
-        from cuda.core._graph._graph_builder import _instantiate_graph
+        from cuda.core.graph._graph_builder import _instantiate_graph
 
         return _instantiate_graph(
             driver.CUgraph(as_intptr(self._h_graph)), options)
@@ -301,7 +310,7 @@ cdef class GraphDef:
         options : GraphDebugPrintOptions, optional
             Customizable options for the debug print.
         """
-        from cuda.core._graph._graph_builder import GraphDebugPrintOptions
+        from cuda.core.graph._graph_builder import GraphDebugPrintOptions
 
         cdef unsigned int flags = 0
         if options is not None:
@@ -314,53 +323,46 @@ cdef class GraphDef:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(as_cu(self._h_graph), c_path, flags))
 
-    def nodes(self) -> tuple:
+    def nodes(self) -> set:
         """Return all nodes in the graph.
 
         Returns
         -------
-        tuple of GraphNode
+        set of GraphNode
             All nodes in the graph.
         """
-        cdef size_t num_nodes = 0
-
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), NULL, &num_nodes))
-
-        if num_nodes == 0:
-            return ()
-
         cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(num_nodes)
+        nodes_vec.resize(128)
+        cdef size_t num_nodes = 128
+
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
-        return tuple(GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes))
+        if num_nodes == 0:
+            return set()
 
-    def edges(self) -> tuple:
+        if num_nodes > 128:
+            nodes_vec.resize(num_nodes)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
+
+        return {GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes)}
+
+    def edges(self) -> set:
         """Return all edges in the graph as (from_node, to_node) pairs.
 
         Returns
         -------
-        tuple of tuple
+        set of tuple
             Each element is a (from_node, to_node) pair representing
             a dependency edge in the graph.
         """
-        cdef size_t num_edges = 0
-
-        with nogil:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, NULL, &num_edges))
-            ELSE:
-                HANDLE_RETURN(cydriver.cuGraphGetEdges(as_cu(self._h_graph), NULL, NULL, &num_edges))
-
-        if num_edges == 0:
-            return ()
-
         cdef vector[cydriver.CUgraphNode] from_nodes
         cdef vector[cydriver.CUgraphNode] to_nodes
-        from_nodes.resize(num_edges)
-        to_nodes.resize(num_edges)
+        from_nodes.resize(128)
+        to_nodes.resize(128)
+        cdef size_t num_edges = 128
+
         with nogil:
             IF CUDA_CORE_BUILD_MAJOR >= 13:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
@@ -369,11 +371,25 @@ cdef class GraphDef:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
                     as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
 
-        return tuple(
+        if num_edges == 0:
+            return set()
+
+        if num_edges > 128:
+            from_nodes.resize(num_edges)
+            to_nodes.resize(num_edges)
+            with nogil:
+                IF CUDA_CORE_BUILD_MAJOR >= 13:
+                    HANDLE_RETURN(cydriver.cuGraphGetEdges(
+                        as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), NULL, &num_edges))
+                ELSE:
+                    HANDLE_RETURN(cydriver.cuGraphGetEdges(
+                        as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
+
+        return {
             (GraphNode._create(self._h_graph, from_nodes[i]),
              GraphNode._create(self._h_graph, to_nodes[i]))
             for i in range(num_edges)
-        )
+        }
 
     @property
     def handle(self) -> driver.CUgraph:

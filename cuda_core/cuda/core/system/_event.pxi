@@ -33,7 +33,7 @@ cdef class EventData:
     def event_data(self) -> int:
         """
         Returns Xid error for the device in the event of
-        :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+        :attr:`~cuda.core.system.EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
 
         Raises :class:`ValueError` for other event types.
         """

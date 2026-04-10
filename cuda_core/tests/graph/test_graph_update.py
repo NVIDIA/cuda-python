@@ -9,8 +9,8 @@ from helpers.graph_kernels import compile_common_kernels, compile_conditional_ke
 from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
-from cuda.core._graph._graph_def import GraphDef
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.graph import GraphDef
 
 
 @pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDef"])
