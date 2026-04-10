@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import ast
 import importlib.util
-import inspect
+import os
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -15,15 +16,29 @@ import pyperf
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BENCH_DIR = PROJECT_ROOT / "benchmarks"
 DEFAULT_OUTPUT = PROJECT_ROOT / "results-python.json"
+PYPERF_INHERITED_ENV_VARS = (
+    "CUDA_HOME",
+    "CUDA_PATH",
+    "CUDA_VISIBLE_DEVICES",
+    "LD_LIBRARY_PATH",
+    "NVIDIA_VISIBLE_DEVICES",
+)
+_MODULE_CACHE: dict[Path, ModuleType] = {}
 
 
 def load_module(module_path: Path) -> ModuleType:
+    module_path = module_path.resolve()
+    cached_module = _MODULE_CACHE.get(module_path)
+    if cached_module is not None:
+        return cached_module
+
     module_name = f"cuda_bindings_bench_{module_path.stem}"
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Failed to load benchmark module: {module_path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    _MODULE_CACHE[module_path] = module
     return module
 
 
@@ -31,6 +46,29 @@ def benchmark_id(module_name: str, function_name: str) -> str:
     module_suffix = module_name.removeprefix("bench_")
     suffix = function_name.removeprefix("bench_")
     return f"{module_suffix}.{suffix}"
+
+
+def _discover_module_functions(module_path: Path) -> list[str]:
+    tree = ast.parse(module_path.read_text(encoding="utf-8"), filename=str(module_path))
+    return [
+        node.name
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("bench_")
+    ]
+
+
+def _lazy_benchmark(module_path: Path, function_name: str) -> Callable[[int], float]:
+    loaded_function: Callable[[int], float] | None = None
+
+    def run(loops: int) -> float:
+        nonlocal loaded_function
+        if loaded_function is None:
+            module = load_module(module_path)
+            loaded_function = getattr(module, function_name)
+        return loaded_function(loops)
+
+    run.__name__ = function_name
+    return run
 
 
 def discover_benchmarks() -> dict[str, Callable[[int], float]]:
@@ -42,24 +80,19 @@ def discover_benchmarks() -> dict[str, Callable[[int], float]]:
     """
     registry: dict[str, Callable[[int], float]] = {}
     for module_path in sorted(BENCH_DIR.glob("bench_*.py")):
-        module = load_module(module_path)
         module_name = module_path.stem
-        for function_name, function in inspect.getmembers(module, inspect.isfunction):
-            if not function_name.startswith("bench_"):
-                continue
-            if function.__module__ != module.__name__:
-                continue
+        for function_name in _discover_module_functions(module_path):
             bench_id = benchmark_id(module_name, function_name)
             if bench_id in registry:
                 raise ValueError(f"Duplicate benchmark ID discovered: {bench_id}")
-            registry[bench_id] = function
+            registry[bench_id] = _lazy_benchmark(module_path, function_name)
     return registry
 
 
 def strip_pyperf_output_args(argv: list[str]) -> list[str]:
     cleaned: list[str] = []
     skip_next = False
-    for i, arg in enumerate(argv):
+    for arg in argv:
         if skip_next:
             skip_next = False
             continue
@@ -69,6 +102,48 @@ def strip_pyperf_output_args(argv: list[str]) -> list[str]:
         if arg.startswith(("-o=", "--output=", "--append=")):
             continue
         cleaned.append(arg)
+    return cleaned
+
+
+def _split_env_vars(arg_value: str) -> list[str]:
+    return [env_var for env_var in arg_value.split(",") if env_var]
+
+
+def ensure_pyperf_worker_env(argv: list[str]) -> list[str]:
+    if "--copy-env" in argv:
+        return list(argv)
+
+    inherited_env: list[str] = []
+    cleaned: list[str] = []
+    skip_next = False
+    for arg in argv:
+        if skip_next:
+            inherited_env.extend(_split_env_vars(arg))
+            skip_next = False
+            continue
+        if arg == "--inherit-environ":
+            skip_next = True
+            continue
+        if arg.startswith("--inherit-environ="):
+            inherited_env.extend(_split_env_vars(arg.partition("=")[2]))
+            continue
+        cleaned.append(arg)
+
+    if skip_next:
+        raise ValueError("Missing value for --inherit-environ")
+
+    for env_var in PYPERF_INHERITED_ENV_VARS:
+        if env_var in os.environ:
+            inherited_env.append(env_var)
+
+    deduped_env: list[str] = []
+    for env_var in inherited_env:
+        if env_var not in deduped_env:
+            deduped_env.append(env_var)
+
+    if deduped_env:
+        cleaned.extend(["--inherit-environ", ",".join(deduped_env)])
+
     return cleaned
 
 
@@ -118,12 +193,13 @@ def main() -> None:
     else:
         benchmark_ids = sorted(registry)
 
-    # Strip any --output args to avoid conflicts with our output handling
+    # Strip any --output args to avoid conflicts with our output handling.
     output_path = parsed.output.resolve()
     remaining_argv = strip_pyperf_output_args(remaining_argv)
+    remaining_argv = ensure_pyperf_worker_env(remaining_argv)
     is_worker = "--worker" in remaining_argv
 
-    # Delete the file so this run starts fresh
+    # Delete the file so this run starts fresh.
     if not is_worker:
         output_path.unlink(missing_ok=True)
 
