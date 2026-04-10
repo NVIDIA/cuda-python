@@ -1,0 +1,6 @@
+﻿cuda.core.graph.GraphDebugPrintOptions
+======================================
+
+.. currentmodule:: cuda.core.graph
+
+.. autoclass:: GraphDebugPrintOptions
