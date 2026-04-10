@@ -75,7 +75,7 @@ jobs:
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1
 
       - name: Set up yq
         # GitHub made an unprofessional decision to not provide it in their Windows VMs,
