@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_set\_gpu\_operation\_mode
-====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_set_gpu_operation_mode
