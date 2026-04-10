@@ -1,0 +1,35 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+``cuda-bindings`` 11.8.6 Release notes
+====================================
+
+Released on January 24, 2025.
+
+Highlights
+----------
+
+- Support Python 3.13
+- Add an optional dependency on the CUDA NVRTC wheel
+- Enable discovery and loading of shared libraries from CUDA wheels
+- ``cuda-python`` is now a meta package, currently depending only on ``cuda-bindings`` (`see RFC <https://github.com/NVIDIA/cuda-python/issues/105>`_)
+
+Wheels support for optional dependencies
+----------------------------------------
+
+Optional dependencies are added for packages:
+
+- nvidia-cuda-nvrtc-cu12
+
+Installing these dependencies with ``cuda-python`` can be done using:
+
+.. code-block:: shell
+
+   pip install cuda-python[all]
+
+Same applies to ``cuda-bindings``.
+
+Discovery and loading of shared library dependencies from wheels
+----------------------------------------------------------------
+
+Shared library search paths for wheel builds are now extended to check site-packages. This allows ``cuda-python``/``cuda-bindings`` to seamlessly use the aforementioned CUDA Toolkit wheels installed in the user's Python environment.
