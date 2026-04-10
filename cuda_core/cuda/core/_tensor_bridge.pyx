@@ -134,26 +134,26 @@ cdef inline int check_aoti(AOTITorchError err, const char* name) except? -1:
 
 cdef dict _build_dtype_map():
     try:
-        from ml_dtypes import bfloat16 as _bf16
+        from ml_dtypes import bfloat16 as _bf16  # noqa: F811
         has_bfloat16 = True
     except ImportError:
         has_bfloat16 = False
 
     cdef dict m = {
-        aoti_torch_dtype_float16():    numpy.dtype(numpy.float16),
-        aoti_torch_dtype_float32():    numpy.dtype(numpy.float32),
-        aoti_torch_dtype_float64():    numpy.dtype(numpy.float64),
-        aoti_torch_dtype_uint8():      numpy.dtype(numpy.uint8),
-        aoti_torch_dtype_int8():       numpy.dtype(numpy.int8),
-        aoti_torch_dtype_int16():      numpy.dtype(numpy.int16),
-        aoti_torch_dtype_int32():      numpy.dtype(numpy.int32),
-        aoti_torch_dtype_int64():      numpy.dtype(numpy.int64),
-        aoti_torch_dtype_bool():       numpy.dtype(numpy.bool_),
-        aoti_torch_dtype_complex64():  numpy.dtype(numpy.complex64),
+        aoti_torch_dtype_float16(): numpy.dtype(numpy.float16),
+        aoti_torch_dtype_float32(): numpy.dtype(numpy.float32),
+        aoti_torch_dtype_float64(): numpy.dtype(numpy.float64),
+        aoti_torch_dtype_uint8(): numpy.dtype(numpy.uint8),
+        aoti_torch_dtype_int8(): numpy.dtype(numpy.int8),
+        aoti_torch_dtype_int16(): numpy.dtype(numpy.int16),
+        aoti_torch_dtype_int32(): numpy.dtype(numpy.int32),
+        aoti_torch_dtype_int64(): numpy.dtype(numpy.int64),
+        aoti_torch_dtype_bool(): numpy.dtype(numpy.bool_),
+        aoti_torch_dtype_complex64(): numpy.dtype(numpy.complex64),
         aoti_torch_dtype_complex128(): numpy.dtype(numpy.complex128),
     }
     if has_bfloat16:
-        m[aoti_torch_dtype_bfloat16()] = numpy.dtype("bfloat16")
+        m[aoti_torch_dtype_bfloat16()] = numpy.dtype(_bf16)
     return m
 
 

@@ -845,6 +845,7 @@ def test_torch_tensor_bridge_cpu(init_cuda):
 @_torch_skip
 def test_torch_tensor_bridge_decorator(init_cuda):
     """Verify tensor bridge works through the args_viewable_as_strided_memory decorator."""
+
     @args_viewable_as_strided_memory((0,))
     def fn(tensor, stream):
         return tensor.view(stream.handle)
