@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.error\_string
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: error_string
