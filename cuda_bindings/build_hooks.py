@@ -355,7 +355,10 @@ def _build_cuda_bindings(debug=False):
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
         extra_compile_args += [
             "-std=c++14",
             "-fpermissive",
@@ -428,7 +431,8 @@ def _build_cuda_bindings(debug=False):
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    debug = config_settings.get("debug", False) if config_settings else False
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
     _build_cuda_bindings(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 

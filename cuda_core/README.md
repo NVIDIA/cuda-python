@@ -12,12 +12,8 @@ This subpackage adheres to the developing practices described in the parent meta
 
 ## Debugging
 
-Editable installs have debuggable binaries by default.  To build a non-editable
-build, pass the `debug=True` configuration option to `pip` or `uv`:
-
-```
-pip install -v ./cuda_bindings -C="debug=True"
-```
+Pass the `pip` / `uv` configuration option `-C="debug=True"` explicitly to build debuggable binaries.
+Debuggable binaries are built by default for editable builds.
 
 Debuggable builds are not supported on Windows.
 

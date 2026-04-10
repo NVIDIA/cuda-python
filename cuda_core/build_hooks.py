@@ -138,7 +138,10 @@ def _build_cuda_core(debug=False):
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
         if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
@@ -266,7 +269,9 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_core(debug=True)
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    _build_cuda_core(debug=debug)
     wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
     # Patch the .pth file to add Cython include paths
