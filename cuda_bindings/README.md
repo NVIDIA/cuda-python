@@ -19,6 +19,8 @@ debug build, pass the `debug=True` configuration option to `pip` or `uv`:
 pip install -v ./cuda_bindings -C="debug=True"
 ```
 
+Debuggable builds are not supported on Windows.
+
 ## Testing
 
 Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.

@@ -19,6 +19,8 @@ build, pass the `debug=True` configuration option to `pip` or `uv`:
 pip install -v ./cuda_bindings -C="debug=True"
 ```
 
+Debuggable builds are not supported on Windows.
+
 ## Testing
 
 To run these tests:
