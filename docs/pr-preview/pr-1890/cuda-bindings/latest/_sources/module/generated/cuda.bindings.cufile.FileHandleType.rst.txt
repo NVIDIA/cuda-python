@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.FileHandleType
+===================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoenum:: FileHandleType
