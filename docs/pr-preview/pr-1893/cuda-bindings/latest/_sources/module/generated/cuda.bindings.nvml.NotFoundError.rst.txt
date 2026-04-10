@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NotFoundError
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: NotFoundError
