@@ -43,7 +43,17 @@ cdef dict _torch_type_cache = {}
 cdef object _torch_version_ok = None
 
 cdef inline bint _torch_version_check():
-    """Return True if torch >= 2.3 (AOTI ABI requirement). Memoized."""
+    """Return True if 2.3 <= torch <= 2.11 (known AOTI ABI range). Memoized.
+
+    Lower bound: AOTI functions we use were introduced in PyTorch 2.3.
+    Upper bound: the ``pyobj_to_aten_handle`` trick relies on the
+    THPVariable struct layout (PyObject_HEAD followed by at::Tensor cdata)
+    and the identity ``AtenTensorHandle == at::Tensor*``.  Both are
+    undocumented internals that could change in a future PyTorch version.
+    We cap at the latest version we have tested against; unknown versions
+    fall back to the standard DLPack/CAI paths.  Bump the upper bound
+    after verifying a new PyTorch release.
+    """
     global _torch_version_ok
     if _torch_version_ok is not None:
         return <bint>_torch_version_ok
@@ -54,7 +64,7 @@ cdef inline bint _torch_version_check():
     try:
         major, minor = int(torch.__version__.split(".")[0]), \
                        int(torch.__version__.split(".")[1])
-        _torch_version_ok = (major, minor) >= (2, 3)
+        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 11)
     except (ValueError, IndexError):
         _torch_version_ok = False
     return <bint>_torch_version_ok
