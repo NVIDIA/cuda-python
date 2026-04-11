@@ -4,6 +4,7 @@
 from collections import namedtuple
 
 import pytest
+
 from cuda.bindings import nvml
 from cuda.bindings._test_helpers.arch_check import unsupported_before  # noqa: F401
 
@@ -74,7 +75,7 @@ def get_devices(device_info):
 @pytest.fixture
 def all_devices(device_info):
     with NVMLInitializer():
-        yield sorted(list(set(get_devices(device_info))))
+        yield sorted(set(get_devices(device_info)))
 
 
 @pytest.fixture

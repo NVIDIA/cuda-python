@@ -4,9 +4,9 @@
 
 cimport cpython
 from cpython.object cimport PyObject
-from libc.stdint cimport int64_t, int32_t
+from libc.stdint cimport int64_t, int32_t, uint8_t, uint16_t, uint32_t
 
-from cuda.bindings cimport cydriver, cynvrtc, cynvvm
+from cuda.bindings cimport cydriver, cynvrtc, cynvvm, cynvjitlink
 
 
 ctypedef fused integer_t:
@@ -21,6 +21,8 @@ cdef const cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
 cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil
 cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil
 cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil
+cdef int HANDLE_RETURN_NVJITLINK(
+    cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil
 
 
 # TODO: stop exposing these within the codebase?
@@ -30,6 +32,8 @@ cpdef int _check_nvrtc_error(error) except?-1
 
 
 cpdef check_or_create_options(type cls, options, str options_description=*, bint keep_none=*)
+
+cpdef tuple _parse_fill_value(value)
 
 
 # Create low-level externs so Cython won't "helpfully" handle reference counting

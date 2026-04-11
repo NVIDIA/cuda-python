@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# ruff: noqa: F403, F405
-
 
 # NOTE: We must maintain that it is always possible to import this module
 # without CUDA being installed, and without CUDA being initialized or any
@@ -12,11 +10,11 @@
 
 
 __all__ = [
+    "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
     "get_driver_version",
     "get_driver_version_full",
     "get_num_devices",
     "get_process_name",
-    "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
 ]
 
 

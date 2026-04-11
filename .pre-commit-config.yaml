@@ -15,10 +15,11 @@ ci:
 # pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 5ba58aca0bd5bc7c0e1c0fc45af2e88d6a2bde83  # frozen: v0.14.10
+    rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
+        exclude: ^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$
       - id: ruff-format
 
   - repo: local
@@ -29,7 +30,7 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)'
         args: ["--fix"]
 
       - id: no-markdown-in-docs-source
@@ -58,7 +59,13 @@ repos:
       exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
-      exclude: *gen_exclude
+      exclude: |
+        (?x)^(?:
+          cuda_python/README\.md|
+          cuda_bindings/cuda/bindings/.*\.in?|
+          cuda_bindings/docs/source/module/.*\.rst?|
+          .*\.patch$
+        )$
 
   # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -69,7 +76,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: a66e98df7b4aeeb3724184b332785976d062b92e  # frozen: v1.19.1
+    rev: 8e5c80792e2ec0c87804d8ef915bf35e2caea6da  # frozen: v1.20.0
     hooks:
       - id: mypy
         name: mypy-pathfinder
@@ -77,14 +84,14 @@ repos:
         args: [--config-file=cuda_pathfinder/pyproject.toml]
 
   - repo: https://github.com/rhysd/actionlint
-    rev: "0933c147c9d6587653d45fdcb4c497c57a65f9af"  # frozen: v1.7.10
+    rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12
     hooks:
       - id: actionlint
         args: ["-shellcheck="]
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0
+    rev: "7c6152f6c8f9087684ff2e09a9227941e233bafb"  # frozen: v0.19.0
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]

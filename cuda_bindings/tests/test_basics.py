@@ -5,6 +5,7 @@ import enum
 import sys
 
 import pytest
+
 from cuda.bindings._internal import _fast_enum
 
 # Test both with the FastEnum implementation and the stdlib enum.IntEnum (even

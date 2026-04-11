@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# ruff: noqa: E402
 
 from .conftest import skip_if_nvml_unsupported
 

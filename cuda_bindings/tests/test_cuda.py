@@ -6,10 +6,11 @@ import platform
 import shutil
 import textwrap
 
-import cuda.bindings.driver as cuda
-import cuda.bindings.runtime as cudart
 import numpy as np
 import pytest
+
+import cuda.bindings.driver as cuda
+import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
 
 
@@ -619,7 +620,7 @@ def test_char_range():
     for x in range(-128, 0):
         val.reserved = [x] * 64
         assert val.reserved[0] == 256 + x
-    for x in range(0, 256):
+    for x in range(256):
         val.reserved = [x] * 64
         assert val.reserved[0] == x
 
@@ -1125,20 +1126,63 @@ def test_cuDevSmResourceSplit(device, ctx):
     err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    # Create group params for splitting into 1 group (simpler test)
+    # Test case 1: Split into 1 group
     nb_groups = 1
-    group_params = cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS()
+    group_params = [cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS()]
     # Set up group: request 4 SMs with coscheduled count of 2
-    group_params.smCount = 4
-    group_params.coscheduledSmCount = 2
+    group_params[0].smCount = 4
+    group_params[0].coscheduledSmCount = 2
 
-    # Split the resource
     err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    # Verify we got results
     assert len(res) == nb_groups
-    # Verify remainder is valid (may be None if no remainder)
     assert rem is not None or len(res) > 0
+
+    # Test case 2: Split into 2 groups (if device has enough SMs)
+    # First, get the device resource again for a fresh split
+    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    nb_groups = 2
+    group_params = [
+        cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS(),
+        cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS(),
+    ]
+    # First group: request 4 SMs with coscheduled count of 2
+    group_params[0].smCount = 4
+    group_params[0].coscheduledSmCount = 2
+    # Second group: request 4 SMs with coscheduled count of 2
+    group_params[1].smCount = 4
+    group_params[1].coscheduledSmCount = 2
+
+    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
+    # This may succeed or fail depending on device SM count, but should handle gracefully
+    if err == cuda.CUresult.CUDA_SUCCESS:
+        assert len(res) == nb_groups
+        assert rem is not None or len(res) > 0
+    else:
+        # If it fails, it should be due to insufficient resources, not a binding error
+        assert err in (
+            cuda.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION,
+            cuda.CUresult.CUDA_ERROR_INVALID_VALUE,
+        )
+
+    # Test case 3: Empty list (0 groups) - should handle gracefully
+    # Note: According to CUDA docs, nbGroups specifies number of groups, so 0 might not be valid
+    # But we test that the binding accepts an empty list without crashing
+    nb_groups = 0
+    group_params = []
+
+    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
+    # With 0 groups, result should be empty
+    if err == cuda.CUresult.CUDA_SUCCESS:
+        assert len(res) == 0
+    else:
+        # If it fails, it should be a valid CUDA error, not a Python binding error
+        assert err in (
+            cuda.CUresult.CUDA_ERROR_INVALID_VALUE,
+            cuda.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION,
+        )
 
 
 def test_buffer_reference():

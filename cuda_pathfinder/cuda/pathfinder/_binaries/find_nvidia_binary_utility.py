@@ -6,7 +6,7 @@ import os
 import shutil
 
 from cuda.pathfinder._binaries import supported_nvidia_binaries
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
@@ -97,7 +97,7 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
             dirs.append(os.path.join(conda_prefix, "bin"))
 
     # 3. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH)
-    if (cuda_home := get_cuda_home_or_path()) is not None:
+    if (cuda_home := get_cuda_path_or_home()) is not None:
         if IS_WINDOWS:
             dirs.append(os.path.join(cuda_home, "bin", "x64"))
             dirs.append(os.path.join(cuda_home, "bin", "x86_64"))

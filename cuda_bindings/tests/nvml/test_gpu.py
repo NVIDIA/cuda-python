@@ -3,6 +3,7 @@
 
 import numpy as np
 import pytest
+
 from cuda.bindings import nvml
 
 from . import util

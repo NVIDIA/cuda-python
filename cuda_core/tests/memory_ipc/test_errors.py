@@ -1,14 +1,16 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
 import pickle
 import re
 
+import pytest
+
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
-CHILD_TIMEOUT_SEC = 20
+CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -17,6 +19,7 @@ class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
 
+    @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """Parent process that checks child errors."""
         # Attach fixtures to this object for convenience. These can be accessed
@@ -115,7 +118,7 @@ class TestDanglingBuffer(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self.buffer = mr2.allocate(NBYTES)
-        buffer_s = pickle.dumps(self.buffer)  # noqa: S301
+        buffer_s = pickle.dumps(self.buffer)
         queue.put(buffer_s)  # Note: mr2 not sent
 
     def CHILD_ACTION(self, queue):

@@ -1,17 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import contextlib
 import ctypes
 import ctypes.util
 import os
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    LIBNAMES_REQUIRING_RTLD_DEEPBIND,
-    SUPPORTED_LINUX_SONAMES,
-)
+
+if TYPE_CHECKING:
+    from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -124,38 +125,41 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
     return os.path.join(l_origin, os.path.basename(l_name))
 
 
-def get_candidate_sonames(libname: str) -> list[str]:
-    # Reverse tabulated names to achieve new → old search order.
-    candidate_sonames = list(reversed(SUPPORTED_LINUX_SONAMES.get(libname, ())))
-    candidate_sonames.append(f"lib{libname}.so")
-    return candidate_sonames
+def _candidate_sonames(desc: LibDescriptor) -> list[str]:
+    # Reverse tabulated names to achieve new -> old search order.
+    candidates = list(reversed(desc.linux_sonames))
+    candidates.append(f"lib{desc.name}.so")
+    return candidates
 
 
-def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -> LoadedDL | None:
-    for soname in get_candidate_sonames(libname):
+def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
+    for soname in _candidate_sonames(desc):
         try:
             handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
         except OSError:
             continue
         else:
             return LoadedDL(
-                abs_path_for_dynamic_library(libname, handle), True, handle._handle, "was-already-loaded-from-elsewhere"
+                abs_path_for_dynamic_library(desc.name, handle),
+                True,
+                handle._handle,
+                "was-already-loaded-from-elsewhere",
             )
     return None
 
 
-def _load_lib(libname: str, filename: str) -> ctypes.CDLL:
+def _load_lib(desc: LibDescriptor, filename: str) -> ctypes.CDLL:
     cdll_mode = CDLL_MODE
-    if libname in LIBNAMES_REQUIRING_RTLD_DEEPBIND:
+    if desc.requires_rtld_deepbind:
         cdll_mode |= os.RTLD_DEEPBIND
     return ctypes.CDLL(filename, cdll_mode)
 
 
-def load_with_system_search(libname: str) -> LoadedDL | None:
-    """Try to load a library using system search paths.
+def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
+    """Try to load a library using the native Linux dynamic-loader search path.
 
     Args:
-        libname: The name of the library to load
+        desc: Descriptor for the library to load
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
@@ -163,15 +167,15 @@ def load_with_system_search(libname: str) -> LoadedDL | None:
     Raises:
         RuntimeError: If the library is loaded but no expected symbol is found
     """
-    for soname in get_candidate_sonames(libname):
+    for soname in _candidate_sonames(desc):
         try:
-            handle = _load_lib(libname, soname)
+            handle = _load_lib(desc, soname)
         except OSError:
             pass
         else:
-            abs_path = abs_path_for_dynamic_library(libname, handle)
+            abs_path = abs_path_for_dynamic_library(desc.name, handle)
             if abs_path is None:
-                raise RuntimeError(f"No expected symbol for {libname=!r}")
+                raise RuntimeError(f"No expected symbol for libname={desc.name!r}")
             return LoadedDL(abs_path, False, handle._handle, "system-search")
     return None
 
@@ -195,22 +199,23 @@ def _work_around_known_bugs(libname: str, found_path: str) -> None:
                     ctypes.CDLL(dep_path, CDLL_MODE)
 
 
-def load_with_abs_path(libname: str, found_path: str, found_via: str | None = None) -> LoadedDL:
+def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
-        libname: The name of the library to load
-        found_path: The absolute path to the library file
+        desc: Descriptor for the library to load.
+        found_path: The absolute path to the library file.
+        found_via: Label indicating how the path was discovered.
 
     Returns:
-        A LoadedDL object representing the loaded library
+        A LoadedDL object representing the loaded library.
 
     Raises:
-        RuntimeError: If the library cannot be loaded
+        RuntimeError: If the library cannot be loaded.
     """
-    _work_around_known_bugs(libname, found_path)
+    _work_around_known_bugs(desc.name, found_path)
     try:
-        handle = _load_lib(libname, found_path)
+        handle = _load_lib(desc, found_path)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
     return LoadedDL(found_path, False, handle._handle, found_via)

@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import List
 
 
-def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> subprocess.CompletedProcess:
+def run_command(cmd: List[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     print(f"Running: {' '.join(cmd)}")
     if cwd:
@@ -47,7 +47,7 @@ def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> sub
     return result
 
 
-def print_wheel_directory_structure(wheel_path: Path, filter_prefix: str = "cuda/core/", label: str = None):
+def print_wheel_directory_structure(wheel_path: Path, filter_prefix: str = "cuda/core/", label: str | None = None):
     """Print the directory structure of a wheel file, similar to unzip -l output.
 
     Args:

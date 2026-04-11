@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+preview = ["pixi-build"]
+channel-priority = "disabled"
+
+[feature.cu13.system-requirements]
+cuda = "13"
+
+[feature.cu13-pinned.dependencies]
+cuda-version = "13.1.*"
+
+[feature.cu13-source.dependencies]
+cuda-version = "13.*"
+
+[feature.bench.dependencies]
+python = "3.14.*"
+pyperf = "*"
+pytest = "*"
+pytest-benchmark = "*"
+numpy = "*"
+
+[feature.cpp-bench.dependencies]
+cmake = "*"
+ninja = "*"
+cxx-compiler = "*"
+cuda-cudart-dev = "*"
+
+[feature.cpp-bench.target.linux-64.dependencies]
+cuda-crt-dev_linux-64 = "*"
+cuda-driver-dev_linux-64 = "*"
+
+[feature.cpp-bench.target.linux-64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+
+[feature.dev.dependencies]
+pre-commit = "*"
+
+[feature.bindings-wheel.dependencies]
+cuda-bindings = "==13.1.0"
+
+[feature.bindings-source.dependencies]
+cuda-bindings = { path = ".." }
+
+[environments]
+wheel = { features = ["cu13", "cu13-pinned", "bench", "cpp-bench", "dev", "bindings-wheel"] }
+source = { features = ["cu13", "cu13-source", "bench", "cpp-bench", "dev", "bindings-source"] }
+
+[target.linux.tasks.bench]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
+
+[target.linux.tasks.bench-smoke-test]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py", "--fast", "--loops", "1", "--min-time", "0"
+]
+
+[target.linux.tasks.bench-legacy]
+cmd = "pytest --benchmark-only --override-ini 'addopts=' $PIXI_PROJECT_ROOT/pytest-legacy/"
+
+[target.linux.tasks.bench-cpp-configure]
+cmd = [
+    "cmake",
+    "-S",
+    "$PIXI_PROJECT_ROOT/benchmarks/cpp",
+    "-B",
+    "$PIXI_PROJECT_ROOT/.build/cpp",
+    "-G",
+    "Ninja",
+]
+
+[target.linux.tasks.bench-cpp-build]
+cmd = ["cmake", "--build", "$PIXI_PROJECT_ROOT/.build/cpp"]
+depends-on = [{ task = "bench-cpp-configure" }]
+
+[target.linux.tasks.bench-cpp]
+cmd = ["$PIXI_PROJECT_ROOT/.build/cpp/bench_pointer_attributes_cpp"]
+depends-on = [{ task = "bench-cpp-build" }]
+
+[target.linux.tasks.lint]
+cmd = ["pre-commit", "run", "--all-files"]

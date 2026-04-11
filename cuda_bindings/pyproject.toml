@@ -6,8 +6,10 @@ requires = [
     "setuptools_scm[simple]>=8",
     "cython>=3.2,<3.3",
     "pyclibrary>=0.1.7",
+    "cuda-pathfinder>=1.5",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "build_hooks"
+backend-path = ["."]
 
 [project]
 name = "cuda-bindings"
@@ -30,7 +32,7 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA",
 ]
 dynamic = ["version", "readme"]
-dependencies = ["cuda-pathfinder ~=1.1"]
+dependencies = ["cuda-pathfinder >=1.4.2"]
 
 [project.optional-dependencies]
 all = [
@@ -42,10 +44,12 @@ all = [
 test = [
     "cython>=3.2,<3.3",
     "setuptools>=77.0.0",
+    "matplotlib>=3.5.0",  # Required by isoFDModelling_test.py
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
     "pytest-repeat",
+    "pytest-randomly",
     "pyglet>=2.1.9",
 ]
 

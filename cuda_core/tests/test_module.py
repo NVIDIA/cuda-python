@@ -5,11 +5,13 @@ import ctypes
 import pickle
 import warnings
 
-import cuda.core
 import pytest
+
+import cuda.core
 from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
-from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
 
 try:
     import numba
@@ -31,13 +33,23 @@ __global__ void saxpy(const T a,
 """
 
 
+def _is_nvfatbin_available():
+    """Check if nvfatbin bindings are available."""
+    try:
+        from cuda.bindings import nvfatbin
+
+        nvfatbin.version()
+        return True
+    except Exception:
+        return False
+
+
+nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nvfatbin bindings not available")
+
+
 @pytest.fixture(scope="module")
 def cuda12_4_prerequisite_check():
-    # binding availability depends on cuda-python version
-    # and version of underlying CUDA toolkit
-    _py_major_ver, _ = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    return _py_major_ver >= 12 and _driver_ver >= 12040
+    return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
 
 
 def test_kernel_attributes_init_disabled():
@@ -60,7 +72,7 @@ def test_object_code_init_disabled():
         ObjectCode()  # Reject at front door.
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_cubin(init_cuda):
     # prepare program
     prog = Program(SAXPY_KERNEL, code_type="c++")
@@ -72,7 +84,7 @@ def get_saxpy_kernel_cubin(init_cuda):
     return mod.get_kernel("saxpy<float>"), mod
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_ptx(init_cuda):
     # prepare program
     prog = Program(SAXPY_KERNEL, code_type="c++")
@@ -84,12 +96,50 @@ def get_saxpy_kernel_ptx(init_cuda):
     return ptx, mod
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def get_saxpy_kernel_ltoir(init_cuda):
     # Create LTOIR code using link-time optimization
     prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
     mod = prog.compile("ltoir", name_expressions=("saxpy<float>", "saxpy<double>"))
     return mod
+
+
+@pytest.fixture
+def get_saxpy_fatbin(init_cuda):
+    from cuda.bindings import nvfatbin
+
+    dev = Device()
+    arch = dev.arch
+
+    # Pick a second arch different from the current device
+    second_arch = "75" if arch != "75" else "80"
+
+    # Compile to cubin for current device arch
+    prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{arch}"))
+    mod = prog.compile(
+        "cubin",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
+
+    # Compile to PTX targeting the second arch
+    ptx_mod = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(arch=f"sm_{second_arch}")).compile(
+        "ptx",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    ptx = ptx_mod.code
+
+    # Create fatbin with both cubin + PTX
+    handle = nvfatbin.create([], 0)
+    nvfatbin.add_cubin(handle, cubin, len(cubin), arch, "saxpy")
+    nvfatbin.add_ptx(handle, ptx, len(ptx), second_arch, "saxpy", f"-arch=sm_{second_arch}")
+    fatbin_size = nvfatbin.size(handle)
+    fatbin = bytearray(fatbin_size)
+    nvfatbin.get(handle, fatbin)
+    nvfatbin.destroy(handle)
+
+    return bytes(fatbin), sym_map
 
 
 def test_get_kernel(init_cuda):
@@ -222,6 +272,28 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     # ltoir doesn't support kernel retrieval directly as it's used for linking
 
 
+@nvfatbin_available
+def test_object_code_load_fatbin(get_saxpy_fatbin):
+    fatbin, sym_map = get_saxpy_fatbin
+    assert isinstance(fatbin, bytes)
+    mod_obj = ObjectCode.from_fatbin(fatbin, symbol_mapping=sym_map)
+    assert mod_obj.code == fatbin
+    assert mod_obj.code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+@nvfatbin_available
+def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path):
+    fatbin, sym_map = get_saxpy_fatbin
+    assert isinstance(fatbin, bytes)
+    fatbin_file = tmp_path / "test.fatbin"
+    fatbin_file.write_bytes(fatbin)
+    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(fatbin_file)
+    assert mod_obj.code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
     krn, _ = get_saxpy_kernel_cubin
 
@@ -275,8 +347,8 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_4_prerequis
     members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
 
     arg_info = krn.arguments_info
-    assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members)])
-    assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
+    assert all(actual.offset == expected.offset for actual, expected in zip(arg_info, members))
+    assert all(actual.size == expected.size for actual, expected in zip(arg_info, members))
 
 
 def test_num_args_error_handling(deinit_all_contexts_function, cuda12_4_prerequisite_check):
@@ -414,7 +486,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
 
 def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     _, objcode = get_saxpy_kernel_cubin
-    result = pickle.loads(pickle.dumps(objcode))  # noqa: S403, S301
+    result = pickle.loads(pickle.dumps(objcode))  # noqa: S301
 
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code
@@ -508,6 +580,42 @@ def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
 
     # All should reference the same underlying CUDA kernel handle
     assert int(kernel1.handle) == int(kernel2.handle) == int(kernel3.handle) == handle
+
+
+def test_kernel_from_handle_library_mismatch_warning(init_cuda):
+    """Kernel.from_handle warns when caller-supplied module differs from the kernel's library."""
+    prog1 = Program(SAXPY_KERNEL, code_type="c++")
+    mod1 = prog1.compile("cubin", name_expressions=("saxpy<float>",))
+    kernel = mod1.get_kernel("saxpy<float>")
+    handle = int(kernel.handle)
+
+    prog2 = Program(SAXPY_KERNEL, code_type="c++")
+    mod2 = prog2.compile("cubin", name_expressions=("saxpy<float>",))
+    mod2.get_kernel("saxpy<float>")
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        k = Kernel.from_handle(handle, mod2)
+        assert len(w) == 1
+        assert "does not match" in str(w[0].message)
+
+    assert k.attributes.max_threads_per_block() > 0
+
+
+def test_kernel_from_handle_foreign_kernel(init_cuda):
+    """Kernel.from_handle with a driver-level kernel not created by cuda.core."""
+    prog = Program(SAXPY_KERNEL, code_type="c++")
+    mod = prog.compile("cubin", name_expressions=("saxpy<float>",))
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
+
+    cu_lib = handle_return(driver.cuLibraryLoadData(cubin, [], [], 0, [], [], 0))
+    mangled = sym_map["saxpy<float>"]
+    cu_kernel = handle_return(driver.cuLibraryGetKernel(cu_lib, mangled))
+    handle = int(cu_kernel)
+
+    k = Kernel.from_handle(handle)
+    assert k.attributes.max_threads_per_block() > 0
 
 
 def test_kernel_keeps_library_alive(init_cuda):

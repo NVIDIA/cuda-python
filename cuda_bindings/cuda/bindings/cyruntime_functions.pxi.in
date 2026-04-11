@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 cdef extern from "cuda_runtime_api.h":
 
     {{if 'cudaDeviceReset' in found_functions}}
@@ -419,9 +419,19 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, int value) nogil
 
     {{endif}}
+    {{if 'cudaFuncGetParamCount' in found_functions}}
+
+    cudaError_t cudaFuncGetParamCount(const void* func, size_t* paramCount) nogil
+
+    {{endif}}
     {{if 'cudaLaunchHostFunc' in found_functions}}
 
     cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) nogil
+
+    {{endif}}
+    {{if 'cudaLaunchHostFunc_v2' in found_functions}}
+
+    cudaError_t cudaLaunchHostFunc_v2(cudaStream_t stream, cudaHostFn_t fn, void* userData, unsigned int syncMode) nogil
 
     {{endif}}
     {{if 'cudaFuncSetSharedMemConfig' in found_functions}}
@@ -637,6 +647,16 @@ cdef extern from "cuda_runtime_api.h":
     {{if 'cudaMemcpy3DBatchAsync' in found_functions}}
 
     cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, unsigned long long flags, cudaStream_t stream) nogil
+
+    {{endif}}
+    {{if 'cudaMemcpyWithAttributesAsync' in found_functions}}
+
+    cudaError_t cudaMemcpyWithAttributesAsync(void* dst, const void* src, size_t size, cudaMemcpyAttributes* attr, cudaStream_t stream) nogil
+
+    {{endif}}
+    {{if 'cudaMemcpy3DWithAttributesAsync' in found_functions}}
+
+    cudaError_t cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) nogil
 
     {{endif}}
     {{if 'cudaMemcpy2DAsync' in found_functions}}
@@ -1392,6 +1412,11 @@ cdef extern from "cuda_runtime_api.h":
     {{if 'cudaGraphNodeSetParams' in found_functions}}
 
     cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) nogil
+
+    {{endif}}
+    {{if 'cudaGraphNodeGetParams' in found_functions}}
+
+    cudaError_t cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) nogil
 
     {{endif}}
     {{if 'cudaGraphExecNodeSetParams' in found_functions}}

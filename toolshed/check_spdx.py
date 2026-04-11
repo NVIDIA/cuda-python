@@ -34,7 +34,7 @@ COPYRIGHT_REGEX = (
     rb"(?P<affiliation>NVIDIA CORPORATION( & AFFILIATES\. All rights reserved\.)?)"
 )
 COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
-CURRENT_YEAR = str(datetime.date.today().year)
+CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.timezone.utc).year)
 
 
 def is_staged(filepath):

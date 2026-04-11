@@ -54,5 +54,12 @@ def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
     if site.ENABLE_USER_SITE:
         user_site = site.getusersitepackages()
         if user_site:
-            parent_dirs.insert(0, user_site)
+            # Determine insertion index based on whether we're in a virtual environment (fixes #1716):
+            # - In venv (PEP 405): venv site-packages should come first, then user-site-packages,
+            #   then system site-packages. Insert at index 1 (after venv, before system).
+            # - Not in venv (PEP 370): user-site-packages should come before system site-packages.
+            #   Insert at index 0.
+            # Detect venv by checking if sys.prefix differs from sys.base_prefix
+            insert_idx = 1 if sys.prefix != sys.base_prefix else 0
+            parent_dirs.insert(insert_idx, user_site)
     return find_sub_dirs(parent_dirs, sub_dirs)

@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from functools import cache
 
 import pytest
+
 from cuda.bindings import nvml
 
 

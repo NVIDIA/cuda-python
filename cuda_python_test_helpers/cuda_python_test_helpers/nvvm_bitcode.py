@@ -5,6 +5,7 @@
 import binascii
 
 import pytest
+
 from cuda.bindings import nvvm
 
 MINIMAL_NVVMIR_TXT_TEMPLATE = b"""\
@@ -22,7 +23,7 @@ entry:
 
 !nvvmir.version = !{!1}
 !1 = !{i32 %d, i32 0, i32 %d, i32 0}
-"""  # noqa: E501
+"""
 
 MINIMAL_NVVMIR_BITCODE_STATIC = {
     (1, 3):  # (major, debug_major)
@@ -122,7 +123,7 @@ MINIMAL_NVVMIR_BITCODE_STATIC = {
 
 @pytest.fixture(params=("txt", "bitcode_static"))
 def minimal_nvvmir(request):
-    major, minor, debug_major, debug_minor = nvvm.ir_version()
+    major, _minor, debug_major, _debug_minor = nvvm.ir_version()
 
     if request.param == "txt":
         return MINIMAL_NVVMIR_TXT_TEMPLATE % (major, debug_major)

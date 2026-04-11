@@ -10,8 +10,9 @@ These tests only run on affected platforms (concurrent_managed_access is False).
 
 import warnings
 
-import cuda.bindings
 import pytest
+
+import cuda.bindings
 from cuda.core import Device, ManagedMemoryResource, ManagedMemoryResourceOptions
 from cuda.core._memory._managed_memory_resource import reset_concurrent_access_warning
 
@@ -41,6 +42,13 @@ def device_without_concurrent_managed_access(init_cuda):
         pytest.skip("Device supports concurrent managed access; warning not applicable")
 
     return device
+
+
+@requires_cuda_13
+def test_default_pool_error_without_concurrent_access(device_without_concurrent_managed_access):
+    """ManagedMemoryResource() raises RuntimeError when the default pool doesn't support managed."""
+    with pytest.raises(RuntimeError, match="does not support managed allocations"):
+        ManagedMemoryResource()
 
 
 @requires_cuda_13

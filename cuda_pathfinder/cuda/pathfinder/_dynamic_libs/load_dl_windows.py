@@ -1,16 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import ctypes
 import ctypes.wintypes
 import os
 import struct
+from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
-    SUPPORTED_WINDOWS_DLLS,
-)
+
+if TYPE_CHECKING:
+    from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
@@ -99,12 +101,12 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) -> LoadedDL | None:
-    for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
+def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None:
+    for dll_name in desc.windows_dlls:
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
-            abs_path = abs_path_for_dynamic_library(libname, handle)
-            if have_abs_path and libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
+            abs_path = abs_path_for_dynamic_library(desc.name, handle)
+            if have_abs_path and desc.requires_add_dll_directory:
                 # This is a side-effect if the pathfinder loads the library via
                 # load_with_abs_path(). To make the side-effect more deterministic,
                 # activate it even if the library was already loaded from elsewhere.
@@ -113,39 +115,46 @@ def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) ->
     return None
 
 
-def load_with_system_search(libname: str) -> LoadedDL | None:
-    """Try to load a DLL using system search paths.
+def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
+    """Try to load a DLL using the native Windows process DLL search path.
+
+    This calls ``LoadLibraryExW(dll_name, NULL, 0)`` directly. Under Python
+    3.8+, CPython configures the process with
+    ``SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)``, so this
+    search does **not** include the system ``PATH``. Directories added via
+    ``AddDllDirectory()`` still participate.
 
     Args:
-        libname: The name of the library to load
+        desc: Descriptor for the library to load
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    # Reverse tabulated names to achieve new → old search order.
-    for dll_name in reversed(SUPPORTED_WINDOWS_DLLS.get(libname, ())):
+    # Reverse tabulated names to achieve new -> old search order.
+    for dll_name in reversed(desc.windows_dlls):
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
-            abs_path = abs_path_for_dynamic_library(libname, handle)
+            abs_path = abs_path_for_dynamic_library(desc.name, handle)
             return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
 
     return None
 
 
-def load_with_abs_path(libname: str, found_path: str, found_via: str | None = None) -> LoadedDL:
+def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
-        libname: The name of the library to load
-        found_path: The absolute path to the DLL file
+        desc: Descriptor for the library to load.
+        found_path: The absolute path to the DLL file.
+        found_via: Label indicating how the path was discovered.
 
     Returns:
-        A LoadedDL object representing the loaded library
+        A LoadedDL object representing the loaded library.
 
     Raises:
-        RuntimeError: If the DLL cannot be loaded
+        RuntimeError: If the DLL cannot be loaded.
     """
-    if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
+    if desc.requires_add_dll_directory:
         add_dll_directory(found_path)
 
     flags = WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR

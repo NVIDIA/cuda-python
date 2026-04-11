@@ -7,4 +7,4 @@ from cuda.core._memory._ipc cimport IPCDataForMR
 
 
 cdef class PinnedMemoryResource(_MemPool):
-    pass
+    cdef int _numa_id

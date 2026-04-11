@@ -3,11 +3,96 @@
 
 # If we have subcategories of examples in the future, this file can be split along those lines
 
+import os
+import platform
+import sys
+import warnings
 from pathlib import Path
 
 import pytest
 
+from cuda.core import Device, ManagedMemoryResource, system
+
 from .utils import run_example
+
+try:
+    from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
+except ImportError:
+    # If the import fails, we define a dummy function that will cause all tests to be skipped.
+    def has_package_requirements_or_skip(example):
+        pytest.skip("PEP 723 test helper is not available")
+
+
+def has_compute_capability_9_or_higher() -> bool:
+    return Device().compute_capability >= (9, 0)
+
+
+def has_multiple_devices() -> bool:
+    return system.get_num_devices() >= 2
+
+
+def has_display() -> bool:
+    # We assume that we don't want to open any windows during testing,
+    # so we always return False
+    return False
+
+
+def is_not_windows() -> bool:
+    return sys.platform != "win32"
+
+
+def is_x86_64() -> bool:
+    return platform.machine() == "x86_64"
+
+
+def has_cuda_path() -> bool:
+    return os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME")) is not None
+
+
+def has_recent_memory_pool_support() -> bool:
+    device = Device()
+
+    try:
+        if not device.properties.host_memory_pools_supported:
+            return False
+        if not device.properties.memory_pools_supported:
+            return False
+        if not device.properties.concurrent_managed_access:
+            return False
+    except AttributeError:
+        return False
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            mr = ManagedMemoryResource()
+    except RuntimeError as exc:
+        if "requires CUDA 13.0" in str(exc):
+            return False
+        if "managed allocations" in str(exc):
+            return False
+        raise
+    else:
+        mr.close()
+        return True
+
+
+# Specific system requirements for each of the examples.
+
+
+SYSTEM_REQUIREMENTS = {
+    "memory_pool_resources.py": has_recent_memory_pool_support,
+    "gl_interop_plasma.py": has_display,
+    "pytorch_example.py": lambda: (
+        has_compute_capability_9_or_higher() and is_x86_64()
+    ),  # PyTorch only provides CUDA support for x86_64
+    "saxpy.py": has_compute_capability_9_or_higher,
+    "simple_multi_gpu_example.py": has_multiple_devices,
+    "strided_memory_view_cpu.py": is_not_windows,
+    "thread_block_cluster.py": lambda: has_compute_capability_9_or_higher() and has_cuda_path(),
+    "tma_tensor_map.py": has_cuda_path,
+}
+
 
 # not dividing, but navigating into the "examples" directory.
 EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "examples"
@@ -21,7 +106,12 @@ SAMPLE_FILES = sorted([str(p.relative_to(EXAMPLES_DIR)) for p in EXAMPLES_DIR.gl
 class TestExamples:
     # deinit_cuda is defined in conftest.py and pops the cuda context automatically.
     def test_example(self, example_rel_path: str, deinit_cuda) -> None:
-        from cuda.core import Device
+        example_path = str(EXAMPLES_DIR / example_rel_path)
+        has_package_requirements_or_skip(example_path)
+
+        system_requirement = SYSTEM_REQUIREMENTS.get(example_rel_path, lambda: True)
+        if not system_requirement():
+            pytest.skip(f"Skipping {example_rel_path} due to unmet system requirement")
 
         # redundantly set current device to 0 in case previous example was multi-GPU
         Device(0).set_current()

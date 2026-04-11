@@ -2,19 +2,20 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import contextlib
 import re
 import warnings
 
 import pytest
+
 from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
-from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
-cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 
@@ -33,12 +34,8 @@ nvvm_available = pytest.mark.skipif(
     not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
 )
 
-try:
-    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
-
-    _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
-except Exception:
-    _cuda_driver_version = 0
+with contextlib.suppress(Exception):
+    from cuda.core._utils.cuda_utils import nvrtc
 
 
 def _get_nvrtc_version_for_tests():
@@ -57,6 +54,22 @@ def _get_nvrtc_version_for_tests():
         return None
 
 
+def _has_nvrtc_pch_apis_for_tests():
+    required = (
+        "nvrtcGetPCHHeapSize",
+        "nvrtcSetPCHHeapSize",
+        "nvrtcGetPCHCreateStatus",
+        "nvrtcGetPCHHeapSizeRequired",
+    )
+    return all(hasattr(nvrtc, name) for name in required)
+
+
+nvrtc_pch_available = pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < 12800 or not _has_nvrtc_pch_apis_for_tests(),
+    reason="PCH runtime APIs require NVRTC >= 12.8 bindings",
+)
+
+
 _libnvvm_version = None
 _libnvvm_version_attempted = False
 
@@ -73,7 +86,7 @@ define void @dummy_kernel() {{
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
 
 def _get_libnvvm_version_for_tests():
@@ -179,7 +192,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
     return nvvm_ir_template.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
 
 
@@ -308,12 +321,31 @@ def test_cpp_program_with_pch_options(init_cuda, tmp_path):
 
     path = str(tmp_path / "test.pch")
 
-    for opts in (dict(create_pch=path), dict(use_pch=path)):
+    for opts in ({"create_pch": path}, {"use_pch": path}):
         options = ProgramOptions(**opts)
         program = Program(code, "c++", options)
         assert program.backend == "NVRTC"
         program.compile("ptx")
         program.close()
+
+
+@nvrtc_pch_available
+def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    pch_path = str(tmp_path / "test.pch")
+    program = Program(code, "c++", ProgramOptions(create_pch=pch_path))
+    assert program.pch_status is None  # not compiled yet
+    program.compile("ptx")
+    assert program.pch_status in ("created", "not_attempted", "failed")
+    program.close()
+
+
+def test_cpp_program_pch_status_none_without_pch(init_cuda):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    program.compile("ptx")
+    assert program.pch_status is None
+    program.close()
 
 
 options = [
@@ -391,6 +423,19 @@ def test_program_compile_invalid_target_type():
         program.compile("invalid_target")
 
 
+def test_nvrtc_compile_invalid_code(init_cuda):
+    """Compiling invalid C++ exercises the HANDLE_RETURN_NVRTC error path with compilation log."""
+    from cuda.core._utils.cuda_utils import NVRTCError
+
+    code = 'extern "C" __global__ void bad_kernel() { this_symbol_is_undefined(); }'
+    program = Program(code, "c++")
+    try:
+        with pytest.raises(NVRTCError, match="compilation log"):
+            program.compile("ptx")
+    finally:
+        program.close()
+
+
 def test_program_backend_property():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
@@ -428,7 +473,7 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
     assert program.handle is not None
     obj = program.compile("ptx")
     try:
-        ker = obj.get_kernel("simple")  # noqa: F841
+        ker = obj.get_kernel("simple")
     except CUDAError as e:
         if re.search(r"CUDA_ERROR_UNSUPPORTED_PTX_VERSION", str(e)):
             pytest.xfail("PTX version not supported by current CUDA Driver")
@@ -443,6 +488,20 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
     with pytest.raises(ValueError, match='Unsupported target_type="cubin" for NVVM'):
         program.compile("cubin")
     program.close()
+
+
+@nvvm_available
+def test_nvvm_compile_invalid_ir():
+    """Compiling invalid NVVM IR exercises the HANDLE_RETURN_NVVM error path."""
+    from cuda.bindings.nvvm import nvvmError
+
+    bad_ir = "this is not valid NVVM IR"
+    program = Program(bad_ir, "nvvm")
+    try:
+        with pytest.raises(nvvmError):
+            program.compile("ptx")
+    finally:
+        program.close()
 
 
 @nvvm_available
@@ -532,7 +591,7 @@ entry:
 
 !nvvmir.version = !{{!0}}
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     options = ProgramOptions(
         name="multi_module_test",
@@ -585,7 +644,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     helper1_ir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
@@ -598,7 +657,7 @@ entry:
 
 !nvvmir.version = !{{!0}}
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     helper2_ir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
@@ -611,7 +670,7 @@ entry:
 
 !nvvmir.version = !{{!0}}
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""  # noqa: E501
+"""
 
     options = ProgramOptions(
         name="nvvm_multi_helper_test",
@@ -635,7 +694,7 @@ entry:
 
 
 @nvvm_available
-def test_bitcode_format(minimal_nvvmir):  # noqa: F811
+def test_bitcode_format(minimal_nvvmir):
     from contextlib import ExitStack, closing
 
     if len(minimal_nvvmir) < 4:
@@ -661,7 +720,7 @@ def test_cpp_program_with_extra_sources():
     # negative test with NVRTC with multiple sources
     code = 'extern "C" __global__ void my_kernel(){}'
     helper = 'extern "C" __global__ void helper(){}'
-    options = ProgramOptions(extra_sources=helper)
+    options = ProgramOptions(extra_sources=[("helper", helper)])
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
 

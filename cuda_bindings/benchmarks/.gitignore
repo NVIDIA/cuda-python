@@ -1,0 +1,13 @@
+# Build artifacts
+.build/
+__pycache__/
+
+# Benchmark results
+*.json
+.benchmarks/
+
+# Pixi environments
+.pixi/
+
+# Override root .gitignore *.cpp rule (which targets Cython-generated files)
+!benchmarks/cpp/*.cpp

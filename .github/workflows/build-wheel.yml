@@ -48,6 +48,8 @@ jobs:
       # are exposed by this action.
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
+        with:
+          disable_annotations: 'true'
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
@@ -75,20 +77,26 @@ jobs:
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1
 
       - name: Set up yq
         # GitHub made an unprofessional decision to not provide it in their Windows VMs,
         # see https://github.com/actions/runner-images/issues/7443.
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         env:
-          # doesn't seem there's an easy way to avoid hard-coding it?
-          YQ_URL: https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe
-          YQ_DIR: yq_latest
+          YQ_VERSION: v4.52.5
+          YQ_SHA256: 47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c
+          YQ_DIR: yq
         shell: pwsh -command ". '{0}'"
         run: |
+          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_amd64.exe"
           mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
-          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$env:YQ_URL"
+          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$yqUrl"
+          $hash = (Get-FileHash -Algorithm SHA256 "${env:YQ_DIR}/yq.exe").Hash.ToLower()
+          if ($hash -ne $env:YQ_SHA256) {
+            Write-Error "SHA256 mismatch for yq: expected $env:YQ_SHA256, got $hash"
+            exit 1
+          }
           ls -l $env:YQ_DIR
           echo "$((Get-Location).Path)\\$env:YQ_DIR" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
@@ -136,7 +144,7 @@ jobs:
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder/*.whl
@@ -150,7 +158,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a  # v3.4.0
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -175,12 +183,21 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host/${{ env.SCCACHE_PATH }}" --show-stats
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.bindings)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_bindings.json
+          label: "cuda.bindings"
+          build-step: "Build cuda.bindings wheel"
 
       - name: List the cuda.bindings artifacts directory
         run: |
@@ -197,14 +214,14 @@ jobs:
           twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a  # v3.4.0
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -233,12 +250,21 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.core)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_core.json
+          label: "cuda.core"
+          build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
@@ -284,7 +310,7 @@ jobs:
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: cuda-python-wheel
           path: cuda_python/*.whl
@@ -322,7 +348,7 @@ jobs:
           popd
 
       - name: Upload cuda.bindings Cython tests
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
@@ -336,7 +362,7 @@ jobs:
           popd
 
       - name: Upload cuda.core Cython tests
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
@@ -369,7 +395,7 @@ jobs:
 
           OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s success -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
             echo "LATEST_PRIOR_RUN_ID not found!"
             exit 1
@@ -383,7 +409,7 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
+        uses: pypa/cibuildwheel@ee02a1537ce3071a004a6b08c41e72f0fdc42d9a  # v3.4.0
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -412,12 +438,21 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core_prev.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
           CIBW_TEST_COMMAND: >
             echo "ok!"
+
+      - name: Report sccache stats (cuda.core prev)
+        if: ${{ inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_core_prev.json
+          label: "cuda.core (prev CTK)"
+          build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
@@ -455,7 +490,7 @@ jobs:
           twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl

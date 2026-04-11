@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -14,7 +14,7 @@ inputs:
   cuda-components:
     description: "A list of the CTK components to install as a comma-separated list. e.g. 'cuda_nvcc,cuda_nvrtc,cuda_cudart'"
     required: false
-    default: "cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,libnvjitlink,libcufile,libnvfatbin"
+    default: "cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_cupti,libnvjitlink,libcufile,libnvfatbin"
   cuda-path:
     description: "where the CTK components will be installed to, relative to $PWD"
     required: false
@@ -60,7 +60,7 @@ runs:
 
     - name: Download CTK cache
       id: ctk-get-cache
-      uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+      uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
       continue-on-error: true
       with:
         key: ${{ env.CTK_CACHE_KEY }}
@@ -103,7 +103,7 @@ runs:
         function populate_cuda_path() {
           # take the component name as a argument
           function download() {
-            curl -kLSs $1 -o $2
+            curl -LSs $1 -o $2
           }
           CTK_COMPONENT=$1
           CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
@@ -142,7 +142,7 @@ runs:
     - name: Upload CTK cache
       if: ${{ !cancelled() &&
               steps.ctk-get-cache.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+      uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
       with:
         key: ${{ env.CTK_CACHE_KEY }}
         path: ./${{ env.CTK_CACHE_FILENAME }}

@@ -7,6 +7,7 @@ import os
 import time
 
 import pytest
+
 from cuda.bindings import nvml
 
 from . import util

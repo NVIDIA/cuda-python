@@ -4,15 +4,16 @@
 
 import math
 
-import cuda.core
 import pytest
+from helpers.latch import LatchKernel
+from helpers.nanosleep_kernel import NanosleepKernel
+
+import cuda.core
 from cuda.core import (
     Device,
     Event,
     EventOptions,
 )
-from helpers.latch import LatchKernel
-from helpers.nanosleep_kernel import NanosleepKernel
 
 
 def test_event_init_disabled():

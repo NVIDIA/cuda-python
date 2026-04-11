@@ -1,20 +1,22 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #
-# This demo illustrates how to use `cuda.core` to compile a CUDA kernel
-# and launch it using PyTorch tensors as inputs.
-#
-# ## Usage: pip install "cuda-core[cu12]"
-# ## python pytorch_example.py
+# This example demonstrates how to use cuda.core to compile a CUDA kernel
+# and launch it using PyTorch tensors as inputs. Requires PyTorch with CUDA.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "torch"]
+# ///
 
 import sys
 
 import torch
+
 from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # SAXPY kernel - passing a as a pointer to avoid any type issues
@@ -29,13 +31,6 @@ __global__ void saxpy_kernel(const T* a, const T* x, const T* y, T* out, size_t 
 }
 """
 
-dev = Device()
-dev.set_current()
-
-# Get PyTorch's current stream
-pt_stream = torch.cuda.current_stream()
-print(f"PyTorch stream: {pt_stream}")
-
 
 # Create a wrapper class that implements __cuda_stream__
 class PyTorchStreamWrapper:
@@ -47,66 +42,77 @@ class PyTorchStreamWrapper:
         return (0, stream_id)  # Return format required by CUDA Python
 
 
-s = dev.create_stream(PyTorchStreamWrapper(pt_stream))
+def main():
+    dev = Device()
+    dev.set_current()
 
-# prepare program
-program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
-prog = Program(code, code_type="c++", options=program_options)
-mod = prog.compile(
-    "cubin",
-    logs=sys.stdout,
-    name_expressions=("saxpy_kernel<float>", "saxpy_kernel<double>"),
-)
+    pt_stream = torch.cuda.current_stream()
+    print(f"PyTorch stream: {pt_stream}", file=sys.stderr)
 
-# Run in single precision
-ker = mod.get_kernel("saxpy_kernel<float>")
-dtype = torch.float32
+    stream = dev.create_stream(PyTorchStreamWrapper(pt_stream))
 
-# prepare input/output
-size = 64
-# Use a single element tensor for 'a'
-a = torch.tensor([10.0], dtype=dtype, device="cuda")
-x = torch.rand(size, dtype=dtype, device="cuda")
-y = torch.rand(size, dtype=dtype, device="cuda")
-out = torch.empty_like(x)
+    try:
+        # prepare program
+        program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
+        prog = Program(code, code_type="c++", options=program_options)
+        mod = prog.compile(
+            "cubin",
+            logs=sys.stdout,
+            name_expressions=("saxpy_kernel<float>", "saxpy_kernel<double>"),
+        )
 
-# prepare launch
-block = 32
-grid = int((size + block - 1) // block)
-config = LaunchConfig(grid=grid, block=block)
-ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+        # Run in single precision
+        kernel = mod.get_kernel("saxpy_kernel<float>")
+        dtype = torch.float32
 
-# launch kernel on our stream
-launch(s, config, ker, *ker_args)
+        # prepare input/output
+        size = 64
+        # Use a single element tensor for 'a'
+        a = torch.tensor([10.0], dtype=dtype, device="cuda")
+        x = torch.rand(size, dtype=dtype, device="cuda")
+        y = torch.rand(size, dtype=dtype, device="cuda")
+        out = torch.empty_like(x)
 
-# check result
-assert torch.allclose(out, a.item() * x + y)
-print("Single precision test passed!")
+        # prepare launch
+        block = 32
+        grid = int((size + block - 1) // block)
+        config = LaunchConfig(grid=grid, block=block)
+        kernel_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 
-# let's repeat again with double precision
-ker = mod.get_kernel("saxpy_kernel<double>")
-dtype = torch.float64
+        # launch kernel on our stream
+        launch(stream, config, kernel, *kernel_args)
 
-# prepare input
-size = 128
-# Use a single element tensor for 'a'
-a = torch.tensor([42.0], dtype=dtype, device="cuda")
-x = torch.rand(size, dtype=dtype, device="cuda")
-y = torch.rand(size, dtype=dtype, device="cuda")
+        # check result
+        assert torch.allclose(out, a.item() * x + y)
 
-# prepare output
-out = torch.empty_like(x)
+        # let's repeat again with double precision
+        kernel = mod.get_kernel("saxpy_kernel<double>")
+        dtype = torch.float64
 
-# prepare launch
-block = 64
-grid = int((size + block - 1) // block)
-config = LaunchConfig(grid=grid, block=block)
-ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+        # prepare input
+        size = 128
+        # Use a single element tensor for 'a'
+        a = torch.tensor([42.0], dtype=dtype, device="cuda")
+        x = torch.rand(size, dtype=dtype, device="cuda")
+        y = torch.rand(size, dtype=dtype, device="cuda")
 
-# launch kernel on PyTorch's stream
-launch(s, config, ker, *ker_args)
+        # prepare output
+        out = torch.empty_like(x)
 
-# check result
-assert torch.allclose(out, a * x + y)
-print("Double precision test passed!")
-print("All tests passed successfully!")
+        # prepare launch
+        block = 64
+        grid = int((size + block - 1) // block)
+        config = LaunchConfig(grid=grid, block=block)
+        kernel_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
+
+        # launch kernel on PyTorch's stream
+        launch(stream, config, kernel, *kernel_args)
+
+        # check result
+        assert torch.allclose(out, a * x + y)
+    finally:
+        stream.close()
+
+
+if __name__ == "__main__":
+    main()
