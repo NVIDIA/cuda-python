@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.batch\_io\_get\_status
-===========================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: batch_io_get_status
