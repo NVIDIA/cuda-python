@@ -6,7 +6,8 @@ name: "CI: Restricted Paths Guard"
 on:
   # Run on drafts too so maintainers get early awareness on WIP PRs.
   # Label updates on fork PRs require pull_request_target permissions.
-  pull_request_target:
+  # TODO BEFORE MERGING: change to pull_request_target
+  pull_request:
     types:
       - opened
       - synchronize
