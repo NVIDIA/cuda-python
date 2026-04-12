@@ -1,0 +1,1131 @@
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+from typing import Any, Optional
+import cython
+import ctypes
+from libc.stdlib cimport calloc, malloc, free
+from libc cimport string
+from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t, uintptr_t
+from libc.stddef cimport wchar_t
+from libc.limits cimport CHAR_MIN
+from libcpp.vector cimport vector
+from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
+from cpython.bytes cimport PyBytes_FromStringAndSize
+from ._internal._fast_enum import FastEnum as _FastEnum
+
+import cuda.bindings.driver as _driver
+_driver = _driver.__dict__
+include "_lib/utils.pxi"
+
+ctypedef unsigned long long signed_char_ptr
+ctypedef unsigned long long unsigned_char_ptr
+ctypedef unsigned long long char_ptr
+ctypedef unsigned long long short_ptr
+ctypedef unsigned long long unsigned_short_ptr
+ctypedef unsigned long long int_ptr
+ctypedef unsigned long long long_int_ptr
+ctypedef unsigned long long long_long_int_ptr
+ctypedef unsigned long long unsigned_int_ptr
+ctypedef unsigned long long unsigned_long_int_ptr
+ctypedef unsigned long long unsigned_long_long_int_ptr
+ctypedef unsigned long long uint32_t_ptr
+ctypedef unsigned long long uint64_t_ptr
+ctypedef unsigned long long int32_t_ptr
+ctypedef unsigned long long int64_t_ptr
+ctypedef unsigned long long unsigned_ptr
+ctypedef unsigned long long unsigned_long_long_ptr
+ctypedef unsigned long long long_long_ptr
+ctypedef unsigned long long size_t_ptr
+ctypedef unsigned long long long_ptr
+ctypedef unsigned long long float_ptr
+ctypedef unsigned long long double_ptr
+ctypedef unsigned long long void_ptr
+
+
+{{if 'nvrtcResult' in found_types}}
+
+class nvrtcResult(_FastEnum):
+    """
+    The enumerated type nvrtcResult defines API call result codes.
+    NVRTC API functions return nvrtcResult to indicate the call result.
+    """
+    {{if 'NVRTC_SUCCESS' in found_values}}
+    NVRTC_SUCCESS = cynvrtc.nvrtcResult.NVRTC_SUCCESS{{endif}}
+    {{if 'NVRTC_ERROR_OUT_OF_MEMORY' in found_values}}
+    NVRTC_ERROR_OUT_OF_MEMORY = cynvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY{{endif}}
+    {{if 'NVRTC_ERROR_PROGRAM_CREATION_FAILURE' in found_values}}
+    NVRTC_ERROR_PROGRAM_CREATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE{{endif}}
+    {{if 'NVRTC_ERROR_INVALID_INPUT' in found_values}}
+    NVRTC_ERROR_INVALID_INPUT = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT{{endif}}
+    {{if 'NVRTC_ERROR_INVALID_PROGRAM' in found_values}}
+    NVRTC_ERROR_INVALID_PROGRAM = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM{{endif}}
+    {{if 'NVRTC_ERROR_INVALID_OPTION' in found_values}}
+    NVRTC_ERROR_INVALID_OPTION = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION{{endif}}
+    {{if 'NVRTC_ERROR_COMPILATION' in found_values}}
+    NVRTC_ERROR_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION{{endif}}
+    {{if 'NVRTC_ERROR_BUILTIN_OPERATION_FAILURE' in found_values}}
+    NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE{{endif}}
+    {{if 'NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION' in found_values}}
+    NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION{{endif}}
+    {{if 'NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION' in found_values}}
+    NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION{{endif}}
+    {{if 'NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID' in found_values}}
+    NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = cynvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID{{endif}}
+    {{if 'NVRTC_ERROR_INTERNAL_ERROR' in found_values}}
+    NVRTC_ERROR_INTERNAL_ERROR = cynvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR{{endif}}
+    {{if 'NVRTC_ERROR_TIME_FILE_WRITE_FAILED' in found_values}}
+    NVRTC_ERROR_TIME_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED{{endif}}
+    {{if 'NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED' in found_values}}
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED{{endif}}
+    {{if 'NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED' in found_values}}
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED{{endif}}
+    {{if 'NVRTC_ERROR_PCH_CREATE' in found_values}}
+    NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE{{endif}}
+    {{if 'NVRTC_ERROR_CANCELLED' in found_values}}
+    NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED{{endif}}
+    {{if 'NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED' in found_values}}
+    NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED{{endif}}
+
+{{endif}}
+
+cdef object _nvrtcResult = nvrtcResult
+cdef object _nvrtcResult_SUCCESS = nvrtcResult.NVRTC_SUCCESS
+
+
+
+{{if 'nvrtcProgram' in found_types}}
+
+cdef class nvrtcProgram:
+    """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
+
+    To compile a CUDA program string, an instance of nvrtcProgram must be created first with nvrtcCreateProgram, then compiled with nvrtcCompileProgram.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+            self._pvt_ptr[0] = <cynvrtc.nvrtcProgram>init_value
+        else:
+            self._pvt_ptr = <cynvrtc.nvrtcProgram *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<nvrtcProgram ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, nvrtcProgram):
+            return False
+        return self._pvt_ptr[0] == (<nvrtcProgram>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
+    def __int__(self):
+        return <void_ptr>self._pvt_ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+{{endif}}
+
+{{if 'nvrtcGetErrorString' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetErrorString(result not None : nvrtcResult):
+    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to `"NVRTC_SUCCESS"`. For unrecognized enumeration values, it returns `"NVRTC_ERROR unknown"`.
+
+    Parameters
+    ----------
+    result : :py:obj:`~.nvrtcResult`
+        CUDA Runtime Compilation API result code.
+
+    Returns
+    -------
+    nvrtcResult.NVRTC_SUCCESS
+        nvrtcResult.NVRTC_SUCCESS
+    bytes
+        Message string for the given :py:obj:`~.nvrtcResult` code.
+    """
+    cdef cynvrtc.nvrtcResult cyresult = int(result)
+    with nogil:
+        err = cynvrtc.nvrtcGetErrorString(cyresult)
+    return (nvrtcResult.NVRTC_SUCCESS, err)
+{{endif}}
+
+{{if 'nvrtcVersion' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcVersion():
+    """ nvrtcVersion sets the output parameters `major` and `minor` with the CUDA Runtime Compilation version number.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    major : int
+        CUDA Runtime Compilation major version number.
+    minor : int
+        CUDA Runtime Compilation minor version number.
+    """
+    cdef int major = 0
+    cdef int minor = 0
+    with nogil:
+        err = cynvrtc.nvrtcVersion(&major, &minor)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None, None)
+    return (_nvrtcResult_SUCCESS, major, minor)
+{{endif}}
+
+{{if 'nvrtcGetNumSupportedArchs' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetNumSupportedArchs():
+    """ nvrtcGetNumSupportedArchs sets the output parameter `numArchs` with the number of architectures supported by NVRTC. This can then be used to pass an array to :py:obj:`~.nvrtcGetSupportedArchs` to get the supported architectures.
+
+    see :py:obj:`~.nvrtcGetSupportedArchs`
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    numArchs : int
+        number of supported architectures.
+    """
+    cdef int numArchs = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetNumSupportedArchs(&numArchs)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, numArchs)
+{{endif}}
+
+{{if 'nvrtcGetSupportedArchs' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetSupportedArchs():
+    """ nvrtcGetSupportedArchs populates the array passed via the output parameter `supportedArchs` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using :py:obj:`~.nvrtcGetNumSupportedArchs`.
+
+    see :py:obj:`~.nvrtcGetNumSupportedArchs`
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    supportedArchs : list[int]
+        sorted array of supported architectures.
+    """
+    cdef vector[int] supportedArchs
+    _, s = nvrtcGetNumSupportedArchs()
+    supportedArchs.resize(s)
+
+    with nogil:
+        err = cynvrtc.nvrtcGetSupportedArchs(supportedArchs.data())
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, supportedArchs)
+{{endif}}
+
+{{if 'nvrtcCreateProgram' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):
+    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter `prog` with it.
+
+    Parameters
+    ----------
+    src : bytes
+        CUDA program source.
+    name : bytes
+        CUDA program name.  `name` can be `NULL`; `"default_program"` is
+        used when `name` is `NULL` or "".
+    numHeaders : int
+        Number of headers used.  `numHeaders` must be greater than or equal
+        to 0.
+    headers : list[bytes]
+        Sources of the headers.  `headers` can be `NULL` when `numHeaders`
+        is 0.
+    includeNames : list[bytes]
+        Name of each header by which they can be included in the CUDA
+        program source.  `includeNames` can be `NULL` when `numHeaders` is
+        0. These headers must be included with the exact names specified
+        here.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_OUT_OF_MEMORY`
+        - :py:obj:`~.NVRTC_ERROR_PROGRAM_CREATION_FAILURE`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcDestroyProgram`
+    """
+    includeNames = [] if includeNames is None else includeNames
+    if not all(isinstance(_x, (bytes)) for _x in includeNames):
+        raise TypeError("Argument 'includeNames' is not instance of type (expected tuple[bytes] or list[bytes]")
+    headers = [] if headers is None else headers
+    if not all(isinstance(_x, (bytes)) for _x in headers):
+        raise TypeError("Argument 'headers' is not instance of type (expected tuple[bytes] or list[bytes]")
+    cdef nvrtcProgram prog = nvrtcProgram()
+    if numHeaders > len(headers): raise RuntimeError("List is too small: " + str(len(headers)) + " < " + str(numHeaders))
+    if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " < " + str(numHeaders))
+    cdef vector[const char*] cyheaders = headers
+    cdef vector[const char*] cyincludeNames = includeNames
+    with nogil:
+        err = cynvrtc.nvrtcCreateProgram(<cynvrtc.nvrtcProgram*>prog._pvt_ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, prog)
+{{endif}}
+
+{{if 'nvrtcDestroyProgram' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcDestroyProgram(prog):
+    """ nvrtcDestroyProgram destroys the given program.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcCreateProgram`
+    """
+    cdef cynvrtc.nvrtcProgram *cyprog
+    if prog is None:
+        cyprog = <cynvrtc.nvrtcProgram*><void_ptr>NULL
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = prog.getPtr()
+        cyprog = <cynvrtc.nvrtcProgram*><void_ptr>pprog
+    elif isinstance(prog, (int)):
+        cyprog = <cynvrtc.nvrtcProgram*><void_ptr>prog
+    else:
+        raise TypeError("Argument 'prog' is not instance of type (expected <class 'int, nvrtc.nvrtcProgram'>, found " + str(type(prog)))
+    with nogil:
+        err = cynvrtc.nvrtcDestroyProgram(cyprog)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcCompileProgram' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | list[bytes]]):
+    """ nvrtcCompileProgram compiles the given program.
+
+    It supports compile options listed in :py:obj:`~.Supported Compile
+    Options`.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    numOptions : int
+        Number of compiler options passed.
+    options : list[bytes]
+        Compiler options in the form of C string array.  `options` can be
+        `NULL` when `numOptions` is 0.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_OUT_OF_MEMORY`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_OPTION`
+        - :py:obj:`~.NVRTC_ERROR_COMPILATION`
+        - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE`
+        - :py:obj:`~.NVRTC_ERROR_TIME_FILE_WRITE_FAILED`
+        - :py:obj:`~.NVRTC_ERROR_CANCELLED`
+    """
+    options = [] if options is None else options
+    if not all(isinstance(_x, (bytes)) for _x in options):
+        raise TypeError("Argument 'options' is not instance of type (expected tuple[bytes] or list[bytes]")
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
+    cdef vector[const char*] cyoptions = options
+    with nogil:
+        err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetPTXSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPTXSize(prog):
+    """ nvrtcGetPTXSize sets the value of `ptxSizeRet` with the size of the PTX generated by the previous compilation of `prog` (including the trailing `NULL`).
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    ptxSizeRet : int
+        Size of the generated PTX (including the trailing `NULL`).
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetPTX`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t ptxSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetPTXSize(cyprog, &ptxSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, ptxSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetPTX' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPTX(prog, char* ptx):
+    """ nvrtcGetPTX stores the PTX generated by the previous compilation of `prog` in the memory pointed by `ptx`.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    ptx : bytes
+        Compiled result.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetPTXSize`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetPTX(cyprog, ptx)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetCUBINSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetCUBINSize(prog):
+    """ nvrtcGetCUBINSize sets the value of `cubinSizeRet` with the size of the cubin generated by the previous compilation of `prog`. The value of cubinSizeRet is set to 0 if the value specified to `-arch` is a virtual architecture instead of an actual architecture.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    cubinSizeRet : int
+        Size of the generated cubin.
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetCUBIN`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t cubinSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetCUBINSize(cyprog, &cubinSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, cubinSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetCUBIN' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetCUBIN(prog, char* cubin):
+    """ nvrtcGetCUBIN stores the cubin generated by the previous compilation of `prog` in the memory pointed by `cubin`. No cubin is available if the value specified to `-arch` is a virtual architecture instead of an actual architecture.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    cubin : bytes
+        Compiled and assembled result.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetCUBINSize`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetLTOIRSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetLTOIRSize(prog):
+    """ nvrtcGetLTOIRSize sets the value of `LTOIRSizeRet` with the size of the LTO IR generated by the previous compilation of `prog`. The value of LTOIRSizeRet is set to 0 if the program was not compiled with `-dlto`.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    LTOIRSizeRet : int
+        Size of the generated LTO IR.
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetLTOIR`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t LTOIRSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetLTOIRSize(cyprog, &LTOIRSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, LTOIRSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetLTOIR' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetLTOIR(prog, char* LTOIR):
+    """ nvrtcGetLTOIR stores the LTO IR generated by the previous compilation of `prog` in the memory pointed by `LTOIR`. No LTO IR is available if the program was compiled without `-dlto`.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    LTOIR : bytes
+        Compiled result.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetLTOIRSize`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetLTOIR(cyprog, LTOIR)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetOptiXIRSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetOptiXIRSize(prog):
+    """ nvrtcGetOptiXIRSize sets the value of `optixirSizeRet` with the size of the OptiX IR generated by the previous compilation of `prog`. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    optixirSizeRet : int
+        Size of the generated LTO IR.
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetOptiXIR`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t optixirSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetOptiXIRSize(cyprog, &optixirSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, optixirSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetOptiXIR' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetOptiXIR(prog, char* optixir):
+    """ nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of `prog` in the memory pointed by `optixir`. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    optixir : bytes
+        Optix IR Compiled result.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetOptiXIRSize`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetOptiXIR(cyprog, optixir)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetProgramLogSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetProgramLogSize(prog):
+    """ nvrtcGetProgramLogSize sets `logSizeRet` with the size of the log generated by the previous compilation of `prog` (including the trailing `NULL`).
+
+    Note that compilation log may be generated with warnings and
+    informative messages, even when the compilation of `prog` succeeds.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    logSizeRet : int
+        Size of the compilation log (including the trailing `NULL`).
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetProgramLog`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t logSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetProgramLogSize(cyprog, &logSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, logSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetProgramLog' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetProgramLog(prog, char* log):
+    """ nvrtcGetProgramLog stores the log generated by the previous compilation of `prog` in the memory pointed by `log`.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    log : bytes
+        Compilation log.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetProgramLogSize`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetProgramLog(cyprog, log)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcAddNameExpression' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcAddNameExpression(prog, char* name_expression):
+    """ nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.
+
+    The identical name expression string must be provided on a subsequent
+    call to nvrtcGetLoweredName to extract the lowered name.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    name_expression : bytes
+        constant expression denoting the address of a global function or
+        device/__constant__ variable.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+        - :py:obj:`~.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION`
+
+    See Also
+    --------
+    :py:obj:`~.nvrtcGetLoweredName`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcAddNameExpression(cyprog, name_expression)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetLoweredName' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetLoweredName(prog, char* name_expression):
+    """ nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates lowered_name to point to it. The memory containing the name is released when the NVRTC program is destroyed by nvrtcDestroyProgram. The identical name expression must have been previously provided to nvrtcAddNameExpression.
+
+    Parameters
+    ----------
+    prog : nvrtcProgram
+        CUDA Runtime Compilation program.
+    name_expression : bytes
+        constant expression denoting the address of a global function or
+        device/__constant__ variable.
+
+    Returns
+    -------
+    nvrtcResult
+        NVRTC_SUCCESS
+        NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+        NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+    lowered_name : bytes
+        initialized by the function to point to a C string containing the
+        lowered (mangled) name corresponding to the provided name
+        expression.
+
+    See Also
+    --------
+    nvrtcAddNameExpression
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef const char* lowered_name = NULL
+    with nogil:
+        err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, <bytes>lowered_name if lowered_name != NULL else None)
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPCHHeapSize():
+    """ retrieve the current size of the PCH Heap.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    ret : int
+        pointer to location where the size of the PCH Heap will be stored
+    """
+    cdef size_t ret = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetPCHHeapSize(&ret)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, ret)
+{{endif}}
+
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcSetPCHHeapSize(size_t size):
+    """ set the size of the PCH Heap.
+
+    The requested size may be rounded up to a platform dependent alignment
+    (e.g. page size). If the PCH Heap has already been allocated, the heap
+    memory will be freed and a new PCH Heap will be allocated.
+
+    Parameters
+    ----------
+    size : size_t
+        requested size of the PCH Heap, in bytes
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+    """
+    with nogil:
+        err = cynvrtc.nvrtcSetPCHHeapSize(size)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPCHCreateStatus(prog):
+    """ returns the PCH creation status.
+
+    NVRTC_SUCCESS indicates that the PCH was successfully created.
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
+    attempted, either because PCH functionality was not requested during
+    the preceding nvrtcCompileProgram call, or automatic PCH processing was
+    requested, and compiler chose not to create a PCH file.
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+    potentially have been created, but the compiler ran out space in the
+    PCH heap. In this scenario, the
+    :py:obj:`~.nvrtcGetPCHHeapSizeRequired()` can be used to query the
+    required heap size, the heap can be reallocated for this size with
+    :py:obj:`~.nvrtcSetPCHHeapSize()` and PCH creation may be reattempted
+    again invoking :py:obj:`~.nvrtcCompileProgram()` with a new NVRTC
+    program instance. NVRTC_ERROR_PCH_CREATE indicates that an error
+    condition prevented the PCH file from being created.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED`
+        - :py:obj:`~.NVRTC_ERROR_PCH_CREATE`
+        - :py:obj:`~.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetPCHCreateStatus(cyprog)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPCHHeapSizeRequired(prog):
+    """ retrieve the required size of the PCH heap required to compile the given program.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` The size retrieved using this function is only valid if :py:obj:`~.nvrtcGetPCHCreateStatus()` returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+    size : int
+        pointer to location where the required size of the PCH Heap will be
+        stored
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t size = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetPCHHeapSizeRequired(cyprog, &size)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, size)
+{{endif}}
+
+{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcSetFlowCallback(prog, callback, payload):
+    """ nvrtcSetFlowCallback registers a callback function that the compiler will invoke at different points during a call to nvrtcCompileProgram, and the callback function can decide whether to cancel compilation by returning specific values.
+
+    The callback function must satisfy the following constraints:
+
+    (1) Its signature should be:
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    When invoking the callback, the compiler will always pass `payload` to
+    param1 so that the callback may make decisions based on `payload` .
+    It'll always pass NULL to param2 for now which is reserved for future
+    extensions.
+
+    (2) It must return 1 to cancel compilation or 0 to continue. Other
+    return values are reserved for future use.
+
+    (3) It must return consistent values. Once it returns 1 at one point,
+    it must return 1 in all following invocations during the current
+    nvrtcCompileProgram call in progress.
+
+    (4) It must be thread-safe.
+
+    (5) It must not invoke any nvrtc/libnvvm/ptx APIs.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    callback : Any
+        the callback that issues cancellation signal.
+    payload : Any
+        to be passed as a parameter when invoking the callback.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef _HelperInputVoidPtrStruct cycallbackHelper
+    cdef void* cycallback = _helper_input_void_ptr(callback, &cycallbackHelper)
+    cdef _HelperInputVoidPtrStruct cypayloadHelper
+    cdef void* cypayload = _helper_input_void_ptr(payload, &cypayloadHelper)
+    with nogil:
+        err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback, cypayload)
+    _helper_input_void_ptr_free(&cycallbackHelper)
+    _helper_input_void_ptr_free(&cypayloadHelper)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetTileIRSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetTileIRSize(prog):
+    """
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        None
+
+    Returns
+    -------
+    nvrtcResult
+
+    TileIRSizeRet : int
+        None
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t TileIRSizeRet = 0
+    with nogil:
+        err = cynvrtc.nvrtcGetTileIRSize(cyprog, &TileIRSizeRet)
+    if err != cynvrtc.NVRTC_SUCCESS:
+        return (_nvrtcResult(err), None)
+    return (_nvrtcResult_SUCCESS, TileIRSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetTileIR' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetTileIR(prog, char* TileIR):
+    """
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        None
+    TileIR : bytes
+        None
+
+    Returns
+    -------
+    nvrtcResult
+
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        pprog = 0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+    else:
+        pprog = int(nvrtcProgram(prog))
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    with nogil:
+        err = cynvrtc.nvrtcGetTileIR(cyprog, TileIR)
+    return (_nvrtcResult(err),)
+{{endif}}
+
+@cython.embedsignature(True)
+def sizeof(objType):
+    """ Returns the size of provided CUDA Python structure in bytes
+
+    Parameters
+    ----------
+    objType : Any
+        CUDA Python object
+
+    Returns
+    -------
+    lowered_name : int
+        The size of `objType` in bytes
+    """
+    {{if 'nvrtcProgram' in found_types}}
+    if objType == nvrtcProgram:
+        return sizeof(cynvrtc.nvrtcProgram){{endif}}
+    raise TypeError("Unknown type: " + str(objType))

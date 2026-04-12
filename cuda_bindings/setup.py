@@ -59,6 +59,7 @@ class build_py(_build_py):
 
 setup(
     ext_modules=build_hooks._extensions,
+    package_dir={"": "src"},
     cmdclass={
         "build_ext": build_ext,
         "build_py": build_py,

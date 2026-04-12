@@ -58,6 +58,7 @@ Repository = "https://github.com/NVIDIA/cuda-python"
 Documentation = "https://nvidia.github.io/cuda-python/"
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["cuda*"]
 
 [tool.setuptools]
@@ -92,7 +93,7 @@ xfail_strict = true
 
 [tool.setuptools_scm]
 root = ".."
-version_file = "cuda/bindings/_version.py"
+version_file = "src/cuda/bindings/_version.py"
 # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
 tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
