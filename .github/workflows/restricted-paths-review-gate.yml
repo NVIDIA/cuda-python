@@ -4,9 +4,9 @@
 name: "CI: Restricted Paths Review Gate"
 
 on:
-  # Temporary for PR-level testing before this workflow exists on the base
-  # branch. Switch back to pull_request_target before merging.
-  pull_request:
+  # Keep this separate from pr-metadata-check.yml so only the
+  # Needs-Restricted-Paths-Review policy becomes merge-blocking.
+  pull_request_target:
     types:
       - opened
       - synchronize
