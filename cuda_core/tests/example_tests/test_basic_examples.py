@@ -103,16 +103,15 @@ SAMPLE_FILES = sorted([str(p.relative_to(EXAMPLES_DIR)) for p in EXAMPLES_DIR.gl
 
 
 @pytest.mark.parametrize("example_rel_path", SAMPLE_FILES)
-class TestExamples:
-    # deinit_cuda is defined in conftest.py and pops the cuda context automatically.
-    def test_example(self, example_rel_path: str, deinit_cuda) -> None:
-        example_path = str(EXAMPLES_DIR / example_rel_path)
-        has_package_requirements_or_skip(example_path)
+# deinit_cuda is defined in conftest.py and pops the cuda context automatically.
+def test_example(example_rel_path: str, deinit_cuda) -> None:
+    example_path = str(EXAMPLES_DIR / example_rel_path)
+    has_package_requirements_or_skip(example_path)
 
-        system_requirement = SYSTEM_REQUIREMENTS.get(example_rel_path, lambda: True)
-        if not system_requirement():
-            pytest.skip(f"Skipping {example_rel_path} due to unmet system requirement")
+    system_requirement = SYSTEM_REQUIREMENTS.get(example_rel_path, lambda: True)
+    if not system_requirement():
+        pytest.skip(f"Skipping {example_rel_path} due to unmet system requirement")
 
-        # redundantly set current device to 0 in case previous example was multi-GPU
-        Device(0).set_current()
-        run_example(str(EXAMPLES_DIR), example_rel_path)
+    # redundantly set current device to 0 in case previous example was multi-GPU
+    Device(0).set_current()
+    run_example(str(EXAMPLES_DIR), example_rel_path)
