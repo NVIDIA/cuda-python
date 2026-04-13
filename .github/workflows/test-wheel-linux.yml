@@ -267,7 +267,7 @@ jobs:
         run: |
           pip install pyperf
           pushd cuda_bindings/benchmarks
-          python run_pyperf.py --fast --loops 1 --min-time 1
+          python run_pyperf.py --fast --min-time 1
           popd
 
       - name: Run cuda.core tests
