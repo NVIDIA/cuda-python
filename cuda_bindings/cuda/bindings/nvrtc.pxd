@@ -6,8 +6,6 @@ cimport cuda.bindings.cynvrtc as cynvrtc
 
 include "_lib/utils.pxd"
 
-
-
 cdef class nvrtcProgram:
     """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
 
