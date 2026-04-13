@@ -129,11 +129,39 @@ Each subclass exposes attributes unique to its operation type.
    graph.SwitchNode
 
 
+Graphics interoperability
+-------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   GraphicsResource
+
+
+Tensor Memory Accelerator (TMA)
+-------------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   TensorMapDescriptor
+
+   :template: dataclass.rst
+
+   TensorMapDescriptorOptions
+
+
 CUDA compilation toolchain
 --------------------------
 
 .. autosummary::
    :toctree: generated/
+
+   :template: autosummary/cyclass.rst
 
    Program
    Linker

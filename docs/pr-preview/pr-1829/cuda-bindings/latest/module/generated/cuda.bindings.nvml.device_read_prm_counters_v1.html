@@ -210,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -420,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -550,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1274,18 +1289,15 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_read_prm_counters_v1">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_read_prm_counters_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRMCounter_v1</span> <span class="pre">counters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_read_prm_counters_v1" title="Link to this definition">#</a></dt>
-<dd><p>Read a list of GPU PRM Counters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<em>intptr_t</em>) – Identifer of target GPU device.</p></li>
-<li><p><strong>counters</strong> (<a class="reference internal" href="cuda.bindings.nvml.PRMCounter_v1.html#cuda.bindings.nvml.PRMCounter_v1" title="cuda.bindings.nvml.PRMCounter_v1"><em>PRMCounter_v1</em></a>) – Array holding the input parameters as well as the retrieved counter values.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceReadPRMCounters_v1</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Read a list of GPU PRM Counters.
+
+:param device: Identifer of target GPU device.
+:type device: intptr_t
+:param counters: Array holding the input parameters as well as the retrieved counter values.
+:type counters: PRMCounter_v1
+
+.. seealso:: `nvmlDeviceReadPRMCounters_v1`
+</pre></div>
 </div>
 </dd></dl>
 
