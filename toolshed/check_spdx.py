@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import PureWindowsPath
 
 import pathspec
 
@@ -50,10 +51,11 @@ def is_staged(filepath):
 
 
 def normalize_repo_path(filepath):
-    normalized_path = filepath.replace("\\", "/")
-    while normalized_path.startswith("./"):
-        normalized_path = normalized_path[2:]
-    return normalized_path
+    # We compare against repo prefixes like "cuda_core/" regardless of host OS.
+    # os.path.normpath is host-dependent: on POSIX it leaves "\" untouched, and
+    # on Windows it normalizes to "\" separators, so neither gives a stable
+    # forward-slash form for this prefix check.
+    return PureWindowsPath(filepath).as_posix()
 
 
 def get_expected_license_identifier(filepath):
