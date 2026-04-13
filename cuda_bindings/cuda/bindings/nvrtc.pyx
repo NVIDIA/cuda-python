@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -44,58 +44,58 @@ ctypedef unsigned long long double_ptr
 ctypedef unsigned long long void_ptr
 
 
-{{if 'nvrtcResult' in found_types}}
+
 
 class nvrtcResult(_FastEnum):
     """
     The enumerated type nvrtcResult defines API call result codes.
     NVRTC API functions return nvrtcResult to indicate the call result.
     """
-    {{if 'NVRTC_SUCCESS' in found_values}}
-    NVRTC_SUCCESS = cynvrtc.nvrtcResult.NVRTC_SUCCESS{{endif}}
-    {{if 'NVRTC_ERROR_OUT_OF_MEMORY' in found_values}}
-    NVRTC_ERROR_OUT_OF_MEMORY = cynvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY{{endif}}
-    {{if 'NVRTC_ERROR_PROGRAM_CREATION_FAILURE' in found_values}}
-    NVRTC_ERROR_PROGRAM_CREATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE{{endif}}
-    {{if 'NVRTC_ERROR_INVALID_INPUT' in found_values}}
-    NVRTC_ERROR_INVALID_INPUT = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT{{endif}}
-    {{if 'NVRTC_ERROR_INVALID_PROGRAM' in found_values}}
-    NVRTC_ERROR_INVALID_PROGRAM = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM{{endif}}
-    {{if 'NVRTC_ERROR_INVALID_OPTION' in found_values}}
-    NVRTC_ERROR_INVALID_OPTION = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION{{endif}}
-    {{if 'NVRTC_ERROR_COMPILATION' in found_values}}
-    NVRTC_ERROR_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION{{endif}}
-    {{if 'NVRTC_ERROR_BUILTIN_OPERATION_FAILURE' in found_values}}
-    NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE{{endif}}
-    {{if 'NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION' in found_values}}
-    NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION{{endif}}
-    {{if 'NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION' in found_values}}
-    NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION{{endif}}
-    {{if 'NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID' in found_values}}
-    NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = cynvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID{{endif}}
-    {{if 'NVRTC_ERROR_INTERNAL_ERROR' in found_values}}
-    NVRTC_ERROR_INTERNAL_ERROR = cynvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR{{endif}}
-    {{if 'NVRTC_ERROR_TIME_FILE_WRITE_FAILED' in found_values}}
-    NVRTC_ERROR_TIME_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED{{endif}}
-    {{if 'NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED' in found_values}}
-    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED{{endif}}
-    {{if 'NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED' in found_values}}
-    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED{{endif}}
-    {{if 'NVRTC_ERROR_PCH_CREATE' in found_values}}
-    NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE{{endif}}
-    {{if 'NVRTC_ERROR_CANCELLED' in found_values}}
-    NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED{{endif}}
-    {{if 'NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED' in found_values}}
-    NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED{{endif}}
+    
+    NVRTC_SUCCESS = cynvrtc.nvrtcResult.NVRTC_SUCCESS
+    
+    NVRTC_ERROR_OUT_OF_MEMORY = cynvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY
+    
+    NVRTC_ERROR_PROGRAM_CREATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+    
+    NVRTC_ERROR_INVALID_INPUT = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT
+    
+    NVRTC_ERROR_INVALID_PROGRAM = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
+    
+    NVRTC_ERROR_INVALID_OPTION = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION
+    
+    NVRTC_ERROR_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION
+    
+    NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
+    
+    NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
+    
+    NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+    
+    NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = cynvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+    
+    NVRTC_ERROR_INTERNAL_ERROR = cynvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR
+    
+    NVRTC_ERROR_TIME_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED
+    
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED
+    
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+    
+    NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE
+    
+    NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED
+    
+    NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
 
-{{endif}}
+
 
 cdef object _nvrtcResult = nvrtcResult
 cdef object _nvrtcResult_SUCCESS = nvrtcResult.NVRTC_SUCCESS
 
 
 
-{{if 'nvrtcProgram' in found_types}}
+
 
 cdef class nvrtcProgram:
     """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
@@ -130,9 +130,9 @@ cdef class nvrtcProgram:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
-{{endif}}
 
-{{if 'nvrtcGetErrorString' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):
@@ -154,9 +154,9 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
     with nogil:
         err = cynvrtc.nvrtcGetErrorString(cyresult)
     return (nvrtcResult.NVRTC_SUCCESS, err)
-{{endif}}
 
-{{if 'nvrtcVersion' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcVersion():
@@ -179,9 +179,9 @@ def nvrtcVersion():
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None, None)
     return (_nvrtcResult_SUCCESS, major, minor)
-{{endif}}
 
-{{if 'nvrtcGetNumSupportedArchs' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetNumSupportedArchs():
@@ -203,9 +203,9 @@ def nvrtcGetNumSupportedArchs():
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, numArchs)
-{{endif}}
 
-{{if 'nvrtcGetSupportedArchs' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetSupportedArchs():
@@ -230,9 +230,9 @@ def nvrtcGetSupportedArchs():
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, supportedArchs)
-{{endif}}
 
-{{if 'nvrtcCreateProgram' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):
@@ -288,9 +288,9 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, prog)
-{{endif}}
 
-{{if 'nvrtcDestroyProgram' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcDestroyProgram(prog):
@@ -324,9 +324,9 @@ def nvrtcDestroyProgram(prog):
     with nogil:
         err = cynvrtc.nvrtcDestroyProgram(cyprog)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcCompileProgram' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | list[bytes]]):
@@ -374,9 +374,9 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
     with nogil:
         err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetPTXSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetPTXSize(prog):
@@ -414,9 +414,9 @@ def nvrtcGetPTXSize(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, ptxSizeRet)
-{{endif}}
 
-{{if 'nvrtcGetPTX' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetPTX(prog, char* ptx):
@@ -451,9 +451,9 @@ def nvrtcGetPTX(prog, char* ptx):
     with nogil:
         err = cynvrtc.nvrtcGetPTX(cyprog, ptx)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetCUBINSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetCUBINSize(prog):
@@ -491,9 +491,9 @@ def nvrtcGetCUBINSize(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, cubinSizeRet)
-{{endif}}
 
-{{if 'nvrtcGetCUBIN' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetCUBIN(prog, char* cubin):
@@ -528,9 +528,9 @@ def nvrtcGetCUBIN(prog, char* cubin):
     with nogil:
         err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetLTOIRSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetLTOIRSize(prog):
@@ -568,9 +568,9 @@ def nvrtcGetLTOIRSize(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, LTOIRSizeRet)
-{{endif}}
 
-{{if 'nvrtcGetLTOIR' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetLTOIR(prog, char* LTOIR):
@@ -605,9 +605,9 @@ def nvrtcGetLTOIR(prog, char* LTOIR):
     with nogil:
         err = cynvrtc.nvrtcGetLTOIR(cyprog, LTOIR)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetOptiXIRSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetOptiXIRSize(prog):
@@ -645,9 +645,9 @@ def nvrtcGetOptiXIRSize(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, optixirSizeRet)
-{{endif}}
 
-{{if 'nvrtcGetOptiXIR' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetOptiXIR(prog, char* optixir):
@@ -682,9 +682,9 @@ def nvrtcGetOptiXIR(prog, char* optixir):
     with nogil:
         err = cynvrtc.nvrtcGetOptiXIR(cyprog, optixir)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetProgramLogSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLogSize(prog):
@@ -725,9 +725,9 @@ def nvrtcGetProgramLogSize(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, logSizeRet)
-{{endif}}
 
-{{if 'nvrtcGetProgramLog' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLog(prog, char* log):
@@ -762,9 +762,9 @@ def nvrtcGetProgramLog(prog, char* log):
     with nogil:
         err = cynvrtc.nvrtcGetProgramLog(cyprog, log)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcAddNameExpression' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcAddNameExpression(prog, char* name_expression):
@@ -804,9 +804,9 @@ def nvrtcAddNameExpression(prog, char* name_expression):
     with nogil:
         err = cynvrtc.nvrtcAddNameExpression(cyprog, name_expression)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetLoweredName' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetLoweredName(prog, char* name_expression):
@@ -849,9 +849,9 @@ def nvrtcGetLoweredName(prog, char* name_expression):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, <bytes>lowered_name if lowered_name != NULL else None)
-{{endif}}
 
-{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetPCHHeapSize():
@@ -871,9 +871,9 @@ def nvrtcGetPCHHeapSize():
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, ret)
-{{endif}}
 
-{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcSetPCHHeapSize(size_t size):
@@ -896,9 +896,9 @@ def nvrtcSetPCHHeapSize(size_t size):
     with nogil:
         err = cynvrtc.nvrtcSetPCHHeapSize(size)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetPCHCreateStatus(prog):
@@ -944,9 +944,9 @@ def nvrtcGetPCHCreateStatus(prog):
     with nogil:
         err = cynvrtc.nvrtcGetPCHCreateStatus(cyprog)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetPCHHeapSizeRequired(prog):
@@ -981,9 +981,9 @@ def nvrtcGetPCHHeapSizeRequired(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, size)
-{{endif}}
 
-{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcSetFlowCallback(prog, callback, payload):
@@ -1044,9 +1044,9 @@ def nvrtcSetFlowCallback(prog, callback, payload):
     _helper_input_void_ptr_free(&cycallbackHelper)
     _helper_input_void_ptr_free(&cypayloadHelper)
     return (_nvrtcResult(err),)
-{{endif}}
 
-{{if 'nvrtcGetTileIRSize' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetTileIRSize(prog):
@@ -1078,9 +1078,9 @@ def nvrtcGetTileIRSize(prog):
     if err != cynvrtc.NVRTC_SUCCESS:
         return (_nvrtcResult(err), None)
     return (_nvrtcResult_SUCCESS, TileIRSizeRet)
-{{endif}}
 
-{{if 'nvrtcGetTileIR' in found_functions}}
+
+
 
 @cython.embedsignature(True)
 def nvrtcGetTileIR(prog, char* TileIR):
@@ -1109,7 +1109,7 @@ def nvrtcGetTileIR(prog, char* TileIR):
     with nogil:
         err = cynvrtc.nvrtcGetTileIR(cyprog, TileIR)
     return (_nvrtcResult(err),)
-{{endif}}
+
 
 @cython.embedsignature(True)
 def sizeof(objType):
@@ -1125,7 +1125,7 @@ def sizeof(objType):
     lowered_name : int
         The size of `objType` in bytes
     """
-    {{if 'nvrtcProgram' in found_types}}
+    
     if objType == nvrtcProgram:
-        return sizeof(cynvrtc.nvrtcProgram){{endif}}
+        return sizeof(cynvrtc.nvrtcProgram)
     raise TypeError("Unknown type: " + str(objType))
