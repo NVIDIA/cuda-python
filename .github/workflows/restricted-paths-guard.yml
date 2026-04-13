@@ -12,6 +12,8 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+      - labeled
+      - unlabeled
 
 jobs:
   restricted-paths-guard:
@@ -21,16 +23,21 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Inspect PR author signals for restricted paths
+      - name: Inspect PR author bot signals for restricted paths
         env:
-          # PR metadata inputs
-          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_LABEL_NAME: ${{ github.event.label.name || '' }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
 
           # Workflow policy inputs
           REVIEW_LABEL: Needs-Restricted-Paths-Review
+          MEMBER_SIGNAL_LABEL: PR-Author-In-NVIDIA-Org
+          NON_MEMBER_SIGNAL_LABEL: PR-Author-Outside-NVIDIA-Org
+          FAILURE_SIGNAL_LABEL: PR-Author-Org-Check-Failure
+          SIGNAL_POLL_INTERVAL_SECONDS: 5
+          SIGNAL_POLL_ATTEMPTS: 12
 
           # API request context/auth
           GH_TOKEN: ${{ github.token }}
@@ -38,62 +45,45 @@ jobs:
         run: |
           set -euo pipefail
 
-          if ! MATCHING_RESTRICTED_PATHS=$(
-            gh api \
-              --paginate \
-              --jq '
-                .[]
-                | select(
-                    (.filename | startswith("cuda_bindings/"))
-                    or ((.previous_filename // "") | startswith("cuda_bindings/"))
-                    or (.filename | startswith("cuda_python/"))
-                    or ((.previous_filename // "") | startswith("cuda_python/"))
-                  )
-                | if (.previous_filename // "") != "" then
-                    "\(.previous_filename) -> \(.filename)"
-                  else
-                    .filename
-                  end
-              ' \
-              "repos/$REPO/pulls/$PR_NUMBER/files"
-          ); then
-            echo "::error::Failed to inspect the PR file list."
-            {
-              echo "## Restricted Paths Guard Failed"
-              echo ""
-              echo "- **Error**: Failed to inspect the PR file list."
-              echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
-              echo ""
-              echo "Please update the PR at: $PR_URL"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
+          TOUCHES_RESTRICTED_PATHS="not re-evaluated"
+          MATCHING_RESTRICTED_PATHS=""
+          TRUSTED_SIGNALS="(none)"
+          BOT_SIGNAL_STATUS="not checked"
+          REVIEW_DECISION="not evaluated"
+          LABEL_ACTION="not needed"
+          MANUAL_FOLLOW_UP=""
+          NOTE=""
+          CURRENT_LABELS="(unknown)"
 
-          # Fetch live PR labels to avoid stale event payload (race condition
-          # when labels are changed shortly before the workflow runs).
-          if ! LIVE_LABELS=$(
+          should_recheck_for_label_event() {
+            case "$EVENT_LABEL_NAME" in
+              "$MEMBER_SIGNAL_LABEL"|"$NON_MEMBER_SIGNAL_LABEL"|"$FAILURE_SIGNAL_LABEL")
+                return 0
+                ;;
+            esac
+            return 1
+          }
+
+          fetch_live_labels() {
             gh pr view "${PR_NUMBER}" --repo "${REPO}" \
               --json labels \
               --jq '[.labels[].name]'
-          ); then
-            echo "::error::Failed to inspect the current PR labels."
-            {
-              echo "## Restricted Paths Guard Failed"
-              echo ""
-              echo "- **Error**: Failed to inspect the current PR labels."
-              echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
-              echo ""
-              echo "Please update the PR at: $PR_URL"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
+          }
 
-          TOUCHES_RESTRICTED_PATHS=false
-          if [ -n "$MATCHING_RESTRICTED_PATHS" ]; then
-            TOUCHES_RESTRICTED_PATHS=true
-          fi
+          label_present() {
+            local label="$1"
+            jq -e --arg label "$label" '.[] == $label' <<<"$LIVE_LABELS" >/dev/null
+          }
+
+          format_live_labels() {
+            jq -r '
+              if length == 0 then
+                "(none)"
+              else
+                join(", ")
+              end
+            ' <<<"$LIVE_LABELS"
+          }
 
           write_matching_restricted_paths() {
             echo "- **Matched restricted paths**:"
@@ -102,72 +92,262 @@ jobs:
             echo '```'
           }
 
-          HAS_TRUSTED_SIGNAL=false
-          LABEL_ACTION="not needed (no restricted paths)"
-          TRUSTED_SIGNALS="(none)"
+          refresh_label_flags() {
+            REVIEW_LABEL_PRESENT=false
+            MEMBER_LABEL_PRESENT=false
+            NON_MEMBER_LABEL_PRESENT=false
+            FAILURE_LABEL_PRESENT=false
 
-          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
-            case "$AUTHOR_ASSOCIATION" in
-              COLLABORATOR|MEMBER|OWNER)
-                HAS_TRUSTED_SIGNAL=true
-                LABEL_ACTION="not needed (author association is a trusted signal)"
-                TRUSTED_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
-                ;;
-            esac
-          fi
+            if label_present "$REVIEW_LABEL"; then
+              REVIEW_LABEL_PRESENT=true
+            fi
+            if label_present "$MEMBER_SIGNAL_LABEL"; then
+              MEMBER_LABEL_PRESENT=true
+            fi
+            if label_present "$NON_MEMBER_SIGNAL_LABEL"; then
+              NON_MEMBER_LABEL_PRESENT=true
+            fi
+            if label_present "$FAILURE_SIGNAL_LABEL"; then
+              FAILURE_LABEL_PRESENT=true
+            fi
+          }
 
-          NEEDS_REVIEW_LABEL=false
-          if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ] && [ "$HAS_TRUSTED_SIGNAL" = "false" ]; then
-            NEEDS_REVIEW_LABEL=true
-          fi
-
-          LABEL_ALREADY_PRESENT=false
-          if jq -e --arg label "$REVIEW_LABEL" '.[] == $label' <<<"$LIVE_LABELS" >/dev/null; then
-            LABEL_ALREADY_PRESENT=true
-          fi
-
-          if [ "$NEEDS_REVIEW_LABEL" = "true" ]; then
-            if [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
-              LABEL_ACTION="already present"
-            elif ! gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
-              echo "::error::Failed to add the $REVIEW_LABEL label."
-              {
-                echo "## Restricted Paths Guard Failed"
-                echo ""
-                echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
-                echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
+          complete_and_exit() {
+            {
+              echo "## Restricted Paths Guard Completed"
+              echo ""
+              echo "- **Author**: $PR_AUTHOR"
+              echo "- **Action**: $EVENT_ACTION"
+              if [ -n "$EVENT_LABEL_NAME" ]; then
+                echo "- **Event label**: \`$EVENT_LABEL_NAME\`"
+              fi
+              echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
+              echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+              echo "- **Trusted signals**: $TRUSTED_SIGNALS"
+              echo "- **Bot signal status**: $BOT_SIGNAL_STATUS"
+              echo "- **Review decision**: $REVIEW_DECISION"
+              echo "- **Current labels**: $CURRENT_LABELS"
+              echo "- **Label action**: $LABEL_ACTION"
+              if [ -n "$NOTE" ]; then
+                echo "- **Note**: $NOTE"
+              fi
+              if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
                 echo ""
                 write_matching_restricted_paths
+              fi
+              if [ -n "$MANUAL_FOLLOW_UP" ]; then
                 echo ""
-                echo "Please update the PR at: $PR_URL"
-              } >> "$GITHUB_STEP_SUMMARY"
-              exit 1
-            else
-              LABEL_ACTION="added"
+                echo "- **Manual follow-up**: $MANUAL_FOLLOW_UP"
+              fi
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          }
+
+          fail_and_exit() {
+            echo "::error::$FAILURE_REASON"
+            {
+              echo "## Restricted Paths Guard Failed"
+              echo ""
+              echo "- **Author**: $PR_AUTHOR"
+              echo "- **Action**: $EVENT_ACTION"
+              if [ -n "$EVENT_LABEL_NAME" ]; then
+                echo "- **Event label**: \`$EVENT_LABEL_NAME\`"
+              fi
+              echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
+              echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
+              echo "- **Trusted signals**: $TRUSTED_SIGNALS"
+              echo "- **Bot signal status**: $BOT_SIGNAL_STATUS"
+              echo "- **Current labels**: $CURRENT_LABELS"
+              echo "- **Error**: $FAILURE_REASON"
+              if [ -n "$NOTE" ]; then
+                echo "- **Note**: $NOTE"
+              fi
+              if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
+                echo ""
+                write_matching_restricted_paths
+              fi
+              echo ""
+              echo "$FAILURE_GUIDANCE"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+
+          load_live_labels() {
+            if ! LIVE_LABELS=$(fetch_live_labels); then
+              FAILURE_REASON="Failed to inspect the current PR labels."
+              FAILURE_GUIDANCE="Please update the PR at: $PR_URL"
+              fail_and_exit
             fi
-          elif [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
-            LABEL_ACTION="left in place (manual removal required)"
+            CURRENT_LABELS=$(format_live_labels)
+            refresh_label_flags
+          }
+
+          inspect_restricted_paths() {
+            if ! MATCHING_RESTRICTED_PATHS=$(
+              gh api \
+                --paginate \
+                --jq '
+                  .[]
+                  | select(
+                      (.filename | startswith("cuda_bindings/"))
+                      or ((.previous_filename // "") | startswith("cuda_bindings/"))
+                      or (.filename | startswith("cuda_python/"))
+                      or ((.previous_filename // "") | startswith("cuda_python/"))
+                    )
+                  | if (.previous_filename // "") != "" then
+                      "\(.previous_filename) -> \(.filename)"
+                    else
+                      .filename
+                    end
+                ' \
+                "repos/$REPO/pulls/$PR_NUMBER/files"
+            ); then
+              FAILURE_REASON="Failed to inspect the PR file list."
+              FAILURE_GUIDANCE="Please update the PR at: $PR_URL"
+              fail_and_exit
+            fi
+
+            if [ -n "$MATCHING_RESTRICTED_PATHS" ]; then
+              TOUCHES_RESTRICTED_PATHS=true
+            else
+              TOUCHES_RESTRICTED_PATHS=false
+            fi
+          }
+
+          ensure_review_label_present() {
+            if [ "$REVIEW_LABEL_PRESENT" = "true" ]; then
+              LABEL_ACTION="already present"
+              return
+            fi
+
+            if ! gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "$REVIEW_LABEL"; then
+              FAILURE_REASON="Failed to add the \`$REVIEW_LABEL\` label."
+              FAILURE_GUIDANCE="Please update the PR at: $PR_URL"
+              fail_and_exit
+            fi
+
+            LABEL_ACTION="added"
+            load_live_labels
+          }
+
+          load_live_labels
+
+          if [ "$EVENT_ACTION" = "labeled" ] || [ "$EVENT_ACTION" = "unlabeled" ]; then
+            if ! should_recheck_for_label_event; then
+              BOT_SIGNAL_STATUS="ignored unrelated label event"
+              NOTE="Only membership-bot label changes trigger re-evaluation."
+              complete_and_exit
+            fi
           fi
 
-          {
-            echo "## Restricted Paths Guard Completed"
-            echo ""
-            echo "- **Author**: $PR_AUTHOR"
-            echo "- **Author association**: $AUTHOR_ASSOCIATION"
-            echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
-            echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
-            echo "- **Trusted signals**: $TRUSTED_SIGNALS"
-            echo "- **Label action**: $LABEL_ACTION"
-            if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
-              echo ""
-              write_matching_restricted_paths
+          if [ "$REVIEW_LABEL_PRESENT" = "true" ]; then
+            BOT_SIGNAL_STATUS="existing review label short-circuits reevaluation"
+            REVIEW_DECISION="manual review already required"
+            LABEL_ACTION="left in place (manual removal required)"
+            MANUAL_FOLLOW_UP="Existing \`$REVIEW_LABEL\` was left in place intentionally because this workflow does not inspect every commit. Remove it manually after reviewing the PR for restricted-paths policy compliance."
+            complete_and_exit
+          fi
+
+          if [ "$MEMBER_LABEL_PRESENT" = "true" ] && [ "$NON_MEMBER_LABEL_PRESENT" = "true" ]; then
+            BOT_SIGNAL_STATUS="conflicting terminal labels detected"
+            FAILURE_REASON="Conflicting membership bot labels are present."
+            FAILURE_GUIDANCE="Keep only one of \`$MEMBER_SIGNAL_LABEL\` or \`$NON_MEMBER_SIGNAL_LABEL\`, then rerun the workflow. In rare rescue cases, maintainers may set the correct one manually."
+            NOTE="Both \`$MEMBER_SIGNAL_LABEL\` and \`$NON_MEMBER_SIGNAL_LABEL\` are present."
+            fail_and_exit
+          fi
+
+          if [ "$MEMBER_LABEL_PRESENT" = "true" ]; then
+            TRUSTED_SIGNALS="label:$MEMBER_SIGNAL_LABEL"
+            BOT_SIGNAL_STATUS="member label already present"
+            REVIEW_DECISION="not needed (membership bot confirmed org membership)"
+            if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+              NOTE="Ignoring \`$FAILURE_SIGNAL_LABEL\` because \`$MEMBER_SIGNAL_LABEL\` is already present."
             fi
-            if [ "$NEEDS_REVIEW_LABEL" = "true" ]; then
-              echo ""
-              echo "- **Manual follow-up**: No trusted signal was found, so \`$REVIEW_LABEL\` is required."
-            elif [ "$LABEL_ALREADY_PRESENT" = "true" ]; then
-              echo ""
-              echo "- **Manual follow-up**: Existing \`$REVIEW_LABEL\` was left in place intentionally because this workflow does not inspect every commit. Remove it manually after reviewing the PR for restricted-paths policy compliance."
+            complete_and_exit
+          fi
+
+          inspect_restricted_paths
+
+          if [ "$TOUCHES_RESTRICTED_PATHS" = "false" ]; then
+            BOT_SIGNAL_STATUS="restricted paths not touched"
+            REVIEW_DECISION="not needed (restricted paths not touched)"
+            if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+              NOTE="Existing \`$FAILURE_SIGNAL_LABEL\` does not block this workflow because no restricted paths were touched."
             fi
-          } >> "$GITHUB_STEP_SUMMARY"
+            complete_and_exit
+          fi
+
+          if [ "$NON_MEMBER_LABEL_PRESENT" = "true" ]; then
+            BOT_SIGNAL_STATUS="non-member label already present"
+            REVIEW_DECISION="needed (membership bot confirmed the author is outside the NVIDIA org)"
+            if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+              NOTE="Ignoring \`$FAILURE_SIGNAL_LABEL\` because \`$NON_MEMBER_SIGNAL_LABEL\` is already present."
+            fi
+            ensure_review_label_present
+            MANUAL_FOLLOW_UP="Restricted-paths review is required before merge because the PR author is outside the NVIDIA org."
+            complete_and_exit
+          fi
+
+          if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+            BOT_SIGNAL_STATUS="failure label already present"
+            FAILURE_REASON="The membership bot reported an explicit failure."
+            FAILURE_GUIDANCE="Rerun this workflow after the membership bot recovers, or manually apply either \`$MEMBER_SIGNAL_LABEL\` or \`$NON_MEMBER_SIGNAL_LABEL\` if the outcome is known."
+            fail_and_exit
+          fi
+
+          BOT_SIGNAL_STATUS="waiting up to $((SIGNAL_POLL_INTERVAL_SECONDS * SIGNAL_POLL_ATTEMPTS)) seconds for membership-bot labels"
+          attempt=0
+          while [ "$attempt" -lt "$SIGNAL_POLL_ATTEMPTS" ]; do
+            sleep "$SIGNAL_POLL_INTERVAL_SECONDS"
+            attempt=$((attempt + 1))
+            load_live_labels
+
+            if [ "$REVIEW_LABEL_PRESENT" = "true" ]; then
+              BOT_SIGNAL_STATUS="existing review label detected during wait"
+              REVIEW_DECISION="manual review already required"
+              LABEL_ACTION="left in place (manual removal required)"
+              MANUAL_FOLLOW_UP="Existing \`$REVIEW_LABEL\` was left in place intentionally because this workflow does not inspect every commit. Remove it manually after reviewing the PR for restricted-paths policy compliance."
+              complete_and_exit
+            fi
+
+            if [ "$MEMBER_LABEL_PRESENT" = "true" ] && [ "$NON_MEMBER_LABEL_PRESENT" = "true" ]; then
+              BOT_SIGNAL_STATUS="conflicting terminal labels detected during wait"
+              FAILURE_REASON="Conflicting membership bot labels are present."
+              FAILURE_GUIDANCE="Keep only one of \`$MEMBER_SIGNAL_LABEL\` or \`$NON_MEMBER_SIGNAL_LABEL\`, then rerun the workflow. In rare rescue cases, maintainers may set the correct one manually."
+              NOTE="Both \`$MEMBER_SIGNAL_LABEL\` and \`$NON_MEMBER_SIGNAL_LABEL\` are present."
+              fail_and_exit
+            fi
+
+            if [ "$MEMBER_LABEL_PRESENT" = "true" ]; then
+              TRUSTED_SIGNALS="label:$MEMBER_SIGNAL_LABEL"
+              BOT_SIGNAL_STATUS="member label detected after $attempt polling attempt(s)"
+              REVIEW_DECISION="not needed (membership bot confirmed org membership)"
+              if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+                NOTE="Ignoring \`$FAILURE_SIGNAL_LABEL\` because \`$MEMBER_SIGNAL_LABEL\` is already present."
+              fi
+              complete_and_exit
+            fi
+
+            if [ "$NON_MEMBER_LABEL_PRESENT" = "true" ]; then
+              BOT_SIGNAL_STATUS="non-member label detected after $attempt polling attempt(s)"
+              REVIEW_DECISION="needed (membership bot confirmed the author is outside the NVIDIA org)"
+              if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+                NOTE="Ignoring \`$FAILURE_SIGNAL_LABEL\` because \`$NON_MEMBER_SIGNAL_LABEL\` is already present."
+              fi
+              ensure_review_label_present
+              MANUAL_FOLLOW_UP="Restricted-paths review is required before merge because the PR author is outside the NVIDIA org."
+              complete_and_exit
+            fi
+
+            if [ "$FAILURE_LABEL_PRESENT" = "true" ]; then
+              BOT_SIGNAL_STATUS="failure label detected after $attempt polling attempt(s)"
+              FAILURE_REASON="The membership bot reported an explicit failure."
+              FAILURE_GUIDANCE="Rerun this workflow after the membership bot recovers, or manually apply either \`$MEMBER_SIGNAL_LABEL\` or \`$NON_MEMBER_SIGNAL_LABEL\` if the outcome is known."
+              fail_and_exit
+            fi
+          done
+
+          BOT_SIGNAL_STATUS="timed out waiting for membership-bot labels"
+          FAILURE_REASON="Timed out waiting for the membership bot to publish a terminal result."
+          FAILURE_GUIDANCE="Rerun this workflow later. If the bot remains unavailable, maintainers can manually apply either \`$MEMBER_SIGNAL_LABEL\` or \`$NON_MEMBER_SIGNAL_LABEL\`."
+          fail_and_exit

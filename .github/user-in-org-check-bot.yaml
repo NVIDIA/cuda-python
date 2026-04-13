@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Configuration file for `user-in-org-check-bot` GitHub App.
+
+enabled: true
+org: NVIDIA
+member_label: PR-Author-In-NVIDIA-Org
+# Make non-member outcomes explicit so the restricted-paths workflow can
+# distinguish them from missing/delayed bot results.
+non_member_label: PR-Author-Outside-NVIDIA-Org
+# Fail closed if the bot cannot determine organization membership cleanly.
+error_label: PR-Author-Org-Check-Failure
