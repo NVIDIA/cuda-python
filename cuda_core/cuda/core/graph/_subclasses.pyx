@@ -727,12 +727,12 @@ cdef class IfElseNode(ConditionalNode):
 
     @property
     def then(self) -> "GraphDef":
-        """The 'then' branch graph (executed when condition is non-zero)."""
+        """The ``then`` branch graph (executed when condition is non-zero)."""
         return self._branches[0]
 
     @property
     def else_(self) -> "GraphDef":
-        """The 'else' branch graph (executed when condition is zero)."""
+        """The ``else`` branch graph (executed when condition is zero)."""
         return self._branches[1]
 
 

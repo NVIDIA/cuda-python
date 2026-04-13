@@ -12,6 +12,7 @@ cdef struct _MemAttrs:
     int device_id
     bint is_device_accessible
     bint is_host_accessible
+    bint is_managed
 
 
 cdef class Buffer:

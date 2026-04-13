@@ -8,10 +8,11 @@ import os
 import platform
 import subprocess
 import sys
+import warnings
 
 import pytest
 
-from cuda.core import Device, system
+from cuda.core import Device, ManagedMemoryResource, system
 
 try:
     from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
@@ -47,10 +48,39 @@ def has_cuda_path() -> bool:
     return os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME")) is not None
 
 
+def has_recent_memory_pool_support() -> bool:
+    device = Device()
+
+    try:
+        if not device.properties.host_memory_pools_supported:
+            return False
+        if not device.properties.memory_pools_supported:
+            return False
+        if not device.properties.concurrent_managed_access:
+            return False
+    except AttributeError:
+        return False
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            mr = ManagedMemoryResource()
+    except RuntimeError as exc:
+        if "requires CUDA 13.0" in str(exc):
+            return False
+        if "managed allocations" in str(exc):
+            return False
+        raise
+    else:
+        mr.close()
+        return True
+
+
 # Specific system requirements for each of the examples.
 
 
 SYSTEM_REQUIREMENTS = {
+    "memory_pool_resources.py": has_recent_memory_pool_support,
     "gl_interop_plasma.py": has_display,
     "pytorch_example.py": lambda: (
         has_compute_capability_9_or_higher() and is_x86_64()

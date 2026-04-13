@@ -33,13 +33,41 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 _extensions = None
 
 
+# Please keep in sync with the copy in cuda_core/build_hooks.py.
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
+    """
+    try:
+        import cuda.pathfinder
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.pathfinder"):
+            raise
+        try:
+            import cuda
+        except ModuleNotFoundError:
+            cuda = None
+
+        for p in sys.path:
+            sp_cuda = os.path.join(p, "cuda")
+            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+                break
+        else:
+            raise ModuleNotFoundError(
+                "cuda-pathfinder is not installed in the build environment. "
+                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
+            )
+        import cuda.pathfinder
+
+    return cuda.pathfinder.get_cuda_path_or_home
+
+
 @functools.cache
 def _get_cuda_path() -> str:
-    # Not using cuda.pathfinder.get_cuda_path_or_home() here because this
-    # build backend runs in an isolated venv where the cuda namespace package
-    # from backend-path shadows the installed cuda-pathfinder. See #1803 for
-    # a workaround to apply after cuda-pathfinder >= 1.5 is released.
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
     if not cuda_path:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
@@ -283,7 +311,7 @@ def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compi
 # Main build function
 
 
-def _build_cuda_bindings(strip=False):
+def _build_cuda_bindings(debug=False):
     """Build all cuda-bindings extensions.
 
     All CUDA-dependent logic (header parsing, code generation, cythonization)
@@ -355,21 +383,23 @@ def _build_cuda_bindings(strip=False):
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
         extra_compile_args += [
             "-std=c++14",
             "-fpermissive",
             "-Wno-deprecated-declarations",
             "-fno-var-tracking-assignments",
         ]
-        if "--debug" in sys.argv:
+        if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
             extra_compile_args += ["-O3"]
-            if strip and sys.platform == "linux":
-                extra_link_args += ["-Wl,--strip-all"]
+            extra_link_args += ["-Wl,--strip-all"]
     if compile_for_coverage:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
@@ -429,10 +459,13 @@ def _build_cuda_bindings(strip=False):
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(strip=True)
+    debug = config_settings.get("debug", False) if config_settings else False
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(strip=False)
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
