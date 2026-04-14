@@ -89,6 +89,23 @@ jobs:
             gh release create "${{ inputs.git-tag }}" --draft --repo "${{ github.repository }}" --title "Release ${{ inputs.git-tag }}" --notes "Release ${{ inputs.git-tag }}"
           fi
 
+  check-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Check versioned release notes exist
+        run: |
+          python toolshed/check_release_notes.py \
+            --git-tag "${{ inputs.git-tag }}" \
+            --component "${{ inputs.component }}"
+
   doc:
     name: Build release docs
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -99,6 +116,7 @@ jobs:
       pull-requests: write
     needs:
       - check-tag
+      - check-release-notes
       - determine-run-id
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
@@ -114,6 +132,7 @@ jobs:
       contents: write
     needs:
       - check-tag
+      - check-release-notes
       - determine-run-id
       - doc
     secrets: inherit
@@ -128,6 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - check-tag
+      - check-release-notes
       - determine-run-id
       - doc
     environment:
