@@ -28,6 +28,18 @@
 
 #include <stdint.h>
 
+/*
+ * On Windows the AOTI symbols live in torch_cpu.dll.  We consume them
+ * via __declspec(dllimport) and a stub import library generated from
+ * aoti_shim.def at build time.  On Linux/macOS the symbols are made
+ * visible at runtime through ctypes.CDLL(torch._C, RTLD_GLOBAL).
+ */
+#ifdef _WIN32
+#  define AOTI_SHIM_API __declspec(dllimport)
+#else
+#  define AOTI_SHIM_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,51 +52,51 @@ typedef struct AtenTensorOpaque* AtenTensorHandle;
 
 /* ---- tensor metadata --------------------------------------------------- */
 
-AOTITorchError aoti_torch_get_data_ptr(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_data_ptr(
     AtenTensorHandle tensor, void** ret_data_ptr);
 
-AOTITorchError aoti_torch_get_dim(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_dim(
     AtenTensorHandle tensor, int64_t* ret_dim);
 
-AOTITorchError aoti_torch_get_sizes(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_sizes(
     AtenTensorHandle tensor, int64_t** ret_sizes);
 
-AOTITorchError aoti_torch_get_strides(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_strides(
     AtenTensorHandle tensor, int64_t** ret_strides);
 
 /* ---- dtype ------------------------------------------------------------- */
 
-AOTITorchError aoti_torch_get_dtype(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_dtype(
     AtenTensorHandle tensor, int32_t* ret_dtype);
 
-int32_t aoti_torch_dtype_float16(void);
-int32_t aoti_torch_dtype_float32(void);
-int32_t aoti_torch_dtype_float64(void);
-int32_t aoti_torch_dtype_bfloat16(void);
-int32_t aoti_torch_dtype_uint8(void);
-int32_t aoti_torch_dtype_int8(void);
-int32_t aoti_torch_dtype_int16(void);
-int32_t aoti_torch_dtype_int32(void);
-int32_t aoti_torch_dtype_int64(void);
-int32_t aoti_torch_dtype_bool(void);
-int32_t aoti_torch_dtype_complex32(void);
-int32_t aoti_torch_dtype_complex64(void);
-int32_t aoti_torch_dtype_complex128(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_float16(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_float32(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_float64(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_bfloat16(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_uint8(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_int8(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_int16(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_int32(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_int64(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_bool(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_complex32(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_complex64(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_complex128(void);
 
 /* ---- device ------------------------------------------------------------ */
 
-AOTITorchError aoti_torch_get_device_type(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_device_type(
     AtenTensorHandle tensor, int32_t* ret_device_type);
 
-AOTITorchError aoti_torch_get_device_index(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_device_index(
     AtenTensorHandle tensor, int32_t* ret_device_index);
 
-int32_t aoti_torch_device_type_cpu(void);
-int32_t aoti_torch_device_type_cuda(void);
+AOTI_SHIM_API int32_t aoti_torch_device_type_cpu(void);
+AOTI_SHIM_API int32_t aoti_torch_device_type_cuda(void);
 
 /* ---- stream -------------------------------------------------------------- */
 
-AOTITorchError aoti_torch_get_current_cuda_stream(
+AOTI_SHIM_API AOTITorchError aoti_torch_get_current_cuda_stream(
     int32_t device_index, void** ret_stream);
 
 #ifdef __cplusplus
