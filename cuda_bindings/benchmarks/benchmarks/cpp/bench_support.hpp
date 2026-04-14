@@ -222,4 +222,88 @@ inline void write_pyperf_json(
     out << "]}]}\n";
 }
 
+// A collected benchmark entry: name, loops, and run results
+struct BenchmarkEntry {
+    std::string name;
+    std::uint64_t loops;
+    std::vector<RunResult> results;
+};
+
+// Collect multiple benchmarks from a single binary and write them all
+// to one pyperf-compatible JSON file.
+class BenchmarkSuite {
+public:
+    explicit BenchmarkSuite(Options options) : options_(std::move(options)) {}
+
+    // Run a benchmark and record it. The name is used as the benchmark ID.
+    template <typename Fn>
+    void run(const std::string& name, Fn&& fn) {
+        auto results = run_benchmark(options_, std::forward<Fn>(fn));
+        print_summary(name, results);
+        entries_.push_back({name, options_.loops, std::move(results)});
+    }
+
+    // Write all collected benchmarks to the output file (if -o was given).
+    void write() const {
+        if (options_.output_path.empty() || entries_.empty())
+            return;
+        write_multi_pyperf_json(options_.output_path, entries_);
+    }
+
+private:
+    Options options_;
+    std::vector<BenchmarkEntry> entries_;
+
+    static void write_multi_pyperf_json(
+        const std::string& output_path,
+        const std::vector<BenchmarkEntry>& entries
+    ) {
+        std::ofstream out(output_path);
+        if (!out) {
+            std::cerr << "Failed to open output file: " << output_path << '\n';
+            std::exit(3);
+        }
+
+        out << std::setprecision(17);
+        out << "{\"version\": \"1.0\", \"benchmarks\": [";
+
+        for (std::size_t e = 0; e < entries.size(); ++e) {
+            const auto& entry = entries[e];
+            if (e > 0) out << ", ";
+
+            out << "{\"metadata\": {";
+            out << "\"name\": " << json_str(entry.name) << ", ";
+            out << "\"loops\": " << entry.loops << ", ";
+            out << "\"unit\": \"second\"";
+            out << "}, \"runs\": [";
+
+            for (std::size_t r = 0; r < entry.results.size(); ++r) {
+                const auto& run = entry.results[r];
+                if (r > 0) out << ", ";
+
+                out << "{\"metadata\": {";
+                out << "\"date\": " << json_str(run.date) << ", ";
+                out << "\"duration\": " << run.duration_sec;
+                out << "}, ";
+
+                out << "\"warmups\": [";
+                for (std::size_t w = 0; w < run.warmup_values.size(); ++w) {
+                    if (w > 0) out << ", ";
+                    out << "[" << entry.loops << ", " << run.warmup_values[w] << "]";
+                }
+                out << "], ";
+
+                out << "\"values\": [";
+                for (std::size_t v = 0; v < run.values.size(); ++v) {
+                    if (v > 0) out << ", ";
+                    out << run.values[v];
+                }
+                out << "]}";
+            }
+            out << "]}";
+        }
+        out << "]}\n";
+    }
+};
+
 }  // namespace bench
