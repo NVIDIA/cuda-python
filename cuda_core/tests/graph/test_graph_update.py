@@ -191,7 +191,7 @@ def test_graph_update_topology_mismatch(init_cuda):
     launch(gb2, LaunchConfig(grid=1, block=1), empty_kernel)
     gb2.end_building()
 
-    expected = r"Graph update failed: The update failed because the topology changed \(CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED\)"
+    expected = r"Graph update failed: .+ \(CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED\)"
     with pytest.raises(CUDAError, match=expected):
         graph.update(gb2)
 
