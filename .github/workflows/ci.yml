@@ -119,7 +119,7 @@ jobs:
           changed=$(git diff --name-only "$base"...HEAD)
 
           has_match() {
-            echo "$changed" | grep -qE "$1" && echo true || echo false
+            grep -qE "$1" <<< "$changed" && echo true || echo false
           }
 
           {
