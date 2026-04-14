@@ -45,6 +45,8 @@ class TestIpcSendBuffers:
         for buffer in buffers:
             pgen.verify_buffer(buffer, seed=True)
             buffer.close()
+        for mr in mrs:
+            mr.close()
 
     def child_main(self, device, buffers):
         device.set_current()

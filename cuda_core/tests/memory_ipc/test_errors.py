@@ -26,6 +26,7 @@ class ChildErrorHarness:
         # from PARENT_ACTION.
         self.device = ipc_device
         self.mr = ipc_memory_resource
+        self._extra_mrs = []
 
         # Start a child process to generate error info.
         pipe = [multiprocessing.Queue() for _ in range(2)]
@@ -42,6 +43,9 @@ class ChildErrorHarness:
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
         assert process.exitcode == 0
+
+        for mr in self._extra_mrs:
+            mr.close()
 
     def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""
@@ -78,6 +82,7 @@ class TestImportWrongMR(ChildErrorHarness):
     def PARENT_ACTION(self, queue):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
+        self._extra_mrs.append(mr2)
         buffer = mr2.allocate(NBYTES)
         queue.put([self.mr, buffer.get_ipc_descriptor()])  # Note: mr does not own this buffer
 
@@ -117,6 +122,7 @@ class TestDanglingBuffer(ChildErrorHarness):
     def PARENT_ACTION(self, queue):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
+        self._extra_mrs.append(mr2)
         self.buffer = mr2.allocate(NBYTES)
         buffer_s = pickle.dumps(self.buffer)
         queue.put(buffer_s)  # Note: mr2 not sent

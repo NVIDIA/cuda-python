@@ -42,6 +42,8 @@ class TestIpcWorkerPool:
         for buffer in buffers:
             pgen.verify_buffer(buffer, seed=True)
             buffer.close()
+        for mr in mrs:
+            mr.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
@@ -82,6 +84,8 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         for buffer in buffers:
             pgen.verify_buffer(buffer, seed=True)
             buffer.close()
+        for mr in mrs:
+            mr.close()
 
     def process_buffer(self, mr_idx, buffer_desc):
         mr = self.mrs[mr_idx]
@@ -124,6 +128,8 @@ class TestIpcWorkerPoolUsingRegistry:
         for buffer in buffers:
             pgen.verify_buffer(buffer, seed=True)
             buffer.close()
+        for mr in mrs:
+            mr.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
