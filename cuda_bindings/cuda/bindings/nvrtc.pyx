@@ -48,41 +48,41 @@ class nvrtcResult(_FastEnum):
     The enumerated type nvrtcResult defines API call result codes.
     NVRTC API functions return nvrtcResult to indicate the call result.
     """
-    
+
     NVRTC_SUCCESS = cynvrtc.nvrtcResult.NVRTC_SUCCESS
-    
+
     NVRTC_ERROR_OUT_OF_MEMORY = cynvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY
-    
+
     NVRTC_ERROR_PROGRAM_CREATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE
-    
+
     NVRTC_ERROR_INVALID_INPUT = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT
-    
+
     NVRTC_ERROR_INVALID_PROGRAM = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
-    
+
     NVRTC_ERROR_INVALID_OPTION = cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION
-    
+
     NVRTC_ERROR_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION
-    
+
     NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = cynvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
-    
+
     NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
-    
+
     NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
-    
+
     NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = cynvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
-    
+
     NVRTC_ERROR_INTERNAL_ERROR = cynvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR
-    
+
     NVRTC_ERROR_TIME_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED
-    
+
     NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED
-    
+
     NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
-    
+
     NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE
-    
+
     NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED
-    
+
     NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
 
 cdef object _nvrtcResult = nvrtcResult
@@ -966,7 +966,7 @@ def nvrtcSetFlowCallback(prog, callback, payload):
 
 @cython.embedsignature(True)
 def nvrtcGetTileIRSize(prog):
-    """ 
+    """
 
     Parameters
     ----------
@@ -997,7 +997,7 @@ def nvrtcGetTileIRSize(prog):
 
 @cython.embedsignature(True)
 def nvrtcGetTileIR(prog, char* TileIR):
-    """ 
+    """
 
     Parameters
     ----------
@@ -1037,7 +1037,7 @@ def sizeof(objType):
     lowered_name : int
         The size of `objType` in bytes
     """
-    
+
     if objType == nvrtcProgram:
         return sizeof(cynvrtc.nvrtcProgram)
     raise TypeError("Unknown type: " + str(objType))

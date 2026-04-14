@@ -83,4 +83,3 @@ cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* p
 cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 
 cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil
-

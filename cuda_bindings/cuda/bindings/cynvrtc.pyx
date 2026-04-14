@@ -83,4 +83,3 @@ cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) ex
 
 cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return _nvrtc._nvrtcGetTileIR(prog, TileIR)
-

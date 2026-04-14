@@ -509,4 +509,3 @@ cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_
         with gil:
             raise FunctionNotFoundError("function nvrtcGetTileIR is not found")
     return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetTileIR)(prog, TileIR)
-

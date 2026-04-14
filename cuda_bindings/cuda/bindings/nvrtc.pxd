@@ -19,4 +19,3 @@ cdef class nvrtcProgram:
     """
     cdef cynvrtc.nvrtcProgram  _pvt_val
     cdef cynvrtc.nvrtcProgram* _pvt_ptr
-
