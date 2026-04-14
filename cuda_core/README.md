@@ -10,6 +10,14 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 
 This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
+## Debugging
+
+Pass the `pip` / `uv` configuration option `-C="debug=True"` or
+`--config-settings="debug=True"` to explicitly to build debuggable binaries.
+Debuggable binaries are built by default for editable builds.
+
+Debuggable builds are not supported on Windows.
+
 ## Testing
 
 To run these tests:
