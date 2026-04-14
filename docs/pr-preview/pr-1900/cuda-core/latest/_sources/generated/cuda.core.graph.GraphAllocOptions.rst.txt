@@ -1,0 +1,6 @@
+﻿cuda.core.graph.GraphAllocOptions
+=================================
+
+.. currentmodule:: cuda.core.graph
+
+.. autoclass:: GraphAllocOptions
