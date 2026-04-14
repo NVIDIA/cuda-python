@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_read\_prm\_counters\_v1
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_read_prm_counters_v1
