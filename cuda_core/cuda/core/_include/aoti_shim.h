@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES.
- * All rights reserved.
- * SPDX-License-Identifier: Apache-2.0
- *
  * Vendored subset of PyTorch's AOT Inductor (AOTI) stable C ABI.
  * Original: torch/csrc/inductor/aoti_torch/c/shim.h
+ * PyTorch is licensed under the BSD 3-Clause License.
+ * See https://github.com/pytorch/pytorch/blob/main/LICENSE
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * These are declarations only -- no definitions are provided.  The actual
  * symbols are exported by libtorch (loaded via torch._C with RTLD_GLOBAL)

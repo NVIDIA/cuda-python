@@ -337,6 +337,12 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         buf = StridedMemoryView.__new__(StridedMemoryView)
 
     buf.ptr = <intptr_t>data_ptr
+    # PyTorch always reports tensors as writable via both DLPack
+    # (flags=0, no DLPACK_FLAG_BITMASK_READ_ONLY) and CAI
+    # (__cuda_array_interface__["data"] = (ptr, False)).  Tensors that
+    # cannot be safely exported (requires_grad, conjugate, non-strided)
+    # are rejected with BufferError rather than marked read-only.
+    # The AOTI C ABI has no readonly query either, so False is correct.
     buf.readonly = False
     buf.exporting_obj = obj
     buf.dl_tensor = NULL
