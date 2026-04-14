@@ -817,6 +817,11 @@ _torch_skip = pytest.mark.skipif(torch is None, reason="PyTorch is not installed
         pytest.param("bool", id="bool"),
         pytest.param("complex64", id="complex64"),
         pytest.param("complex128", id="complex128"),
+        pytest.param(
+            "bfloat16",
+            id="bfloat16",
+            marks=pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed"),
+        ),
     ],
 )
 def test_torch_tensor_bridge_dtypes(init_cuda, dtype):
@@ -825,13 +830,4 @@ def test_torch_tensor_bridge_dtypes(init_cuda, dtype):
     a = torch.tensor([1, 0, 1], dtype=torch_dtype, device="cuda")
     smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
     assert smv.dtype.itemsize == a.element_size()
-    assert smv.ptr == a.data_ptr()
-
-
-@_torch_skip
-@pytest.mark.skipif(ml_dtypes is None, reason="ml_dtypes is not installed")
-def test_torch_tensor_bridge_bfloat16(init_cuda):
-    a = torch.tensor([1, 2, 3], dtype=torch.bfloat16, device="cuda")
-    smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
-    assert smv.dtype == np.dtype("bfloat16")
     assert smv.ptr == a.data_ptr()
