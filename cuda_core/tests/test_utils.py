@@ -92,6 +92,13 @@ def _arr_strides_in_counts(arr):
     return convert_strides_to_counts(arr.strides, arr.dtype.itemsize)
 
 
+def _arr_size(arr):
+    """Return the number of elements in *arr*."""
+    if torch is not None and isinstance(arr, torch.Tensor):
+        return arr.numel()
+    return arr.size
+
+
 def _arr_is_c_contiguous(arr):
     if torch is not None and isinstance(arr, torch.Tensor):
         return arr.is_contiguous()
@@ -166,7 +173,7 @@ class TestViewCPU:
         assert view.ptr == _arr_ptr(in_arr)
         expected_shape = tuple(in_arr.shape)
         assert view.shape == expected_shape
-        assert view.size == (in_arr.numel() if torch is not None and isinstance(in_arr, torch.Tensor) else in_arr.size)
+        assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
         assert (_arr_is_c_contiguous(in_arr) and view.strides is None) or view.strides == strides_in_counts
         assert view.device_id == -1
@@ -278,7 +285,7 @@ class TestViewGPU:
         assert view.ptr == gpu_array_ptr(in_arr)
         expected_shape = tuple(in_arr.shape)
         assert view.shape == expected_shape
-        assert view.size == (in_arr.numel() if torch is not None and isinstance(in_arr, torch.Tensor) else in_arr.size)
+        assert view.size == _arr_size(in_arr)
         strides_in_counts = _arr_strides_in_counts(in_arr)
         if _arr_is_c_contiguous(in_arr):
             assert view.strides in (None, strides_in_counts)
