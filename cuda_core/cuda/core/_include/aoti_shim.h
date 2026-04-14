@@ -1,15 +1,26 @@
 /*
  * Vendored subset of PyTorch's AOT Inductor (AOTI) stable C ABI.
  * Original: torch/csrc/inductor/aoti_torch/c/shim.h
- * PyTorch is licensed under the BSD 3-Clause License.
- * See https://github.com/pytorch/pytorch/blob/main/LICENSE
- *
- * SPDX-License-Identifier: BSD-3-Clause
  *
  * These are declarations only -- no definitions are provided.  The actual
  * symbols are exported by libtorch (loaded via torch._C with RTLD_GLOBAL)
  * and resolved at runtime by the dynamic linker.  This means PyTorch is
  * NOT required at compile time.
+ *
+ * From PyTorch:
+ *
+ * Copyright (c) 2016-     Facebook, Inc            (Adam Paszke)
+ * Copyright (c) 2014-     Facebook, Inc            (Soumith Chintala)
+ * Copyright (c) 2011-2014 Idiap Research Institute (Ronan Collobert)
+ * Copyright (c) 2012-2014 Deepmind Technologies    (Koray Kavukcuoglu)
+ * Copyright (c) 2011-2012 NEC Laboratories America (Koray Kavukcuoglu)
+ * Copyright (c) 2011-2013 NYU                      (Clement Farabet)
+ * Copyright (c) 2006-2010 NEC Laboratories America (Ronan Collobert, Leon Bottou, Iain Melvin, Jason Weston)
+ * Copyright (c) 2006      Idiap Research Institute (Samy Bengio)
+ * Copyright (c) 2001-2004 Idiap Research Institute (Ronan Collobert, Samy Bengio, Johnny Mariethoz)
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * See https://github.com/pytorch/pytorch/blob/main/LICENSE
  */
 
 #ifndef CUDA_CORE_AOTI_SHIM_H
