@@ -9,7 +9,6 @@ import sys
 import types
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RUNNER_MAIN_PATH = REPO_ROOT / "cuda_bindings/benchmarks/runner/main.py"
 BENCH_LAUNCH_PATH = REPO_ROOT / "cuda_bindings/benchmarks/benchmarks/bench_launch.py"
