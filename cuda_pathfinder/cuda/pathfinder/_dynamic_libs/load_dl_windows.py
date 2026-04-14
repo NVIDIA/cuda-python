@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -22,10 +23,15 @@ POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
 
 # Set up kernel32 functions with proper types
 kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+psapi = ctypes.windll.psapi  # type: ignore[attr-defined]
 
 # GetModuleHandleW
 kernel32.GetModuleHandleW.argtypes = [ctypes.wintypes.LPCWSTR]
 kernel32.GetModuleHandleW.restype = ctypes.wintypes.HMODULE
+
+# GetCurrentProcess
+kernel32.GetCurrentProcess.argtypes = []
+kernel32.GetCurrentProcess.restype = ctypes.wintypes.HANDLE
 
 # LoadLibraryExW
 kernel32.LoadLibraryExW.argtypes = [
@@ -46,6 +52,15 @@ kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
 # AddDllDirectory (Windows 7+)
 kernel32.AddDllDirectory.argtypes = [ctypes.wintypes.LPCWSTR]
 kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
+
+# EnumProcessModules
+psapi.EnumProcessModules.argtypes = [
+    ctypes.wintypes.HANDLE,
+    ctypes.POINTER(ctypes.wintypes.HMODULE),
+    ctypes.wintypes.DWORD,
+    ctypes.POINTER(ctypes.wintypes.DWORD),
+]
+psapi.EnumProcessModules.restype = ctypes.wintypes.BOOL
 
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
@@ -101,6 +116,41 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
+def _iter_loaded_module_handles() -> Iterator[ctypes.wintypes.HMODULE]:
+    process_handle = kernel32.GetCurrentProcess()
+    capacity = 64
+    module_size = ctypes.sizeof(ctypes.wintypes.HMODULE)
+    while True:
+        module_handles = (ctypes.wintypes.HMODULE * capacity)()
+        needed = ctypes.wintypes.DWORD()
+        ok = psapi.EnumProcessModules(
+            process_handle,
+            module_handles,
+            ctypes.sizeof(module_handles),
+            ctypes.byref(needed),
+        )
+        if not ok:
+            error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+            raise RuntimeError(f"EnumProcessModules failed (error code: {error_code})")
+        count = needed.value // module_size
+        if count <= capacity:
+            for raw_handle in module_handles[:count]:
+                if raw_handle is None:
+                    continue
+                yield ctypes.wintypes.HMODULE(int(raw_handle))
+            return
+        capacity = count
+
+
+def _find_loaded_module(dll_names: tuple[str, ...]) -> tuple[ctypes.wintypes.HMODULE, str] | None:
+    wanted = {dll_name.casefold() for dll_name in dll_names}
+    for handle in _iter_loaded_module_handles():
+        abs_path = abs_path_for_dynamic_library("loaded module", handle)
+        if os.path.basename(abs_path).casefold() in wanted:
+            return handle, abs_path
+    return None
+
+
 def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None:
     for dll_name in desc.windows_dlls:
         handle = kernel32.GetModuleHandleW(dll_name)
@@ -112,6 +162,14 @@ def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: b
                 # activate it even if the library was already loaded from elsewhere.
                 add_dll_directory(abs_path)
             return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
+    # Observed on newer Windows CUPTI builds: GetModuleHandleW(basename)
+    # can miss an already loaded DLL, so fall back to enumerating loaded modules.
+    loaded = _find_loaded_module(desc.windows_dlls)
+    if loaded is not None:
+        handle, abs_path = loaded
+        if have_abs_path and desc.requires_add_dll_directory:
+            add_dll_directory(abs_path)
+        return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
     return None
 
 
