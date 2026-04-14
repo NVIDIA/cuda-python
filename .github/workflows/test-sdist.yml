@@ -84,6 +84,7 @@ jobs:
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CC="sccache cc"
           export CXX="sccache c++"
+          export PIP_FIND_LINKS="$(pwd)/cuda_pathfinder/dist"
           python -m build --sdist cuda_bindings/
           pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
 
