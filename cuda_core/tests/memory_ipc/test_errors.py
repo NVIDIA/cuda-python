@@ -28,24 +28,25 @@ class ChildErrorHarness:
         self.mr = ipc_memory_resource
         self._extra_mrs = []
 
-        # Start a child process to generate error info.
-        pipe = [multiprocessing.Queue() for _ in range(2)]
-        process = multiprocessing.Process(target=self.child_main, args=(pipe, self.device, self.mr))
-        process.start()
+        try:
+            # Start a child process to generate error info.
+            pipe = [multiprocessing.Queue() for _ in range(2)]
+            process = multiprocessing.Process(target=self.child_main, args=(pipe, self.device, self.mr))
+            process.start()
 
-        # Interact.
-        self.PARENT_ACTION(pipe[0])
+            # Interact.
+            self.PARENT_ACTION(pipe[0])
 
-        # Check the error.
-        exc_type, exc_msg = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
-        self.ASSERT(exc_type, exc_msg)
+            # Check the error.
+            exc_type, exc_msg = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
+            self.ASSERT(exc_type, exc_msg)
 
-        # Wait for the child process.
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        assert process.exitcode == 0
-
-        for mr in self._extra_mrs:
-            mr.close()
+            # Wait for the child process.
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            assert process.exitcode == 0
+        finally:
+            for mr in self._extra_mrs:
+                mr.close()
 
     def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""
