@@ -118,4 +118,4 @@ archs = "native"
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --namespace-pkg cuda --no-dll \"torch_cpu.dll:torch_python.dll\" -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"
