@@ -8,7 +8,9 @@ PyTorch is NOT required at build time.  At runtime the AOTI symbols are
 resolved from ``torch._C`` (which is loaded with ``RTLD_GLOBAL``).
 
 The ``pyobj_to_aten_handle`` trick exploits the internal layout of
-``THPVariable`` (PyTorch's Python tensor wrapper)::
+``THPVariable`` (PyTorch's Python tensor wrapper).
+
+In PyTorch 2.10+ ``cdata`` is ``at::Tensor`` directly::
 
     struct THPVariable {
         PyObject_HEAD
@@ -16,10 +18,21 @@ The ``pyobj_to_aten_handle`` trick exploits the internal layout of
         ...
     };
 
-In PyTorch 2.3–2.9 ``cdata`` was ``c10::MaybeOwned<at::Tensor>``;
-from 2.10 onward it is ``at::Tensor``.  In both cases ``&cdata``
-(offset ``sizeof(PyObject)`` from the start of the object) is accepted
-by the AOTI stable C ABI functions as an ``AtenTensorHandle``.
+In PyTorch 2.3–2.9 ``cdata`` was ``c10::MaybeOwned<at::Tensor>``,
+whose first member is ``bool isBorrowed_`` (padded to 8 bytes),
+followed by the ``at::Tensor`` union member::
+
+    struct THPVariable {
+        PyObject_HEAD
+        c10::MaybeOwned<at::Tensor> cdata;
+        // MaybeOwned layout: { bool isBorrowed_ (8 bytes); at::Tensor own_; }
+        ...
+    };
+
+In both cases the address of the ``at::Tensor`` inside ``cdata`` is
+accepted by the AOTI stable C ABI functions as an ``AtenTensorHandle``.
+The extra 8-byte skip for the ``isBorrowed_`` member is determined
+at runtime from the PyTorch version (see ``_get_cdata_extra_offset``).
 
 Offsetting past ``PyObject_HEAD`` gives us the handle
 without any Python attribute access or method calls (~14 ns for all
@@ -91,6 +104,7 @@ cdef extern from "_include/aoti_shim.h":
     AOTITorchError aoti_torch_get_current_cuda_stream(int32_t, void**)
 
 import numpy
+import sys
 
 
 # ---------------------------------------------------------------------------
@@ -104,6 +118,42 @@ cdef int32_t _DEVICE_TYPE_CUDA = aoti_torch_device_type_cuda()
 cdef dict _aoti_dtype_map = None
 cdef dict _aoti_itemsize_map = None
 
+# Extra byte offset to skip before reaching the at::Tensor inside
+# THPVariable::cdata.  See _get_cdata_extra_offset() for details.
+# Tri-state: -1 = not yet probed, 0 or 8 = cached result.
+cdef Py_ssize_t _cdata_extra_offset = -1
+
+
+cdef Py_ssize_t _get_cdata_extra_offset():
+    """Return the extra byte offset caused by ``MaybeOwned``'s bool member.
+
+    In PyTorch 2.3–2.9 ``THPVariable::cdata`` is
+    ``c10::MaybeOwned<at::Tensor>``, whose first member is
+    ``bool isBorrowed_`` (padded to pointer alignment = 8 bytes).
+    The actual ``at::Tensor`` sits *after* that bool, so we must
+    skip 8 extra bytes.
+
+    From PyTorch 2.10 onward ``cdata`` is ``at::Tensor`` directly,
+    so no extra offset is needed.
+    """
+    global _cdata_extra_offset
+    if _cdata_extra_offset >= 0:
+        return _cdata_extra_offset
+    torch = sys.modules.get("torch")
+    if torch is None:
+        raise RuntimeError("torch must be imported before _tensor_bridge")
+    try:
+        major = int(torch.__version__.split(".")[0])
+        minor = int(torch.__version__.split(".")[1])
+    except (ValueError, IndexError):
+        raise RuntimeError(
+            f"Cannot parse torch version: {torch.__version__!r}")
+    if (major, minor) < (2, 10):
+        _cdata_extra_offset = 8   # skip MaybeOwned::isBorrowed_ padding
+    else:
+        _cdata_extra_offset = 0   # at::Tensor directly at base
+    return _cdata_extra_offset
+
 
 # ---------------------------------------------------------------------------
 # pointer extraction
@@ -113,12 +163,14 @@ cdef inline AtenTensorHandle pyobj_to_aten_handle(object obj):
     """Extract AtenTensorHandle by offsetting past PyObject_HEAD.
 
     In PyTorch 2.3–2.9 the first field after PyObject_HEAD is
-    ``c10::MaybeOwned<at::Tensor> cdata``; from 2.10 onward it is
-    ``at::Tensor cdata``.  In both cases the address of ``cdata``
-    is usable as an ``AtenTensorHandle`` (``at::Tensor*``) for the
-    AOTI stable C ABI functions.
+    ``c10::MaybeOwned<at::Tensor> cdata``, whose ``isBorrowed_``
+    bool member (padded to 8 bytes) precedes the actual
+    ``at::Tensor``.  From 2.10 onward ``cdata`` is ``at::Tensor``
+    directly.  The extra offset is determined once by
+    :func:`_get_cdata_extra_offset` and cached.
     """
-    return <AtenTensorHandle>(<char*><PyObject*>obj + sizeof(PyObject))
+    return <AtenTensorHandle>(
+        <char*><PyObject*>obj + sizeof(PyObject) + _get_cdata_extra_offset())
 
 
 cdef inline int check_aoti(AOTITorchError err, const char* name) except? -1:
