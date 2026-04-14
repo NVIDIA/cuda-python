@@ -286,6 +286,18 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
+  test-sdist:
+    needs:
+      - ci-vars
+      - should-skip
+    name: Test sdist
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    secrets: inherit
+    uses: ./.github/workflows/test-sdist.yml
+    with:
+      host-platform: linux-64
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
   # build-linux-64). Keep these job definitions textually identical except for:
   #   - host-platform value
@@ -388,6 +400,7 @@ jobs:
     needs:
       - should-skip
       - detect-changes
+      - test-sdist
       - test-linux-64
       - test-linux-aarch64
       - test-windows
@@ -425,6 +438,9 @@ jobs:
             exit 1
           fi
           if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
+            exit 1
+          fi
+          if ${{ needs.test-sdist.result == 'cancelled' || needs.test-sdist.result == 'failure' }}; then
             exit 1
           fi
           if [[ "${doc_only}" != "true" ]]; then
