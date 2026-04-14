@@ -45,9 +45,7 @@ def notes_path(package: str, version: str) -> str:
     return os.path.join(package, "docs", "source", "release", f"{version}-notes.rst")
 
 
-def check_release_notes(
-    git_tag: str, component: str, repo_root: str = "."
-) -> list[tuple[str, str]]:
+def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
     Returns an empty list when all notes are present and non-empty.
