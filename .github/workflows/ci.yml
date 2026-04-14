@@ -291,7 +291,7 @@ jobs:
       - ci-vars
       - should-skip
     name: Test sdist
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
     uses: ./.github/workflows/test-sdist.yml
     with:
