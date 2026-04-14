@@ -1,0 +1,27 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+``cuda-bindings`` 11.8.7 Release notes
+======================================
+
+Released on May 5, 2025.
+
+
+Highlights
+----------
+
+* The ``cuda.bindings.nvvm`` Python module was added, wrapping the
+  `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_.
+
+
+Bug fixes
+---------
+
+* Fix segfault when converting char* NULL to bytes
+
+
+Known issues
+------------
+
+* Compute-sanitizer may report ``CUDA_ERROR_INVALID_CONTEXT`` when calling certain CUDA
+  runtime APIs such as ``cudaGetDevice()``. This is fixed in ``cuda-bindings`` 12.9.0.
