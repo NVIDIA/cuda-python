@@ -105,38 +105,31 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
 
-      - name: Filter changed paths
+      - name: Detect changed paths
         id: filter
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
-        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590  # v3.0.3
-        with:
-          # dorny/paths-filter v3 on push to a non-default branch defaults to
-          # diffing against the repository default branch. No explicit base is
-          # needed; omitting it lets backport PRs targeting release branches
-          # diff against their actual target rather than always against main.
-          filters: |
-            bindings:
-              - 'cuda_bindings/**'
-            core:
-              - 'cuda_core/**'
-            pathfinder:
-              - 'cuda_pathfinder/**'
-            python_meta:
-              - 'cuda_python/**'
-            test_helpers:
-              - 'cuda_python_test_helpers/**'
-            shared:
-              - '.github/**'
-              - 'ci/**'
-              - 'scripts/**'
-              - 'toolshed/**'
-              - 'conftest.py'
-              - 'pyproject.toml'
-              - 'pixi.toml'
-              - 'pixi.lock'
-              - 'pytest.ini'
-              - 'ruff.toml'
+        run: |
+          # Diff against the merge base with the default branch. Uses
+          # merge-base so diverged branches only show files changed on
+          # the PR side, not upstream commits.
+          base=$(git merge-base HEAD origin/main)
+          changed=$(git diff --name-only "$base"...HEAD)
+
+          has_match() {
+            echo "$changed" | grep -qE "$1" && echo true || echo false
+          }
+
+          {
+            echo "bindings=$(has_match '^cuda_bindings/')"
+            echo "core=$(has_match '^cuda_core/')"
+            echo "pathfinder=$(has_match '^cuda_pathfinder/')"
+            echo "python_meta=$(has_match '^cuda_python/')"
+            echo "test_helpers=$(has_match '^cuda_python_test_helpers/')"
+            echo "shared=$(has_match '^(\.github/|ci/|scripts/|toolshed/|conftest\.py$|pyproject\.toml$|pixi\.(toml|lock)$|pytest\.ini$|ruff\.toml$)')"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Compose gating outputs
         id: compose
