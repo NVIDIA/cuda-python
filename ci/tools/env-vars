@@ -65,18 +65,20 @@ elif [[ "${1}" == "test" ]]; then
     SKIP_CYTHON_TEST=1
   else
     USE_BACKPORT_BINDINGS=0
+    # Path-filter override only skips bindings tests, NOT cython tests
+    # for other modules (e.g. cuda.core). Cython skip is driven solely
+    # by the build/test CTK minor-version mismatch.
     if [[ "${SKIP_BINDINGS_TEST_OVERRIDE:-0}" == "1" ]]; then
       SKIP_CUDA_BINDINGS_TEST=1
-      SKIP_CYTHON_TEST=1
     else
       SKIP_CUDA_BINDINGS_TEST=0
-      BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
-      TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
-      if [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
-        SKIP_CYTHON_TEST=1
-      else
-        SKIP_CYTHON_TEST=0
-      fi
+    fi
+    BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
+    TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
+    if [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
+      SKIP_CYTHON_TEST=1
+    else
+      SKIP_CYTHON_TEST=0
     fi
   fi
   # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort

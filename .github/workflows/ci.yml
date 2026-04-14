@@ -111,9 +111,11 @@ jobs:
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590  # v3.0.3
         with:
-          # Compare against the target branch of the PR. When a PR is pushed
-          # to the synthetic pull-request/<N> ref, dorny/paths-filter falls
-          # back to the repository default branch unless overridden.
+          # Explicitly compare against the repository default branch. On push
+          # events dorny/paths-filter defaults to diffing against the prior
+          # commit, which is wrong for backport PRs targeting non-default
+          # branches. Pinning base to main ensures consistent detection.
+          base: main
           filters: |
             bindings:
               - 'cuda_bindings/**'
