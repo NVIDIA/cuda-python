@@ -55,7 +55,7 @@ source = { features = ["cu13", "cu13-source", "bench", "cpp-bench", "dev", "bind
 cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
 
 [target.linux.tasks.bench-smoke-test]
-cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py", "--fast", "--loops", "1", "--min-time", "0"
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py", "--fast", "--min-time", "1"
 ]
 
 [target.linux.tasks.bench-legacy]
