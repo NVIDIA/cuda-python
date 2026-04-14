@@ -27,6 +27,8 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
 # Any production-code impact is negligible since the extra logic only runs
 # in the subprocess entrypoint and only in test mode.
 
+_CUPTI_DIAGNOSTICS_ENVVAR = "CUDA_PATHFINDER_WINDOWS_CUPTI_ALREADY_LOADED_DIAGNOSTICS"
+
 
 def _probe_canary_abs_path(libname: str) -> str | None:
     desc = LIB_DESCRIPTORS.get(libname)
@@ -48,6 +50,26 @@ def _validate_abs_path(abs_path: str) -> None:
     assert os.path.isfile(abs_path), f"not a file: {abs_path=!r}"
 
 
+def _cupti_diagnostics_enabled(libname: str) -> bool:
+    raw = os.environ.get(_CUPTI_DIAGNOSTICS_ENVVAR)
+    if libname != "cupti" or raw is None:
+        return False
+    return raw.strip().lower() not in ("", "0", "false", "no")
+
+
+def _emit_cupti_diagnostic(message: str) -> None:
+    print(f"[cuda.pathfinder][cupti-diag] {message}", file=sys.stderr)
+
+
+def _emit_loaded_dl_diagnostic(label: str, loaded_dl: LoadedDL) -> None:
+    _emit_cupti_diagnostic(
+        f"{label}: abs_path={loaded_dl.abs_path!r}"
+        f" found_via={loaded_dl.found_via!r}"
+        f" was_already_loaded_from_elsewhere={loaded_dl.was_already_loaded_from_elsewhere}"
+        f" handle=0x{loaded_dl._handle_uint:x}"
+    )
+
+
 def _load_nvidia_dynamic_lib_for_test(libname: str) -> str:
     """Test-only loader used by the subprocess entrypoint."""
     # Keep imports inside the subprocess body so startup stays focused on the
@@ -60,7 +82,10 @@ def _load_nvidia_dynamic_lib_for_test(libname: str) -> str:
     )
     from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
+    diagnostics_enabled = _cupti_diagnostics_enabled(libname)
     loaded_dl_fresh = load_nvidia_dynamic_lib(libname)
+    if diagnostics_enabled:
+        _emit_loaded_dl_diagnostic("fresh load", loaded_dl_fresh)
     if loaded_dl_fresh.was_already_loaded_from_elsewhere:
         raise RuntimeError("loaded_dl_fresh.was_already_loaded_from_elsewhere")
 
@@ -75,6 +100,8 @@ def _load_nvidia_dynamic_lib_for_test(libname: str) -> str:
         raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
 
     loaded_dl_no_cache = _load_lib_no_cache(libname)
+    if diagnostics_enabled:
+        _emit_loaded_dl_diagnostic("second uncached load", loaded_dl_no_cache)
     supported_libs = SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else SUPPORTED_LINUX_SONAMES
     if not loaded_dl_no_cache.was_already_loaded_from_elsewhere and libname in supported_libs:
         raise RuntimeError("not loaded_dl_no_cache.was_already_loaded_from_elsewhere")

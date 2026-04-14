@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+import sys
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
@@ -61,6 +62,19 @@ psapi.EnumProcessModules.argtypes = [
     ctypes.POINTER(ctypes.wintypes.DWORD),
 ]
 psapi.EnumProcessModules.restype = ctypes.wintypes.BOOL
+
+_CUPTI_DIAGNOSTICS_ENVVAR = "CUDA_PATHFINDER_WINDOWS_CUPTI_ALREADY_LOADED_DIAGNOSTICS"
+
+
+def _cupti_diagnostics_enabled(desc_name: str) -> bool:
+    raw = os.environ.get(_CUPTI_DIAGNOSTICS_ENVVAR)
+    if desc_name != "cupti" or raw is None:
+        return False
+    return raw.strip().lower() not in ("", "0", "false", "no")
+
+
+def _emit_cupti_diagnostic(message: str) -> None:
+    sys.stderr.write(f"[cuda.pathfinder][cupti-diag] {message}\n")
 
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
@@ -142,20 +156,52 @@ def _iter_loaded_module_handles() -> Iterator[ctypes.wintypes.HMODULE]:
         capacity = count
 
 
-def _find_loaded_module(dll_names: tuple[str, ...]) -> tuple[ctypes.wintypes.HMODULE, str] | None:
+def _find_loaded_module(
+    dll_names: tuple[str, ...],
+    *,
+    diagnostics_enabled: bool = False,
+) -> tuple[ctypes.wintypes.HMODULE, str] | None:
     wanted = {dll_name.casefold() for dll_name in dll_names}
+    relevant_modules: list[str] = []
     for handle in _iter_loaded_module_handles():
         abs_path = abs_path_for_dynamic_library("loaded module", handle)
-        if os.path.basename(abs_path).casefold() in wanted:
+        basename = os.path.basename(abs_path)
+        basename_casefold = basename.casefold()
+        if diagnostics_enabled and ("cupti" in basename_casefold or "nvperf" in basename_casefold):
+            relevant_modules.append(f"0x{ctypes_handle_to_unsigned_int(handle):x}:{abs_path}")
+        if basename_casefold in wanted:
+            if diagnostics_enabled:
+                _emit_cupti_diagnostic(
+                    "enumerated relevant modules: " + (" | ".join(relevant_modules) if relevant_modules else "<none>")
+                )
+                _emit_cupti_diagnostic(
+                    f"enumeration match: basename={basename!r} abs_path={abs_path!r}"
+                    f" handle=0x{ctypes_handle_to_unsigned_int(handle):x}"
+                )
             return handle, abs_path
+    if diagnostics_enabled:
+        _emit_cupti_diagnostic(
+            "enumerated relevant modules: " + (" | ".join(relevant_modules) if relevant_modules else "<none>")
+        )
     return None
 
 
 def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None:
+    diagnostics_enabled = _cupti_diagnostics_enabled(desc.name)
+    basename_probe_results: list[str] = []
     for dll_name in desc.windows_dlls:
         handle = kernel32.GetModuleHandleW(dll_name)
+        if diagnostics_enabled:
+            handle_text = "0x0" if not handle else f"0x{ctypes_handle_to_unsigned_int(handle):x}"
+            basename_probe_results.append(f"{dll_name}={handle_text}")
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
+            if diagnostics_enabled:
+                _emit_cupti_diagnostic("basename GetModuleHandleW results: " + ", ".join(basename_probe_results))
+                _emit_cupti_diagnostic(
+                    f"basename match: dll_name={dll_name!r} abs_path={abs_path!r}"
+                    f" handle=0x{ctypes_handle_to_unsigned_int(handle):x}"
+                )
             if have_abs_path and desc.requires_add_dll_directory:
                 # This is a side-effect if the pathfinder loads the library via
                 # load_with_abs_path(). To make the side-effect more deterministic,
@@ -164,7 +210,9 @@ def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: b
             return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
     # Observed on newer Windows CUPTI builds: GetModuleHandleW(basename)
     # can miss an already loaded DLL, so fall back to enumerating loaded modules.
-    loaded = _find_loaded_module(desc.windows_dlls)
+    if diagnostics_enabled:
+        _emit_cupti_diagnostic("basename GetModuleHandleW results: " + ", ".join(basename_probe_results))
+    loaded = _find_loaded_module(desc.windows_dlls, diagnostics_enabled=diagnostics_enabled)
     if loaded is not None:
         handle, abs_path = loaded
         if have_abs_path and desc.requires_add_dll_directory:
