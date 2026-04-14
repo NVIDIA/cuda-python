@@ -126,18 +126,14 @@ def _cpu_array_samples():
     if torch is not None:
         samples += [
             pytest.param(torch.arange(12, dtype=torch.float32), id="torch-1d"),
-            pytest.param(
-                torch.arange(24, dtype=torch.float32).reshape(2, 3, 4), id="torch-nd"
-            ),
+            pytest.param(torch.arange(24, dtype=torch.float32).reshape(2, 3, 4), id="torch-nd"),
             pytest.param(torch.tensor(42.0), id="torch-scalar"),
             pytest.param(torch.empty(0, dtype=torch.float32), id="torch-empty"),
             pytest.param(
                 torch.arange(12, dtype=torch.float32).reshape(3, 4).t(),
                 id="torch-non-contiguous",
             ),
-            pytest.param(
-                torch.arange(100, dtype=torch.int64)[10:20], id="torch-sliced"
-            ),
+            pytest.param(torch.arange(100, dtype=torch.int64)[10:20], id="torch-sliced"),
             pytest.param(
                 torch.arange(60, dtype=torch.float32).reshape(6, 10)[1:4, 2:7],
                 id="torch-sliced-2d",
@@ -200,20 +196,14 @@ def gpu_array_samples():
         ]
     if torch is not None:
         samples += [
-            pytest.param(
-                torch.arange(12, dtype=torch.float32, device="cuda"), True, id="torch-1d"
-            ),
+            pytest.param(torch.arange(12, dtype=torch.float32, device="cuda"), True, id="torch-1d"),
             pytest.param(
                 torch.arange(24, dtype=torch.float32, device="cuda").reshape(2, 3, 4),
                 True,
                 id="torch-nd",
             ),
-            pytest.param(
-                torch.tensor(42.0, dtype=torch.float32, device="cuda"), False, id="torch-scalar"
-            ),
-            pytest.param(
-                torch.empty(0, dtype=torch.float32, device="cuda"), False, id="torch-empty"
-            ),
+            pytest.param(torch.tensor(42.0, dtype=torch.float32, device="cuda"), False, id="torch-scalar"),
+            pytest.param(torch.empty(0, dtype=torch.float32, device="cuda"), False, id="torch-empty"),
             pytest.param(
                 torch.arange(12, dtype=torch.float32, device="cuda").reshape(3, 4).t(),
                 True,
