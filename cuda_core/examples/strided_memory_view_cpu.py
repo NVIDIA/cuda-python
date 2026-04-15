@@ -1,18 +1,17 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #
-# This demo illustrates:
-#
-#   1. The similarity between CPU and GPU JIT-compilation with C++ sources
-#   2. How to use StridedMemoryView to interface with foreign C/C++ functions
-#
-# This demo uses cffi (https://cffi.readthedocs.io/) for the CPU path, which can be
-# easily installed from pip or conda following their instructions.
+# This example demonstrates StridedMemoryView for interfacing with foreign
+# C/C++ functions, using JIT-compiled CPU code via cffi. Requires cffi.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "cffi", "setuptools"]
+# ///
 
 import importlib
 import string
@@ -124,11 +123,11 @@ def _run_example(cpu_prog, cpu_func):
     assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
 
 
-def run():
+def main():
     cpu_prog = _create_cpu_program()
     with tempfile.TemporaryDirectory() as temp_dir, _compiled_cpu_func(cpu_prog, temp_dir) as cpu_func:
         _run_example(cpu_prog, cpu_func)
 
 
 if __name__ == "__main__":
-    run()
+    main()

@@ -26,6 +26,7 @@ from ._resource_handles cimport (
     DevicePtrHandle,
     LibraryHandle,
     KernelHandle,
+    GraphHandle,
     GraphicsResourceHandle,
     NvrtcProgramHandle,
     NvvmProgramHandle,
@@ -113,11 +114,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr) except+ nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
         cydriver.CUdeviceptr ptr, object owner) except+ nogil
+    DevicePtrHandle deviceptr_create_mapped_graphics "cuda_core::deviceptr_create_mapped_graphics" (
+        cydriver.CUdeviceptr ptr,
+        const GraphicsResourceHandle& h_resource,
+        const StreamHandle& h_stream) except+ nogil
 
     # MR deallocation callback
-    ctypedef void (*MRDeallocCallback)(
-        object mr, cydriver.CUdeviceptr ptr, size_t size,
-        const StreamHandle& stream) noexcept
     void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
         MRDeallocCallback cb) noexcept
     DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
@@ -146,6 +148,20 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     LibraryHandle get_kernel_library "cuda_core::get_kernel_library" (
         const KernelHandle& h) noexcept nogil
 
+    # Graph handles
+    GraphHandle create_graph_handle "cuda_core::create_graph_handle" (
+        cydriver.CUgraph graph) except+ nogil
+    GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
+        cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+
+    # Graph node handles
+    GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
+        cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
+    GraphHandle graph_node_get_graph "cuda_core::graph_node_get_graph" (
+        const GraphNodeHandle& h) noexcept nogil
+    void invalidate_graph_node "cuda_core::invalidate_graph_node" (
+        const GraphNodeHandle& h) noexcept nogil
+
     # Graphics resource handles
     GraphicsResourceHandle create_graphics_resource_handle "cuda_core::create_graphics_resource_handle" (
         cydriver.CUgraphicsResource resource) except+ nogil
@@ -173,6 +189,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUlinkState state) except+ nogil
     CuLinkHandle create_culink_handle_ref "cuda_core::create_culink_handle_ref" (
         cydriver.CUlinkState state) except+ nogil
+
+    # File descriptor handles
+    FileDescriptorHandle create_fd_handle "cuda_core::create_fd_handle" (
+        int fd) except+ nogil
+    FileDescriptorHandle create_fd_handle_ref "cuda_core::create_fd_handle_ref" (
+        int fd) except+ nogil
 
 
 # =============================================================================
@@ -241,10 +263,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuLibraryUnload "reinterpret_cast<void*&>(cuda_core::p_cuLibraryUnload)"
     void* p_cuLibraryGetKernel "reinterpret_cast<void*&>(cuda_core::p_cuLibraryGetKernel)"
 
+    # Graph
+    void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
 
     # Graphics interop
+    void* p_cuGraphicsUnmapResources "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnmapResources)"
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
 
     # NVRTC
@@ -306,10 +332,14 @@ p_cuLibraryLoadData = _get_driver_fn("cuLibraryLoadData")
 p_cuLibraryUnload = _get_driver_fn("cuLibraryUnload")
 p_cuLibraryGetKernel = _get_driver_fn("cuLibraryGetKernel")
 
+# Graph
+p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+
 # Linker
 p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
 
 # Graphics interop
+p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
 p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
 
 # =============================================================================

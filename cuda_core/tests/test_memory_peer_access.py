@@ -4,7 +4,6 @@
 import pytest
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 
-import cuda.core
 from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
@@ -46,39 +45,6 @@ def test_peer_access_basic(mempool_device_x2):
 
     with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
         zero_on_dev0.copy_from(buf_on_dev1, stream=stream_on_dev0)
-
-
-def test_peer_access_property_x2(mempool_device_x2):
-    """The the dmr.peer_accessible_by property (but not its functionality)."""
-    # The peer access list is a sorted tuple and always excludes the self
-    # device.
-    dev0, dev1 = mempool_device_x2
-    # Use owned pool to ensure clean initial state (no stale peer access).
-    dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions())
-
-    def check(expected):
-        assert isinstance(dmr.peer_accessible_by, tuple)
-        assert dmr.peer_accessible_by == expected
-
-    # No access to begin with.
-    check(expected=())
-    # fmt: off
-    dmr.peer_accessible_by = (0,)            ; check(expected=())
-    dmr.peer_accessible_by = (1,)            ; check(expected=(1,))
-    dmr.peer_accessible_by = (0, 1)          ; check(expected=(1,))
-    dmr.peer_accessible_by = ()              ; check(expected=())
-    dmr.peer_accessible_by = [0, 1]          ; check(expected=(1,))
-    dmr.peer_accessible_by = set()           ; check(expected=())
-    dmr.peer_accessible_by = [1, 1, 1, 1, 1] ; check(expected=(1,))
-    # fmt: on
-
-    with pytest.raises(ValueError, match=r"device_id must be \>\= 0"):
-        dmr.peer_accessible_by = [-1]  # device ID out of bounds
-
-    num_devices = len(cuda.core.Device.get_all_devices())
-
-    with pytest.raises(ValueError, match=r"device_id must be within \[0, \d+\)"):
-        dmr.peer_accessible_by = [num_devices]  # device ID out of bounds
 
 
 def test_peer_access_transitions(mempool_device_x3):

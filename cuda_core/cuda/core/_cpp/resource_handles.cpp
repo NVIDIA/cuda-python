@@ -9,8 +9,13 @@
 #include <cstdint>
 #include <cstring>
 #include <mutex>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 namespace cuda_core {
 
@@ -56,10 +61,14 @@ decltype(&cuLibraryLoadData) p_cuLibraryLoadData = nullptr;
 decltype(&cuLibraryUnload) p_cuLibraryUnload = nullptr;
 decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
+// Graph
+decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 
 // GL interop pointers
+decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
 
 // NVRTC function pointers
@@ -165,13 +174,8 @@ public:
     }
 
     void unregister_handle(const Key& key) noexcept {
-        try {
-            std::lock_guard<std::mutex> lock(mutex_);
-            auto it = map_.find(key);
-            if (it != map_.end() && it->second.expired()) {
-                map_.erase(it);
-            }
-        } catch (...) {}
+        std::lock_guard<std::mutex> lock(mutex_);
+        map_.erase(key);
     }
 
     Handle lookup(const Key& key) {
@@ -384,6 +388,7 @@ ContextHandle get_event_context(const EventHandle& h) noexcept {
     return h ? get_box(h)->h_context : ContextHandle{};
 }
 
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUevent, EventHandle> event_registry;
 
 EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
@@ -656,6 +661,23 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     return DevicePtrHandle(box, &box->resource);
 }
 
+DevicePtrHandle deviceptr_create_mapped_graphics(
+    CUdeviceptr ptr,
+    const GraphicsResourceHandle& h_resource,
+    const StreamHandle& h_stream
+) {
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, h_stream},
+        [h_resource](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            CUgraphicsResource resource = as_cu(h_resource);
+            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
 // ============================================================================
 // MemoryResource-owned Device Pointer Handles
 // ============================================================================
@@ -873,6 +895,7 @@ static const KernelBox* get_box(const KernelHandle& h) {
     );
 }
 
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUkernel, KernelHandle> kernel_registry;
 
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
@@ -899,6 +922,79 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel) {
 LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
     if (!h) return {};
     return get_box(h)->h_library;
+}
+
+// ============================================================================
+// Graph Handles
+// ============================================================================
+
+namespace {
+struct GraphBox {
+    CUgraph resource;
+    GraphHandle h_parent;  // Keeps parent alive for child/branch graphs
+};
+}  // namespace
+
+GraphHandle create_graph_handle(CUgraph graph) {
+    auto box = std::shared_ptr<const GraphBox>(
+        new GraphBox{graph, {}},
+        [](const GraphBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphDestroy(b->resource);
+            delete b;
+        }
+    );
+    return GraphHandle(box, &box->resource);
+}
+
+GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
+    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
+    return GraphHandle(box, &box->resource);
+}
+
+namespace {
+struct GraphNodeBox {
+    mutable CUgraphNode resource;
+    GraphHandle h_graph;
+};
+}  // namespace
+
+static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
+    const CUgraphNode* p = h.get();
+    return reinterpret_cast<const GraphNodeBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(GraphNodeBox, resource)
+    );
+}
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+static HandleRegistry<CUgraphNode, GraphNodeHandle> graph_node_registry;
+
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
+    if (node) {
+        if (auto h = graph_node_registry.lookup(node)) {
+            return h;
+        }
+    }
+    auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
+    GraphNodeHandle h(box, &box->resource);
+    if (node) {
+        graph_node_registry.register_handle(node, h);
+    }
+    return h;
+}
+
+GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
+    return h ? get_box(h)->h_graph : GraphHandle{};
+}
+
+void invalidate_graph_node(const GraphNodeHandle& h) noexcept {
+    if (h) {
+        CUgraphNode node = get_box(h)->resource;
+        if (node) {
+            graph_node_registry.unregister_handle(node);
+        }
+        get_box(h)->resource = nullptr;
+    }
 }
 
 // ============================================================================
@@ -1042,6 +1138,29 @@ CuLinkHandle create_culink_handle(CUlinkState state) {
 CuLinkHandle create_culink_handle_ref(CUlinkState state) {
     auto box = std::make_shared<CuLinkBox>(CuLinkBox{state});
     return CuLinkHandle(box, &box->resource);
+}
+
+// ============================================================================
+// File Descriptor Handles
+// ============================================================================
+
+FileDescriptorHandle create_fd_handle(int fd) {
+#ifdef _WIN32
+    throw std::runtime_error("create_fd_handle is not supported on Windows");
+#else
+    return FileDescriptorHandle(
+        new int(fd),
+        [](const int* p) { ::close(*p); delete p; }
+    );
+#endif
+}
+
+FileDescriptorHandle create_fd_handle_ref(int fd) {
+#ifdef _WIN32
+    throw std::runtime_error("create_fd_handle_ref is not supported on Windows");
+#else
+    return std::make_shared<const int>(fd);
+#endif
 }
 
 }  // namespace cuda_core

@@ -19,7 +19,7 @@ from cuda.pathfinder._headers.header_descriptor import (
     platform_include_subdirs,
     resolve_conda_anchor,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 if TYPE_CHECKING:
@@ -100,14 +100,14 @@ def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     return None
 
 
-def find_in_cuda_home(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
-    """Search ``$CUDA_HOME`` / ``$CUDA_PATH``."""
-    cuda_home = get_cuda_home_or_path()
+def find_in_cuda_path(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+    """Search ``$CUDA_PATH`` / ``$CUDA_HOME``."""
+    cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
     result = _locate_in_anchor_layout(desc, cuda_home)
     if result is not None:
-        return LocatedHeaderDir(abs_path=result, found_via="CUDA_HOME")
+        return LocatedHeaderDir(abs_path=result, found_via="CUDA_PATH")
     return None
 
 
@@ -115,7 +115,7 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Try CTK header lookup via CTK-root canary probing.
 
     Skips immediately if the descriptor does not opt in (``use_ctk_root_canary``).
-    Otherwise, system-loads ``cudart`` in a spawned child process, derives
+    Otherwise, system-loads ``cudart`` in a fully isolated Python subprocess, derives
     CTK root from the resolved library path, and searches the expected include
     layout under that root.
     """
@@ -150,7 +150,7 @@ def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | No
 FIND_STEPS: tuple[HeaderFindStep, ...] = (
     find_in_site_packages,
     find_in_conda,
-    find_in_cuda_home,
+    find_in_cuda_path,
     find_via_ctk_root_canary,
     find_in_system_install_dirs,
 )
@@ -189,7 +189,7 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
     Search order:
         1. **NVIDIA Python wheels** — site-packages directories from the descriptor.
         2. **Conda environments** — platform-specific conda include layouts.
-        3. **CUDA Toolkit environment variables** — ``CUDA_HOME`` / ``CUDA_PATH``.
+        3. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
         4. **CTK root canary probe** — subprocess canary (descriptors with
            ``use_ctk_root_canary=True`` only).
         5. **System install directories** — glob patterns from the descriptor.
@@ -217,7 +217,7 @@ def find_nvidia_header_directory(libname: str) -> str | None:
     Search order:
         1. **NVIDIA Python wheels** — site-packages directories from the descriptor.
         2. **Conda environments** — platform-specific conda include layouts.
-        3. **CUDA Toolkit environment variables** — ``CUDA_HOME`` / ``CUDA_PATH``.
+        3. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
         4. **CTK root canary probe** — subprocess canary (descriptors with
            ``use_ctk_root_canary=True`` only).
         5. **System install directories** — glob patterns from the descriptor.

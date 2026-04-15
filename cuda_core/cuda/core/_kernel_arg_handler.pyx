@@ -16,6 +16,8 @@ import ctypes
 import numpy
 
 from cuda.core._memory import Buffer
+from cuda.core._tensor_map import TensorMapDescriptor as _TensorMapDescriptor_py
+from cuda.core._tensor_map cimport TensorMapDescriptor
 from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
@@ -97,6 +99,9 @@ cdef object numpy_complex64 = numpy.complex64
 cdef object numpy_complex128 = numpy.complex128
 
 
+cdef object tensor_map_descriptor_type = _TensorMapDescriptor_py
+
+
 # limitation due to cython/cython#534
 ctypedef void* voidptr
 
@@ -121,6 +126,17 @@ cdef inline int prepare_arg(
         (<supported_type*>ptr)[0] = <supported_type>(arg)
     data_addresses[idx] = ptr  # take the address to the scalar
     data[idx] = ptr  # for later dealloc
+    return 0
+
+
+cdef inline int prepare_tensor_map_arg(
+        vector.vector[void*]& data,
+        vector.vector[void*]& data_addresses,
+        TensorMapDescriptor arg,
+        const size_t idx) except -1:
+    # cuLaunchKernel copies argument bytes during launch, so a TensorMap
+    # descriptor can point directly at its internal CUtensorMap storage.
+    data_addresses[idx] = arg._get_data_ptr()
     return 0
 
 
@@ -289,6 +305,9 @@ cdef class ParamHolder:
                 continue
             elif arg_type is complex:
                 prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)
+                continue
+            elif arg_type is tensor_map_descriptor_type:
+                prepare_tensor_map_arg(self.data, self.data_addresses, <TensorMapDescriptor>arg, i)
                 continue
 
             not_prepared = prepare_numpy_arg(self.data, self.data_addresses, arg, i)

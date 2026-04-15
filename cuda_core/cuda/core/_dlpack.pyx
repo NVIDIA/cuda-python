@@ -88,20 +88,28 @@ cdef inline int setup_dl_tensor_layout(DLTensor* dl_tensor, object buf) except -
     return 0
 
 
+def classify_dl_device(buf) -> tuple[int, int]:
+    """Classify a buffer into a DLPack (device_type, device_id) pair.
+
+    ``buf`` must expose ``is_device_accessible``, ``is_host_accessible``,
+    ``is_managed``, and ``device_id`` attributes.
+    """
+    cdef bint d = buf.is_device_accessible
+    cdef bint h = buf.is_host_accessible
+    if d and not h:
+        return (_kDLCUDA, buf.device_id)
+    if d and h:
+        return (_kDLCUDAManaged if buf.is_managed else _kDLCUDAHost, 0)
+    if not d and h:
+        return (_kDLCPU, 0)
+    raise BufferError("buffer is neither device-accessible nor host-accessible")
+
+
 cdef inline int setup_dl_tensor_device(DLTensor* dl_tensor, object buf) except -1:
     cdef DLDevice* device = &dl_tensor.device
-    # buf should be a Buffer instance
-    if buf.is_device_accessible and not buf.is_host_accessible:
-        device.device_type = _kDLCUDA
-        device.device_id = buf.device_id
-    elif buf.is_device_accessible and buf.is_host_accessible:
-        device.device_type = _kDLCUDAHost
-        device.device_id = 0
-    elif not buf.is_device_accessible and buf.is_host_accessible:
-        device.device_type = _kDLCPU
-        device.device_id = 0
-    else:  # not buf.is_device_accessible and not buf.is_host_accessible
-        raise BufferError("invalid buffer")
+    dev_type, dev_id = classify_dl_device(buf)
+    device.device_type = <_DLDeviceType>dev_type
+    device.device_id = <int32_t>dev_id
     return 0
 
 

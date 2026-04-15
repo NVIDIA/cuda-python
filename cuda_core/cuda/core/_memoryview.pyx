@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from ._dlpack cimport *
+from ._dlpack import classify_dl_device
 from libc.stdint cimport intptr_t
 from cuda.core._layout cimport _StridedLayout, get_strides_ptr
 from cuda.core._stream import Stream
@@ -107,35 +108,6 @@ cdef class StridedMemoryView:
         it will be the Buffer instance passed to the method.
 
     """
-    cdef readonly:
-        intptr_t ptr
-        int device_id
-        bint is_device_accessible
-        bint readonly
-        object exporting_obj
-
-    cdef:
-        # If using dlpack, this is a strong reference to the result of
-        # obj.__dlpack__() so we can lazily create shape and strides from
-        # it later.  If using CAI, this is a reference to the source
-        # `__cuda_array_interface__` object.
-        object metadata
-
-        # The tensor object if has obj has __dlpack__, otherwise must be NULL
-        DLTensor *dl_tensor
-
-        # Memoized properties
-        # Either lazily inferred from dl_tensor/metadata,
-        # or explicitly provided if created with from_buffer().
-        _StridedLayout _layout
-        # Either exporting_obj if it is a Buffer, otherwise a Buffer instance
-        # with owner set to the exporting object.
-        object _buffer
-        # Either lazily inferred from dl_tensor/metadata,
-        # or explicitly provided if created with from_buffer().
-        # In the latter case, it can be None.
-        object _dtype
-
     def __init__(self, obj: object = None, stream_ptr: int | None = None) -> None:
         cdef str clsname = self.__class__.__name__
         if obj is not None:
@@ -315,6 +287,44 @@ cdef class StridedMemoryView:
             dtype = self.get_dtype()
         view_buffer_strided(view, self.get_buffer(), layout, dtype, self.readonly)
         return view
+
+    def as_tensor_map(
+        self,
+        box_dim=None,
+        *,
+        options=None,
+        element_strides=None,
+        data_type=None,
+        interleave=None,
+        swizzle=None,
+        l2_promotion=None,
+        oob_fill=None,
+    ):
+        """Create a tiled :obj:`TensorMapDescriptor` from this view.
+
+        This is the public entry point for creating tiled tensor map
+        descriptors in ``cuda.core``. Pass either ``box_dim`` and the
+        individual keyword arguments directly, or provide bundled tiled
+        options via ``options=``.
+        """
+        from cuda.core._tensor_map import TensorMapDescriptor
+
+        kwargs = {}
+        if options is not None:
+            kwargs["options"] = options
+        if element_strides is not None:
+            kwargs["element_strides"] = element_strides
+        if data_type is not None:
+            kwargs["data_type"] = data_type
+        if interleave is not None:
+            kwargs["interleave"] = interleave
+        if swizzle is not None:
+            kwargs["swizzle"] = swizzle
+        if l2_promotion is not None:
+            kwargs["l2_promotion"] = l2_promotion
+        if oob_fill is not None:
+            kwargs["oob_fill"] = oob_fill
+        return TensorMapDescriptor._from_tiled(self, box_dim, **kwargs)
 
     def copy_from(
         self, other : StridedMemoryView, stream : Stream,
@@ -581,8 +591,6 @@ cdef inline int _smv_get_dl_device(
     cdef _DLDeviceType device_type
     cdef int32_t device_id
     cdef object buf
-    cdef bint d
-    cdef bint h
     if view.dl_tensor != NULL:
         device_type = view.dl_tensor.device.device_type
         if device_type == _kDLCUDA:
@@ -592,20 +600,9 @@ cdef inline int _smv_get_dl_device(
             device_id = 0
     elif view.is_device_accessible:
         buf = view.get_buffer()
-        d = buf.is_device_accessible
-        h = buf.is_host_accessible
-        if d and (not h):
-            device_type = _kDLCUDA
-            device_id = buf.device_id
-        elif d and h:
-            # We do not currently differentiate pinned vs managed here.
-            device_type = _kDLCUDAHost
-            device_id = 0
-        elif (not d) and h:
-            device_type = _kDLCPU
-            device_id = 0
-        else:
-            raise BufferError("buffer is neither device-accessible nor host-accessible")
+        dev_type, dev_id = classify_dl_device(buf)
+        device_type = <_DLDeviceType>dev_type
+        device_id = <int32_t>dev_id
     else:
         device_type = _kDLCPU
         device_id = 0

@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass
 from typing import NoReturn, TypedDict
 
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
@@ -92,7 +92,7 @@ class _FindStaticLib:
         return None
 
     def try_with_cuda_home(self) -> str | None:
-        cuda_home = get_cuda_home_or_path()
+        cuda_home = get_cuda_path_or_home()
         if cuda_home is None:
             self.error_messages.append("CUDA_HOME/CUDA_PATH not set")
             return None
@@ -149,7 +149,7 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
             name=name,
             abs_path=abs_path,
             filename=finder.filename,
-            found_via="CUDA_HOME",
+            found_via="CUDA_PATH",
         )
 
     finder.raise_not_found_error()

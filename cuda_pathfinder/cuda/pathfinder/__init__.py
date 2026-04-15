@@ -59,6 +59,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib as locate_static_lib,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home as get_cuda_path_or_home
 
 from cuda.pathfinder._version import __version__  # isort: skip
 

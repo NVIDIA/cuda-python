@@ -28,7 +28,7 @@ class LoadedDL:
     abs_path: str | None
     was_already_loaded_from_elsewhere: bool
     _handle_uint: int  # Platform-agnostic unsigned pointer value
-    found_via: str
+    found_via: str  # "CUDA_PATH" covers both CUDA_PATH and CUDA_HOME env vars
 
 
 def load_dependencies(desc: LibDescriptor, load_func: Callable[[str], LoadedDL]) -> None:

@@ -5,6 +5,7 @@
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._resource_handles cimport FileDescriptorHandle
 
 
 # Holds _MemPool objects imported by this process.  This enables
@@ -46,8 +47,8 @@ cdef class IPCBufferDescriptor:
 
 cdef class IPCAllocationHandle:
     cdef:
-        int    _handle
-        object _uuid
+        FileDescriptorHandle _h_fd
+        object               _uuid
 
     cpdef close(self)
 

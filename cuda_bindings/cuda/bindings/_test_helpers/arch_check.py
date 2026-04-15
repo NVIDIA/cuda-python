@@ -8,6 +8,7 @@ from functools import cache
 import pytest
 
 from cuda.bindings import nvml
+from cuda.bindings._internal.utils import FunctionNotFoundError as NvmlSymbolNotFoundError
 
 
 @cache
@@ -49,9 +50,10 @@ def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str 
 
         try:
             yield
-        except nvml.NotSupportedError:
-            # The API call raised NotSupportedError, so we skip the test, but
-            # don't fail it
+        except (nvml.NotSupportedError, nvml.FunctionNotFoundError, NvmlSymbolNotFoundError):
+            # The API call raised NotSupportedError, NVML status FunctionNotFoundError,
+            # or NvmlSymbolNotFoundError (symbol absent from the loaded NVML DLL), so we
+            # skip the test but don't fail it
             pytest.skip(
                 f"Unsupported call for device architecture {nvml.DeviceArch(device_arch).name} "
                 f"on device '{nvml.device_get_name(device)}'"

@@ -33,14 +33,45 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 _extensions = None
 
 
+# Please keep in sync with the copy in cuda_core/build_hooks.py.
+def _import_get_cuda_path_or_home():
+    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
+
+    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
+    """
+    try:
+        import cuda.pathfinder
+    except ModuleNotFoundError as exc:
+        if exc.name not in ("cuda", "cuda.pathfinder"):
+            raise
+        try:
+            import cuda
+        except ModuleNotFoundError:
+            cuda = None
+
+        for p in sys.path:
+            sp_cuda = os.path.join(p, "cuda")
+            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
+                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+                break
+        else:
+            raise ModuleNotFoundError(
+                "cuda-pathfinder is not installed in the build environment. "
+                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
+            )
+        import cuda.pathfinder
+
+    return cuda.pathfinder.get_cuda_path_or_home
+
+
 @functools.cache
-def _get_cuda_paths() -> list[str]:
-    CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
-    if not CUDA_HOME:
-        raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
-    CUDA_HOME = CUDA_HOME.split(os.pathsep)
-    print("CUDA paths:", CUDA_HOME)
-    return CUDA_HOME
+def _get_cuda_path() -> str:
+    get_cuda_path_or_home = _import_get_cuda_path_or_home()
+    cuda_path = get_cuda_path_or_home()
+    if not cuda_path:
+        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+    print("CUDA path:", cuda_path)
+    return cuda_path
 
 
 # -----------------------------------------------------------------------
@@ -133,8 +164,8 @@ def _fetch_header_paths(required_headers, include_path_list):
     if missing_headers:
         error_message = "Couldn't find required headers: "
         error_message += ", ".join(missing_headers)
-        cuda_paths = _get_cuda_paths()
-        raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{cuda_paths}")')
+        cuda_path = _get_cuda_path()
+        raise RuntimeError(f'{error_message}\nIs CUDA_PATH setup correctly? (CUDA_PATH="{cuda_path}")')
 
     return header_dict
 
@@ -280,7 +311,7 @@ def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compi
 # Main build function
 
 
-def _build_cuda_bindings(strip=False):
+def _build_cuda_bindings(debug=False):
     """Build all cuda-bindings extensions.
 
     All CUDA-dependent logic (header parsing, code generation, cythonization)
@@ -291,7 +322,7 @@ def _build_cuda_bindings(strip=False):
 
     global _extensions
 
-    cuda_paths = _get_cuda_paths()
+    cuda_path = _get_cuda_path()
 
     if os.environ.get("PARALLEL_LEVEL") is not None:
         warn(
@@ -307,7 +338,7 @@ def _build_cuda_bindings(strip=False):
     compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
     # Parse CUDA headers
-    include_path_list = [os.path.join(path, "include") for path in cuda_paths]
+    include_path_list = [os.path.join(cuda_path, "include")]
     header_dict = _fetch_header_paths(_REQUIRED_HEADERS, include_path_list)
     found_types, found_functions, found_values, found_struct, struct_list = _parse_headers(
         header_dict, include_path_list, parser_caching
@@ -347,26 +378,28 @@ def _build_cuda_bindings(strip=False):
     ] + include_path_list
     library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
     cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
-    library_dirs.extend(os.path.join(prefix, subdir) for prefix in cuda_paths for subdir in cudalib_subdirs)
+    library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
 
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        if debug:
+            raise RuntimeError("Debuggable builds are not supported on Windows.")
+    else:
         extra_compile_args += [
             "-std=c++14",
             "-fpermissive",
             "-Wno-deprecated-declarations",
             "-fno-var-tracking-assignments",
         ]
-        if "--debug" in sys.argv:
+        if debug:
             extra_cythonize_kwargs["gdb_debug"] = True
             extra_compile_args += ["-g", "-O0"]
             extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]
         else:
             extra_compile_args += ["-O3"]
-            if strip and sys.platform == "linux":
-                extra_link_args += ["-Wl,--strip-all"]
+            extra_link_args += ["-Wl,--strip-all"]
     if compile_for_coverage:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
         # related to free-threading builds.
@@ -426,10 +459,13 @@ def _build_cuda_bindings(strip=False):
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(strip=True)
+    debug = config_settings.get("debug", False) if config_settings else False
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    _build_cuda_bindings(strip=False)
+    debug_default = sys.platform != "win32"  # Debug builds not supported on Windows
+    debug = config_settings.get("debug", debug_default) if config_settings else debug_default
+    _build_cuda_bindings(debug=debug)
     return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)

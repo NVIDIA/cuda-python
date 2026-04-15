@@ -19,7 +19,7 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
     _find_lib_dir_using_anchor,
     find_in_conda,
-    find_in_cuda_home,
+    find_in_cuda_path,
     find_in_site_packages,
     run_find_steps,
 )
@@ -191,14 +191,14 @@ class TestFindInConda:
 
 
 # ---------------------------------------------------------------------------
-# find_in_cuda_home
+# find_in_cuda_path
 # ---------------------------------------------------------------------------
 
 
 class TestFindInCudaHome:
     def test_returns_none_without_env_var(self, mocker):
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=None)
-        assert find_in_cuda_home(_ctx(platform=LinuxSearchPlatform())) is None
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=None)
+        assert find_in_cuda_path(_ctx(platform=LinuxSearchPlatform())) is None
 
     def test_found_linux(self, mocker, tmp_path):
         lib_dir = tmp_path / "lib64"
@@ -206,12 +206,12 @@ class TestFindInCudaHome:
         so_file = lib_dir / "libcudart.so"
         so_file.touch()
 
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        result = find_in_cuda_home(_ctx(platform=LinuxSearchPlatform()))
+        result = find_in_cuda_path(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(so_file)
-        assert result.found_via == "CUDA_HOME"
+        assert result.found_via == "CUDA_PATH"
 
     def test_found_windows(self, mocker, tmp_path):
         bin_dir = tmp_path / "bin"
@@ -219,12 +219,12 @@ class TestFindInCudaHome:
         dll = bin_dir / "cudart64_12.dll"
         dll.touch()
 
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        result = find_in_cuda_home(_ctx(platform=WindowsSearchPlatform()))
+        result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(dll)
-        assert result.found_via == "CUDA_HOME"
+        assert result.found_via == "CUDA_PATH"
 
 
 # ---------------------------------------------------------------------------
@@ -269,7 +269,7 @@ class TestStepTuples:
         assert find_in_conda in EARLY_FIND_STEPS
 
     def test_late_find_steps_contains_expected(self):
-        assert find_in_cuda_home in LATE_FIND_STEPS
+        assert find_in_cuda_path in LATE_FIND_STEPS
 
     def test_early_and_late_are_disjoint(self):
         assert not set(EARLY_FIND_STEPS) & set(LATE_FIND_STEPS)
@@ -318,8 +318,8 @@ class TestAnchorRelDirs:
         assert _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path)) is None
 
     def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
-        """End-to-end: find_in_cuda_home resolves nvvm under its custom subdir."""
-        mocker.patch(f"{_STEPS_MOD}.get_cuda_home_or_path", return_value=str(tmp_path))
+        """End-to-end: find_in_cuda_path resolves nvvm under its custom subdir."""
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         nvvm_dir = tmp_path / "nvvm" / "lib64"
         nvvm_dir.mkdir(parents=True)
@@ -331,7 +331,7 @@ class TestAnchorRelDirs:
             linux_sonames=("libnvvm.so",),
             anchor_rel_dirs_linux=("nvvm/lib64",),
         )
-        result = find_in_cuda_home(_ctx(desc, platform=LinuxSearchPlatform()))
+        result = find_in_cuda_path(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(so_file)
-        assert result.found_via == "CUDA_HOME"
+        assert result.found_via == "CUDA_PATH"
