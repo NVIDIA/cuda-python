@@ -257,6 +257,7 @@ Types
    system.InforomInfo
    system.MemoryInfo
    system.PciInfo
+   system.ProcessInfo
    system.RepairStatus
    system.Temperature
    system.ThermalSensor
