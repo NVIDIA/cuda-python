@@ -729,3 +729,16 @@ def test_pstates():
             assert isinstance(utilization.percentage, int)
             assert isinstance(utilization.inc_threshold, int)
             assert isinstance(utilization.dec_threshold, int)
+
+
+def test_compute_running_processes():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, "FERMI"):
+            processes = device.compute_running_processes
+        assert isinstance(processes, list)
+        for proc in processes:
+            assert isinstance(proc, system.ProcessInfo)
+            assert isinstance(proc.pid, int)
+            assert isinstance(proc.used_gpu_memory, int)
+            assert isinstance(proc.gpu_instance_id, int)
+            assert isinstance(proc.compute_instance_id, int)
