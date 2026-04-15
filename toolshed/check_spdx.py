@@ -17,7 +17,12 @@ SPDX_FILE_COPYRIGHT_TEXT_PREFIX = b"-".join((b"SPDX", b"FileCopyrightText: "))
 
 LICENSE_IDENTIFIER_REGEX = re.compile(re.escape(SPDX_LICENSE_IDENTIFIER_PREFIX) + rb"(?P<license_identifier>[^\r\n]+)")
 
-EXPECTED_LICENSE_IDENTIFIERS = (("cuda_core/", "Apache-2.0"),)
+EXPECTED_LICENSE_IDENTIFIERS = (
+    ("cuda_bindings/", "LicenseRef-NVIDIA-SOFTWARE-LICENSE"),
+    ("cuda_core/", "Apache-2.0"),
+    ("cuda_pathfinder/", "Apache-2.0"),
+    ("cuda_python/", "LicenseRef-NVIDIA-SOFTWARE-LICENSE"),
+)
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
