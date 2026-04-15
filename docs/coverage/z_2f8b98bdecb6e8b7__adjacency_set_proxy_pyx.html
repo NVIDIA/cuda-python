@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/graph/_adjacency_set_proxy.pyx: 86.99%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/graph/test_graphdef_mutation.py::test_adjacency_set_interface|run",
+  "b": "tests/graph/test_graphdef_mutation.py::test_adjacency_set_property_setter|run",
+  "c": "tests/graph/test_graphdef_mutation.py::test_adjacency_set_pred_direction|run",
+  "d": "tests/graph/test_graphdef.py::test_identity_preservation|run",
+  "e": "tests/graph/test_graphdef_mutation.py::test_convert_linear_to_fan_in|run",
+  "f": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_joint|run",
+  "g": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_insert_b|run",
+  "h": "tests/graph/test_graphdef_mutation.py::test_destroyed_node|run",
+  "i": "(empty)",
+  "j": "tests/graph/test_graphdef_mutation.py::TestMutateYRig::test_destroy_a2|run",
+  "k": "tests/graph/test_graphdef_mutation.py::test_cross_graph_edge|run",
+  "l": "tests/graph/test_graphdef_mutation.py::test_self_edge|run",
+  "m": "tests/graph/test_graphdef.py::test_launch_chain_dependencies|run",
+  "n": "tests/graph/test_graphdef.py::test_alloc_free_chain|run",
+  "o": "tests/graph/test_graphdef.py::test_free_creates_dependency|run",
+  "p": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[alloc]|run",
+  "q": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[alloc_managed]|run",
+  "r": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[empty]|run",
+  "s": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[event_record]|run",
+  "t": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[event_wait]|run",
+  "u": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[free]|run",
+  "v": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[kernel]|run",
+  "w": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[memcpy]|run",
+  "x": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[memset]|run",
+  "y": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[memset_2d]|run",
+  "z": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[memset_u16]|run",
+  "A": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[memset_u32]|run",
+  "B": "tests/graph/test_graphdef.py::test_join_merges_branches[2]|run",
+  "C": "tests/graph/test_graphdef.py::test_join_merges_branches[3]|run",
+  "D": "tests/graph/test_graphdef.py::test_join_merges_branches[5]|run",
+  "E": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[child_graph]|run",
+  "F": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[host_callback]|run",
+  "G": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[host_callback_cfunc]|run",
+  "H": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[if_cond]|run",
+  "I": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[if_else]|run",
+  "J": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[switch]|run",
+  "K": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[while_loop]|run",
+  "L": "tests/graph/test_graphdef.py::test_pred[chain]|run",
+  "M": "tests/graph/test_graphdef.py::test_pred[diamond]|run",
+  "N": "tests/graph/test_graphdef.py::test_pred[disconnected]|run",
+  "O": "tests/graph/test_graphdef.py::test_pred[fan_in]|run",
+  "P": "tests/graph/test_graphdef.py::test_pred[fan_out]|run",
+  "Q": "tests/graph/test_graphdef.py::test_pred[single]|run",
+  "R": "tests/graph/test_graphdef.py::test_succ[chain]|run",
+  "S": "tests/graph/test_graphdef.py::test_succ[diamond]|run",
+  "T": "tests/graph/test_graphdef.py::test_succ[disconnected]|run",
+  "U": "tests/graph/test_graphdef.py::test_succ[fan_in]|run",
+  "V": "tests/graph/test_graphdef.py::test_succ[fan_out]|run",
+  "W": "tests/graph/test_graphdef.py::test_succ[single]|run",
+  "X": "tests/graph/test_graphdef_errors.py::test_join_single_predecessor|run",
+  "Y": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "Z": "tests/graph/test_graphdef.py::test_graphdef_entry_is_virtual|run",
+  "0": "tests/graph/test_graphdef_mutation.py::test_add_wrong_type|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;graph&#8201;/&#8201;_adjacency_set_proxy.pyx</b>:
+            <span class="pc_cov">86.99%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">146 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">127<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">19<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_b1c5cc5642be1834_version_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__graph_builder_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
+            created at 2026-04-15 01:51 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">"""Mutable-set proxy for graph node predecessors and successors."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from libc.stddef cimport size_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">from libcpp.vector cimport vector</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from cuda.core.graph._graph_node cimport GraphNode</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">from cuda.core._resource_handles cimport (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    GraphHandle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    GraphNodeHandle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    as_cu,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    graph_node_get_graph,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils cimport HANDLE_RETURN</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">from collections.abc import MutableSet</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt"># ---- Python MutableSet wrapper ----------------------------------------------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">class AdjacencySetProxy(MutableSet):</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    """Mutable set proxy for a node's predecessors or successors.  Mutations</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    write through to the underlying CUDA graph."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    __slots__ = ("_core",)</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    def __init__(self, node, bint is_fwd):</span>&nbsp;</span><span class="r"><label for="ctxs29" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">        self._core = _AdjacencySetCore(node, is_fwd)</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">52 ctx</label></span><span class="ctxs">1noZdBCDmpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYjfg0acbekhl</span></p>
+    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    # Used by operators such as &amp;|^ to create non-proxy views when needed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    def _from_iterable(cls, it):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        return set(it)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">    # --- abstract methods required by MutableSet ---</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    def __contains__(self, x):</span>&nbsp;</span><span class="r"><label for="ctxs39" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">        if not isinstance(x, GraphNode):</span>&nbsp;</span><input type="checkbox" id="ctxs40"><span class="r"><label for="ctxs40" class="ctx">14 ctx</label></span><span class="ctxs">1nodmjfgacbekhl</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">            return False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        return (&lt;_AdjacencySetCore>self._core).contains(&lt;GraphNode>x)</span>&nbsp;</span><input type="checkbox" id="ctxs42"><span class="r"><label for="ctxs42" class="ctx">14 ctx</label></span><span class="ctxs">1nodmjfgacbekhl</span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    def __iter__(self):</span>&nbsp;</span><span class="r"><label for="ctxs44" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        return iter((&lt;_AdjacencySetCore>self._core).query())</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">42 ctx</label></span><span class="ctxs">1ZdBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYacbh</span></p>
+    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">    def __len__(self):</span>&nbsp;</span><span class="r"><label for="ctxs47" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        return (&lt;_AdjacencySetCore>self._core).count()</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">5 ctx</label></span><span class="ctxs">1Zacbh</span></p>
+    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    def add(self, value):</span>&nbsp;</span><span class="r"><label for="ctxs50" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        if not isinstance(value, GraphNode):</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">9 ctx</label></span><span class="ctxs">1jg0acekhl</span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">            raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">1 ctx</label></span><span class="ctxs">10</span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">                f"expected GraphNode, got {type(value).__name__}")</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">1 ctx</label></span><span class="ctxs">10</span></p>
+    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        if value in self:</span>&nbsp;</span><input type="checkbox" id="ctxs54"><span class="r"><label for="ctxs54" class="ctx">8 ctx</label></span><span class="ctxs">1jgacekhl</span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">        (&lt;_AdjacencySetCore>self._core).add_edge(&lt;GraphNode>value)</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">8 ctx</label></span><span class="ctxs">1jgacekhl</span></p>
+    <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">    def discard(self, value):</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">        if not isinstance(value, GraphNode):</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">3 ctx</label></span><span class="ctxs">1gac</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">        if value not in self:</span>&nbsp;</span><input type="checkbox" id="ctxs61"><span class="r"><label for="ctxs61" class="ctx">3 ctx</label></span><span class="ctxs">1gac</span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        (&lt;_AdjacencySetCore>self._core).remove_edge(&lt;GraphNode>value)</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">3 ctx</label></span><span class="ctxs">1gac</span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    # --- override for bulk efficiency ---</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    def clear(self):</span>&nbsp;</span><span class="r"><label for="ctxs67" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">        """Remove all edges in a single driver call."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        members = (&lt;_AdjacencySetCore>self._core).query()</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">5 ctx</label></span><span class="ctxs">1dfabe</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">        if members:</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">5 ctx</label></span><span class="ctxs">1dfabe</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">            (&lt;_AdjacencySetCore>self._core).remove_edges(members)</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    def __isub__(self, it):</span>&nbsp;</span><span class="r"><label for="ctxs73" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        """Remove edges to all nodes in *it* in a single driver call."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">        if it is self:</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">            self.clear()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">            to_remove = [v for v in it if isinstance(v, GraphNode) and v in self]</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            if to_remove:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                (&lt;_AdjacencySetCore>self._core).remove_edges(to_remove)</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    def update(self, *others):</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        """Add edges to multiple nodes at once."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">        nodes = []</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        for other in others:</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">            if isinstance(other, GraphNode):</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">                nodes.append(other)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">            else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">                for n in other:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">                    if not isinstance(n, GraphNode):</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">                        raise TypeError(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">                            f"expected GraphNode, got {type(n).__name__}")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">                    nodes.append(n)</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        if not nodes:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">            return</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        new = [n for n in nodes if n not in self]</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        if new:</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            (&lt;_AdjacencySetCore>self._core).add_edges(new)</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">    def __ior__(self, it):</span>&nbsp;</span><span class="r"><label for="ctxs101" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">        """Add edges to all nodes in *it* in a single driver call."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        self.update(it)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"><label for="ctxs106" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return "{" + ", ".join(repr(n) for n in self) + "}"</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt"># ---- cdef core holding a function pointer ------------------------------------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt"># Signature shared by driver_get_preds and driver_get_succs.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">ctypedef cydriver.CUresult (*_adj_fn_t)(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    cydriver.CUgraphNode, cydriver.CUgraphNode*, size_t*) noexcept nogil</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">cdef class _AdjacencySetCore:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    """Cythonized core implementing AdjacencySetProxy"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    cdef:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">        GraphNodeHandle _h_node</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        GraphHandle _h_graph</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        _adj_fn_t _query_fn</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        bint _is_fwd</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    def __init__(self, GraphNode node, bint is_fwd):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        self._h_node = node._h_node</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">52 ctx</label></span><span class="ctxs">1noZdBCDmpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYjfg0acbekhl</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">        self._h_graph = graph_node_get_graph(node._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">52 ctx</label></span><span class="ctxs">1noZdBCDmpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYjfg0acbekhl</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        self._is_fwd = is_fwd</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">52 ctx</label></span><span class="ctxs">1noZdBCDmpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYjfg0acbekhl</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        self._query_fn = driver_get_succs if is_fwd else driver_get_preds</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">52 ctx</label></span><span class="ctxs">1noZdBCDmpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYjfg0acbekhl</span></p>
+    <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    cdef inline void _resolve_edge(</span>&nbsp;</span><span class="r"><label for="ctxs131" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">            self, GraphNode other,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">            cydriver.CUgraphNode* c_from,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">            cydriver.CUgraphNode* c_to) noexcept:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">        if self._is_fwd:</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">11 ctx</label></span><span class="ctxs">1djfgacbekhl</span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">            c_from[0] = as_cu(self._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">9 ctx</label></span><span class="ctxs">1djgabekhl</span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">            c_to[0] = as_cu(other._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">9 ctx</label></span><span class="ctxs">1djgabekhl</span></p>
+    <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">            c_from[0] = as_cu(other._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">4 ctx</label></span><span class="ctxs">1fcbe</span></p>
+    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">            c_to[0] = as_cu(self._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">4 ctx</label></span><span class="ctxs">1fcbe</span></p>
+    <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">    cdef list query(self):</span>&nbsp;</span><span class="r"><label for="ctxs142" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs143"><span class="r"><label for="ctxs143" class="ctx">44 ctx</label></span><span class="ctxs">1ZdBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbeh</span></p>
+    <p class="run"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        if c_node == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs144"><span class="r"><label for="ctxs144" class="ctx">44 ctx</label></span><span class="ctxs">1ZdBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbeh</span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">            return []</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">2 ctx</label></span><span class="ctxs">1Zh</span></p>
+    <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode buf[16]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">        cdef size_t count = 16</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">42 ctx</label></span><span class="ctxs">1dBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbe</span></p>
+    <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">        cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">42 ctx</label></span><span class="ctxs">1dBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbe</span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">            HANDLE_RETURN(self._query_fn(c_node, buf, &amp;count))</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">42 ctx</label></span><span class="ctxs">1dBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbe</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        if count &lt;= 16:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">42 ctx</label></span><span class="ctxs">1dBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbe</span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">            return [GraphNode._create(self._h_graph, buf[i])</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">42 ctx</label></span><span class="ctxs">1dBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbe</span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">                    for i in range(count)]</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">42 ctx</label></span><span class="ctxs">1dBCDpqErstuFGHIvwxyzAJKLMNOPQRSTUVWXYfacbe</span></p>
+    <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUgraphNode] nodes_vec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">        nodes_vec.resize(count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">            HANDLE_RETURN(self._query_fn(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">                c_node, nodes_vec.data(), &amp;count))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        return [GraphNode._create(self._h_graph, nodes_vec[i])</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">                for i in range(count)]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">    cdef bint contains(self, GraphNode other):</span>&nbsp;</span><span class="r"><label for="ctxs162" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">14 ctx</label></span><span class="ctxs">1nodmjfgacbekhl</span></p>
+    <p class="run"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode target = as_cu(other._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs164"><span class="r"><label for="ctxs164" class="ctx">14 ctx</label></span><span class="ctxs">1nodmjfgacbekhl</span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        if c_node == NULL or target == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">14 ctx</label></span><span class="ctxs">1nodmjfgacbekhl</span></p>
+    <p class="run"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">            return False</span>&nbsp;</span><input type="checkbox" id="ctxs166"><span class="r"><label for="ctxs166" class="ctx">1 ctx</label></span><span class="ctxs">1h</span></p>
+    <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode buf[16]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">        cdef size_t count = 16</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">13 ctx</label></span><span class="ctxs">1nodmjfgacbekl</span></p>
+    <p class="pln"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">        cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">13 ctx</label></span><span class="ctxs">1nodmjfgacbekl</span></p>
+    <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">            HANDLE_RETURN(self._query_fn(c_node, buf, &amp;count))</span>&nbsp;</span><input type="checkbox" id="ctxs171"><span class="r"><label for="ctxs171" class="ctx">13 ctx</label></span><span class="ctxs">1nodmjfgacbekl</span></p>
+    <p class="pln"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        # Fast path for small sets.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">        if count &lt;= 16:</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">13 ctx</label></span><span class="ctxs">1nodmjfgacbekl</span></p>
+    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">            for i in range(count):</span>&nbsp;</span><input type="checkbox" id="ctxs175"><span class="r"><label for="ctxs175" class="ctx">13 ctx</label></span><span class="ctxs">1nodmjfgacbekl</span></p>
+    <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">                if buf[i] == target:</span>&nbsp;</span><input type="checkbox" id="ctxs176"><span class="r"><label for="ctxs176" class="ctx">7 ctx</label></span><span class="ctxs">1nomgacb</span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">                    return True</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">6 ctx</label></span><span class="ctxs">1nomgac</span></p>
+    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">            return False</span>&nbsp;</span><input type="checkbox" id="ctxs178"><span class="r"><label for="ctxs178" class="ctx">11 ctx</label></span><span class="ctxs">1dmjfgacbekl</span></p>
+    <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        # Fallback for large sets.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUgraphNode] nodes_vec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">        nodes_vec.resize(count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t184" href="#t184">184</a></span><span class="t"><span class="txt">            HANDLE_RETURN(self._query_fn(c_node, nodes_vec.data(), &amp;count))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">        assert count == nodes_vec.size()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">        for i in range(count):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">            if nodes_vec[i] == target:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">                return True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    cdef Py_ssize_t count(self):</span>&nbsp;</span><span class="r"><label for="ctxs191" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">5 ctx</label></span><span class="ctxs">1Zacbh</span></p>
+    <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">        if c_node == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs193"><span class="r"><label for="ctxs193" class="ctx">5 ctx</label></span><span class="ctxs">1Zacbh</span></p>
+    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">            return 0</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">2 ctx</label></span><span class="ctxs">1Zh</span></p>
+    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">        cdef size_t n = 0</span>&nbsp;</span><input type="checkbox" id="ctxs195"><span class="r"><label for="ctxs195" class="ctx">3 ctx</label></span><span class="ctxs">1acb</span></p>
+    <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs196"><span class="r"><label for="ctxs196" class="ctx">3 ctx</label></span><span class="ctxs">1acb</span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">            HANDLE_RETURN(self._query_fn(c_node, NULL, &amp;n))</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">3 ctx</label></span><span class="ctxs">1acb</span></p>
+    <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        return &lt;Py_ssize_t>n</span>&nbsp;</span><input type="checkbox" id="ctxs198"><span class="r"><label for="ctxs198" class="ctx">3 ctx</label></span><span class="ctxs">1acb</span></p>
+    <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    cdef void add_edge(self, GraphNode other):</span>&nbsp;</span><span class="r"><label for="ctxs200" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode c_from, c_to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">        self._resolve_edge(other, &amp;c_from, &amp;c_to)</span>&nbsp;</span><input type="checkbox" id="ctxs202"><span class="r"><label for="ctxs202" class="ctx">8 ctx</label></span><span class="ctxs">1jgacekhl</span></p>
+    <p class="run"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs203"><span class="r"><label for="ctxs203" class="ctx">8 ctx</label></span><span class="ctxs">1jgacekhl</span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">            HANDLE_RETURN(driver_add_edges(as_cu(self._h_graph), &amp;c_from, &amp;c_to, 1))</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">8 ctx</label></span><span class="ctxs">1jgacekhl</span></p>
+    <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">    cdef void add_edges(self, list nodes):</span>&nbsp;</span><span class="r"><label for="ctxs206" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        cdef size_t n = len(nodes)</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUgraphNode] from_vec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUgraphNode] to_vec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">        from_vec.resize(n)</span>&nbsp;</span><input type="checkbox" id="ctxs210"><span class="r"><label for="ctxs210" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">        to_vec.resize(n)</span>&nbsp;</span><input type="checkbox" id="ctxs211"><span class="r"><label for="ctxs211" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        for i in range(n):</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">            self._resolve_edge(&lt;GraphNode>nodes[i], &amp;from_vec[i], &amp;to_vec[i])</span>&nbsp;</span><input type="checkbox" id="ctxs214"><span class="r"><label for="ctxs214" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">            HANDLE_RETURN(driver_add_edges(</span>&nbsp;</span><input type="checkbox" id="ctxs216"><span class="r"><label for="ctxs216" class="ctx">4 ctx</label></span><span class="ctxs">1dfab</span></p>
+    <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">                as_cu(self._h_graph), from_vec.data(), to_vec.data(), n))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">    cdef void remove_edge(self, GraphNode other):</span>&nbsp;</span><span class="r"><label for="ctxs219" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        cdef cydriver.CUgraphNode c_from, c_to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        self._resolve_edge(other, &amp;c_from, &amp;c_to)</span>&nbsp;</span><input type="checkbox" id="ctxs221"><span class="r"><label for="ctxs221" class="ctx">3 ctx</label></span><span class="ctxs">1gac</span></p>
+    <p class="run"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs222"><span class="r"><label for="ctxs222" class="ctx">3 ctx</label></span><span class="ctxs">1gac</span></p>
+    <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">            HANDLE_RETURN(driver_remove_edges(as_cu(self._h_graph), &amp;c_from, &amp;c_to, 1))</span>&nbsp;</span><input type="checkbox" id="ctxs223"><span class="r"><label for="ctxs223" class="ctx">3 ctx</label></span><span class="ctxs">1gac</span></p>
+    <p class="pln"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">    cdef void remove_edges(self, list nodes):</span>&nbsp;</span><span class="r"><label for="ctxs225" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">        cdef size_t n = len(nodes)</span>&nbsp;</span><input type="checkbox" id="ctxs226"><span class="r"><label for="ctxs226" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUgraphNode] from_vec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUgraphNode] to_vec</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        from_vec.resize(n)</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="run"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">        to_vec.resize(n)</span>&nbsp;</span><input type="checkbox" id="ctxs230"><span class="r"><label for="ctxs230" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">        cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">        for i in range(n):</span>&nbsp;</span><input type="checkbox" id="ctxs232"><span class="r"><label for="ctxs232" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="run"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">            self._resolve_edge(&lt;GraphNode>nodes[i], &amp;from_vec[i], &amp;to_vec[i])</span>&nbsp;</span><input type="checkbox" id="ctxs233"><span class="r"><label for="ctxs233" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs234"><span class="r"><label for="ctxs234" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">            HANDLE_RETURN(driver_remove_edges(</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">3 ctx</label></span><span class="ctxs">1abe</span></p>
+    <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">                as_cu(self._h_graph), from_vec.data(), to_vec.data(), n))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt"># ---- driver wrappers: absorb CUDA version differences ----</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">cdef inline cydriver.CUresult driver_get_preds(</span>&nbsp;</span><span class="r"><label for="ctxs241" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">        cydriver.CUgraphNode node, cydriver.CUgraphNode* out,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">        size_t* count) noexcept nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        return cydriver.cuGraphNodeGetDependencies(node, out, NULL, count)</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">38 ctx</label></span><span class="ctxs">1nodBCDmpqErstuFGHIvwxyzAJKLMNOPQXYfcbe</span></p>
+    <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">        return cydriver.cuGraphNodeGetDependencies(node, out, count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">cdef inline cydriver.CUresult driver_get_succs(</span>&nbsp;</span><span class="r"><label for="ctxs250" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        cydriver.CUgraphNode node, cydriver.CUgraphNode* out,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        size_t* count) noexcept nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        return cydriver.cuGraphNodeGetDependentNodes(node, out, NULL, count)</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">27 ctx</label></span><span class="ctxs">1dpqrstuvwxyzARSTUVWjgacbekl</span></p>
+    <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        return cydriver.cuGraphNodeGetDependentNodes(node, out, count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">cdef inline cydriver.CUresult driver_add_edges(</span>&nbsp;</span><span class="r"><label for="ctxs259" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">        cydriver.CUgraph graph, cydriver.CUgraphNode* from_arr,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">        cydriver.CUgraphNode* to_arr, size_t count) noexcept nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">        return cydriver.cuGraphAddDependencies(</span>&nbsp;</span><input type="checkbox" id="ctxs263"><span class="r"><label for="ctxs263" class="ctx">11 ctx</label></span><span class="ctxs">1djfgacbekhl</span></p>
+    <p class="pln"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">            graph, from_arr, to_arr, NULL, count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">        return cydriver.cuGraphAddDependencies(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">            graph, from_arr, to_arr, count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">cdef inline cydriver.CUresult driver_remove_edges(</span>&nbsp;</span><span class="r"><label for="ctxs270" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">        cydriver.CUgraph graph, cydriver.CUgraphNode* from_arr,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">        cydriver.CUgraphNode* to_arr, size_t count) noexcept nogil:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        return cydriver.cuGraphRemoveDependencies(</span>&nbsp;</span><input type="checkbox" id="ctxs274"><span class="r"><label for="ctxs274" class="ctx">5 ctx</label></span><span class="ctxs">1gacbe</span></p>
+    <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">            graph, from_arr, to_arr, NULL, count)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        return cydriver.cuGraphRemoveDependencies(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">            graph, from_arr, to_arr, count)</span>&nbsp;</span><span class="r"></span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_b1c5cc5642be1834_version_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_2f8b98bdecb6e8b7__graph_builder_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
+            created at 2026-04-15 01:51 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

@@ -22,12 +22,18 @@
   "m": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
   "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
   "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvvm]|run",
-  "p": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
-  "q": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
-  "r": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
-  "s": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutensor]|run",
-  "t": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufile]|run",
-  "u": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run"
+  "p": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[profiler]|run",
+  "q": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
+  "r": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
+  "s": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
+  "t": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cute]|run",
+  "u": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutensor]|run",
+  "v": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutlass]|run",
+  "w": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[mathdx]|run",
+  "x": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudla]|run",
+  "y": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufile]|run",
+  "z": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusolverMp]|run",
+  "A": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -90,7 +96,7 @@
             <a id="nextFileLink" class="nav" href="z_6650cae04eb59e5d_header_descriptor_catalog_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-25 01:07 +0000
+            created at 2026-04-15 01:51 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -139,9 +145,9 @@
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="str">    On Windows, Windows-specific subdirs are checked first, followed by the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="str">    common subdirs.  On Linux, only the common subdirs are returned.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">20 ctx</label></span><span class="ctxs">1bcdetfghijklmnopqrsu</span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="key">return</span> <span class="nam">cast</span><span class="op">(</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">,</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">include_subdirs_windows</span> <span class="op">+</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">include_subdirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">18 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrs</span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="key">return</span> <span class="nam">cast</span><span class="op">(</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">,</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">include_subdirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">20 ctx</label></span><span class="ctxs">1bcdetfghijklmnopqrsu</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">26 ctx</label></span><span class="ctxs">1bcdxeyfghijklmnopqrzstuvwA</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="key">return</span> <span class="nam">cast</span><span class="op">(</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">,</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">include_subdirs_windows</span> <span class="op">+</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">include_subdirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">22 ctx</label></span><span class="ctxs">1bcdefghijklmnopqrstuvw</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="key">return</span> <span class="nam">cast</span><span class="op">(</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">,</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">include_subdirs</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">26 ctx</label></span><span class="ctxs">1bcdxeyfghijklmnopqrzstuvwA</span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">def</span> <span class="nam">resolve_conda_anchor</span><span class="op">(</span><span class="nam">desc</span><span class="op">:</span> <span class="nam">HeaderDescriptor</span><span class="op">,</span> <span class="nam">conda_prefix</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
@@ -168,7 +174,7 @@
             <a class="nav" href="z_6650cae04eb59e5d_header_descriptor_catalog_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-25 01:07 +0000
+            created at 2026-04-15 01:51 +0000
         </p>
     </div>
 </footer>

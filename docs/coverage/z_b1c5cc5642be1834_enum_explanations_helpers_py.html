@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_utils/enum_explanations_helpers.py: 96.49%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_utils_enum_explanations_helpers.py::test_get_best_available_explanations_switches_by_version[from_12_9_6]|run",
+  "c": "tests/test_utils_enum_explanations_helpers.py::test_get_best_available_explanations_switches_by_version[from_13_2_0]|run",
+  "d": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[driver_invalid_context_multiple_roles]|run",
+  "e": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[driver_not_initialized_role_cleanup]|run",
+  "f": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[runtime_incompatible_driver_context_codegen_bug]|run",
+  "g": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[runtime_launch_timeout_role_cleanup]|run",
+  "h": "tests/test_cuda_utils.py::test_check_runtime_error|run",
+  "i": "tests/graph/test_graphdef.py::test_alloc_zero_size_fails|run",
+  "j": "tests/graph/test_graphdef_errors.py::test_condition_from_different_graph|run",
+  "k": "tests/graph/test_graphdef_errors.py::test_free_null_pointer|run",
+  "l": "tests/graph/test_graphdef_errors.py::test_switch_zero_branches|run",
+  "m": "tests/graph/test_graphdef_mutation.py::test_cross_graph_edge|run",
+  "n": "tests/graph/test_graphdef_mutation.py::test_destroyed_node|run",
+  "o": "tests/graph/test_graphdef_mutation.py::test_self_edge|run",
+  "p": "tests/test_cuda_utils.py::test_check_driver_error_attaches_explanation|run",
+  "q": "tests/test_cuda_utils.py::test_check_driver_error|run",
+  "r": "tests/test_cuda_utils.py::test_check_runtime_error_attaches_explanation|run",
+  "s": "tests/test_memory.py::test_vmm_allocator_grow_allocation[handle_type0]|run",
+  "t": "tests/test_module.py::test_num_args_error_handling|run",
+  "u": "tests/test_program.py::test_nvvm_program_creation_compilation|run",
+  "v": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[codegen_broken_interactions_role]|run",
+  "w": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[collapse_whitespace]|run",
+  "x": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[deprecated_line]|run",
+  "y": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_after]|run",
+  "z": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_after_digit]|run",
+  "A": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_after_uppercase]|run",
+  "B": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_before]|run",
+  "C": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_before_uppercase]|run",
+  "D": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[preserve_dash_separator]|run",
+  "E": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_non_py_domain_role]|run",
+  "F": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_py_domain_role]|run",
+  "G": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_py_role]|run",
+  "H": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_role_without_domain]|run",
+  "I": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[strip_bold]|run",
+  "J": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[strip_italic]|run",
+  "K": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[strip_padding]|run",
+  "L": "tests/test_utils_enum_explanations_helpers.py::test_docstring_backed_get_returns_default_for_missing_docstring|run",
+  "M": "tests/test_utils_enum_explanations_helpers.py::test_docstring_backed_get_returns_default_for_non_enum_code|run",
+  "N": "tests/test_utils_enum_explanations_helpers.py::test_driver_explanations_module_skips_fallback_import_when_docstrings_available|run",
+  "O": "tests/test_utils_enum_explanations_helpers.py::test_get_best_available_explanations_calls_loader_before_docstrings|run",
+  "P": "tests/test_utils_enum_explanations_helpers.py::test_get_best_available_explanations_switches_by_version[13_0_mainline_gap]|run",
+  "Q": "tests/test_utils_enum_explanations_helpers.py::test_get_best_available_explanations_switches_by_version[before_12_9_6]|run",
+  "R": "tests/test_utils_enum_explanations_helpers.py::test_runtime_explanations_module_skips_fallback_import_when_docstrings_available|run",
+  "S": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_none_input|run",
+  "T": "tests/test_cuda_utils.py::test_driver_error_enum_has_non_empty_docstring|run",
+  "U": "tests/test_cuda_utils.py::test_runtime_error_enum_has_non_empty_docstring|run",
+  "V": "tests/test_utils_enum_explanations_helpers.py::test_binding_version_has_usable_enum_docstrings[13_0_mainline_gap]|run",
+  "W": "tests/test_utils_enum_explanations_helpers.py::test_binding_version_has_usable_enum_docstrings[13_1_1]|run",
+  "X": "tests/test_utils_enum_explanations_helpers.py::test_binding_version_has_usable_enum_docstrings[before_12_9_6]|run",
+  "Y": "tests/test_utils_enum_explanations_helpers.py::test_binding_version_has_usable_enum_docstrings[from_12_9_6]|run",
+  "Z": "tests/test_utils_enum_explanations_helpers.py::test_binding_version_has_usable_enum_docstrings[from_13_2_0]|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda&#8201;/&#8201;core&#8201;/&#8201;_utils&#8201;/&#8201;enum_explanations_helpers.py</b>:
+            <span class="pc_cov">96.49%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">57 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">55<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">2<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_frozen_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_runtime_cuda_error_explanations_py.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
+            created at 2026-04-15 01:51 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="str">"""Internal support for error-enum explanations.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="str">``cuda_core`` keeps frozen 13.1.1 fallback tables for older ``cuda-bindings``</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="str">releases. Driver/runtime error enums carry usable ``__doc__`` text starting in</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="str">the 12.x backport line at ``cuda-bindings`` 12.9.6, and in the mainline 13.x</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="str">series at ``cuda-bindings`` 13.2.0. This module decides which source to use</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="str">and normalizes generated docstrings so user-facing ``CUDAError`` messages stay</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="str">presentable.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="str">The cleanup rules here were derived while validating generated enum docstrings</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="str">in PR #1805. Keep them narrow and remove them when codegen quirks or fallback</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="str">support are no longer needed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="key">import</span> <span class="nam">importlib</span><span class="op">.</span><span class="nam">metadata</span>&nbsp;</span><span class="r"><label for="ctxs20" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="key">import</span> <span class="nam">re</span>&nbsp;</span><span class="r"><label for="ctxs21" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="key">from</span> <span class="nam">collections</span><span class="op">.</span><span class="nam">abc</span> <span class="key">import</span> <span class="nam">Callable</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">Any</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="nam">_MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS</span> <span class="op">=</span> <span class="op">(</span><span class="num">12</span><span class="op">,</span> <span class="num">9</span><span class="op">,</span> <span class="num">6</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs25" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="nam">_MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS</span> <span class="op">=</span> <span class="op">(</span><span class="num">13</span><span class="op">,</span> <span class="num">2</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="nam">_RST_INLINE_ROLE_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r":(?:[a-z]+:)?[a-z]+:`([^`]+)`"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="nam">_WORDWRAP_HYPHEN_AFTER_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r"(?&lt;=[0-9A-Za-z_])- (?=[0-9A-Za-z_])"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="nam">_WORDWRAP_HYPHEN_BEFORE_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r"(?&lt;=[0-9A-Za-z_]) -(?=[0-9A-Za-z_])"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs29" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="nam">_ExplanationTable</span> <span class="op">=</span> <span class="nam">dict</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">str</span> <span class="op">|</span> <span class="nam">tuple</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="nam">_ExplanationTableLoader</span> <span class="op">=</span> <span class="nam">Callable</span><span class="op">[</span><span class="op">[</span><span class="op">]</span><span class="op">,</span> <span class="nam">_ExplanationTable</span><span class="op">]</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="com"># ``version.pyx`` cannot be reused here (circular import via ``cuda_utils``).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">def</span> <span class="nam">_binding_version</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="nam">tuple</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="str">"""Return the installed ``cuda-bindings`` version, or a conservative old value."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs37" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="nam">parts</span> <span class="op">=</span> <span class="nam">importlib</span><span class="op">.</span><span class="nam">metadata</span><span class="op">.</span><span class="nam">version</span><span class="op">(</span><span class="str">"cuda-bindings"</span><span class="op">)</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="str">"."</span><span class="op">)</span><span class="op">[</span><span class="op">:</span><span class="num">3</span><span class="op">]</span>&nbsp;</span><span class="r"><label for="ctxs38" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="key">except</span> <span class="nam">importlib</span><span class="op">.</span><span class="nam">metadata</span><span class="op">.</span><span class="nam">PackageNotFoundError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="key">return</span> <span class="op">(</span><span class="num">0</span><span class="op">,</span> <span class="num">0</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span>  <span class="com"># For very old versions of cuda-python</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="key">return</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">int</span><span class="op">(</span><span class="nam">v</span><span class="op">)</span> <span class="key">for</span> <span class="nam">v</span> <span class="key">in</span> <span class="nam">parts</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs41" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="key">def</span> <span class="nam">_binding_version_has_usable_enum_docstrings</span><span class="op">(</span><span class="nam">version</span><span class="op">:</span> <span class="nam">tuple</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs44" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="str">"""Whether released bindings are known to carry usable error-enum ``__doc__`` text."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">    <span class="key">return</span> <span class="op">(</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">19 ctx</label></span><span class="ctxs">1aTdefgUVWXYZNOPQbcR</span></p>
+    <p class="run run2"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="nam">_MIN_12X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS</span> <span class="op">&lt;=</span> <span class="nam">version</span> <span class="op">&lt;</span> <span class="op">(</span><span class="num">13</span><span class="op">,</span> <span class="num">0</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">        <span class="key">or</span> <span class="nam">version</span> <span class="op">>=</span> <span class="nam">_MIN_13X_BINDING_VERSION_FOR_ENUM_DOCSTRINGS</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="key">def</span> <span class="nam">_fix_hyphenation_wordwrap_spacing</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs52" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="str">"""Remove spaces around hyphens introduced by line wrapping in generated ``__doc__`` text.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="str">    This targets asymmetric wrap artifacts such as ``non- linear`` or</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="str">    ``GPU- Direct`` while leaving intentional ``a - b`` separators alone.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">    <span class="nam">prev</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs58"><span class="r"><label for="ctxs58" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">    <span class="key">while</span> <span class="nam">prev</span> <span class="op">!=</span> <span class="nam">s</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">        <span class="nam">prev</span> <span class="op">=</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs60"><span class="r"><label for="ctxs60" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">        <span class="nam">s</span> <span class="op">=</span> <span class="nam">_WORDWRAP_HYPHEN_AFTER_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">"-"</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs61"><span class="r"><label for="ctxs61" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">        <span class="nam">s</span> <span class="op">=</span> <span class="nam">_WORDWRAP_HYPHEN_BEFORE_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">"-"</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">    <span class="key">return</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="key">def</span> <span class="nam">clean_enum_member_docstring</span><span class="op">(</span><span class="nam">doc</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs66" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">    <span class="str">"""Turn an enum member ``__doc__`` into plain text.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="str">    The generated enum docstrings are already close to user-facing prose, but</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="str">    they may contain Sphinx inline roles, line wrapping, or a small known</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="str">    codegen defect. Normalize only those differences so the text is suitable</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="str">    for error messages.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="key">if</span> <span class="nam">doc</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">37 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKSbc</span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">1 ctx</label></span><span class="ctxs">1S</span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">doc</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="com"># Known codegen bug on cudaErrorIncompatibleDriverContext. Remove once fixed</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">    <span class="com"># in cuda-bindings code generation.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">s</span><span class="op">.</span><span class="nam">replace</span><span class="op">(</span><span class="str">"\n:py:obj:`~.Interactions`"</span><span class="op">,</span> <span class="str">' "Interactions '</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">    <span class="com"># Drop a leading "~." or "." after removing the surrounding RST inline role.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">_RST_INLINE_ROLE_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="key">lambda</span> <span class="nam">m</span><span class="op">:</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r"^~?\."</span><span class="op">,</span> <span class="str">""</span><span class="op">,</span> <span class="nam">m</span><span class="op">.</span><span class="nam">group</span><span class="op">(</span><span class="num">1</span><span class="op">)</span><span class="op">)</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">    <span class="com"># Strip simple bold emphasis markers.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r"\*\*([^*]+)\*\*"</span><span class="op">,</span> <span class="str">r"\1"</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">    <span class="com"># Strip simple italic emphasis markers.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r"\*([^*]+)\*"</span><span class="op">,</span> <span class="str">r"\1"</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">    <span class="com"># Collapse wrapped lines and repeated spaces.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r"\s+"</span><span class="op">,</span> <span class="str">" "</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span><span class="op">.</span><span class="nam">strip</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">_fix_hyphenation_wordwrap_spacing</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">    <span class="key">return</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">36 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuvwxyzABCDEFGHIJKbc</span></p>
+    <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="key">class</span> <span class="nam">DocstringBackedExplanations</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">    <span class="str">"""Compatibility shim exposing enum-member ``__doc__`` text via ``dict.get``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="str">    Keeps the existing ``.get(int(error))`` lookup shape used by ``cuda_utils.pyx``.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">    <span class="nam">__slots__</span> <span class="op">=</span> <span class="op">(</span><span class="str">"_enum_type"</span><span class="op">,</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs98" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">enum_type</span><span class="op">:</span> <span class="nam">Any</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs100" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_enum_type</span> <span class="op">=</span> <span class="nam">enum_type</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">7 ctx</label></span><span class="ctxs">1aLMNbcR</span></p>
+    <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="key">def</span> <span class="nam">get</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">code</span><span class="op">:</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">default</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs103" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">22 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuLMbc</span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">            <span class="nam">member</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_enum_type</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">22 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuLMbc</span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">        <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">        <span class="nam">raw_doc</span> <span class="op">=</span> <span class="nam">member</span><span class="op">.</span><span class="nam">__doc__</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">21 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuLbc</span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">        <span class="key">if</span> <span class="nam">raw_doc</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">21 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstuLbc</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">2 ctx</label></span><span class="ctxs">1hL</span></p>
+    <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">        <span class="key">return</span> <span class="nam">clean_enum_member_docstring</span><span class="op">(</span><span class="nam">raw_doc</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">20 ctx</label></span><span class="ctxs">1ijklmnopqrhdefgstubc</span></p>
+    <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="key">def</span> <span class="nam">get_best_available_explanations</span><span class="op">(</span>&nbsp;</span><span class="r"><label for="ctxs116" class="ctx">(empty)</label></span></p>
+    <p class="run run2"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t">    <span class="nam">enum_type</span><span class="op">:</span> <span class="nam">Any</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t">    <span class="nam">fallback</span><span class="op">:</span> <span class="nam">_ExplanationTable</span> <span class="op">|</span> <span class="nam">_ExplanationTableLoader</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">DocstringBackedExplanations</span> <span class="op">|</span> <span class="nam">_ExplanationTable</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t">    <span class="str">"""Pick one explanation source per bindings version.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="str">    Use enum-member ``__doc__`` only for bindings versions known to expose</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="str">    usable per-member text (12.9.6+ in the 12.x backport line, 13.2.0+ in the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="str">    13.x mainline). Otherwise keep using the frozen 13.1.1 fallback tables.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">_binding_version_has_usable_enum_docstrings</span><span class="op">(</span><span class="nam">_binding_version</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">8 ctx</label></span><span class="ctxs">1aNOPQbcR</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">        <span class="key">if</span> <span class="nam">callable</span><span class="op">(</span><span class="nam">fallback</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">3 ctx</label></span><span class="ctxs">1OPQ</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">            <span class="key">return</span> <span class="nam">fallback</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">1 ctx</label></span><span class="ctxs">1O</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">        <span class="key">return</span> <span class="nam">fallback</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">2 ctx</label></span><span class="ctxs">1PQ</span></p>
+    <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">    <span class="key">return</span> <span class="nam">DocstringBackedExplanations</span><span class="op">(</span><span class="nam">enum_type</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs130"><span class="r"><label for="ctxs130" class="ctx">5 ctx</label></span><span class="ctxs">1aNbcR</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_frozen_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_b1c5cc5642be1834_runtime_cuda_error_explanations_py.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
+            created at 2026-04-15 01:51 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

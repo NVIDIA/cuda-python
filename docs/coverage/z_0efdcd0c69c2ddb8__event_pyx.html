@@ -21,12 +21,12 @@
   "l": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_event_descriptor-cloudpickle]|run",
   "m": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_event_descriptor-pickle]|run",
   "n": "tests/memory_ipc/test_event_ipc.py::test_event_is_monadic|run",
-  "o": "tests/graph/test_explicit_lifetime.py::test_event_record_node_preserves_metadata|run",
-  "p": "tests/graph/test_explicit_lifetime.py::test_event_metadata_survives_gc|run",
-  "q": "tests/graph/test_explicit_lifetime.py::test_event_wait_node_preserves_metadata|run",
+  "o": "tests/graph/test_graphdef_lifetime.py::test_event_record_node_preserves_metadata|run",
+  "p": "tests/graph/test_graphdef_lifetime.py::test_event_metadata_survives_gc|run",
+  "q": "tests/graph/test_graphdef_lifetime.py::test_event_wait_node_preserves_metadata|run",
   "r": "tests/test_event.py::test_error_timing_disabled|run",
-  "s": "tests/graph/test_explicit_lifetime.py::test_event_record_node_keeps_event_alive|run",
-  "t": "tests/graph/test_explicit_lifetime.py::test_event_wait_node_keeps_event_alive|run",
+  "s": "tests/graph/test_graphdef_lifetime.py::test_event_record_node_keeps_event_alive|run",
+  "t": "tests/graph/test_graphdef_lifetime.py::test_event_wait_node_keeps_event_alive|run",
   "u": "tests/test_event.py::test_error_timing_incomplete|run",
   "v": "tests/test_event.py::test_error_timing_recorded|run",
   "w": "tests/test_event.py::test_sync|run",
@@ -68,28 +68,28 @@
   "6": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_switch_node]|run",
   "7": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_while_node]|run",
   "8": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_event]|run",
-  "9": "tests/graph/test_basic.py::test_graph_fork_join|run",
-  "!": "tests/graph/test_basic.py::test_graph_is_join_required|run",
-  "#": "tests/graph/test_conditional.py::test_graph_conditional_if[0]|run",
-  "$": "tests/graph/test_conditional.py::test_graph_conditional_if[1]|run",
-  "%": "tests/graph/test_conditional.py::test_graph_conditional_if[False]|run",
-  "'": "tests/graph/test_conditional.py::test_graph_conditional_if[True]|run",
-  "(": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value2]|run",
-  ")": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value3]|run",
-  "*": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value4]|run",
-  "+": "tests/graph/test_conditional.py::test_graph_conditional_if[condition_value5]|run",
-  ",": "tests/graph/test_conditional.py::test_graph_conditional_if_else[0]|run",
-  "-": "tests/graph/test_conditional.py::test_graph_conditional_if_else[1]|run",
-  ".": "tests/graph/test_conditional.py::test_graph_conditional_if_else[False]|run",
-  "/": "tests/graph/test_conditional.py::test_graph_conditional_if_else[True]|run",
-  ":": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value2]|run",
-  ";": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value3]|run",
-  "=": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
-  "?": "tests/graph/test_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
-  "@": "tests/graph/test_conditional.py::test_graph_conditional_switch[0]|run",
-  "[": "tests/graph/test_conditional.py::test_graph_conditional_switch[1]|run",
-  "]": "tests/graph/test_conditional.py::test_graph_conditional_switch[2]|run",
-  "^": "tests/graph/test_conditional.py::test_graph_conditional_switch[3]|run",
+  "9": "tests/graph/test_graph_builder.py::test_graph_fork_join|run",
+  "!": "tests/graph/test_graph_builder.py::test_graph_is_join_required|run",
+  "#": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[0]|run",
+  "$": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[1]|run",
+  "%": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[False]|run",
+  "'": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[True]|run",
+  "(": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value2]|run",
+  ")": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value3]|run",
+  "*": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value4]|run",
+  "+": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[condition_value5]|run",
+  ",": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[0]|run",
+  "-": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[1]|run",
+  ".": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[False]|run",
+  "/": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[True]|run",
+  ":": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value2]|run",
+  ";": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value3]|run",
+  "=": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
+  "?": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
+  "@": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[0]|run",
+  "[": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[1]|run",
+  "]": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[2]|run",
+  "^": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[3]|run",
   "_": "tests/graph/test_options.py::test_graph_dot_print_options|run",
   "`": "tests/test_device.py::test_device_create_event|run",
   "{": "tests/test_event.py::test_event_dict_key|run",
@@ -124,22 +124,22 @@
   "zb": "tests/test_object_protocols.py::test_repr_format[sample_event-<Event handle=0x[0-9a-f]+>]|run",
   "Ab": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_event]|run",
   "Bb": "tests/test_object_protocols.py::test_usable_in_set[sample_event]|run",
-  "Cb": "tests/graph/test_explicit.py::test_instantiate_and_execute_event_record_wait|run",
-  "Db": "tests/graph/test_explicit.py::test_node_attrs[event_record]|setup",
-  "Eb": "tests/graph/test_explicit.py::test_node_attrs[event_wait]|setup",
-  "Fb": "tests/graph/test_explicit.py::test_node_attrs_preserved_by_nodes[event_record]|setup",
-  "Gb": "tests/graph/test_explicit.py::test_node_attrs_preserved_by_nodes[event_wait]|setup",
-  "Hb": "tests/graph/test_explicit.py::test_node_isinstance[event_record]|setup",
-  "Ib": "tests/graph/test_explicit.py::test_node_isinstance[event_wait]|setup",
-  "Jb": "tests/graph/test_explicit.py::test_node_type_preserved_by_nodes[event_record]|setup",
-  "Kb": "tests/graph/test_explicit.py::test_node_type_preserved_by_nodes[event_wait]|setup",
-  "Lb": "tests/graph/test_explicit.py::test_node_type_preserved_by_pred_succ[event_record]|setup",
-  "Mb": "tests/graph/test_explicit.py::test_node_type_preserved_by_pred_succ[event_wait]|setup",
-  "Nb": "tests/graph/test_explicit.py::test_node_type_property[event_record]|setup",
-  "Ob": "tests/graph/test_explicit.py::test_node_type_property[event_wait]|setup",
-  "Pb": "tests/graph/test_explicit_lifetime.py::test_event_survives_graph_clone_and_execution|run",
-  "Qb": "tests/graph/test_explicit_lifetime.py::test_event_survives_graph_instantiation_and_execution|run",
-  "Rb": "tests/graph/test_explicit_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
+  "Cb": "tests/graph/test_graphdef.py::test_instantiate_and_execute_event_record_wait|run",
+  "Db": "tests/graph/test_graphdef.py::test_node_attrs[event_record]|setup",
+  "Eb": "tests/graph/test_graphdef.py::test_node_attrs[event_wait]|setup",
+  "Fb": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_record]|setup",
+  "Gb": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_wait]|setup",
+  "Hb": "tests/graph/test_graphdef.py::test_node_isinstance[event_record]|setup",
+  "Ib": "tests/graph/test_graphdef.py::test_node_isinstance[event_wait]|setup",
+  "Jb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[event_record]|setup",
+  "Kb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[event_wait]|setup",
+  "Lb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[event_record]|setup",
+  "Mb": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[event_wait]|setup",
+  "Nb": "tests/graph/test_graphdef.py::test_node_type_property[event_record]|setup",
+  "Ob": "tests/graph/test_graphdef.py::test_node_type_property[event_wait]|setup",
+  "Pb": "tests/graph/test_graphdef_lifetime.py::test_event_survives_graph_clone_and_execution|run",
+  "Qb": "tests/graph/test_graphdef_lifetime.py::test_event_survives_graph_instantiation_and_execution|run",
+  "Rb": "tests/graph/test_graphdef_lifetime.py::test_kernel_node_reconstruction_preserves_validity|run",
   "Sb": "tests/test_event.py::test_event_creation|run",
   "Tb": "tests/test_object_protocols.py::test_equality_basic[sample_event_record_node]|run",
   "Ub": "tests/test_object_protocols.py::test_equality_basic[sample_event_wait_node]|run",
@@ -237,8 +237,8 @@
   "Xc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_event_wait_node]|run",
   "Yc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_event_record_node]|run",
   "Zc": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_event_wait_node]|run",
-  "0c": "tests/test_object_protocols.py::test_repr_format[sample_event_record_node-<EventRecordNode event=0x[0-9a-f]+>]|run",
-  "1c": "tests/test_object_protocols.py::test_repr_format[sample_event_wait_node-<EventWaitNode event=0x[0-9a-f]+>]|run",
+  "0c": "tests/test_object_protocols.py::test_repr_format[sample_event_record_node-<EventRecordNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+>]|run",
+  "1c": "tests/test_object_protocols.py::test_repr_format[sample_event_wait_node-<EventWaitNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+>]|run",
   "2c": "tests/test_object_protocols.py::test_same_type_inequality[sample_event_record_node-sample_event_record_node_alt]|run",
   "3c": "tests/test_object_protocols.py::test_same_type_inequality[sample_event_wait_node-sample_event_wait_node_alt]|run",
   "4c": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_event_record_node]|run",
@@ -259,10 +259,10 @@
   ",c": "tests/test_stream.py::test_stream_wait_event|run",
   "-c": "tests/memory_ipc/test_event_ipc.py::test_event_timing_disabled[options0]|run",
   ".c": "tests/memory_ipc/test_event_ipc.py::test_event_timing_disabled[options1]|run",
-  "/c": "tests/graph/test_explicit.py::test_node_attrs[event_record]|run",
-  ":c": "tests/graph/test_explicit.py::test_node_attrs[event_wait]|run",
-  ";c": "tests/graph/test_explicit.py::test_node_attrs_preserved_by_nodes[event_record]|run",
-  "=c": "tests/graph/test_explicit.py::test_node_attrs_preserved_by_nodes[event_wait]|run",
+  "/c": "tests/graph/test_graphdef.py::test_node_attrs[event_record]|run",
+  ":c": "tests/graph/test_graphdef.py::test_node_attrs[event_wait]|run",
+  ";c": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_record]|run",
+  "=c": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[event_wait]|run",
   "?c": "tests/test_event.py::test_event_init_disabled|run"
 }
     </script>
@@ -323,10 +323,10 @@
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_347e436683f5012d__graphdef_pyx.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__graphics_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-25 01:07 +0000
+            created at 2026-04-15 01:51 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -676,10 +676,10 @@
         <p>
             <a class="nav" href="z_0efdcd0c69c2ddb8__dlpack_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_347e436683f5012d__graphdef_pyx.html">&#xbb; next</a>
+            <a class="nav" href="z_0efdcd0c69c2ddb8__graphics_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-03-25 01:07 +0000
+            created at 2026-04-15 01:51 +0000
         </p>
     </div>
 </footer>
