@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.IrqIssueError
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: IrqIssueError
