@@ -62,9 +62,9 @@
   "0": "tests/test_memory.py::test_pinned_memory_resource_initialization|run",
   "1": "tests/test_memory.py::test_pinned_mr_numa_id_negative_error|run",
   "2": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
-  "3": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
-  "4": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
-  "5": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
+  "3": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
+  "4": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
+  "5": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
   "6": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|run",
   "7": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
   "8": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|run",
@@ -148,7 +148,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-15 01:51 +0000
+            created at 2026-04-15 18:08 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -323,9 +323,9 @@
     <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">            The shareable handle for the memory pool.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">26 ctx</label></span><span class="ctxs">1345678/:9!;#$=%'(?)*+,-.ab</span></p>
-    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">            raise RuntimeError("Memory resource is not IPC-enabled")</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        return self._ipc_data._alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">25 ctx</label></span><span class="ctxs">1345678/:9!;#$=%'(?)*+,-.a</span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">26 ctx</label></span><span class="ctxs">1453678/:9!;#$=%'(?)*+,-.ab</span></p>
+    <p class="run"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">            raise RuntimeError("Memory resource is not IPC-enabled")</span>&nbsp;</span><input type="checkbox" id="ctxs162"><span class="r"><label for="ctxs162" class="ctx">2 ctx</label></span><span class="ctxs">13b</span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        return self._ipc_data._alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">25 ctx</label></span><span class="ctxs">1453678/:9!;#$=%'(?)*+,-.a</span></p>
     <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">    def device_id(self) -> int:</span>&nbsp;</span><span class="r"></span></p>
@@ -406,9 +406,9 @@
     <p class="pln"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">def _deep_reduce_pinned_memory_resource(mr):</span>&nbsp;</span><span class="r"><label for="ctxs243" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">19 ctx</label></span><span class="ctxs">13456789!#$%'()*+,-.</span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    alloc_handle = mr.get_allocation_handle()</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">19 ctx</label></span><span class="ctxs">13456789!#$%'()*+,-.</span></p>
-    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (alloc_handle,)</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">19 ctx</label></span><span class="ctxs">13456789!#$%'()*+,-.</span></p>
+    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">19 ctx</label></span><span class="ctxs">14536789!#$%'()*+,-.</span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    alloc_handle = mr.get_allocation_handle()</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">19 ctx</label></span><span class="ctxs">14536789!#$%'()*+,-.</span></p>
+    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (alloc_handle,)</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">19 ctx</label></span><span class="ctxs">14536789!#$%'()*+,-.</span></p>
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)</span>&nbsp;</span><span class="r"><label for="ctxs249" class="ctx">(empty)</label></span></p>
@@ -421,7 +421,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-15 01:51 +0000
+            created at 2026-04-15 18:08 +0000
         </p>
     </div>
 </footer>
