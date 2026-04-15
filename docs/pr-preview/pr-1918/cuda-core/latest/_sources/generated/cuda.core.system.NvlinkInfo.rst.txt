@@ -24,6 +24,7 @@ cuda.core.system.NvlinkInfo
 
    
    .. autoattribute:: max_links
+   .. autoattribute:: state
    .. autoattribute:: version
    
    

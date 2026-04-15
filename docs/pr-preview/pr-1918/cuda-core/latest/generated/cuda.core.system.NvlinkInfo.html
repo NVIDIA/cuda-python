@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3618b501"></script>
+    <script src="../_static/documentation_options.js?v=de0216c3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev17';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev18';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -707,9 +707,22 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.state">
+<span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#cuda.core.system.NvlinkInfo.state" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves the state of the device’s NvLink for the device and link specified.</p>
+<p>For Pascal &amp;tm; or newer fully supported devices.</p>
+<p>For all products with NvLink support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>True</cite> if the NvLink is active, <cite>False</cite> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.version">
 <span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#cuda.core.system.NvlinkInfo.version" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the NvLink version for the device.</p>
+<dd><p>Retrieves the NvLink version for the device and link.</p>
 <p>For all products with NvLink support.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -774,6 +787,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.__init__"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.max_links"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.max_links</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.state"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.state</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.NvlinkInfo.version"><code class="docutils literal notranslate"><span class="pre">NvlinkInfo.version</span></code></a></li>
 </ul>
 </li>
