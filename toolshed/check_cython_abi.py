@@ -16,7 +16,7 @@ The workflow is basically:
 
      python check_cython_abi.py generate <package_name> <dir>
 
-3) Checkout a version with the changes to by tested, and build and install.
+3) Checkout a version with the changes to be tested, and build and install.
 
 4) Check the ABI against the previously generated files by running:
 
