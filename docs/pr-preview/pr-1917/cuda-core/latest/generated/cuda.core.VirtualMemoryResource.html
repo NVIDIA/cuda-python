@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=de0216c3"></script>
+    <script src="../_static/documentation_options.js?v=d72ae216"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev29';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -834,6 +834,18 @@ all steps the function took are rolled back so a new allocation is not created.<
 <dd><p>Indicates whether the allocated memory is accessible from the host.</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.is_managed">
+<span class="sig-name descname"><span class="pre">is_managed</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_managed" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Whether buffers allocated by this resource are CUDA managed (unified) memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MemoryResource.is_managed</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -895,6 +907,7 @@ all steps the function took are rolled back so a new allocation is not created.<
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_host_accessible</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.VirtualMemoryResource.is_managed"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_managed</span></code></a></li>
 </ul>
 </li>
 </ul>
