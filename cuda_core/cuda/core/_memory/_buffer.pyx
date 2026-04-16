@@ -390,6 +390,8 @@ cdef class Buffer:
     @property
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
+        if self._memory_resource is not None:
+            return self._memory_resource.is_managed
         _init_mem_attrs(self)
         return self._mem_attrs.is_managed
 
@@ -534,6 +536,11 @@ cdef class MemoryResource:
     def is_host_accessible(self) -> bool:
         """Whether buffers allocated by this resource are host-accessible."""
         raise TypeError("MemoryResource.is_host_accessible must be implemented by subclasses.")
+
+    @property
+    def is_managed(self) -> bool:
+        """Whether buffers allocated by this resource are CUDA managed (unified) memory."""
+        return False
 
     @property
     def device_id(self) -> int:
