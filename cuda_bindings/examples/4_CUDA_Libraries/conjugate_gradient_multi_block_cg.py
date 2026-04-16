@@ -26,6 +26,7 @@ from cuda.bindings._example_helpers import (
     KernelHelper,
     check_cuda_errors,
     find_cuda_device,
+    requirement_not_met,
 )
 
 conjugate_gradient_multi_block_cg = """\
@@ -177,71 +178,68 @@ extern "C" __global__ void gpuConjugateGradient(int *I, int *J, float *val,
 """
 
 
-def gen_tridiag(i, j, val, n, nz):
-    i[0] = 0
-    j[0] = 0
-    j[1] = 0
+def gen_tridiag(row_offsets, col_indices, values, n, nz):
+    row_offsets[0] = 0
+    col_indices[0] = 0
+    col_indices[1] = 0
 
-    val[0] = float(random()) + 10.0
-    val[1] = float(random())
+    values[0] = float(random()) + 10.0
+    values[1] = float(random())
 
-    for i in range(1, n):
-        if i > 1:
-            i[i] = i[i - 1] + 3
+    for row_idx in range(1, n):
+        if row_idx > 1:
+            row_offsets[row_idx] = row_offsets[row_idx - 1] + 3
         else:
-            i[1] = 2
+            row_offsets[1] = 2
 
-        start = (i - 1) * 3 + 2
-        j[start] = i - 1
-        j[start + 1] = i
+        start = (row_idx - 1) * 3 + 2
+        col_indices[start] = row_idx - 1
+        col_indices[start + 1] = row_idx
 
-        if i < n - 1:
-            j[start + 2] = i + 1
+        if row_idx < n - 1:
+            col_indices[start + 2] = row_idx + 1
 
-        val[start] = val[start - 1]
-        val[start + 1] = float(random()) + 10.0
+        values[start] = values[start - 1]
+        values[start + 1] = float(random()) + 10.0
 
-        if i < n - 1:
-            val[start + 2] = float(random())
-    i[n] = nz
+        if row_idx < n - 1:
+            values[start + 2] = float(random())
+    row_offsets[n] = nz
 
 
 THREADS_PER_BLOCK = 512
 s_sd_kname = "conjugateGradientMultiBlockCG"
+UNSUPPORTED_SYSTEMS = {"Darwin", "QNX"}
+UNSUPPORTED_MACHINES = {"armv7l"}
 
 
 def main():
     tol = 1e-5
 
-    import pytest
+    system_name = platform.system()
+    if system_name in UNSUPPORTED_SYSTEMS:
+        requirement_not_met(f"{s_sd_kname} is not supported on {system_name}")
 
-    # WAIVE: Due to bug in NVRTC
-    return
-
-    if platform.system() == "Darwin":
-        pytest.skip("conjugateGradientMultiBlockCG is not supported on Mac OSX")
-
-    if platform.machine() == "armv7l":
-        pytest.skip("conjugateGradientMultiBlockCG is not supported on ARMv7")
-
-    if platform.machine() == "qnx":
-        pytest.skip("conjugateGradientMultiBlockCG is not supported on QNX")
+    machine_name = platform.machine()
+    if machine_name in UNSUPPORTED_MACHINES:
+        requirement_not_met(f"{s_sd_kname} is not supported on {machine_name}")
 
     # This will pick the best possible CUDA capable device
     dev_id = find_cuda_device()
     device_prop = check_cuda_errors(cudart.cudaGetDeviceProperties(dev_id))
 
     if not device_prop.managedMemory:
-        pytest.skip("Unified Memory not supported on this device")
+        requirement_not_met("Unified Memory not supported on this device")
 
     # This sample requires being run on a device that supports Cooperative Kernel
     # Launch
     if not device_prop.cooperativeLaunch:
-        pytest.skip(f"Selected GPU {dev_id} does not support Cooperative Kernel Launch")
+        requirement_not_met(f"Selected GPU {dev_id} does not support Cooperative Kernel Launch")
 
     # Statistics about the GPU device
     print(
-        f"> GPU device has {device_prop.multiProcessorCount:%d} Multi-Processors, SM {device_prop.major:%d}.{device_prop.minor:%d} compute capabilities\n"
+        f"> GPU device has {device_prop.multiProcessorCount} Multi-Processors, "
+        f"SM {device_prop.major}.{device_prop.minor} compute capabilities\n"
     )
 
     # Get kernel
@@ -267,7 +265,7 @@ def main():
     x_local = (ctypes.c_float * n).from_address(x)
     rhs_local = (ctypes.c_float * n).from_address(rhs)
     dot_result_local = (ctypes.c_double).from_address(dot_result)
-    dot_result_local = 0
+    dot_result_local.value = 0.0
 
     # temp memory for CG
     r = check_cuda_errors(cudart.cudaMallocManaged(np.dtype(np.float32).itemsize * n, cudart.cudaMemAttachGlobal))
@@ -280,9 +278,9 @@ def main():
     start = check_cuda_errors(cudart.cudaEventCreate())
     stop = check_cuda_errors(cudart.cudaEventCreate())
 
-    for i in range(n):
-        r_local[i] = rhs_local[i] = 1.0
-        x_local[i] = 0.0
+    for idx in range(n):
+        r_local[idx] = rhs_local[idx] = 1.0
+        x_local[idx] = 0.0
 
     kernel_args_value = (i, j, val, x, ax, p, r, dot_result, nz, n, tol)
     kernel_args_types = (
@@ -300,7 +298,7 @@ def main():
     )
     kernel_args = (kernel_args_value, kernel_args_types)
 
-    s_mem_size = np.dtype(np.float64).itemsize * ((THREADS_PER_BLOCK / 32) + 1)
+    s_mem_size = np.dtype(np.float64).itemsize * ((THREADS_PER_BLOCK // 32) + 1)
     num_threads = THREADS_PER_BLOCK
     num_blocks_per_sm = check_cuda_errors(
         cuda.cuOccupancyMaxActiveBlocksPerMultiprocessor(_gpu_conjugate_gradient, num_threads, s_mem_size)
@@ -325,7 +323,7 @@ def main():
             dim_block.x,
             dim_block.y,
             dim_block.z,
-            0,
+            s_mem_size,
             0,
             kernel_args,
         )
@@ -334,16 +332,17 @@ def main():
     check_cuda_errors(cudart.cudaDeviceSynchronize())
 
     time = check_cuda_errors(cudart.cudaEventElapsedTime(start, stop))
-    print(f"GPU Final, residual = {math.sqrt(dot_result_local):e}, kernel execution time = {time:f} ms")
+    residual = math.sqrt(dot_result_local.value)
+    print(f"GPU Final, residual = {residual:e}, kernel execution time = {time:f} ms")
 
     err = 0.0
-    for i in range(n):
+    for row_idx in range(n):
         rsum = 0.0
 
-        for j in range(i_local[i], i_local[i + 1]):
-            rsum += val_local[j] * x_local[j_local[j]]
+        for elem_idx in range(i_local[row_idx], i_local[row_idx + 1]):
+            rsum += val_local[elem_idx] * x_local[j_local[elem_idx]]
 
-        diff = math.fabs(rsum - rhs_local[i])
+        diff = math.fabs(rsum - rhs_local[row_idx])
 
         if diff > err:
             err = diff
@@ -361,7 +360,7 @@ def main():
     check_cuda_errors(cudart.cudaEventDestroy(stop))
 
     print(f"Test Summary:  Error amount = {err:f}")
-    if math.sqrt(dot_result_local) >= tol:
+    if residual >= tol:
         print("conjugateGradientMultiBlockCG FAILED", file=sys.stderr)
         sys.exit(1)
 
