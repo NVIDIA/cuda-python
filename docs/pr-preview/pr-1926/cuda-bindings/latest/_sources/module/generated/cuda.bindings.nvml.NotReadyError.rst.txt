@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.NotReadyError
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: NotReadyError
