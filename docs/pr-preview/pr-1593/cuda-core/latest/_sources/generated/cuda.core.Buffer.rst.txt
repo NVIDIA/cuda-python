@@ -34,6 +34,7 @@ cuda.core.Buffer
    .. autoattribute:: handle
    .. autoattribute:: is_device_accessible
    .. autoattribute:: is_host_accessible
+   .. autoattribute:: is_managed
    .. autoattribute:: is_mapped
    .. autoattribute:: memory_resource
    .. autoattribute:: owner

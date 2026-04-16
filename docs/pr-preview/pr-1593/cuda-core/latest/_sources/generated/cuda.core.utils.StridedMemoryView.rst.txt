@@ -14,6 +14,7 @@ cuda.core.utils.StridedMemoryView
 
    
    .. automethod:: __init__
+   .. automethod:: as_tensor_map
    .. automethod:: copy_from
    .. automethod:: copy_to
    .. automethod:: from_any_interface

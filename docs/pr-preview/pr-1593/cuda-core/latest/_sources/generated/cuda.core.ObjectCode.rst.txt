@@ -30,10 +30,10 @@ cuda.core.ObjectCode
    .. rubric:: Attributes
 
    
-   .. autoproperty:: code
-   .. autoproperty:: code_type
-   .. autoproperty:: handle
-   .. autoproperty:: name
-   .. autoproperty:: symbol_mapping
+   .. autoattribute:: code
+   .. autoattribute:: code_type
+   .. autoattribute:: handle
+   .. autoattribute:: name
+   .. autoattribute:: symbol_mapping
    
    
