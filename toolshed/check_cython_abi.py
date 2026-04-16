@@ -26,6 +26,7 @@ The workflow is basically:
 import importlib
 import json
 import re
+import sys
 import sysconfig
 from pathlib import Path
 
@@ -92,7 +93,7 @@ def check_abi(expected: dict[str, str], found: dict[str, str]) -> tuple[bool, bo
     return has_errors, has_allowed_changes
 
 
-def check(package: str, abi_dir: Path) -> tuple[bool, bool]:
+def check(package: str, abi_dir: Path) -> bool:
     build_dir = get_package_path(package)
 
     has_errors = False
@@ -126,11 +127,13 @@ def check(package: str, abi_dir: Path) -> tuple[bool, bool]:
 
     if has_errors:
         print("ERRORS FOUND")
+        return True
     elif has_allowed_changes:
         print("Allowed changes found.")
+    return False
 
 
-def regenerate(package: str, abi_dir: Path) -> None:
+def regenerate(package: str, abi_dir: Path) -> bool:
     if not abi_dir.is_dir():
         abi_dir.mkdir(parents=True, exist_ok=True)
 
@@ -143,6 +146,8 @@ def regenerate(package: str, abi_dir: Path) -> None:
             abi_path.parent.mkdir(parents=True, exist_ok=True)
             with open(abi_path, "w", encoding="utf-8") as f:
                 json.dump(pyx_capi_to_json(module.__pyx_capi__), f, indent=2)
+
+    return False
 
 
 if __name__ == "__main__":
@@ -165,4 +170,9 @@ if __name__ == "__main__":
     check_parser.add_argument("dir", help="Input directory to read data from")
 
     args = parser.parse_args()
-    args.func(args.package, Path(args.dir))
+    if hasattr(args, "func"):
+        if args.func(args.package, Path(args.dir)):
+            sys.exit(1)
+    else:
+        parser.print_help()
+        sys.exit(1)
