@@ -19,12 +19,13 @@ jobs:
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
+      contents: write # needed for collaborator permission check
       pull-requests: write
     steps:
       - name: Inspect PR author signals for restricted paths
         env:
-          # PR metadata inputs
-          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
+          # PR metadata inputs (author_association from event payload is
+          # unreliable for fork PRs, so we query the collaborator API directly)
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -37,6 +38,15 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+
+          # Query the collaborator permission API to get the author's actual
+          # permission level. This is authoritative regardless of whether the
+          # PR originates from a fork or a branch in the main repo.
+          # Returns: admin, maintain, write, triage, read, or none.
+          COLLABORATOR_PERMISSION=$(
+            gh api "repos/$REPO/collaborators/$PR_AUTHOR/permission" \
+              --jq '.permission' 2>/dev/null || echo "none"
+          )
 
           if ! MATCHING_RESTRICTED_PATHS=$(
             gh api \
@@ -63,7 +73,7 @@ jobs:
               echo ""
               echo "- **Error**: Failed to inspect the PR file list."
               echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
+              echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
@@ -83,7 +93,7 @@ jobs:
               echo ""
               echo "- **Error**: Failed to inspect the current PR labels."
               echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
+              echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
@@ -107,11 +117,11 @@ jobs:
           TRUSTED_SIGNALS="(none)"
 
           if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
-            case "$AUTHOR_ASSOCIATION" in
-              COLLABORATOR|MEMBER|OWNER)
+            case "$COLLABORATOR_PERMISSION" in
+              admin|maintain|write)
                 HAS_TRUSTED_SIGNAL=true
-                LABEL_ACTION="not needed (author association is a trusted signal)"
-                TRUSTED_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
+                LABEL_ACTION="not needed (collaborator permission is a trusted signal)"
+                TRUSTED_SIGNALS="collaborator_permission:$COLLABORATOR_PERMISSION"
                 ;;
             esac
           fi
@@ -136,7 +146,7 @@ jobs:
                 echo ""
                 echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
                 echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
+                echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
                 echo ""
                 write_matching_restricted_paths
                 echo ""
@@ -154,7 +164,7 @@ jobs:
             echo "## Restricted Paths Guard Completed"
             echo ""
             echo "- **Author**: $PR_AUTHOR"
-            echo "- **Author association**: $AUTHOR_ASSOCIATION"
+            echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
             echo "- **Trusted signals**: $TRUSTED_SIGNALS"
