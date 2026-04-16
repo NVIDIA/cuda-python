@@ -11,9 +11,27 @@ import pytest
 
 from cuda.bindings import driver, runtime
 from cuda.bindings._internal.utils import get_c_compiler
+from cuda.bindings.utils import (
+    check_nvvm_compiler_options,
+    get_cuda_native_handle,
+    get_minimal_required_cuda_ver_from_ptx_ver,
+    get_ptx_ver,
+)
 from cuda.bindings.utils import get_cuda_native_handle, get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
 
 have_cufile = importlib.util.find_spec("cuda.bindings.cufile") is not None
+
+def _is_libnvvm_available() -> bool:
+    try:
+        from cuda.bindings._internal.nvvm import _inspect_function_pointer
+
+        return _inspect_function_pointer("__nvvmCreateProgram") != 0
+    except Exception:
+        return False
+
+
+_libnvvm_available = _is_libnvvm_available()
+_skip_no_libnvvm = pytest.mark.skipif(not _libnvvm_available, reason="libNVVM not available")
 
 ptx_88_kernel = r"""
 .version 8.8
@@ -118,3 +136,34 @@ def test_get_c_compiler():
     c_compiler = get_c_compiler()
     prefix = ("GCC", "Clang", "MSVC", "Unknown")
     assert sum(c_compiler.startswith(p) for p in prefix) == 1
+
+@_skip_no_libnvvm
+def test_check_nvvm_compiler_options_valid():
+    assert check_nvvm_compiler_options(["-arch=compute_90"]) is True
+
+
+@_skip_no_libnvvm
+def test_check_nvvm_compiler_options_invalid():
+    assert check_nvvm_compiler_options(["--this-is-not-a-valid-option"]) is False
+
+
+@_skip_no_libnvvm
+def test_check_nvvm_compiler_options_empty():
+    assert check_nvvm_compiler_options([]) is True
+
+
+@_skip_no_libnvvm
+def test_check_nvvm_compiler_options_multiple_valid():
+    assert check_nvvm_compiler_options(["-arch=compute_90", "-opt=3", "-g"]) is True
+
+
+@_skip_no_libnvvm
+def test_check_nvvm_compiler_options_arch_detection():
+    assert check_nvvm_compiler_options(["-arch=compute_90"]) is True
+    assert check_nvvm_compiler_options(["-arch=compute_99999"]) is False
+
+
+def test_check_nvvm_compiler_options_no_libnvvm():
+    if _libnvvm_available:
+        pytest.skip("libNVVM is available; this test targets the fallback path")
+    assert check_nvvm_compiler_options(["-arch=compute_90"]) is False

@@ -70,14 +70,25 @@ nvrtc_pch_available = pytest.mark.skipif(
 )
 
 
+def _has_check_nvvm_compiler_options():
+    try:
+        from cuda.bindings.utils import check_nvvm_compiler_options  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
+has_nvvm_option_checker = pytest.mark.skipif(
+    not _has_check_nvvm_compiler_options(),
+    reason="cuda.bindings.utils.check_nvvm_compiler_options not available (cuda-bindings too old?)",
+)
+
+
 def _check_nvvm_arch(arch: str) -> bool:
     """Check if the given NVVM arch is supported by the installed libNVVM."""
-    try:
-        from cuda.bindings.utils import check_nvvm_compiler_options
-    except ModuleNotFoundError as exc:
-        if exc.name == "cuda":
-            return False
-        raise
+    from cuda.bindings.utils import check_nvvm_compiler_options
+
     return check_nvvm_compiler_options([f"-arch={arch}"])
 
 
@@ -458,10 +469,13 @@ def test_nvvm_compile_invalid_ir():
         ),
         pytest.param(
             ProgramOptions(name="test_sm110_1", arch="sm_110", device_code_optimize=False),
-            marks=pytest.mark.skipif(
-                not _check_nvvm_arch("compute_110"),
-                reason="Compute capability 110 not supported by installed libNVVM",
-            ),
+            marks=[
+                has_nvvm_option_checker,
+                pytest.mark.skipif(
+                    _has_check_nvvm_compiler_options() and not _check_nvvm_arch("compute_110"),
+                    reason="Compute capability 110 not supported by installed libNVVM",
+                ),
+            ],
         ),
         pytest.param(
             ProgramOptions(
@@ -473,17 +487,23 @@ def test_nvvm_compile_invalid_ir():
                 fma=True,
                 device_code_optimize=True,
             ),
-            marks=pytest.mark.skipif(
-                not _check_nvvm_arch("compute_110"),
-                reason="Compute capability 110 not supported by installed libNVVM",
-            ),
+            marks=[
+                has_nvvm_option_checker,
+                pytest.mark.skipif(
+                    _has_check_nvvm_compiler_options() and not _check_nvvm_arch("compute_110"),
+                    reason="Compute capability 110 not supported by installed libNVVM",
+                ),
+            ],
         ),
         pytest.param(
             ProgramOptions(name="test_sm110_3", arch="sm_110", link_time_optimization=True),
-            marks=pytest.mark.skipif(
-                not _check_nvvm_arch("compute_110"),
-                reason="Compute capability 110 not supported by installed libNVVM",
-            ),
+            marks=[
+                has_nvvm_option_checker,
+                pytest.mark.skipif(
+                    _has_check_nvvm_compiler_options() and not _check_nvvm_arch("compute_110"),
+                    reason="Compute capability 110 not supported by installed libNVVM",
+                ),
+            ],
         ),
     ],
 )
@@ -663,12 +683,8 @@ def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
     nvrtc_options = options.as_bytes("nvrtc")
-
-    # Should return list of bytes
     assert isinstance(nvrtc_options, list)
     assert all(isinstance(opt, bytes) for opt in nvrtc_options)
-
-    # Decode to check content
     options_str = [opt.decode() for opt in nvrtc_options]
     assert "-arch=sm_80" in options_str
     assert "--device-debug" in options_str
@@ -681,12 +697,8 @@ def test_program_options_as_bytes_nvvm():
     """Test ProgramOptions.as_bytes() for NVVM backend"""
     options = ProgramOptions(arch="sm_80", debug=True, ftz=True, device_code_optimize=True)
     nvvm_options = options.as_bytes("nvvm")
-
-    # Should return list of bytes (same as other backends)
     assert isinstance(nvvm_options, list)
     assert all(isinstance(opt, bytes) for opt in nvvm_options)
-
-    # Decode to check content
     options_str = [opt.decode() for opt in nvvm_options]
     assert "-arch=compute_80" in options_str
     assert "-g" in options_str
