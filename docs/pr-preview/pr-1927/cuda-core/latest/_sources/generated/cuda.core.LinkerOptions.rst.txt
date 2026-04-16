@@ -1,0 +1,6 @@
+﻿cuda.core.LinkerOptions
+=======================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: LinkerOptions

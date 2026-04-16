@@ -1,0 +1,33 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.InforomInfo
+============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: InforomInfo
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get_version
+   .. automethod:: validate
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: bbx_flush_time
+   .. autoattribute:: board_part_number
+   .. autoattribute:: configuration_checksum
+   .. autoattribute:: image_version
+   
+   
