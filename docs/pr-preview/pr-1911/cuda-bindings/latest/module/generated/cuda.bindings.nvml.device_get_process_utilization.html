@@ -1300,8 +1300,11 @@
 
 :param device: The identifier of the target device.
 :type device: intptr_t
-:param last_seen_time_stamp: Pointer to caller-supplied buffer in which guest process utilization samples are returned.
+:param last_seen_time_stamp: Return only samples with timestamp greater than last_seen_time_stamp.
 :type last_seen_time_stamp: unsigned long long
+
+:returns: Pointer to caller-supplied buffer in which guest process utilization samples are returned.
+:rtype: nvmlProcessUtilizationSample_t
 
 .. seealso:: `nvmlDeviceGetProcessUtilization`
 </pre></div>
