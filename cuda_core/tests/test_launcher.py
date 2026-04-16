@@ -387,3 +387,52 @@ def test_kernel_arg_unsupported_type():
 
     with pytest.raises(TypeError, match="unsupported type"):
         ParamHolder(["not_a_valid_kernel_arg"])
+
+
+def test_kernel_arg_ctypes_subclass_isinstance_fallback():
+    """Subclassed ctypes types hit the isinstance fallback in prepare_ctypes_arg."""
+    from cuda.core._kernel_arg_handler import ParamHolder
+
+    class MyInt32(ctypes.c_int32):
+        pass
+
+    class MyFloat(ctypes.c_float):
+        pass
+
+    class MyBool(ctypes.c_bool):
+        pass
+
+    # These should NOT raise — they should be handled via isinstance fallback
+    holder = ParamHolder([MyInt32(42), MyFloat(3.14), MyBool(True)])
+    assert holder.ptr != 0
+
+
+def test_kernel_arg_numpy_subclass_isinstance_fallback():
+    """Subclassed numpy scalars hit the isinstance fallback in prepare_numpy_arg."""
+    from cuda.core._kernel_arg_handler import ParamHolder
+
+    class MyInt32(np.int32):
+        pass
+
+    class MyFloat32(np.float32):
+        pass
+
+    holder = ParamHolder([MyInt32(7), MyFloat32(2.5)])
+    assert holder.ptr != 0
+
+
+def test_kernel_arg_python_isinstance_fallbacks():
+    """Subclassed Python builtins hit the isinstance fallback in ParamHolder."""
+    from cuda.core._kernel_arg_handler import ParamHolder
+
+    class MyBool(int):
+        """type(x) is not int, so fast path skips; isinstance(x, int) catches it."""
+
+    class MyFloat(float):
+        pass
+
+    class MyComplex(complex):
+        pass
+
+    holder = ParamHolder([MyBool(1), MyFloat(1.5), MyComplex(1 + 2j)])
+    assert holder.ptr != 0
