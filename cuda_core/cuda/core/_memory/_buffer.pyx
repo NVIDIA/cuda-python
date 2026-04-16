@@ -390,10 +390,12 @@ cdef class Buffer:
     @property
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
-        if self._memory_resource is not None:
-            return self._memory_resource.is_managed
         _init_mem_attrs(self)
-        return self._mem_attrs.is_managed
+        if self._mem_attrs.is_managed:
+            return True
+        # Pool-allocated managed memory does not set CU_POINTER_ATTRIBUTE_IS_MANAGED,
+        # so fall back to the memory resource when it advertises managed allocations.
+        return self._memory_resource is not None and self._memory_resource.is_managed
 
     @property
     def is_mapped(self) -> bool:

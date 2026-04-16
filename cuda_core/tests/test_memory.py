@@ -617,9 +617,7 @@ def test_managed_memory_resource_buffer_dlpack_device_type():
     device = Device()
     device.set_current()
     skip_if_managed_memory_unsupported(device)
-    mr = create_managed_memory_resource_or_skip(
-        ManagedMemoryResourceOptions(preferred_location=device.device_id)
-    )
+    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
     buf = mr.allocate(1024)
 
     assert mr.is_managed
@@ -630,23 +628,21 @@ def test_managed_memory_resource_buffer_dlpack_device_type():
     assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
 
 
-@pytest.mark.parametrize(
-    ("mr_factory", "expected_managed"),
-    [
-        (lambda dev: DeviceMemoryResource(dev), False),
-        (lambda dev: PinnedMemoryResource(), False),
-    ],
-)
-def test_non_managed_resources_report_not_managed(mr_factory, expected_managed):
+@pytest.mark.parametrize("mr_kind", ["device", "pinned"])
+def test_non_managed_resources_report_not_managed(mr_kind):
     """Non-managed memory resources must report is_managed=False."""
     device = Device()
     device.set_current()
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
-    mr = mr_factory(device)
-    assert mr.is_managed is expected_managed
+    if mr_kind == "device":
+        mr = DeviceMemoryResource(device)
+    else:
+        skip_if_pinned_memory_unsupported(device)
+        mr = PinnedMemoryResource()
+    assert mr.is_managed is False
     buf = mr.allocate(1024)
-    assert buf.is_managed is expected_managed
+    assert buf.is_managed is False
     buf.close()
 
 
