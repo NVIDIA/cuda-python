@@ -108,14 +108,29 @@ jobs:
         with:
           fetch-depth: 0
 
+      # copy-pr-bot pushes every PR (whether it targets main or a backport
+      # branch such as 12.9.x) to pull-request/<N>, so the base branch
+      # cannot be inferred from github.ref_name. Look it up via the
+      # upstream PR metadata so the diff below is rooted at the right place.
+      - name: Resolve PR base branch
+        id: pr-info
+        if: ${{ startsWith(github.ref_name, 'pull-request/') }}
+        uses: nv-gha-runners/get-pr-info@main
+
       - name: Detect changed paths
         id: filter
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
+        env:
+          BASE_REF: ${{ fromJSON(steps.pr-info.outputs.pr-info).base.ref }}
         run: |
-          # Diff against the merge base with the default branch. Uses
-          # merge-base so diverged branches only show files changed on
+          # Diff against the merge base with the PR's actual target branch.
+          # Uses merge-base so diverged branches only show files changed on
           # the PR side, not upstream commits.
-          base=$(git merge-base HEAD origin/main)
+          if [[ -z "${BASE_REF}" ]]; then
+            echo "Could not resolve PR base branch from get-pr-info output" >&2
+            exit 1
+          fi
+          base=$(git merge-base HEAD "origin/${BASE_REF}")
           changed=$(git diff --name-only "$base"...HEAD)
 
           has_match() {
