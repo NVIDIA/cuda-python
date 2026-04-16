@@ -1299,10 +1299,13 @@
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_get_cpu_affinity_within_scope" title="Link to this definition">#</a></dt>
 <dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>:param device: The identifier of the target device.
 :type device: intptr_t
-:param cpu_set_size: The size of the cpuSet array that is safe to access.
+:param cpu_set_size: The size of the cpu_set array that is safe to access.
 :type cpu_set_size: unsigned int
-:param scope: Array reference in which to return a bitmask of CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on 32-bit machines.
+:param scope: Scope that change the default behavior.
 :type scope: unsigned int
+
+:returns: Array reference in which to return a bitmask of CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on 32-bit machines.
+:rtype: unsigned long
 
 .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
 </pre></div>
