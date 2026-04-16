@@ -67,7 +67,8 @@ def pyx_capi_to_json(d: dict[str, object]) -> dict[str, str]:
     def extract_name(v: object) -> str:
         v = str(v)
         match = re.match(r'<capsule object "([^\"]+)" at 0x[0-9a-fA-F]+>', v)
-        assert match, f"Could not parse __pyx_capi__ entry: {v}"
+        if match is None:
+            raise ValueError(f"Could not parse __pyx_capi__ entry: {v}")
         return match.group(1)
 
     # Sort the dictionary by keys to make diffs in the JSON files smaller
