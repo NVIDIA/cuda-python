@@ -10,7 +10,7 @@ cdef class Linker:
         NvJitLinkHandle _nvjitlink_handle
         CuLinkHandle _culink_handle
         bint _use_nvjitlink
-        object _drv_log_bufs  # formatted_options list (driver); None for nvjitlink; cleared in link()
+        object _drv_log_bufs  # formatted_options list (driver); None for nvjitlink
         str _info_log         # decoded log; None until link() or pre-link get_*_log()
         str _error_log        # decoded log; None until link() or pre-link get_*_log()
         object _options       # LinkerOptions

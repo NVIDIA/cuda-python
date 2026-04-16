@@ -633,11 +633,12 @@ cdef inline object Linker_link(Linker self, str target_type):
             raise
         code = (<char*>c_cubin_out)[:c_output_size]
 
-    # Linking is complete; cache the decoded log strings and release
-    # the driver's raw bytearray buffers (no longer written to).
+    # Linking is complete; cache the decoded log strings. The driver's raw
+    # bytearray buffers are retained for the lifetime of the CUlinkState
+    # because cuLinkDestroy may still dereference the log-buffer pointers
+    # registered via cuLinkCreate.
     self._info_log = self.get_info_log()
     self._error_log = self.get_error_log()
-    self._drv_log_bufs = None
 
     return ObjectCode._init(bytes(code), target_type, name=self._options.name)
 
