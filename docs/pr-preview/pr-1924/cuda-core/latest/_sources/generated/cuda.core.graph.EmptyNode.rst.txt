@@ -1,0 +1,48 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.graph.EmptyNode
+=========================
+
+.. currentmodule:: cuda.core.graph
+
+.. autoclass:: EmptyNode
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: alloc
+   .. automethod:: callback
+   .. automethod:: destroy
+   .. automethod:: embed
+   .. automethod:: free
+   .. automethod:: if_cond
+   .. automethod:: if_else
+   .. automethod:: join
+   .. automethod:: launch
+   .. automethod:: memcpy
+   .. automethod:: memset
+   .. automethod:: record_event
+   .. automethod:: switch
+   .. automethod:: wait_event
+   .. automethod:: while_loop
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: graph
+   .. autoattribute:: handle
+   .. autoattribute:: is_valid
+   .. autoattribute:: pred
+   .. autoattribute:: succ
+   .. autoattribute:: type
+   
+   
