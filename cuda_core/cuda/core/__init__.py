@@ -10,7 +10,7 @@ def _import_versioned_module():
 
     from cuda import bindings
 
-    cuda_major, _ = bindings.__version__.split(".")[:2]
+    cuda_major = bindings.__version__.split(".")[0]
     if cuda_major not in ("12", "13"):
         raise ImportError("cuda.bindings 12.x or 13.x must be installed")
 
