@@ -17,9 +17,9 @@ from cuda.bindings.utils import (
     get_minimal_required_cuda_ver_from_ptx_ver,
     get_ptx_ver,
 )
-from cuda.bindings.utils import get_cuda_native_handle, get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
 
 have_cufile = importlib.util.find_spec("cuda.bindings.cufile") is not None
+
 
 def _is_libnvvm_available() -> bool:
     try:
@@ -136,6 +136,7 @@ def test_get_c_compiler():
     c_compiler = get_c_compiler()
     prefix = ("GCC", "Clang", "MSVC", "Unknown")
     assert sum(c_compiler.startswith(p) for p in prefix) == 1
+
 
 @_skip_no_libnvvm
 def test_check_nvvm_compiler_options_valid():
