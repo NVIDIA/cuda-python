@@ -34,7 +34,7 @@ ABI_SUFFIX = ".abi.json"
 
 
 def short_stem(name: str) -> str:
-    return name[: name.find(".")]
+    return name.split(".", 1)[0]
 
 
 def get_package_path(package_name: str) -> Path:
