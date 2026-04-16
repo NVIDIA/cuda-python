@@ -27,10 +27,10 @@
    .. autosummary::
    
       ~PlatformInfo_v1.chassis_physical_slot_number
-      ~PlatformInfo_v1.compute_slot_ind_ex
+      ~PlatformInfo_v1.compute_slot_index
       ~PlatformInfo_v1.ib_guid
       ~PlatformInfo_v1.module_id
-      ~PlatformInfo_v1.node_ind_ex
+      ~PlatformInfo_v1.node_index
       ~PlatformInfo_v1.peer_type
       ~PlatformInfo_v1.ptr
       ~PlatformInfo_v1.rack_guid

@@ -1303,6 +1303,9 @@
 :param profile_id: The GPU instance profile ID. See ``nvmlDeviceGetGpuInstanceProfileInfo``.
 :type profile_id: unsigned int
 
+:returns: Returns placements allowed for the profile. Can be NULL to discover number of allowed placements for this profile. If non-NULL must be large enough to accommodate the placements supported by the profile.
+:rtype: nvmlGpuInstancePlacement_t
+
 .. seealso:: `nvmlDeviceGetGpuInstancePossiblePlacements_v2`
 </pre></div>
 </div>
