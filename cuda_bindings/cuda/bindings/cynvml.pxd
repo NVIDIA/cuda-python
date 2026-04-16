@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
 
 from libc.stdint cimport int64_t
 
@@ -817,12 +817,19 @@ ctypedef struct nvmlPlatformInfo_v2_t 'nvmlPlatformInfo_v2_t':
     unsigned char moduleId
 
 ctypedef unsigned int nvmlDeviceArchitecture_t 'nvmlDeviceArchitecture_t'
+
 ctypedef unsigned int nvmlBusType_t 'nvmlBusType_t'
+
 ctypedef unsigned int nvmlFanControlPolicy_t 'nvmlFanControlPolicy_t'
+
 ctypedef unsigned int nvmlPowerSource_t 'nvmlPowerSource_t'
+
 ctypedef unsigned char nvmlPowerScopeType_t 'nvmlPowerScopeType_t'
+
 ctypedef unsigned int nvmlVgpuTypeId_t 'nvmlVgpuTypeId_t'
+
 ctypedef unsigned int nvmlVgpuInstance_t 'nvmlVgpuInstance_t'
+
 ctypedef struct nvmlVgpuHeterogeneousMode_v1_t 'nvmlVgpuHeterogeneousMode_v1_t':
     unsigned int version
     unsigned int mode
@@ -862,11 +869,13 @@ ctypedef struct nvmlConfComputeGetKeyRotationThresholdInfo_v1_t 'nvmlConfCompute
     unsigned long long attackerAdvantage
 
 ctypedef unsigned char nvmlGpuFabricState_t 'nvmlGpuFabricState_t'
+
 ctypedef struct nvmlSystemDriverBranchInfo_v1_t 'nvmlSystemDriverBranchInfo_v1_t':
     unsigned int version
     char branch[80]
 
 ctypedef unsigned int nvmlAffinityScope_t 'nvmlAffinityScope_t'
+
 ctypedef struct nvmlTemperature_v1_t 'nvmlTemperature_v1_t':
     unsigned int version
     nvmlTemperatureSensors_t sensorType
@@ -915,12 +924,19 @@ ctypedef struct nvmlPdi_v1_t 'nvmlPdi_v1_t':
     unsigned long long value
 
 ctypedef void* nvmlDevice_t 'nvmlDevice_t'
+
 ctypedef void* nvmlGpuInstance_t 'nvmlGpuInstance_t'
+
 ctypedef void* nvmlUnit_t 'nvmlUnit_t'
+
 ctypedef void* nvmlEventSet_t 'nvmlEventSet_t'
+
 ctypedef void* nvmlSystemEventSet_t 'nvmlSystemEventSet_t'
+
 ctypedef void* nvmlComputeInstance_t 'nvmlComputeInstance_t'
+
 ctypedef void* nvmlGpmSample_t 'nvmlGpmSample_t'
+
 ctypedef struct nvmlPciInfo_t 'nvmlPciInfo_t':
     char busIdLegacy[16]
     unsigned int domain
@@ -1383,15 +1399,25 @@ ctypedef struct nvmlVgpuSchedulerState_v2_t 'nvmlVgpuSchedulerState_v2_t':
     unsigned int frequency
 
 ctypedef nvmlPciInfoExt_v1_t nvmlPciInfoExt_t 'nvmlPciInfoExt_t'
+
 ctypedef nvmlCoolerInfo_v1_t nvmlCoolerInfo_t 'nvmlCoolerInfo_t'
+
 ctypedef nvmlDramEncryptionInfo_v1_t nvmlDramEncryptionInfo_t 'nvmlDramEncryptionInfo_t'
+
 ctypedef nvmlMarginTemperature_v1_t nvmlMarginTemperature_t 'nvmlMarginTemperature_t'
+
 ctypedef nvmlClockOffset_v1_t nvmlClockOffset_t 'nvmlClockOffset_t'
+
 ctypedef nvmlFanSpeedInfo_v1_t nvmlFanSpeedInfo_t 'nvmlFanSpeedInfo_t'
+
 ctypedef nvmlDevicePerfModes_v1_t nvmlDevicePerfModes_t 'nvmlDevicePerfModes_t'
+
 ctypedef nvmlDeviceCurrentClockFreqs_v1_t nvmlDeviceCurrentClockFreqs_t 'nvmlDeviceCurrentClockFreqs_t'
+
 ctypedef nvmlEccSramErrorStatus_v1_t nvmlEccSramErrorStatus_t 'nvmlEccSramErrorStatus_t'
+
 ctypedef nvmlPlatformInfo_v2_t nvmlPlatformInfo_t 'nvmlPlatformInfo_t'
+
 ctypedef struct nvmlPowerValue_v2_t 'nvmlPowerValue_v2_t':
     unsigned int version
     nvmlPowerScopeType_t powerScope
@@ -1466,13 +1492,21 @@ ctypedef struct nvmlFBCSessionInfo_t 'nvmlFBCSessionInfo_t':
     unsigned int averageLatency
 
 ctypedef nvmlVgpuHeterogeneousMode_v1_t nvmlVgpuHeterogeneousMode_t 'nvmlVgpuHeterogeneousMode_t'
+
 ctypedef nvmlVgpuPlacementId_v1_t nvmlVgpuPlacementId_t 'nvmlVgpuPlacementId_t'
+
 ctypedef nvmlVgpuPlacementList_v2_t nvmlVgpuPlacementList_t 'nvmlVgpuPlacementList_t'
+
 ctypedef nvmlVgpuTypeBar1Info_v1_t nvmlVgpuTypeBar1Info_t 'nvmlVgpuTypeBar1Info_t'
+
 ctypedef nvmlVgpuRuntimeState_v1_t nvmlVgpuRuntimeState_t 'nvmlVgpuRuntimeState_t'
+
 ctypedef nvmlSystemConfComputeSettings_v1_t nvmlSystemConfComputeSettings_t 'nvmlSystemConfComputeSettings_t'
+
 ctypedef nvmlConfComputeSetKeyRotationThresholdInfo_v1_t nvmlConfComputeSetKeyRotationThresholdInfo_t 'nvmlConfComputeSetKeyRotationThresholdInfo_t'
+
 ctypedef nvmlConfComputeGetKeyRotationThresholdInfo_v1_t nvmlConfComputeGetKeyRotationThresholdInfo_t 'nvmlConfComputeGetKeyRotationThresholdInfo_t'
+
 ctypedef struct nvmlGpuFabricInfo_t 'nvmlGpuFabricInfo_t':
     unsigned char clusterUuid[16]
     nvmlReturn_t status
@@ -1497,16 +1531,27 @@ ctypedef struct nvmlGpuFabricInfo_v3_t 'nvmlGpuFabricInfo_v3_t':
     unsigned char healthSummary
 
 ctypedef nvmlSystemDriverBranchInfo_v1_t nvmlSystemDriverBranchInfo_t 'nvmlSystemDriverBranchInfo_t'
+
 ctypedef nvmlTemperature_v1_t nvmlTemperature_t 'nvmlTemperature_t'
+
 ctypedef nvmlNvlinkSupportedBwModes_v1_t nvmlNvlinkSupportedBwModes_t 'nvmlNvlinkSupportedBwModes_t'
+
 ctypedef nvmlNvlinkGetBwMode_v1_t nvmlNvlinkGetBwMode_t 'nvmlNvlinkGetBwMode_t'
+
 ctypedef nvmlNvlinkSetBwMode_v1_t nvmlNvlinkSetBwMode_t 'nvmlNvlinkSetBwMode_t'
+
 ctypedef nvmlDeviceCapabilities_v1_t nvmlDeviceCapabilities_t 'nvmlDeviceCapabilities_t'
+
 ctypedef nvmlPowerSmoothingProfile_v1_t nvmlPowerSmoothingProfile_t 'nvmlPowerSmoothingProfile_t'
+
 ctypedef nvmlPowerSmoothingState_v1_t nvmlPowerSmoothingState_t 'nvmlPowerSmoothingState_t'
+
 ctypedef nvmlDeviceAddressingMode_v1_t nvmlDeviceAddressingMode_t 'nvmlDeviceAddressingMode_t'
+
 ctypedef nvmlRepairStatus_v1_t nvmlRepairStatus_t 'nvmlRepairStatus_t'
+
 ctypedef nvmlPdi_v1_t nvmlPdi_t 'nvmlPdi_t'
+
 ctypedef struct nvmlEventData_t 'nvmlEventData_t':
     nvmlDevice_t device
     unsigned long long eventType
@@ -1706,8 +1751,11 @@ ctypedef struct nvmlVgpuSchedulerLogInfo_v2_t 'nvmlVgpuSchedulerLogInfo_v2_t':
     nvmlVgpuSchedulerLogEntry_v2_t logEntries[200]
 
 ctypedef nvmlVgpuTypeIdInfo_v1_t nvmlVgpuTypeIdInfo_t 'nvmlVgpuTypeIdInfo_t'
+
 ctypedef nvmlVgpuTypeMaxInstance_v1_t nvmlVgpuTypeMaxInstance_t 'nvmlVgpuTypeMaxInstance_t'
+
 ctypedef nvmlVgpuCreatablePlacementInfo_v1_t nvmlVgpuCreatablePlacementInfo_t 'nvmlVgpuCreatablePlacementInfo_t'
+
 ctypedef struct nvmlVgpuProcessesUtilizationInfo_v1_t 'nvmlVgpuProcessesUtilizationInfo_v1_t':
     unsigned int version
     unsigned int vgpuProcessCount
@@ -1715,11 +1763,17 @@ ctypedef struct nvmlVgpuProcessesUtilizationInfo_v1_t 'nvmlVgpuProcessesUtilizat
     nvmlVgpuProcessUtilizationInfo_v1_t* vgpuProcUtilArray
 
 ctypedef nvmlActiveVgpuInstanceInfo_v1_t nvmlActiveVgpuInstanceInfo_t 'nvmlActiveVgpuInstanceInfo_t'
+
 ctypedef nvmlGpuFabricInfo_v3_t nvmlGpuFabricInfoV_t 'nvmlGpuFabricInfoV_t'
+
 ctypedef nvmlSystemEventSetCreateRequest_v1_t nvmlSystemEventSetCreateRequest_t 'nvmlSystemEventSetCreateRequest_t'
+
 ctypedef nvmlSystemEventSetFreeRequest_v1_t nvmlSystemEventSetFreeRequest_t 'nvmlSystemEventSetFreeRequest_t'
+
 ctypedef nvmlSystemRegisterEventRequest_v1_t nvmlSystemRegisterEventRequest_t 'nvmlSystemRegisterEventRequest_t'
+
 ctypedef nvmlProcessDetailList_v1_t nvmlProcessDetailList_t 'nvmlProcessDetailList_t'
+
 ctypedef struct nvmlVgpuInstancesUtilizationInfo_v1_t 'nvmlVgpuInstancesUtilizationInfo_v1_t':
     unsigned int version
     nvmlValueType_t sampleValType
@@ -1733,7 +1787,9 @@ ctypedef struct nvmlPRMCounter_v1_t 'nvmlPRMCounter_v1_t':
     nvmlPRMCounterValue_v1_t counterValue
 
 ctypedef nvmlUUID_v1_t nvmlUUID_t 'nvmlUUID_t'
+
 ctypedef nvmlProcessesUtilizationInfo_v1_t nvmlProcessesUtilizationInfo_t 'nvmlProcessesUtilizationInfo_t'
+
 ctypedef struct nvmlVgpuSchedulerLog_t 'nvmlVgpuSchedulerLog_t':
     unsigned int engineId
     unsigned int schedulerPolicy
@@ -1781,6 +1837,7 @@ ctypedef struct nvmlGridLicensableFeatures_t 'nvmlGridLicensableFeatures_t':
     nvmlGridLicensableFeature_t gridLicensableFeatures[3]
 
 ctypedef nvmlSystemEventSetWaitRequest_v1_t nvmlSystemEventSetWaitRequest_t 'nvmlSystemEventSetWaitRequest_t'
+
 ctypedef struct nvmlGpmMetricsGet_t 'nvmlGpmMetricsGet_t':
     unsigned int version
     unsigned int numMetrics
@@ -1789,29 +1846,39 @@ ctypedef struct nvmlGpmMetricsGet_t 'nvmlGpmMetricsGet_t':
     nvmlGpmMetric_t metrics[333]
 
 ctypedef nvmlWorkloadPowerProfileInfo_v1_t nvmlWorkloadPowerProfileInfo_t 'nvmlWorkloadPowerProfileInfo_t'
+
 ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t nvmlWorkloadPowerProfileCurrentProfiles_t 'nvmlWorkloadPowerProfileCurrentProfiles_t'
+
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t nvmlWorkloadPowerProfileRequestedProfiles_t 'nvmlWorkloadPowerProfileRequestedProfiles_t'
+
 ctypedef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t nvmlEccSramUniqueUncorrectedErrorCounts_t 'nvmlEccSramUniqueUncorrectedErrorCounts_t'
+
 ctypedef struct nvmlNvLinkInfo_v2_t 'nvmlNvLinkInfo_v2_t':
     unsigned int version
     unsigned int isNvleEnabled
     nvmlNvlinkFirmwareInfo_t firmwareInfo
 
 ctypedef nvmlVgpuProcessesUtilizationInfo_v1_t nvmlVgpuProcessesUtilizationInfo_t 'nvmlVgpuProcessesUtilizationInfo_t'
+
 ctypedef nvmlVgpuInstancesUtilizationInfo_v1_t nvmlVgpuInstancesUtilizationInfo_t 'nvmlVgpuInstancesUtilizationInfo_t'
+
 ctypedef struct nvmlPRMCounterList_v1_t 'nvmlPRMCounterList_v1_t':
     unsigned int numCounters
     nvmlPRMCounter_v1_t* counters
 
 ctypedef nvmlVgpuSchedulerStateInfo_v1_t nvmlVgpuSchedulerStateInfo_t 'nvmlVgpuSchedulerStateInfo_t'
+
 ctypedef nvmlVgpuSchedulerLogInfo_v1_t nvmlVgpuSchedulerLogInfo_t 'nvmlVgpuSchedulerLogInfo_t'
+
 ctypedef nvmlVgpuSchedulerState_v1_t nvmlVgpuSchedulerState_t 'nvmlVgpuSchedulerState_t'
+
 ctypedef struct nvmlWorkloadPowerProfileProfilesInfo_v1_t 'nvmlWorkloadPowerProfileProfilesInfo_v1_t':
     unsigned int version
     nvmlMask255_t perfProfilesMask
     nvmlWorkloadPowerProfileInfo_t perfProfile[255]
 
 ctypedef nvmlNvLinkInfo_v2_t nvmlNvLinkInfo_t 'nvmlNvLinkInfo_t'
+
 ctypedef nvmlWorkloadPowerProfileProfilesInfo_v1_t nvmlWorkloadPowerProfileProfilesInfo_t 'nvmlWorkloadPowerProfileProfilesInfo_t'
 
 
