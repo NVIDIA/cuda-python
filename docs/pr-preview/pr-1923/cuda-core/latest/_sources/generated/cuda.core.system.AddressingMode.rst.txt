@@ -1,0 +1,6 @@
+﻿cuda.core.system.AddressingMode
+===============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: AddressingMode
