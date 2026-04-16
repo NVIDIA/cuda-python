@@ -183,7 +183,6 @@ def _cufile_driver_prewarm():
         cufile.driver_close()
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
-    yield
 
 
 @pytest.fixture
