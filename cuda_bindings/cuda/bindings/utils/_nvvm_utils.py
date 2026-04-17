@@ -47,7 +47,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     Examples
     --------
     >>> from cuda.bindings.utils import check_nvvm_compiler_options
-    >>> check_nvvm_options(["-arch=compute_90", "-g"])
+    >>> check_nvvm_compiler_options(["-arch=compute_90", "-g"])
     True
     """
     try:
