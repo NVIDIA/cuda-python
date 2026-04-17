@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_ecc\_mode
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_ecc_mode
