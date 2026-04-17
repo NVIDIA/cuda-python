@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import ctypes
 import time
 
 import numpy as np
-
 from runner.runtime import alloc_persistent, ensure_context
 
 from cuda.bindings import driver as cuda
@@ -30,61 +28,61 @@ _err, STREAM = cuda.cuStreamCreate(cuda.CUstream_flags.CU_STREAM_NON_BLOCKING.va
 
 
 def bench_mem_alloc_free(loops: int) -> float:
-    _cuMemAlloc = cuda.cuMemAlloc
-    _cuMemFree = cuda.cuMemFree
+    _alloc = cuda.cuMemAlloc
+    _free = cuda.cuMemFree
     _size = ALLOC_SIZE
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _, ptr = _cuMemAlloc(_size)
-        _cuMemFree(ptr)
+        _, ptr = _alloc(_size)
+        _free(ptr)
     return time.perf_counter() - t0
 
 
 def bench_mem_alloc_async_free_async(loops: int) -> float:
-    _cuMemAllocAsync = cuda.cuMemAllocAsync
-    _cuMemFreeAsync = cuda.cuMemFreeAsync
+    _alloc = cuda.cuMemAllocAsync
+    _free = cuda.cuMemFreeAsync
     _size = ALLOC_SIZE
     _stream = STREAM
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _, ptr = _cuMemAllocAsync(_size, _stream)
-        _cuMemFreeAsync(ptr, _stream)
+        _, ptr = _alloc(_size, _stream)
+        _free(ptr, _stream)
     return time.perf_counter() - t0
 
 
 def bench_memcpy_htod(loops: int) -> float:
-    _cuMemcpyHtoD = cuda.cuMemcpyHtoD
+    _fn = cuda.cuMemcpyHtoD
     _dst = DST_DPTR
     _src = HOST_SRC
     _size = COPY_SIZE
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuMemcpyHtoD(_dst, _src, _size)
+        _fn(_dst, _src, _size)
     return time.perf_counter() - t0
 
 
 def bench_memcpy_dtoh(loops: int) -> float:
-    _cuMemcpyDtoH = cuda.cuMemcpyDtoH
+    _fn = cuda.cuMemcpyDtoH
     _dst = HOST_DST
     _src = SRC_DPTR
     _size = COPY_SIZE
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuMemcpyDtoH(_dst, _src, _size)
+        _fn(_dst, _src, _size)
     return time.perf_counter() - t0
 
 
 def bench_memcpy_dtod(loops: int) -> float:
-    _cuMemcpyDtoD = cuda.cuMemcpyDtoD
+    _fn = cuda.cuMemcpyDtoD
     _dst = DST_DPTR
     _src = SRC_DPTR
     _size = COPY_SIZE
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuMemcpyDtoD(_dst, _src, _size)
+        _fn(_dst, _src, _size)
     return time.perf_counter() - t0
