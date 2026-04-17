@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.DynamicLibNotAvailableError
+===========================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoexception:: DynamicLibNotAvailableError
