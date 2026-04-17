@@ -87,6 +87,7 @@ inline-quotes = "double"
   "ARG001",  # unused function argument (fixtures)
   "ARG002",  # unused method argument
   "RUF012",  # mutable class default (ctypes _fields_ is standard)
+  "RUF059",  # unused unpacked variable (side-effect assignments)
   "F841",    # unused local variable (side-effect assignments)
   "E402",    # module-level import not at top of file
   "E702",    # multiple statements on one line (compact test tables)
@@ -110,19 +111,15 @@ inline-quotes = "double"
 "**/examples/**" = [
   "T201",    # print
   "E402",    # module-level import not at top of file
+  "RUF059",  # unused unpacked variable
 ]
 
 "**/benchmarks/**" = [
   "T201",    # print
   "RUF012",  # mutable class default (ctypes _fields_ is standard)
+  "RUF059",  # unused unpacked variable
   "F841",    # unused local variable
   "E402",    # module-level import not at top of file
-]
-
-"**/pytest-legacy/**" = [
-  "N801",    # legacy CUDA naming conventions
-  "N802",
-  "N806",
 ]
 
 # CUDA bindings mirror C API naming conventions (CamelCase types, camelCase functions)
