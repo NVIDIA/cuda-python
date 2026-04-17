@@ -121,7 +121,15 @@ jobs:
         id: filter
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
-          BASE_REF: ${{ fromJSON(steps.pr-info.outputs.pr-info).base.ref }}
+          # GitHub Actions evaluates step-level `env:` expressions eagerly —
+          # the step's `if:` gate does NOT short-circuit them. On non-PR
+          # events (push/tag/schedule), `pr-info` is skipped and its outputs
+          # are empty strings, so `fromJSON('')` would raise a template error
+          # and fail the step despite `if:` being false. Guard the
+          # `fromJSON` call with a short-circuit so the expression resolves
+          # to an empty string on non-PR events; the step is still gated
+          # off by `if:`, so `BASE_REF` is never consumed there.
+          BASE_REF: ${{ steps.pr-info.outputs.pr-info && fromJSON(steps.pr-info.outputs.pr-info).base.ref || '' }}
         run: |
           # Diff against the merge base with the PR's actual target branch.
           # Uses merge-base so diverged branches only show files changed on
