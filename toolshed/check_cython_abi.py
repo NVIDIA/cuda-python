@@ -6,6 +6,13 @@
 """
 Tool to check for Cython ABI changes in a given package.
 
+There are different types of ABI changes, only one of which is covered by this tool:
+
+- cdef function signatures (capsule strings) — covered here
+- cdef class struct size (tp_basicsize) — not covered
+- cdef class vtable layout / method reordering — not covered, and this one fails as silent UB rather than an import-time error
+- Fused specialization ordering — partially covered (reorders manifest as capsule-name deltas, but the mapping is non-obvious)
+
 The workflow is basically:
 
 1) Build and install a "clean" upstream version of the package.
@@ -23,15 +30,24 @@ The workflow is basically:
      python check_cython_abi.py check <package_name> <dir>
 """
 
+import ctypes
 import importlib
 import json
-import re
 import sys
 import sysconfig
 from pathlib import Path
 
 EXT_SUFFIX = sysconfig.get_config_var("EXT_SUFFIX")
 ABI_SUFFIX = ".abi.json"
+
+
+_pycapsule_get_name = ctypes.pythonapi.PyCapsule_GetName
+_pycapsule_get_name.restype = ctypes.c_char_p
+_pycapsule_get_name.argtypes = [ctypes.py_object]
+
+
+def get_capsule_name(v: object) -> str:
+    return _pycapsule_get_name(v).decode("utf-8")
 
 
 def short_stem(name: str) -> str:
@@ -59,24 +75,24 @@ def abi_path_to_so_path(abi_path: Path, build_dir: Path, abi_dir: Path) -> Path:
     return build_dir / abi_path.parent.relative_to(abi_dir) / so_name
 
 
-def pyx_capi_to_json(d: dict[str, object]) -> dict[str, str]:
-    """
-    Converts the __pyx_capi__ dictionary to a JSON-serializable dictionary,
-    removing any memory addresses that are irrelevant for comparison.
-    """
+def is_cython_module(module: object) -> bool:
+    # This is kind of quick-and-dirty, but seems to work
+    return hasattr(module, "__pyx_capi__")
 
-    def extract_name(v: object) -> str:
-        v = str(v)
-        match = re.match(r'<capsule object "([^\"]+)" at 0x[0-9a-fA-F]+>', v)
-        if match is None:
-            raise ValueError(f"Could not parse __pyx_capi__ entry: {v}")
-        return match.group(1)
 
+def module_to_json(module: object) -> dict:
+    """
+    Converts extracts information about a Cython-compiled .so into JSON-serializable information.
+    """
     # Sort the dictionary by keys to make diffs in the JSON files smaller
-    return {k: extract_name(d[k]) for k in sorted(d.keys())}
+    pyx_capi = module.__pyx_capi__
+
+    return {
+        "functions": {k: get_capsule_name(pyx_capi[k]) for k in sorted(pyx_capi.keys())},
+    }
 
 
-def check_abi(expected: dict[str, str], found: dict[str, str]) -> tuple[bool, bool]:
+def check_functions(expected: dict[str, str], found: dict[str, str]) -> tuple[bool, bool]:
     has_errors = False
     has_allowed_changes = False
     for k, v in expected.items():
@@ -93,6 +109,17 @@ def check_abi(expected: dict[str, str], found: dict[str, str]) -> tuple[bool, bo
     return has_errors, has_allowed_changes
 
 
+def compare(expected: dict, found: dict) -> tuple[bool, bool]:
+    has_errors = False
+    has_allowed_changes = False
+
+    errors, allowed_changes = check_functions(expected["functions"], found["functions"])
+    has_errors |= errors
+    has_allowed_changes |= allowed_changes
+
+    return has_errors, has_allowed_changes
+
+
 def check(package: str, abi_dir: Path) -> bool:
     build_dir = get_package_path(package)
 
@@ -101,17 +128,22 @@ def check(package: str, abi_dir: Path) -> bool:
     for abi_path in Path(abi_dir).glob(f"**/*{ABI_SUFFIX}"):
         so_path = abi_path_to_so_path(abi_path, build_dir, abi_dir)
         if so_path.is_file():
-            module = import_from_path(package, build_dir, so_path)
-            if hasattr(module, "__pyx_capi__"):
-                found_json = pyx_capi_to_json(module.__pyx_capi__)
+            try:
+                module = import_from_path(package, build_dir, so_path)
+            except ImportError:
+                print(f"Failed to import module for {so_path.relative_to(build_dir)}")
+                has_errors = True
+                continue
+            if is_cython_module(module):
+                found_json = module_to_json(module)
                 with open(abi_path, encoding="utf-8") as f:
                     expected_json = json.load(f)
                 print(f"Checking module: {so_path.relative_to(build_dir)}")
-                check_errors, check_allowed_changes = check_abi(expected_json, found_json)
+                check_errors, check_allowed_changes = compare(expected_json, found_json)
                 has_errors |= check_errors
                 has_allowed_changes |= check_allowed_changes
             else:
-                print(f"Module no longer has an exposed ABI: {so_path.relative_to(build_dir)}")
+                print(f"Module no longer has an exposed ABI or is no longer Cython: {so_path.relative_to(build_dir)}")
                 has_errors = True
         else:
             print(f"No module found for {abi_path.relative_to(abi_dir)}")
@@ -125,27 +157,35 @@ def check(package: str, abi_dir: Path) -> bool:
                 print(f"New module added {so_path.relative_to(build_dir)}")
                 has_allowed_changes = True
 
+    print()
     if has_errors:
         print("ERRORS FOUND")
         return True
     elif has_allowed_changes:
         print("Allowed changes found.")
+    else:
+        print("No changes found.")
     return False
 
 
 def regenerate(package: str, abi_dir: Path) -> bool:
-    if not abi_dir.is_dir():
-        abi_dir.mkdir(parents=True, exist_ok=True)
+    if abi_dir.is_dir():
+        print(f"ABI directory {abi_dir} already exists. Please remove it before regenerating.")
+        return True
 
     build_dir = get_package_path(package)
     for so_path in Path(build_dir).glob(f"**/*{EXT_SUFFIX}"):
-        print(f"Generating ABI from {so_path.relative_to(build_dir)}")
-        module = import_from_path(package, build_dir, so_path)
-        if hasattr(module, "__pyx_capi__"):
+        try:
+            module = import_from_path(package, build_dir, so_path)
+        except ImportError:
+            print(f"Failed to import module: {so_path.relative_to(build_dir)}")
+            continue
+        if is_cython_module(module):
+            print(f"Generating ABI from {so_path.relative_to(build_dir)}")
             abi_path = so_path_to_abi_path(so_path, build_dir, abi_dir)
             abi_path.parent.mkdir(parents=True, exist_ok=True)
             with open(abi_path, "w", encoding="utf-8") as f:
-                json.dump(pyx_capi_to_json(module.__pyx_capi__), f, indent=2)
+                json.dump(module_to_json(module), f, indent=2)
 
     return False
 
