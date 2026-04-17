@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.CompatibilityInsufficientMetadataError
+======================================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoexception:: CompatibilityInsufficientMetadataError
