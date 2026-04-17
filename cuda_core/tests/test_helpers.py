@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -17,6 +17,7 @@ ENABLE_LOGGING = False  # Set True for test debugging and development
 NBYTES = 64
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_latchkernel():
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
