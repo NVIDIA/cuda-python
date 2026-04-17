@@ -123,6 +123,9 @@ jobs:
                 LABEL_ACTION="not needed (collaborator permission is a trusted signal)"
                 TRUSTED_SIGNALS="collaborator_permission:$COLLABORATOR_PERMISSION"
                 ;;
+              *)
+                # triage, read, none, or API error: not a trusted signal
+                ;;
             esac
           fi
 
