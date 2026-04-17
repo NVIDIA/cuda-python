@@ -77,7 +77,7 @@ cdef class Temperature:
     def __init__(self, handle: int):
         self._handle = handle
 
-    def sensor(
+    def get_sensor(
         self,
         sensor: TemperatureSensors = TemperatureSensors.TEMPERATURE_GPU
     ) -> int:
@@ -97,7 +97,7 @@ cdef class Temperature:
         """
         return nvml.device_get_temperature_v(self._handle, sensor)
 
-    def threshold(self, threshold_type: TemperatureThresholds) -> int:
+    def get_threshold(self, threshold_type: TemperatureThresholds) -> int:
         """
         Retrieves the temperature threshold for this GPU with the specified
         threshold type, in degrees Celsius.
@@ -127,7 +127,7 @@ cdef class Temperature:
         """
         return nvml.device_get_margin_temperature(self._handle)
 
-    def thermal_settings(self, sensor_index: ThermalTarget) -> ThermalSettings:
+    def get_thermal_settings(self, sensor_index: ThermalTarget) -> ThermalSettings:
         """
         Used to execute a list of thermal system instructions.
 

@@ -198,25 +198,25 @@ def test_device_pci_info():
         assert isinstance(pci_info.sub_class, int)
         assert 0x00 <= pci_info.sub_class <= 0xFF
 
-        assert isinstance(pci_info.get_max_pcie_link_generation(), int)
-        assert 0 <= pci_info.get_max_pcie_link_generation() <= 0xFF
+        assert isinstance(pci_info.link_generation, int)
+        assert 0 <= pci_info.link_generation <= 0xFF
 
-        assert isinstance(pci_info.get_gpu_max_pcie_link_generation(), int)
-        assert 0 <= pci_info.get_gpu_max_pcie_link_generation() <= 0xFF
+        assert isinstance(pci_info.max_link_generation, int)
+        assert 0 <= pci_info.max_link_generation <= 0xFF
 
-        assert isinstance(pci_info.get_max_pcie_link_width(), int)
-        assert 0 <= pci_info.get_max_pcie_link_width() <= 0xFF
+        assert isinstance(pci_info.max_link_width, int)
+        assert 0 <= pci_info.max_link_width <= 0xFF
 
-        assert isinstance(pci_info.get_current_pcie_link_generation(), int)
-        assert 0 <= pci_info.get_current_pcie_link_generation() <= 0xFF
+        assert isinstance(pci_info.current_link_generation, int)
+        assert 0 <= pci_info.current_link_generation <= 0xFF
 
-        assert isinstance(pci_info.get_current_pcie_link_width(), int)
-        assert 0 <= pci_info.get_current_pcie_link_width() <= 0xFF
+        assert isinstance(pci_info.current_link_width, int)
+        assert 0 <= pci_info.current_link_width <= 0xFF
 
         with unsupported_before(device, None):
-            assert isinstance(pci_info.get_pcie_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
+            assert isinstance(pci_info.get_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
 
-        assert isinstance(pci_info.get_pcie_replay_counter(), int)
+        assert isinstance(pci_info.replay_counter, int)
 
 
 def test_device_serial():
@@ -336,23 +336,23 @@ def test_device_attributes():
 def test_c2c_mode_enabled():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):
-            is_enabled = device.is_c2c_mode_enabled
+            is_enabled = device.is_c2c_enabled
         assert isinstance(is_enabled, bool)
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 def test_persistence_mode_enabled():
     for device in system.Device.get_all_devices():
-        is_enabled = device.persistence_mode_enabled
+        is_enabled = device.persistence_mode
         assert isinstance(is_enabled, bool)
         try:
-            device.persistence_mode_enabled = False
+            device.persistence_mode = False
         except nvml.NoPermissionError as e:
             pytest.xfail(f"nvml.NoPermissionError: {e}")
         try:
-            assert device.persistence_mode_enabled is False
+            assert device.persistence_mode is False
         finally:
-            device.persistence_mode_enabled = is_enabled
+            device.persistence_mode = is_enabled
 
 
 def test_field_values():
@@ -440,11 +440,11 @@ def test_addressing_mode():
 
 def test_display_mode():
     for device in system.Device.get_all_devices():
-        display_mode = device.display_mode
-        assert isinstance(display_mode, bool)
+        is_display_connected = device.is_display_connected
+        assert isinstance(is_display_connected, bool)
 
-        display_active = device.display_active
-        assert isinstance(display_active, bool)
+        is_display_active = device.is_display_active
+        assert isinstance(is_display_active, bool)
 
 
 def test_repair_status():
@@ -548,7 +548,7 @@ def test_auto_boosted_clocks_enabled():
         # This API is supported on KEPLER and newer, but it also seems
         # unsupported elsewhere.
         with unsupported_before(device, None):
-            current, default = device.get_auto_boosted_clocks_enabled()
+            current, default = device.is_auto_boosted_clocks_enabled
         assert isinstance(current, bool)
         assert isinstance(default, bool)
 
@@ -556,7 +556,7 @@ def test_auto_boosted_clocks_enabled():
 def test_clock():
     for device in system.Device.get_all_devices():
         for clock_type in system.ClockType:
-            clock = device.clock(clock_type)
+            clock = device.get_clock(clock_type)
             assert isinstance(clock, system.ClockInfo)
 
             # These are ordered from oldest API to newest API so we test as much
@@ -605,11 +605,11 @@ def test_clock():
 def test_clock_event_reasons():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):
-            reasons = device.get_current_clock_event_reasons()
+            reasons = device.current_clock_event_reasons
         assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
 
         with unsupported_before(device, None):
-            reasons = device.get_supported_clock_event_reasons()
+            reasons = device.supported_clock_event_reasons
         assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
 
 
@@ -621,7 +621,7 @@ def test_fan():
             pytest.skip("Device has no fans to test")
 
         for fan_idx in range(device.num_fans):
-            fan_info = device.fan(fan_idx)
+            fan_info = device.get_fan(fan_idx)
             assert isinstance(fan_info, system.FanInfo)
 
             speed = fan_info.speed
@@ -650,7 +650,7 @@ def test_fan():
                 control_policy = fan_info.control_policy
                 assert isinstance(control_policy, system.FanControlPolicy)
             finally:
-                fan_info.set_default_fan_speed()
+                fan_info.set_default_speed()
 
 
 def test_cooler():
@@ -677,7 +677,7 @@ def test_temperature():
         temperature = device.temperature
         assert isinstance(temperature, system.Temperature)
 
-        sensor = temperature.sensor()
+        sensor = temperature.get_sensor()
         assert isinstance(sensor, int)
         assert sensor >= 0
 
@@ -685,7 +685,7 @@ def test_temperature():
         # is also unsupported on other hardware.
         with unsupported_before(device, None):
             for threshold in list(system.TemperatureThresholds)[:-1]:
-                t = temperature.threshold(threshold)
+                t = temperature.get_threshold(threshold)
                 assert isinstance(t, int)
                 assert t >= 0
 
@@ -695,7 +695,7 @@ def test_temperature():
         assert margin >= 0
 
         with unsupported_before(device, None):
-            thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
+            thermals = temperature.get_thermal_settings(system.ThermalTarget.ALL)
         assert isinstance(thermals, system.ThermalSettings)
 
         for i, sensor in enumerate(thermals):
@@ -716,7 +716,7 @@ def test_pstates():
             pstate = device.performance_state
         assert isinstance(pstate, system.Pstates)
 
-        pstates = device.get_supported_pstates()
+        pstates = device.supported_pstates
         assert all(isinstance(p, system.Pstates) for p in pstates)
 
         dynamic_pstates_info = device.dynamic_pstates_info
