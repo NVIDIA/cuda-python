@@ -24,6 +24,7 @@ TOP_LEVEL_FILE_LICENSE_IDENTIFIER = "Apache-2.0"
 # can't slip in without a reviewed license decision.
 TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     ".github": "Apache-2.0",
+    "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
     "cuda_bindings": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
     "cuda_core": "Apache-2.0",
