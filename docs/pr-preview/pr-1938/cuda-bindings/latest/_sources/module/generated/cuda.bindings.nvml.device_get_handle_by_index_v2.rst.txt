@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_handle\_by\_index\_v2
+=====================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_handle_by_index_v2
