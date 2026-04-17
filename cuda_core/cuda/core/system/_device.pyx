@@ -165,7 +165,12 @@ cdef class Device:
         "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==
         "AMPERE"``.
         """
-        return DeviceArch(nvml.device_get_architecture(self._handle))
+        arch = nvml.device_get_architecture(self._handle)
+        try:
+            arch = DeviceArch(arch)
+            return arch
+        except ValueError:
+            return nvml.DeviceArch.UNKNOWN
 
     @property
     def name(self) -> str:
