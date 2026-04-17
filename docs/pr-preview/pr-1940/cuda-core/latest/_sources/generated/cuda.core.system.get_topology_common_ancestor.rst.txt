@@ -1,6 +1,0 @@
-﻿cuda.core.system.get\_topology\_common\_ancestor
-================================================
-
-.. currentmodule:: cuda.core.system
-
-.. autofunction:: get_topology_common_ancestor
