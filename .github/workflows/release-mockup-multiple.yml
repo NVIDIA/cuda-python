@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Input-only mockup for the unified-form design.
+# This keeps separate tag fields visible in one workflow.
+
+name: "Release Mockup: multiple git tags"
+
+on:
+  workflow_dispatch:
+    inputs:
+      shared-git-tag:
+        description: "Shared release git tag for cuda-python / cuda-bindings (e.g. v13.2.0)"
+        required: false
+        type: string
+      shared-tag-target:
+        description: "For the shared vX.Y.Z tag only, choose whether to release cuda-python, cuda-bindings, or both."
+        required: true
+        type: choice
+        # Sentinel first option so the UI does not silently pick a real target.
+        # A real workflow would reject this value during validation.
+        options:
+          - -- select target for plain vX.Y.Z tags --
+          - cuda-python only
+          - cuda-bindings only
+          - cuda-python + cuda-bindings
+      cuda-core-git-tag:
+        description: "Release git tag for cuda-core (e.g. cuda-core-v0.7.0)"
+        required: false
+        type: string
+      cuda-pathfinder-git-tag:
+        description: "Release git tag for cuda-pathfinder (e.g. cuda-pathfinder-v1.5.3)"
+        required: false
+        type: string
+
+jobs:
+  mockup-only:
+    name: Mockup placeholder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: |
+          echo "This is an input-only workflow mockup."
+          echo "No release actions are defined here."

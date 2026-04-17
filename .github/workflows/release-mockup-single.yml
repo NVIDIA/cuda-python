@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Input-only mockup for the split-workflow design.
+# This models the shared-tag release family for cuda-python / cuda-bindings.
+
+name: "Release Mockup: single git tag"
+
+on:
+  workflow_dispatch:
+    inputs:
+      git-tag:
+        description: "Release git tag. Use vX.Y.Z for the shared cuda-python/cuda-bindings line, cuda-core-vX.Y.Z for cuda-core, or cuda-pathfinder-vX.Y.Z for cuda-pathfinder."
+        required: true
+        type: string
+      shared-tag-target:
+        description: "For plain vX.Y.Z tags only, choose whether to release cuda-python, cuda-bindings, or both."
+        required: true
+        type: choice
+        # Sentinel first option so the UI does not silently pick a real target.
+        # A real workflow would reject this value during validation.
+        options:
+          - -- select target for plain vX.Y.Z tags --
+          - cuda-python only
+          - cuda-bindings only
+          - cuda-python + cuda-bindings
+
+jobs:
+  mockup-only:
+    name: Mockup placeholder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: |
+          echo "This is an input-only workflow mockup."
+          echo "No release actions are defined here."
