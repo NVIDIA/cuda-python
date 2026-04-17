@@ -52,11 +52,27 @@ elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
   CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CUDA_VER}-${HOST_PLATFORM}"
+  # USE_BACKPORT_BINDINGS flags the CTK-major-mismatch case where the
+  # current-run bindings wheel was built for a different CTK major than the
+  # one under test, so we must pull the bindings wheel from the backport
+  # branch instead. This is independent of whether bindings tests run.
+  # SKIP_CUDA_BINDINGS_TEST is the test-time gate: it is set when the CTK
+  # majors differ OR when the caller tells us to skip for path-filter
+  # reasons via SKIP_BINDINGS_TEST_OVERRIDE.
   if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
+    USE_BACKPORT_BINDINGS=1
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
   else
-    SKIP_CUDA_BINDINGS_TEST=0
+    USE_BACKPORT_BINDINGS=0
+    # Path-filter override only skips bindings tests, NOT cython tests
+    # for other modules (e.g. cuda.core). Cython skip is driven solely
+    # by the build/test CTK minor-version mismatch.
+    if [[ "${SKIP_BINDINGS_TEST_OVERRIDE:-0}" == "1" ]]; then
+      SKIP_CUDA_BINDINGS_TEST=1
+    else
+      SKIP_CUDA_BINDINGS_TEST=0
+    fi
     BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
     TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
     if [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
@@ -80,6 +96,7 @@ elif [[ "${1}" == "test" ]]; then
     echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}"
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
+    echo "USE_BACKPORT_BINDINGS=${USE_BACKPORT_BINDINGS}"
   } >> $GITHUB_ENV
 fi
 
