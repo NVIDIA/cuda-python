@@ -64,6 +64,30 @@ def _located_bitcode_lib(name: str, abs_path: str) -> LocatedBitcodeLib:
     )
 
 
+def _assert_real_ctk_backed_path(path: str) -> None:
+    norm_path = os.path.normpath(os.path.abspath(path))
+    if "site-packages" in Path(norm_path).parts:
+        return
+    current = Path(norm_path)
+    if current.is_file():
+        current = current.parent
+    for candidate in (current, *current.parents):
+        version_json_path = candidate / "version.json"
+        if version_json_path.is_file():
+            return
+    for env_var in ("CUDA_PATH", "CUDA_HOME"):
+        ctk_root = os.environ.get(env_var)
+        if not ctk_root:
+            continue
+        norm_ctk_root = os.path.normpath(os.path.abspath(ctk_root))
+        if os.path.commonpath((norm_path, norm_ctk_root)) == norm_ctk_root:
+            return
+    raise AssertionError(
+        "Expected a site-packages path, a path under a CTK root with version.json, "
+        f"or a path under CUDA_PATH/CUDA_HOME, got {path!r}"
+    )
+
+
 def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
     _write_version_json(ctk_root, "12.9.20250531")
@@ -272,7 +296,7 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
     ) as exc:
         if STRICTNESS == "all_must_work":
             raise
-        info_summary_append(f"real wheel check unavailable: {exc.__class__.__name__}: {exc}")
+        info_summary_append(f"real CTK check unavailable: {exc.__class__.__name__}: {exc}")
         return
 
     info_summary_append(f"nvrtc={loaded.abs_path!r}")
@@ -285,7 +309,7 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
     assert header_dir is not None
     assert nvcc is not None
     for path in (loaded.abs_path, header_dir, static_lib, bitcode_lib, nvcc):
-        assert "site-packages" in path
+        _assert_real_ctk_backed_path(path)
 
 
 def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_append):
@@ -296,14 +320,14 @@ def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_ap
     except (CompatibilityCheckError, CompatibilityInsufficientMetadataError) as exc:
         if STRICTNESS == "all_must_work":
             raise
-        info_summary_append(f"real cufft wheel check unavailable: {exc.__class__.__name__}: {exc}")
+        info_summary_append(f"real cufft CTK check unavailable: {exc.__class__.__name__}: {exc}")
         return
 
     if header_dir is None:
         if STRICTNESS == "all_must_work":
-            raise AssertionError("Expected wheel-backed cufft headers to be discoverable.")
-        info_summary_append("real cufft wheel check unavailable: cufft headers not found")
+            raise AssertionError("Expected CTK-backed cufft headers to be discoverable.")
+        info_summary_append("real cufft CTK check unavailable: cufft headers not found")
         return
 
     info_summary_append(f"cufft_headers={header_dir!r}")
-    assert "site-packages" in header_dir
+    _assert_real_ctk_backed_path(header_dir)
