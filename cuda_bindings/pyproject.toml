@@ -6,6 +6,7 @@ requires = [
     "setuptools_scm[simple]>=8",
     "cython>=3.2,<3.3",
     "pyclibrary>=0.1.7",
+    "cuda-pathfinder>=1.5",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -43,6 +44,7 @@ all = [
 test = [
     "cython>=3.2,<3.3",
     "setuptools>=77.0.0",
+    "matplotlib>=3.5.0",  # Required by isoFDModelling_test.py
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",

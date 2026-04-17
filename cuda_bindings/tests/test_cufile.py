@@ -140,6 +140,51 @@ def ctx():
     cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _cufile_driver_prewarm():
+    """Prime libcufile with one driver_open/close cycle before any test runs.
+
+    The cuFile test module mixes two incompatible regimes:
+
+    - Driver-open tests (buf_register_*, cufile_read_write, batch_io, stats,
+      etc.) need cuFileDriverOpen; they use the function-scope `driver`
+      fixture to open/close per test.
+    - Driver-closed tests (test_set_get_parameter_*, test_set_parameter_posix_*)
+      must run with the driver CLOSED — libcufile rejects parameter-set calls
+      when the driver is open (DRIVER_ALREADY_OPEN, 5026).
+
+    Workaround for NVIDIA libcufile 1.17.1 bug: calling cuFileSetParameterSizeT
+    (or similar pre-open configuration APIs) BEFORE the first cuFileDriverOpen
+    leaves an internal version list uninitialized such that a later
+    cuFileDriverOpen SIGFPEs in CUFileDrv::ReadVersionInfo (div-by-zero).
+    Under random ordering, a driver-closed test can run before any
+    driver-open test, poisoning libcufile and tearing down pytest with a fatal
+    signal on the next driver_open.
+
+    One open/close cycle up front primes libcufile's version list. After that,
+    both regimes work: the per-test `driver` fixture can open/close freely,
+    and parameter-set tests run against the (now properly initialized) closed
+    driver.
+
+    Note: per-test driver_open/close is not ideal on throughput grounds, but
+    it is forced by the libcufile API — parameter-set tests cannot coexist
+    with a session-wide open driver.
+    """
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, dctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(dctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        cufile.driver_open()
+        cufile.driver_close()
+    finally:
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+
 @pytest.fixture
 def driver(ctx):
     cufile.driver_open()
@@ -1896,8 +1941,7 @@ def driver_config(slab_sizes, slab_counts):
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
-@pytest.mark.usefixtures("ctx")
-def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_config):
+def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_config, driver):
     """Test cuFile POSIX pool slab array configuration."""
     # After setting parameters, retrieve them back to verify
     n_slab_sizes = len(slab_sizes)
@@ -1907,12 +1951,7 @@ def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_con
     retrieved_sizes_addr = ctypes.addressof(retrieved_sizes)
     retrieved_counts_addr = ctypes.addressof(retrieved_counts)
 
-    # Open cuFile driver AFTER setting parameters
-    cufile.driver_open()
-    try:
-        cufile.get_parameter_posix_pool_slab_array(retrieved_sizes_addr, retrieved_counts_addr, n_slab_sizes)
-    finally:
-        cufile.driver_close()
+    cufile.get_parameter_posix_pool_slab_array(retrieved_sizes_addr, retrieved_counts_addr, n_slab_sizes)
 
     # Verify they match what we set
     assert list(retrieved_sizes) == slab_sizes

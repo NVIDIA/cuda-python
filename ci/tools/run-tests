@@ -74,15 +74,15 @@ elif [[ "${test_module}" == "core" ]]; then
 
   pushd ./cuda_core
   CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
-  if [[ "${LOCAL_CTK}" == 1 ]]; then
-    # We already installed cuda-bindings, and all CTK components exist locally,
-    # so just install the test dependencies.
-    # Constrain cuda-toolkit to match the local CTK version to avoid
-    # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
-    pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
-  else
-    pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
+  # Start from the built wheel path, then add the published cuda.bindings extra
+  # when this job is resolving against wheel-installed CTK packages.
+  WHL_EXTRA=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
+    WHL_EXTRA=("${WHL_EXTRA[0]}[cu${TEST_CUDA_MAJOR}]")
   fi
+  # Constrain cuda-toolkit to the requested CTK version to avoid
+  # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
+  pip install "${WHL_EXTRA[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
   echo "Running core tests"
   ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   # Currently our CI always installs the latest bindings (from either major version).

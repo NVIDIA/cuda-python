@@ -11,6 +11,7 @@ Welcome to the documentation for ``cuda.core``.
    :caption: Contents:
 
    getting-started
+   examples
    install
    interoperability
    api

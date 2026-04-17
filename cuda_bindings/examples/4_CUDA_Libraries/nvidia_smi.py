@@ -11,6 +11,10 @@
 # ################################################################################
 
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1"]
+# ///
+
 import sys
 
 from cuda.bindings import nvml

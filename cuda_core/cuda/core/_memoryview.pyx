@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from ._dlpack cimport *
+from ._dlpack import classify_dl_device
 from libc.stdint cimport intptr_t
 from cuda.core._layout cimport _StridedLayout, get_strides_ptr
 from cuda.core._stream import Stream
@@ -590,8 +591,6 @@ cdef inline int _smv_get_dl_device(
     cdef _DLDeviceType device_type
     cdef int32_t device_id
     cdef object buf
-    cdef bint d
-    cdef bint h
     if view.dl_tensor != NULL:
         device_type = view.dl_tensor.device.device_type
         if device_type == _kDLCUDA:
@@ -601,20 +600,9 @@ cdef inline int _smv_get_dl_device(
             device_id = 0
     elif view.is_device_accessible:
         buf = view.get_buffer()
-        d = buf.is_device_accessible
-        h = buf.is_host_accessible
-        if d and (not h):
-            device_type = _kDLCUDA
-            device_id = buf.device_id
-        elif d and h:
-            # We do not currently differentiate pinned vs managed here.
-            device_type = _kDLCUDAHost
-            device_id = 0
-        elif (not d) and h:
-            device_type = _kDLCPU
-            device_id = 0
-        else:
-            raise BufferError("buffer is neither device-accessible nor host-accessible")
+        dev_type, dev_id = classify_dl_device(buf)
+        device_type = <_DLDeviceType>dev_type
+        device_id = <int32_t>dev_id
     else:
         device_type = _kDLCPU
         device_id = 0

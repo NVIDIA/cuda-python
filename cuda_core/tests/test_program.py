@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import contextlib
 import re
@@ -718,3 +718,107 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
     options = ProgramOptions(arch="sm_80", lineinfo=True)
     with pytest.raises(CUDAError, match="not supported by NVVM backend"):
         options.as_bytes("nvvm")
+
+
+def test_program_options_repr():
+    """ProgramOptions.__repr__ returns a human-readable string."""
+    opts = ProgramOptions(name="mykernel", arch="sm_80")
+    r = repr(opts)
+    assert "ProgramOptions" in r
+    assert "mykernel" in r
+    assert "sm_80" in r
+
+
+def test_program_options_bad_define_macro_short_tuple():
+    """define_macro with a 1-element tuple raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=("ONLY_NAME",))
+    with pytest.raises(RuntimeError, match="Expected define_macro tuple"):
+        opts.as_bytes("nvrtc")
+
+
+def test_program_options_bad_define_macro_non_str_value():
+    """define_macro tuple with a non-string value raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=("MY_MACRO", 99))
+    with pytest.raises(RuntimeError, match="Expected define_macro tuple"):
+        opts.as_bytes("nvrtc")
+
+
+def test_program_options_bad_define_macro_list_non_str():
+    """define_macro list containing a non-str/non-tuple item raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=[42])
+    with pytest.raises(RuntimeError, match="Expected define_macro"):
+        opts.as_bytes("nvrtc")
+
+
+def test_program_options_bad_define_macro_list_bad_tuple():
+    """define_macro list with a malformed tuple inside raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=[("ONLY_NAME",)])
+    with pytest.raises(RuntimeError, match="Expected define_macro"):
+        opts.as_bytes("nvrtc")
+
+
+def test_ptx_program_extra_sources_unsupported(ptx_code_object):
+    """PTX backend raises ValueError when extra_sources is specified."""
+    options = ProgramOptions(extra_sources=[("module1", b"data")])
+    with pytest.raises(ValueError, match="extra_sources is not supported by the PTX backend"):
+        Program(ptx_code_object.code.decode(), "ptx", options)
+
+
+def test_ptx_program_handle_is_linker_handle(init_cuda, ptx_code_object):
+    """Program.handle for the PTX backend delegates to the linker handle."""
+    program = Program(ptx_code_object.code.decode(), "ptx")
+    handle = program.handle
+    assert handle is not None
+    assert int(handle) != 0
+    program.close()
+
+
+@nvvm_available
+def test_nvvm_program_wrong_code_type():
+    """NVVM backend raises TypeError when code is not str/bytes/bytearray."""
+    with pytest.raises(TypeError, match="NVVM IR code must be provided as str, bytes, or bytearray"):
+        Program(42, "nvvm")
+
+
+def test_extra_sources_not_sequence():
+    """extra_sources must be a sequence; non-sequence raises TypeError."""
+    with pytest.raises(TypeError, match="extra_sources must be a sequence of 2-tuples"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=42)
+
+
+def test_extra_sources_bad_module_not_tuple():
+    """extra_sources items must be 2-tuples; non-tuple item raises TypeError."""
+    with pytest.raises(TypeError, match="Each extra module must be a 2-tuple"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=["not_a_tuple"])
+
+
+def test_extra_sources_bad_module_name_not_str():
+    """extra_sources module name must be a string; non-str raises TypeError."""
+    with pytest.raises(TypeError, match="Module name at index 0 must be a string"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=[(42, b"source")])
+
+
+def test_extra_sources_bad_module_source_wrong_type():
+    """extra_sources module source must be str/bytes/bytearray."""
+    with pytest.raises(TypeError, match="Module source at index 0 must be str"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=[("mod", 42)])
+
+
+def test_extra_sources_empty_source():
+    """extra_sources module source cannot be empty bytes."""
+    with pytest.raises(ValueError, match="Module source for 'mod'.*cannot be empty"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=[("mod", b"")])
+
+
+def test_nvrtc_compile_with_logs_capture(init_cuda):
+    """Program.compile with logs= exercises the NVRTC program-log reading path."""
+    import io
+
+    # #warning generates a non-empty NVRTC program log, ensuring logsize > 1.
+    code = '#warning "test log capture"\nextern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    logs = io.StringIO()
+    result = program.compile("ptx", logs=logs)
+    assert isinstance(result, ObjectCode)
+    assert logs.getvalue(), "Expected non-empty compilation log from #warning directive"
+    program.close()

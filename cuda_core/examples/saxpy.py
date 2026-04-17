@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -10,7 +10,16 @@
 #
 # ################################################################################
 
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x"]
+# ///
+
+
 import sys
+
+from cuda import pathfinder
+
+print(pathfinder.load_nvidia_dynamic_lib("nvrtc"))
 
 import cupy as cp
 

@@ -26,7 +26,7 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
 
     Parameters
     ----------
-    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+    stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
         The stream establishing the stream ordering semantic of a
         launch.
     config : :obj:`LaunchConfig`
