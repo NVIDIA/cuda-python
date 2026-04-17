@@ -42,7 +42,6 @@ from cuda.core._utils.cuda_utils import (
 from cuda.core._utils.version import driver_version
 
 ctypedef const char* const_char_ptr
-ctypedef void* void_ptr
 
 __all__ = ["Linker", "LinkerOptions"]
 
@@ -460,8 +459,8 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
     cdef cydriver.CUlinkState c_raw_culink
     cdef Py_ssize_t c_num_opts, i
     cdef vector[const_char_ptr] c_str_opts
-    cdef vector[cydriver.CUjit_option] c_jit_keys
-    cdef vector[void_ptr] c_jit_values
+    cdef cydriver.CUjit_option* c_drv_jit_keys_ptr
+    cdef void** c_drv_jit_values_ptr
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
 
@@ -508,19 +507,32 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
         # the driver writes into via raw pointers during linking operations.
         self._drv_log_bufs = formatted_options
         c_num_opts = len(option_keys)
-        c_jit_keys.resize(c_num_opts)
-        c_jit_values.resize(c_num_opts)
+        # Store the option key/value arrays as instance members so they outlive
+        # the cuLinkCreate call. CUDA driver docs require optionValues to
+        # remain valid for the life of the CUlinkState when output options are
+        # used (the driver writes log-fill sizes back into the array). The
+        # pxd declaration order ensures these vectors are destroyed AFTER
+        # _culink_handle -- i.e. after cuLinkDestroy has run.
+        self._drv_jit_keys.resize(c_num_opts)
+        self._drv_jit_values.resize(c_num_opts)
         for i in range(c_num_opts):
-            c_jit_keys[i] = <cydriver.CUjit_option><int>option_keys[i]
+            self._drv_jit_keys[i] = <cydriver.CUjit_option><int>option_keys[i]
             val = formatted_options[i]
             if isinstance(val, bytearray):
-                c_jit_values[i] = <void*>PyByteArray_AS_STRING(val)
+                self._drv_jit_values[i] = <void*>PyByteArray_AS_STRING(val)
             else:
-                c_jit_values[i] = <void*><intptr_t>int(val)
+                self._drv_jit_values[i] = <void*><intptr_t>int(val)
+        # Capture the vector data() pointers before entering nogil to keep
+        # the nogil region free of any attribute access on self.
+        c_drv_jit_keys_ptr = self._drv_jit_keys.data()
+        c_drv_jit_values_ptr = self._drv_jit_values.data()
         try:
             with nogil:
                 HANDLE_RETURN(cydriver.cuLinkCreate(
-                    <unsigned int>c_num_opts, c_jit_keys.data(), c_jit_values.data(), &c_raw_culink))
+                    <unsigned int>c_num_opts,
+                    c_drv_jit_keys_ptr,
+                    c_drv_jit_values_ptr,
+                    &c_raw_culink))
         except CUDAError as e:
             Linker_annotate_error_log(self, e)
             raise
