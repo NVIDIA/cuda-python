@@ -210,15 +210,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../motivation.html">
-    Motivation
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../environment_variables.html">
-    Environment Variables
+  <a class="nav-link nav-internal" href="../../motivation.html">
+    Motivation
   </a>
 </li>
 
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
 <li class=" current active">
   <a class="nav-link dropdown-item nav-internal" href="../../api.html">
     CUDA Python API Reference
@@ -420,6 +427,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../motivation.html">
     Motivation
   </a>
@@ -550,6 +564,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -1274,15 +1289,13 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.device_discover_gpus">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">device_discover_gpus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">pci_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.device_discover_gpus" title="Link to this definition">#</a></dt>
-<dd><p>Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pci_info</strong> (<em>intptr_t</em>) – The PCI tree to be searched. Only the domain, bus, and device fields are used in this call.</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><cite>nvmlDeviceDiscoverGpus</cite></p>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.
+
+:param pci_info: The PCI tree to be searched. Only the domain, bus, and device fields are used in this call.
+:type pci_info: intptr_t
+
+.. seealso:: `nvmlDeviceDiscoverGpus`
+</pre></div>
 </div>
 </dd></dl>
 
