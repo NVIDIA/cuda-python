@@ -37,6 +37,7 @@ cuda.core.PinnedMemoryResource
    .. autoattribute:: is_handle_owned
    .. autoattribute:: is_host_accessible
    .. autoattribute:: is_ipc_enabled
+   .. autoattribute:: is_managed
    .. autoattribute:: is_mapped
    .. autoattribute:: numa_id
    .. autoattribute:: uuid

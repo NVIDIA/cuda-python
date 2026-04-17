@@ -33,7 +33,7 @@
       ~PlatformInfo_v2.peer_type
       ~PlatformInfo_v2.ptr
       ~PlatformInfo_v2.slot_number
-      ~PlatformInfo_v2.tray_ind_ex
+      ~PlatformInfo_v2.tray_index
       ~PlatformInfo_v2.version
    
    
