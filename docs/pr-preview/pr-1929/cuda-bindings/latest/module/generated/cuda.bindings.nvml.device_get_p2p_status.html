@@ -1293,7 +1293,7 @@
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device1</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">device2</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">p2p_ind_ex</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">p2p_index</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvml.device_get_p2p_status" title="Link to this definition">#</a></dt>
@@ -1303,10 +1303,10 @@
 :type device1: intptr_t
 :param device2: The second device.
 :type device2: intptr_t
-:param p2p_ind_ex: p2p Capability Index being looked for between ``device1`` and ``device2``.
-:type p2p_ind_ex: GpuP2PCapsIndex
+:param p2p_index: p2p Capability Index being looked for between ``device1`` and ``device2``.
+:type p2p_index: GpuP2PCapsIndex
 
-:returns: Reference in which to return the status of the ``p2p_ind_ex`` between ``device1`` and ``device2``.
+:returns: Reference in which to return the status of the ``p2p_index`` between ``device1`` and ``device2``.
 :rtype: int
 
 .. seealso:: `nvmlDeviceGetP2PStatus`
