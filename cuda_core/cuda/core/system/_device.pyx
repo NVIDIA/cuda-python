@@ -167,8 +167,7 @@ cdef class Device:
         """
         arch = nvml.device_get_architecture(self._handle)
         try:
-            arch = DeviceArch(arch)
-            return arch
+            return DeviceArch(arch)
         except ValueError:
             return nvml.DeviceArch.UNKNOWN
 
