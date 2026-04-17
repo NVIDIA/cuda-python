@@ -24,7 +24,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-from cuda.core._memory import _SynchronousMemoryResource
+from cuda.core._memory._legacy import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 
 
