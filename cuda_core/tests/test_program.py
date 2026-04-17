@@ -72,11 +72,10 @@ nvrtc_pch_available = pytest.mark.skipif(
 
 def _has_check_nvvm_compiler_options():
     try:
-        from cuda.bindings.utils import check_nvvm_compiler_options  # noqa: F401
-
-        return True
-    except ImportError:
+        import cuda.bindings.utils as utils
+    except ModuleNotFoundError:
         return False
+    return hasattr(utils, "check_nvvm_compiler_options")
 
 
 has_nvvm_option_checker = pytest.mark.skipif(

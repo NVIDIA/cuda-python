@@ -22,11 +22,11 @@ have_cufile = importlib.util.find_spec("cuda.bindings.cufile") is not None
 
 
 def _is_libnvvm_available() -> bool:
+    from cuda.bindings._internal.nvvm import _inspect_function_pointer
+    from cuda.pathfinder import DynamicLibNotFoundError
     try:
-        from cuda.bindings._internal.nvvm import _inspect_function_pointer
-
         return _inspect_function_pointer("__nvvmCreateProgram") != 0
-    except Exception:
+    except DynamicLibNotFoundError:
         return False
 
 

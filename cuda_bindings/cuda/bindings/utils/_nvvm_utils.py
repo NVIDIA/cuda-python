@@ -36,7 +36,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
 
     Parameters
     ----------
-    options : Sequence[bytes]
+    options : Sequence[str]
         List of compiler options as strings (e.g., ["-arch=compute_90", "-g"]).
 
     Returns
@@ -46,7 +46,7 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
 
     Examples
     --------
-    >>> from cuda.bindings.utils import check_nvvm_options
+    >>> from cuda.bindings.utils import check_nvvm_compiler_options
     >>> check_nvvm_options(["-arch=compute_90", "-g"])
     True
     """
