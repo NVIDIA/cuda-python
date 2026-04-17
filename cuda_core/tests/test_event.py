@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -21,6 +21,7 @@ def test_event_init_disabled():
         cuda.core._event.Event()  # Ensure back door is locked.
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_timing_success(init_cuda):
     options = EventOptions(enable_timing=True)
     device = Device()
@@ -117,6 +118,7 @@ def test_error_timing_recorded():
         event3 - event2
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
