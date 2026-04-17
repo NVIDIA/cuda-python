@@ -1,0 +1,36 @@
+﻿cuda.bindings.nvml.ComputeInstanceInfo
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ComputeInstanceInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComputeInstanceInfo.__init__
+      ~ComputeInstanceInfo.from_buffer
+      ~ComputeInstanceInfo.from_data
+      ~ComputeInstanceInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeInstanceInfo.device_
+      ~ComputeInstanceInfo.gpu_instance
+      ~ComputeInstanceInfo.id
+      ~ComputeInstanceInfo.placement
+      ~ComputeInstanceInfo.profile_id
+      ~ComputeInstanceInfo.ptr
+   
+   
