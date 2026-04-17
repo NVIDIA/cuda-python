@@ -1288,11 +1288,11 @@
 <h1>cuda.bindings.nvml.get_excluded_device_info_by_index<a class="headerlink" href="#cuda-bindings-nvml-get-excluded-device-info-by-index" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.get_excluded_device_info_by_index">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">get_excluded_device_info_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">ind_ex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.get_excluded_device_info_by_index" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Acquire the device information for an excluded GPU device, based on its ind_ex.
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">get_excluded_device_info_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.get_excluded_device_info_by_index" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Acquire the device information for an excluded GPU device, based on its index.
 
-:param ind_ex: The ind_ex of the target GPU, &gt;= 0 and &lt; ``deviceCount``.
-:type ind_ex: unsigned int
+:param index: The index of the target GPU, &gt;= 0 and &lt; ``deviceCount``.
+:type index: unsigned int
 
 :returns: Reference in which to return the device information.
 :rtype: nvmlExcludedDeviceInfo_t
