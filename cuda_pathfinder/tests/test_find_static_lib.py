@@ -57,17 +57,17 @@ def _located_static_lib_asserts(located_static_lib):
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
 @pytest.mark.parametrize("libname", SUPPORTED_STATIC_LIBS)
-def test_locate_static_lib(info_summary_append, libname):
+def test_locate_static_lib(info_log, libname):
     try:
         located_lib = locate_static_lib(libname)
         lib_path = find_static_lib(libname)
     except StaticLibNotFoundError:
         if STRICTNESS == "all_must_work":
             raise
-        info_summary_append(f"{libname}: not found")
+        info_log.info(f"{libname}: not found")
         return
 
-    info_summary_append(f"abs_path={quote_for_shell(lib_path)}")
+    info_log.info(f"abs_path={quote_for_shell(lib_path)}")
     _located_static_lib_asserts(located_lib)
     assert os.path.isfile(lib_path)
     assert lib_path == located_lib.abs_path

@@ -127,7 +127,7 @@ def test_load_lib_no_cache_does_not_dispatch_ctk_lib_to_driver_path(mocker):
 
 
 @pytest.mark.parametrize("libname", sorted(_DRIVER_ONLY_LIBNAMES))
-def test_real_load_driver_lib(info_summary_append, libname):
+def test_real_load_driver_lib(info_log, libname):
     """Load a real driver library in a dedicated subprocess.
 
     This complements the mock tests above: it exercises the actual OS
@@ -151,9 +151,9 @@ def test_real_load_driver_lib(info_summary_append, libname):
         skip_if_missing_libnvcudla_so(libname, timeout=timeout)
         if STRICTNESS == "all_must_work":
             raise_child_process_failed()
-        info_summary_append(f"Not found: {libname=!r}")
+        info_log.info(f"Not found: {libname=!r}")
     else:
         abs_path = payload.abs_path
         assert abs_path is not None
-        info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
+        info_log.info(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)

@@ -60,17 +60,17 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 @pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS)
-def test_locate_bitcode_lib(info_summary_append, libname):
+def test_locate_bitcode_lib(info_log, libname):
     try:
         located_lib = locate_bitcode_lib(libname)
         lib_path = find_bitcode_lib(libname)
     except BitcodeLibNotFoundError:
         if STRICTNESS == "all_must_work":
             raise
-        info_summary_append(f"{libname}: not found")
+        info_log.info(f"{libname}: not found")
         return
 
-    info_summary_append(f"{lib_path=!r}")
+    info_log.info(f"{lib_path=!r}")
     _located_bitcode_lib_asserts(located_lib)
     assert os.path.isfile(lib_path)
     assert lib_path == located_lib.abs_path
