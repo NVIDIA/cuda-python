@@ -15,6 +15,7 @@ CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
