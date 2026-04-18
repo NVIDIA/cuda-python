@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.vgpu\_instance\_get\_placement\_id
-=====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: vgpu_instance_get_placement_id

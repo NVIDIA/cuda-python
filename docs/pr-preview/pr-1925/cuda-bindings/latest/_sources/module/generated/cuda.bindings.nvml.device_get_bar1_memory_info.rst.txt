@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_bar1\_memory\_info
-==================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_bar1_memory_info
