@@ -13,9 +13,8 @@
   "d": "tests/test_ctk_root_discovery.py::test_cuda_home_takes_priority_over_canary|run",
   "e": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_finds_nvvm|run",
   "f": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_regular_lib|run",
-  "g": "tests/test_nvvm.py::test_c_or_v_program_fail_invalid_ir[verify_program]|run",
-  "h": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
-  "i": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run"
+  "g": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
+  "h": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -78,7 +77,7 @@
             <a id="nextFileLink" class="nav" href="z_6650cae04eb59e5d_find_nvidia_headers_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-17 01:19 +0000
+            created at 2026-04-18 01:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -165,14 +164,14 @@
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="key">def</span> <span class="nam">is_suppressed_dll_file</span><span class="op">(</span><span class="nam">path_basename</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">    <span class="key">if</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">"nvrtc"</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">    <span class="key">if</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">"nvrtc"</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">        <span class="com"># nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="com">#     nvidia\cuda_nvrtc\bin\</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">        <span class="com">#         nvrtc-builtins64_128.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">        <span class="com">#         nvrtc64_120_0.alt.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="com">#         nvrtc64_120_0.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">        <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">endswith</span><span class="op">(</span><span class="str">".alt.dll"</span><span class="op">)</span> <span class="key">or</span> <span class="str">"-builtins"</span> <span class="key">in</span> <span class="nam">path_basename</span>&nbsp;</span><span class="r"><label for="ctxs79" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">    <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="op">(</span><span class="str">"cudart32_"</span><span class="op">,</span> <span class="str">"nvvm32"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">    <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="op">(</span><span class="str">"cudart32_"</span><span class="op">,</span> <span class="str">"nvvm32"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">8 ctx</label></span><span class="ctxs">1abcdefgh</span></p>
 </main>
 <footer>
     <div class="content">
@@ -182,7 +181,7 @@
             <a class="nav" href="z_6650cae04eb59e5d_find_nvidia_headers_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-17 01:19 +0000
+            created at 2026-04-18 01:17 +0000
         </p>
     </div>
 </footer>

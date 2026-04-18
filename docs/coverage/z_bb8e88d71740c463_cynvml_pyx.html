@@ -10,9 +10,9 @@
   "a": "(empty)",
   "b": "tests/system/test_system_device.py::test_clock|run",
   "c": "tests/system/test_system_device.py::test_device_pci_info|run",
-  "d": "tests/nvml/test_page_retirement.py::test_page_retirement_notsupported|setup",
+  "d": "tests/nvml/test_nvlink.py::test_nvlink_get_link_count|setup",
   "e": "tests/system/test_system_device.py::test_get_inforom_version|run",
-  "f": "tests/nvml/test_device.py::test_clk_mon_status_t|setup",
+  "f": "tests/nvml/test_cuda.py::test_cuda_device_order|setup",
   "g": "tests/system/test_system_device.py::test_register_events|run",
   "h": "tests/system/test_system_device.py::test_temperature|run",
   "i": "tests/nvml/test_cuda.py::test_cuda_device_order|run",
@@ -95,29 +95,29 @@
   "{": "tests/system/test_system_device.py::test_index|run",
   "|": "tests/test_device.py::test_to_system_device|run",
   "}": "tests/nvml/test_gpu.py::test_gpu_get_platform_info|run",
-  "~": "tests/graph/test_graphdef.py::test_alloc_peer_access|setup",
-  "ab": "tests/nvml/test_compute_mode.py::test_compute_mode_supported_nonroot|setup",
-  "bb": "tests/nvml/test_device.py::test_current_clock_freqs|setup",
-  "cb": "tests/nvml/test_device.py::test_device_capabilities|setup",
-  "db": "tests/nvml/test_device.py::test_device_get_pdi|setup",
-  "eb": "tests/nvml/test_device.py::test_device_get_performance_modes|setup",
-  "fb": "tests/nvml/test_device.py::test_device_vgpu_get_heterogeneous_mode|setup",
-  "gb": "tests/nvml/test_device.py::test_get_handle_by_uuidv|setup",
-  "hb": "tests/nvml/test_device.py::test_get_nv_link_supported_bw_modes|setup",
-  "ib": "tests/nvml/test_device.py::test_get_power_management_limit|setup",
-  "jb": "tests/nvml/test_device.py::test_grid_licensable_features|setup",
-  "kb": "tests/nvml/test_device.py::test_read_write_prm|setup",
-  "lb": "tests/nvml/test_device.py::test_set_power_management_limit|setup",
-  "mb": "tests/nvml/test_device.py::test_set_temperature_threshold|setup",
-  "nb": "tests/nvml/test_gpu.py::test_conf_compute_attestation_report_t|setup",
-  "ob": "tests/nvml/test_gpu.py::test_conf_compute_gpu_certificate|setup",
-  "pb": "tests/nvml/test_gpu.py::test_gpu_conf_compute_attestation_report|setup",
-  "qb": "tests/nvml/test_gpu.py::test_gpu_get_platform_info|setup",
-  "rb": "tests/nvml/test_init.py::test_devices_are_the_same_architecture|setup",
-  "sb": "tests/nvml/test_nvlink.py::test_nvlink_get_link_count|setup",
-  "tb": "tests/nvml/test_page_retirement.py::test_page_retirement_supported|setup",
-  "ub": "tests/nvml/test_pci.py::test_bridge_chip_info|setup",
-  "vb": "tests/nvml/test_pci.py::test_discover_gpus|setup",
+  "~": "tests/nvml/test_compute_mode.py::test_compute_mode_supported_nonroot|setup",
+  "ab": "tests/nvml/test_device.py::test_current_clock_freqs|setup",
+  "bb": "tests/nvml/test_device.py::test_device_capabilities|setup",
+  "cb": "tests/nvml/test_device.py::test_device_get_pdi|setup",
+  "db": "tests/nvml/test_device.py::test_device_get_performance_modes|setup",
+  "eb": "tests/nvml/test_device.py::test_device_vgpu_get_heterogeneous_mode|setup",
+  "fb": "tests/nvml/test_device.py::test_get_handle_by_uuidv|setup",
+  "gb": "tests/nvml/test_device.py::test_get_nv_link_supported_bw_modes|setup",
+  "hb": "tests/nvml/test_device.py::test_get_power_management_limit|setup",
+  "ib": "tests/nvml/test_device.py::test_grid_licensable_features|setup",
+  "jb": "tests/nvml/test_device.py::test_read_write_prm|setup",
+  "kb": "tests/nvml/test_device.py::test_set_power_management_limit|setup",
+  "lb": "tests/nvml/test_device.py::test_set_temperature_threshold|setup",
+  "mb": "tests/nvml/test_gpu.py::test_conf_compute_attestation_report_t|setup",
+  "nb": "tests/nvml/test_gpu.py::test_conf_compute_gpu_certificate|setup",
+  "ob": "tests/nvml/test_gpu.py::test_gpu_conf_compute_attestation_report|setup",
+  "pb": "tests/nvml/test_gpu.py::test_gpu_get_platform_info|setup",
+  "qb": "tests/nvml/test_init.py::test_devices_are_the_same_architecture|setup",
+  "rb": "tests/nvml/test_page_retirement.py::test_page_retirement_notsupported|setup",
+  "sb": "tests/nvml/test_page_retirement.py::test_page_retirement_supported|setup",
+  "tb": "tests/nvml/test_pci.py::test_bridge_chip_info|setup",
+  "ub": "tests/nvml/test_pci.py::test_discover_gpus|setup",
+  "vb": "tests/test_memory_peer_access.py::test_peer_access_basic|setup",
   "wb": "tests/nvml/test_page_retirement.py::test_page_retirement_supported|run",
   "xb": "tests/nvml/test_device.py::test_get_handle_by_uuidv|run",
   "yb": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[<AffinityScope.NODE: 0>]|run",
@@ -202,26 +202,26 @@
   "oc": "tests/nvml/test_pynvml.py::test_nvml_system_get_process_name|run",
   "pc": "tests/system/test_system_system.py::test_get_process_name|run",
   "qc": "tests/system/test_system_system.py::test_get_driver_branch|run",
-  "rc": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[False]|setup",
-  "sc": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[True]|setup",
-  "tc": "tests/memory_ipc/test_peer_access.py::TestPeerAccessNotPreservedOnImport::test_main|setup",
-  "uc": "tests/system/test_system_device.py::test_clock_event_reasons|setup",
-  "vc": "tests/system/test_system_device.py::test_device_count|run",
-  "wc": "tests/system/test_system_device.py::test_get_p2p_status|run",
-  "xc": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
-  "yc": "tests/system/test_system_system.py::test_device_count|run",
-  "zc": "tests/system/test_system_system.py::test_devices|run",
-  "Ac": "tests/system/test_system_system.py::test_num_devices|run",
-  "Bc": "tests/test_device.py::test_device_id|run",
-  "Cc": "tests/test_memory.py::test_buffer_external_device[False]|run",
-  "Dc": "tests/test_memory.py::test_buffer_external_device[True]|run",
-  "Ec": "tests/test_memory.py::test_buffer_external_managed[False]|run",
-  "Fc": "tests/test_memory.py::test_buffer_external_managed[True]|run",
-  "Gc": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
-  "Hc": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
-  "Ic": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
-  "Jc": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
-  "Kc": "tests/test_memory_peer_access.py::test_peer_access_basic|setup",
+  "rc": "tests/graph/test_graphdef.py::test_alloc_peer_access|setup",
+  "sc": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[False]|setup",
+  "tc": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[True]|setup",
+  "uc": "tests/memory_ipc/test_peer_access.py::TestPeerAccessNotPreservedOnImport::test_main|setup",
+  "vc": "tests/system/test_system_device.py::test_device_architecture|setup",
+  "wc": "tests/system/test_system_device.py::test_device_count|run",
+  "xc": "tests/system/test_system_device.py::test_get_p2p_status|run",
+  "yc": "tests/system/test_system_device.py::test_get_topology_common_ancestor|run",
+  "zc": "tests/system/test_system_system.py::test_device_count|run",
+  "Ac": "tests/system/test_system_system.py::test_devices|run",
+  "Bc": "tests/system/test_system_system.py::test_num_devices|run",
+  "Cc": "tests/test_device.py::test_device_id|run",
+  "Dc": "tests/test_memory.py::test_buffer_external_device[False]|run",
+  "Ec": "tests/test_memory.py::test_buffer_external_device[True]|run",
+  "Fc": "tests/test_memory.py::test_buffer_external_managed[False]|run",
+  "Gc": "tests/test_memory.py::test_buffer_external_managed[True]|run",
+  "Hc": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
+  "Ic": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
+  "Jc": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
+  "Kc": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
   "Lc": "tests/test_memory_peer_access.py::test_peer_access_shared_pool_queries_driver|setup",
   "Mc": "tests/test_memory_peer_access.py::test_peer_access_transitions|setup",
   "Nc": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|run",
@@ -316,7 +316,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cynvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-17 01:19 +0000
+            created at 2026-04-18 01:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -345,7 +345,7 @@
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlInit_v2() except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    return _nvml._nvmlInit_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">59 ctx</label></span><span class="ctxs">2a ~ abi f bbcbdbebfbgbhbibjbkblbmbnbobpbKbqbrbLbv sbd tbubvbw Y Z x y 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , MbNbObPb</span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    return _nvml._nvmlInit_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">59 ctx</label></span><span class="ctxs">2a ~ i f abbbcbdbebfbgbhbibjbkblbmbnbobKbpbqbLbv d rbsbtbubw Y Z x y 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , MbNbObPbvb</span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlInitWithFlags(unsigned int flags) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
@@ -353,7 +353,7 @@
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlShutdown() except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    return _nvml._nvmlShutdown()</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">59 ctx</label></span><span class="ctxs">2a Qbi f RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9bv !bd #b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgc</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    return _nvml._nvmlShutdown()</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">59 ctx</label></span><span class="ctxs">2a Qbi f RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9bv d !b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgc</span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">cdef const char* nvmlErrorString(nvmlReturn_t result) except?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
@@ -425,7 +425,7 @@
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int* deviceCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs94" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    return _nvml._nvmlDeviceGetCount_v2(deviceCount)</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">112 ctx</label></span><span class="ctxs">2~ rcsctci f n / v d w Y Z x y 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , O r j k s ucb : ; l P = vcQ ? R @ t c S [ ] T ^ u e _ ` wcxc{ U m V o g W h X yczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c</span></p>
+    <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    return _nvml._nvmlDeviceGetCount_v2(deviceCount)</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">112 ctx</label></span><span class="ctxs">2rcsctcuci f n / v d w Y Z x y 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , O r j k s b : ; vcl P = wcQ ? R @ t c S [ ] T ^ u e _ ` xcyc{ U m V o g W h X zcAcBcCcDcEcFcGcHcIcJcKcvbLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c</span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDeviceAttributes_t* attributes) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs98" class="ctx">(empty)</label></span></p>
@@ -441,7 +441,7 @@
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlDeviceGetHandleByUUID(const char* uuid, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs110" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    return _nvml._nvmlDeviceGetHandleByUUID(uuid, device)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">25 ctx</label></span><span class="ctxs">2abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbd tbubvb!c| </span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    return _nvml._nvmlDeviceGetHandleByUUID(uuid, device)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">25 ctx</label></span><span class="ctxs">2~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbd rbsbtbub!c| </span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">cdef nvmlReturn_t nvmlDeviceGetHandleByUUIDV(const nvmlUUID_t* uuid, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs114" class="ctx">(empty)</label></span></p>
@@ -1755,7 +1755,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cynvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-17 01:19 +0000
+            created at 2026-04-18 01:17 +0000
         </p>
     </div>
 </footer>

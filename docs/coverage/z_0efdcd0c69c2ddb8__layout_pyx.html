@@ -734,7 +734,8 @@
   "mi": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
   "ni": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
   "oi": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
-  "pi": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run"
+  "pi": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "qi": "tests/test_utils.py::test_strided_memory_view_view_with_dtype_only|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -797,7 +798,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-17 01:19 +0000
+            created at 2026-04-18 01:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -991,7 +992,7 @@
     <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">    def __eq__(self : _StridedLayout, other : _StridedLayout) -> bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">59 ctx</label></span><span class="ctxs">2)d`d% ' M N c ( d ) G H Ac9cucJcO P vcKc=e+fMc*cNcLcOc(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibicidieifigihiiiji</span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">60 ctx</label></span><span class="ctxs">2)d`d% ' M N c ( d ) G H Ac9cucJcO P vcKc=e+fMc*cNcLcOc(h)h*h+h,h-h.h/h:h;h=h?h@h[h]h^h_h`h{h|h}h~haibicidieifigihiiijiqi</span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">    def ndim(self : _StridedLayout):</span>&nbsp;</span><span class="r"></span></p>
@@ -2143,7 +2144,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__linker_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-17 01:19 +0000
+            created at 2026-04-18 01:17 +0000
         </p>
     </div>
 </footer>
