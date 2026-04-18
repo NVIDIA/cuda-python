@@ -720,7 +720,7 @@ device).</p></li>
 <li><p><strong>extra_digest</strong> – Caller-supplied bytes mixed into the key. Required whenever
 <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code></a> sets any option that pulls in
 external file content (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
-<code class="docutils literal notranslate"><span class="pre">create_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>) – the cache cannot read
+<code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>) – the cache cannot read
 those files on the caller’s behalf, so the caller must fingerprint
 the header / PCH surface and pass it here. Callers may pass this for
 other inputs too (embedded kernels, generated sources, etc.).</p></li>
