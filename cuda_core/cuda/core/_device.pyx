@@ -1145,7 +1145,7 @@ class Device:
                 from cuda.core._memory import DeviceMemoryResource
                 self._memory_resource = DeviceMemoryResource(self._device_id)
             else:
-                from cuda.core._memory import _SynchronousMemoryResource
+                from cuda.core._memory._legacy import _SynchronousMemoryResource
                 self._memory_resource = _SynchronousMemoryResource(self._device_id)
 
         return self._memory_resource

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -17,7 +17,7 @@ from cuda.core._utils.cuda_utils import (
     driver,
 )
 
-__all__ = ["LegacyPinnedMemoryResource", "_SynchronousMemoryResource"]
+__all__ = ["LegacyPinnedMemoryResource"]
 
 
 class LegacyPinnedMemoryResource(MemoryResource):
