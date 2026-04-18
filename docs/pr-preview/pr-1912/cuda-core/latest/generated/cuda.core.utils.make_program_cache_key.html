@@ -702,6 +702,7 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core._program.ProgramOptions"><span class="pre">ProgramOptions</span></a></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">target_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">extra_digest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></span><a class="headerlink" href="#cuda.core.utils.make_program_cache_key" title="Link to this definition">#</a></dt>
@@ -716,6 +717,13 @@ default <code class="docutils literal notranslate"><span class="pre">ProgramOpti
 device).</p></li>
 <li><p><strong>target_type</strong> – One of <code class="docutils literal notranslate"><span class="pre">&quot;ptx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cubin&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ltoir&quot;</span></code>.</p></li>
 <li><p><strong>name_expressions</strong> – Optional iterable of mangled-name lookups. Order is not significant.</p></li>
+<li><p><strong>extra_digest</strong> – Caller-supplied bytes mixed into the key. Required whenever
+<a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.ProgramOptions</span></code></a> sets any option that pulls in
+external file content (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>, <code class="docutils literal notranslate"><span class="pre">pch</span></code>,
+<code class="docutils literal notranslate"><span class="pre">create_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>) – the cache cannot read
+those files on the caller’s behalf, so the caller must fingerprint
+the header / PCH surface and pass it here. Callers may pass this for
+other inputs too (embedded kernels, generated sources, etc.).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -723,6 +731,11 @@ device).</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> while <code class="docutils literal notranslate"><span class="pre">options</span></code> sets any option whose
+    compilation effect depends on external file content that the key
+    cannot otherwise observe.</p>
 </dd>
 </dl>
 </dd></dl>

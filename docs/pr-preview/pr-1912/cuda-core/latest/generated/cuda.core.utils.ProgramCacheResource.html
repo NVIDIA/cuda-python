@@ -696,8 +696,10 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">ProgramCacheResource</span></span><a class="headerlink" href="#cuda.core.utils.ProgramCacheResource" title="Link to this definition">#</a></dt>
 <dd><p>Abstract base class for compiled-program caches.</p>
 <p>Concrete implementations store and retrieve <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>
-instances keyed by arbitrary hashable objects. A typical key is produced
-by <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>, but any hashable value is acceptable.</p>
+instances keyed by <code class="docutils literal notranslate"><span class="pre">bytes</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>. A <code class="docutils literal notranslate"><span class="pre">str</span></code> key is encoded as UTF-8
+before being used, so <code class="docutils literal notranslate"><span class="pre">&quot;k&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">b&quot;k&quot;</span></code> refer to the same entry. A
+typical key is produced by <a class="reference internal" href="cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a>, which returns
+<code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Persistent backends use <a class="reference external" href="https://docs.python.org/3/library/pickle.html#module-pickle" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pickle</span></code></a> for serialization. Only read
@@ -735,7 +737,7 @@ will return stale or broken data. Normalize to bytes before caching.</p>
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Hashable" title="(in Python v3.14)"><span class="pre">Hashable</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
