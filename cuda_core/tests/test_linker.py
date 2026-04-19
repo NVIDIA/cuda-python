@@ -7,6 +7,7 @@ import pytest
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core._module import ObjectCode
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.version import driver_version
 
 ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
 
@@ -18,7 +19,22 @@ __global__ void A() { int result = C(B(), 1);}
 device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
-is_culink_backend = _linker._decide_nvjitlink_or_driver()
+
+def _current_env_backend() -> str:
+    """Return the backend a default (PTX input, no LTO) Linker picks on this machine."""
+    try:
+        drv_major = driver_version()[0]
+    except Exception:
+        drv_major = None
+    return _linker._choose_backend(
+        drv_major,
+        _linker._probe_nvjitlink(),
+        inputs_have_ltoir=False,
+        lto_requested=False,
+    )
+
+
+is_culink_backend = _current_env_backend() == "driver"
 if not is_culink_backend:
     from cuda.bindings import nvjitlink
 
@@ -96,7 +112,11 @@ def test_linker_init(compile_ptx_functions, options):
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
-    err = AttributeError if is_culink_backend else nvjitlink.nvJitLinkError
+    # With the driver backend, ptx=True (which implies link-time optimization)
+    # cannot be satisfied at all, so dispatch raises RuntimeError before the
+    # arch string is ever parsed. With the nvJitLink backend, the arch string
+    # is validated by nvJitLink itself.
+    err = RuntimeError if is_culink_backend else nvjitlink.nvJitLinkError
     with pytest.raises(err):
         options = LinkerOptions(arch="99", ptx=True)
         Linker(*compile_ptx_functions, options=options)
@@ -205,7 +225,7 @@ def test_linker_options_as_bytes_invalid_backend():
 def test_linker_options_as_bytes_driver_not_supported():
     """Test that as_bytes() is not supported for driver backend"""
     options = LinkerOptions(arch="sm_80")
-    with pytest.raises(RuntimeError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
+    with pytest.raises(ValueError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
         options.as_bytes("driver")
 
 
@@ -242,3 +262,65 @@ def test_linker_options_nvjitlink_options_as_str():
     assert f"-arch={ARCH}" in options
     assert "-g" in options
     assert "-lineinfo" in options
+
+
+# ---------------------------------------------------------------------------
+# Per-instance dispatch tests
+#
+# The full _choose_backend() decision matrix lives in test_linker_dispatch.py as
+# GPU-free unit tests. The tests below drive the same dispatch logic through the
+# real Linker constructor (with patched version probes) to confirm that the
+# dispatch is invoked before any backend handle is created.
+# ---------------------------------------------------------------------------
+
+
+class TestLinkerDispatch:
+    """Per-instance dispatch exercised by constructing a Linker with patched version probes.
+
+    These tests intercept both :func:`driver_version` (via the name imported into
+    ``_linker``) and :func:`_probe_nvjitlink` so the decision is deterministic,
+    then assert that ``Linker.__init__`` raises before creating any backend handle
+    for the unsatisfiable cases.
+    """
+
+    @pytest.fixture
+    def ltoir_object(self):
+        # A minimal ObjectCode marked as ltoir is sufficient: _choose_backend runs
+        # before any backend handle is created, so the payload never reaches the
+        # linker libraries.
+        return ObjectCode._init(b"\x00stub-ltoir-payload", "ltoir")
+
+    def test_ltoir_without_nvjitlink_raises(self, monkeypatch, ltoir_object):
+        monkeypatch.setattr(_linker, "driver_version", lambda: (12, 9, 0))
+        monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: None)
+        with pytest.raises(RuntimeError, match="nvJitLink is not available"):
+            Linker(ltoir_object, options=LinkerOptions(arch=ARCH))
+
+    def test_cross_major_with_ltoir_raises(self, monkeypatch, ltoir_object):
+        monkeypatch.setattr(_linker, "driver_version", lambda: (13, 0, 0))
+        monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: (12, 9))
+        with pytest.raises(RuntimeError, match="matching major versions"):
+            Linker(ltoir_object, options=LinkerOptions(arch=ARCH))
+
+    @pytest.fixture
+    def ptx_object(self):
+        # Stub PTX payload; dispatch raises before the bytes reach any backend.
+        return ObjectCode._init(b"// stub ptx\n", "ptx")
+
+    def test_cross_major_with_lto_option_raises(self, monkeypatch, ptx_object):
+        monkeypatch.setattr(_linker, "driver_version", lambda: (12, 9, 0))
+        monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: (13, 0))
+        with pytest.raises(RuntimeError, match="matching major versions"):
+            Linker(
+                ptx_object,
+                options=LinkerOptions(arch=ARCH, link_time_optimization=True),
+            )
+
+    def test_lto_without_nvjitlink_raises(self, monkeypatch, ptx_object):
+        monkeypatch.setattr(_linker, "driver_version", lambda: (12, 9, 0))
+        monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: None)
+        with pytest.raises(RuntimeError, match="nvJitLink is not available"):
+            Linker(
+                ptx_object,
+                options=LinkerOptions(arch=ARCH, link_time_optimization=True),
+            )

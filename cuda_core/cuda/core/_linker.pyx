@@ -39,6 +39,7 @@ from cuda.core._utils.cuda_utils import (
     driver,
     is_sequence,
 )
+from cuda.core._utils.version import driver_version
 
 ctypedef const char* const_char_ptr
 ctypedef void* void_ptr
@@ -181,9 +182,20 @@ cdef class Linker:
 class LinkerOptions:
     """Customizable options for configuring :class:`Linker`.
 
-    Since the linker may choose to use nvJitLink or the driver APIs as the linking backend,
-    not all options are applicable. When the system's installed nvJitLink is too old (<12.3),
-    or not installed, the driver APIs (cuLink) will be used instead.
+    Since the linker may choose either nvJitLink or the driver's ``cuLink*``
+    APIs as the backend, not every option is applicable to both backends. The
+    backend is decided per-:class:`Linker` instance from the installed CUDA
+    driver major version, nvJitLink's availability and major version, the input
+    code types, and whether link-time optimization is requested:
+
+    - nvJitLink is used when its major version matches the driver's.
+    - The driver linker is used when nvJitLink is unavailable or too old
+      (<12.3), or when its major version differs from the driver's (and no LTO
+      step is required).
+    - Linking LTO IRs, or requesting ``link_time_optimization`` / ``ptx``, with
+      nvJitLink unavailable or with mismatched nvJitLink and driver majors is
+      unsupported and raises :class:`RuntimeError` at :class:`Linker`
+      construction time.
 
     Attributes
     ----------
@@ -348,39 +360,39 @@ class LinkerOptions:
         formatted_options.extend((bytearray(size), size, bytearray(size), size))
         option_keys.extend(
             (
-                _driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
-                _driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
-                _driver.CUjit_option.CU_JIT_ERROR_LOG_BUFFER,
-                _driver.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
+                driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
+                driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
+                driver.CUjit_option.CU_JIT_ERROR_LOG_BUFFER,
+                driver.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
             )
         )
 
         if self.arch is not None:
             arch = self.arch.split("_")[-1].upper()
-            formatted_options.append(getattr(_driver.CUjit_target, f"CU_TARGET_COMPUTE_{arch}"))
-            option_keys.append(_driver.CUjit_option.CU_JIT_TARGET)
+            formatted_options.append(getattr(driver.CUjit_target, f"CU_TARGET_COMPUTE_{arch}"))
+            option_keys.append(driver.CUjit_option.CU_JIT_TARGET)
         if self.max_register_count is not None:
             formatted_options.append(self.max_register_count)
-            option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
+            option_keys.append(driver.CUjit_option.CU_JIT_MAX_REGISTERS)
         if self.time is not None:
             raise ValueError("time option is not supported by the driver API")
         if self.verbose:
             formatted_options.append(1)
-            option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
+            option_keys.append(driver.CUjit_option.CU_JIT_LOG_VERBOSE)
         if self.link_time_optimization:
             formatted_options.append(1)
-            option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
+            option_keys.append(driver.CUjit_option.CU_JIT_LTO)
         if self.ptx:
             raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
             formatted_options.append(self.optimization_level)
-            option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
+            option_keys.append(driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
         if self.debug:
             formatted_options.append(1)
-            option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
+            option_keys.append(driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
         if self.lineinfo:
             formatted_options.append(1)
-            option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
+            option_keys.append(driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
         if self.ftz is not None:
             warn("ftz option is deprecated in the driver API", DeprecationWarning, stacklevel=3)
         if self.prec_div is not None:
@@ -402,8 +414,8 @@ class LinkerOptions:
         if self.split_compile_extended is not None:
             raise ValueError("split_compile_extended option is not supported by the driver API")
         if self.no_cache is True:
-            formatted_options.append(_driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
-            option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
+            formatted_options.append(driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
+            option_keys.append(driver.CUjit_option.CU_JIT_CACHE_MODE)
 
         return formatted_options, option_keys
 
@@ -430,7 +442,7 @@ class LinkerOptions:
         backend = backend.lower()
         if backend != "nvjitlink":
             raise ValueError(f"as_bytes() only supports 'nvjitlink' backend, got '{backend}'")
-        if not _use_nvjitlink_backend:
+        if _probe_nvjitlink() is None:
             raise RuntimeError("nvJitLink backend is not available")
         return self._prepare_nvjitlink_options(as_bytes=True)
 
@@ -453,7 +465,32 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
 
-    if _use_nvjitlink_backend:
+    # Validate inputs up front so an invalid object (e.g. something that merely
+    # exposes a ``code_type`` attribute) gets the ObjectCode TypeError from
+    # assert_type rather than a backend-dispatch RuntimeError.
+    for code in object_codes:
+        assert_type(code, ObjectCode)
+
+    # Decide the backend per-instance based on the current environment and this
+    # Linker's inputs. See _choose_backend() for the full decision matrix.
+    inputs_have_ltoir = any(code.code_type == "ltoir" for code in object_codes)
+    lto_requested = bool(options.link_time_optimization) or bool(options.ptx)
+    nvjitlink_version = _probe_nvjitlink()
+    # Probe driver version lazily: only needed when comparing majors.
+    # In environments where nvJitLink is installed but the driver is
+    # absent (e.g., build containers), cuDriverGetVersion raises CUDAError
+    # via handle_return; treat that as "driver unknown" and fall through to
+    # _choose_backend. Any other exception type is a real bug and should
+    # propagate rather than silently flip the backend choice.
+    try:
+        driver_major = driver_version()[0]
+    except CUDAError:
+        driver_major = None
+    backend = _choose_backend(
+        driver_major, nvjitlink_version, inputs_have_ltoir, lto_requested
+    )
+
+    if backend == "nvjitlink":
         self._use_nvjitlink = True
         options_bytes = options._prepare_nvjitlink_options(as_bytes=True)
         c_num_opts = len(options_bytes)
@@ -490,7 +527,6 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
         self._culink_handle = create_culink_handle(c_raw_culink)
 
     for code in object_codes:
-        assert_type(code, ObjectCode)
         Linker_add_code_object(self, code)
     return 0
 
@@ -618,9 +654,10 @@ cdef inline void Linker_annotate_error_log(Linker self, object e):
 # =============================================================================
 
 # TODO: revisit this treatment for py313t builds
-_driver = None  # populated if nvJitLink cannot be used
 _inited = False
-_use_nvjitlink_backend = None  # set by _decide_nvjitlink_or_driver()
+_nvjitlink_probed = False
+_nvjitlink_version = None  # (major, minor) if usable; None if unavailable/too old
+_nvjitlink_missing_warned = False
 
 # Input type mappings populated by _lazy_init() with C-level enum ints.
 _nvjitlink_input_types = None
@@ -632,12 +669,15 @@ def _nvjitlink_has_version_symbol(nvjitlink) -> bool:
     return bool(nvjitlink._inspect_function_pointer("__nvJitLinkVersion"))
 
 
-# Note: this function is reused in the tests
-def _decide_nvjitlink_or_driver() -> bool:
-    """Return True if falling back to the cuLink* driver APIs."""
-    global _driver, _use_nvjitlink_backend
-    if _use_nvjitlink_backend is not None:
-        return not _use_nvjitlink_backend
+def _probe_nvjitlink() -> tuple | None:
+    """Return ``(major, minor)`` if nvJitLink is available and >= 12.3, else ``None``.
+
+    Emits a ``RuntimeWarning`` at most once when nvJitLink is unavailable or too
+    old. The result is cached for subsequent calls.
+    """
+    global _nvjitlink_probed, _nvjitlink_version, _nvjitlink_missing_warned
+    if _nvjitlink_probed:
+        return _nvjitlink_version
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"
@@ -649,46 +689,111 @@ def _decide_nvjitlink_or_driver() -> bool:
         "cuda.bindings.nvjitlink",
         probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
     )
+    warn_txt = None
     if nvjitlink_module is None:
-        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
-    else:
-        from cuda.bindings._internal import nvjitlink
-
-        if _nvjitlink_has_version_symbol(nvjitlink):
-            _use_nvjitlink_backend = True
-            return False  # Use nvjitlink
         warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
-            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+            f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
         )
+    else:
+        from cuda.bindings._internal import nvjitlink as inner_nvjitlink
 
-    warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _use_nvjitlink_backend = False
-    _driver = driver
-    return True
+        if _nvjitlink_has_version_symbol(inner_nvjitlink):
+            _nvjitlink_version = tuple(nvjitlink_module.version())
+        else:
+            warn_txt = (
+                f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
+                f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+            )
+
+    if warn_txt is not None and not _nvjitlink_missing_warned:
+        warn(warn_txt, stacklevel=2, category=RuntimeWarning)
+        _nvjitlink_missing_warned = True
+    _nvjitlink_probed = True
+    return _nvjitlink_version
+
+
+def _choose_backend(
+    driver_major: int | None,
+    nvjitlink_version: tuple | None,
+    inputs_have_ltoir: bool,
+    lto_requested: bool,
+) -> str:
+    """Choose the linker backend for a specific Linker invocation.
+
+    Parameters
+    ----------
+    driver_major : int or None
+        Major version of the installed CUDA driver (from ``cuDriverGetVersion``).
+        ``None`` when the driver cannot be queried (e.g., no driver installed).
+    nvjitlink_version : tuple[int, int] or None
+        ``(major, minor)`` if nvJitLink is available and >=12.3; ``None`` otherwise.
+    inputs_have_ltoir : bool
+        ``True`` if any input ``ObjectCode`` has ``code_type == "ltoir"``.
+    lto_requested : bool
+        ``True`` if ``LinkerOptions.link_time_optimization`` or ``ptx`` is set
+        (both force the use of nvJitLink; the driver linker cannot emit PTX and
+        cannot do link-time optimization on LTO IR).
+
+    Returns
+    -------
+    str
+        ``"nvjitlink"`` or ``"driver"``.
+
+    Raises
+    ------
+    RuntimeError
+        If the request cannot be satisfied by any backend, for example when
+        LTO IR inputs or ``link_time_optimization`` are requested but nvJitLink
+        is unavailable, or when driver and nvJitLink have mismatched major
+        versions for an LTO link.
+    """
+    needs_nvjitlink = inputs_have_ltoir or lto_requested
+
+    if nvjitlink_version is None:
+        if needs_nvjitlink:
+            raise RuntimeError(
+                "LTO IR input or link-time optimization was requested, but "
+                "nvJitLink is not available (driver linker cannot perform LTO). "
+                "Install cuda-bindings with a compatible nvJitLink (>=12.3)."
+            )
+        return "driver"
+
+    nvjitlink_major = nvjitlink_version[0]
+    # If driver version is unknown, optimistically use nvJitLink
+    # (common in build containers with nvJitLink but no driver).
+    if driver_major is None or nvjitlink_major == driver_major:
+        return "nvjitlink"
+
+    if needs_nvjitlink:
+        raise RuntimeError(
+            f"Cannot link with nvJitLink {nvjitlink_major}.x against CUDA driver "
+            f"{driver_major}.x: LTO IR or link-time optimization requires matching "
+            f"major versions, and the driver linker cannot perform LTO. "
+            f"Install an nvJitLink matching the driver major version."
+        )
+    # Driver and nvJitLink have different major versions. nvJitLink output may
+    # target an architecture or format that the driver cannot load, so fall back
+    # to the driver's own linker for non-LTO linking.
+    return "driver"
 
 
 def _lazy_init():
     global _inited, _nvjitlink_input_types, _driver_input_types
     if _inited:
         return
-
-    _decide_nvjitlink_or_driver()
-    if _use_nvjitlink_backend:
-        _nvjitlink_input_types = {
-            "ptx": <int>cynvjitlink.NVJITLINK_INPUT_PTX,
-            "cubin": <int>cynvjitlink.NVJITLINK_INPUT_CUBIN,
-            "fatbin": <int>cynvjitlink.NVJITLINK_INPUT_FATBIN,
-            "ltoir": <int>cynvjitlink.NVJITLINK_INPUT_LTOIR,
-            "object": <int>cynvjitlink.NVJITLINK_INPUT_OBJECT,
-            "library": <int>cynvjitlink.NVJITLINK_INPUT_LIBRARY,
-        }
-    else:
-        _driver_input_types = {
-            "ptx": <int>cydriver.CU_JIT_INPUT_PTX,
-            "cubin": <int>cydriver.CU_JIT_INPUT_CUBIN,
-            "fatbin": <int>cydriver.CU_JIT_INPUT_FATBINARY,
-            "object": <int>cydriver.CU_JIT_INPUT_OBJECT,
-            "library": <int>cydriver.CU_JIT_INPUT_LIBRARY,
-        }
+    _nvjitlink_input_types = {
+        "ptx": <int>cynvjitlink.NVJITLINK_INPUT_PTX,
+        "cubin": <int>cynvjitlink.NVJITLINK_INPUT_CUBIN,
+        "fatbin": <int>cynvjitlink.NVJITLINK_INPUT_FATBIN,
+        "ltoir": <int>cynvjitlink.NVJITLINK_INPUT_LTOIR,
+        "object": <int>cynvjitlink.NVJITLINK_INPUT_OBJECT,
+        "library": <int>cynvjitlink.NVJITLINK_INPUT_LIBRARY,
+    }
+    _driver_input_types = {
+        "ptx": <int>cydriver.CU_JIT_INPUT_PTX,
+        "cubin": <int>cydriver.CU_JIT_INPUT_CUBIN,
+        "fatbin": <int>cydriver.CU_JIT_INPUT_FATBINARY,
+        "object": <int>cydriver.CU_JIT_INPUT_OBJECT,
+        "library": <int>cydriver.CU_JIT_INPUT_LIBRARY,
+    }
     _inited = True
