@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import cuda.pathfinder._compatibility as compatibility_module
+import cuda.pathfinder._compatibility_checks as compatibility_module
 from cuda.pathfinder import (
     BitcodeLibNotFoundError,
     CompatibilityCheckError,
