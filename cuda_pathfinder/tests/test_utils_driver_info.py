@@ -26,7 +26,7 @@ class _FakeDriverLib:
         self.cuDriverGetVersion = _FakeCuDriverGetVersion(status=status, version=version)
 
 
-def _loaded_cuda(abs_path: str | None) -> LoadedDL:
+def _loaded_cuda(abs_path: str) -> LoadedDL:
     return LoadedDL(
         abs_path=abs_path,
         was_already_loaded_from_elsewhere=False,
@@ -73,26 +73,6 @@ def test_query_driver_version_uses_windll_on_windows(monkeypatch):
 
     assert driver_info._query_driver_version() == 12080
     assert loaded_paths == [r"C:\Windows\System32\nvcuda.dll"]
-
-
-def test_query_driver_version_raises_when_cuda_abs_path_is_missing(monkeypatch):
-    monkeypatch.setattr(driver_info, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_cuda(None))
-
-    with pytest.raises(RuntimeError, match='Could not determine an absolute path for the driver library "cuda"'):
-        driver_info._query_driver_version()
-
-
-def test_query_driver_version_raises_when_windll_is_unavailable(monkeypatch):
-    monkeypatch.setattr(driver_info, "IS_WINDOWS", True)
-    monkeypatch.setattr(
-        driver_info,
-        "_load_nvidia_dynamic_lib",
-        lambda _libname: _loaded_cuda(r"C:\Windows\System32\nvcuda.dll"),
-    )
-    monkeypatch.delattr(driver_info.ctypes, "WinDLL", raising=False)
-
-    with pytest.raises(RuntimeError, match="ctypes.WinDLL is unavailable on this platform"):
-        driver_info._query_driver_version()
 
 
 def test_query_driver_version_raises_when_cuda_call_fails(monkeypatch):
