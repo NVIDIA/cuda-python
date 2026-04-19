@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=49ae783a"></script>
+    <script src="../_static/documentation_options.js?v=7e56f250"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev54';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev57';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -707,6 +707,39 @@
 <a class="reference external" href="https://docs.python.org/3/library/os.html#os.replace" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.replace()</span></code></a> it into place, so concurrent readers never observe a
 partially-written entry. There is no cross-process LRU tracking; size
 enforcement is best-effort by file mtime.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Best-effort writes.</strong></p>
+<p>On Windows, <code class="docutils literal notranslate"><span class="pre">os.replace</span></code> raises <code class="docutils literal notranslate"><span class="pre">PermissionError</span></code> (winerror
+32 / 33) when another process holds the target file open. This
+backend retries with bounded backoff (~185 ms) and, if still
+failing, drops the cache write silently and returns success-shaped
+control flow. The next call will see no entry and recompile. POSIX
+and other <code class="docutils literal notranslate"><span class="pre">PermissionError</span></code> codes propagate.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Atomic for readers, not crash-durable.</strong></p>
+<p>Each entry’s temp file is <code class="docutils literal notranslate"><span class="pre">fsync</span></code>-ed before <code class="docutils literal notranslate"><span class="pre">os.replace</span></code>, but
+the containing directory is <strong>not</strong> <code class="docutils literal notranslate"><span class="pre">fsync</span></code>-ed. A host crash
+between write and the next directory commit may lose recently
+added entries; surviving entries remain consistent.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Cross-version sharing.</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">_FILESTREAM_SCHEMA_VERSION</span></code> guards on-disk format changes: a
+cache written by an incompatible version is wiped on open. Within
+a single schema version, the cache is safe to share across
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> patch releases because every entry’s key encodes
+the relevant backend/compiler/runtime fingerprints for its
+compilation path (NVRTC entries pin the NVRTC version, NVVM
+entries pin the libNVVM library and IR versions, PTX/linker
+entries pin the chosen linker backend and its version – and,
+when the cuLink/driver backend is selected, the driver version
+too; nvJitLink-backed PTX entries are deliberately driver-version
+independent).</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
