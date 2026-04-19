@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.QueryDriverCudaVersionError
+===========================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoexception:: QueryDriverCudaVersionError

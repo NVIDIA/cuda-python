@@ -1,0 +1,30 @@
+﻿cuda.pathfinder.DriverCudaVersion
+=================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoclass:: DriverCudaVersion
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DriverCudaVersion.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DriverCudaVersion.encoded
+      ~DriverCudaVersion.major
+      ~DriverCudaVersion.minor
+   
+   
