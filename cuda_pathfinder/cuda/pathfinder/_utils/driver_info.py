@@ -15,6 +15,24 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 @dataclass(frozen=True, slots=True)
 class DriverCudaVersion:
+    """
+    CUDA-facing driver version reported by ``cuDriverGetVersion()``.
+
+    The name ``DriverCudaVersion`` is intentionally specific: this dataclass
+    models the version shown as ``CUDA Version`` in ``nvidia-smi``, not the
+    graphics driver release shown as ``Driver Version``.
+
+    Example ``nvidia-smi`` output::
+
+        +---------------------------------------------------------------------+
+        | NVIDIA-SMI 595.58.03  Driver Version: 595.58.03  CUDA Version: 13.2 |
+        +---------------------------------------------------------------------+
+
+    For the example above, ``DriverCudaVersion(encoded=13020, major=13,
+    minor=2)`` corresponds to ``CUDA Version: 13.2``. It does not correspond
+    to ``Driver Version: 595.58.03``.
+    """
+
     encoded: int
     major: int
     minor: int
