@@ -35,6 +35,20 @@ def _loaded_cuda(abs_path: str) -> LoadedDL:
     )
 
 
+def test_query_driver_release_version_text():
+    driver_info._load_nvidia_dynamic_lib.cache_clear()
+    try:
+        release_version = driver_info._query_driver_release_version_text()
+    finally:
+        driver_info._load_nvidia_dynamic_lib.cache_clear()
+
+    components = tuple(int(component) for component in release_version.split("."))
+    assert len(components) in (2, 3)
+    assert 400 <= components[0] < 1000
+    for component in components[1:]:
+        assert component >= 0
+
+
 def test_query_driver_version_uses_windll_on_windows(monkeypatch):
     fake_driver_lib = _FakeDriverLib(status=0, version=12080)
     loaded_paths: list[str] = []

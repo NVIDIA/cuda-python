@@ -12,6 +12,9 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
+_NVML_SUCCESS = 0
+_NVML_SYSTEM_DRIVER_VERSION_BUFFER_LENGTH = 80
+
 
 @dataclass(frozen=True, slots=True)
 class DriverCudaVersion:
@@ -48,3 +51,44 @@ def _query_driver_version_int() -> int:
     if status != 0:
         raise RuntimeError(f"Failed to query CUDA driver version via cuDriverGetVersion() (status={status}).")
     return version.value
+
+
+def _query_driver_release_version_text() -> str:
+    """Return the graphics driver release version from ``nvmlSystemGetDriverVersion()``."""
+    loaded_nvml = _load_nvidia_dynamic_lib("nvml")
+    nvml_lib = ctypes.CDLL(loaded_nvml.abs_path)
+
+    nvml_init_v2 = nvml_lib.nvmlInit_v2
+    nvml_init_v2.argtypes = []
+    nvml_init_v2.restype = ctypes.c_int
+
+    nvml_system_get_driver_version = nvml_lib.nvmlSystemGetDriverVersion
+    nvml_system_get_driver_version.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_uint]
+    nvml_system_get_driver_version.restype = ctypes.c_int
+
+    nvml_shutdown = nvml_lib.nvmlShutdown
+    nvml_shutdown.argtypes = []
+    nvml_shutdown.restype = ctypes.c_int
+
+    init_status = nvml_init_v2()
+    if init_status != _NVML_SUCCESS:
+        raise RuntimeError(f"Failed to initialize NVML via nvmlInit_v2() (status={init_status}).")
+
+    try:
+        version_buffer = ctypes.create_string_buffer(_NVML_SYSTEM_DRIVER_VERSION_BUFFER_LENGTH)
+        status = nvml_system_get_driver_version(version_buffer, _NVML_SYSTEM_DRIVER_VERSION_BUFFER_LENGTH)
+        if status != _NVML_SUCCESS:
+            raise RuntimeError(
+                f"Failed to query driver release version via nvmlSystemGetDriverVersion() (status={status})."
+            )
+        release_version = version_buffer.value.decode()
+    except BaseException as exc:
+        shutdown_status = nvml_shutdown()
+        if shutdown_status != _NVML_SUCCESS:
+            raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).") from exc
+        raise
+
+    shutdown_status = nvml_shutdown()
+    if shutdown_status != _NVML_SUCCESS:
+        raise RuntimeError(f"Failed to shut down NVML via nvmlShutdown() (status={shutdown_status}).")
+    return release_version
