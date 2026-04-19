@@ -59,7 +59,7 @@ def test_query_driver_version_uses_windll_on_windows(monkeypatch):
 def test_query_driver_version_returns_parsed_dataclass(monkeypatch):
     monkeypatch.setattr(driver_info, "_query_driver_version_int", lambda: 12080)
 
-    assert driver_info.query_driver_version() == driver_info.DriverVersion(
+    assert driver_info.query_driver_version() == driver_info.DriverCudaVersion(
         encoded=12080,
         major=12,
         minor=8,

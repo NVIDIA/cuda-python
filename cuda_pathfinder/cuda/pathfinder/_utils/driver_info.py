@@ -14,16 +14,16 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 @dataclass(frozen=True, slots=True)
-class DriverVersion:
+class DriverCudaVersion:
     encoded: int
     major: int
     minor: int
 
 
-def query_driver_version() -> DriverVersion:
+def query_driver_version() -> DriverCudaVersion:
     """Return the CUDA driver version parsed into its major/minor components."""
     encoded = _query_driver_version_int()
-    return DriverVersion(
+    return DriverCudaVersion(
         encoded=encoded,
         major=encoded // 1000,
         minor=(encoded % 1000) // 10,
