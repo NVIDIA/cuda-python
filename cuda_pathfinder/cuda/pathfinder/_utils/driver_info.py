@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ctypes
 from collections.abc import Callable
+from dataclasses import dataclass
 
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     load_nvidia_dynamic_lib as _load_nvidia_dynamic_lib,
@@ -12,8 +13,25 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
-def _query_driver_version() -> int:
-    """Return the CUDA driver version from ``cuDriverGetVersion()``."""
+@dataclass(frozen=True, slots=True)
+class DriverVersion:
+    encoded: int
+    major: int
+    minor: int
+
+
+def query_driver_version() -> DriverVersion:
+    """Return the CUDA driver version parsed into its major/minor components."""
+    encoded = _query_driver_version_int()
+    return DriverVersion(
+        encoded=encoded,
+        major=encoded // 1000,
+        minor=(encoded % 1000) // 10,
+    )
+
+
+def _query_driver_version_int() -> int:
+    """Return the encoded CUDA driver version from ``cuDriverGetVersion()``."""
     loaded_cuda = _load_nvidia_dynamic_lib("cuda")
     if IS_WINDOWS:
         # `ctypes.WinDLL` exists on Windows at runtime. The ignore is only for
