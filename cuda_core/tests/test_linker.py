@@ -6,6 +6,7 @@ import pytest
 
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core._module import ObjectCode
+from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 
@@ -250,6 +251,70 @@ def test_linker_handle(compile_ptx_functions):
     handle = linker.handle
     assert handle is not None
     assert int(handle) != 0
+
+
+def test_driver_linker_lifetime_no_heap_corruption(monkeypatch, compile_ptx_functions):
+    """Driver-backend teardown must not leave cuLinkCreate option arrays or log buffers dangling.
+
+    Two prior bugs corrupted the heap during driver-linker teardown: the log
+    buffer bytearrays were cleared before cuLinkDestroy ran, and the
+    optionValues array was a stack-local vector destroyed when Linker_init
+    returned. Both manifested in the NEXT CUDA operation after the Linker
+    was destroyed, not at destruction itself. This test forces the driver
+    backend, links, closes + drops the Linker, and then performs a full
+    compile + link cycle that would previously segfault.
+    """
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+    monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: None)
+
+    linker = Linker(*compile_ptx_functions, options=LinkerOptions(arch=ARCH))
+    assert linker.backend == "driver"
+    linker.link("cubin")
+    linker.close()
+    del linker
+
+    obj_a = Program(kernel_a, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    obj_b = Program(device_function_b, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    obj_c = Program(device_function_c, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker2 = Linker(obj_a, obj_b, obj_c, options=LinkerOptions(arch=ARCH))
+    assert linker2.backend == "driver"
+    linker2.link("cubin")
+    linker2.close()
+    del linker2
+
+
+def test_driver_linker_get_error_log_after_close_on_failed_link(init_cuda, monkeypatch):
+    """close() must preserve get_error_log() output when link() failed.
+
+    link() only caches _info_log/_error_log on the success path, so after
+    a failed cuLinkComplete the driver log buffers are the only source of
+    the error diagnostic. close() releases those buffers, and callers
+    should still be able to read the captured error log afterward.
+    """
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+    monkeypatch.setattr(_linker, "_probe_nvjitlink", lambda: None)
+
+    bad_kernel = """
+extern __device__ int Z();
+__global__ void A() { int r = Z(); }
+"""
+    bad_obj = Program(bad_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(bad_obj, options=LinkerOptions(arch=ARCH))
+    assert linker.backend == "driver"
+    with pytest.raises(CUDAError):
+        linker.link("cubin")
+
+    pre_close_err = linker.get_error_log()
+    assert isinstance(pre_close_err, str)
+    assert pre_close_err  # failed link must have produced a diagnostic
+
+    linker.close()
+    # close() releases the raw driver buffers; the cached decoded logs must
+    # still be readable.
+    assert linker.get_error_log() == pre_close_err
+    assert isinstance(linker.get_info_log(), str)
 
 
 @pytest.mark.skipif(is_culink_backend, reason="nvjitlink options only tested with nvjitlink backend")
