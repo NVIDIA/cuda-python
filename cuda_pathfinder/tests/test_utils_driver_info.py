@@ -5,6 +5,15 @@ import ctypes
 
 import pytest
 
+from cuda.pathfinder import (
+    DriverCudaVersion as PublicDriverCudaVersion,
+)
+from cuda.pathfinder import (
+    QueryDriverCudaVersionError as PublicQueryDriverCudaVersionError,
+)
+from cuda.pathfinder import (
+    query_driver_cuda_version as public_query_driver_cuda_version,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._utils import driver_info
 
@@ -40,6 +49,12 @@ def _loaded_cuda(abs_path: str) -> LoadedDL:
         _handle_uint=0xBEEF,
         found_via="system-search",
     )
+
+
+def test_driver_cuda_version_public_api_exports():
+    assert PublicDriverCudaVersion is driver_info.DriverCudaVersion
+    assert PublicQueryDriverCudaVersionError is driver_info.QueryDriverCudaVersionError
+    assert public_query_driver_cuda_version is driver_info.query_driver_cuda_version
 
 
 def test_query_driver_cuda_version_uses_windll_on_windows(monkeypatch):
