@@ -18,6 +18,10 @@ CUDA bitcode and static libraries.
 
    get_cuda_path_or_home
 
+   DriverCudaVersion
+   QueryDriverCudaVersionError
+   query_driver_cuda_version
+
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
    LoadedDL

@@ -59,6 +59,9 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib as locate_static_lib,
 )
+from cuda.pathfinder._utils.driver_info import DriverCudaVersion as DriverCudaVersion
+from cuda.pathfinder._utils.driver_info import QueryDriverCudaVersionError as QueryDriverCudaVersionError
+from cuda.pathfinder._utils.driver_info import query_driver_cuda_version as query_driver_cuda_version
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home as get_cuda_path_or_home
 
 from cuda.pathfinder._version import __version__  # isort: skip

@@ -160,17 +160,19 @@ def test_real_load_driver_lib(info_summary_append, libname):
         assert os.path.isfile(abs_path)
 
 
-def test_real_query_driver_version(info_summary_append):
+def test_real_query_driver_cuda_version(info_summary_append):
     driver_info._load_nvidia_dynamic_lib.cache_clear()
+    driver_info.query_driver_cuda_version.cache_clear()
     try:
-        version = driver_info.query_driver_version()
-    except Exception as exc:
+        version = driver_info.query_driver_cuda_version()
+    except driver_info.QueryDriverCudaVersionError as exc:
         if STRICTNESS == "all_must_work":
             raise
         info_summary_append(f"driver version unavailable: {exc.__class__.__name__}: {exc}")
         return
     finally:
         driver_info._load_nvidia_dynamic_lib.cache_clear()
+        driver_info.query_driver_cuda_version.cache_clear()
 
     info_summary_append(f"driver_version={version.major}.{version.minor} (encoded={version.encoded})")
     assert version.encoded > 0
