@@ -15,15 +15,15 @@
   "f": "tests/test_utils_env_vars.py::test_samefile_equivalence_via_symlink_when_possible|run",
   "g": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib[device]|run",
   "h": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib[nvshmem_device]|run",
-  "i": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[bin2c]|run",
-  "j": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
-  "k": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudart]|run",
-  "l": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
-  "m": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjpeg]|run",
-  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
-  "o": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cusparseLt]|run",
-  "p": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutlass]|run",
-  "q": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nvshmem]|run",
+  "i": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[fatbinary]|run",
+  "j": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvprune]|run",
+  "k": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cublas]|run",
+  "l": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudla]|run",
+  "m": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cusolver]|run",
+  "n": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvfatbin]|run",
+  "o": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjitlink]|run",
+  "p": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cute]|run",
+  "q": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cutlass]|run",
   "r": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
   "s": "tests/test_utils_env_vars.py::test_no_warning_on_windows_case_only_difference|run",
   "t": "tests/test_utils_env_vars.py::test_no_warning_when_textually_equal_after_normalization|run",
@@ -115,7 +115,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-18 01:17 +0000
+            created at 2026-04-19 01:29 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -205,17 +205,17 @@
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="com"># Collect non-empty environment variables in priority order.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">    <span class="com"># Empty strings are treated as undefined &#8212; no valid CUDA path is empty.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">    <span class="nam">set_vars</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnOPEQopqFRrGSHIstbcTfdJe</span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="key">for</span> <span class="nam">var</span> <span class="key">in</span> <span class="nam">_CUDA_PATH_ENV_VARS_ORDERED</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnOPEQopqFRrGSHIstbcTfdJe</span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">val</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">var</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnOPEQopqFRrGSHIstbcTfdJe</span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">        <span class="key">if</span> <span class="nam">val</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnOPEQopqFRrGSHIstbcTfdJe</span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">            <span class="nam">set_vars</span><span class="op">[</span><span class="nam">var</span><span class="op">]</span> <span class="op">=</span> <span class="nam">val</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">36 ctx</label></span><span class="ctxs">1auvwxyzABCghDijklmnEopqFrGHIstbcfdJe</span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">    <span class="nam">set_vars</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnoOPEQpqFRrGSHIstbcTfdJe</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="key">for</span> <span class="nam">var</span> <span class="key">in</span> <span class="nam">_CUDA_PATH_ENV_VARS_ORDERED</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnoOPEQpqFRrGSHIstbcTfdJe</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">val</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">var</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnoOPEQpqFRrGSHIstbcTfdJe</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">        <span class="key">if</span> <span class="nam">val</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnoOPEQpqFRrGSHIstbcTfdJe</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">            <span class="nam">set_vars</span><span class="op">[</span><span class="nam">var</span><span class="op">]</span> <span class="op">=</span> <span class="nam">val</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">36 ctx</label></span><span class="ctxs">1auvwxyzABCghDijklmnoEpqFrGHIstbcfdJe</span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">set_vars</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs82"><span class="r"><label for="ctxs82" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnOPEQopqFRrGSHIstbcTfdJe</span></p>
+    <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">set_vars</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs82"><span class="r"><label for="ctxs82" class="ctx">44 ctx</label></span><span class="ctxs">1auvwxyzABMCNghDijklmnoOPEQpqFRrGSHIstbcTfdJe</span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">8 ctx</label></span><span class="ctxs">1MNOPQRST</span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">    <span class="com"># If multiple variables are set, check if they differ and warn</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">    <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">)</span> <span class="op">></span> <span class="num">1</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">36 ctx</label></span><span class="ctxs">1auvwxyzABCghDijklmnEopqFrGHIstbcfdJe</span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">    <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">)</span> <span class="op">></span> <span class="num">1</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">36 ctx</label></span><span class="ctxs">1auvwxyzABCghDijklmnoEpqFrGHIstbcfdJe</span></p>
     <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">        <span class="nam">values</span> <span class="op">=</span> <span class="nam">list</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">20 ctx</label></span><span class="ctxs">1aghijklmnopqrstbcfde</span></p>
     <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">        <span class="nam">values_differ</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">20 ctx</label></span><span class="ctxs">1aghijklmnopqrstbcfde</span></p>
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">        <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">values</span><span class="op">)</span> <span class="op">-</span> <span class="num">1</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">20 ctx</label></span><span class="ctxs">1aghijklmnopqrstbcfde</span></p>
@@ -234,7 +234,7 @@
     <p class="run run2"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">    <span class="com"># Return the first (highest priority) set variable</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="key">return</span> <span class="nam">next</span><span class="op">(</span><span class="nam">iter</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">36 ctx</label></span><span class="ctxs">1auvwxyzABCghDijklmnEopqFrGHIstbcfdJe</span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="key">return</span> <span class="nam">next</span><span class="op">(</span><span class="nam">iter</span><span class="op">(</span><span class="nam">set_vars</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">36 ctx</label></span><span class="ctxs">1auvwxyzABCghDijklmnoEpqFrGHIstbcfdJe</span></p>
 </main>
 <footer>
     <div class="content">
@@ -244,7 +244,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_find_sub_dirs_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-18 01:17 +0000
+            created at 2026-04-19 01:29 +0000
         </p>
     </div>
 </footer>
