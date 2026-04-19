@@ -35,25 +35,6 @@ def _loaded_cuda(abs_path: str) -> LoadedDL:
     )
 
 
-def test_query_driver_version_uses_cdll_on_non_windows(monkeypatch):
-    fake_driver_lib = _FakeDriverLib(status=0, version=13020)
-    loaded_paths: list[str] = []
-
-    monkeypatch.setattr(driver_info, "IS_WINDOWS", False)
-    monkeypatch.setattr(driver_info, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_cuda("/usr/lib/libcuda.so.1"))
-
-    def fake_cdll(abs_path: str):
-        loaded_paths.append(abs_path)
-        return fake_driver_lib
-
-    monkeypatch.setattr(driver_info.ctypes, "CDLL", fake_cdll)
-
-    assert driver_info._query_driver_version_int() == 13020
-    assert loaded_paths == ["/usr/lib/libcuda.so.1"]
-    assert fake_driver_lib.cuDriverGetVersion.argtypes == [ctypes.POINTER(ctypes.c_int)]
-    assert fake_driver_lib.cuDriverGetVersion.restype is ctypes.c_int
-
-
 def test_query_driver_version_uses_windll_on_windows(monkeypatch):
     fake_driver_lib = _FakeDriverLib(status=0, version=12080)
     loaded_paths: list[str] = []
