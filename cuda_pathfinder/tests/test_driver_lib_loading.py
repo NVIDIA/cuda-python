@@ -25,6 +25,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
 )
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
+from cuda.pathfinder._utils import driver_info
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
@@ -157,3 +158,21 @@ def test_real_load_driver_lib(info_summary_append, libname):
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)
+
+
+def test_real_query_driver_version(info_summary_append):
+    driver_info._load_nvidia_dynamic_lib.cache_clear()
+    try:
+        version = driver_info.query_driver_version()
+    except Exception as exc:
+        if STRICTNESS == "all_must_work":
+            raise
+        info_summary_append(f"driver version unavailable: {exc.__class__.__name__}: {exc}")
+        return
+    finally:
+        driver_info._load_nvidia_dynamic_lib.cache_clear()
+
+    info_summary_append(f"driver_version={version.major}.{version.minor} (encoded={version.encoded})")
+    assert version.encoded > 0
+    assert version.major == version.encoded // 1000
+    assert version.minor == (version.encoded % 1000) // 10
