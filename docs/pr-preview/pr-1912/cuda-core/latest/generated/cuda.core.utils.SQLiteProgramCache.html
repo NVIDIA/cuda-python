@@ -712,9 +712,16 @@ workers.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> – Filesystem path to the sqlite3 database. The parent directory is
 created if missing.</p></li>
-<li><p><strong>max_size_bytes</strong> – Optional size cap in bytes. When the sum of stored payload sizes
+<li><p><strong>max_size_bytes</strong> – Optional cap on the sum of stored payload sizes. When that total
 exceeds the cap, the least-recently-used entries are evicted until
-the total is at or below the cap. <code class="docutils literal notranslate"><span class="pre">None</span></code> means unbounded.</p></li>
+the logical total is at or below the cap; <code class="docutils literal notranslate"><span class="pre">None</span></code> means unbounded.
+Real on-disk usage tracks the logical total <em>at quiescent points</em>:
+WAL frames and freed pages are reclaimed opportunistically via
+<code class="docutils literal notranslate"><span class="pre">wal_checkpoint(TRUNCATE)</span></code> + <code class="docutils literal notranslate"><span class="pre">VACUUM</span></code> after each eviction, but
+<code class="docutils literal notranslate"><span class="pre">sqlite3</span></code> skips both under active readers or writers. With
+concurrent access, the on-disk file can grow above the cap until
+readers release; <a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache" title="cuda.core.utils.FileStreamProgramCache"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileStreamProgramCache</span></code></a> is the right
+backend for multi-process workloads with strict on-disk bounds.</p></li>
 </ul>
 </dd>
 </dl>
