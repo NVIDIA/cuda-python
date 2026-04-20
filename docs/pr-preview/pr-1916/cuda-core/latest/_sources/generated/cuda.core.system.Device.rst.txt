@@ -70,6 +70,6 @@ cuda.core.system.Device
    .. autoattribute:: serial
    .. autoattribute:: temperature
    .. autoattribute:: uuid
-   .. autoattribute:: uuid_with_prefix
+   .. autoattribute:: uuid_without_prefix
    
    

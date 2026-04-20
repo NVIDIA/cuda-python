@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9076015d"></script>
+    <script src="../_static/documentation_options.js?v=bee1a60d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev31';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev46';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -741,9 +741,10 @@ between 0 and the value returned by <cite>get_device_count() - 1</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system.MigInfo.get_device_count">
-<span class="sig-name descname"><span class="pre">get_device_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.MigInfo.get_device_count" title="Link to this definition">#</a></dt>
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.MigInfo.device_count">
+<span class="sig-name descname"><span class="pre">device_count</span></span><a class="headerlink" href="#cuda.core.system.MigInfo.device_count" title="Link to this definition">#</a></dt>
 <dd><p>Get the maximum number of MIG devices that can exist under this device.</p>
 <p>Returns zero if MIG is not supported or enabled.</p>
 <p>For Ampere™ or newer fully supported devices.</p>
@@ -757,22 +758,6 @@ between 0 and the value returned by <cite>get_device_count() - 1</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system.MigInfo.get_parent_device">
-<span class="sig-name descname"><span class="pre">get_parent_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><span class="pre">Device</span></a></span></span><a class="headerlink" href="#cuda.core.system.MigInfo.get_parent_device" title="Link to this definition">#</a></dt>
-<dd><p>For MIG devices, get the parent GPU device.</p>
-<p>For Ampere™ or newer fully supported devices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The parent GPU device for this MIG device.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device">Device</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.MigInfo.is_mig_device">
 <span class="sig-name descname"><span class="pre">is_mig_device</span></span><a class="headerlink" href="#cuda.core.system.MigInfo.is_mig_device" title="Link to this definition">#</a></dt>
@@ -798,6 +783,21 @@ mode refers to the target mode following the next activation trigger.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.MigInfo.parent">
+<span class="sig-name descname"><span class="pre">parent</span></span><a class="headerlink" href="#cuda.core.system.MigInfo.parent" title="Link to this definition">#</a></dt>
+<dd><p>For MIG devices, get the parent GPU device.</p>
+<p>For Ampere™ or newer fully supported devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parent GPU device for this MIG device.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device">Device</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -877,10 +877,10 @@ mode refers to the target mode following the next activation trigger.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.__init__"><code class="docutils literal notranslate"><span class="pre">MigInfo.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.get_all_devices"><code class="docutils literal notranslate"><span class="pre">MigInfo.get_all_devices()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.get_device_by_index"><code class="docutils literal notranslate"><span class="pre">MigInfo.get_device_by_index()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.get_device_count"><code class="docutils literal notranslate"><span class="pre">MigInfo.get_device_count()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.get_parent_device"><code class="docutils literal notranslate"><span class="pre">MigInfo.get_parent_device()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.device_count"><code class="docutils literal notranslate"><span class="pre">MigInfo.device_count</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.is_mig_device"><code class="docutils literal notranslate"><span class="pre">MigInfo.is_mig_device</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.mode"><code class="docutils literal notranslate"><span class="pre">MigInfo.mode</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.parent"><code class="docutils literal notranslate"><span class="pre">MigInfo.parent</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.MigInfo.pending_mode"><code class="docutils literal notranslate"><span class="pre">MigInfo.pending_mode</span></code></a></li>
 </ul>
 </li>

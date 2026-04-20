@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=9076015d"></script>
+    <script src="_static/documentation_options.js?v=bee1a60d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev31';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev46';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1392,6 +1392,8 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.device_code_optimize">device_code_optimize (cuda.core.ProgramOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.system.MigInfo.html#cuda.core.system.MigInfo.device_count">device_count (cuda.core.system.MigInfo attribute)</a>
+</li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.device_float128">device_float128 (cuda.core.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.device_id">device_id (cuda.core.Buffer attribute)</a>
@@ -1753,11 +1755,7 @@
       <li><a href="generated/cuda.core.system.MigInfo.html#cuda.core.system.MigInfo.get_device_by_index">get_device_by_index() (cuda.core.system.MigInfo method)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_device_count">get_device_count() (cuda.core.system.Device class method)</a>
-
-      <ul>
-        <li><a href="generated/cuda.core.system.MigInfo.html#cuda.core.system.MigInfo.get_device_count">(cuda.core.system.MigInfo method)</a>
 </li>
-      </ul></li>
       <li><a href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch">get_driver_branch() (in module cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.system.get_driver_version.html#cuda.core.system.get_driver_version">get_driver_version() (in module cuda.core.system)</a>
@@ -1800,8 +1798,6 @@
 </li>
       <li><a href="generated/cuda.core.system.get_p2p_status.html#cuda.core.system.get_p2p_status">get_p2p_status() (in module cuda.core.system)</a>
 </li>
-      <li><a href="generated/cuda.core.system.MigInfo.html#cuda.core.system.MigInfo.get_parent_device">get_parent_device() (cuda.core.system.MigInfo method)</a>
-</li>
       <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_pcie_replay_counter">get_pcie_replay_counter() (cuda.core.system.PciInfo method)</a>
 </li>
       <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_pcie_throughput">get_pcie_throughput() (cuda.core.system.PciInfo method)</a>
@@ -1816,10 +1812,10 @@
 </li>
       <li><a href="generated/cuda.core.system.get_topology_common_ancestor.html#cuda.core.system.get_topology_common_ancestor">get_topology_common_ancestor() (in module cuda.core.system)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_topology_nearest_gpus">get_topology_nearest_gpus() (cuda.core.system.Device method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.get_version">get_version() (cuda.core.system.InforomInfo method)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.global_l1_cache_supported">global_l1_cache_supported (cuda.core._device.DeviceProperties attribute)</a>
@@ -2855,6 +2851,8 @@
 </li>
       <li><a href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo">ParamInfo (class in cuda.core._module)</a>
 </li>
+      <li><a href="generated/cuda.core.system.MigInfo.html#cuda.core.system.MigInfo.parent">parent (cuda.core.system.MigInfo attribute)</a>
+</li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.pch">pch (cuda.core.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.pch_dir">pch_dir (cuda.core.ProgramOptions attribute)</a>
@@ -3447,7 +3445,7 @@
         <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.uuid">(cuda.core.system.Device attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.uuid_with_prefix">uuid_with_prefix (cuda.core.system.Device attribute)</a>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.uuid_without_prefix">uuid_without_prefix (cuda.core.system.Device attribute)</a>
 </li>
   </ul></td>
 </tr></table>
