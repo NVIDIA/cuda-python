@@ -256,6 +256,7 @@ Types
    system.GpuTopologyLevel
    system.InforomInfo
    system.MemoryInfo
+   system.MigInfo
    system.PciInfo
    system.RepairStatus
    system.Temperature

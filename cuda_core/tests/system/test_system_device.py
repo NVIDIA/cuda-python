@@ -57,7 +57,7 @@ def test_to_cuda_device():
         cuda_device = device.to_cuda_device()
 
         assert isinstance(cuda_device, CudaDevice)
-        assert cuda_device.uuid == device.uuid
+        assert cuda_device.uuid == device.uuid_without_prefix
 
         # Technically, this test will only work with PCI devices, but are there
         # non-PCI devices we need to support?
@@ -227,9 +227,9 @@ def test_device_serial():
         assert len(serial) > 0
 
 
-def test_device_uuid():
+def test_device_uuid_without_prefix():
     for device in system.Device.get_all_devices():
-        uuid = device.uuid
+        uuid = device.uuid_without_prefix
         assert isinstance(uuid, str)
 
         # Expands to GPU-8hex-4hex-4hex-4hex-12hex, where 8hex means 8 consecutive
@@ -729,3 +729,30 @@ def test_pstates():
             assert isinstance(utilization.percentage, int)
             assert isinstance(utilization.inc_threshold, int)
             assert isinstance(utilization.dec_threshold, int)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="MIG not supported on WSL or Windows")
+def test_mig():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            mig = device.mig
+
+            assert isinstance(mig.is_mig_device, bool)
+            if mig.is_mig_device:
+                assert isinstance(mig.mode, bool)
+                assert isinstance(mig.pending_mode, bool)
+
+                device_count = mig.get_device_count()
+                assert isinstance(device_count, int)
+                assert device_count >= 0
+
+                for mig_device in mig.get_all_devices():
+                    assert isinstance(mig_device, system.Device)
+
+
+def test_uuid():
+    for device in system.Device.get_all_devices():
+        uuid = device.uuid
+        assert isinstance(uuid, str)
+        assert uuid.startswith(("GPU-", "MIG-"))
+        assert uuid == device.uuid
