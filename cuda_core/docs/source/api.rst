@@ -222,6 +222,7 @@ Enums
    system.FanControlPolicy
    system.FieldId
    system.InforomObject
+   system.NvlinkVersion
    system.PcieUtilCounter
    system.Pstates
    system.TemperatureSensors
@@ -256,11 +257,13 @@ Types
    system.GpuTopologyLevel
    system.InforomInfo
    system.MemoryInfo
+   system.NvlinkInfo
    system.PciInfo
    system.RepairStatus
    system.Temperature
    system.ThermalSensor
    system.ThermalSettings
+   system.Utilization
 
 .. module:: cuda.core.utils
 

@@ -729,3 +729,34 @@ def test_pstates():
             assert isinstance(utilization.percentage, int)
             assert isinstance(utilization.inc_threshold, int)
             assert isinstance(utilization.dec_threshold, int)
+
+
+def test_nvlink():
+    for device in system.Device.get_all_devices():
+        max_links = system.NvlinkInfo.max_links
+        assert isinstance(max_links, int)
+        assert max_links > 0
+
+        for link in range(max_links):
+            with unsupported_before(device, None):
+                nvlink_info = device.nvlink(link)
+            assert isinstance(nvlink_info, system.NvlinkInfo)
+
+            with unsupported_before(device, None):
+                version = nvlink_info.version
+            assert isinstance(version, system.NvlinkVersion)
+
+
+def test_utilization():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            utilization = device.utilization
+        assert isinstance(utilization, system.Utilization)
+
+        gpu = utilization.gpu
+        assert isinstance(gpu, int)
+        assert 0 <= gpu <= 100
+
+        memory = utilization.memory
+        assert isinstance(memory, int)
+        assert 0 <= memory <= 100
