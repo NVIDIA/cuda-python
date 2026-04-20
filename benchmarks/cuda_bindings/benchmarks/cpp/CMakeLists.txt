@@ -82,6 +82,7 @@ add_driver_benchmark(bench_pointer_attributes)
 add_driver_benchmark(bench_ctx_device)
 add_driver_benchmark(bench_stream)
 add_driver_benchmark(bench_event)
+add_driver_benchmark(bench_memory)
 
 # NVRTC benchmarks (require nvrtc for kernel compilation)
 if(NVRTC_INCLUDE_DIR AND NVRTC_LIBRARY)

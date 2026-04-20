@@ -53,7 +53,7 @@ def _discover_module_functions(module_path: Path) -> list[str]:
     return [
         node.name
         for node in tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("bench_")
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.name.startswith("bench_")
     ]
 
 

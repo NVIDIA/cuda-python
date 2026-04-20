@@ -14,32 +14,32 @@ _err, STREAM = cuda.cuStreamCreate(cuda.CUstream_flags.CU_STREAM_NON_BLOCKING.va
 
 
 def bench_stream_create_destroy(loops: int) -> float:
-    _cuStreamCreate = cuda.cuStreamCreate
-    _cuStreamDestroy = cuda.cuStreamDestroy
+    _create = cuda.cuStreamCreate
+    _destroy = cuda.cuStreamDestroy
     _flags = cuda.CUstream_flags.CU_STREAM_NON_BLOCKING.value
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _, s = _cuStreamCreate(_flags)
-        _cuStreamDestroy(s)
+        _, s = _create(_flags)
+        _destroy(s)
     return time.perf_counter() - t0
 
 
 def bench_stream_query(loops: int) -> float:
-    _cuStreamQuery = cuda.cuStreamQuery
+    _fn = cuda.cuStreamQuery
     _stream = STREAM
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuStreamQuery(_stream)
+        _fn(_stream)
     return time.perf_counter() - t0
 
 
 def bench_stream_synchronize(loops: int) -> float:
-    _cuStreamSynchronize = cuda.cuStreamSynchronize
+    _fn = cuda.cuStreamSynchronize
     _stream = STREAM
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuStreamSynchronize(_stream)
+        _fn(_stream)
     return time.perf_counter() - t0

@@ -10,8 +10,8 @@ import types
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-RUNNER_MAIN_PATH = REPO_ROOT / "cuda_bindings/benchmarks/runner/main.py"
-BENCH_LAUNCH_PATH = REPO_ROOT / "cuda_bindings/benchmarks/benchmarks/bench_launch.py"
+RUNNER_MAIN_PATH = REPO_ROOT / "benchmarks/cuda_bindings/runner/main.py"
+BENCH_LAUNCH_PATH = REPO_ROOT / "benchmarks/cuda_bindings/benchmarks/bench_launch.py"
 
 
 def load_module_from_path(module_name: str, module_path: Path):

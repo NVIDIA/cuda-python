@@ -45,7 +45,7 @@ pre-commit = "*"
 cuda-bindings = "==13.1.0"
 
 [feature.bindings-source.dependencies]
-cuda-bindings = { path = ".." }
+cuda-bindings = { path = "../../cuda_bindings" }
 
 [environments]
 wheel = { features = ["cu13", "cu13-pinned", "bench", "cpp-bench", "dev", "bindings-wheel"] }

@@ -38,8 +38,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart-static_linux-64-13.2.51-h376f20c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart_linux-64-13.2.51-h376f20c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-driver-dev_linux-64-13.2.51-h376f20c_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.2.51-hecca717_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.2.51-hecca717_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.2.78-hecca717_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.2.78-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-13.2.51-h69a702a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-13.2.51-ha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.2.51-h4bc722e_0.conda
@@ -66,7 +66,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.11.0-5_h4a7cf45_openblas.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libcap-2.77-h3ff7636_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.11.0-5_h0358290_openblas.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcufile-1.17.0.44-h85c024f_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcufile-1.17.1.22-h85c024f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.18.0-hcf29cc6_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20250104-pl5321h7949ede_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-hd590300_2.conda
@@ -130,7 +130,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-h280c20c_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - conda: ..
+      - conda: ../../cuda_bindings
       - conda: ../../cuda_pathfinder
   wheel:
     channels:
@@ -406,7 +406,7 @@ packages:
   license_family: GPL
   size: 31705
   timestamp: 1771378159534
-- conda: ..
+- conda: ../../cuda_bindings
   name: cuda-bindings
   version: 13.2.0
   build: hb0f4dca_0
@@ -419,11 +419,11 @@ packages:
   - cuda-pathfinder
   - libnvjitlink
   - cuda-nvrtc
-  - cuda-nvrtc >=13.2.51,<14.0a0
+  - cuda-nvrtc >=13.2.78,<14.0a0
   - cuda-nvvm
   - libnvfatbin
   - libcufile
-  - libcufile >=1.17.0.44,<2.0a0
+  - libcufile >=1.17.1.22,<2.0a0
   - libgcc >=15
   - libgcc >=15
   - libstdcxx >=15
@@ -643,17 +643,17 @@ packages:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   size: 35339417
   timestamp: 1768272955912
-- conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.2.51-hecca717_0.conda
-  sha256: 9de235d328b7124f715805715e9918eb7f8aa5b9c56a2afa62b84f84f98077a5
-  md5: 0413baaa73be1a39d5d8e442184acc78
+- conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.2.78-hecca717_0.conda
+  sha256: 73fbc9d15c062c3ea60891e8183002f6b055fa6638402d17581677af0aaa20d8
+  md5: 66623d882c42506fa3f1780b90841400
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=13.2,<13.3.0a0
   - libgcc >=14
   - libstdcxx >=14
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 35736655
-  timestamp: 1773100338749
+  size: 35670504
+  timestamp: 1776109867257
 - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.1.115-hecca717_0.conda
   sha256: 2c929c592ca1909e3944edec62b77403d256156a4010bfa17fb0b948d33e54d3
   md5: 1096fce4abad7dd975ce6d9953fceb6a
@@ -668,20 +668,20 @@ packages:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   size: 35845
   timestamp: 1768273073971
-- conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.2.51-hecca717_0.conda
-  sha256: be60eb4e84ff4846b27b323eca402b075f52caf6c138ebb06268fbaa26ef1879
-  md5: 83535200a9e77165d5291b4ac82ebf6a
+- conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-13.2.78-hecca717_0.conda
+  sha256: 12505f1bbc222acf2a63da5c84e4176d2f9c18b458e2bde28939fdf326b6d292
+  md5: cc313f0ea18ebc6e713a8980611431f5
   depends:
   - __glibc >=2.17,<3.0.a0
-  - cuda-nvrtc 13.2.51 hecca717_0
+  - cuda-nvrtc 13.2.78 hecca717_0
   - cuda-version >=13.2,<13.3.0a0
   - libgcc >=14
   - libstdcxx >=14
   constrains:
-  - cuda-nvrtc-static >=13.2.51
+  - cuda-nvrtc-static >=13.2.78
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 36305
-  timestamp: 1773100458841
+  size: 36312
+  timestamp: 1776109983818
 - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-13.2.51-h69a702a_0.conda
   sha256: d0111ba8fa12b96d38989d2016ecec0c11410c0e566d839ed54f3925591efb0b
   md5: 03cd3639b8e13623c7b91b1cb0136402
@@ -1018,9 +1018,9 @@ packages:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   size: 990938
   timestamp: 1768273732081
-- conda: https://conda.anaconda.org/conda-forge/linux-64/libcufile-1.17.0.44-h85c024f_0.conda
-  sha256: dc2b0c43aeacbaa686061353807e718236d8c5b346f624e76fed98b066898e19
-  md5: 6d8ed8335d144ec7303b8d3587b2205c
+- conda: https://conda.anaconda.org/conda-forge/linux-64/libcufile-1.17.1.22-h85c024f_0.conda
+  sha256: a24ad0ca488aa3e237049cd5b5c6d7fe3d2d4330682ed329203064e332ea1d74
+  md5: 056a67706108efd1f9c24682ba8d3685
   depends:
   - __glibc >=2.28,<3.0.a0
   - cuda-version >=13.2,<13.3.0a0
@@ -1028,8 +1028,8 @@ packages:
   - libstdcxx >=14
   - rdma-core >=61.0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 1085341
-  timestamp: 1773100191342
+  size: 1082447
+  timestamp: 1776110053053
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.18.0-hcf29cc6_1.conda
   sha256: c84e8dccb65ad5149c0121e4b54bdc47fa39303fd5f4979b8c44bb51b39a369b
   md5: 1707cdd636af2ff697b53186572c9f77

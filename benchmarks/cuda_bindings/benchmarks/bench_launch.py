@@ -82,19 +82,19 @@ def _ensure_launch_state() -> None:
 
 def bench_launch_empty_kernel(loops: int) -> float:
     _ensure_launch_state()
-    _cuLaunchKernel = cuda.cuLaunchKernel
+    _fn = cuda.cuLaunchKernel
     _kernel = EMPTY_KERNEL
     _stream = STREAM
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuLaunchKernel(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, 0, 0)
+        _fn(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, 0, 0)
     return time.perf_counter() - t0
 
 
 def bench_launch_small_kernel(loops: int) -> float:
     _ensure_launch_state()
-    _cuLaunchKernel = cuda.cuLaunchKernel
+    _fn = cuda.cuLaunchKernel
     _kernel = SMALL_KERNEL
     _stream = STREAM
     _args = (FLOAT_PTR,)
@@ -102,13 +102,13 @@ def bench_launch_small_kernel(loops: int) -> float:
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuLaunchKernel(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0)
+        _fn(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0)
     return time.perf_counter() - t0
 
 
 def bench_launch_16_args(loops: int) -> float:
     _ensure_launch_state()
-    _cuLaunchKernel = cuda.cuLaunchKernel
+    _fn = cuda.cuLaunchKernel
     _kernel = KERNEL_16_ARGS
     _stream = STREAM
     _args = INT_PTRS
@@ -116,18 +116,18 @@ def bench_launch_16_args(loops: int) -> float:
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuLaunchKernel(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0)
+        _fn(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, (_args, _arg_types), 0)
     return time.perf_counter() - t0
 
 
 def bench_launch_16_args_pre_packed(loops: int) -> float:
     _ensure_launch_state()
-    _cuLaunchKernel = cuda.cuLaunchKernel
+    _fn = cuda.cuLaunchKernel
     _kernel = KERNEL_16_ARGS
     _stream = STREAM
     _packed = PACKED_16
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuLaunchKernel(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, _packed, 0)
+        _fn(_kernel, 1, 1, 1, 1, 1, 1, 0, _stream, _packed, 0)
     return time.perf_counter() - t0
