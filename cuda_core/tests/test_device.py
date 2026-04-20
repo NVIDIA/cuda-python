@@ -10,20 +10,13 @@ import pytest
 
 import cuda.core
 from cuda.core import Device
-from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
+from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
+from cuda.core._utils.version import binding_version, driver_version
 
 
 def test_device_init_disabled():
     with pytest.raises(RuntimeError, match=r"^DeviceProperties cannot be instantiated directly\."):
         cuda.core._device.DeviceProperties()  # Ensure back door is locked.
-
-
-@pytest.fixture(scope="module")
-def cuda_version():
-    # binding availability depends on cuda-python version
-    _py_major_ver, _ = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    return _py_major_ver, _driver_ver
 
 
 def test_to_system_device(deinit_cuda):
@@ -115,8 +108,8 @@ def test_pci_bus_id():
 
 def test_uuid():
     device = Device()
-    driver_ver = handle_return(driver.cuDriverGetVersion())
-    if driver_ver < 13000:
+    drv_ver = driver_version()
+    if drv_ver < (13, 0, 0):
         uuid = handle_return(driver.cuDeviceGetUuid_v2(device.device_id))
     else:
         uuid = handle_return(driver.cuDeviceGetUuid(device.device_id))
@@ -306,8 +299,8 @@ cuda_13_properties = [
     ("only_partial_host_native_atomic_supported", bool),
 ]
 
-version = get_binding_version()
-if version[0] >= 13:
+version = binding_version()
+if version >= (13, 0, 0):
     cuda_base_properties += cuda_13_properties
 
 
@@ -324,7 +317,7 @@ def test_device_properties_complete():
 
     excluded_props = set()
     # Exclude CUDA 13+ specific properties when not available
-    if version[0] < 13:
+    if version < (13, 0, 0):
         excluded_props.update({prop[0] for prop in cuda_13_properties})
 
     filtered_tab_props = tab_props - excluded_props

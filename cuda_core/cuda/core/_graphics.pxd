@@ -9,6 +9,8 @@ cdef class GraphicsResource:
 
     cdef:
         GraphicsResourceHandle _handle
-        bint _mapped
+        object _mapped_buffer
+        object _context_manager_stream
+        object _entered_buffer
 
-    cpdef close(self)
+    cpdef close(self, stream=*)

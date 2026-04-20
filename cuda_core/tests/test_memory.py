@@ -556,7 +556,7 @@ def test_buffer_dunder_dlpack():
     [
         (DummyDeviceMemoryResource, (DLDeviceType.kDLCUDA, 0)),
         (DummyHostMemoryResource, (DLDeviceType.kDLCPU, 0)),
-        (DummyUnifiedMemoryResource, (DLDeviceType.kDLCUDAHost, 0)),
+        (DummyUnifiedMemoryResource, (DLDeviceType.kDLCUDAManaged, 0)),
         (DummyPinnedMemoryResource, (DLDeviceType.kDLCUDAHost, 0)),
     ],
 )
@@ -579,13 +579,71 @@ def test_buffer_dlpack_failure_clean_up():
     dummy_mr = NullMemoryResource()
     buffer = dummy_mr.allocate(size=1024)
     before = sys.getrefcount(buffer)
-    with pytest.raises(BufferError, match="invalid buffer"):
+    with pytest.raises(BufferError, match="buffer is neither device-accessible nor host-accessible"):
         buffer.__dlpack__()
     after = sys.getrefcount(buffer)
     # we use the buffer refcount as sentinel for proper clean-up here,
     # hoping that malloc and frees did the right thing
     # as they are handled by the same deleter
     assert after == before
+
+
+def test_managed_buffer_dlpack_roundtrip_device_type():
+    """Verify that a managed Buffer round-trips through DLPack with kDLCUDAManaged."""
+    device = Device()
+    device.set_current()
+    skip_if_managed_memory_unsupported(device)
+    mr = DummyUnifiedMemoryResource(device)
+    buf = mr.allocate(size=1024)
+
+    # Buffer-level classification should report managed.
+    assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
+
+    # The end-to-end path: Buffer -> DLPack capsule -> StridedMemoryView
+    # must preserve kDLCUDAManaged rather than downgrading to kDLCUDAHost.
+    view = StridedMemoryView.from_any_interface(buf, stream_ptr=-1)
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
+
+
+def test_managed_memory_resource_buffer_dlpack_device_type():
+    """Verify that pool-allocated managed memory reports kDLCUDAManaged.
+
+    Allocations from ManagedMemoryResource go through cuMemAllocFromPoolAsync
+    on a CU_MEM_ALLOCATION_TYPE_MANAGED pool, which does not set
+    CU_POINTER_ATTRIBUTE_IS_MANAGED.  The Buffer must still report itself as
+    managed via its memory resource so that DLPack consumers (e.g. CCCL's
+    make_tma_descriptor) accept the buffer.
+    """
+    device = Device()
+    device.set_current()
+    skip_if_managed_memory_unsupported(device)
+    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
+    buf = mr.allocate(1024)
+
+    assert mr.is_managed
+    assert buf.is_managed
+    assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
+
+    view = StridedMemoryView.from_any_interface(buf, stream_ptr=-1)
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
+
+
+@pytest.mark.parametrize("mr_kind", ["device", "pinned"])
+def test_non_managed_resources_report_not_managed(mr_kind):
+    """Non-managed memory resources must report is_managed=False."""
+    device = Device()
+    device.set_current()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    if mr_kind == "device":
+        mr = DeviceMemoryResource(device)
+    else:
+        skip_if_pinned_memory_unsupported(device)
+        mr = PinnedMemoryResource()
+    assert mr.is_managed is False
+    buf = mr.allocate(1024)
+    assert buf.is_managed is False
+    buf.close()
 
 
 @pytest.mark.parametrize("use_device_object", [True, False])
@@ -1499,6 +1557,18 @@ def test_graph_memory_resource_object(init_cuda):
     # These objects are interned.
     assert gmr1 is gmr2 is gmr3
     assert gmr1 == gmr2 == gmr3
+
+
+@pytest.mark.skipif(np is None, reason="numpy is not installed")
+def test_strided_memory_view_dlpack_errors():
+    arr = np.zeros(64, dtype=np.uint8)
+    smv = StridedMemoryView.from_any_interface(arr, stream_ptr=-1)
+    with pytest.raises(BufferError, match="dl_device other than None"):
+        smv.__dlpack__(dl_device=())
+    with pytest.raises(BufferError, match="copy=True"):
+        smv.__dlpack__(copy=True)
+    with pytest.raises(BufferError, match="Expected max_version"):
+        smv.__dlpack__(max_version=(9, 8, 7))
 
 
 def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):

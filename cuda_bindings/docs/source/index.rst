@@ -11,6 +11,7 @@
    release
    install
    overview
+   examples
    motivation
    environment_variables
    api

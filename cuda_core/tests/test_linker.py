@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import pytest
 
@@ -207,3 +207,38 @@ def test_linker_options_as_bytes_driver_not_supported():
     options = LinkerOptions(arch="sm_80")
     with pytest.raises(RuntimeError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
         options.as_bytes("driver")
+
+
+def test_linker_logs_cached_after_link(compile_ptx_functions):
+    """After a successful link(), get_error_log/get_info_log should return cached strings."""
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*compile_ptx_functions, options=options)
+    linker.link("cubin")
+    err_log = linker.get_error_log()
+    info_log = linker.get_info_log()
+    assert isinstance(err_log, str)
+    assert isinstance(info_log, str)
+    # Calling again should return the same observable values.
+    assert linker.get_error_log() == err_log
+    assert linker.get_info_log() == info_log
+
+
+def test_linker_handle(compile_ptx_functions):
+    """Linker.handle returns a non-null handle object."""
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*compile_ptx_functions, options=options)
+    handle = linker.handle
+    assert handle is not None
+    assert int(handle) != 0
+
+
+@pytest.mark.skipif(is_culink_backend, reason="nvjitlink options only tested with nvjitlink backend")
+def test_linker_options_nvjitlink_options_as_str():
+    """_prepare_nvjitlink_options(as_bytes=False) returns plain strings."""
+    opts = LinkerOptions(arch=ARCH, debug=True, lineinfo=True)
+    options = opts._prepare_nvjitlink_options(as_bytes=False)
+    assert isinstance(options, list)
+    assert all(isinstance(o, str) for o in options)
+    assert f"-arch={ARCH}" in options
+    assert "-g" in options
+    assert "-lineinfo" in options

@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -80,6 +80,6 @@ cpdef stats_reset()
 cpdef get_stats_l1(intptr_t stats)
 cpdef get_stats_l2(intptr_t stats)
 cpdef get_stats_l3(intptr_t stats)
-cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0
+cpdef size_t get_bar_size_in_kb(int gpu_index) except? 0
 cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
 cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)

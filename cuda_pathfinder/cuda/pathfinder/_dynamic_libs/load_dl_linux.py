@@ -156,10 +156,10 @@ def _load_lib(desc: LibDescriptor, filename: str) -> ctypes.CDLL:
 
 
 def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
-    """Try to load a library using system search paths.
+    """Try to load a library using the native Linux dynamic-loader search path.
 
     Args:
-        libname: The name of the library to load
+        desc: Descriptor for the library to load
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded

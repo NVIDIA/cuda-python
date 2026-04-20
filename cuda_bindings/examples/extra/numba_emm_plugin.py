@@ -1,6 +1,10 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# /// script
+# dependencies = ["cuda_bindings>13.2.1", "numba-cuda"]
+# ///
+
 """Numba EMM Plugin using the CUDA Python Driver API.
 
 This example provides an External Memory Management (EMM) Plugin for Numba (see

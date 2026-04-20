@@ -16,10 +16,11 @@ cdef class Kernel:
         KernelHandle _h_kernel
         KernelAttributes _attributes  # lazy
         KernelOccupancy _occupancy  # lazy
+        object _keepalive
         object __weakref__
 
     @staticmethod
-    cdef Kernel _from_obj(KernelHandle h_kernel)
+    cdef Kernel _from_handle(KernelHandle h_kernel)
 
     cdef tuple _get_arguments_info(self, bint param_info=*)
 

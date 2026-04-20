@@ -1,14 +1,18 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #
-# This demo illustrates how to use CUDA graphs to capture and execute
-# multiple kernel launches with minimal overhead. The graph performs a
-# sequence of vector operations: add, multiply, and subtract.
+# This example demonstrates CUDA graphs to capture and execute multiple
+# kernel launches with minimal overhead. The graph performs a sequence of
+# vector operations: add, multiply, and subtract.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x"]
+# ///
 
 import sys
 import time
@@ -121,6 +125,9 @@ def main():
         end_time = time.time()
 
         graph_execution_time = end_time - start_time
+        if graph_execution_time == 0.0:
+            print("Graph execution time is too fast to measure accurately.")
+            graph_execution_time = 1e-9  # Assign a small value to avoid division by zero in speedup calculation
         print(f"Graph execution time: {graph_execution_time:.6f} seconds")
 
         # Verify results

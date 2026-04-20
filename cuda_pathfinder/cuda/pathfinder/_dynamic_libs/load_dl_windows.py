@@ -116,10 +116,16 @@ def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: b
 
 
 def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
-    """Try to load a DLL using system search paths.
+    """Try to load a DLL using the native Windows process DLL search path.
+
+    This calls ``LoadLibraryExW(dll_name, NULL, 0)`` directly. Under Python
+    3.8+, CPython configures the process with
+    ``SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)``, so this
+    search does **not** include the system ``PATH``. Directories added via
+    ``AddDllDirectory()`` still participate.
 
     Args:
-        libname: The name of the library to load
+        desc: Descriptor for the library to load
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded

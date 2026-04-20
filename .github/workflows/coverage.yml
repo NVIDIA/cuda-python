@@ -11,14 +11,27 @@ on:
 
 env:
   PY_VER: "3.14"
-  CUDA_VER: "13.1.0"
   LOCAL_CTK: "1"
   GPU: "a100"
   DRIVER: "latest"
 
 jobs:
+  coverage-vars:
+    runs-on: ubuntu-latest
+    outputs:
+      CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Get CUDA version
+        id: get-vars
+        run: |
+          cuda_ver=$(yq '.cuda.build.version' ci/versions.yml)
+          echo "cuda_ver=$cuda_ver" >> $GITHUB_OUTPUT
+
   coverage-linux:
     name: Coverage (Linux)
+    needs: [coverage-vars]
     runs-on: "linux-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -29,6 +42,7 @@ jobs:
     env:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
+      CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -36,6 +50,7 @@ jobs:
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+        PIP_CACHE_DIR: "/tmp/pip-cache"
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
@@ -52,6 +67,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
+
+      - name: Fix workspace ownership
+        run: |
+          chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -164,6 +183,7 @@ jobs:
   # Build Windows wheels on GitHub-hosted runner (has VS, no GPU)
   build-wheel-windows:
     name: Build Wheels (Windows)
+    needs: [coverage-vars]
     runs-on: windows-2022
     permissions:
       contents: read
@@ -173,6 +193,7 @@ jobs:
     env:
       HOST_PLATFORM: "win-64"
       CUDA_PYTHON_COVERAGE: "1"
+      CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -231,7 +252,7 @@ jobs:
   # Run coverage tests on self-hosted GPU runner (no VS needed, installs pre-built wheels)
   coverage-windows:
     name: Coverage (Windows)
-    needs: [build-wheel-windows]
+    needs: [coverage-vars, build-wheel-windows]
     runs-on: "windows-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -240,6 +261,7 @@ jobs:
       HOST_PLATFORM: "win-64"
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
+      CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     defaults:
       run:
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -278,7 +300,7 @@ jobs:
           cuda-version: ${{ env.CUDA_VER }}
 
       - name: Download Windows wheel artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-windows-wheels
           path: ./wheels/
@@ -324,46 +346,25 @@ jobs:
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
+      # Cython linetrace under coverage on Windows needs more stack than the
+      # default 1 MB thread size.  The helper runs pytest on an 8 MB thread.
       - name: Run cuda.bindings tests (with 8MB stack)
         continue-on-error: true
         run: |
-          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
-          # Run pytest in 8MB stack thread (Cython linetrace requirement)
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" << PYTEST_EOF
-          import os
-          import sys
-          import threading
-          import pytest
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
+            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+            -v --cov=./cuda --cov-append --cov-context=test \
+            --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
+            "$GITHUB_WORKSPACE/cuda_bindings/tests"
 
-          os.chdir(r'${{ steps.install-root.outputs.INSTALL_ROOT }}')
-          threading.stack_size(8 * 1024 * 1024)
-          result = {'code': 1}
-
-          def _run():
-              workspace = os.environ['GITHUB_WORKSPACE']
-              result['code'] = pytest.main([
-                  '-v',
-                  '--cov=./cuda',
-                  '--cov-append',
-                  '--cov-context=test',
-                  f'--cov-config={workspace}/.coveragerc',
-                  f'{workspace}/cuda_bindings/tests'
-              ])
-
-          t = threading.Thread(target=_run)
-          t.start()
-          t.join()
-
-          print(f'Bindings tests exit code: {result["code"]}')
-          # Exit with actual code (continue-on-error handles it)
-          sys.exit(result['code'])
-          PYTEST_EOF
-
-      - name: Run cuda.core tests
+      - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true
         run: |
-          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
-          "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_core/tests"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
+            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+            -v --cov=./cuda --cov-append --cov-context=test \
+            --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
+            "$GITHUB_WORKSPACE/cuda_core/tests"
 
       - name: Copy Windows coverage file to workspace
         run: |
@@ -403,19 +404,19 @@ jobs:
           pip install coverage[toml] Cython
 
       - name: Download Linux coverage data
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-data-linux
           path: ./
 
       - name: Download cuda source code
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-source-linux
           path: ./cuda/
 
       - name: Download Windows coverage data
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: coverage-data-windows
           path: ./

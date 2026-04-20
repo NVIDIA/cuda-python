@@ -1,13 +1,18 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #
-# This demo illustrates the use of thread block clusters in the CUDA launch
+# This example demonstrates thread block clusters in the CUDA launch
 # configuration and verifies that the correct grid size is passed to the kernel.
+# Requires compute capability >= 9.0 and CUDA_PATH.
 #
 # ################################################################################
+
+# /// script
+# dependencies = ["cuda_bindings", "cuda_core"]
+# ///
 
 import os
 import sys
@@ -22,24 +27,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-
-if np.lib.NumpyVersion(np.__version__) < "2.2.5":
-    print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
-    sys.exit(1)
-
-# prepare include
-cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
-if cuda_path is None:
-    print("this demo requires a valid CUDA_PATH environment variable set", file=sys.stderr)
-    sys.exit(1)
-cuda_include = os.path.join(cuda_path, "include")
-if not os.path.isdir(cuda_include):
-    print(f"CUDA include directory not found: {cuda_include}", file=sys.stderr)
-    sys.exit(1)
-include_path = [cuda_include]
-cccl_include = os.path.join(cuda_include, "cccl")
-if os.path.isdir(cccl_include):
-    include_path.insert(0, cccl_include)
+from cuda.pathfinder import get_cuda_path_or_home
 
 # print cluster info using a kernel and store results in pinned memory
 code = r"""
@@ -76,77 +64,100 @@ __global__ void check_cluster_info(unsigned int* grid_dims, unsigned int* cluste
 }
 """
 
-dev = Device()
-arch = dev.compute_capability
-if arch < (9, 0):
-    print(
-        "this demo requires compute capability >= 9.0 (since thread block cluster is a hardware feature)",
-        file=sys.stderr,
+
+def main():
+    if np.lib.NumpyVersion(np.__version__) < "2.2.5":
+        print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
+        sys.exit(1)
+
+    cuda_path = get_cuda_path_or_home()
+    if cuda_path is None:
+        print("This example requires CUDA_PATH or CUDA_HOME to point to a CUDA toolkit.", file=sys.stderr)
+        sys.exit(1)
+    cuda_include = os.path.join(cuda_path, "include")
+    if not os.path.isdir(cuda_include):
+        print(f"CUDA include directory not found: {cuda_include}", file=sys.stderr)
+        sys.exit(1)
+    include_path = [cuda_include]
+    cccl_include = os.path.join(cuda_include, "cccl")
+    if os.path.isdir(cccl_include):
+        include_path.insert(0, cccl_include)
+
+    dev = Device()
+    arch = dev.compute_capability
+    if arch < (9, 0):
+        print(
+            "this example requires compute capability >= 9.0 (since thread block cluster is a hardware feature)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    arch = "".join(f"{i}" for i in arch)
+
+    # prepare program & compile kernel
+    dev.set_current()
+    prog = Program(
+        code,
+        code_type="c++",
+        options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_path=include_path),
     )
-    sys.exit(1)
-arch = "".join(f"{i}" for i in arch)
+    mod = prog.compile(target_type="cubin")
+    kernel = mod.get_kernel("check_cluster_info")
 
-# prepare program & compile kernel
-dev.set_current()
-prog = Program(
-    code,
-    code_type="c++",
-    options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_path=include_path),
-)
-mod = prog.compile(target_type="cubin")
-kernel = mod.get_kernel("check_cluster_info")
+    # prepare launch config
+    grid = 4
+    cluster = 2
+    block = 32
+    config = LaunchConfig(grid=grid, cluster=cluster, block=block)
 
-# prepare launch config
-grid = 4
-cluster = 2
-block = 32
-config = LaunchConfig(grid=grid, cluster=cluster, block=block)
+    # allocate pinned memory to store kernel results
+    pinned_mr = LegacyPinnedMemoryResource()
+    element_size = np.dtype(np.uint32).itemsize
+    grid_buffer = None
+    cluster_buffer = None
+    block_buffer = None
 
-# allocate pinned memory to store kernel results
-pinned_mr = LegacyPinnedMemoryResource()
-element_size = np.dtype(np.uint32).itemsize
-grid_buffer = None
-cluster_buffer = None
-block_buffer = None
+    try:
+        # allocate 3 uint32 values each for grid, cluster, and block dimensions
+        grid_buffer = pinned_mr.allocate(3 * element_size)
+        cluster_buffer = pinned_mr.allocate(3 * element_size)
+        block_buffer = pinned_mr.allocate(3 * element_size)
 
-try:
-    # allocate 3 uint32 values each for grid, cluster, and block dimensions
-    grid_buffer = pinned_mr.allocate(3 * element_size)
-    cluster_buffer = pinned_mr.allocate(3 * element_size)
-    block_buffer = pinned_mr.allocate(3 * element_size)
+        # create NumPy arrays from the pinned memory
+        grid_dims = np.from_dlpack(grid_buffer).view(dtype=np.uint32)
+        cluster_dims = np.from_dlpack(cluster_buffer).view(dtype=np.uint32)
+        block_dims = np.from_dlpack(block_buffer).view(dtype=np.uint32)
 
-    # create NumPy arrays from the pinned memory
-    grid_dims = np.from_dlpack(grid_buffer).view(dtype=np.uint32)
-    cluster_dims = np.from_dlpack(cluster_buffer).view(dtype=np.uint32)
-    block_dims = np.from_dlpack(block_buffer).view(dtype=np.uint32)
+        # initialize arrays to zero
+        grid_dims[:] = 0
+        cluster_dims[:] = 0
+        block_dims[:] = 0
 
-    # initialize arrays to zero
-    grid_dims[:] = 0
-    cluster_dims[:] = 0
-    block_dims[:] = 0
+        # launch kernel on the default stream
+        launch(dev.default_stream, config, kernel, grid_buffer, cluster_buffer, block_buffer)
+        dev.sync()
 
-    # launch kernel on the default stream
-    launch(dev.default_stream, config, kernel, grid_buffer, cluster_buffer, block_buffer)
-    dev.sync()
+        # verify results
+        print("\nResults stored in pinned memory:")
+        print(f"Grid dimensions (blocks): {tuple(grid_dims)}")
+        print(f"Cluster dimensions: {tuple(cluster_dims)}")
+        print(f"Block dimensions (threads): {tuple(block_dims)}")
 
-    # verify results
-    print("\nResults stored in pinned memory:")
-    print(f"Grid dimensions (blocks): {tuple(grid_dims)}")
-    print(f"Cluster dimensions: {tuple(cluster_dims)}")
-    print(f"Block dimensions (threads): {tuple(block_dims)}")
+        # verify that grid conversion worked correctly:
+        # LaunchConfig(grid=4, cluster=2) should result in 8 total blocks (4 clusters * 2 blocks/cluster)
+        expected_grid_blocks = grid * cluster  # 4 * 2 = 8
+        actual_grid_blocks = grid_dims[0]
 
-    # verify that grid conversion worked correctly:
-    # LaunchConfig(grid=4, cluster=2) should result in 8 total blocks (4 clusters * 2 blocks/cluster)
-    expected_grid_blocks = grid * cluster  # 4 * 2 = 8
-    actual_grid_blocks = grid_dims[0]
+        assert actual_grid_blocks == expected_grid_blocks, (
+            f"Grid conversion failed: expected {expected_grid_blocks} total blocks, got {actual_grid_blocks}"
+        )
+    finally:
+        if block_buffer is not None:
+            block_buffer.close()
+        if cluster_buffer is not None:
+            cluster_buffer.close()
+        if grid_buffer is not None:
+            grid_buffer.close()
 
-    assert actual_grid_blocks == expected_grid_blocks, (
-        f"Grid conversion failed: expected {expected_grid_blocks} total blocks, got {actual_grid_blocks}"
-    )
-finally:
-    if block_buffer is not None:
-        block_buffer.close()
-    if cluster_buffer is not None:
-        cluster_buffer.close()
-    if grid_buffer is not None:
-        grid_buffer.close()
+
+if __name__ == "__main__":
+    main()

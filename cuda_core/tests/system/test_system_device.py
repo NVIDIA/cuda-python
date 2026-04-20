@@ -586,7 +586,7 @@ def test_clock():
             with unsupported_before(device, DeviceArch.MAXWELL):
                 try:
                     offsets = clock.get_offsets(pstate)
-                except system.InvalidArgumentError:
+                except (system.InvalidArgumentError, system.NotFoundError):
                     pass
                 else:
                     assert isinstance(offsets, system.ClockOffsets)

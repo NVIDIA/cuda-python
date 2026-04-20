@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 import cuda.pathfinder._headers.find_nvidia_headers as find_nvidia_headers_module
+from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
@@ -33,14 +34,19 @@ from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_INSTALL_DIRS_NON_CTK,
     SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
+    "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",
+    "cute": r"^nvidia-cutlass$",
     "cutensor": r"^cutensor-.*$",
+    "cutlass": r"^nvidia-cutlass$",
+    "mathdx": r"^nvidia-libmathdx-.*$",
     "nvshmem": r"^nvidia-nvshmem-.*$",
 }
 
@@ -55,7 +61,7 @@ def _located_hdr_dir_asserts(located_hdr_dir):
     assert located_hdr_dir.found_via in (
         "site-packages",
         "conda",
-        "CUDA_HOME",
+        "CUDA_PATH",
         "system-ctk-root",
         "supported_install_dir",
     )
@@ -78,9 +84,11 @@ def have_distribution_for(libname: str) -> bool:
 def clear_locate_nvidia_header_cache():
     locate_nvidia_header_directory.cache_clear()
     _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
+    get_cuda_path_or_home.cache_clear()
     yield
     locate_nvidia_header_directory.cache_clear()
     _resolve_system_loaded_abs_path_in_subprocess.cache_clear()
+    get_cuda_path_or_home.cache_clear()
 
 
 def _create_ctk_header(ctk_root: Path, libname: str) -> str:
@@ -151,6 +159,8 @@ def test_locate_ctk_headers(info_summary_append, libname):
         h_filename = SUPPORTED_HEADERS_CTK[libname]
         assert os.path.isfile(os.path.join(hdr_dir, h_filename))
     if STRICTNESS == "all_must_work":
+        if libname == "cudla":
+            skip_if_missing_libnvcudla_so(libname, timeout=30)
         assert hdr_dir is not None
 
 
@@ -198,7 +208,7 @@ def test_locate_ctk_headers_cuda_home_takes_priority_over_canary(tmp_path, monke
 
     assert located_hdr_dir is not None
     assert located_hdr_dir.abs_path == expected_hdr_dir
-    assert located_hdr_dir.found_via == "CUDA_HOME"
+    assert located_hdr_dir.found_via == "CUDA_PATH"
     probe.assert_not_called()
 
 

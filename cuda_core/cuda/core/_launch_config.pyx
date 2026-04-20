@@ -4,47 +4,14 @@
 
 from libc.string cimport memset
 
-from cuda.core._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-)
-
-import threading
-
 from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
     driver,
-    get_binding_version,
 )
 
-
-cdef bint _inited = False
-cdef bint _use_ex = False
-cdef object _lock = threading.Lock()
-
-# Attribute names for identity comparison and representation
 _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'cooperative_launch')
-
-
-cdef int _lazy_init() except?-1:
-    global _inited, _use_ex
-    if _inited:
-        return 0
-
-    cdef tuple _py_major_minor
-    cdef int _driver_ver
-    with _lock:
-        if _inited:
-            return 0
-
-        # binding availability depends on cuda-python version
-        _py_major_minor = get_binding_version()
-        HANDLE_RETURN(cydriver.cuDriverGetVersion(&_driver_ver))
-        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
-        _inited = True
-
-    return 0
 
 
 cdef class LaunchConfig:
@@ -99,8 +66,6 @@ cdef class LaunchConfig:
         cooperative_launch : bool, optional
             Whether to launch as cooperative kernel (default: False)
         """
-        _lazy_init()
-
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", block)
@@ -110,10 +75,6 @@ cdef class LaunchConfig:
         # device compute capability or attributes.
         # thread block clusters are supported starting H100
         if cluster is not None:
-            if not _use_ex:
-                err, drvers = driver.cuDriverGetVersion()
-                drvers_fmt = f" (got driver version {drvers})" if err == driver.CUresult.CUDA_SUCCESS else ""
-                raise CUDAError(f"thread block clusters require cuda.bindings & driver 11.8+{drvers_fmt}")
             cc = Device().compute_capability
             if cc < (9, 0):
                 raise CUDAError(
@@ -153,7 +114,6 @@ cdef class LaunchConfig:
         return hash(self._identity())
 
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
-        _lazy_init()
         cdef cydriver.CUlaunchConfig drv_cfg
         cdef cydriver.CUlaunchAttribute attr
         memset(&drv_cfg, 0, sizeof(drv_cfg))
@@ -201,8 +161,6 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     driver.CUlaunchConfig
         Native CUDA driver launch configuration
     """
-    _lazy_init()
-
     cdef object drv_cfg = driver.CUlaunchConfig()
     cdef list attrs
     cdef object attr

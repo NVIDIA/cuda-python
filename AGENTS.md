@@ -12,6 +12,22 @@ guide for package-specific conventions and workflows.
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 
+# Pull requests
+
+When creating pull requests with `gh pr create`, always assign at least one
+label and a milestone. CI enforces this via the `pr-metadata-check` workflow
+and will block PRs that are missing labels or a milestone. Use `--label` and
+`--milestone` flags, for example:
+
+```
+gh pr create --title "..." --body "..." --label "bug" --milestone "v1.0"
+```
+
+If you are unsure which label or milestone to use, check the existing labels
+and milestones on the repository with `gh label list` and `gh api
+repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
+
+
 # General
 
 - When searching for text or files, prefer using `rg` or `rg --files`
@@ -23,6 +39,12 @@ guide for package-specific conventions and workflows.
   (search), `read_file`, `list_dir`, `glob_file_search`, `apply_patch`,
   `todo_write/update_plan`. Use `cmd`/`run_terminal_cmd` only when no listed
   tool can perform the action.
+- If `pixi` is available for this repo, prefer `pixi run ...` or the matching
+  `pixi` task over invoking raw `python`, `pytest`, `pip`, or similar tools
+  directly so commands run in the repository-managed environment.
+- When extracting or transforming JSON in shell workflows, prefer `jq` over
+  one-off Python parsing. For `gh` commands that return JSON, prefer the
+  built-in `--jq` flag instead of piping the output into `python`.
 - When multiple tool calls can be parallelized (e.g., todo updates with other
   actions, file searches, reading files), make these tool calls in parallel
   instead of sequential. Avoid single calls that might not yield a useful

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.2.0, generator version fa58871. Do not modify it directly.
+# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -1926,8 +1926,8 @@ cdef class CUlaunchAttributeValue_union:
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -3794,8 +3794,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC which
         indicates that while signaling the CUexternalSemaphore, no memory
@@ -3937,8 +3937,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC which indicates
         that while waiting for the CUexternalSemaphore, no memory
@@ -6923,8 +6923,8 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -7134,8 +7134,8 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -7265,8 +7265,8 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -7396,8 +7396,8 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -7527,8 +7527,8 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -9528,8 +9528,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC which
         indicates that while signaling the CUexternalSemaphore, no memory
@@ -9563,8 +9563,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC which
         indicates that while signaling the CUexternalSemaphore, no memory
@@ -9598,8 +9598,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC which indicates
         that while waiting for the CUexternalSemaphore, no memory
@@ -9633,8 +9633,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARA
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC which indicates
         that while waiting for the CUexternalSemaphore, no memory

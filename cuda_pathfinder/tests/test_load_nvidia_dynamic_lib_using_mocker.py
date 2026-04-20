@@ -81,7 +81,7 @@ def test_cupti_found_in_conda(tmp_path, mocker, monkeypatch):
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
-    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     mocker.patch.object(
         load_mod.LOADER,
@@ -112,7 +112,7 @@ def test_cupti_not_found_raises_error(mocker):
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
-    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=None)
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=None,
@@ -161,7 +161,7 @@ def test_cupti_search_order_conda_before_cuda_home(tmp_path, mocker, monkeypatch
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
-    mocker.patch(f"{_STEPS_MODULE}.get_cuda_home_or_path", return_value=str(ctk_root))
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=str(ctk_root))
     mocker.patch.object(
         load_mod.LOADER,
         "load_with_abs_path",

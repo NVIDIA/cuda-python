@@ -45,6 +45,13 @@ def device_without_concurrent_managed_access(init_cuda):
 
 
 @requires_cuda_13
+def test_default_pool_error_without_concurrent_access(device_without_concurrent_managed_access):
+    """ManagedMemoryResource() raises RuntimeError when the default pool doesn't support managed."""
+    with pytest.raises(RuntimeError, match="does not support managed allocations"):
+        ManagedMemoryResource()
+
+
+@requires_cuda_13
 def test_warning_emitted(device_without_concurrent_managed_access):
     """ManagedMemoryResource emits a warning when concurrent managed access is unsupported."""
     dev_id = device_without_concurrent_managed_access.device_id

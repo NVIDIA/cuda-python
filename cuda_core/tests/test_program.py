@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import re
 import warnings
 
@@ -11,11 +12,10 @@ from cuda.core import _linker
 from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
-from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
 
 pytest_plugins = ("cuda_python_test_helpers.nvvm_bitcode",)
 
-cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 
@@ -34,12 +34,8 @@ nvvm_available = pytest.mark.skipif(
     not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
 )
 
-try:
-    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
-
-    _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
-except Exception:
-    _cuda_driver_version = 0
+with contextlib.suppress(Exception):
+    from cuda.core._utils.cuda_utils import nvrtc
 
 
 def _get_nvrtc_version_for_tests():
@@ -74,81 +70,25 @@ nvrtc_pch_available = pytest.mark.skipif(
 )
 
 
-_libnvvm_version = None
-_libnvvm_version_attempted = False
-
-precheck_nvvm_ir = """target triple = "nvptx64-unknown-cuda"
-target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
-
-define void @dummy_kernel() {{
-  entry:
-    ret void
-}}
-
-!nvvm.annotations = !{{!0}}
-!0 = !{{void ()* @dummy_kernel, !"kernel", i32 1}}
-
-!nvvmir.version = !{{!1}}
-!1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
-"""
-
-
-def _get_libnvvm_version_for_tests():
-    """
-    Detect libNVVM version by compiling dummy IR and analyzing the PTX output.
-
-    Workaround for the lack of direct libNVVM version API (nvbugs 5312315).
-    The approach:
-    - Compile a small dummy NVVM IR to PTX
-    - Use PTX version analysis APIs if available to infer libNVVM version
-    - Cache the result for future use
-    """
-    global _libnvvm_version, _libnvvm_version_attempted
-
-    if _libnvvm_version_attempted:
-        return _libnvvm_version
-
-    _libnvvm_version_attempted = True
-
+def _has_check_nvvm_compiler_options():
     try:
-        from cuda.core._program import _get_nvvm_module
+        import cuda.bindings.utils as utils
+    except ModuleNotFoundError:
+        return False
+    return hasattr(utils, "check_nvvm_compiler_options")
 
-        nvvm = _get_nvvm_module()
 
-        try:
-            from cuda.bindings.utils import get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
-        except ImportError:
-            _libnvvm_version = None
-            return _libnvvm_version
+has_nvvm_option_checker = pytest.mark.skipif(
+    not _has_check_nvvm_compiler_options(),
+    reason="cuda.bindings.utils.check_nvvm_compiler_options not available (cuda-bindings too old?)",
+)
 
-        program = nvvm.create_program()
-        try:
-            major, minor, debug_major, debug_minor = nvvm.ir_version()
-            global precheck_nvvm_ir
-            precheck_nvvm_ir = precheck_nvvm_ir.format(
-                major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor
-            )
-            precheck_ir_bytes = precheck_nvvm_ir.encode("utf-8")
-            nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
 
-            options = ["-arch=compute_90"]
-            nvvm.verify_program(program, len(options), options)
-            nvvm.compile_program(program, len(options), options)
+def _check_nvvm_arch(arch: str) -> bool:
+    """Check if the given NVVM arch is supported by the installed libNVVM."""
+    from cuda.bindings.utils import check_nvvm_compiler_options
 
-            ptx_size = nvvm.get_compiled_result_size(program)
-            ptx_data = bytearray(ptx_size)
-            nvvm.get_compiled_result(program, ptx_data)
-            ptx_str = ptx_data.decode("utf-8")
-            ptx_version = get_ptx_ver(ptx_str)
-            cuda_version = get_minimal_required_cuda_ver_from_ptx_ver(ptx_version)
-            _libnvvm_version = cuda_version
-            return _libnvvm_version
-        finally:
-            nvvm.destroy_program(program)
-
-    except Exception:
-        _libnvvm_version = None
-        return _libnvvm_version
+    return check_nvvm_compiler_options([f"-arch={arch}"])
 
 
 @pytest.fixture(scope="session")
@@ -427,6 +367,19 @@ def test_program_compile_invalid_target_type():
         program.compile("invalid_target")
 
 
+def test_nvrtc_compile_invalid_code(init_cuda):
+    """Compiling invalid C++ exercises the HANDLE_RETURN_NVRTC error path with compilation log."""
+    from cuda.core._utils.cuda_utils import NVRTCError
+
+    code = 'extern "C" __global__ void bad_kernel() { this_symbol_is_undefined(); }'
+    program = Program(code, "c++")
+    try:
+        with pytest.raises(NVRTCError, match="compilation log"):
+            program.compile("ptx")
+    finally:
+        program.close()
+
+
 def test_program_backend_property():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
@@ -482,6 +435,20 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
 
 
 @nvvm_available
+def test_nvvm_compile_invalid_ir():
+    """Compiling invalid NVVM IR exercises the HANDLE_RETURN_NVVM error path."""
+    from cuda.bindings.nvvm import nvvmError
+
+    bad_ir = "this is not valid NVVM IR"
+    program = Program(bad_ir, "nvvm")
+    try:
+        with pytest.raises(nvvmError):
+            program.compile("ptx")
+    finally:
+        program.close()
+
+
+@nvvm_available
 @pytest.mark.parametrize("target_type", ["ptx", "ltoir"])
 @pytest.mark.parametrize(
     "options",
@@ -501,10 +468,13 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
         ),
         pytest.param(
             ProgramOptions(name="test_sm110_1", arch="sm_110", device_code_optimize=False),
-            marks=pytest.mark.skipif(
-                (_get_libnvvm_version_for_tests() or 0) < 13000,
-                reason="Compute capability 110 requires libNVVM >= 13.0",
-            ),
+            marks=[
+                has_nvvm_option_checker,
+                pytest.mark.skipif(
+                    _has_check_nvvm_compiler_options() and not _check_nvvm_arch("compute_110"),
+                    reason="Compute capability 110 not supported by installed libNVVM",
+                ),
+            ],
         ),
         pytest.param(
             ProgramOptions(
@@ -516,17 +486,23 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
                 fma=True,
                 device_code_optimize=True,
             ),
-            marks=pytest.mark.skipif(
-                (_get_libnvvm_version_for_tests() or 0) < 13000,
-                reason="Compute capability 110 requires libNVVM >= 13.0",
-            ),
+            marks=[
+                has_nvvm_option_checker,
+                pytest.mark.skipif(
+                    _has_check_nvvm_compiler_options() and not _check_nvvm_arch("compute_110"),
+                    reason="Compute capability 110 not supported by installed libNVVM",
+                ),
+            ],
         ),
         pytest.param(
             ProgramOptions(name="test_sm110_3", arch="sm_110", link_time_optimization=True),
-            marks=pytest.mark.skipif(
-                (_get_libnvvm_version_for_tests() or 0) < 13000,
-                reason="Compute capability 110 requires libNVVM >= 13.0",
-            ),
+            marks=[
+                has_nvvm_option_checker,
+                pytest.mark.skipif(
+                    _has_check_nvvm_compiler_options() and not _check_nvvm_arch("compute_110"),
+                    reason="Compute capability 110 not supported by installed libNVVM",
+                ),
+            ],
         ),
     ],
 )
@@ -697,7 +673,7 @@ def test_cpp_program_with_extra_sources():
     # negative test with NVRTC with multiple sources
     code = 'extern "C" __global__ void my_kernel(){}'
     helper = 'extern "C" __global__ void helper(){}'
-    options = ProgramOptions(extra_sources=helper)
+    options = ProgramOptions(extra_sources=[("helper", helper)])
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
 
@@ -706,12 +682,8 @@ def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
     nvrtc_options = options.as_bytes("nvrtc")
-
-    # Should return list of bytes
     assert isinstance(nvrtc_options, list)
     assert all(isinstance(opt, bytes) for opt in nvrtc_options)
-
-    # Decode to check content
     options_str = [opt.decode() for opt in nvrtc_options]
     assert "-arch=sm_80" in options_str
     assert "--device-debug" in options_str
@@ -724,12 +696,8 @@ def test_program_options_as_bytes_nvvm():
     """Test ProgramOptions.as_bytes() for NVVM backend"""
     options = ProgramOptions(arch="sm_80", debug=True, ftz=True, device_code_optimize=True)
     nvvm_options = options.as_bytes("nvvm")
-
-    # Should return list of bytes (same as other backends)
     assert isinstance(nvvm_options, list)
     assert all(isinstance(opt, bytes) for opt in nvvm_options)
-
-    # Decode to check content
     options_str = [opt.decode() for opt in nvvm_options]
     assert "-arch=compute_80" in options_str
     assert "-g" in options_str
@@ -750,3 +718,107 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
     options = ProgramOptions(arch="sm_80", lineinfo=True)
     with pytest.raises(CUDAError, match="not supported by NVVM backend"):
         options.as_bytes("nvvm")
+
+
+def test_program_options_repr():
+    """ProgramOptions.__repr__ returns a human-readable string."""
+    opts = ProgramOptions(name="mykernel", arch="sm_80")
+    r = repr(opts)
+    assert "ProgramOptions" in r
+    assert "mykernel" in r
+    assert "sm_80" in r
+
+
+def test_program_options_bad_define_macro_short_tuple():
+    """define_macro with a 1-element tuple raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=("ONLY_NAME",))
+    with pytest.raises(RuntimeError, match="Expected define_macro tuple"):
+        opts.as_bytes("nvrtc")
+
+
+def test_program_options_bad_define_macro_non_str_value():
+    """define_macro tuple with a non-string value raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=("MY_MACRO", 99))
+    with pytest.raises(RuntimeError, match="Expected define_macro tuple"):
+        opts.as_bytes("nvrtc")
+
+
+def test_program_options_bad_define_macro_list_non_str():
+    """define_macro list containing a non-str/non-tuple item raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=[42])
+    with pytest.raises(RuntimeError, match="Expected define_macro"):
+        opts.as_bytes("nvrtc")
+
+
+def test_program_options_bad_define_macro_list_bad_tuple():
+    """define_macro list with a malformed tuple inside raises RuntimeError."""
+    opts = ProgramOptions(name="test", arch="sm_80", define_macro=[("ONLY_NAME",)])
+    with pytest.raises(RuntimeError, match="Expected define_macro"):
+        opts.as_bytes("nvrtc")
+
+
+def test_ptx_program_extra_sources_unsupported(ptx_code_object):
+    """PTX backend raises ValueError when extra_sources is specified."""
+    options = ProgramOptions(extra_sources=[("module1", b"data")])
+    with pytest.raises(ValueError, match="extra_sources is not supported by the PTX backend"):
+        Program(ptx_code_object.code.decode(), "ptx", options)
+
+
+def test_ptx_program_handle_is_linker_handle(init_cuda, ptx_code_object):
+    """Program.handle for the PTX backend delegates to the linker handle."""
+    program = Program(ptx_code_object.code.decode(), "ptx")
+    handle = program.handle
+    assert handle is not None
+    assert int(handle) != 0
+    program.close()
+
+
+@nvvm_available
+def test_nvvm_program_wrong_code_type():
+    """NVVM backend raises TypeError when code is not str/bytes/bytearray."""
+    with pytest.raises(TypeError, match="NVVM IR code must be provided as str, bytes, or bytearray"):
+        Program(42, "nvvm")
+
+
+def test_extra_sources_not_sequence():
+    """extra_sources must be a sequence; non-sequence raises TypeError."""
+    with pytest.raises(TypeError, match="extra_sources must be a sequence of 2-tuples"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=42)
+
+
+def test_extra_sources_bad_module_not_tuple():
+    """extra_sources items must be 2-tuples; non-tuple item raises TypeError."""
+    with pytest.raises(TypeError, match="Each extra module must be a 2-tuple"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=["not_a_tuple"])
+
+
+def test_extra_sources_bad_module_name_not_str():
+    """extra_sources module name must be a string; non-str raises TypeError."""
+    with pytest.raises(TypeError, match="Module name at index 0 must be a string"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=[(42, b"source")])
+
+
+def test_extra_sources_bad_module_source_wrong_type():
+    """extra_sources module source must be str/bytes/bytearray."""
+    with pytest.raises(TypeError, match="Module source at index 0 must be str"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=[("mod", 42)])
+
+
+def test_extra_sources_empty_source():
+    """extra_sources module source cannot be empty bytes."""
+    with pytest.raises(ValueError, match="Module source for 'mod'.*cannot be empty"):
+        ProgramOptions(name="test", arch="sm_80", extra_sources=[("mod", b"")])
+
+
+def test_nvrtc_compile_with_logs_capture(init_cuda):
+    """Program.compile with logs= exercises the NVRTC program-log reading path."""
+    import io
+
+    # #warning generates a non-empty NVRTC program log, ensuring logsize > 1.
+    code = '#warning "test log capture"\nextern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    logs = io.StringIO()
+    result = program.compile("ptx", logs=logs)
+    assert isinstance(result, ObjectCode)
+    assert logs.getvalue(), "Expected non-empty compilation log from #warning directive"
+    program.close()
