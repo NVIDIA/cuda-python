@@ -11,14 +11,14 @@
   "b": "tests/graph/test_graphdef.py::test_host_callback_cfunc_with_user_data|run",
   "c": "tests/graph/test_graphdef_lifetime.py::test_cfunc_bytes_user_data_survives_del|run",
   "d": "tests/graph/test_graph_builder.py::test_graph_capture_callback_python|run",
-  "e": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback_cfunc|run",
-  "f": "tests/graph/test_graphdef.py::test_node_attrs[host_callback_cfunc]|setup",
-  "g": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[host_callback_cfunc]|setup",
-  "h": "tests/graph/test_graphdef.py::test_node_isinstance[host_callback_cfunc]|setup",
-  "i": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[host_callback_cfunc]|setup",
-  "j": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[host_callback_cfunc]|setup",
-  "k": "tests/graph/test_graphdef.py::test_node_type_property[host_callback_cfunc]|setup",
-  "l": "tests/graph/test_graphdef_lifetime.py::test_cfunc_callback_survives_del|run",
+  "e": "tests/graph/test_graphdef_lifetime.py::test_cfunc_callback_survives_del|run",
+  "f": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback_cfunc|run",
+  "g": "tests/graph/test_graphdef.py::test_node_attrs[host_callback_cfunc]|setup",
+  "h": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[host_callback_cfunc]|setup",
+  "i": "tests/graph/test_graphdef.py::test_node_isinstance[host_callback_cfunc]|setup",
+  "j": "tests/graph/test_graphdef.py::test_node_type_preserved_by_nodes[host_callback_cfunc]|setup",
+  "k": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[host_callback_cfunc]|setup",
+  "l": "tests/graph/test_graphdef.py::test_node_type_property[host_callback_cfunc]|setup",
   "m": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback|run",
   "n": "tests/graph/test_graphdef.py::test_node_attrs[host_callback]|setup",
   "o": "tests/graph/test_graphdef.py::test_node_attrs_preserved_by_nodes[host_callback]|setup",
@@ -375,65 +375,67 @@
   "je": "tests/graph/test_graphdef.py::test_node_type_preserved_by_pred_succ[host_callback_cfunc]|teardown",
   "ke": "tests/graph/test_graphdef.py::test_node_type_property[host_callback]|teardown",
   "le": "tests/graph/test_graphdef.py::test_node_type_property[host_callback_cfunc]|teardown",
-  "me": "tests/test_object_protocols.py::test_equality_basic[sample_host_callback_node]|teardown",
-  "ne": "tests/test_object_protocols.py::test_hash_consistency[sample_host_callback_node]|teardown",
-  "oe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_host_callback_node]|teardown",
-  "pe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|teardown",
-  "qe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_host_callback_node]|teardown",
-  "re": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_host_callback_node]|teardown",
-  "se": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_host_callback_node]|teardown",
-  "te": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_host_callback_node]|teardown",
-  "ue": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_host_callback_node]|teardown",
-  "ve": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_host_callback_node]|teardown",
-  "we": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_host_callback_node]|teardown",
-  "xe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_host_callback_node]|teardown",
-  "ye": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_host_callback_node]|teardown",
-  "ze": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_host_callback_node]|teardown",
-  "Ae": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_if_else_node]|teardown",
-  "Be": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_if_node]|teardown",
-  "Ce": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_switch_node]|teardown",
-  "De": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_while_node]|teardown",
-  "Ee": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_host_callback_node]|teardown",
-  "Fe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_host_callback_node]|teardown",
-  "Ge": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_host_callback_node]|teardown",
-  "He": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_host_callback_node]|teardown",
-  "Ie": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_host_callback_node]|teardown",
-  "Je": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_host_callback_node]|teardown",
-  "Ke": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_host_callback_node]|teardown",
-  "Le": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_host_callback_node]|teardown",
-  "Me": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_host_callback_node-sample_host_callback_node_alt]|teardown",
-  "Ne": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_host_callback_node]|teardown",
-  "Oe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|teardown",
-  "Pe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_host_callback_node]|teardown",
-  "Qe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_host_callback_node]|teardown",
-  "Re": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_host_callback_node]|teardown",
-  "Se": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_host_callback_node]|teardown",
-  "Te": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_host_callback_node]|teardown",
-  "Ue": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_host_callback_node]|teardown",
-  "Ve": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_host_callback_node]|teardown",
-  "We": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_host_callback_node]|teardown",
-  "Xe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_host_callback_node]|teardown",
-  "Ye": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_host_callback_node]|teardown",
-  "Ze": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_if_else_node]|teardown",
-  "0e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_if_node]|teardown",
-  "1e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_switch_node]|teardown",
-  "2e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_while_node]|teardown",
-  "3e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_host_callback_node]|teardown",
-  "4e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_host_callback_node]|teardown",
-  "5e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_host_callback_node]|teardown",
-  "6e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_host_callback_node]|teardown",
-  "7e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_host_callback_node]|teardown",
-  "8e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_host_callback_node]|teardown",
-  "9e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_host_callback_node]|teardown",
-  "!e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_host_callback_node]|teardown",
-  "#e": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-<HostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+>]|teardown",
-  "$e": "tests/test_object_protocols.py::test_same_type_inequality[sample_host_callback_node-sample_host_callback_node_alt]|teardown",
-  "%e": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_host_callback_node]|teardown",
-  "'e": "tests/test_object_protocols.py::test_usable_in_set[sample_host_callback_node]|teardown",
-  "(e": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_host_callback_node]|teardown",
-  ")e": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_host_callback_node]|teardown",
-  "*e": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_host_callback_node]|teardown",
-  "+e": "tests/test_object_protocols.py::test_weakref_supported[sample_host_callback_node]|teardown"
+  "me": "tests/graph/test_graphdef.py::test_registry_cleanup|run",
+  "ne": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
+  "oe": "tests/test_object_protocols.py::test_equality_basic[sample_host_callback_node]|teardown",
+  "pe": "tests/test_object_protocols.py::test_hash_consistency[sample_host_callback_node]|teardown",
+  "qe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_host_callback_node]|teardown",
+  "re": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|teardown",
+  "se": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_host_callback_node]|teardown",
+  "te": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_host_callback_node]|teardown",
+  "ue": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_host_callback_node]|teardown",
+  "ve": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_host_callback_node]|teardown",
+  "we": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_host_callback_node]|teardown",
+  "xe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_host_callback_node]|teardown",
+  "ye": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_host_callback_node]|teardown",
+  "ze": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_host_callback_node]|teardown",
+  "Ae": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_host_callback_node]|teardown",
+  "Be": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_host_callback_node]|teardown",
+  "Ce": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_if_else_node]|teardown",
+  "De": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_if_node]|teardown",
+  "Ee": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_switch_node]|teardown",
+  "Fe": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_while_node]|teardown",
+  "Ge": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_host_callback_node]|teardown",
+  "He": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_host_callback_node]|teardown",
+  "Ie": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_host_callback_node]|teardown",
+  "Je": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_host_callback_node]|teardown",
+  "Ke": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_host_callback_node]|teardown",
+  "Le": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_host_callback_node]|teardown",
+  "Me": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_host_callback_node]|teardown",
+  "Ne": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_host_callback_node]|teardown",
+  "Oe": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_host_callback_node-sample_host_callback_node_alt]|teardown",
+  "Pe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_host_callback_node]|teardown",
+  "Qe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|teardown",
+  "Re": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_host_callback_node]|teardown",
+  "Se": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_host_callback_node]|teardown",
+  "Te": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_host_callback_node]|teardown",
+  "Ue": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_host_callback_node]|teardown",
+  "Ve": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_host_callback_node]|teardown",
+  "We": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_host_callback_node]|teardown",
+  "Xe": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_host_callback_node]|teardown",
+  "Ye": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_host_callback_node]|teardown",
+  "Ze": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_host_callback_node]|teardown",
+  "0e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_host_callback_node]|teardown",
+  "1e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_if_else_node]|teardown",
+  "2e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_if_node]|teardown",
+  "3e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_switch_node]|teardown",
+  "4e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_while_node]|teardown",
+  "5e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_host_callback_node]|teardown",
+  "6e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_host_callback_node]|teardown",
+  "7e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_host_callback_node]|teardown",
+  "8e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_host_callback_node]|teardown",
+  "9e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_host_callback_node]|teardown",
+  "!e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_host_callback_node]|teardown",
+  "#e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_host_callback_node]|teardown",
+  "$e": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_host_callback_node]|teardown",
+  "%e": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-<HostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+>]|teardown",
+  "'e": "tests/test_object_protocols.py::test_same_type_inequality[sample_host_callback_node-sample_host_callback_node_alt]|teardown",
+  "(e": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_host_callback_node]|teardown",
+  ")e": "tests/test_object_protocols.py::test_usable_in_set[sample_host_callback_node]|teardown",
+  "*e": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_host_callback_node]|teardown",
+  "+e": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_host_callback_node]|teardown",
+  ",e": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_host_callback_node]|teardown",
+  "-e": "tests/test_object_protocols.py::test_weakref_supported[sample_host_callback_node]|teardown"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -496,7 +498,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__clock_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-19 01:29 +0000
+            created at 2026-04-20 01:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -535,7 +537,7 @@
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">cdef void _py_host_destructor(void* data) noexcept with gil:</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    _py_decref(data)</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">72 ctx</label></span><span class="ctxs">2~daebecedeeefegeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e</span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    _py_decref(data)</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">77 ctx</label></span><span class="ctxs">2a d ~daebecedeeefegeheiejekelemee neoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeOePeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e</span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">cdef bint _is_py_host_trampoline(cydriver.CUhostFn fn) noexcept nogil:</span>&nbsp;</span><span class="r"><label for="ctxs28" class="ctx">(empty)</label></span></p>
@@ -551,18 +553,18 @@
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    On failure the destroy callback is invoked to clean up ptr,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    then a CUDAError is raised &#8212; callers need no try/except.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    cdef cydriver.CUuserObject user_obj = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    cdef cydriver.CUuserObject user_obj = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">    cdef cydriver.CUresult ret</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
-    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        ret = cydriver.cuUserObjectCreate(</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        ret = cydriver.cuUserObjectCreate(</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">            &amp;user_obj, ptr, destroy, 1,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">            cydriver.CU_USER_OBJECT_NO_DESTRUCTOR_SYNC)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        if ret == cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">354 ctx</label></span><span class="ctxs">2@ a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">            ret = cydriver.cuGraphRetainUserObject(</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">        if ret == cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">354 ctx</label></span><span class="ctxs">2@ a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">            ret = cydriver.cuGraphRetainUserObject(</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">                graph, user_obj, 1, cydriver.CU_GRAPH_USER_OBJECT_MOVE)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">            if ret != cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">            if ret != cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">                cydriver.cuUserObjectRelease(user_obj, 1)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    if ret != cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ e m _ ` { | } ~ abbbcbdbn f ebfbgbhbo g ibjbkblbp h mbnbobpbq i qbrbsbtbr j ubvbwbxbs k ybzbAbBbCbDbc l EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    if ret != cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">353 ctx</label></span><span class="ctxs">2a d [ b ] ^ f m _ ` { | } ~ abbbcbdbn g ebfbgbhbo h ibjbkblbp i mbnbobpbq j qbrbsbtbr k ubvbwbxbs l ybzbAbBbCbDbc e EbFbGbHbIbJbKbLbMbNbObPbQbt RbSbTbUbVbWbXbYbZbu 0b1b2b3bv 4b5b6b7bw 8b9b!b#bx $b%b'by (b)b*b+b,b-b.bz /b:b;b=bA ?b@b[b]bB ^b_b`b{bC |b}b~bacD bcccE dcecfcgcF hcicjckclcmcncG ocpcqcH rcI J K L sctcucM vcwcxcyczcN AcBcCcDcEcFcGcHcIcO JcKcLcMcP NcOcPcQ QcRcScR TcUcVcWcS XcYcZc0cT 1c2c3c4cU 5c6c7c8cV 9c!c#c$cW %c'c(cX )c*c+c,c-c.c/cY :c;c=c?cZ @c[c]c^c0 _c`c{c|c1 }c~cadbd2 cddd3 edfdgdhd4 idjdkdldmdndod5 pdqdrd6 sd7 8 9 ! tdudvd# wdxdydzdAd$ BdCdDdEdFdGdHdIdJd% KdLdMdNd' OdPdQd( RdSdTd) UdVdWdXd* YdZd0d1d+ 2d3d4d5d, 6d7d8d9d- !d#d$d%d. 'd(d)d*d/ +d,d-d.d: /d:d;d=d; ?d@d[d]d= ^d_d`d{d? |d</span></p>
     <p class="mis show_mis"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">        if user_obj == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">            destroy(ptr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">        HANDLE_RETURN(ret)</span>&nbsp;</span><span class="r"></span></p>
@@ -577,20 +579,20 @@
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">    and user_data copying.  On return, *out_fn and *out_user_data are</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    ready to pass to cuGraphAddHostNode or cuLaunchHostFunc.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    import ctypes as ct</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">80 ctx</label></span><span class="ctxs">2a d b }de m n f o g p h q i r j s k c l t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    import ctypes as ct</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">80 ctx</label></span><span class="ctxs">2a d b }df m n g o h p i q j r k s l c e t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    cdef void* fn_pyobj = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">80 ctx</label></span><span class="ctxs">2a d b }de m n f o g p h q i r j s k c l t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">    cdef void* fn_pyobj = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">80 ctx</label></span><span class="ctxs">2a d b }df m n g o h p i q j r k s l c e t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    if isinstance(fn, ct._CFuncPtr):</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">80 ctx</label></span><span class="ctxs">2a d b }de m n f o g p h q i r j s k c l t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        Py_INCREF(fn)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">11 ctx</label></span><span class="ctxs">1abefghijkcl</span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        fn_pyobj = &lt;void*>fn</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">11 ctx</label></span><span class="ctxs">1abefghijkcl</span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        _attach_user_object(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">11 ctx</label></span><span class="ctxs">1abefghijkcl</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    if isinstance(fn, ct._CFuncPtr):</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">80 ctx</label></span><span class="ctxs">2a d b }df m n g o h p i q j r k s l c e t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        Py_INCREF(fn)</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">11 ctx</label></span><span class="ctxs">1abfghijklce</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        fn_pyobj = &lt;void*>fn</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">11 ctx</label></span><span class="ctxs">1abfghijklce</span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        _attach_user_object(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">11 ctx</label></span><span class="ctxs">1abfghijklce</span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">            graph, fn_pyobj,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">            &lt;cydriver.CUhostFn>_py_host_destructor)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn>&lt;uintptr_t>ct.cast(</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">11 ctx</label></span><span class="ctxs">1abefghijkcl</span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">            fn, ct.c_void_p).value</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">11 ctx</label></span><span class="ctxs">1abefghijkcl</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn>&lt;uintptr_t>ct.cast(</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">11 ctx</label></span><span class="ctxs">1abfghijklce</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">            fn, ct.c_void_p).value</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">11 ctx</label></span><span class="ctxs">1abfghijklce</span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">        if user_data is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">11 ctx</label></span><span class="ctxs">1abefghijkcl</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">        if user_data is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">11 ctx</label></span><span class="ctxs">1abfghijklce</span></p>
     <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">            if isinstance(user_data, int):</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">3 ctx</label></span><span class="ctxs">1abc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">                out_user_data[0] = &lt;void*>&lt;uintptr_t>user_data</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">            else:</span>&nbsp;</span><span class="r"></span></p>
@@ -604,7 +606,7 @@
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">                    graph, out_user_data[0],</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">                    &lt;cydriver.CUhostFn>free)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">            out_user_data[0] = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">8 ctx</label></span><span class="ctxs">1efghijkl</span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">            out_user_data[0] = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">8 ctx</label></span><span class="ctxs">1fghijkle</span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        if user_data is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">69 ctx</label></span><span class="ctxs">2d }dm n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? </span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">2 ctx</label></span><span class="ctxs">2d }d</span></p>
@@ -626,7 +628,7 @@
             <a class="nav" href="z_dbb36602d1591427__clock_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-19 01:29 +0000
+            created at 2026-04-20 01:28 +0000
         </p>
     </div>
 </footer>
