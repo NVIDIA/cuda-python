@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=de0216c3"></script>
+    <script src="../_static/documentation_options.js?v=e6e838b3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev43';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -983,7 +983,7 @@ the device.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.nvlink">
 <span class="sig-name descname"><span class="pre">nvlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo" title="cuda.core.system.NvlinkInfo"><span class="pre">NvlinkInfo</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.nvlink" title="Link to this definition">#</a></dt>
-<dd><p>Get information about NVLink on this device.</p>
+<dd><p>Get <a class="reference internal" href="cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo" title="cuda.core.system.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkInfo</span></code></a> about this device.</p>
 <p>For devices with NVLink support.</p>
 </dd></dl>
 
@@ -1268,8 +1268,9 @@ device’s board.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.utilization">
 <span class="sig-name descname"><span class="pre">utilization</span></span><a class="headerlink" href="#cuda.core.system.Device.utilization" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the current utilization rates for the device’s major subsystems.</p>
-<p>For Fermi &amp;tm; or newer fully supported devices.</p>
+<dd><p>Retrieves the current <a class="reference internal" href="cuda.core.system.Utilization.html#cuda.core.system.Utilization" title="cuda.core.system.Utilization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Utilization</span></code></a> rates for the device’s major
+subsystems.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
 <p>Note: During driver initialization when ECC is enabled one can see high
 GPU and Memory Utilization readings.  This is caused by ECC Memory
 Scrubbing mechanism that is performed during driver initialization.</p>

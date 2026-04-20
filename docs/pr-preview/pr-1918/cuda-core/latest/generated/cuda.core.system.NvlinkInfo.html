@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=de0216c3"></script>
+    <script src="../_static/documentation_options.js?v=e6e838b3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev43';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -710,11 +710,14 @@
 <dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.state">
 <span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#cuda.core.system.NvlinkInfo.state" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the state of the device’s NvLink for the device and link specified.</p>
-<p>For Pascal &amp;tm; or newer fully supported devices.</p>
+<p>For Pascal™ or newer fully supported devices.</p>
 <p>For all products with NvLink support.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><cite>True</cite> if the NvLink is active, <cite>False</cite> otherwise.</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>True</cite> if the NvLink is active.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -722,11 +725,14 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.NvlinkInfo.version">
 <span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#cuda.core.system.NvlinkInfo.version" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the NvLink version for the device and link.</p>
+<dd><p>Retrieves the <code class="xref py py-obj docutils literal notranslate"><span class="pre">NvLinkVersion</span></code> for the device and link.</p>
 <p>For all products with NvLink support.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The NvLink version.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>NvLinkVersion</p>
 </dd>
 </dl>
 </dd></dl>
