@@ -133,8 +133,8 @@ cdef class Device:
         board serial identifier.
 
         In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  If you a `uuid` without that prefix (for example, to interact
-        with CUDA), use the `uuid_without_prefix` property.
+        prefix.  If you need a `uuid` without that prefix (for example, to
+        interact with CUDA), use the `uuid_without_prefix` property.
         """
         return nvml.device_get_uuid(self._handle)
 
