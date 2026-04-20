@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4290bcaa"></script>
+    <script src="../_static/documentation_options.js?v=2d61a87e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev42';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev44';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -748,6 +748,30 @@ other inputs too (embedded kernels, generated sources, etc.).</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>Wiring a cache around <a class="reference internal" href="cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> compile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProgramOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileStreamProgramCache</span><span class="p">,</span> <span class="n">make_program_cache_key</span>
+
+<span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;extern &quot;C&quot; __global__ void k(int *a){ *a = 1; }&#39;</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">arch</span><span class="o">=</span><span class="s2">&quot;sm_80&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">FileStreamProgramCache</span><span class="p">(</span><span class="s2">&quot;/var/cache/myapp/cuda&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cache</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">make_program_cache_key</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
+        <span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+</pre></div>
+</div>
+<p>Options that read external files (<code class="docutils literal notranslate"><span class="pre">include_path</span></code>, <code class="docutils literal notranslate"><span class="pre">pre_include</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pch</span></code>, <code class="docutils literal notranslate"><span class="pre">use_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">pch_dir</span></code>; and <code class="docutils literal notranslate"><span class="pre">use_libdevice=True</span></code> on the
+NVVM path) require <code class="docutils literal notranslate"><span class="pre">extra_digest</span></code> – fingerprint the bytes the
+compiler will pull in and pass that digest so changes to those files
+force a cache miss. Options that have compile-time side effects
+(<code class="docutils literal notranslate"><span class="pre">create_pch</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">fdevice_time_trace</span></code>) cannot be cached
+and raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>; compile directly, or disable the flag, for
+those cases.</p>
 </dd></dl>
 
 </section>
