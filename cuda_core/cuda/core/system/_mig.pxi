@@ -95,7 +95,8 @@ cdef class MigInfo:
         _, pending = nvml.device_get_mig_mode(self._device._handle)
         return pending == nvml.EnableState.FEATURE_ENABLED
 
-    def get_device_count(self) -> int:
+    @property
+    def device_count(self) -> int:
         """
         Get the maximum number of MIG devices that can exist under this device.
 
@@ -110,7 +111,8 @@ cdef class MigInfo:
         """
         return nvml.device_get_max_mig_device_count(self._device._handle)
 
-    def get_parent_device(self) -> Device:
+    @property
+    def parent(self) -> Device:
         """
         For MIG devices, get the parent GPU device.
 
