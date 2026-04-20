@@ -37,7 +37,7 @@ See: https://pyperf.readthedocs.io/en/latest/system.html#system
 pixi run -e wheel -- python -m pyperf system show
 
 # Apply tuning (may require root)
-sudo $(pixi run -e wheel -- which python) -m pyperf system tune
+$(pixi run -e wheel -- which python) -m pyperf system tune
 ```
 
 ### Running benchmarks

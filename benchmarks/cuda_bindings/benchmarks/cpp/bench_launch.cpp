@@ -168,39 +168,6 @@ int main(int argc, char** argv) {
         });
     }
 
-    // --- launch_small_kernel ---
-    {
-        void* params[] = {&float_ptr};
-        suite.run("launch.launch_small_kernel", [&]() {
-            check_cu(
-                cuLaunchKernel(small_kernel, 1, 1, 1, 1, 1, 1, 0, stream, params, nullptr),
-                "cuLaunchKernel failed"
-            );
-        });
-    }
-
-    // --- launch_16_args ---
-    {
-        suite.run("launch.launch_16_args", [&]() {
-            check_cu(
-                cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
-                "cuLaunchKernel failed"
-            );
-        });
-    }
-
-    // --- launch_16_args_pre_packed (same as above for C++ — no packing overhead) ---
-    // In C++ the params are always pre-packed, so this is identical to launch_16_args.
-    // We include it for naming parity with the Python benchmark.
-    {
-        suite.run("launch.launch_16_args_pre_packed", [&]() {
-            check_cu(
-                cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
-                "cuLaunchKernel failed"
-            );
-        });
-    }
-
     // Cleanup
     for (int i = 0; i < 16; ++i) {
         check_cu(cuMemFree(int_ptrs[i]), "cuMemFree failed");

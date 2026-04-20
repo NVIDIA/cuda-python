@@ -221,3 +221,24 @@ def test_linker_logs_cached_after_link(compile_ptx_functions):
     # Calling again should return the same observable values.
     assert linker.get_error_log() == err_log
     assert linker.get_info_log() == info_log
+
+
+def test_linker_handle(compile_ptx_functions):
+    """Linker.handle returns a non-null handle object."""
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*compile_ptx_functions, options=options)
+    handle = linker.handle
+    assert handle is not None
+    assert int(handle) != 0
+
+
+@pytest.mark.skipif(is_culink_backend, reason="nvjitlink options only tested with nvjitlink backend")
+def test_linker_options_nvjitlink_options_as_str():
+    """_prepare_nvjitlink_options(as_bytes=False) returns plain strings."""
+    opts = LinkerOptions(arch=ARCH, debug=True, lineinfo=True)
+    options = opts._prepare_nvjitlink_options(as_bytes=False)
+    assert isinstance(options, list)
+    assert all(isinstance(o, str) for o in options)
+    assert f"-arch={ARCH}" in options
+    assert "-g" in options
+    assert "-lineinfo" in options

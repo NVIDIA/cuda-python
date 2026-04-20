@@ -20,43 +20,43 @@ EVENT_FLAGS = cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING.value
 
 
 def bench_event_create_destroy(loops: int) -> float:
-    _cuEventCreate = cuda.cuEventCreate
-    _cuEventDestroy = cuda.cuEventDestroy
+    _create = cuda.cuEventCreate
+    _destroy = cuda.cuEventDestroy
     _flags = EVENT_FLAGS
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _, e = _cuEventCreate(_flags)
-        _cuEventDestroy(e)
+        _, e = _create(_flags)
+        _destroy(e)
     return time.perf_counter() - t0
 
 
 def bench_event_record(loops: int) -> float:
-    _cuEventRecord = cuda.cuEventRecord
+    _fn = cuda.cuEventRecord
     _event = EVENT
     _stream = STREAM
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuEventRecord(_event, _stream)
+        _fn(_event, _stream)
     return time.perf_counter() - t0
 
 
 def bench_event_query(loops: int) -> float:
-    _cuEventQuery = cuda.cuEventQuery
+    _fn = cuda.cuEventQuery
     _event = EVENT
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuEventQuery(_event)
+        _fn(_event)
     return time.perf_counter() - t0
 
 
 def bench_event_synchronize(loops: int) -> float:
-    _cuEventSynchronize = cuda.cuEventSynchronize
+    _fn = cuda.cuEventSynchronize
     _event = EVENT
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuEventSynchronize(_event)
+        _fn(_event)
     return time.perf_counter() - t0

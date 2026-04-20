@@ -15,11 +15,11 @@ ATTRIBUTE = cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
 
 def bench_pointer_get_attribute(loops: int) -> float:
     # Local references to avoid global lookups in the hot loop
-    _cuPointerGetAttribute = cuda.cuPointerGetAttribute
+    _fn = cuda.cuPointerGetAttribute
     _attr = ATTRIBUTE
     _ptr = PTR
 
     t0 = time.perf_counter()
     for _ in range(loops):
-        _cuPointerGetAttribute(_attr, _ptr)
+        _fn(_attr, _ptr)
     return time.perf_counter() - t0
