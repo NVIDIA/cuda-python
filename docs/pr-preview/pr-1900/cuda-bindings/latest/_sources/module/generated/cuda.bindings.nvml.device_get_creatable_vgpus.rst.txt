@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_creatable\_vgpus
-================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_creatable_vgpus
