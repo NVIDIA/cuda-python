@@ -686,6 +686,8 @@ cdef class Device:
 
         For devices with NVLink support.
         """
+        if link < 0 or link >= NvlinkInfo.max_links:
+            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")
         return NvlinkInfo(self, link)
 
     ##########################################################################

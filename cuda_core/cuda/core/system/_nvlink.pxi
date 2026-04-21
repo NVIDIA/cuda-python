@@ -18,32 +18,32 @@ cdef class NvlinkInfo:
         self._link = link
 
     @property
-    def version(self) -> NvLinkVersion:
+    def version(self) -> NvlinkVersion:
         """
-        Retrieves the :obj:`~NvLinkVersion` for the device and link.
+        Retrieves the :obj:`~NvlinkVersion` for the device and link.
 
         For all products with NvLink support.
 
         Returns
         -------
-        NvLinkVersion
-            The NvLink version.
+        NvlinkVersion
+            The Nvlink version.
         """
         return NvlinkVersion(nvml.device_get_nvlink_version(self._device._handle, self._link))
 
     @property
     def state(self) -> bool:
         """
-        Retrieves the state of the device's NvLink for the device and link specified.
+        Retrieves the state of the device's Nvlink for the device and link specified.
 
         For Pascal™ or newer fully supported devices.
 
-        For all products with NvLink support.
+        For all products with Nvlink support.
 
         Returns
         -------
         bool
-            `True` if the NvLink is active.
+            `True` if the Nvlink is active.
         """
         return (
             nvml.device_get_nvlink_state(self._device._handle, self._link) == nvml.EnableState.FEATURE_ENABLED

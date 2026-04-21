@@ -746,6 +746,10 @@ def test_nvlink():
                 version = nvlink_info.version
             assert isinstance(version, system.NvlinkVersion)
 
+            with unsupported_before(device, None):
+                state = nvlink_info.state
+            assert isinstance(state, bool)
+
 
 def test_utilization():
     for device in system.Device.get_all_devices():
