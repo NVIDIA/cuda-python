@@ -140,7 +140,7 @@ cdef class Temperature:
 
         Returns
         -------
-        :class:`ThermalSettings`
+        :obj:`~_device.ThermalSettings`
             The thermal settings for the specified sensor.
         """
         return ThermalSettings(nvml.device_get_thermal_settings(self._handle, sensor_index))

@@ -8,9 +8,6 @@ LICENSE
 requirements*.txt
 cuda_bindings/examples/*
 
-# Will be moved in (see https://github.com/NVIDIA/cuda-python/pull/1913#issuecomment-4252968149)
-cuda_bindings/benchmarks/*
-
 # Vendored
 cuda_core/cuda/core/_include/dlpack.h
 

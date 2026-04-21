@@ -129,7 +129,7 @@ cdef class ClockInfo:
 
         Returns
         -------
-        ClockOffsets
+        :obj:`~_device.ClockOffsets`
             An object with the min, max and current clock offset.
         """
         return ClockOffsets(nvml.device_get_clock_offsets(self._handle, self._clock_type, pstate))
