@@ -314,7 +314,7 @@ int main(int argc, char** argv) {
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
-    suite.run("launch.launch_2048B", [&]() {
+    suite.run("launch.launch_2048b", [&]() {
         check_cu(cuLaunchKernel(kernel_2048B, 1, 1, 1, 1, 1, 1, 0, stream, struct_params, nullptr),
                  "cuLaunchKernel failed");
     });
