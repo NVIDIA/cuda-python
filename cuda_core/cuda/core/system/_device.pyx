@@ -144,6 +144,10 @@ cdef class Device:
         Retrieves the globally unique immutable UUID associated with this
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  This property returns it without the prefix, to match the UUIDs
+        used in CUDA.  If you need the prefix, use the `uuid` property.
         """
         # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
         return nvml.device_get_uuid(self._handle)[4:]
