@@ -1,0 +1,106 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+on:
+  workflow_call:
+    inputs:
+      host-platform:
+        required: true
+        type: string
+      cuda-version:
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+permissions:
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  test-sdist:
+    name: Test sdist builds
+    runs-on: linux-amd64-cpu8
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build
+
+      # Pure Python packages -- no CTK needed.
+      - name: Build cuda.pathfinder sdist and wheel-from-sdist
+        run: |
+          python -m build --sdist cuda_pathfinder/
+          pip wheel --no-deps --wheel-dir cuda_pathfinder/dist cuda_pathfinder/dist/*.tar.gz
+
+      - name: Build cuda-python sdist and wheel-from-sdist
+        run: |
+          python -m build --sdist cuda_python/
+          pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
+
+      # Cython packages need CTK + sccache.
+      # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
+      # are exposed by this action.
+      - name: Enable sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
+        with:
+          disable_annotations: 'true'
+
+      # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
+      - name: Adding additional GHA cache-related env vars
+        uses: actions/github-script@v8
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
+            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+        with:
+          enable-apt: true
+
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.cuda-version }}
+
+      # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
+      # (set by fetch_ctk) must be available for both sdist and wheel builds.
+      - name: Build cuda.bindings sdist and wheel-from-sdist
+        run: |
+          export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
+          export CC="sccache cc"
+          export CXX="sccache c++"
+          export PIP_FIND_LINKS="$(pwd)/cuda_pathfinder/dist"
+          python -m build --sdist cuda_bindings/
+          pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+
+      # cuda_core sdist delegates to setuptools (no CTK needed), but
+      # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via
+      # get_requires_for_build_wheel in build_hooks.py).
+      - name: Build cuda.core sdist and wheel-from-sdist
+        run: |
+          export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
+          export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          export CC="sccache cc"
+          export CXX="sccache c++"
+          export PIP_FIND_LINKS="$(pwd)/cuda_bindings/dist $(pwd)/cuda_pathfinder/dist"
+          python -m build --sdist cuda_core/
+          pip wheel --no-deps --wheel-dir cuda_core/dist cuda_core/dist/*.tar.gz
+
+      - name: Show sccache stats
+        if: always()
+        run: sccache --show-stats
