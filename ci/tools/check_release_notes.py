@@ -7,8 +7,8 @@ Usage:
     python check_release_notes.py --git-tag <tag> --component <component>
 
 Exit codes:
-    0 — all release notes present and non-empty (or .post version, skipped)
-    1 — one or more release notes missing or empty
+    0 — release notes present and non-empty (or .post version, skipped)
+    1 — release notes missing or empty
     2 — invalid arguments
 """
 
@@ -19,12 +19,11 @@ import os
 import re
 import sys
 
-COMPONENT_TO_PACKAGES: dict[str, list[str]] = {
-    "cuda-core": ["cuda_core"],
-    "cuda-bindings": ["cuda_bindings"],
-    "cuda-pathfinder": ["cuda_pathfinder"],
-    "cuda-python": ["cuda_python"],
-    "all": ["cuda_bindings", "cuda_core", "cuda_pathfinder", "cuda_python"],
+COMPONENT_TO_PACKAGE: dict[str, str] = {
+    "cuda-core": "cuda_core",
+    "cuda-bindings": "cuda_bindings",
+    "cuda-pathfinder": "cuda_pathfinder",
+    "cuda-python": "cuda_python",
 }
 
 # Matches tags like "v13.1.0", "cuda-core-v0.7.0", "cuda-pathfinder-v1.5.2"
@@ -48,7 +47,7 @@ def notes_path(package: str, version: str) -> str:
 def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
-    Returns an empty list when all notes are present and non-empty.
+    Returns an empty list when notes are present and non-empty.
     """
     version = parse_version_from_tag(git_tag)
     if version is None:
@@ -57,26 +56,23 @@ def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> l
     if is_post_release(version):
         return []
 
-    packages = COMPONENT_TO_PACKAGES.get(component)
-    if packages is None:
+    package = COMPONENT_TO_PACKAGE.get(component)
+    if package is None:
         return [("<component>", f"unknown component '{component}'")]
 
-    problems = []
-    for pkg in packages:
-        path = notes_path(pkg, version)
-        full = os.path.join(repo_root, path)
-        if not os.path.isfile(full):
-            problems.append((path, "missing"))
-        elif os.path.getsize(full) == 0:
-            problems.append((path, "empty"))
-
-    return problems
+    path = notes_path(package, version)
+    full = os.path.join(repo_root, path)
+    if not os.path.isfile(full):
+        return [(path, "missing")]
+    if os.path.getsize(full) == 0:
+        return [(path, "empty")]
+    return []
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--git-tag", required=True)
-    parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGES))
+    parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGE))
     parser.add_argument("--repo-root", default=".")
     args = parser.parse_args(argv)
 

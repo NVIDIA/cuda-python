@@ -102,9 +102,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Self-test release-notes checker
+        run: |
+          pip install pytest
+          pytest ci/tools/tests
+
       - name: Check versioned release notes exist
         run: |
-          python toolshed/check_release_notes.py \
+          python ci/tools/check_release_notes.py \
             --git-tag "${{ inputs.git-tag }}" \
             --component "${{ inputs.component }}"
 

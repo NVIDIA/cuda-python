@@ -74,20 +74,6 @@ class TestCheckReleaseNotes:
         problems = check_release_notes("v12.6.2.post1", "cuda-bindings", str(tmp_path))
         assert problems == []
 
-    def test_component_all(self, tmp_path):
-        for pkg in ("cuda_bindings", "cuda_core", "cuda_pathfinder", "cuda_python"):
-            self._make_notes(tmp_path, pkg, "13.1.0")
-        problems = check_release_notes("v13.1.0", "all", str(tmp_path))
-        assert problems == []
-
-    def test_component_all_partial_missing(self, tmp_path):
-        self._make_notes(tmp_path, "cuda_bindings", "13.1.0")
-        self._make_notes(tmp_path, "cuda_core", "13.1.0")
-        problems = check_release_notes("v13.1.0", "all", str(tmp_path))
-        assert len(problems) == 2
-        missing_pkgs = {p.split("/")[0] for p, _ in problems}
-        assert missing_pkgs == {"cuda_pathfinder", "cuda_python"}
-
     def test_invalid_tag(self, tmp_path):
         problems = check_release_notes("not-a-tag", "cuda-core", str(tmp_path))
         assert len(problems) == 1
