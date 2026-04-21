@@ -171,7 +171,7 @@ cdef class Device:
     @property
     def arch(self) -> DeviceArch:
         """
-        Device architecture.
+        :obj:`~DeviceArch` device architecture.
 
         For example, a Tesla V100 will report ``DeviceArchitecture.name ==
         "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==
@@ -189,7 +189,7 @@ cdef class Device:
     @property
     def brand(self) -> BrandType:
         """
-        Brand of the device
+        :obj:`~BrandType` brand of the device
         """
         return BrandType(nvml.device_get_brand(self._handle))
 
@@ -303,7 +303,7 @@ cdef class Device:
 
         Returns
         -------
-        Iterator of Device
+        Iterator over :obj:`~Device`
             An iterator over available devices.
         """
         initialize()
@@ -317,7 +317,7 @@ cdef class Device:
     @property
     def addressing_mode(self) -> AddressingMode:
         """
-        Get the addressing mode of the device.
+        Get the :obj:`~AddressingMode` of the device.
 
         Addressing modes can be one of:
 
@@ -362,7 +362,7 @@ cdef class Device:
 
         Returns
         -------
-        Iterator of Device
+        Iterator of :obj:`~Device`
             An iterator over available devices.
         """
         cdef Device device
@@ -439,7 +439,7 @@ cdef class Device:
 
     def clock(self, clock_type: ClockType) -> ClockInfo:
         """
-        Get information about and manage a specific clock on a device.
+        :obj:`~_device.ClockInfo` object to get information about and manage a specific clock on a device.
         """
         return ClockInfo(self._handle, clock_type)
 
@@ -470,7 +470,7 @@ cdef class Device:
 
     def get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
-        Retrieves the current clocks event reasons.
+        Retrieves the current :obj:`~ClocksEventReasons`.
 
         For all fully supported products.
         """
@@ -480,7 +480,7 @@ cdef class Device:
 
     def get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
-        Retrieves supported clocks event reasons that can be returned by
+        Retrieves supported :obj:`~ClocksEventReasons` that can be returned by
         :meth:`get_current_clock_event_reasons`.
 
         For all fully supported products.
@@ -498,7 +498,7 @@ cdef class Device:
     @property
     def cooler(self) -> CoolerInfo:
         """
-        Get information about cooler on a device.
+        :obj:`~_device.CoolerInfo` object with cooler information for the device.
         """
         return CoolerInfo(nvml.device_get_cooler_info(self._handle))
 
@@ -509,7 +509,7 @@ cdef class Device:
     @property
     def attributes(self) -> DeviceAttributes:
         """
-        Get various device attributes.
+        :obj:`~_device.DeviceAttributes` object with various device attributes.
 
         For Ampere™ or newer fully supported devices.  Only available on Linux
         systems.
@@ -577,9 +577,9 @@ cdef class Device:
 
         Returns
         -------
-        :class:`DeviceEvents`
+        :obj:`~_device.DeviceEvents`
             An object representing the registered events.  Call
-            :meth:`DeviceEvents.wait` on this object to wait for events.
+            :meth:`~_device.DeviceEvents.wait` on this object to wait for events.
 
         Raises
         ------
@@ -610,7 +610,7 @@ cdef class Device:
 
     def fan(self, fan: int = 0) -> FanInfo:
         """
-        Get information and manage a specific fan on a device.
+        :obj:`~_device.FanInfo` object to get information and manage a specific fan on a device.
         """
         if fan < 0 or fan >= self.num_fans:
             raise ValueError(f"Fan index {fan} is out of range [0, {self.num_fans})")
@@ -633,14 +633,14 @@ cdef class Device:
 
         Each value specified can raise its own exception.  That exception will
         be raised when attempting to access the corresponding ``value`` from the
-        returned :class:`FieldValues` container.
+        returned :obj:`~_device.FieldValues` container.
 
         To confirm that there are no exceptions in the entire container, call
-        :meth:`FieldValues.validate`.
+        :meth:`~_device.FieldValues.validate`.
 
         Parameters
         ----------
-        field_ids: list of int or tuple of (int, int)
+        field_ids: list[int | tuple[int, int]]
             List of field IDs to query.
 
             Each item may be either a single value from the :class:`FieldId`
@@ -648,7 +648,7 @@ cdef class Device:
 
         Returns
         -------
-        :class:`FieldValues`
+        :obj:`~_device.FieldValues`
             Container of field values corresponding to the requested field IDs.
         """
         return FieldValues(nvml.device_get_field_values(self._handle, field_ids))
@@ -659,7 +659,7 @@ cdef class Device:
 
         Parameters
         ----------
-        field_ids: list of int or tuple of (int, int)
+        field_ids: list[int | tuple[int, int]]
             List of field IDs to clear.
 
             Each item may be either a single value from the :class:`FieldId`
@@ -674,7 +674,7 @@ cdef class Device:
     @property
     def inforom(self) -> InforomInfo:
         """
-        Accessor for InfoROM information.
+        :obj:`~_device.InforomInfo` object with InfoROM information.
 
         For all products with an InfoROM.
         """
@@ -687,7 +687,7 @@ cdef class Device:
     @property
     def bar1_memory_info(self) -> BAR1MemoryInfo:
         """
-        Get information about BAR1 memory.
+        :obj:`~_device.BAR1MemoryInfo` object with BAR1 memory information.
 
         BAR1 is used to map the FB (device memory) so that it can be directly
         accessed by the CPU or by 3rd party devices (peer-to-peer on the PCIE
@@ -698,7 +698,7 @@ cdef class Device:
     @property
     def memory_info(self) -> MemoryInfo:
         """
-        Object with memory information.
+        :obj:`~_device.MemoryInfo` object with memory information.
         """
         return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))
 
@@ -709,7 +709,7 @@ cdef class Device:
     @property
     def pci_info(self) -> PciInfo:
         """
-        The PCI attributes of this device.
+        :obj:`~_device.PciInfo` object with the PCI attributes of this device.
         """
         return PciInfo(nvml.device_get_pci_info_ext(self._handle), self._handle)
 
@@ -731,7 +731,7 @@ cdef class Device:
     @property
     def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:
         """
-        Retrieve performance monitor samples from the associated subdevice.
+        :obj:`~_device.GpuDynamicPstatesInfo` object with performance monitor samples from the associated subdevice.
         """
         return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
 
@@ -741,6 +741,11 @@ cdef class Device:
 
         The returned list contains a contiguous list of valid P-States supported by
         the device.
+
+        Return
+        ------
+        list[Pstates]
+            A list of supported P-States for the device.
         """
         return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
 
@@ -751,7 +756,7 @@ cdef class Device:
     @property
     def repair_status(self) -> RepairStatus:
         """
-        Get the repair status for TPC/Channel repair.
+        :obj:`~_device.RepairStatus` object with TPC/Channel repair status.
 
         For Ampere™ or newer fully supported devices.
         """
@@ -764,7 +769,7 @@ cdef class Device:
     @property
     def temperature(self) -> Temperature:
         """
-        Get information about temperatures on a device.
+        :obj:`~_device.Temperature` object with temperature information for the device.
         """
         return Temperature(self._handle)
 
@@ -850,47 +855,27 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
 __all__ = [
     "AddressingMode",
     "AffinityScope",
-    "BAR1MemoryInfo",
     "BrandType",
     "ClockId",
-    "ClockInfo",
-    "ClockOffsets",
     "ClocksEventReasons",
     "ClockType",
     "CoolerControl",
-    "CoolerInfo",
     "CoolerTarget",
     "Device",
     "DeviceArch",
-    "DeviceAttributes",
-    "DeviceEvents",
-    "EventData",
     "EventType",
     "FanControlPolicy",
-    "FanInfo",
     "FieldId",
-    "FieldValue",
-    "FieldValues",
     "get_p2p_status",
     "get_topology_common_ancestor",
-    "GpuDynamicPstatesInfo",
-    "GpuDynamicPstatesUtilization",
     "GpuP2PCapsIndex",
     "GpuP2PStatus",
     "GpuTopologyLevel",
-    "InforomInfo",
     "InforomObject",
-    "MemoryInfo",
-    "MigInfo",
     "PcieUtilCounter",
-    "PciInfo",
     "Pstates",
-    "RepairStatus",
-    "Temperature",
     "TemperatureSensors",
     "TemperatureThresholds",
     "ThermalController",
-    "ThermalSensor",
-    "ThermalSettings",
     "ThermalTarget",
 ]

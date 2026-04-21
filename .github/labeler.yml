@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Configuration for https://github.com/actions/labeler
+# Auto-applies labels based on which files a PR changes.
+
+cuda.bindings:
+  - changed-files:
+    - any-glob-to-any-file: 'cuda_bindings/**'
+
+cuda.core:
+  - changed-files:
+    - any-glob-to-any-file: 'cuda_core/**'
+
+cuda.pathfinder:
+  - changed-files:
+    - any-glob-to-any-file: 'cuda_pathfinder/**'
+
+CI/CD:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+      - 'ci/**'

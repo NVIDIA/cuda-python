@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Self-hosted runner labels used in CI workflows.
+# Without this config, actionlint rejects non-GitHub-hosted labels.
+self-hosted-runner:
+  labels:
+    - linux-amd64-cpu8
