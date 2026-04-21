@@ -633,7 +633,7 @@ Programmer assertion that all kernel pointer parameters are restrict pointers.
 
   - ``--device-as-default-execution-space``\  (``-default-device``\ )
 
-Treat entities with no execution space annotation as ``device``\  entities.
+Treat entities with no execution space annotation as ``__device__``\  entities.
 
 
 
@@ -643,7 +643,7 @@ Treat entities with no execution space annotation as ``device``\  entities.
 
   - ``--device-int128``\  (``-device-int128``\ )
 
-Allow the ``__int128``\  type in device code. Also causes the macro ``CUDACC_RTC_INT128``\  to be defined.
+Allow the ``__int128``\  type in device code. Also causes the macro ``__CUDACC_RTC_INT128__``\  to be defined.
 
 
 
