@@ -83,7 +83,7 @@ def test_device_bar1_memory():
             bar1_memory_info.used,
         )
 
-        assert isinstance(bar1_memory_info, system.BAR1MemoryInfo)
+        assert isinstance(bar1_memory_info, _device.BAR1MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -140,7 +140,7 @@ def test_device_memory():
             memory_info = device.memory_info
         free, total, used, reserved = memory_info.free, memory_info.total, memory_info.used, memory_info.reserved
 
-        assert isinstance(memory_info, system.MemoryInfo)
+        assert isinstance(memory_info, _device.MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -163,7 +163,7 @@ def test_device_name():
 def test_device_pci_info():
     for device in system.Device.get_all_devices():
         pci_info = device.pci_info
-        assert isinstance(pci_info, system.PciInfo)
+        assert isinstance(pci_info, _device.PciInfo)
 
         assert isinstance(pci_info.bus_id, str)
         assert re.match("[a-f0-9]{8}:[a-f0-9]{2}:[a-f0-9]{2}.[a-f0-9]", pci_info.bus_id.lower())
@@ -317,7 +317,7 @@ def test_device_attributes():
         # that's not the case.
         with unsupported_before(device, None):
             attributes = device.attributes
-        assert isinstance(attributes, system.DeviceAttributes)
+        assert isinstance(attributes, _device.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
         assert attributes.multiprocessor_count > 0
@@ -371,7 +371,7 @@ def test_field_values():
         with pytest.raises(TypeError):
             field_values["invalid_index"]
 
-        assert isinstance(field_values, system.FieldValues)
+        assert isinstance(field_values, _device.FieldValues)
         assert len(field_values) == len(field_ids)
 
         raw_values = field_values.get_all_values()
@@ -453,7 +453,7 @@ def test_repair_status():
         # this seems to also work on some TURING systems.
         with unsupported_before(device, None):
             repair_status = device.repair_status
-        assert isinstance(repair_status, system.RepairStatus)
+        assert isinstance(repair_status, _device.RepairStatus)
 
         assert isinstance(repair_status.channel_repair_pending, bool)
         assert isinstance(repair_status.tpc_repair_pending, bool)
@@ -557,7 +557,7 @@ def test_clock():
     for device in system.Device.get_all_devices():
         for clock_type in system.ClockType:
             clock = device.clock(clock_type)
-            assert isinstance(clock, system.ClockInfo)
+            assert isinstance(clock, _device.ClockInfo)
 
             # These are ordered from oldest API to newest API so we test as much
             # as we can on each hardware architecture.
@@ -589,7 +589,7 @@ def test_clock():
                 except (system.InvalidArgumentError, system.NotFoundError):
                     pass
                 else:
-                    assert isinstance(offsets, system.ClockOffsets)
+                    assert isinstance(offsets, _device.ClockOffsets)
                     assert isinstance(offsets.clock_offset_mhz, int)
                     assert isinstance(offsets.max_offset_mhz, int)
                     assert isinstance(offsets.min_offset_mhz, int)
@@ -622,7 +622,7 @@ def test_fan():
 
         for fan_idx in range(device.num_fans):
             fan_info = device.fan(fan_idx)
-            assert isinstance(fan_info, system.FanInfo)
+            assert isinstance(fan_info, _device.FanInfo)
 
             speed = fan_info.speed
             assert isinstance(speed, int)
@@ -663,7 +663,7 @@ def test_cooler():
         with unsupported_before(device, DeviceArch.MAXWELL):
             cooler_info = device.cooler
 
-        assert isinstance(cooler_info, system.CoolerInfo)
+        assert isinstance(cooler_info, _device.CoolerInfo)
 
         signal_type = cooler_info.signal_type
         assert isinstance(signal_type, system.CoolerControl)
@@ -675,7 +675,7 @@ def test_cooler():
 def test_temperature():
     for device in system.Device.get_all_devices():
         temperature = device.temperature
-        assert isinstance(temperature, system.Temperature)
+        assert isinstance(temperature, _device.Temperature)
 
         sensor = temperature.sensor()
         assert isinstance(sensor, int)
@@ -696,10 +696,10 @@ def test_temperature():
 
         with unsupported_before(device, None):
             thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
-        assert isinstance(thermals, system.ThermalSettings)
+        assert isinstance(thermals, _device.ThermalSettings)
 
         for i, sensor in enumerate(thermals):
-            assert isinstance(sensor, system.ThermalSensor)
+            assert isinstance(sensor, _device.ThermalSensor)
             assert isinstance(sensor.target, system.ThermalTarget)
             assert isinstance(sensor.controller, system.ThermalController)
             assert isinstance(sensor.default_min_temp, int)
@@ -720,7 +720,7 @@ def test_pstates():
         assert all(isinstance(p, system.Pstates) for p in pstates)
 
         dynamic_pstates_info = device.dynamic_pstates_info
-        assert isinstance(dynamic_pstates_info, system.GpuDynamicPstatesInfo)
+        assert isinstance(dynamic_pstates_info, _device.GpuDynamicPstatesInfo)
 
         assert len(dynamic_pstates_info) == nvml.MAX_GPU_UTILIZATIONS
 
