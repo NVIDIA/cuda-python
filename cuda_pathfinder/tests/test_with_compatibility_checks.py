@@ -12,16 +12,15 @@ from cuda.pathfinder import (
     BitcodeLibNotFoundError,
     CompatibilityCheckError,
     CompatibilityInsufficientMetadataError,
-    DriverCudaVersion,
     DynamicLibNotFoundError,
     LoadedDL,
     LocatedBitcodeLib,
     LocatedHeaderDir,
     LocatedStaticLib,
-    QueryDriverCudaVersionError,
     StaticLibNotFoundError,
     WithCompatibilityChecks,
 )
+from cuda.pathfinder._utils.driver_info import DriverCudaVersion, QueryDriverCudaVersionError
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_WITH_COMPATIBILITY_CHECKS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
