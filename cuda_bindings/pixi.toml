@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [workspace]
 channels = ["conda-forge"]
@@ -121,6 +121,7 @@ setuptools = ">=80"
 setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 pyclibrary = ">=0.1.7"
+cuda-pathfinder = { path = "../cuda_pathfinder" }
 cuda-cudart-static = "*"
 cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"

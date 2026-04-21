@@ -1142,7 +1142,7 @@ def matrix_multiply(dims_a, dims_b, kernel_number):
 def main():
     check_compute_capability_too_low(find_cuda_device(), (7, 0))
 
-    if platform.machine() == "qnx":
+    if platform.system() == "QNX":
         requirement_not_met("globalToShmemAsyncCopy is not supported on QNX")
 
     version = check_cuda_errors(cuda.cuDriverGetVersion())

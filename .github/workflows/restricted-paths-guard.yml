@@ -19,12 +19,13 @@ jobs:
     if: github.repository_owner == 'NVIDIA'
     runs-on: ubuntu-latest
     permissions:
+      contents: write # needed for collaborator permission check
       pull-requests: write
     steps:
       - name: Inspect PR author signals for restricted paths
         env:
-          # PR metadata inputs
-          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association || 'NONE' }}
+          # PR metadata inputs (author_association from event payload is
+          # unreliable for fork PRs, so we query the collaborator API directly)
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -37,6 +38,9 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+
+          COLLABORATOR_PERMISSION="not checked"
+          COLLABORATOR_PERMISSION_API_ERROR=""
 
           if ! MATCHING_RESTRICTED_PATHS=$(
             gh api \
@@ -63,7 +67,7 @@ jobs:
               echo ""
               echo "- **Error**: Failed to inspect the PR file list."
               echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
+              echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
@@ -83,7 +87,7 @@ jobs:
               echo ""
               echo "- **Error**: Failed to inspect the current PR labels."
               echo "- **Author**: $PR_AUTHOR"
-              echo "- **Author association**: $AUTHOR_ASSOCIATION"
+              echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
               echo ""
               echo "Please update the PR at: $PR_URL"
             } >> "$GITHUB_STEP_SUMMARY"
@@ -102,16 +106,56 @@ jobs:
             echo '```'
           }
 
+          write_collaborator_permission_api_error() {
+            echo "- **Collaborator permission API error**:"
+            echo '```text'
+            printf '%s\n' "$COLLABORATOR_PERMISSION_API_ERROR"
+            echo '```'
+          }
+
           HAS_TRUSTED_SIGNAL=false
           LABEL_ACTION="not needed (no restricted paths)"
           TRUSTED_SIGNALS="(none)"
 
           if [ "$TOUCHES_RESTRICTED_PATHS" = "true" ]; then
-            case "$AUTHOR_ASSOCIATION" in
-              COLLABORATOR|MEMBER|OWNER)
+            # Distinguish a legitimate 404 "not a collaborator" response from
+            # actual API failures. The former is an expected untrusted case;
+            # the latter fails the workflow so it can be rerun later.
+            if COLLABORATOR_PERMISSION_RESPONSE=$(
+              gh api "repos/$REPO/collaborators/$PR_AUTHOR/permission" \
+                --jq '.permission' 2>&1
+            ); then
+              COLLABORATOR_PERMISSION="$COLLABORATOR_PERMISSION_RESPONSE"
+            elif [[ "$COLLABORATOR_PERMISSION_RESPONSE" == *"(HTTP 404)"* ]]; then
+              COLLABORATOR_PERMISSION="none"
+            else
+              COLLABORATOR_PERMISSION="unknown"
+              COLLABORATOR_PERMISSION_API_ERROR="$COLLABORATOR_PERMISSION_RESPONSE"
+              echo "::error::Failed to inspect collaborator permission for $PR_AUTHOR."
+              {
+                echo "## Restricted Paths Guard Failed"
+                echo ""
+                echo "- **Error**: Failed to inspect collaborator permission."
+                echo "- **Author**: $PR_AUTHOR"
+                echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
+                echo ""
+                write_matching_restricted_paths
+                echo ""
+                write_collaborator_permission_api_error
+                echo ""
+                echo "Please retry this workflow. If the failure persists, inspect the collaborator permission API error above."
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+
+            case "$COLLABORATOR_PERMISSION" in
+              admin|maintain|write)
                 HAS_TRUSTED_SIGNAL=true
-                LABEL_ACTION="not needed (author association is a trusted signal)"
-                TRUSTED_SIGNALS="author_association:$AUTHOR_ASSOCIATION"
+                LABEL_ACTION="not needed (collaborator permission is a trusted signal)"
+                TRUSTED_SIGNALS="collaborator_permission:$COLLABORATOR_PERMISSION"
+                ;;
+              *)
+                # triage, read, or none: not a trusted signal
                 ;;
             esac
           fi
@@ -136,7 +180,7 @@ jobs:
                 echo ""
                 echo "- **Error**: Failed to add the \`$REVIEW_LABEL\` label."
                 echo "- **Author**: $PR_AUTHOR"
-                echo "- **Author association**: $AUTHOR_ASSOCIATION"
+                echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
                 echo ""
                 write_matching_restricted_paths
                 echo ""
@@ -154,7 +198,7 @@ jobs:
             echo "## Restricted Paths Guard Completed"
             echo ""
             echo "- **Author**: $PR_AUTHOR"
-            echo "- **Author association**: $AUTHOR_ASSOCIATION"
+            echo "- **Collaborator permission**: $COLLABORATOR_PERMISSION"
             echo "- **Touches restricted paths**: $TOUCHES_RESTRICTED_PATHS"
             echo "- **Restricted paths**: \`cuda_bindings/\`, \`cuda_python/\`"
             echo "- **Trusted signals**: $TRUSTED_SIGNALS"
