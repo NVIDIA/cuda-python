@@ -737,7 +737,7 @@ def test_compute_running_processes():
             processes = device.compute_running_processes
         assert isinstance(processes, list)
         for proc in processes:
-            assert isinstance(proc, system.ProcessInfo)
+            assert isinstance(proc, _device.ProcessInfo)
             assert isinstance(proc.pid, int)
             assert isinstance(proc.used_gpu_memory, int)
             assert isinstance(proc.gpu_instance_id, int)
