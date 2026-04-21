@@ -243,6 +243,16 @@ public:
         entries_.push_back({name, options_.loops, std::move(results)});
     }
 
+    // Run a benchmark with a custom loop count (for slow operations like compilation).
+    template <typename Fn>
+    void run(const std::string& name, std::uint64_t loops_override, Fn&& fn) {
+        Options custom = options_;
+        custom.loops = loops_override;
+        auto results = run_benchmark(custom, std::forward<Fn>(fn));
+        print_summary(name, results);
+        entries_.push_back({name, loops_override, std::move(results)});
+    }
+
     // Write all collected benchmarks to the output file (if -o was given).
     void write() const {
         if (options_.output_path.empty() || entries_.empty())

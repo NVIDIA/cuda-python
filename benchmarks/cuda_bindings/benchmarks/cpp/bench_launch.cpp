@@ -7,6 +7,7 @@
 
 #include "bench_support.hpp"
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -45,7 +46,6 @@ static CUmodule compile_and_load(const char* source, CUdevice device) {
     const char* opts[] = {"--fmad=false", arch.c_str()};
     nvrtcResult compile_result = nvrtcCompileProgram(prog, 2, opts);
 
-    // Print log on failure
     if (compile_result != NVRTC_SUCCESS) {
         size_t log_size = 0;
         nvrtcGetProgramLogSize(prog, &log_size);
@@ -71,13 +71,85 @@ static const char* KERNEL_SOURCE = R"(
 extern "C" __global__ void empty_kernel() { return; }
 extern "C" __global__ void small_kernel(float *f) { *f = 0.0f; }
 
+#define ITEM_PARAM(x, T) T x
+#define REP1(x, T)   , ITEM_PARAM(x, T)
+#define REP2(x, T)   REP1(x##0, T)   REP1(x##1, T)
+#define REP4(x, T)   REP2(x##0, T)   REP2(x##1, T)
+#define REP8(x, T)   REP4(x##0, T)   REP4(x##1, T)
+#define REP16(x, T)  REP8(x##0, T)   REP8(x##1, T)
+#define REP32(x, T)  REP16(x##0, T)  REP16(x##1, T)
+#define REP64(x, T)  REP32(x##0, T)  REP32(x##1, T)
+#define REP128(x, T) REP64(x##0, T)  REP64(x##1, T)
+#define REP256(x, T) REP128(x##0, T) REP128(x##1, T)
+
+template<size_t maxBytes>
+struct KernelFunctionParam {
+   unsigned char p[maxBytes];
+};
+
 extern "C" __global__
 void small_kernel_16_args(
-    int* a0,  int* a1,  int* a2,  int* a3,
-    int* a4,  int* a5,  int* a6,  int* a7,
-    int* a8,  int* a9,  int* a10, int* a11,
-    int* a12, int* a13, int* a14, int* a15)
-{ *a0 = 0; }
+    ITEM_PARAM(F, int*)
+    REP1(A, int*) REP2(A, int*) REP4(A, int*) REP8(A, int*))
+{ *F = 0; }
+
+extern "C" __global__
+void small_kernel_256_args(
+    ITEM_PARAM(F, int*)
+    REP1(A, int*) REP2(A, int*) REP4(A, int*) REP8(A, int*)
+    REP16(A, int*) REP32(A, int*) REP64(A, int*) REP128(A, int*))
+{ *F = 0; }
+
+extern "C" __global__
+void small_kernel_512_args(
+    ITEM_PARAM(F, int*)
+    REP1(A, int*) REP2(A, int*) REP4(A, int*) REP8(A, int*)
+    REP16(A, int*) REP32(A, int*) REP64(A, int*) REP128(A, int*)
+    REP256(A, int*))
+{ *F = 0; }
+
+extern "C" __global__
+void small_kernel_512_bools(
+    ITEM_PARAM(F, bool)
+    REP1(A, bool) REP2(A, bool) REP4(A, bool) REP8(A, bool)
+    REP16(A, bool) REP32(A, bool) REP64(A, bool) REP128(A, bool)
+    REP256(A, bool))
+{ return; }
+
+extern "C" __global__
+void small_kernel_512_ints(
+    ITEM_PARAM(F, int)
+    REP1(A, int) REP2(A, int) REP4(A, int) REP8(A, int)
+    REP16(A, int) REP32(A, int) REP64(A, int) REP128(A, int)
+    REP256(A, int))
+{ return; }
+
+extern "C" __global__
+void small_kernel_512_doubles(
+    ITEM_PARAM(F, double)
+    REP1(A, double) REP2(A, double) REP4(A, double) REP8(A, double)
+    REP16(A, double) REP32(A, double) REP64(A, double) REP128(A, double)
+    REP256(A, double))
+{ return; }
+
+extern "C" __global__
+void small_kernel_512_chars(
+    ITEM_PARAM(F, char)
+    REP1(A, char) REP2(A, char) REP4(A, char) REP8(A, char)
+    REP16(A, char) REP32(A, char) REP64(A, char) REP128(A, char)
+    REP256(A, char))
+{ return; }
+
+extern "C" __global__
+void small_kernel_512_longlongs(
+    ITEM_PARAM(F, long long)
+    REP1(A, long long) REP2(A, long long) REP4(A, long long) REP8(A, long long)
+    REP16(A, long long) REP32(A, long long) REP64(A, long long) REP128(A, long long)
+    REP256(A, long long))
+{ return; }
+
+extern "C" __global__
+void small_kernel_2048B(KernelFunctionParam<2048> param) {}
 )";
 
 
@@ -96,80 +168,160 @@ int main(int argc, char** argv) {
 
     CUmodule module = compile_and_load(KERNEL_SOURCE, device);
 
-    CUfunction empty_kernel, small_kernel, kernel_16_args;
-    check_cu(cuModuleGetFunction(&empty_kernel, module, "empty_kernel"), "GetFunction failed");
-    check_cu(cuModuleGetFunction(&small_kernel, module, "small_kernel"), "GetFunction failed");
-    check_cu(cuModuleGetFunction(&kernel_16_args, module, "small_kernel_16_args"), "GetFunction failed");
+    // Get all kernel handles
+    auto get_func = [&](const char* name) {
+        CUfunction f;
+        check_cu(cuModuleGetFunction(&f, module, name), "GetFunction failed");
+        return f;
+    };
+
+    CUfunction empty_kernel      = get_func("empty_kernel");
+    CUfunction small_kernel      = get_func("small_kernel");
+    CUfunction kernel_16_args    = get_func("small_kernel_16_args");
+    CUfunction kernel_256_args   = get_func("small_kernel_256_args");
+    CUfunction kernel_512_args   = get_func("small_kernel_512_args");
+    CUfunction kernel_512_bools  = get_func("small_kernel_512_bools");
+    CUfunction kernel_512_ints   = get_func("small_kernel_512_ints");
+    CUfunction kernel_512_doubles = get_func("small_kernel_512_doubles");
+    CUfunction kernel_512_chars  = get_func("small_kernel_512_chars");
+    CUfunction kernel_512_longlongs = get_func("small_kernel_512_longlongs");
+    CUfunction kernel_2048B      = get_func("small_kernel_2048B");
 
     CUstream stream;
     check_cu(cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING), "cuStreamCreate failed");
 
-    // Allocate device memory for arguments
+    // Allocate device memory
     CUdeviceptr float_ptr;
     check_cu(cuMemAlloc(&float_ptr, sizeof(float)), "cuMemAlloc failed");
 
-    CUdeviceptr int_ptrs[16];
-    for (int i = 0; i < 16; ++i) {
+    CUdeviceptr int_ptrs[512];
+    for (int i = 0; i < 512; ++i) {
         check_cu(cuMemAlloc(&int_ptrs[i], sizeof(int)), "cuMemAlloc failed");
     }
 
-    // Pre-pack kernel params for the pre-packed benchmark
+    // Pre-pack pointer params
     void* packed_16[16];
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 0; i < 16; ++i)
         packed_16[i] = &int_ptrs[i];
-    }
+
+    void* packed_256[256];
+    for (int i = 0; i < 256; ++i)
+        packed_256[i] = &int_ptrs[i];
+
+    void* packed_512[512];
+    for (int i = 0; i < 512; ++i)
+        packed_512[i] = &int_ptrs[i];
+
+    // Typed args for 512-arg benchmarks
+    bool bool_args[512];
+    void* bool_params[512];
+    for (int i = 0; i < 512; ++i) { bool_args[i] = true; bool_params[i] = &bool_args[i]; }
+
+    int int_args[512];
+    void* int_params[512];
+    for (int i = 0; i < 512; ++i) { int_args[i] = 123; int_params[i] = &int_args[i]; }
+
+    double double_args[512];
+    void* double_params[512];
+    for (int i = 0; i < 512; ++i) { double_args[i] = 1.2345; double_params[i] = &double_args[i]; }
+
+    char char_args[512];
+    void* char_params[512];
+    for (int i = 0; i < 512; ++i) { char_args[i] = 127; char_params[i] = &char_args[i]; }
+
+    long long ll_args[512];
+    void* ll_params[512];
+    for (int i = 0; i < 512; ++i) { ll_args[i] = 9223372036854775806LL; ll_params[i] = &ll_args[i]; }
+
+    // 2048-byte struct
+    struct alignas(8) Struct2048B { unsigned char p[2048]; } struct_2048B = {};
+    void* struct_params[] = {&struct_2048B};
 
     bench::BenchmarkSuite suite(options);
 
-    // --- launch_empty_kernel ---
-    {
-        suite.run("launch.launch_empty_kernel", [&]() {
-            check_cu(
-                cuLaunchKernel(empty_kernel, 1, 1, 1, 1, 1, 1, 0, stream, nullptr, nullptr),
-                "cuLaunchKernel failed"
-            );
-        });
-    }
-
-    // Drain the stream between benchmarks so each starts with a clean queue
-    check_cu(cuStreamSynchronize(stream), "cuStreamSynchronize failed");
+    suite.run("launch.launch_empty_kernel", [&]() {
+        check_cu(cuLaunchKernel(empty_kernel, 1, 1, 1, 1, 1, 1, 0, stream, nullptr, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
 
     {
         void* params[] = {&float_ptr};
         suite.run("launch.launch_small_kernel", [&]() {
-            check_cu(
-                cuLaunchKernel(small_kernel, 1, 1, 1, 1, 1, 1, 0, stream, params, nullptr),
-                "cuLaunchKernel failed"
-            );
+            check_cu(cuLaunchKernel(small_kernel, 1, 1, 1, 1, 1, 1, 0, stream, params, nullptr),
+                     "cuLaunchKernel failed");
         });
     }
+    check_cu(cuStreamSynchronize(stream), "sync");
 
-    check_cu(cuStreamSynchronize(stream), "cuStreamSynchronize failed");
+    suite.run("launch.launch_16_args", [&]() {
+        check_cu(cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
 
-    {
-        suite.run("launch.launch_16_args", [&]() {
-            check_cu(
-                cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
-                "cuLaunchKernel failed"
-            );
-        });
-    }
+    suite.run("launch.launch_16_args_pre_packed", [&]() {
+        check_cu(cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
 
-    check_cu(cuStreamSynchronize(stream), "cuStreamSynchronize failed");
+    suite.run("launch.launch_256_args", [&]() {
+        check_cu(cuLaunchKernel(kernel_256_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_256, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
 
-    // In C++ the params are always pre-packed, so this is identical to launch_16_args.
-    // We include it for naming parity with the Python benchmark.
-    {
-        suite.run("launch.launch_16_args_pre_packed", [&]() {
-            check_cu(
-                cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
-                "cuLaunchKernel failed"
-            );
-        });
-    }
+    suite.run("launch.launch_512_args", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_512, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_512_args_pre_packed", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_512, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_512_bools", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_bools, 1, 1, 1, 1, 1, 1, 0, stream, bool_params, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_512_ints", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_ints, 1, 1, 1, 1, 1, 1, 0, stream, int_params, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_512_doubles", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_doubles, 1, 1, 1, 1, 1, 1, 0, stream, double_params, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_512_bytes", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_chars, 1, 1, 1, 1, 1, 1, 0, stream, char_params, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_512_longlongs", [&]() {
+        check_cu(cuLaunchKernel(kernel_512_longlongs, 1, 1, 1, 1, 1, 1, 0, stream, ll_params, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
+
+    suite.run("launch.launch_2048B", [&]() {
+        check_cu(cuLaunchKernel(kernel_2048B, 1, 1, 1, 1, 1, 1, 0, stream, struct_params, nullptr),
+                 "cuLaunchKernel failed");
+    });
+    check_cu(cuStreamSynchronize(stream), "sync");
 
     // Cleanup
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 0; i < 512; ++i) {
         check_cu(cuMemFree(int_ptrs[i]), "cuMemFree failed");
     }
     check_cu(cuMemFree(float_ptr), "cuMemFree failed");
