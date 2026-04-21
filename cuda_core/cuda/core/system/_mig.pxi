@@ -36,16 +36,11 @@ cdef class MigInfo:
         Changing MIG modes may require device unbind or reset. The "pending" MIG
         mode refers to the target mode following the next activation trigger.
 
-        If the device is not a MIG device, returns `False`.
-
         Returns
         -------
         bool
             `True` if current MIG mode is enabled.
         """
-        if not self.is_mig_device:
-            return False
-
         current, _ = nvml.device_get_mig_mode(self._device._handle)
         return current == nvml.EnableState.FEATURE_ENABLED
 
@@ -64,9 +59,6 @@ cdef class MigInfo:
         mode: bool
             `True` to enable MIG mode, `False` to disable MIG mode.
         """
-        if not self.is_mig_device:
-            raise ValueError("Device is not a MIG device")
-
         nvml.device_set_mig_mode(
             self._device._handle,
             nvml.EnableState.FEATURE_ENABLED if mode else nvml.EnableState.FEATURE_DISABLED
@@ -89,9 +81,6 @@ cdef class MigInfo:
         bool
             `True` if pending MIG mode is enabled.
         """
-        if not self.is_mig_device:
-            return False
-
         _, pending = nvml.device_get_mig_mode(self._device._handle)
         return pending == nvml.EnableState.FEATURE_ENABLED
 
@@ -123,7 +112,7 @@ cdef class MigInfo:
         Device
             The parent GPU device for this MIG device.
         """
-        parent_handle = nvml.device_get_handle_from_mig_device_handle(self._handle)
+        parent_handle = nvml.device_get_handle_from_mig_device_handle(self._device._handle)
         parent_device = Device.__new__(Device)
         parent_device._handle = parent_handle
         return parent_device
@@ -144,7 +133,7 @@ cdef class MigInfo:
         ----------
         index: int
             The index of the MIG device (compute instance) to retrieve.  Must be
-            between 0 and the value returned by `get_device_count() - 1`.
+            between 0 and the value returned by `device_count - 1`.
 
         Returns
         -------
@@ -173,5 +162,5 @@ cdef class MigInfo:
         list[Device]
             A list of all MIG devices corresponding to this GPU.
         """
-        for i in range(self.get_device_count()):
+        for i in range(self.device_count):
             yield self.get_device_by_index(i)

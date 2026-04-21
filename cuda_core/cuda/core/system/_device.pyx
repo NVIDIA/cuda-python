@@ -149,7 +149,7 @@ cdef class Device:
         prefix.  This property returns it without the prefix, to match the UUIDs
         used in CUDA.  If you need the prefix, use the `uuid` property.
         """
-        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+        # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
         return nvml.device_get_uuid(self._handle)[4:]
 
     @property
@@ -339,7 +339,7 @@ cdef class Device:
     @property
     def mig(self) -> MigInfo:
         """
-        Accessor for MIG (Multi-Instance GPU) information.
+        Get :obj:`~MigInfo` accessor for MIG (Multi-Instance GPU) information.
 
         For Ampere™ or newer fully supported devices.
         """
