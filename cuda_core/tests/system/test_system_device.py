@@ -738,16 +738,15 @@ def test_mig():
             mig = device.mig
 
             assert isinstance(mig.is_mig_device, bool)
-            if mig.is_mig_device:
-                assert isinstance(mig.mode, bool)
-                assert isinstance(mig.pending_mode, bool)
+            assert isinstance(mig.mode, bool)
+            assert isinstance(mig.pending_mode, bool)
 
-                device_count = mig.get_device_count()
-                assert isinstance(device_count, int)
-                assert device_count >= 0
+            device_count = mig.device_count
+            assert isinstance(device_count, int)
+            assert device_count >= 0
 
-                for mig_device in mig.get_all_devices():
-                    assert isinstance(mig_device, system.Device)
+            for mig_device in mig.get_all_devices():
+                assert isinstance(mig_device, system.Device)
 
 
 def test_uuid():

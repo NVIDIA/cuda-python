@@ -112,7 +112,7 @@ cdef class MigInfo:
         Device
             The parent GPU device for this MIG device.
         """
-        parent_handle = nvml.device_get_handle_from_mig_device_handle(self._device._handle)
+        parent_handle = nvml.device_get_device_handle_from_mig_device_handle(self._device._handle)
         parent_device = Device.__new__(Device)
         parent_device._handle = parent_handle
         return parent_device
