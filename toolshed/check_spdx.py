@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import fnmatch
 import os
 import re
 import subprocess
@@ -17,7 +18,28 @@ SPDX_FILE_COPYRIGHT_TEXT_PREFIX = b"-".join((b"SPDX", b"FileCopyrightText: "))
 
 LICENSE_IDENTIFIER_REGEX = re.compile(re.escape(SPDX_LICENSE_IDENTIFIER_PREFIX) + rb"(?P<license_identifier>[^\r\n]+)")
 
-EXPECTED_LICENSE_IDENTIFIERS = (("cuda_core/", "Apache-2.0"),)
+TOP_LEVEL_FILE_LICENSE_IDENTIFIER = "Apache-2.0"
+
+# Every top-level directory needs to have an entry here, so new paths
+# can't slip in without a reviewed license decision.
+TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
+    ".github": "Apache-2.0",
+    "benchmarks": "Apache-2.0",
+    "ci": "Apache-2.0",
+    "cuda_bindings": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core": "Apache-2.0",
+    "cuda_pathfinder": "Apache-2.0",
+    "cuda_python": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_python_test_helpers": "Apache-2.0",
+    "scripts": "Apache-2.0",
+    "toolshed": "Apache-2.0",
+}
+
+SPECIAL_CASE_LICENSE_IDENTIFIERS = {
+    # key: repo-relative path or glob, value: expected SPDX license identifier
+    "cuda_bindings/benchmarks/*": "Apache-2.0",
+    "cuda_bindings/benchmarks/pytest-legacy/*": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+}
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
@@ -58,12 +80,34 @@ def normalize_repo_path(filepath):
     return PureWindowsPath(filepath).as_posix()
 
 
+def get_top_level_directory(normalized_path):
+    if "/" not in normalized_path:
+        return None
+    return normalized_path.split("/", 1)[0]
+
+
 def get_expected_license_identifier(filepath):
     normalized_path = normalize_repo_path(filepath)
-    for prefix, license_identifier in EXPECTED_LICENSE_IDENTIFIERS:
-        if normalized_path.startswith(prefix):
-            return license_identifier
-    return None
+    matching_special_cases = [
+        (prefix, license_identifier)
+        for prefix, license_identifier in SPECIAL_CASE_LICENSE_IDENTIFIERS.items()
+        if fnmatch.fnmatchcase(normalized_path, prefix)
+    ]
+    if matching_special_cases:
+        return max(matching_special_cases, key=lambda item: len(item[0]))[1], None
+
+    top_level_directory = get_top_level_directory(normalized_path)
+    if top_level_directory is None:
+        return TOP_LEVEL_FILE_LICENSE_IDENTIFIER, None
+
+    if top_level_directory not in TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS:
+        return (
+            None,
+            f"MISSING TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS entry for top-level directory "
+            f"{top_level_directory!r} required by {filepath!r}",
+        )
+
+    return TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS[top_level_directory], None
 
 
 def validate_required_spdx_field(filepath, blob, expected_bytes):
@@ -77,10 +121,11 @@ def extract_license_identifier(blob):
     match = LICENSE_IDENTIFIER_REGEX.search(blob)
     if match is None:
         return None
-    try:
-        return match.group("license_identifier").decode("ascii")
-    except UnicodeDecodeError:
-        return None
+    license_identifier = match.group("license_identifier").decode("ascii", errors="replace").strip()
+    for comment_suffix in ("-->", "*/"):
+        if license_identifier.endswith(comment_suffix):
+            license_identifier = license_identifier.removesuffix(comment_suffix).rstrip()
+    return license_identifier or None
 
 
 def validate_license_identifier(filepath, blob):
@@ -89,9 +134,10 @@ def validate_license_identifier(filepath, blob):
         print(f"MISSING valid SPDX license identifier in {filepath!r}")
         return False
 
-    expected_license_identifier = get_expected_license_identifier(filepath)
-    if expected_license_identifier is None:
-        return True
+    expected_license_identifier, configuration_error = get_expected_license_identifier(filepath)
+    if configuration_error is not None:
+        print(configuration_error)
+        return False
 
     if license_identifier != expected_license_identifier:
         print(

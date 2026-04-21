@@ -795,10 +795,205 @@ def test_ml_dtypes_bfloat16_dlpack_requires_ml_dtypes(init_cuda, no_ml_dtypes, a
         smv.dtype  # noqa: B018
 
 
-# ===================================================================
-# Tensor bridge (torch.Tensor fast path via AOTI stable C ABI)
-# ===================================================================
+def test_strided_memory_view_repr():
+    """__repr__ returns a descriptive string."""
+    src = np.arange(6, dtype=np.int32).reshape(2, 3)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    r = repr(view)
+    assert r.startswith("StridedMemoryView(ptr=")
 
+
+def test_strided_memory_view_copy_to_raises():
+    """copy_to raises NotImplementedError."""
+    src = np.zeros(5, dtype=np.float32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    with pytest.raises(NotImplementedError, match="copy_to"):
+        view.copy_to(view, stream=None)
+
+
+def test_strided_memory_view_get_layout_error():
+    """get_layout raises ValueError for an empty (uninitialized) StridedMemoryView."""
+    with pytest.warns(DeprecationWarning, match="deprecated"):
+        view = StridedMemoryView()
+    with pytest.raises(ValueError, match="Cannot infer layout"):
+        _ = view._layout
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_strided_memory_view_deprecated_cai_init(init_cuda):
+    """Deprecated StridedMemoryView(cai_obj) init path for CAI-only objects."""
+    src = cp.zeros(5, dtype=cp.float32)
+    dev = Device()
+    stream = dev.create_stream()
+    cai_only = _EnforceCAIView(src)
+    with pytest.deprecated_call():
+        view = StridedMemoryView(cai_only, stream_ptr=stream.handle)
+    assert view.is_device_accessible is True
+    assert view.ptr == src.data.ptr
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+def test_from_any_interface_cai_fallback(init_cuda):
+    """from_any_interface falls back to CAI when an object has no __dlpack__."""
+    src = cp.zeros(5, dtype=cp.float32)
+    dev = Device()
+    stream = dev.create_stream()
+    cai_only = _EnforceCAIView(src)
+    view = StridedMemoryView.from_any_interface(cai_only, stream_ptr=stream.handle)
+    assert view.is_device_accessible is True
+    assert view.ptr == src.data.ptr
+
+
+def test_strided_memory_view_copy_from_raises():
+    """copy_from raises NotImplementedError."""
+    src = np.zeros(5, dtype=np.float32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    with pytest.raises(NotImplementedError, match="copy_from"):
+        view.copy_from(view, stream=None)
+
+
+def test_strided_memory_view_view_no_args_returns_self():
+    """view() with layout=None and dtype=None returns self."""
+    src = np.arange(6, dtype=np.int32).reshape(2, 3)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    same = view.view(layout=None, dtype=None)
+    assert same is view
+
+
+def test_strided_memory_view_view_with_dtype_only():
+    """view() with only dtype re-interprets using current layout."""
+    src = np.arange(4, dtype=np.float32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    viewed = view.view(dtype=np.dtype("int32"))
+    assert viewed.dtype == np.dtype("int32")
+    assert viewed._layout == view._layout
+
+
+def test_dlpack_export_structured_dtype_raises():
+    """Structured dtypes are rejected for DLPack export."""
+    dt = np.dtype([("x", np.float32), ("y", np.int32)])  # itemsize=8
+    # Create a valid view first, then re-view with the structured dtype to
+    # bypass numpy's own __dlpack__ rejection during import.
+    src = np.zeros(3, dtype=np.float64)  # itemsize=8 to match
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    bad_view = view.view(dtype=dt)
+    with pytest.raises(BufferError, match="Structured dtypes"):
+        bad_view.__dlpack__()
+
+
+def test_dlpack_export_unsupported_dtype_raises():
+    """Unsupported dtype kind is rejected for DLPack export."""
+    # numpy void dtype (kind='V', typestr='|V4') hits the else branch
+    # in _smv_dtype_numpy_to_dlpack at _memoryview.pyx:577
+    src = np.zeros(3, dtype=np.float32)  # itemsize=4 to match V4
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    bad_view = view.view(dtype=np.dtype("V4"))
+    with pytest.raises(BufferError, match="Unsupported dtype for DLPack export"):
+        bad_view.__dlpack__()
+
+
+class _FakeCAIv2:
+    """Object with CUDA Array Interface v2 (unsupported)."""
+
+    def __init__(self):
+        self.__cuda_array_interface__ = {
+            "version": 2,
+            "shape": (5,),
+            "typestr": "<f4",
+            "data": (0, False),
+        }
+
+
+class _FakeCAIWithMask:
+    """Object with CUDA Array Interface that has a mask."""
+
+    def __init__(self):
+        self.__cuda_array_interface__ = {
+            "version": 3,
+            "shape": (5,),
+            "typestr": "<f4",
+            "data": (0, False),
+            "mask": np.ones(5, dtype=bool),
+        }
+
+
+class _FakeArrayInterfacev2:
+    """Object with NumPy Array Interface v2 (unsupported)."""
+
+    def __init__(self, arr):
+        iface = dict(arr.__array_interface__)
+        iface["version"] = 2
+        self.__array_interface__ = iface
+
+
+class _FakeArrayInterfaceWithMask:
+    """Object with NumPy Array Interface that has a mask."""
+
+    def __init__(self, arr):
+        iface = dict(arr.__array_interface__)
+        iface["mask"] = np.ones(arr.shape, dtype=bool)
+        self.__array_interface__ = iface
+
+
+def test_cai_v2_rejected():
+    """CUDA Array Interface v2 raises BufferError."""
+    from cuda.core._memoryview import view_as_cai
+
+    obj = _FakeCAIv2()
+    with pytest.raises(BufferError, match="v3 or above"):
+        view_as_cai(obj, stream_ptr=-1)
+
+
+def test_cai_mask_rejected():
+    """CUDA Array Interface with mask raises BufferError."""
+    from cuda.core._memoryview import view_as_cai
+
+    obj = _FakeCAIWithMask()
+    with pytest.raises(BufferError, match="mask is not supported"):
+        view_as_cai(obj, stream_ptr=-1)
+
+
+class _FakeCAIv3:
+    """Valid CUDA Array Interface v3 object (for stream=None test)."""
+
+    def __init__(self):
+        self.__cuda_array_interface__ = {
+            "version": 3,
+            "shape": (5,),
+            "typestr": "<f4",
+            "data": (0, False),
+        }
+
+
+def test_cai_stream_none_rejected():
+    """CUDA Array Interface with stream=None raises BufferError."""
+    from cuda.core._memoryview import view_as_cai
+
+    obj = _FakeCAIv3()
+    with pytest.raises(BufferError, match="stream=None is ambiguous"):
+        view_as_cai(obj, stream_ptr=None)
+
+
+def test_array_interface_v2_rejected():
+    """NumPy Array Interface v2 raises BufferError."""
+    from cuda.core._memoryview import view_as_array_interface
+
+    arr = np.zeros(5, dtype=np.float32)
+    obj = _FakeArrayInterfacev2(arr)
+    with pytest.raises(BufferError, match="v3 or above"):
+        view_as_array_interface(obj)
+
+
+def test_array_interface_mask_rejected():
+    """NumPy Array Interface with mask raises BufferError."""
+    from cuda.core._memoryview import view_as_array_interface
+
+    arr = np.zeros(5, dtype=np.float32)
+    obj = _FakeArrayInterfaceWithMask(arr)
+    with pytest.raises(BufferError, match="mask is not supported"):
+        view_as_array_interface(obj)
+
+        
 _torch_skip = pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
 
 

@@ -44,20 +44,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
-      # are exposed by this action.
-      - name: Enable sccache
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
-        with:
-          disable_annotations: 'true'
+      - name: Install latest rapidsai/sccache
+        if: ${{ startsWith(inputs.host-platform, 'linux') }}
+        run: |
+          curl -fsSL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
+            | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
+          echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
+          echo "SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=true" >> "$GITHUB_ENV"
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
         uses: actions/github-script@v8
         with:
           script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
-            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
+            core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
+            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'] || '');
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'] || '');
+            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'] || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'] || '');
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -176,6 +180,7 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -183,7 +188,7 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host/${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
             "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
@@ -241,6 +246,7 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -250,7 +256,7 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
             "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
@@ -429,6 +435,7 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -438,7 +445,7 @@ jobs:
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats &&
+            "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
             "/host${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_core_prev.json
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of

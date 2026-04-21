@@ -183,7 +183,8 @@ def ipc_memory_resource(request, ipc_device):
         mr = PinnedMemoryResource(options=options)
 
     assert mr.is_ipc_enabled
-    return mr
+    yield mr
+    mr.close()
 
 
 @pytest.fixture
