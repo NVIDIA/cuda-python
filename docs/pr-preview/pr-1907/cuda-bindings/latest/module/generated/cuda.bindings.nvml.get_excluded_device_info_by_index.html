@@ -28,8 +28,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
@@ -37,10 +37,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
 
 
@@ -51,7 +51,7 @@
     <script src="../../_static/copybutton.js?v=35a8b989"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'module/generated/cuda.bindings.nvml.get_excluded_device_info_by_index';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -93,7 +93,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -1288,11 +1290,11 @@
 <h1>cuda.bindings.nvml.get_excluded_device_info_by_index<a class="headerlink" href="#cuda-bindings-nvml-get-excluded-device-info-by-index" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.get_excluded_device_info_by_index">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">get_excluded_device_info_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">ind_ex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.get_excluded_device_info_by_index" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Acquire the device information for an excluded GPU device, based on its ind_ex.
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">get_excluded_device_info_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.get_excluded_device_info_by_index" title="Link to this definition">#</a></dt>
+<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Acquire the device information for an excluded GPU device, based on its index.
 
-:param ind_ex: The ind_ex of the target GPU, &gt;= 0 and &lt; ``deviceCount``.
-:type ind_ex: unsigned int
+:param index: The index of the target GPU, &gt;= 0 and &lt; ``deviceCount``.
+:type index: unsigned int
 
 :returns: Reference in which to return the device information.
 :rtype: nvmlExcludedDeviceInfo_t
@@ -1372,8 +1374,8 @@
   
 
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
 
   <footer class="bd-footer">
