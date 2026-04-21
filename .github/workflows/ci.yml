@@ -286,16 +286,35 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  test-sdist:
+  # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
+  # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
+  # build_hooks.py) are exercised on their target OS. Keep these job definitions
+  # textually identical except for:
+  #   - host-platform value
+  #   - uses: (test-sdist-linux.yml vs test-sdist-windows.yml)
+  test-sdist-linux:
     needs:
       - ci-vars
       - should-skip
-    name: Test sdist
+    name: Test sdist linux-64
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
-    uses: ./.github/workflows/test-sdist.yml
+    uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+
+  # See test-sdist-linux for why sdist test jobs are split by platform.
+  test-sdist-windows:
+    needs:
+      - ci-vars
+      - should-skip
+    name: Test sdist win-64
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    secrets: inherit
+    uses: ./.github/workflows/test-sdist-windows.yml
+    with:
+      host-platform: win-64
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
@@ -400,7 +419,8 @@ jobs:
     needs:
       - should-skip
       - detect-changes
-      - test-sdist
+      - test-sdist-linux
+      - test-sdist-windows
       - test-linux-64
       - test-linux-aarch64
       - test-windows
@@ -440,7 +460,10 @@ jobs:
           if ${{ needs.doc.result == 'cancelled' || needs.doc.result == 'failure' }}; then
             exit 1
           fi
-          if ${{ needs.test-sdist.result == 'cancelled' || needs.test-sdist.result == 'failure' }}; then
+          if ${{ needs.test-sdist-linux.result == 'cancelled' ||
+                 needs.test-sdist-linux.result == 'failure' ||
+                 needs.test-sdist-windows.result == 'cancelled' ||
+                 needs.test-sdist-windows.result == 'failure' }}; then
             exit 1
           fi
           if [[ "${doc_only}" != "true" ]]; then
