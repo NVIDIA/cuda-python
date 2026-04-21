@@ -69,10 +69,14 @@ jobs:
 
       # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
+      # PIP_FIND_LINKS is passed as a native Windows path via cygpath because
+      # pip on Windows treats space-separated entries as separators and is
+      # picky about mixed path styles (see build-wheel.yml for the same
+      # convention).
       - name: Build cuda.bindings sdist and wheel-from-sdist
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
-          export PIP_FIND_LINKS="$(pwd)/cuda_pathfinder/dist"
+          export PIP_FIND_LINKS="$(cygpath -w "$(pwd)/cuda_pathfinder/dist")"
           python -m build --sdist cuda_bindings/
           pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
 
@@ -83,6 +87,6 @@ jobs:
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
-          export PIP_FIND_LINKS="$(pwd)/cuda_bindings/dist $(pwd)/cuda_pathfinder/dist"
+          export PIP_FIND_LINKS="$(cygpath -w "$(pwd)/cuda_bindings/dist") $(cygpath -w "$(pwd)/cuda_pathfinder/dist")"
           python -m build --sdist cuda_core/
           pip wheel --no-deps --wheel-dir cuda_core/dist cuda_core/dist/*.tar.gz
