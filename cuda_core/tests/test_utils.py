@@ -993,7 +993,7 @@ def test_array_interface_mask_rejected():
     with pytest.raises(BufferError, match="mask is not supported"):
         view_as_array_interface(obj)
 
-        
+
 _torch_skip = pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
 
 
