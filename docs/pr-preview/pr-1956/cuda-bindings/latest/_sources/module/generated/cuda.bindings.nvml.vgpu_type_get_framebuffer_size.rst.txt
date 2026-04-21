@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.vgpu\_type\_get\_framebuffer\_size
-=====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: vgpu_type_get_framebuffer_size
