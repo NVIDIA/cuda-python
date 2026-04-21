@@ -51,3 +51,36 @@ CUDA protocols
    :template: protocol.rst
 
    typing.IsStreamT
+
+NVML
+----
+
+.. autosummary::
+   :toctree: generated/
+   :template: autosummary/cyclass.rst
+
+   system._device.BAR1MemoryInfo
+   system._device.ClockInfo
+   system._device.ClockOffsets
+   system._device.CoolerInfo
+   system._device.DeviceAttributes
+   system._device.DeviceEvents
+   system._device.EventData
+   system._device.FanInfo
+   system._device.FieldValue
+   system._device.FieldValues
+   system._device.GpuDynamicPstatesInfo
+   system._device.GpuDynamicPstatesUtilization
+   system._device.GpuP2PCapsIndex
+   system._device.GpuP2PStatus
+   system._device.GpuTopologyLevel
+   system._device.InforomInfo
+   system._device.MemoryInfo
+   system._device.PciInfo
+   system._device.RepairStatus
+   system._device.Temperature
+   system._device.ThermalSensor
+   system._device.ThermalSettings
+   system._system_events.RegisteredSystemEvents
+   system._system_events.SystemEvent
+   system._system_events.SystemEvents
