@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
-import ctypes
 import functools
 import importlib.metadata
 import json
 import os
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeAlias, cast
@@ -42,7 +41,10 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib as _locate_static_lib,
 )
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.driver_info import (
+    QueryDriverCudaVersionError,
+    query_driver_cuda_version,
+)
 
 ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
@@ -429,30 +431,6 @@ def compatibility_check(driver_version: int, item1: ResolvedItem, item2: Resolve
     )
 
 
-def _query_driver_version() -> int:
-    loaded_cuda = _load_nvidia_dynamic_lib("cuda")
-    if loaded_cuda.abs_path is None:
-        raise CompatibilityCheckError('Could not determine an absolute path for the driver library "cuda".')
-    if IS_WINDOWS:
-        loader_cls_obj = vars(ctypes).get("WinDLL")
-        if loader_cls_obj is None:
-            raise CompatibilityCheckError("ctypes.WinDLL is unavailable on this platform.")
-        loader_cls = cast(Callable[[str], ctypes.CDLL], loader_cls_obj)
-    else:
-        loader_cls = ctypes.CDLL
-    driver_lib = loader_cls(loaded_cuda.abs_path)
-    cu_driver_get_version = driver_lib.cuDriverGetVersion
-    cu_driver_get_version.argtypes = [ctypes.POINTER(ctypes.c_int)]
-    cu_driver_get_version.restype = ctypes.c_int
-    version = ctypes.c_int()
-    status = cu_driver_get_version(ctypes.byref(version))
-    if status != 0:
-        raise CompatibilityCheckError(
-            f"Failed to query CUDA driver version via cuDriverGetVersion() (status={status})."
-        )
-    return version.value
-
-
 class WithCompatibilityChecks:
     """Resolve CUDA artifacts while enforcing minimal v1 compatibility guard rails."""
 
@@ -470,7 +448,12 @@ class WithCompatibilityChecks:
 
     def _get_driver_version(self) -> int:
         if self._driver_version is None:
-            self._driver_version = _query_driver_version()
+            try:
+                self._driver_version = query_driver_cuda_version().encoded
+            except QueryDriverCudaVersionError as exc:
+                raise CompatibilityCheckError(
+                    "Failed to query the CUDA driver version needed for compatibility checks."
+                ) from exc
         return self._driver_version
 
     def _enforce_supported_packaging(self, item: ResolvedItem) -> None:

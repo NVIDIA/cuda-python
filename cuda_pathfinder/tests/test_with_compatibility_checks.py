@@ -12,11 +12,13 @@ from cuda.pathfinder import (
     BitcodeLibNotFoundError,
     CompatibilityCheckError,
     CompatibilityInsufficientMetadataError,
+    DriverCudaVersion,
     DynamicLibNotFoundError,
     LoadedDL,
     LocatedBitcodeLib,
     LocatedHeaderDir,
     LocatedStaticLib,
+    QueryDriverCudaVersionError,
     StaticLibNotFoundError,
     WithCompatibilityChecks,
 )
@@ -252,11 +254,11 @@ def test_wrapper_queries_driver_version_by_default(monkeypatch, tmp_path):
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
-    def fake_query_driver_version() -> int:
+    def fake_query_driver_cuda_version() -> DriverCudaVersion:
         query_calls.append(1)
-        return 13000
+        return DriverCudaVersion(encoded=13000, major=13, minor=0)
 
-    monkeypatch.setattr(compatibility_module, "_query_driver_version", fake_query_driver_version)
+    monkeypatch.setattr(compatibility_module, "query_driver_cuda_version", fake_query_driver_cuda_version)
 
     pfchecks = WithCompatibilityChecks()
 
@@ -264,6 +266,29 @@ def test_wrapper_queries_driver_version_by_default(monkeypatch, tmp_path):
     pfchecks.load_nvidia_dynamic_lib("nvrtc")
 
     assert len(query_calls) == 1
+
+
+def test_wrapper_wraps_driver_query_failures(monkeypatch, tmp_path):
+    ctk_root = tmp_path / "cuda-12.9"
+    _write_version_json(ctk_root, "12.9.20250531")
+    lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    def fail_query_driver_cuda_version() -> DriverCudaVersion:
+        raise QueryDriverCudaVersionError("driver query failed")
+
+    monkeypatch.setattr(compatibility_module, "query_driver_cuda_version", fail_query_driver_cuda_version)
+
+    pfchecks = WithCompatibilityChecks()
+
+    with pytest.raises(
+        CompatibilityCheckError,
+        match="Failed to query the CUDA driver version needed for compatibility checks",
+    ) as exc_info:
+        pfchecks.load_nvidia_dynamic_lib("nvrtc")
+
+    assert isinstance(exc_info.value.__cause__, QueryDriverCudaVersionError)
 
 
 def test_find_nvidia_header_directory_returns_none_when_unresolved(monkeypatch):
