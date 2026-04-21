@@ -649,7 +649,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._linker = Linker(
             ObjectCode._init(code.encode(), code_type), options=_translate_program_options(options)
         )
-        self._backend = self._linker.backend
+        self._backend = self._linker.backend()
 
     elif code_type == "nvvm":
         _get_nvvm_module()  # Validate NVVM availability

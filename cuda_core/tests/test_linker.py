@@ -92,7 +92,7 @@ def test_linker_init(compile_ptx_functions, options):
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
-    assert linker.backend == ("driver" if is_culink_backend else "nvJitLink")
+    assert linker.backend() == ("driver" if is_culink_backend else "nvJitLink")
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
