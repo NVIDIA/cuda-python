@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Test matrix configurations for CUDA Python CI workflows. This file consolidates
 # the test matrices that were previously hardcoded in the workflow files. All GPU
-# and ARCH values are hard-coded for each architecture: l4 GPU for amd64, a100 GPU
-# for arm64.
+# and ARCH values are hard-coded for each architecture: various GPUs for amd64,
+# alternating a100/l4 for arm64.
 #
 # Please keep the matrices sorted in ascending order by the following:
 #
@@ -38,23 +38,23 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     # linux-aarch64
     - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.10',  CUDA_VER: '13.2.1', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.11',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.11',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.11',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.2.1', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.2.1', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
