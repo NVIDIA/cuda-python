@@ -8,7 +8,7 @@
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[1]|run",
+  "b": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
   "c": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[0]|run",
   "d": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[1]|run",
   "e": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if[False]|run",
@@ -26,15 +26,15 @@
   "q": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value4]|run",
   "r": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_if_else[condition_value5]|run",
   "s": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[0]|run",
-  "t": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[2]|run",
-  "u": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[3]|run",
-  "v": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[0]|run",
-  "w": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[1]|run",
-  "x": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[False]|run",
-  "y": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[True]|run",
-  "z": "tests/graph/test_graph_update.py::test_graph_update_conditional|run",
+  "t": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[1]|run",
+  "u": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[2]|run",
+  "v": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_switch[3]|run",
+  "w": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[0]|run",
+  "x": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[1]|run",
+  "y": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[False]|run",
+  "z": "tests/graph/test_graph_builder_conditional.py::test_graph_conditional_while[True]|run",
   "A": "tests/graph/test_options.py::test_graph_dot_print_options|run",
-  "B": "tests/graph/test_graphdef_errors.py::test_unmatched_alloc_succeeds|run",
+  "B": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[relaxed]|run",
   "C": "tests/graph/test_graph_builder.py::test_graph_capture_callback_ctypes|run",
   "D": "tests/graph/test_graph_builder.py::test_graph_capture_callback_python|run",
   "E": "tests/graph/test_graph_builder.py::test_graph_capture_errors|run",
@@ -45,60 +45,60 @@
   "J": "tests/graph/test_graph_builder.py::test_graph_straight|run",
   "K": "tests/graph/test_graph_builder.py::test_graph_stream_lifetime|run",
   "L": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[global]|run",
-  "M": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[relaxed]|run",
-  "N": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[thread_local]|run",
-  "O": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[global]|run",
-  "P": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[relaxed]|run",
-  "Q": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[thread_local]|run",
-  "R": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
-  "S": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
-  "T": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
-  "U": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
-  "V": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
-  "W": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
-  "X": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[global]|run",
-  "Y": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[relaxed]|run",
-  "Z": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[thread_local]|run",
-  "0": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[global]|run",
-  "1": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[relaxed]|run",
-  "2": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[thread_local]|run",
-  "3": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[global]|run",
-  "4": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[relaxed]|run",
-  "5": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[thread_local]|run",
-  "6": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
-  "7": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDef]|run",
-  "8": "tests/graph/test_graph_update.py::test_graph_update_topology_mismatch|run",
-  "9": "tests/graph/test_graph_update.py::test_graph_update_unfinished_builder|run",
-  "!": "tests/graph/test_graph_update.py::test_graph_update_wrong_type|run",
-  "#": "tests/graph/test_graphdef.py::test_host_callback_cfunc_with_user_data|run",
-  "$": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[auto-free]|run",
-  "%": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[no-options]|run",
-  "'": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[node-priority]|run",
-  "(": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[upload-stream]|run",
-  ")": "tests/graph/test_graphdef.py::test_instantiate_and_execute_child_graph|run",
-  "*": "tests/graph/test_graphdef.py::test_instantiate_and_execute_event_record_wait|run",
-  "+": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback_cfunc|run",
-  ",": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback|run",
-  "-": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[auto-free]|run",
-  ".": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[no-options]|run",
-  "/": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[node-priority]|run",
-  ":": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[upload-stream]|run",
-  ";": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel_device_launch|run",
-  "=": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[auto-free]|run",
-  "?": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[no-options]|run",
-  "@": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[node-priority]|run",
-  "[": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[upload-stream]|run",
-  "]": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[auto-free]|run",
-  "^": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[no-options]|run",
-  "_": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[node-priority]|run",
-  "`": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[upload-stream]|run",
-  "{": "tests/graph/test_graphdef.py::test_instantiate_empty_graph[all-bool-flags]|run",
-  "|": "tests/graph/test_graphdef.py::test_instantiate_empty_graph[no-options]|run",
-  "}": "tests/graph/test_graphdef.py::test_instantiate_empty_graph[none-options]|run",
-  "~": "tests/graph/test_graphdef.py::test_instantiate_with_nodes[all-bool-flags]|run",
-  "ab": "tests/graph/test_graphdef.py::test_instantiate_with_nodes[no-options]|run",
-  "bb": "tests/graph/test_graphdef.py::test_instantiate_with_nodes[none-options]|run",
-  "cb": "tests/graph/test_graphdef_errors.py::test_multiple_instantiation|run",
+  "M": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[thread_local]|run",
+  "N": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[global]|run",
+  "O": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[relaxed]|run",
+  "P": "tests/graph/test_graph_memory_resource.py::test_gmr_check_capture_state[thread_local]|run",
+  "Q": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
+  "R": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
+  "S": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
+  "T": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
+  "U": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
+  "V": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
+  "W": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[global]|run",
+  "X": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[relaxed]|run",
+  "Y": "tests/graph/test_graph_memory_resource.py::test_graph_alloc_with_output[thread_local]|run",
+  "Z": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[global]|run",
+  "0": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[relaxed]|run",
+  "1": "tests/graph/test_graph_memory_resource.py::test_graph_mem_alloc_zero[thread_local]|run",
+  "2": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[global]|run",
+  "3": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[relaxed]|run",
+  "4": "tests/graph/test_graph_memory_resource.py::test_graph_mem_set_attributes[thread_local]|run",
+  "5": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphBuilder]|run",
+  "6": "tests/graph/test_graph_update.py::test_graph_update_kernel_args[GraphDef]|run",
+  "7": "tests/graph/test_graph_update.py::test_graph_update_topology_mismatch|run",
+  "8": "tests/graph/test_graph_update.py::test_graph_update_unfinished_builder|run",
+  "9": "tests/graph/test_graph_update.py::test_graph_update_wrong_type|run",
+  "!": "tests/graph/test_graphdef.py::test_host_callback_cfunc_with_user_data|run",
+  "#": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[auto-free]|run",
+  "$": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[no-options]|run",
+  "%": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[node-priority]|run",
+  "'": "tests/graph/test_graphdef.py::test_instantiate_and_execute_alloc_free[upload-stream]|run",
+  "(": "tests/graph/test_graphdef.py::test_instantiate_and_execute_child_graph|run",
+  ")": "tests/graph/test_graphdef.py::test_instantiate_and_execute_event_record_wait|run",
+  "*": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback_cfunc|run",
+  "+": "tests/graph/test_graphdef.py::test_instantiate_and_execute_host_callback|run",
+  ",": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[auto-free]|run",
+  "-": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[no-options]|run",
+  ".": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[node-priority]|run",
+  "/": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel[upload-stream]|run",
+  ":": "tests/graph/test_graphdef.py::test_instantiate_and_execute_kernel_device_launch|run",
+  ";": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[auto-free]|run",
+  "=": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[no-options]|run",
+  "?": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[node-priority]|run",
+  "@": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memcpy[upload-stream]|run",
+  "[": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[auto-free]|run",
+  "]": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[no-options]|run",
+  "^": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[node-priority]|run",
+  "_": "tests/graph/test_graphdef.py::test_instantiate_and_execute_memset[upload-stream]|run",
+  "`": "tests/graph/test_graphdef.py::test_instantiate_empty_graph[all-bool-flags]|run",
+  "{": "tests/graph/test_graphdef.py::test_instantiate_empty_graph[no-options]|run",
+  "|": "tests/graph/test_graphdef.py::test_instantiate_empty_graph[none-options]|run",
+  "}": "tests/graph/test_graphdef.py::test_instantiate_with_nodes[all-bool-flags]|run",
+  "~": "tests/graph/test_graphdef.py::test_instantiate_with_nodes[no-options]|run",
+  "ab": "tests/graph/test_graphdef.py::test_instantiate_with_nodes[none-options]|run",
+  "bb": "tests/graph/test_graphdef_errors.py::test_multiple_instantiation|run",
+  "cb": "tests/graph/test_graphdef_errors.py::test_unmatched_alloc_succeeds|run",
   "db": "tests/graph/test_graphdef_lifetime.py::test_cfunc_bytes_user_data_survives_del|run",
   "eb": "tests/graph/test_graphdef_lifetime.py::test_cfunc_callback_survives_del|run",
   "fb": "tests/graph/test_graphdef_lifetime.py::test_event_survives_graph_instantiation_and_execution|run",
@@ -187,7 +187,7 @@
             <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__adjacency_set_proxy_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-21 01:34 +0000
+            created at 2026-04-22 01:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -235,16 +235,16 @@
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">cdef tuple cy_binding_version():</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">    global _cached_binding_version</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if _cached_binding_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">104 ctx</label></span><span class="ctxs">2C D E F G H I J K c d e f g h i j k l m n o p q r s b t u v w x y L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 z 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbB dbebfbgbhbibjbkblbmbnbobpbA </span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if _cached_binding_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">104 ctx</label></span><span class="ctxs">2C D E F G H I J K c d e f g h i j k l m n o p q r s t u v w x y z L B M N O P Q R S T U V W X Y Z 0 1 2 3 4 b 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbA </span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        _cached_binding_version = binding_version()</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">1 ctx</label></span><span class="ctxs">1B</span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _cached_binding_version</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">104 ctx</label></span><span class="ctxs">2C D E F G H I J K c d e f g h i j k l m n o p q r s b t u v w x y L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 z 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbB dbebfbgbhbibjbkblbmbnbobpbA </span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _cached_binding_version</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">104 ctx</label></span><span class="ctxs">2C D E F G H I J K c d e f g h i j k l m n o p q r s t u v w x y z L B M N O P Q R S T U V W X Y Z 0 1 2 3 4 b 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbA </span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">cdef tuple cy_driver_version():</span>&nbsp;</span><span class="r"><label for="ctxs39" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    global _cached_driver_version</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    if _cached_driver_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">39 ctx</label></span><span class="ctxs">2c d e f g h i j k l m n o p q r s b t u v w x y z A qbrbsbtbubvbwbxbybzbAbBbCb</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    if _cached_driver_version is None:</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">39 ctx</label></span><span class="ctxs">2c d e f g h i j k l m n o p q r s t u v w x y z b A qbrbsbtbubvbwbxbybzbAbBbCb</span></p>
     <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">        _cached_driver_version = driver_version()</span>&nbsp;</span><input type="checkbox" id="ctxs42"><span class="r"><label for="ctxs42" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    return _cached_driver_version</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">39 ctx</label></span><span class="ctxs">2c d e f g h i j k l m n o p q r s b t u v w x y z A qbrbsbtbubvbwbxbybzbAbBbCb</span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    return _cached_driver_version</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">39 ctx</label></span><span class="ctxs">2c d e f g h i j k l m n o p q r s t u v w x y z b A qbrbsbtbubvbwbxbybzbAbBbCb</span></p>
 </main>
 <footer>
     <div class="content">
@@ -254,7 +254,7 @@
             <a class="nav" href="z_2f8b98bdecb6e8b7__adjacency_set_proxy_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-21 01:34 +0000
+            created at 2026-04-22 01:17 +0000
         </p>
     </div>
 </footer>
