@@ -1,0 +1,6 @@
+﻿cuda.core.system.TemperatureThresholds
+======================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: TemperatureThresholds
