@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-
-# This code was automatically generated with version 12.9.0, generator version 49a8141. Do not modify it directly.
+#
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1603+gcfe73f973. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -30,133 +31,50 @@ cdef extern from "nvrtc.h":
         pass
     ctypedef _nvrtcProgram* nvrtcProgram
 
-{{if 'nvrtcGetErrorString' in found_functions}}
-
 cdef const char* nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil
-{{endif}}
-
-{{if 'nvrtcVersion' in found_functions}}
 
 cdef nvrtcResult nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetNumSupportedArchs' in found_functions}}
 
 cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetSupportedArchs' in found_functions}}
 
 cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcCreateProgram' in found_functions}}
 
 cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcDestroyProgram' in found_functions}}
 
 cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcCompileProgram' in found_functions}}
 
 cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetPTXSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetPTX' in found_functions}}
 
 cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetCUBINSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetCUBIN' in found_functions}}
 
 cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetNVVMSize' in found_functions}}
-
-cdef nvrtcResult nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetNVVM' in found_functions}}
-
-cdef nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetLTOIRSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetLTOIR' in found_functions}}
 
 cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetOptiXIRSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetOptiXIR' in found_functions}}
 
 cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetProgramLogSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetProgramLog' in found_functions}}
 
 cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcAddNameExpression' in found_functions}}
 
 cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetLoweredName' in found_functions}}
 
 cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetPCHHeapSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcSetPCHHeapSize' in found_functions}}
 
 cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
 
 cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
 
 cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcSetFlowCallback' in found_functions}}
 
 cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
