@@ -47,12 +47,14 @@ To run the benchmarks combine the environment and task:
 ```bash
 # Run the Python benchmarks in the wheel environment
 pixi run -e wheel bench
+pixi run -e wheel bench--min-time 0.1
 
 # Run the Python benchmarks in the source environment
 pixi run -e source bench
 
 # Run the C++ benchmarks
 pixi run -e wheel bench-cpp
+pixi run -e wheel bench-cpp --min-time 0.1
 ```
 
 Both runners automatically save results to JSON files in the benchmarks

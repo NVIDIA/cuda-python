@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
@@ -22,6 +23,9 @@ struct Options {
     std::uint64_t warmups = 5;
     std::uint64_t values = 20;
     std::uint64_t runs = 20;
+    double min_time_sec = 0.0;
+    std::uint64_t max_loops = 1000000;
+    std::uint64_t calibrate_rounds = 3;
     std::string output_path;
     std::string benchmark_name;
 };
@@ -46,6 +50,18 @@ inline Options parse_args(int argc, char** argv) {
             options.warmups = std::strtoull(argv[++i], nullptr, 10);
             continue;
         }
+        if (arg == "--min-time" && i + 1 < argc) {
+            options.min_time_sec = std::strtod(argv[++i], nullptr);
+            continue;
+        }
+        if (arg == "--max-loops" && i + 1 < argc) {
+            options.max_loops = std::strtoull(argv[++i], nullptr, 10);
+            continue;
+        }
+        if (arg == "--calibrate-rounds" && i + 1 < argc) {
+            options.calibrate_rounds = std::strtoull(argv[++i], nullptr, 10);
+            continue;
+        }
         if (arg == "--values" && i + 1 < argc) {
             options.values = std::strtoull(argv[++i], nullptr, 10);
             continue;
@@ -68,6 +84,9 @@ inline Options parse_args(int argc, char** argv) {
                       << "  --warmups N     Warmup values per run (default: 5)\n"
                       << "  --values N      Timed values per run (default: 20)\n"
                       << "  --runs N        Number of runs (default: 20)\n"
+                      << "  --min-time S    Calibrate loops to reach S seconds per value\n"
+                      << "  --max-loops N   Max loops used during calibration (default: 1000000)\n"
+                      << "  --calibrate-rounds N  Calibration passes (default: 3)\n"
                       << "  -o, --output F  Write pyperf-compatible JSON to file\n"
                       << "  --name S        Benchmark name (overrides default)\n";
             std::exit(0);
@@ -91,6 +110,47 @@ inline std::string iso_now() {
     char buf[64];
     std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
     return std::string(buf);
+}
+
+// Calibrate loop count to hit a minimum wall time per value.
+template <typename Fn>
+std::uint64_t calibrate_loops(const Options& options, Fn&& fn) {
+    if (options.min_time_sec <= 0.0) {
+        return options.loops;
+    }
+
+    std::uint64_t best = 1;
+    const std::uint64_t max_loops = std::max<std::uint64_t>(1, options.max_loops);
+    const std::uint64_t rounds = std::max<std::uint64_t>(1, options.calibrate_rounds);
+
+    for (std::uint64_t round = 0; round < rounds; ++round) {
+        std::uint64_t loops = 1;
+        double elapsed = 0.0;
+
+        while (true) {
+            const auto t0 = std::chrono::steady_clock::now();
+            for (std::uint64_t i = 0; i < loops; ++i) {
+                fn();
+            }
+            const auto t1 = std::chrono::steady_clock::now();
+            elapsed = std::chrono::duration<double>(t1 - t0).count();
+
+            if (elapsed >= options.min_time_sec || loops >= max_loops) {
+                break;
+            }
+            if (loops > max_loops / 2) {
+                loops = max_loops;
+            } else {
+                loops *= 2;
+            }
+        }
+
+        if (loops > best) {
+            best = loops;
+        }
+    }
+
+    return best;
 }
 
 // Run a benchmark function. The function signature is: void fn() — one call = one operation.
@@ -238,9 +298,15 @@ public:
     // Run a benchmark and record it. The name is used as the benchmark ID.
     template <typename Fn>
     void run(const std::string& name, Fn&& fn) {
-        auto results = run_benchmark(options_, std::forward<Fn>(fn));
+        std::uint64_t loops = options_.loops;
+        Options custom = options_;
+        if (options_.min_time_sec > 0.0) {
+            loops = calibrate_loops(options_, fn);
+            custom.loops = loops;
+        }
+        auto results = run_benchmark(custom, std::forward<Fn>(fn));
         print_summary(name, results);
-        entries_.push_back({name, options_.loops, std::move(results)});
+        entries_.push_back({name, loops, std::move(results)});
     }
 
     // Run a benchmark with a custom loop count (for slow operations like compilation).

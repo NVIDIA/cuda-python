@@ -29,12 +29,25 @@ def load_benchmarks(path: Path) -> dict[str, list[float]]:
                 name = run.get("metadata", {}).get("name", "")
                 if name:
                     break
-        values = []
+        values: list[float] = []
         for run in bench.get("runs", []):
             values.extend(run.get("values", []))
         if name and values:
             results[name] = values
     return results
+
+
+def stats(values: list[float]) -> tuple[float, float, float, int]:
+    mean = statistics.mean(values)
+    stdev = statistics.pstdev(values) if len(values) > 1 else 0.0
+    rsd = (stdev / mean) if mean else 0.0
+    return mean, stdev, rsd, len(values)
+
+
+def fmt_rsd(rsd: float | None) -> str:
+    if rsd is None:
+        return "-"
+    return f"{rsd * 100:.1f}%"
 
 
 def fmt_ns(seconds: float) -> str:
@@ -58,6 +71,12 @@ def main() -> None:
         default=DEFAULT_CPP,
         help=f"C++ results JSON (default: {DEFAULT_CPP.name})",
     )
+    parser.add_argument(
+        "--target-us",
+        type=float,
+        default=1.0,
+        help="Overhead target in microseconds (default: 1.0)",
+    )
     args = parser.parse_args()
 
     if not args.python.exists():
@@ -79,13 +98,16 @@ def main() -> None:
 
     # Header
     if cpp_benchmarks:
-        header = f"{'Benchmark':<{name_width}}  {'C++ (mean)':>12}  {'Python (mean)':>14}  {'Overhead':>10}"
+        header = (
+            f"{'Benchmark':<{name_width}}  {'C++ (mean)':>12}  {'C++ RSD':>8}  "
+            f"{'Python (mean)':>14}  {'Py RSD':>7}  {'Overhead':>10}  {'Target':>6}"
+        )
         sep = "-" * len(header)
         print(sep)
         print(header)
         print(sep)
     else:
-        header = f"{'Benchmark':<{name_width}}  {'Python (mean)':>14}"
+        header = f"{'Benchmark':<{name_width}}  {'Python (mean)':>14}  {'Py RSD':>7}"
         sep = "-" * len(header)
         print(sep)
         print(header)
@@ -95,21 +117,31 @@ def main() -> None:
         py_vals = py_benchmarks.get(name)
         cpp_vals = cpp_benchmarks.get(name)
 
-        py_str = fmt_ns(statistics.mean(py_vals)) if py_vals else "-"
-        cpp_str = fmt_ns(statistics.mean(cpp_vals)) if cpp_vals else "-"
+        py_stats = stats(py_vals) if py_vals else None
+        cpp_stats = stats(cpp_vals) if cpp_vals else None
 
-        if py_vals and cpp_vals:
-            py_mean = statistics.mean(py_vals)
-            cpp_mean = statistics.mean(cpp_vals)
+        py_str = fmt_ns(py_stats[0]) if py_stats else "-"
+        cpp_str = fmt_ns(cpp_stats[0]) if cpp_stats else "-"
+        py_rsd = fmt_rsd(py_stats[2]) if py_stats else "-"
+        cpp_rsd = fmt_rsd(cpp_stats[2]) if cpp_stats else "-"
+
+        if py_stats and cpp_stats:
+            py_mean = py_stats[0]
+            cpp_mean = cpp_stats[0]
             overhead_ns = (py_mean - cpp_mean) * 1e9
             overhead_str = f"+{overhead_ns:.0f} ns"
+            target = "OK" if overhead_ns <= args.target_us * 1000 else "FAIL"
         else:
             overhead_str = "-"
+            target = "-"
 
         if cpp_benchmarks:
-            print(f"{name:<{name_width}}  {cpp_str:>12}  {py_str:>14}  {overhead_str:>10}")
+            print(
+                f"{name:<{name_width}}  {cpp_str:>12}  {cpp_rsd:>8}  "
+                f"{py_str:>14}  {py_rsd:>7}  {overhead_str:>10}  {target:>6}"
+            )
         else:
-            print(f"{name:<{name_width}}  {py_str:>14}")
+            print(f"{name:<{name_width}}  {py_str:>14}  {py_rsd:>7}")
 
     print(sep)
 
