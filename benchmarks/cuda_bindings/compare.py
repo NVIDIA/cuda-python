@@ -71,12 +71,6 @@ def main() -> None:
         default=DEFAULT_CPP,
         help=f"C++ results JSON (default: {DEFAULT_CPP.name})",
     )
-    parser.add_argument(
-        "--target-us",
-        type=float,
-        default=1.0,
-        help="Overhead target in microseconds (default: 1.0)",
-    )
     args = parser.parse_args()
 
     if not args.python.exists():
@@ -100,7 +94,7 @@ def main() -> None:
     if cpp_benchmarks:
         header = (
             f"{'Benchmark':<{name_width}}  {'C++ (mean)':>12}  {'C++ RSD':>8}  "
-            f"{'Python (mean)':>14}  {'Py RSD':>7}  {'Overhead':>10}  {'Target':>6}"
+            f"{'Python (mean)':>14}  {'Py RSD':>7}  {'Overhead':>10}"
         )
         sep = "-" * len(header)
         print(sep)
@@ -130,15 +124,13 @@ def main() -> None:
             cpp_mean = cpp_stats[0]
             overhead_ns = (py_mean - cpp_mean) * 1e9
             overhead_str = f"+{overhead_ns:.0f} ns"
-            target = "OK" if overhead_ns <= args.target_us * 1000 else "FAIL"
         else:
             overhead_str = "-"
-            target = "-"
 
         if cpp_benchmarks:
             print(
                 f"{name:<{name_width}}  {cpp_str:>12}  {cpp_rsd:>8}  "
-                f"{py_str:>14}  {py_rsd:>7}  {overhead_str:>10}  {target:>6}"
+                f"{py_str:>14}  {py_rsd:>7}  {overhead_str:>10}"
             )
         else:
             print(f"{name:<{name_width}}  {py_str:>14}  {py_rsd:>7}")
