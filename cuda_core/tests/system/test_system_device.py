@@ -750,6 +750,41 @@ def test_compute_running_processes():
                     proc.compute_instance_id  # noqa: B018
 
 
+def test_nvlink():
+    for device in system.Device.get_all_devices():
+        max_links = _device.NvlinkInfo.max_links
+        assert isinstance(max_links, int)
+        assert max_links > 0
+
+        for link in range(max_links):
+            with unsupported_before(device, None):
+                nvlink_info = device.get_nvlink(link)
+            assert isinstance(nvlink_info, _device.NvlinkInfo)
+
+            with unsupported_before(device, None):
+                version = nvlink_info.version
+            assert isinstance(version, system.NvlinkVersion)
+
+            with unsupported_before(device, None):
+                state = nvlink_info.state
+            assert isinstance(state, bool)
+
+
+def test_utilization():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            utilization = device.utilization
+        assert isinstance(utilization, system.Utilization)
+
+        gpu = utilization.gpu
+        assert isinstance(gpu, int)
+        assert 0 <= gpu <= 100
+
+        memory = utilization.memory
+        assert isinstance(memory, int)
+        assert 0 <= memory <= 100
+
+
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="MIG not supported on WSL or Windows")
 def test_mig():
     for device in system.Device.get_all_devices():
