@@ -32,6 +32,7 @@ include "_fan.pxi"
 include "_field_values.pxi"
 include "_inforom.pxi"
 include "_memory.pxi"
+include "_mig.pxi"
 include "_nvlink.pxi"
 include "_pci_info.pxi"
 include "_performance.pxi"
@@ -134,12 +135,23 @@ cdef class Device:
         board serial identifier.
 
         In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  That is not included in ``cuda.core.system``.
+        prefix.  If you need a `uuid` without that prefix (for example, to
+        interact with CUDA), use the `uuid_without_prefix` property.
         """
-        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+        return nvml.device_get_uuid(self._handle)
 
-        # TODO: If the user cares about the prefix, we will expose that in the
-        # future using the MIG-related APIs in NVML.
+    @property
+    def uuid_without_prefix(self) -> str:
+        """
+        Retrieves the globally unique immutable UUID associated with this
+        device, as a 5 part hexadecimal string, that augments the immutable,
+        board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  This property returns it without the prefix, to match the UUIDs
+        used in CUDA.  If you need the prefix, use the `uuid` property.
+        """
+        # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
         return nvml.device_get_uuid(self._handle)[4:]
 
     @property
@@ -267,7 +279,7 @@ cdef class Device:
         # search all the devices for one with a matching UUID.
 
         for cuda_device in CudaDevice.get_all_devices():
-            if cuda_device.uuid == self.uuid:
+            if cuda_device.uuid == self.uuid_without_prefix:
                 return cuda_device
 
         raise RuntimeError("No corresponding CUDA device found for this NVML device.")
@@ -282,6 +294,8 @@ cdef class Device:
         int
             The number of available devices.
         """
+        initialize()
+
         return nvml.device_get_count_v2()
 
     @classmethod
@@ -294,6 +308,8 @@ cdef class Device:
         Iterator over :obj:`~Device`
             An iterator over available devices.
         """
+        initialize()
+
         for device_id in range(nvml.device_get_count_v2()):
             yield cls(index=device_id)
 
@@ -318,6 +334,18 @@ cdef class Device:
           is active.
         """
         return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+
+    #########################################################################
+    # MIG (MULTI-INSTANCE GPU) DEVICES
+
+    @property
+    def mig(self) -> MigInfo:
+        """
+        Get :obj:`~MigInfo` accessor for MIG (Multi-Instance GPU) information.
+
+        For Ampere™ or newer fully supported devices.
+        """
+        return MigInfo(self)
 
     #########################################################################
     # AFFINITY
