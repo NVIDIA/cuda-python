@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0, generator version 49a8141. Do not modify it directly.
+# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1588+g61faef43a. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -777,7 +777,7 @@ class CUstreamBatchMemOpType(_FastEnum):
 
 class CUstreamMemoryBarrier_flags(_FastEnum):
     """
-    Flags for :py:obj:`~.CUstreamBatchMemOpParams`::memoryBarrier
+    Flags for :py:obj:`~.CUstreamBatchMemOpParams.memoryBarrier`
     """
     {{if 'CU_STREAM_MEMORY_BARRIER_TYPE_SYS' in found_values}}
 
@@ -4015,16 +4015,15 @@ class CUlaunchAttributeID(_FastEnum):
         cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ':py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::deviceUpdatable\n'
+        ':py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
         'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
-        ':py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode\n'
-        'which can be passed to the various device-side update functions to update\n'
-        "the node's kernel parameters from within another kernel. For more\n"
-        'information on the types of device updates that can be made, as well as the\n'
-        'relevant limitations thereof, see\n'
-        ':py:obj:`~.cudaGraphKernelNodeUpdatesApply`.\n'
+        ':py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode` which\n'
+        'can be passed to the various device-side update functions to update the\n'
+        "node's kernel parameters from within another kernel. For more information\n"
+        'on the types of device updates that can be made, as well as the relevant\n'
+        'limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`.\n'
         ' Nodes which are device-updatable have additional restrictions compared to\n'
         'regular kernel nodes. Firstly, device-updatable nodes cannot be removed\n'
         'from their graph via :py:obj:`~.cuGraphDestroyNode`. Additionally, once\n'
@@ -7761,16 +7760,15 @@ class CUkernelNodeAttrID(_FastEnum):
         cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ':py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::deviceUpdatable\n'
+        ':py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
         'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
-        ':py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode\n'
-        'which can be passed to the various device-side update functions to update\n'
-        "the node's kernel parameters from within another kernel. For more\n"
-        'information on the types of device updates that can be made, as well as the\n'
-        'relevant limitations thereof, see\n'
-        ':py:obj:`~.cudaGraphKernelNodeUpdatesApply`.\n'
+        ':py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode` which\n'
+        'can be passed to the various device-side update functions to update the\n'
+        "node's kernel parameters from within another kernel. For more information\n"
+        'on the types of device updates that can be made, as well as the relevant\n'
+        'limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`.\n'
         ' Nodes which are device-updatable have additional restrictions compared to\n'
         'regular kernel nodes. Firstly, device-updatable nodes cannot be removed\n'
         'from their graph via :py:obj:`~.cuGraphDestroyNode`. Additionally, once\n'
@@ -7971,16 +7969,15 @@ class CUstreamAttrID(_FastEnum):
         cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ':py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::deviceUpdatable\n'
+        ':py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
         'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
-        ':py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode\n'
-        'which can be passed to the various device-side update functions to update\n'
-        "the node's kernel parameters from within another kernel. For more\n"
-        'information on the types of device updates that can be made, as well as the\n'
-        'relevant limitations thereof, see\n'
-        ':py:obj:`~.cudaGraphKernelNodeUpdatesApply`.\n'
+        ':py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode` which\n'
+        'can be passed to the various device-side update functions to update the\n'
+        "node's kernel parameters from within another kernel. For more information\n"
+        'on the types of device updates that can be made, as well as the relevant\n'
+        'limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`.\n'
         ' Nodes which are device-updatable have additional restrictions compared to\n'
         'regular kernel nodes. Firstly, device-updatable nodes cannot be removed\n'
         'from their graph via :py:obj:`~.cuGraphDestroyNode`. Additionally, once\n'
@@ -13152,8 +13149,8 @@ cdef class CUlaunchAttributeValue_union:
     {{if 'CUlaunchAttributeValue_union.syncPolicy' in found_struct}}
     syncPolicy : CUsynchronizationPolicy
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
-        ::CUsynchronizationPolicy for work queued up in this stream
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY. CUsynchronizationPolicy
+        for work queued up in this stream
     {{endif}}
     {{if 'CUlaunchAttributeValue_union.clusterDim' in found_struct}}
     clusterDim : anon_struct1
@@ -18856,8 +18853,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC which
         indicates that while signaling the CUexternalSemaphore, no memory
@@ -19236,8 +19233,8 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.flags' in found_struct}}
     flags : unsigned int
-        Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
-        a CUexternalSemaphore of type
+        Only when CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on a
+        CUexternalSemaphore of type
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
         CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC which indicates
         that while waiting for the CUexternalSemaphore, no memory
@@ -26529,7 +26526,7 @@ def cuCtxCreate_v4(ctxCreateParams : Optional[CUctxCreateParams], unsigned int f
         pdev = int(CUdevice(dev))
     cydev = <cydriver.CUdevice>pdev
     cdef CUcontext pctx = CUcontext()
-    cdef cydriver.CUctxCreateParams* cyctxCreateParams_ptr = ctxCreateParams._pvt_ptr if ctxCreateParams is not None else NULL
+    cdef cydriver.CUctxCreateParams* cyctxCreateParams_ptr = <cydriver.CUctxCreateParams*>ctxCreateParams._pvt_ptr if ctxCreateParams is not None else NULL
     with nogil:
         err = cydriver.cuCtxCreate_v4(<cydriver.CUcontext*>pctx._pvt_ptr, cyctxCreateParams_ptr, flags, cydev)
     if err != cydriver.CUDA_SUCCESS:
@@ -31474,7 +31471,7 @@ def cuMemcpy2D(pCopy : Optional[CUDA_MEMCPY2D]):
     --------
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`
     """
-    cdef cydriver.CUDA_MEMCPY2D* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY2D* cypCopy_ptr = <cydriver.CUDA_MEMCPY2D*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy2D(cypCopy_ptr)
     return (_CUresult(err),)
@@ -31601,7 +31598,7 @@ def cuMemcpy2DUnaligned(pCopy : Optional[CUDA_MEMCPY2D]):
     --------
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`
     """
-    cdef cydriver.CUDA_MEMCPY2D* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY2D* cypCopy_ptr = <cydriver.CUDA_MEMCPY2D*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy2DUnaligned(cypCopy_ptr)
     return (_CUresult(err),)
@@ -31731,7 +31728,7 @@ def cuMemcpy3D(pCopy : Optional[CUDA_MEMCPY3D]):
     --------
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaMemcpy3D`
     """
-    cdef cydriver.CUDA_MEMCPY3D* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D* cypCopy_ptr = <cydriver.CUDA_MEMCPY3D*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy3D(cypCopy_ptr)
     return (_CUresult(err),)
@@ -31761,7 +31758,7 @@ def cuMemcpy3DPeer(pCopy : Optional[CUDA_MEMCPY3D_PEER]):
     --------
     :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyPeer`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyPeerAsync`, :py:obj:`~.cuMemcpy3DPeerAsync`, :py:obj:`~.cudaMemcpy3DPeer`
     """
-    cdef cydriver.CUDA_MEMCPY3D_PEER* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D_PEER* cypCopy_ptr = <cydriver.CUDA_MEMCPY3D_PEER*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy3DPeer(cypCopy_ptr)
     return (_CUresult(err),)
@@ -32329,7 +32326,7 @@ def cuMemcpy2DAsync(pCopy : Optional[CUDA_MEMCPY2D], hStream):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef cydriver.CUDA_MEMCPY2D* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY2D* cypCopy_ptr = <cydriver.CUDA_MEMCPY2D*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy2DAsync(cypCopy_ptr, cyhStream)
     return (_CUresult(err),)
@@ -32469,7 +32466,7 @@ def cuMemcpy3DAsync(pCopy : Optional[CUDA_MEMCPY3D], hStream):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef cydriver.CUDA_MEMCPY3D* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D* cypCopy_ptr = <cydriver.CUDA_MEMCPY3D*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy3DAsync(cypCopy_ptr, cyhStream)
     return (_CUresult(err),)
@@ -32509,7 +32506,7 @@ def cuMemcpy3DPeerAsync(pCopy : Optional[CUDA_MEMCPY3D_PEER], hStream):
     else:
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
-    cdef cydriver.CUDA_MEMCPY3D_PEER* cypCopy_ptr = pCopy._pvt_ptr if pCopy is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D_PEER* cypCopy_ptr = <cydriver.CUDA_MEMCPY3D_PEER*>pCopy._pvt_ptr if pCopy is not None else NULL
     with nogil:
         err = cydriver.cuMemcpy3DPeerAsync(cypCopy_ptr, cyhStream)
     return (_CUresult(err),)
@@ -32724,16 +32721,16 @@ def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_MEMCPY3D_BA
     the CUDA array. For CUDA array to CUDA array copies, the element size
     of the two CUDA arrays must match.
 
-    For a given operand, if :py:obj:`~.CUmemcpy3DOperand`::type is
-    specified as :py:obj:`~.CU_MEMCPY_OPERAND_TYPE_POINTER`, then
-    :py:obj:`~.CUmemcpy3DOperand`::op::ptr will be used. The
-    :py:obj:`~.CUmemcpy3DOperand`::op::ptr::ptr field must contain the
-    pointer where the copy should begin. The
-    :py:obj:`~.CUmemcpy3DOperand`::op::ptr::rowLength field specifies the
+    For a given operand, if :py:obj:`~.CUmemcpy3DOperand.type` is specified
+    as :py:obj:`~.CU_MEMCPY_OPERAND_TYPE_POINTER`, then
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr` will be used. The
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.ptr` field must contain the pointer
+    where the copy should begin. The
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.rowLength` field specifies the
     length of each row in elements and must either be zero or be greater
     than or equal to the width of the copy specified in
     :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP`::extent::width. The
-    :py:obj:`~.CUmemcpy3DOperand`::op::ptr::layerHeight field specifies the
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.layerHeight` field specifies the
     height of each layer and must either be zero or be greater than or
     equal to the height of the copy specified in
     :py:obj:`~.CUDA_MEMCPY3D_BATCH_OP`::extent::height. When either of
@@ -32743,15 +32740,15 @@ def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_MEMCPY3D_BA
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS` is true or
     system-allocated pageable memory on devices where
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS` is true, the
-    :py:obj:`~.CUmemcpy3DOperand`::op::ptr::locHint field can be used to
-    hint the location of the operand.
+    :py:obj:`~.CUmemcpy3DOperand.op.ptr.locHint` field can be used to hint
+    the location of the operand.
 
     If an operand's type is specified as
     :py:obj:`~.CU_MEMCPY_OPERAND_TYPE_ARRAY`, then
-    :py:obj:`~.CUmemcpy3DOperand`::op::array will be used. The
-    :py:obj:`~.CUmemcpy3DOperand`::op::array::array field specifies the
-    CUDA array and :py:obj:`~.CUmemcpy3DOperand`::op::array::offset
-    specifies the 3D offset into that array where the copy begins.
+    :py:obj:`~.CUmemcpy3DOperand.op.array` will be used. The
+    :py:obj:`~.CUmemcpy3DOperand.op.array.array` field specifies the CUDA
+    array and :py:obj:`~.CUmemcpy3DOperand.op.array.offset` specifies the
+    3D offset into that array where the copy begins.
 
     The :py:obj:`~.CUmemcpyAttributes.srcAccessOrder` indicates the source
     access ordering to be observed for copies associated with the
@@ -33487,7 +33484,7 @@ def cuArrayCreate(pAllocateArray : Optional[CUDA_ARRAY_DESCRIPTOR]):
     :py:obj:`~.cuArray3DCreate`, :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaMallocArray`
     """
     cdef CUarray pHandle = CUarray()
-    cdef cydriver.CUDA_ARRAY_DESCRIPTOR* cypAllocateArray_ptr = pAllocateArray._pvt_ptr if pAllocateArray is not None else NULL
+    cdef cydriver.CUDA_ARRAY_DESCRIPTOR* cypAllocateArray_ptr = <cydriver.CUDA_ARRAY_DESCRIPTOR*>pAllocateArray._pvt_ptr if pAllocateArray is not None else NULL
     with nogil:
         err = cydriver.cuArrayCreate(<cydriver.CUarray*>pHandle._pvt_ptr, cypAllocateArray_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -33987,7 +33984,7 @@ def cuArray3DCreate(pAllocateArray : Optional[CUDA_ARRAY3D_DESCRIPTOR]):
     :py:obj:`~.cuArray3DGetDescriptor`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cuArrayDestroy`, :py:obj:`~.cuArrayGetDescriptor`, :py:obj:`~.cuMemAlloc`, :py:obj:`~.cuMemAllocHost`, :py:obj:`~.cuMemAllocPitch`, :py:obj:`~.cuMemcpy2D`, :py:obj:`~.cuMemcpy2DAsync`, :py:obj:`~.cuMemcpy2DUnaligned`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuMemcpy3DAsync`, :py:obj:`~.cuMemcpyAtoA`, :py:obj:`~.cuMemcpyAtoD`, :py:obj:`~.cuMemcpyAtoH`, :py:obj:`~.cuMemcpyAtoHAsync`, :py:obj:`~.cuMemcpyDtoA`, :py:obj:`~.cuMemcpyDtoD`, :py:obj:`~.cuMemcpyDtoDAsync`, :py:obj:`~.cuMemcpyDtoH`, :py:obj:`~.cuMemcpyDtoHAsync`, :py:obj:`~.cuMemcpyHtoA`, :py:obj:`~.cuMemcpyHtoAAsync`, :py:obj:`~.cuMemcpyHtoD`, :py:obj:`~.cuMemcpyHtoDAsync`, :py:obj:`~.cuMemFree`, :py:obj:`~.cuMemFreeHost`, :py:obj:`~.cuMemGetAddressRange`, :py:obj:`~.cuMemGetInfo`, :py:obj:`~.cuMemHostAlloc`, :py:obj:`~.cuMemHostGetDevicePointer`, :py:obj:`~.cuMemsetD2D8`, :py:obj:`~.cuMemsetD2D16`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuMemsetD8`, :py:obj:`~.cuMemsetD16`, :py:obj:`~.cuMemsetD32`, :py:obj:`~.cudaMalloc3DArray`
     """
     cdef CUarray pHandle = CUarray()
-    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR* cypAllocateArray_ptr = pAllocateArray._pvt_ptr if pAllocateArray is not None else NULL
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR* cypAllocateArray_ptr = <cydriver.CUDA_ARRAY3D_DESCRIPTOR*>pAllocateArray._pvt_ptr if pAllocateArray is not None else NULL
     with nogil:
         err = cydriver.cuArray3DCreate(<cydriver.CUarray*>pHandle._pvt_ptr, cypAllocateArray_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -34157,7 +34154,7 @@ def cuMipmappedArrayCreate(pMipmappedArrayDesc : Optional[CUDA_ARRAY3D_DESCRIPTO
     :py:obj:`~.cuMipmappedArrayDestroy`, :py:obj:`~.cuMipmappedArrayGetLevel`, :py:obj:`~.cuArrayCreate`, :py:obj:`~.cudaMallocMipmappedArray`
     """
     cdef CUmipmappedArray pHandle = CUmipmappedArray()
-    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR* cypMipmappedArrayDesc_ptr = pMipmappedArrayDesc._pvt_ptr if pMipmappedArrayDesc is not None else NULL
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR* cypMipmappedArrayDesc_ptr = <cydriver.CUDA_ARRAY3D_DESCRIPTOR*>pMipmappedArrayDesc._pvt_ptr if pMipmappedArrayDesc is not None else NULL
     with nogil:
         err = cydriver.cuMipmappedArrayCreate(<cydriver.CUmipmappedArray*>pHandle._pvt_ptr, cypMipmappedArrayDesc_ptr, numMipmapLevels)
     if err != cydriver.CUDA_SUCCESS:
@@ -34401,7 +34398,7 @@ def cuMemBatchDecompressAsync(paramsArray : Optional[CUmemDecompressParams], siz
     else:
         pstream = int(CUstream(stream))
     cystream = <cydriver.CUstream><void_ptr>pstream
-    cdef cydriver.CUmemDecompressParams* cyparamsArray_ptr = paramsArray._pvt_ptr if paramsArray is not None else NULL
+    cdef cydriver.CUmemDecompressParams* cyparamsArray_ptr = <cydriver.CUmemDecompressParams*>paramsArray._pvt_ptr if paramsArray is not None else NULL
     cdef size_t errorIndex = 0
     with nogil:
         err = cydriver.cuMemBatchDecompressAsync(cyparamsArray_ptr, count, flags, &errorIndex, cystream)
@@ -34522,7 +34519,7 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     :py:obj:`~.cuMemGetAllocationGranularity` with the
     :py:obj:`~.CU_MEM_ALLOC_GRANULARITY_MINIMUM` flag. To create a CPU
     allocation targeting a specific host NUMA node, applications must set
-    :py:obj:`~.CUmemAllocationProp`::CUmemLocation::type to
+    :py:obj:`~.CUmemAllocationProp.CUmemLocation.type` to
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` and
     :py:obj:`~.CUmemAllocationProp`::CUmemLocation::id must specify the
     NUMA ID of the CPU. On systems where NUMA is not available
@@ -34552,7 +34549,7 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     /proc/devices users can execute the following command: `mknod
     /dev/nvidia-caps-imex-channels/channel0 c <major number> 0`
 
-    If :py:obj:`~.CUmemAllocationProp`::allocFlags::usage contains
+    If :py:obj:`~.CUmemAllocationProp.allocFlags.usage` contains
     :py:obj:`~.CU_MEM_CREATE_USAGE_TILE_POOL` flag then the memory
     allocation is intended only to be used as backing tile pool for sparse
     CUDA arrays and sparse CUDA mipmapped arrays. (see
@@ -34580,7 +34577,7 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     :py:obj:`~.cuMemRelease`, :py:obj:`~.cuMemExportToShareableHandle`, :py:obj:`~.cuMemImportFromShareableHandle`
     """
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
-    cdef cydriver.CUmemAllocationProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
+    cdef cydriver.CUmemAllocationProp* cyprop_ptr = <cydriver.CUmemAllocationProp*>prop._pvt_ptr if prop is not None else NULL
     with nogil:
         err = cydriver.cuMemCreate(<cydriver.CUmemGenericAllocationHandle*>handle._pvt_ptr, size, cyprop_ptr, flags)
     if err != cydriver.CUDA_SUCCESS:
@@ -34731,17 +34728,17 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     where :py:obj:`~.CUarrayMapInfo.resourceType` specifies the type of
     resource to be operated on. If :py:obj:`~.CUarrayMapInfo.resourceType`
     is set to :py:obj:`~.CUresourcetype`::CU_RESOURCE_TYPE_ARRAY then
-    :py:obj:`~.CUarrayMapInfo`::resource::array must be set to a valid
-    sparse CUDA array handle. The CUDA array must be either a 2D, 2D
-    layered or 3D CUDA array and must have been allocated using
-    :py:obj:`~.cuArrayCreate` or :py:obj:`~.cuArray3DCreate` with the flag
+    :py:obj:`~.CUarrayMapInfo.resource.array` must be set to a valid sparse
+    CUDA array handle. The CUDA array must be either a 2D, 2D layered or 3D
+    CUDA array and must have been allocated using :py:obj:`~.cuArrayCreate`
+    or :py:obj:`~.cuArray3DCreate` with the flag
     :py:obj:`~.CUDA_ARRAY3D_SPARSE` or
     :py:obj:`~.CUDA_ARRAY3D_DEFERRED_MAPPING`. For CUDA arrays obtained
     using :py:obj:`~.cuMipmappedArrayGetLevel`,
     :py:obj:`~.CUDA_ERROR_INVALID_VALUE` will be returned. If
     :py:obj:`~.CUarrayMapInfo.resourceType` is set to
     :py:obj:`~.CUresourcetype`::CU_RESOURCE_TYPE_MIPMAPPED_ARRAY then
-    :py:obj:`~.CUarrayMapInfo`::resource::mipmap must be set to a valid
+    :py:obj:`~.CUarrayMapInfo.resource.mipmap` must be set to a valid
     sparse CUDA mipmapped array handle. The CUDA mipmapped array must be
     either a 2D, 2D layered or 3D CUDA mipmapped array and must have been
     allocated using :py:obj:`~.cuMipmappedArrayCreate` with the flag
@@ -34765,26 +34762,25 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
 
     If :py:obj:`~.CUarrayMapInfo.subresourceType` is set to
     :py:obj:`~.CUarraySparseSubresourceType`::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
-    then :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel struct must
+    then :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel` struct must
     contain valid array subregion offsets and extents. The
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::offsetX,
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::offsetY and
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::offsetZ must
-    specify valid X, Y and Z offsets respectively. The
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::extentWidth,
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::extentHeight and
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::extentDepth must
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.offsetX`,
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.offsetY` and
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.offsetZ` must specify
+    valid X, Y and Z offsets respectively. The
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.extentWidth`,
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.extentHeight` and
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.extentDepth` must
     specify valid width, height and depth extents respectively. These
     offsets and extents must be aligned to the corresponding tile
     dimension. For CUDA mipmapped arrays
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::level must
-    specify a valid mip level index. Otherwise, must be zero. For layered
-    CUDA arrays and layered CUDA mipmapped arrays
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::layer must
-    specify a valid layer index. Otherwise, must be zero.
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::offsetZ must be
-    zero and
-    :py:obj:`~.CUarrayMapInfo`::subresource::sparseLevel::extentDepth must
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.level` must specify a
+    valid mip level index. Otherwise, must be zero. For layered CUDA arrays
+    and layered CUDA mipmapped arrays
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.layer` must specify a
+    valid layer index. Otherwise, must be zero.
+    :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.offsetZ` must be zero
+    and :py:obj:`~.CUarrayMapInfo.subresource.sparseLevel.extentDepth` must
     be set to 1 for 2D and 2D layered CUDA arrays and CUDA mipmapped
     arrays. Tile extents can be obtained by calling
     :py:obj:`~.cuArrayGetSparseProperties` and
@@ -34792,23 +34788,23 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
 
     If :py:obj:`~.CUarrayMapInfo.subresourceType` is set to
     :py:obj:`~.CUarraySparseSubresourceType`::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
-    then :py:obj:`~.CUarrayMapInfo`::subresource::miptail struct must
-    contain valid mip tail offset in
-    :py:obj:`~.CUarrayMapInfo`::subresource::miptail::offset and size in
-    :py:obj:`~.CUarrayMapInfo`::subresource::miptail::size. Both, mip tail
+    then :py:obj:`~.CUarrayMapInfo.subresource.miptail` struct must contain
+    valid mip tail offset in
+    :py:obj:`~.CUarrayMapInfo.subresource.miptail.offset` and size in
+    :py:obj:`~.CUarrayMapInfo.subresource.miptail.size`. Both, mip tail
     offset and mip tail size must be aligned to the tile size. For layered
     CUDA mipmapped arrays which don't have the flag
     :py:obj:`~.CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL` set in
     :py:obj:`~.CUDA_ARRAY_SPARSE_PROPERTIES.flags` as returned by
     :py:obj:`~.cuMipmappedArrayGetSparseProperties`,
-    :py:obj:`~.CUarrayMapInfo`::subresource::miptail::layer must specify a
+    :py:obj:`~.CUarrayMapInfo.subresource.miptail.layer` must specify a
     valid layer index. Otherwise, must be zero.
 
-    If :py:obj:`~.CUarrayMapInfo`::resource::array or
-    :py:obj:`~.CUarrayMapInfo`::resource::mipmap was created with
+    If :py:obj:`~.CUarrayMapInfo.resource.array` or
+    :py:obj:`~.CUarrayMapInfo.resource.mipmap` was created with
     :py:obj:`~.CUDA_ARRAY3D_DEFERRED_MAPPING` flag set the
     :py:obj:`~.CUarrayMapInfo.subresourceType` and the contents of
-    :py:obj:`~.CUarrayMapInfo`::subresource will be ignored.
+    :py:obj:`~.CUarrayMapInfo.subresource` will be ignored.
 
     :py:obj:`~.CUarrayMapInfo.memOperationType` specifies the type of
     operation. :py:obj:`~.CUmemOperationType` is defined as:
@@ -34818,7 +34814,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     If :py:obj:`~.CUarrayMapInfo.memOperationType` is set to
     :py:obj:`~.CUmemOperationType`::CU_MEM_OPERATION_TYPE_MAP then the
     subresource will be mapped onto the tile pool memory specified by
-    :py:obj:`~.CUarrayMapInfo`::memHandle at offset
+    :py:obj:`~.CUarrayMapInfo.memHandle` at offset
     :py:obj:`~.CUarrayMapInfo.offset`. The tile pool allocation has to be
     created by specifying the :py:obj:`~.CU_MEM_CREATE_USAGE_TILE_POOL`
     flag when calling :py:obj:`~.cuMemCreate`. Also,
@@ -34827,7 +34823,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
 
     If :py:obj:`~.CUarrayMapInfo.memOperationType` is set to
     :py:obj:`~.CUmemOperationType`::CU_MEM_OPERATION_TYPE_UNMAP then an
-    unmapping operation is performed. :py:obj:`~.CUarrayMapInfo`::memHandle
+    unmapping operation is performed. :py:obj:`~.CUarrayMapInfo.memHandle`
     must be NULL.
 
     :py:obj:`~.CUarrayMapInfo.deviceBitMask` specifies the list of devices
@@ -34837,7 +34833,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
     :py:obj:`~.CUarrayMapInfo.memOperationType` is set to
     :py:obj:`~.CUmemOperationType`::CU_MEM_OPERATION_TYPE_MAP, the device
     must also match the device associated with the tile pool memory
-    allocation as specified by :py:obj:`~.CUarrayMapInfo`::memHandle.
+    allocation as specified by :py:obj:`~.CUarrayMapInfo.memHandle`.
 
     :py:obj:`~.CUarrayMapInfo.flags` and
     :py:obj:`~.CUarrayMapInfo.reserved`[] are unused and must be set to
@@ -35043,7 +35039,7 @@ def cuMemGetAccess(location : Optional[CUmemLocation], ptr):
         pptr = int(CUdeviceptr(ptr))
     cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
     cdef unsigned long long flags = 0
-    cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location is not None else NULL
+    cdef cydriver.CUmemLocation* cylocation_ptr = <cydriver.CUmemLocation*>location._pvt_ptr if location is not None else NULL
     with nogil:
         err = cydriver.cuMemGetAccess(&flags, cylocation_ptr, cyptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -35192,7 +35188,7 @@ def cuMemGetAllocationGranularity(prop : Optional[CUmemAllocationProp], option n
     :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemMap`
     """
     cdef size_t granularity = 0
-    cdef cydriver.CUmemAllocationProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
+    cdef cydriver.CUmemAllocationProp* cyprop_ptr = <cydriver.CUmemAllocationProp*>prop._pvt_ptr if prop is not None else NULL
     cdef cydriver.CUmemAllocationGranularity_flags cyoption = int(option)
     with nogil:
         err = cydriver.cuMemGetAllocationGranularity(&granularity, cyprop_ptr, cyoption)
@@ -35682,7 +35678,7 @@ def cuMemPoolGetAccess(memPool, location : Optional[CUmemLocation]):
         pmemPool = int(CUmemoryPool(memPool))
     cymemPool = <cydriver.CUmemoryPool><void_ptr>pmemPool
     cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location is not None else NULL
+    cdef cydriver.CUmemLocation* cylocation_ptr = <cydriver.CUmemLocation*>location._pvt_ptr if location is not None else NULL
     with nogil:
         err = cydriver.cuMemPoolGetAccess(&flags, cymemPool, cylocation_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -35757,7 +35753,7 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     Specifying CU_MEM_HANDLE_TYPE_NONE creates a memory pool that will not support IPC.
     """
     cdef CUmemoryPool pool = CUmemoryPool()
-    cdef cydriver.CUmemPoolProps* cypoolProps_ptr = poolProps._pvt_ptr if poolProps is not None else NULL
+    cdef cydriver.CUmemPoolProps* cypoolProps_ptr = <cydriver.CUmemPoolProps*>poolProps._pvt_ptr if poolProps is not None else NULL
     with nogil:
         err = cydriver.cuMemPoolCreate(<cydriver.CUmemoryPool*>pool._pvt_ptr, cypoolProps_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -36065,7 +36061,7 @@ def cuMemPoolImportPointer(pool, shareData : Optional[CUmemPoolPtrExportData]):
         ppool = int(CUmemoryPool(pool))
     cypool = <cydriver.CUmemoryPool><void_ptr>ppool
     cdef CUdeviceptr ptr_out = CUdeviceptr()
-    cdef cydriver.CUmemPoolPtrExportData* cyshareData_ptr = shareData._pvt_ptr if shareData is not None else NULL
+    cdef cydriver.CUmemPoolPtrExportData* cyshareData_ptr = <cydriver.CUmemPoolPtrExportData*>shareData._pvt_ptr if shareData is not None else NULL
     with nogil:
         err = cydriver.cuMemPoolImportPointer(<cydriver.CUdeviceptr*>ptr_out._pvt_ptr, cypool, cyshareData_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -36126,7 +36122,7 @@ def cuMulticastCreate(prop : Optional[CUmulticastObjectProp]):
     :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemRelease`, :py:obj:`~.cuMemExportToShareableHandle`, :py:obj:`~.cuMemImportFromShareableHandle`
     """
     cdef CUmemGenericAllocationHandle mcHandle = CUmemGenericAllocationHandle()
-    cdef cydriver.CUmulticastObjectProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
+    cdef cydriver.CUmulticastObjectProp* cyprop_ptr = <cydriver.CUmulticastObjectProp*>prop._pvt_ptr if prop is not None else NULL
     with nogil:
         err = cydriver.cuMulticastCreate(<cydriver.CUmemGenericAllocationHandle*>mcHandle._pvt_ptr, cyprop_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -36435,7 +36431,7 @@ def cuMulticastGetGranularity(prop : Optional[CUmulticastObjectProp], option not
     :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindAddr`, :py:obj:`~.cuMulticastUnbind`
     """
     cdef size_t granularity = 0
-    cdef cydriver.CUmulticastObjectProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
+    cdef cydriver.CUmulticastObjectProp* cyprop_ptr = <cydriver.CUmulticastObjectProp*>prop._pvt_ptr if prop is not None else NULL
     cdef cydriver.CUmulticastGranularity_flags cyoption = int(option)
     with nogil:
         err = cydriver.cuMulticastGetGranularity(&granularity, cyprop_ptr, cyoption)
@@ -39346,7 +39342,7 @@ def cuStreamSetAttribute(hStream, attr not None : CUstreamAttrID, value : Option
         phStream = int(CUstream(hStream))
     cyhStream = <cydriver.CUstream><void_ptr>phStream
     cdef cydriver.CUstreamAttrID cyattr = int(attr)
-    cdef cydriver.CUstreamAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
+    cdef cydriver.CUstreamAttrValue* cyvalue_ptr = <cydriver.CUstreamAttrValue*>value._pvt_ptr if value is not None else NULL
     with nogil:
         err = cydriver.cuStreamSetAttribute(cyhStream, cyattr, cyvalue_ptr)
     return (_CUresult(err),)
@@ -39832,89 +39828,84 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD`, then
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::fd must be a
-    valid file descriptor referencing a memory object. Ownership of the
-    file descriptor is transferred to the CUDA driver when the handle is
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.fd` must be a valid
+    file descriptor referencing a memory object. Ownership of the file
+    descriptor is transferred to the CUDA driver when the handle is
     imported successfully. Performing any operations on the file descriptor
     after it is imported results in undefined behavior.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32`, then exactly
-    one of
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle and
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name must
+    one of :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle`
+    and :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` must
     not be NULL. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle is
-    not NULL, then it must represent a valid shared NT handle that
-    references a memory object. Ownership of this handle is not transferred
-    to CUDA after the import operation, so the application must release the
-    handle using the appropriate system call. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name is
-    not NULL, then it must point to a NULL-terminated array of UTF-16
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` is not
+    NULL, then it must represent a valid shared NT handle that references a
+    memory object. Ownership of this handle is not transferred to CUDA
+    after the import operation, so the application must release the handle
+    using the appropriate system call. If
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
+    NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a memory object.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT`, then
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle
-    must be non-NULL and
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name must
-    be NULL. The handle specified must be a globally shared KMT handle.
-    This handle does not hold a reference to the underlying object, and
-    thus will be invalid when all references to the memory object are
-    destroyed.
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` must
+    be non-NULL and
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` must be
+    NULL. The handle specified must be a globally shared KMT handle. This
+    handle does not hold a reference to the underlying object, and thus
+    will be invalid when all references to the memory object are destroyed.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP`, then exactly one
-    of :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle
-    and :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name
-    must not be NULL. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle is
-    not NULL, then it must represent a valid shared NT handle that is
-    returned by ID3D12Device::CreateSharedHandle when referring to a
-    ID3D12Heap object. This handle holds a reference to the underlying
-    object. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name is
-    not NULL, then it must point to a NULL-terminated array of UTF-16
+    of :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` and
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` must not
+    be NULL. If
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` is not
+    NULL, then it must represent a valid shared NT handle that is returned
+    by ID3D12Device::CreateSharedHandle when referring to a ID3D12Heap
+    object. This handle holds a reference to the underlying object. If
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
+    NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D12Heap object.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE`, then exactly
-    one of
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle and
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name must
+    one of :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle`
+    and :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` must
     not be NULL. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle is
-    not NULL, then it must represent a valid shared NT handle that is
-    returned by ID3D12Device::CreateSharedHandle when referring to a
-    ID3D12Resource object. This handle holds a reference to the underlying
-    object. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name is
-    not NULL, then it must point to a NULL-terminated array of UTF-16
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` is not
+    NULL, then it must represent a valid shared NT handle that is returned
+    by ID3D12Device::CreateSharedHandle when referring to a ID3D12Resource
+    object. This handle holds a reference to the underlying object. If
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
+    NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D12Resource object.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE`, then
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle
-    must represent a valid shared NT handle that is returned by
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` must
+    represent a valid shared NT handle that is returned by
     IDXGIResource1::CreateSharedHandle when referring to a ID3D11Resource
     object. If
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name is
-    not NULL, then it must point to a NULL-terminated array of UTF-16
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
+    NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D11Resource object.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE_KMT`, then
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::handle
-    must represent a valid shared KMT handle that is returned by
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` must
+    represent a valid shared KMT handle that is returned by
     IDXGIResource::GetSharedHandle when referring to a ID3D11Resource
     object and
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::win32::name must
-    be NULL.
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` must be
+    NULL.
 
     If :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF`, then
-    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC`::handle::nvSciBufObject
-    must be non-NULL and reference a valid NvSciBuf object. If the NvSciBuf
+    :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.nvSciBufObject` must
+    be non-NULL and reference a valid NvSciBuf object. If the NvSciBuf
     object imported into CUDA is also mapped by other drivers, then the
     application must use :py:obj:`~.cuWaitExternalSemaphoresAsync` or
     :py:obj:`~.cuSignalExternalSemaphoresAsync` as appropriate barriers to
@@ -39957,7 +39948,7 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     and Cache Control" chapter from Vulkan specification.
     """
     cdef CUexternalMemory extMem_out = CUexternalMemory()
-    cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC* cymemHandleDesc_ptr = memHandleDesc._pvt_ptr if memHandleDesc is not None else NULL
+    cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC* cymemHandleDesc_ptr = <cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC*>memHandleDesc._pvt_ptr if memHandleDesc is not None else NULL
     with nogil:
         err = cydriver.cuImportExternalMemory(<cydriver.CUexternalMemory*>extMem_out._pvt_ptr, cymemHandleDesc_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -40027,7 +40018,7 @@ def cuExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[CUDA_EXTERNAL_
         pextMem = int(CUexternalMemory(extMem))
     cyextMem = <cydriver.CUexternalMemory><void_ptr>pextMem
     cdef CUdeviceptr devPtr = CUdeviceptr()
-    cdef cydriver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC* cybufferDesc_ptr = bufferDesc._pvt_ptr if bufferDesc is not None else NULL
+    cdef cydriver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC* cybufferDesc_ptr = <cydriver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC*>bufferDesc._pvt_ptr if bufferDesc is not None else NULL
     with nogil:
         err = cydriver.cuExternalMemoryGetMappedBuffer(<cydriver.CUdeviceptr*>devPtr._pvt_ptr, cyextMem, cybufferDesc_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -40100,7 +40091,7 @@ def cuExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[CUDA_E
         pextMem = int(CUexternalMemory(extMem))
     cyextMem = <cydriver.CUexternalMemory><void_ptr>pextMem
     cdef CUmipmappedArray mipmap = CUmipmappedArray()
-    cdef cydriver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC* cymipmapDesc_ptr = mipmapDesc._pvt_ptr if mipmapDesc is not None else NULL
+    cdef cydriver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC* cymipmapDesc_ptr = <cydriver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC*>mipmapDesc._pvt_ptr if mipmapDesc is not None else NULL
     with nogil:
         err = cydriver.cuExternalMemoryGetMappedMipmappedArray(<cydriver.CUmipmappedArray*>mipmap._pvt_ptr, cyextMem, cymipmapDesc_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -40169,7 +40160,7 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD`, then
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::fd must be a
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.fd` must be a
     valid file descriptor referencing a synchronization object. Ownership
     of the file descriptor is transferred to the CUDA driver when the
     handle is imported successfully. Performing any operations on the file
@@ -40178,98 +40169,95 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32`, then
     exactly one of
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
-    and
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name
-    must not be NULL. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
-    is not NULL, then it must represent a valid shared NT handle that
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` and
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` must
+    not be NULL. If
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` is
+    not NULL, then it must represent a valid shared NT handle that
     references a synchronization object. Ownership of this handle is not
     transferred to CUDA after the import operation, so the application must
     release the handle using the appropriate system call. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name is
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT`, then
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     must be non-NULL and
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name
-    must be NULL. The handle specified must be a globally shared KMT
-    handle. This handle does not hold a reference to the underlying object,
-    and thus will be invalid when all references to the synchronization
-    object are destroyed.
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` must
+    be NULL. The handle specified must be a globally shared KMT handle.
+    This handle does not hold a reference to the underlying object, and
+    thus will be invalid when all references to the synchronization object
+    are destroyed.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE`, then exactly
     one of
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
-    and
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name
-    must not be NULL. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
-    is not NULL, then it must represent a valid shared NT handle that is
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` and
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` must
+    not be NULL. If
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` is
+    not NULL, then it must represent a valid shared NT handle that is
     returned by ID3D12Device::CreateSharedHandle when referring to a
     ID3D12Fence object. This handle holds a reference to the underlying
     object. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name is
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object that refers
     to a valid ID3D12Fence object.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_FENCE`, then
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     represents a valid shared NT handle that is returned by
     ID3D11Fence::CreateSharedHandle. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name is
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object that refers
     to a valid ID3D11Fence object.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC`, then
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::nvSciSyncObj
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.nvSciSyncObj`
     represents a valid NvSciSyncObj.
 
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX`, then
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     represents a valid shared NT handle that is returned by
     IDXGIResource1::CreateSharedHandle when referring to a IDXGIKeyedMutex
     object. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name is
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object that refers
     to a valid IDXGIKeyedMutex object.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT`,
     then
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     represents a valid shared KMT handle that is returned by
     IDXGIResource::GetSharedHandle when referring to a IDXGIKeyedMutex
     object and
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name
-    must be NULL.
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` must
+    be NULL.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_FD`,
-    then :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::fd must
-    be a valid file descriptor referencing a synchronization object.
-    Ownership of the file descriptor is transferred to the CUDA driver when
-    the handle is imported successfully. Performing any operations on the
-    file descriptor after it is imported results in undefined behavior.
+    then :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.fd` must be
+    a valid file descriptor referencing a synchronization object. Ownership
+    of the file descriptor is transferred to the CUDA driver when the
+    handle is imported successfully. Performing any operations on the file
+    descriptor after it is imported results in undefined behavior.
 
     If :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type` is
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32`,
     then exactly one of
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
-    and
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name
-    must not be NULL. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::handle
-    is not NULL, then it must represent a valid shared NT handle that
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` and
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` must
+    not be NULL. If
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` is
+    not NULL, then it must represent a valid shared NT handle that
     references a synchronization object. Ownership of this handle is not
     transferred to CUDA after the import operation, so the application must
     release the handle using the appropriate system call. If
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC`::handle::win32::name is
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object.
 
     Parameters
@@ -40289,7 +40277,7 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
     :py:obj:`~.cuDestroyExternalSemaphore`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`
     """
     cdef CUexternalSemaphore extSem_out = CUexternalSemaphore()
-    cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC* cysemHandleDesc_ptr = semHandleDesc._pvt_ptr if semHandleDesc is not None else NULL
+    cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC* cysemHandleDesc_ptr = <cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC*>semHandleDesc._pvt_ptr if semHandleDesc is not None else NULL
     with nogil:
         err = cydriver.cuImportExternalSemaphore(<cydriver.CUexternalSemaphore*>extSem_out._pvt_ptr, cysemHandleDesc_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -40322,15 +40310,15 @@ def cuSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemap
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_FD`,
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32`
     then the semaphore will be set to the value specified in
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS`::params::fence::value.
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS.params.fence.value`.
 
     If the semaphore object is of the type
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC` this API sets
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS`::params::nvSciSync::fence
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS.params.nvSciSync.fence`
     to a value that can be used by subsequent waiters of the same NvSciSync
     object to order operations with those currently submitted in `stream`.
     Such an update will overwrite previous contents of
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS`::params::nvSciSync::fence.
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS.params.nvSciSync.fence`.
     By default, signaling such an external semaphore object causes
     appropriate memory synchronization operations to be performed over all
     external memory objects that are imported as
@@ -40465,12 +40453,12 @@ def cuWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemapho
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32`
     then waiting on the semaphore will wait until the value of the
     semaphore is greater than or equal to
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS`::params::fence::value.
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS.params.fence.value`.
 
     If the semaphore object is of the type
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC` then, waiting
     on the semaphore will wait until the
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS`::params::nvSciSync::fence
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS.params.nvSciSync.fence`
     is signaled by the signaler of the NvSciSyncObj that was associated
     with this semaphore object. By default, waiting on such an external
     semaphore object causes appropriate memory synchronization operations
@@ -40494,9 +40482,9 @@ def cuWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[CUexternalSemapho
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT`
     then the keyed mutex will be acquired when it is released with the key
     specified in
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS`::params::keyedmutex::key
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS.params.keyedmutex.key`
     or until the timeout specified by
-    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS`::params::keyedmutex::timeoutMs
+    :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS.params.keyedmutex.timeoutMs`
     has lapsed. The timeout interval can either be a finite value specified
     in milliseconds or an infinite value. In case an infinite value is
     specified the timeout never elapses. The windows INFINITE macro must be
@@ -41725,7 +41713,7 @@ def cuLaunchKernelEx(config : Optional[CUlaunchConfig], f, kernelParams, void_pt
     other than 0 or 1 is not allowed.
 
     On success, a handle will be returned via
-    :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode
+    :py:obj:`~.CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode`
     which can be passed to the various device-side update functions to
     update the node's kernel parameters from within another kernel. For
     more information on the types of device updates that can be made, as
@@ -41827,7 +41815,7 @@ def cuLaunchKernelEx(config : Optional[CUlaunchConfig], f, kernelParams, void_pt
     else:
         pf = int(CUfunction(f))
     cyf = <cydriver.CUfunction><void_ptr>pf
-    cdef cydriver.CUlaunchConfig* cyconfig_ptr = config._pvt_ptr if config is not None else NULL
+    cdef cydriver.CUlaunchConfig* cyconfig_ptr = <cydriver.CUlaunchConfig*>config._pvt_ptr if config is not None else NULL
     cykernelParams = _HelperKernelParams(kernelParams)
     cdef void** cykernelParams_ptr = <void**><void_ptr>cykernelParams.ckernelParams
     with nogil:
@@ -42645,7 +42633,7 @@ def cuLaunchGridAsync(f, int grid_width, int grid_height, hStream):
 
     Notes
     -----
-    In certain cases where cubins are created with no ABI (i.e., using `ptxas` `None` `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
+    In certain cases where cubins are created with no ABI (i.e., using `ptxas` `--abi-compile` `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
     """
     cdef cydriver.CUstream cyhStream
     if hStream is None:
@@ -42936,7 +42924,7 @@ def cuGraphAddKernelNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_KERNEL_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddKernelNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -43027,7 +43015,7 @@ def cuGraphKernelNodeSetParams(hNode, nodeParams : Optional[CUDA_KERNEL_NODE_PAR
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_KERNEL_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphKernelNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -43114,7 +43102,7 @@ def cuGraphAddMemcpyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_MEMCPY3D* cycopyParams_ptr = copyParams._pvt_ptr if copyParams is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D* cycopyParams_ptr = <cydriver.CUDA_MEMCPY3D*>copyParams._pvt_ptr if copyParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddMemcpyNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cycopyParams_ptr, cyctx)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -43196,7 +43184,7 @@ def cuGraphMemcpyNodeSetParams(hNode, nodeParams : Optional[CUDA_MEMCPY3D]):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_MEMCPY3D* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D* cynodeParams_ptr = <cydriver.CUDA_MEMCPY3D*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphMemcpyNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -43273,7 +43261,7 @@ def cuGraphAddMemsetNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cymemsetParams_ptr = memsetParams._pvt_ptr if memsetParams is not None else NULL
+    cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cymemsetParams_ptr = <cydriver.CUDA_MEMSET_NODE_PARAMS*>memsetParams._pvt_ptr if memsetParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddMemsetNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cymemsetParams_ptr, cyctx)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -43355,7 +43343,7 @@ def cuGraphMemsetNodeSetParams(hNode, nodeParams : Optional[CUDA_MEMSET_NODE_PAR
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_MEMSET_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphMemsetNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -43422,7 +43410,7 @@ def cuGraphAddHostNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_HOST_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddHostNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -43504,7 +43492,7 @@ def cuGraphHostNodeSetParams(hNode, nodeParams : Optional[CUDA_HOST_NODE_PARAMS]
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_HOST_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphHostNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -44097,7 +44085,7 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : Optional[tuple
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddExternalSemaphoresSignalNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -44186,7 +44174,7 @@ def cuGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[CU
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExternalSemaphoresSignalNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -44254,7 +44242,7 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : Optional[tuple[C
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddExternalSemaphoresWaitNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -44343,7 +44331,7 @@ def cuGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[CUDA
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExternalSemaphoresWaitNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -44414,7 +44402,7 @@ def cuGraphAddBatchMemOpNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddBatchMemOpNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -44504,7 +44492,7 @@ def cuGraphBatchMemOpNodeSetParams(hNode, nodeParams : Optional[CUDA_BATCH_MEM_O
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphBatchMemOpNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -44575,7 +44563,7 @@ def cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, nodeParams : Optional[
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecBatchMemOpNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -44683,7 +44671,7 @@ def cuGraphAddMemAllocNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | 
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_MEM_ALLOC_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddMemAllocNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -46350,7 +46338,7 @@ def cuGraphInstantiateWithParams(hGraph, instantiateParams : Optional[CUDA_GRAPH
         phGraph = int(CUgraph(hGraph))
     cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
     cdef CUgraphExec phGraphExec = CUgraphExec()
-    cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* cyinstantiateParams_ptr = instantiateParams._pvt_ptr if instantiateParams is not None else NULL
+    cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* cyinstantiateParams_ptr = <cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS*>instantiateParams._pvt_ptr if instantiateParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphInstantiateWithParams(<cydriver.CUgraphExec*>phGraphExec._pvt_ptr, cyhGraph, cyinstantiateParams_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -46476,7 +46464,7 @@ def cuGraphExecKernelNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_KERNEL_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_KERNEL_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecKernelNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -46551,7 +46539,7 @@ def cuGraphExecMemcpyNodeSetParams(hGraphExec, hNode, copyParams : Optional[CUDA
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_MEMCPY3D* cycopyParams_ptr = copyParams._pvt_ptr if copyParams is not None else NULL
+    cdef cydriver.CUDA_MEMCPY3D* cycopyParams_ptr = <cydriver.CUDA_MEMCPY3D*>copyParams._pvt_ptr if copyParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecMemcpyNodeSetParams(cyhGraphExec, cyhNode, cycopyParams_ptr, cyctx)
     return (_CUresult(err),)
@@ -46631,7 +46619,7 @@ def cuGraphExecMemsetNodeSetParams(hGraphExec, hNode, memsetParams : Optional[CU
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cymemsetParams_ptr = memsetParams._pvt_ptr if memsetParams is not None else NULL
+    cdef cydriver.CUDA_MEMSET_NODE_PARAMS* cymemsetParams_ptr = <cydriver.CUDA_MEMSET_NODE_PARAMS*>memsetParams._pvt_ptr if memsetParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecMemsetNodeSetParams(cyhGraphExec, cyhNode, cymemsetParams_ptr, cyctx)
     return (_CUresult(err),)
@@ -46686,7 +46674,7 @@ def cuGraphExecHostNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_H
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_HOST_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_HOST_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecHostNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -46942,7 +46930,7 @@ def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePara
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecExternalSemaphoresSignalNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -47002,7 +46990,7 @@ def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS* cynodeParams_ptr = <cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecExternalSemaphoresWaitNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -47620,7 +47608,7 @@ def cuGraphKernelNodeSetAttribute(hNode, attr not None : CUkernelNodeAttrID, val
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
     cdef cydriver.CUkernelNodeAttrID cyattr = int(attr)
-    cdef cydriver.CUkernelNodeAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
+    cdef cydriver.CUkernelNodeAttrValue* cyvalue_ptr = <cydriver.CUkernelNodeAttrValue*>value._pvt_ptr if value is not None else NULL
     with nogil:
         err = cydriver.cuGraphKernelNodeSetAttribute(cyhNode, cyattr, cyvalue_ptr)
     return (_CUresult(err),)
@@ -47993,7 +47981,7 @@ def cuGraphAddNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[CUg
     elif len(dependencies) == 1:
         cydependencies = <cydriver.CUgraphNode*>(<CUgraphNode>dependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -48089,7 +48077,7 @@ def cuGraphAddNode_v2(hGraph, dependencies : Optional[tuple[CUgraphNode] | list[
         cydependencyData = (<CUgraphEdgeData>dependencyData[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
     if numDependencies > <size_t>len(dependencyData): raise RuntimeError("List is too small: " + str(len(dependencyData)) + " < " + str(numDependencies))
-    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphAddNode_v2(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, cydependencyData, numDependencies, cynodeParams_ptr)
     if len(dependencies) > 1 and cydependencies is not NULL:
@@ -48139,7 +48127,7 @@ def cuGraphNodeSetParams(hNode, nodeParams : Optional[CUgraphNodeParams]):
     else:
         phNode = int(CUgraphNode(hNode))
     cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
-    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -48199,7 +48187,7 @@ def cuGraphExecNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUgraphNod
     else:
         phGraphExec = int(CUgraphExec(hGraphExec))
     cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
-    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cydriver.CUgraphNodeParams* cynodeParams_ptr = <cydriver.CUgraphNodeParams*>nodeParams._pvt_ptr if nodeParams is not None else NULL
     with nogil:
         err = cydriver.cuGraphExecNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_CUresult(err),)
@@ -48662,7 +48650,7 @@ def cuOccupancyMaxPotentialClusterSize(func, config : Optional[CUlaunchConfig]):
         pfunc = int(CUfunction(func))
     cyfunc = <cydriver.CUfunction><void_ptr>pfunc
     cdef int clusterSize = 0
-    cdef cydriver.CUlaunchConfig* cyconfig_ptr = config._pvt_ptr if config is not None else NULL
+    cdef cydriver.CUlaunchConfig* cyconfig_ptr = <cydriver.CUlaunchConfig*>config._pvt_ptr if config is not None else NULL
     with nogil:
         err = cydriver.cuOccupancyMaxPotentialClusterSize(&clusterSize, cyfunc, cyconfig_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -48722,7 +48710,7 @@ def cuOccupancyMaxActiveClusters(func, config : Optional[CUlaunchConfig]):
         pfunc = int(CUfunction(func))
     cyfunc = <cydriver.CUfunction><void_ptr>pfunc
     cdef int numClusters = 0
-    cdef cydriver.CUlaunchConfig* cyconfig_ptr = config._pvt_ptr if config is not None else NULL
+    cdef cydriver.CUlaunchConfig* cyconfig_ptr = <cydriver.CUlaunchConfig*>config._pvt_ptr if config is not None else NULL
     with nogil:
         err = cydriver.cuOccupancyMaxActiveClusters(&numClusters, cyfunc, cyconfig_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -48986,7 +48974,7 @@ def cuTexRefSetAddress2D(hTexRef, desc : Optional[CUDA_ARRAY_DESCRIPTOR], dptr, 
     else:
         phTexRef = int(CUtexref(hTexRef))
     cyhTexRef = <cydriver.CUtexref><void_ptr>phTexRef
-    cdef cydriver.CUDA_ARRAY_DESCRIPTOR* cydesc_ptr = desc._pvt_ptr if desc is not None else NULL
+    cdef cydriver.CUDA_ARRAY_DESCRIPTOR* cydesc_ptr = <cydriver.CUDA_ARRAY_DESCRIPTOR*>desc._pvt_ptr if desc is not None else NULL
     with nogil:
         err = cydriver.cuTexRefSetAddress2D(cyhTexRef, cydesc_ptr, cydptr, Pitch)
     return (_CUresult(err),)
@@ -50159,23 +50147,23 @@ def cuTexObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC], pTexDesc : Option
 
     If :py:obj:`~.CUDA_RESOURCE_DESC.resType` is set to
     :py:obj:`~.CU_RESOURCE_TYPE_ARRAY`,
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::array::hArray must be set to a
-    valid CUDA array handle.
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.array.hArray` must be set to a valid
+    CUDA array handle.
 
     If :py:obj:`~.CUDA_RESOURCE_DESC.resType` is set to
     :py:obj:`~.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY`,
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::mipmap::hMipmappedArray must be
-    set to a valid CUDA mipmapped array handle.
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.mipmap.hMipmappedArray` must be set
+    to a valid CUDA mipmapped array handle.
 
     If :py:obj:`~.CUDA_RESOURCE_DESC.resType` is set to
     :py:obj:`~.CU_RESOURCE_TYPE_LINEAR`,
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::linear::devPtr must be set to a
-    valid device pointer, that is aligned to
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.linear.devPtr` must be set to a valid
+    device pointer, that is aligned to
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT`.
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::linear::format and
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::linear::numChannels describe the
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.linear.format` and
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.linear.numChannels` describe the
     format of each component and the number of components per array
-    element. :py:obj:`~.CUDA_RESOURCE_DESC`::res::linear::sizeInBytes
+    element. :py:obj:`~.CUDA_RESOURCE_DESC.res.linear.sizeInBytes`
     specifies the size of the array in bytes. The total number of elements
     in the linear address range cannot exceed
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH`. The
@@ -50184,20 +50172,19 @@ def cuTexObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC], pTexDesc : Option
 
     If :py:obj:`~.CUDA_RESOURCE_DESC.resType` is set to
     :py:obj:`~.CU_RESOURCE_TYPE_PITCH2D`,
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::pitch2D::devPtr must be set to a
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.pitch2D.devPtr` must be set to a
     valid device pointer, that is aligned to
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT`.
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::pitch2D::format and
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::pitch2D::numChannels describe the
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.pitch2D.format` and
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.pitch2D.numChannels` describe the
     format of each component and the number of components per array
-    element. :py:obj:`~.CUDA_RESOURCE_DESC`::res::pitch2D::width and
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::pitch2D::height specify the width
-    and height of the array in elements, and cannot exceed
+    element. :py:obj:`~.CUDA_RESOURCE_DESC.res.pitch2D.width` and
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.pitch2D.height` specify the width and
+    height of the array in elements, and cannot exceed
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH` and
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT`
-    respectively.
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::pitch2D::pitchInBytes specifies
-    the pitch between two rows in bytes and has to be aligned to
+    respectively. :py:obj:`~.CUDA_RESOURCE_DESC.res.pitch2D.pitchInBytes`
+    specifies the pitch between two rows in bytes and has to be aligned to
     :py:obj:`~.CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT`. Pitch cannot
     exceed :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH`.
 
@@ -50357,9 +50344,9 @@ def cuTexObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC], pTexDesc : Option
     :py:obj:`~.cuTexObjectDestroy`, :py:obj:`~.cudaCreateTextureObject`
     """
     cdef CUtexObject pTexObject = CUtexObject()
-    cdef cydriver.CUDA_RESOURCE_DESC* cypResDesc_ptr = pResDesc._pvt_ptr if pResDesc is not None else NULL
-    cdef cydriver.CUDA_TEXTURE_DESC* cypTexDesc_ptr = pTexDesc._pvt_ptr if pTexDesc is not None else NULL
-    cdef cydriver.CUDA_RESOURCE_VIEW_DESC* cypResViewDesc_ptr = pResViewDesc._pvt_ptr if pResViewDesc is not None else NULL
+    cdef cydriver.CUDA_RESOURCE_DESC* cypResDesc_ptr = <cydriver.CUDA_RESOURCE_DESC*>pResDesc._pvt_ptr if pResDesc is not None else NULL
+    cdef cydriver.CUDA_TEXTURE_DESC* cypTexDesc_ptr = <cydriver.CUDA_TEXTURE_DESC*>pTexDesc._pvt_ptr if pTexDesc is not None else NULL
+    cdef cydriver.CUDA_RESOURCE_VIEW_DESC* cypResViewDesc_ptr = <cydriver.CUDA_RESOURCE_VIEW_DESC*>pResViewDesc._pvt_ptr if pResViewDesc is not None else NULL
     with nogil:
         err = cydriver.cuTexObjectCreate(<cydriver.CUtexObject*>pTexObject._pvt_ptr, cypResDesc_ptr, cypTexDesc_ptr, cypResViewDesc_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -50536,9 +50523,9 @@ def cuSurfObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC]):
     describes the data to perform surface load/stores on.
     :py:obj:`~.CUDA_RESOURCE_DESC.resType` must be
     :py:obj:`~.CU_RESOURCE_TYPE_ARRAY` and
-    :py:obj:`~.CUDA_RESOURCE_DESC`::res::array::hArray must be set to a
-    valid CUDA array handle. :py:obj:`~.CUDA_RESOURCE_DESC.flags` must be
-    set to zero.
+    :py:obj:`~.CUDA_RESOURCE_DESC.res.array.hArray` must be set to a valid
+    CUDA array handle. :py:obj:`~.CUDA_RESOURCE_DESC.flags` must be set to
+    zero.
 
     Surface objects are only supported on devices of compute capability 3.0
     or higher. Additionally, a surface object is an opaque value, and, as
@@ -50561,7 +50548,7 @@ def cuSurfObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC]):
     :py:obj:`~.cuSurfObjectDestroy`, :py:obj:`~.cudaCreateSurfaceObject`
     """
     cdef CUsurfObject pSurfObject = CUsurfObject()
-    cdef cydriver.CUDA_RESOURCE_DESC* cypResDesc_ptr = pResDesc._pvt_ptr if pResDesc is not None else NULL
+    cdef cydriver.CUDA_RESOURCE_DESC* cypResDesc_ptr = <cydriver.CUDA_RESOURCE_DESC*>pResDesc._pvt_ptr if pResDesc is not None else NULL
     with nogil:
         err = cydriver.cuSurfObjectCreate(<cydriver.CUsurfObject*>pSurfObject._pvt_ptr, cypResDesc_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -51653,7 +51640,7 @@ def cuTensorMapReplaceAddress(tensorMap : Optional[CUtensorMap], globalAddress):
     --------
     :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapEncodeIm2colWide`
     """
-    cdef cydriver.CUtensorMap* cytensorMap_ptr = tensorMap._pvt_ptr if tensorMap is not None else NULL
+    cdef cydriver.CUtensorMap* cytensorMap_ptr = <cydriver.CUtensorMap*>tensorMap._pvt_ptr if tensorMap is not None else NULL
     cdef _HelperInputVoidPtrStruct cyglobalAddressHelper
     cdef void* cyglobalAddress = _helper_input_void_ptr(globalAddress, &cyglobalAddressHelper)
     with nogil:
@@ -52882,7 +52869,7 @@ def cuGetExportTable(pExportTableId : Optional[CUuuid]):
         None
     """
     cdef void_ptr ppExportTable = 0
-    cdef cydriver.CUuuid* cypExportTableId_ptr = pExportTableId._pvt_ptr if pExportTableId is not None else NULL
+    cdef cydriver.CUuuid* cypExportTableId_ptr = <cydriver.CUuuid*>pExportTableId._pvt_ptr if pExportTableId is not None else NULL
     with nogil:
         err = cydriver.cuGetExportTable(<const void**>&ppExportTable, cypExportTableId_ptr)
     if err != cydriver.CUDA_SUCCESS:
@@ -53271,8 +53258,8 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION`
     result : list[:py:obj:`~.CUdevResource`]
-        Output array of `None` resources. Can be NULL to query the number
-        of groups.
+        Output array of `CUdevResource` resources. Can be NULL to query the
+        number of groups.
     nbGroups : unsigned int
         This is a pointer, specifying the number of groups that would be or
         should be created as described below.
@@ -53292,7 +53279,7 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
         if cyresult is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cydriver.CUdevResource)))
     cdef unsigned int cynbGroups = nbGroups
-    cdef cydriver.CUdevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
+    cdef cydriver.CUdevResource* cyinput__ptr = <cydriver.CUdevResource*>input_._pvt_ptr if input_ is not None else NULL
     cdef CUdevResource remaining = CUdevResource()
     with nogil:
         err = cydriver.cuDevSmResourceSplitByCount(cyresult, &cynbGroups, cyinput__ptr, <cydriver.CUdevResource*>remaining._pvt_ptr, useFlags, minCount)
@@ -53927,7 +53914,7 @@ def cuCheckpointProcessLock(int pid, args : Optional[CUcheckpointLockArgs]):
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED` :py:obj:`~.CUDA_ERROR_NOT_READY`
     """
-    cdef cydriver.CUcheckpointLockArgs* cyargs_ptr = args._pvt_ptr if args is not None else NULL
+    cdef cydriver.CUcheckpointLockArgs* cyargs_ptr = <cydriver.CUcheckpointLockArgs*>args._pvt_ptr if args is not None else NULL
     with nogil:
         err = cydriver.cuCheckpointProcessLock(pid, cyargs_ptr)
     return (_CUresult(err),)
@@ -53958,7 +53945,7 @@ def cuCheckpointProcessCheckpoint(int pid, args : Optional[CUcheckpointCheckpoin
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     """
-    cdef cydriver.CUcheckpointCheckpointArgs* cyargs_ptr = args._pvt_ptr if args is not None else NULL
+    cdef cydriver.CUcheckpointCheckpointArgs* cyargs_ptr = <cydriver.CUcheckpointCheckpointArgs*>args._pvt_ptr if args is not None else NULL
     with nogil:
         err = cydriver.cuCheckpointProcessCheckpoint(pid, cyargs_ptr)
     return (_CUresult(err),)
@@ -53994,7 +53981,7 @@ def cuCheckpointProcessRestore(int pid, args : Optional[CUcheckpointRestoreArgs]
     --------
     :py:obj:`~.cuInit`
     """
-    cdef cydriver.CUcheckpointRestoreArgs* cyargs_ptr = args._pvt_ptr if args is not None else NULL
+    cdef cydriver.CUcheckpointRestoreArgs* cyargs_ptr = <cydriver.CUcheckpointRestoreArgs*>args._pvt_ptr if args is not None else NULL
     with nogil:
         err = cydriver.cuCheckpointProcessRestore(pid, cyargs_ptr)
     return (_CUresult(err),)
@@ -54023,7 +54010,7 @@ def cuCheckpointProcessUnlock(int pid, args : Optional[CUcheckpointUnlockArgs]):
     CUresult
         :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     """
-    cdef cydriver.CUcheckpointUnlockArgs* cyargs_ptr = args._pvt_ptr if args is not None else NULL
+    cdef cydriver.CUcheckpointUnlockArgs* cyargs_ptr = <cydriver.CUcheckpointUnlockArgs*>args._pvt_ptr if args is not None else NULL
     with nogil:
         err = cydriver.cuCheckpointProcessUnlock(pid, cyargs_ptr)
     return (_CUresult(err),)
@@ -54642,7 +54629,7 @@ def cuEGLStreamProducerReturnFrame(conn, eglframe : Optional[CUeglFrame], pStrea
         cyconn = <cydriver.CUeglStreamConnection*><void_ptr>conn
     else:
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, driver.CUeglStreamConnection'>, found " + str(type(conn)))
-    cdef cydriver.CUeglFrame* cyeglframe_ptr = eglframe._pvt_ptr if eglframe is not None else NULL
+    cdef cydriver.CUeglFrame* cyeglframe_ptr = <cydriver.CUeglFrame*>eglframe._pvt_ptr if eglframe is not None else NULL
     with nogil:
         err = cydriver.cuEGLStreamProducerReturnFrame(cyconn, cyeglframe_ptr, cypStream)
     return (_CUresult(err),)
