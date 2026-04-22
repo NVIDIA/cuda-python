@@ -708,7 +708,7 @@ cdef class Device:
     # NVLINK
     # See external class definitions in _nvlink.pxi
 
-    def nvlink(self, link: int) -> NvlinkInfo:
+    def get_nvlink(self, link: int) -> NvlinkInfo:
         """
         Get :obj:`~NvlinkInfo` about this device.
 

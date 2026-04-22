@@ -739,7 +739,7 @@ def test_nvlink():
 
         for link in range(max_links):
             with unsupported_before(device, None):
-                nvlink_info = device.nvlink(link)
+                nvlink_info = device.get_nvlink(link)
             assert isinstance(nvlink_info, _device.NvlinkInfo)
 
             with unsupported_before(device, None):
