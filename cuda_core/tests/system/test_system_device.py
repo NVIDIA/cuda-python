@@ -740,8 +740,14 @@ def test_compute_running_processes():
             assert isinstance(proc, _device.ProcessInfo)
             assert isinstance(proc.pid, int)
             assert isinstance(proc.used_gpu_memory, int)
-            assert isinstance(proc.gpu_instance_id, int)
-            assert isinstance(proc.compute_instance_id, int)
+            if device.mig.is_mig_device:
+                assert isinstance(proc.gpu_instance_id, int)
+                assert isinstance(proc.compute_instance_id, int)
+            else:
+                with pytest.raises(nvml.UnsupportedError):
+                    proc.gpu_instance_id  # noqa: B018
+                with pytest.raises(nvml.UnsupportedError):
+                    proc.compute_instance_id  # noqa: B018
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="MIG not supported on WSL or Windows")

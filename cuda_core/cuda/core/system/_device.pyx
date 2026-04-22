@@ -775,7 +775,7 @@ cdef class Device:
         Querying per-instance information using MIG device handles is not
         supported if the device is in vGPU Host virtualization mode.
         """
-        return [ProcessInfo(proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]
+        return [ProcessInfo(self, proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]
 
     ##########################################################################
     # REPAIR STATUS

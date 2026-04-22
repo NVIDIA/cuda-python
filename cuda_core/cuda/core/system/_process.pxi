@@ -5,9 +5,10 @@
 
 class ProcessInfo:
     """
-    Information about a process using the GPU.
+    Information about running compute processes on the GPU.
     """
-    def __init__(self, process_info: nvml.ProcessInfo):
+    def __init__(self, device: "Device", process_info: nvml.ProcessInfo):
+        self._device = device
         self._process_info = process_info
 
     @property
@@ -31,6 +32,10 @@ class ProcessInfo:
 
         Only valid for processes running on MIG devices.
         """
+        if not self._device.mig.is_mig_device:
+            raise nvml.UnsupportedError(
+                "GPU instance ID is only valid for processes running on MIG devices."
+            )
         return self._process_info.gpu_instance_id
 
     @property
@@ -40,4 +45,8 @@ class ProcessInfo:
 
         Only valid for processes running on MIG devices.
         """
+        if not self._device.mig.is_mig_device:
+            raise nvml.UnsupportedError(
+                "Compute instance ID is only valid for processes running on MIG devices."
+            )
         return self._process_info.compute_instance_id
