@@ -199,9 +199,6 @@ Events
    :toctree: generated/
 
    system.register_events
-   system.RegisteredSystemEvents
-   system.SystemEvent
-   system.SystemEvents
    system.SystemEventType
 
 Enums
@@ -215,6 +212,7 @@ Enums
    system.BrandType
    system.ClockId
    system.ClocksEventReasons
+   system.ClockType
    system.CoolerControl
    system.CoolerTarget
    system.DeviceArch
@@ -238,29 +236,6 @@ Types
    :template: autosummary/cyclass.rst
 
    system.Device
-   system.BAR1MemoryInfo
-   system.ClockInfo
-   system.ClockOffsets
-   system.ClockType
-   system.CoolerInfo
-   system.DeviceAttributes
-   system.DeviceEvents
-   system.EventData
-   system.FanInfo
-   system.FieldValue
-   system.FieldValues
-   system.GpuDynamicPstatesInfo
-   system.GpuDynamicPstatesUtilization
-   system.GpuP2PCapsIndex
-   system.GpuP2PStatus
-   system.GpuTopologyLevel
-   system.InforomInfo
-   system.MemoryInfo
-   system.PciInfo
-   system.RepairStatus
-   system.Temperature
-   system.ThermalSensor
-   system.ThermalSettings
 
 .. module:: cuda.core.utils
 
