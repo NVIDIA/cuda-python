@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=49ae783a"></script>
+    <script src="_static/documentation_options.js?v=edd6fc23"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev54';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev55';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -577,6 +577,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.SQLiteProgramCache.html">cuda.core.utils.SQLiteProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
 </ul>
@@ -802,6 +803,8 @@
         <li><a href="generated/cuda.core.TensorMapDescriptor.html#cuda.core.TensorMapDescriptor.__init__">(cuda.core.TensorMapDescriptor method)</a>
 </li>
         <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.__init__">(cuda.core.utils.FileStreamProgramCache method)</a>
+</li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.__init__">(cuda.core.utils.InMemoryProgramCache method)</a>
 </li>
         <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.__init__">(cuda.core.utils.ProgramCacheResource method)</a>
 </li>
@@ -1075,6 +1078,8 @@
       <ul>
         <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.clear">(cuda.core.utils.FileStreamProgramCache method)</a>
 </li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.clear">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
         <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.clear">(cuda.core.utils.ProgramCacheResource method)</a>
 </li>
         <li><a href="generated/cuda.core.utils.SQLiteProgramCache.html#cuda.core.utils.SQLiteProgramCache.clear">(cuda.core.utils.SQLiteProgramCache method)</a>
@@ -1129,15 +1134,17 @@
 </li>
         <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.close">(cuda.core.utils.FileStreamProgramCache method)</a>
 </li>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.close">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
         <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.close">(cuda.core.utils.ProgramCacheResource method)</a>
 </li>
         <li><a href="generated/cuda.core.utils.SQLiteProgramCache.html#cuda.core.utils.SQLiteProgramCache.close">(cuda.core.utils.SQLiteProgramCache method)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.cluster">cluster (cuda.core.LaunchConfig attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig.cluster">cluster (cuda.core.LaunchConfig attribute)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.cluster_launch">cluster_launch (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.cluster_scheduling_policy_preference">cluster_scheduling_policy_preference() (cuda.core._module.KernelAttributes method)</a>
@@ -1733,6 +1740,8 @@
       <li><a href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache.get">get() (cuda.core.utils.FileStreamProgramCache method)</a>
 
       <ul>
+        <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache.get">(cuda.core.utils.InMemoryProgramCache method)</a>
+</li>
         <li><a href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource.get">(cuda.core.utils.ProgramCacheResource method)</a>
 </li>
         <li><a href="generated/cuda.core.utils.SQLiteProgramCache.html#cuda.core.utils.SQLiteProgramCache.get">(cuda.core.utils.SQLiteProgramCache method)</a>
@@ -2137,6 +2146,8 @@
       <li><a href="generated/cuda.core.system._device.InforomInfo.html#cuda.core.system._device.InforomInfo">InforomInfo (class in cuda.core.system._device)</a>
 </li>
       <li><a href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject">InforomObject (class in cuda.core.system)</a>
+</li>
+      <li><a href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache">InMemoryProgramCache (class in cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core.graph.GraphDef.html#cuda.core.graph.GraphDef.instantiate">instantiate() (cuda.core.graph.GraphDef method)</a>
 </li>

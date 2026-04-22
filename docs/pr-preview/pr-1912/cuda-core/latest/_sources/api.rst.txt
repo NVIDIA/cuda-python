@@ -259,5 +259,6 @@ Program caches
    :toctree: generated/
 
    ProgramCacheResource
+   InMemoryProgramCache
    SQLiteProgramCache
    FileStreamProgramCache
