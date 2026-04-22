@@ -220,6 +220,7 @@ Enums
    system.FanControlPolicy
    system.FieldId
    system.InforomObject
+   system.NvlinkVersion
    system.PcieUtilCounter
    system.Pstates
    system.TemperatureSensors

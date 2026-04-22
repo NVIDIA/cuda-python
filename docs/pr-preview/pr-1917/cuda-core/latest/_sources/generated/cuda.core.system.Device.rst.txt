@@ -26,6 +26,7 @@ cuda.core.system.Device
    .. automethod:: get_device_count
    .. automethod:: get_field_values
    .. automethod:: get_memory_affinity
+   .. automethod:: get_nvlink
    .. automethod:: get_supported_clock_event_reasons
    .. automethod:: get_supported_event_types
    .. automethod:: get_supported_pstates
@@ -70,6 +71,7 @@ cuda.core.system.Device
    .. autoattribute:: repair_status
    .. autoattribute:: serial
    .. autoattribute:: temperature
+   .. autoattribute:: utilization
    .. autoattribute:: uuid
    .. autoattribute:: uuid_without_prefix
    
