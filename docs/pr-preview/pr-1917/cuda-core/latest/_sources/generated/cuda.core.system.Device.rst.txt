@@ -57,6 +57,7 @@ cuda.core.system.Device
    .. autoattribute:: inforom
    .. autoattribute:: is_c2c_mode_enabled
    .. autoattribute:: memory_info
+   .. autoattribute:: mig
    .. autoattribute:: minor_number
    .. autoattribute:: module_id
    .. autoattribute:: name
@@ -70,5 +71,6 @@ cuda.core.system.Device
    .. autoattribute:: serial
    .. autoattribute:: temperature
    .. autoattribute:: uuid
+   .. autoattribute:: uuid_without_prefix
    
    

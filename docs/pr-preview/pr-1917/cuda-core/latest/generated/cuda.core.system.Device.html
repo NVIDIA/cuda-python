@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=265f6cee"></script>
+    <script src="../_static/documentation_options.js?v=edd6fc23"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev52';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev55';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1175,6 +1175,13 @@ device index.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.mig">
+<span class="sig-name descname"><span class="pre">mig</span></span><a class="headerlink" href="#cuda.core.system.Device.mig" title="Link to this definition">#</a></dt>
+<dd><p>Get <code class="xref py py-obj docutils literal notranslate"><span class="pre">MigInfo</span></code> accessor for MIG (Multi-Instance GPU) information.</p>
+<p>For Ampere™ or newer fully supported devices.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.minor_number">
 <span class="sig-name descname"><span class="pre">minor_number</span></span><a class="headerlink" href="#cuda.core.system.Device.minor_number" title="Link to this definition">#</a></dt>
 <dd><p>The minor number of this device.</p>
@@ -1266,7 +1273,19 @@ device’s board.</p>
 device, as a 5 part hexadecimal string, that augments the immutable,
 board serial identifier.</p>
 <p>In the upstream NVML C++ API, the UUID includes a <code class="docutils literal notranslate"><span class="pre">gpu-</span></code> or <code class="docutils literal notranslate"><span class="pre">mig-</span></code>
-prefix.  That is not included in <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code>.</p>
+prefix.  If you need a <cite>uuid</cite> without that prefix (for example, to
+interact with CUDA), use the <cite>uuid_without_prefix</cite> property.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.uuid_without_prefix">
+<span class="sig-name descname"><span class="pre">uuid_without_prefix</span></span><a class="headerlink" href="#cuda.core.system.Device.uuid_without_prefix" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves the globally unique immutable UUID associated with this
+device, as a 5 part hexadecimal string, that augments the immutable,
+board serial identifier.</p>
+<p>In the upstream NVML C++ API, the UUID includes a <code class="docutils literal notranslate"><span class="pre">gpu-</span></code> or <code class="docutils literal notranslate"><span class="pre">mig-</span></code>
+prefix.  This property returns it without the prefix, to match the UUIDs
+used in CUDA.  If you need the prefix, use the <cite>uuid</cite> property.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1358,6 +1377,7 @@ prefix.  That is not included in <code class="docutils literal notranslate"><spa
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.inforom"><code class="docutils literal notranslate"><span class="pre">Device.inforom</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.is_c2c_mode_enabled"><code class="docutils literal notranslate"><span class="pre">Device.is_c2c_mode_enabled</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.memory_info"><code class="docutils literal notranslate"><span class="pre">Device.memory_info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.mig"><code class="docutils literal notranslate"><span class="pre">Device.mig</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.minor_number"><code class="docutils literal notranslate"><span class="pre">Device.minor_number</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.module_id"><code class="docutils literal notranslate"><span class="pre">Device.module_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.name"><code class="docutils literal notranslate"><span class="pre">Device.name</span></code></a></li>
@@ -1371,6 +1391,7 @@ prefix.  That is not included in <code class="docutils literal notranslate"><spa
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.serial"><code class="docutils literal notranslate"><span class="pre">Device.serial</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.temperature"><code class="docutils literal notranslate"><span class="pre">Device.temperature</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid"><code class="docutils literal notranslate"><span class="pre">Device.uuid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid_without_prefix"><code class="docutils literal notranslate"><span class="pre">Device.uuid_without_prefix</span></code></a></li>
 </ul>
 </li>
 </ul>
