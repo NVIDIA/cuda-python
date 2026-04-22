@@ -33,7 +33,7 @@ class ProcessInfo:
         Only valid for processes running on MIG devices.
         """
         if not self._device.mig.is_mig_device:
-            raise nvml.UnsupportedError(
+            raise nvml.NotSupportedError(
                 "GPU instance ID is only valid for processes running on MIG devices."
             )
         return self._process_info.gpu_instance_id
@@ -46,7 +46,7 @@ class ProcessInfo:
         Only valid for processes running on MIG devices.
         """
         if not self._device.mig.is_mig_device:
-            raise nvml.UnsupportedError(
+            raise nvml.NotSupportedError(
                 "Compute instance ID is only valid for processes running on MIG devices."
             )
         return self._process_info.compute_instance_id

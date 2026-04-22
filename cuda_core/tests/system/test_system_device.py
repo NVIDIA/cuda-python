@@ -744,9 +744,9 @@ def test_compute_running_processes():
                 assert isinstance(proc.gpu_instance_id, int)
                 assert isinstance(proc.compute_instance_id, int)
             else:
-                with pytest.raises(nvml.UnsupportedError):
+                with pytest.raises(nvml.NotSupportedError):
                     proc.gpu_instance_id  # noqa: B018
-                with pytest.raises(nvml.UnsupportedError):
+                with pytest.raises(nvml.NotSupportedError):
                     proc.compute_instance_id  # noqa: B018
 
 
