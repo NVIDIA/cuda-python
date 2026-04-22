@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.get\_excluded\_device\_count
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: get_excluded_device_count
