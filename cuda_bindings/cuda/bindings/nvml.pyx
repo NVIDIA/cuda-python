@@ -21516,6 +21516,10 @@ cpdef init_v2():
 
     .. seealso:: `nvmlInit_v2`
     """
+    import sys
+    if "cuda.core" in sys.modules:
+        raise RuntimeError("Not for you, cuda.core!")
+
     with nogil:
         __status__ = nvmlInit_v2()
     check_status(__status__)
