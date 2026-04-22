@@ -33,10 +33,12 @@ include "_field_values.pxi"
 include "_inforom.pxi"
 include "_memory.pxi"
 include "_mig.pxi"
+include "_nvlink.pxi"
 include "_pci_info.pxi"
 include "_performance.pxi"
 include "_repair_status.pxi"
 include "_temperature.pxi"
+include "_utilization.pxi"
 
 
 cdef class Device:
@@ -703,6 +705,20 @@ cdef class Device:
         return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))
 
     ##########################################################################
+    # NVLINK
+    # See external class definitions in _nvlink.pxi
+
+    def get_nvlink(self, link: int) -> NvlinkInfo:
+        """
+        Get :obj:`~NvlinkInfo` about this device.
+
+        For devices with NVLink support.
+        """
+        if link < 0 or link >= NvlinkInfo.max_links:
+            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")
+        return NvlinkInfo(self, link)
+
+    ##########################################################################
     # PCI INFO
     # See external class definitions in _pci_info.pxi
 
@@ -798,6 +814,31 @@ cdef class Device:
             device._handle = handle
             yield device
 
+    #######################################################################
+    # UTILIZATION
+
+    @property
+    def utilization(self) -> Utilization:
+        """
+        Retrieves the current :obj:`~Utilization` rates for the device's major
+        subsystems.
+
+        For Fermi™ or newer fully supported devices.
+
+        Note: During driver initialization when ECC is enabled one can see high
+        GPU and Memory Utilization readings.  This is caused by ECC Memory
+        Scrubbing mechanism that is performed during driver initialization.
+
+        Note: On MIG-enabled GPUs, querying device utilization rates is not
+        currently supported.
+
+        Returns
+        -------
+        Utilization
+            An object containing the current utilization rates for the device.
+        """
+        return Utilization(nvml.device_get_utilization_rates(self._handle))
+
 
 def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
     """
@@ -872,10 +913,12 @@ __all__ = [
     "GpuP2PStatus",
     "GpuTopologyLevel",
     "InforomObject",
+    "NvlinkVersion",
     "PcieUtilCounter",
     "Pstates",
     "TemperatureSensors",
     "TemperatureThresholds",
     "ThermalController",
     "ThermalTarget",
+    "Utilization",
 ]
