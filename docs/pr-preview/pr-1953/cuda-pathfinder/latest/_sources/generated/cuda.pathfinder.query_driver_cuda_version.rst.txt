@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.query\_driver\_cuda\_version
-============================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autofunction:: query_driver_cuda_version
