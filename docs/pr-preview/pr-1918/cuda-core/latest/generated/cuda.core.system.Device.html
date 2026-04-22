@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=49ae783a"></script>
+    <script src="../_static/documentation_options.js?v=edd6fc23"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev54';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev55';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -892,6 +892,13 @@ ancestor of the device.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_nvlink">
+<span class="sig-name descname"><span class="pre">get_nvlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.NvlinkInfo.html#cuda.core.system._device.NvlinkInfo" title="cuda.core.system._device.NvlinkInfo"><span class="pre">NvlinkInfo</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_nvlink" title="Link to this definition">#</a></dt>
+<dd><p>Get <code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkInfo</span></code> about this device.</p>
+<p>For devices with NVLink support.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_supported_clock_event_reasons">
 <span class="sig-name descname"><span class="pre">get_supported_clock_event_reasons</span></span><span class="sig-paren">(</span>
 
@@ -961,13 +968,6 @@ the device.</p>
 <dd class="field-odd"><p>Iterable of <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system.Device.nvlink">
-<span class="sig-name descname"><span class="pre">nvlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.NvlinkInfo.html#cuda.core.system._device.NvlinkInfo" title="cuda.core.system._device.NvlinkInfo"><span class="pre">NvlinkInfo</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.nvlink" title="Link to this definition">#</a></dt>
-<dd><p>Get <code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkInfo</span></code> about this device.</p>
-<p>For devices with NVLink support.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1365,11 +1365,11 @@ used in CUDA.  If you need the prefix, use the <cite>uuid</cite> property.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_device_count"><code class="docutils literal notranslate"><span class="pre">Device.get_device_count()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_field_values"><code class="docutils literal notranslate"><span class="pre">Device.get_field_values()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_memory_affinity"><code class="docutils literal notranslate"><span class="pre">Device.get_memory_affinity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_nvlink"><code class="docutils literal notranslate"><span class="pre">Device.get_nvlink()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_clock_event_reasons"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_clock_event_reasons()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_event_types"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_event_types()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_pstates"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_pstates()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_topology_nearest_gpus"><code class="docutils literal notranslate"><span class="pre">Device.get_topology_nearest_gpus()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.nvlink"><code class="docutils literal notranslate"><span class="pre">Device.nvlink()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.register_events"><code class="docutils literal notranslate"><span class="pre">Device.register_events()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.set_cpu_affinity"><code class="docutils literal notranslate"><span class="pre">Device.set_cpu_affinity()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.to_cuda_device"><code class="docutils literal notranslate"><span class="pre">Device.to_cuda_device()</span></code></a></li>
