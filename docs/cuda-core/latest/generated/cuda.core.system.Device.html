@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=265f6cee"></script>
+    <script src="../_static/documentation_options.js?v=8227e8f7"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev52';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev53';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -573,6 +573,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
@@ -888,6 +889,13 @@ memory affinity for the device.</p>
 <p>If requested scope is not applicable to the target topology, the API
 will fall back to reporting the memory affinity for the immediate non-I/O
 ancestor of the device.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_nvlink">
+<span class="sig-name descname"><span class="pre">get_nvlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">link:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.NvlinkInfo.html#cuda.core.system._device.NvlinkInfo" title="cuda.core.system._device.NvlinkInfo"><span class="pre">NvlinkInfo</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_nvlink" title="Link to this definition">#</a></dt>
+<dd><p>Get <code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkInfo</span></code> about this device.</p>
+<p>For devices with NVLink support.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1248,6 +1256,27 @@ device’s board.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.utilization">
+<span class="sig-name descname"><span class="pre">utilization</span></span><a class="headerlink" href="#cuda.core.system.Device.utilization" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves the current <code class="xref py py-obj docutils literal notranslate"><span class="pre">Utilization</span></code> rates for the device’s major
+subsystems.</p>
+<p>For Fermi™ or newer fully supported devices.</p>
+<p>Note: During driver initialization when ECC is enabled one can see high
+GPU and Memory Utilization readings.  This is caused by ECC Memory
+Scrubbing mechanism that is performed during driver initialization.</p>
+<p>Note: On MIG-enabled GPUs, querying device utilization rates is not
+currently supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An object containing the current utilization rates for the device.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.uuid">
 <span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#cuda.core.system.Device.uuid" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the globally unique immutable UUID associated with this
@@ -1336,6 +1365,7 @@ used in CUDA.  If you need the prefix, use the <cite>uuid</cite> property.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_device_count"><code class="docutils literal notranslate"><span class="pre">Device.get_device_count()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_field_values"><code class="docutils literal notranslate"><span class="pre">Device.get_field_values()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_memory_affinity"><code class="docutils literal notranslate"><span class="pre">Device.get_memory_affinity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_nvlink"><code class="docutils literal notranslate"><span class="pre">Device.get_nvlink()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_clock_event_reasons"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_clock_event_reasons()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_event_types"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_event_types()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_pstates"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_pstates()</span></code></a></li>
@@ -1370,6 +1400,7 @@ used in CUDA.  If you need the prefix, use the <cite>uuid</cite> property.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.repair_status"><code class="docutils literal notranslate"><span class="pre">Device.repair_status</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.serial"><code class="docutils literal notranslate"><span class="pre">Device.serial</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.temperature"><code class="docutils literal notranslate"><span class="pre">Device.temperature</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.utilization"><code class="docutils literal notranslate"><span class="pre">Device.utilization</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid"><code class="docutils literal notranslate"><span class="pre">Device.uuid</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid_without_prefix"><code class="docutils literal notranslate"><span class="pre">Device.uuid_without_prefix</span></code></a></li>
 </ul>
