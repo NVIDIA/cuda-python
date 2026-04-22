@@ -1,6 +1,0 @@
-﻿cuda.core.LaunchConfig
-======================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: LaunchConfig
