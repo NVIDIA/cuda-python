@@ -76,6 +76,7 @@ NVML
    system._device.GpuTopologyLevel
    system._device.InforomInfo
    system._device.MemoryInfo
+   system._device.MigInfo
    system._device.NvlinkInfo
    system._device.PciInfo
    system._device.RepairStatus
