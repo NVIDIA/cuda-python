@@ -45,3 +45,8 @@ The list of available interfaces is:
 * nvJitLink
 * NVVM
 * cuFile
+
+
+## Getting Started
+
+Clone the repo and follow the installation instructions in the docs.
