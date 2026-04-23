@@ -416,6 +416,9 @@ jobs:
     name: Check job status
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     needs:
       - should-skip
       - detect-changes
@@ -426,6 +429,99 @@ jobs:
       - test-windows
       - doc
     steps:
+      - name: Report universally-skipped tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          REPO="${GITHUB_REPOSITORY}"
+          SHA="${GITHUB_SHA}"
+          WORKDIR=$(mktemp -d)
+          trap 'rm -rf "${WORKDIR}"' EXIT
+
+          # Fetch all workflow runs associated with this commit (up to 100)
+          all_runs=$(gh api \
+            "repos/${REPO}/actions/runs?head_sha=${SHA}&per_page=100" \
+            --jq '.workflow_runs[]')
+
+          # Identify child runs by their workflow file path; test-wheel-linux.yml
+          # covers both linux-64 and linux-aarch64 (two separate runs).
+          TEST_WORKFLOW_PATHS=(
+            ".github/workflows/test-sdist-linux.yml"
+            ".github/workflows/test-sdist-windows.yml"
+            ".github/workflows/test-wheel-linux.yml"
+            ".github/workflows/test-wheel-windows.yml"
+          )
+
+          mkdir -p "${WORKDIR}/configs"
+          config_index=0
+
+          for wf_path in "${TEST_WORKFLOW_PATHS[@]}"; do
+            run_ids=$(echo "${all_runs}" | jq -r \
+              --arg p "${wf_path}" \
+              'select(.path == $p) | .id')
+            for run_id in ${run_ids}; do
+              run_name=$(echo "${all_runs}" | jq -r \
+                --argjson id "${run_id}" 'select(.id == $id) | .name' | head -1)
+              echo "Fetching logs for: ${run_name} (id=${run_id})"
+              config_dir="${WORKDIR}/configs/${config_index}"
+              mkdir -p "${config_dir}"
+
+              if gh api "repos/${REPO}/actions/runs/${run_id}/logs" \
+                  > "${config_dir}/logs.zip" 2>/dev/null; then
+                unzip -q "${config_dir}/logs.zip" -d "${config_dir}/logs" 2>/dev/null || true
+                # Extract test IDs from lines matching the pytest SKIPPED output format
+                grep -rh ' SKIPPED' "${config_dir}/logs/" 2>/dev/null \
+                  | grep -oE '[^[:space:]]+\.py::[^[:space:]]+ SKIPPED' \
+                  | sed 's/ SKIPPED$//' \
+                  | sort -u > "${config_dir}/skipped.txt" || true
+                echo "  -> $(wc -l < "${config_dir}/skipped.txt") skipped tests"
+                config_index=$((config_index + 1))
+              else
+                echo "  -> could not download logs (run may be skipped or unavailable)" >&2
+                rm -rf "${config_dir}"
+              fi
+            done
+          done
+
+          {
+            echo "## Universally-skipped tests"
+            echo ""
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if [[ ${config_index} -eq 0 ]]; then
+            echo "_No test run logs found._" >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
+          # Start the intersection from the first config and progressively
+          # narrow it down to only tests that appear in every config's list.
+          cp "${WORKDIR}/configs/0/skipped.txt" "${WORKDIR}/intersection.txt"
+          for i in $(seq 1 $((config_index - 1))); do
+            comm -12 \
+              "${WORKDIR}/intersection.txt" \
+              "${WORKDIR}/configs/${i}/skipped.txt" \
+              > "${WORKDIR}/intersection_new.txt"
+            mv "${WORKDIR}/intersection_new.txt" "${WORKDIR}/intersection.txt"
+          done
+
+          count=$(wc -l < "${WORKDIR}/intersection.txt")
+          {
+            echo "Tests skipped across all ${config_index} test configuration(s):"
+            echo ""
+            if [[ ${count} -eq 0 ]]; then
+              echo "_No tests were skipped in all configurations._"
+            else
+              echo "| Test |"
+              echo "| --- |"
+              while IFS= read -r test; do
+                [[ -z "${test}" ]] && continue
+                echo "| \`${test}\` |"
+              done < "${WORKDIR}/intersection.txt"
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Exit
         run: |
           # if any dependencies were cancelled or failed, that's a failure
