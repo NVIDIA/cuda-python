@@ -43,10 +43,16 @@ def _find_so_in_rel_dirs(
     for rel_dir in rel_dirs:
         sub_dir = tuple(rel_dir.split(os.path.sep))
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
+            # Exact unversioned match first; fall back to versioned names because some
+            # distros only ship lib<name>.so.<major> (e.g. conda libcupti). Only one match
+            # is expected in practice. Sort in reverse so the newest-sorting name wins if
+            # multiple coexist, matching the newest-first bias elsewhere in pathfinder
+            # (see LinuxSearchPlatform.find_in_lib_dir and load_dl_linux._candidate_sonames).
+            # Issue #1732 tracks the deferred question of raising on true ambiguity.
             so_name = os.path.join(abs_dir, so_basename)
             if os.path.isfile(so_name):
                 return so_name
-            for so_name in sorted(glob.glob(os.path.join(abs_dir, file_wild))):
+            for so_name in sorted(glob.glob(os.path.join(abs_dir, file_wild)), reverse=True):
                 if os.path.isfile(so_name):
                     return so_name
         sub_dirs_searched.append(sub_dir)
@@ -150,7 +156,8 @@ class LinuxSearchPlatform:
         file_wild = lib_searched_for + "*"
         # Only one match is expected, but to ensure deterministic behavior in unexpected
         # situations, and to be internally consistent, we sort in reverse order with the
-        # intent to return the newest version first.
+        # intent to return the newest version first. Issue #1732 tracks the deferred
+        # question of raising on true ambiguity.
         for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild)), reverse=True):
             if os.path.isfile(so_name):
                 return so_name
