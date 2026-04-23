@@ -9,7 +9,7 @@ Usage:
 Exit codes:
     0 — release notes present and non-empty (or .post version, skipped)
     1 — release notes missing or empty
-    2 — invalid arguments
+    2 — invalid arguments (including unparsable tag, or component/tag-prefix mismatch)
 """
 
 from __future__ import annotations
@@ -26,14 +26,31 @@ COMPONENT_TO_PACKAGE: dict[str, str] = {
     "cuda-python": "cuda_python",
 }
 
-# Matches tags like "v13.1.0", "cuda-core-v0.7.0", "cuda-pathfinder-v1.5.2"
-TAG_RE = re.compile(r"^(?:cuda-\w+-)?v(.+)$")
+# Version characters are restricted to digit-prefixed word chars and dots, so
+# malformed inputs like "v../evil" or "v1/2/3" cannot flow into the notes path.
+_VERSION_PATTERN = r"\d[\w.]*"
+
+# Each component has exactly one valid tag-prefix form. cuda-bindings and
+# cuda-python share the bare "v<version>" namespace (setuptools-scm lookup).
+COMPONENT_TO_TAG_RE: dict[str, re.Pattern[str]] = {
+    "cuda-bindings": re.compile(rf"^v(?P<version>{_VERSION_PATTERN})$"),
+    "cuda-python": re.compile(rf"^v(?P<version>{_VERSION_PATTERN})$"),
+    "cuda-core": re.compile(rf"^cuda-core-v(?P<version>{_VERSION_PATTERN})$"),
+    "cuda-pathfinder": re.compile(rf"^cuda-pathfinder-v(?P<version>{_VERSION_PATTERN})$"),
+}
 
 
-def parse_version_from_tag(git_tag: str) -> str | None:
-    """Extract the bare version string (e.g. '13.1.0') from a git tag."""
-    m = TAG_RE.match(git_tag)
-    return m.group(1) if m else None
+def parse_version_from_tag(git_tag: str, component: str) -> str | None:
+    """Extract the version string from a tag, given the target component.
+
+    Returns None if the tag does not match the component's expected prefix
+    or contains characters outside the allowed version set.
+    """
+    pattern = COMPONENT_TO_TAG_RE.get(component)
+    if pattern is None:
+        return None
+    m = pattern.match(git_tag)
+    return m.group("version") if m else None
 
 
 def is_post_release(version: str) -> bool:
@@ -47,20 +64,20 @@ def notes_path(package: str, version: str) -> str:
 def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
-    Returns an empty list when notes are present and non-empty.
+    Returns an empty list when notes are present and non-empty, or when the
+    tag is a .post release (no new notes required).
     """
-    version = parse_version_from_tag(git_tag)
+    if component not in COMPONENT_TO_PACKAGE:
+        return [("<component>", f"unknown component '{component}'")]
+
+    version = parse_version_from_tag(git_tag, component)
     if version is None:
-        return [("<tag>", f"cannot parse version from tag '{git_tag}'")]
+        return [("<tag>", f"cannot parse version from tag '{git_tag}' for component '{component}'")]
 
     if is_post_release(version):
         return []
 
-    package = COMPONENT_TO_PACKAGE.get(component)
-    if package is None:
-        return [("<component>", f"unknown component '{component}'")]
-
-    path = notes_path(package, version)
+    path = notes_path(COMPONENT_TO_PACKAGE[component], version)
     full = os.path.join(repo_root, path)
     if not os.path.isfile(full):
         return [(path, "missing")]
@@ -76,8 +93,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", default=".")
     args = parser.parse_args(argv)
 
-    version = parse_version_from_tag(args.git_tag)
-    if version and is_post_release(version):
+    version = parse_version_from_tag(args.git_tag, args.component)
+    if version is None:
+        print(
+            f"ERROR: tag {args.git_tag!r} does not match the expected format for component {args.component!r}.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if is_post_release(version):
         print(f"Post-release tag ({args.git_tag}), skipping release-notes check.")
         return 0
 
@@ -86,10 +110,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Release notes present for tag {args.git_tag}, component {args.component}.")
         return 0
 
-    print(f"ERROR: missing or empty release notes for tag {args.git_tag}:")
+    print(f"ERROR: missing or empty release notes for tag {args.git_tag}:", file=sys.stderr)
     for path, reason in problems:
-        print(f"  - {path} ({reason})")
-    print("Add versioned release notes before releasing.")
+        print(f"  - {path} ({reason})", file=sys.stderr)
+    print("Add versioned release notes before releasing.", file=sys.stderr)
     return 1
 
 
