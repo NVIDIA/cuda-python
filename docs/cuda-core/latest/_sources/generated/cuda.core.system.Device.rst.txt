@@ -48,6 +48,7 @@ cuda.core.system.Device
    .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
+   .. autoattribute:: compute_running_processes
    .. autoattribute:: cooler
    .. autoattribute:: cuda_compute_capability
    .. autoattribute:: display_active
