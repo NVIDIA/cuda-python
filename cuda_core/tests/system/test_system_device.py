@@ -57,7 +57,7 @@ def test_to_cuda_device():
         cuda_device = device.to_cuda_device()
 
         assert isinstance(cuda_device, CudaDevice)
-        assert cuda_device.uuid == device.uuid
+        assert cuda_device.uuid == device.uuid_without_prefix
 
         # Technically, this test will only work with PCI devices, but are there
         # non-PCI devices we need to support?
@@ -227,9 +227,9 @@ def test_device_serial():
         assert len(serial) > 0
 
 
-def test_device_uuid():
+def test_device_uuid_without_prefix():
     for device in system.Device.get_all_devices():
-        uuid = device.uuid
+        uuid = device.uuid_without_prefix
         assert isinstance(uuid, str)
 
         # Expands to GPU-8hex-4hex-4hex-4hex-12hex, where 8hex means 8 consecutive
@@ -729,3 +729,83 @@ def test_pstates():
             assert isinstance(utilization.percentage, int)
             assert isinstance(utilization.inc_threshold, int)
             assert isinstance(utilization.dec_threshold, int)
+
+
+def test_compute_running_processes():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, "FERMI"):
+            processes = device.compute_running_processes
+        assert isinstance(processes, list)
+        for proc in processes:
+            assert isinstance(proc, _device.ProcessInfo)
+            assert isinstance(proc.pid, int)
+            assert isinstance(proc.used_gpu_memory, int)
+            if device.mig.is_mig_device:
+                assert isinstance(proc.gpu_instance_id, int)
+                assert isinstance(proc.compute_instance_id, int)
+            else:
+                with pytest.raises(nvml.NotSupportedError):
+                    proc.gpu_instance_id  # noqa: B018
+                with pytest.raises(nvml.NotSupportedError):
+                    proc.compute_instance_id  # noqa: B018
+
+
+def test_nvlink():
+    for device in system.Device.get_all_devices():
+        max_links = _device.NvlinkInfo.max_links
+        assert isinstance(max_links, int)
+        assert max_links > 0
+
+        for link in range(max_links):
+            with unsupported_before(device, None):
+                nvlink_info = device.get_nvlink(link)
+            assert isinstance(nvlink_info, _device.NvlinkInfo)
+
+            with unsupported_before(device, None):
+                version = nvlink_info.version
+            assert isinstance(version, system.NvlinkVersion)
+
+            with unsupported_before(device, None):
+                state = nvlink_info.state
+            assert isinstance(state, bool)
+
+
+def test_utilization():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            utilization = device.utilization
+        assert isinstance(utilization, system.Utilization)
+
+        gpu = utilization.gpu
+        assert isinstance(gpu, int)
+        assert 0 <= gpu <= 100
+
+        memory = utilization.memory
+        assert isinstance(memory, int)
+        assert 0 <= memory <= 100
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="MIG not supported on WSL or Windows")
+def test_mig():
+    for device in system.Device.get_all_devices():
+        with unsupported_before(device, None):
+            mig = device.mig
+
+            assert isinstance(mig.is_mig_device, bool)
+            assert isinstance(mig.mode, bool)
+            assert isinstance(mig.pending_mode, bool)
+
+            device_count = mig.device_count
+            assert isinstance(device_count, int)
+            assert device_count >= 0
+
+            for mig_device in mig.get_all_devices():
+                assert isinstance(mig_device, system.Device)
+
+
+def test_uuid():
+    for device in system.Device.get_all_devices():
+        uuid = device.uuid
+        assert isinstance(uuid, str)
+        assert uuid.startswith(("GPU-", "MIG-"))
+        assert uuid == device.uuid
