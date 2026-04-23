@@ -109,7 +109,6 @@ git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--mat
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
-enable = "cpython-freethreading"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]
