@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.Opcode
+===========================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoenum:: Opcode
