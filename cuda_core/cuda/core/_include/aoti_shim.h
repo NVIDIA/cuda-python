@@ -50,6 +50,14 @@ typedef int32_t AOTITorchError;
 struct AtenTensorOpaque;
 typedef struct AtenTensorOpaque* AtenTensorHandle;
 
+/*
+ * IMPORTANT: Keep the AOTI_SHIM_API declaration list below in sync with
+ * aoti_shim.def. On Windows, build_hooks.py turns that .def file into the
+ * stub import library that MSVC needs to link _tensor_bridge without making
+ * PyTorch a build-time dependency. If you add, remove, or rename an imported
+ * AOTI symbol here, update aoti_shim.def in the same change.
+ */
+
 /* ---- tensor metadata --------------------------------------------------- */
 
 AOTI_SHIM_API AOTITorchError aoti_torch_get_data_ptr(
@@ -74,6 +82,9 @@ AOTI_SHIM_API int32_t aoti_torch_dtype_float32(void);
 AOTI_SHIM_API int32_t aoti_torch_dtype_float64(void);
 AOTI_SHIM_API int32_t aoti_torch_dtype_bfloat16(void);
 AOTI_SHIM_API int32_t aoti_torch_dtype_uint8(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_uint16(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_uint32(void);
+AOTI_SHIM_API int32_t aoti_torch_dtype_uint64(void);
 AOTI_SHIM_API int32_t aoti_torch_dtype_int8(void);
 AOTI_SHIM_API int32_t aoti_torch_dtype_int16(void);
 AOTI_SHIM_API int32_t aoti_torch_dtype_int32(void);

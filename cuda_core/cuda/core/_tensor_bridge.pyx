@@ -85,6 +85,9 @@ cdef extern from "_include/aoti_shim.h":
     int32_t aoti_torch_dtype_float64()
     int32_t aoti_torch_dtype_bfloat16()
     int32_t aoti_torch_dtype_uint8()
+    int32_t aoti_torch_dtype_uint16()
+    int32_t aoti_torch_dtype_uint32()
+    int32_t aoti_torch_dtype_uint64()
     int32_t aoti_torch_dtype_int8()
     int32_t aoti_torch_dtype_int16()
     int32_t aoti_torch_dtype_int32()
@@ -196,6 +199,9 @@ cdef dict _build_dtype_map():
         aoti_torch_dtype_float32(): numpy.dtype(numpy.float32),
         aoti_torch_dtype_float64(): numpy.dtype(numpy.float64),
         aoti_torch_dtype_uint8(): numpy.dtype(numpy.uint8),
+        aoti_torch_dtype_uint16(): numpy.dtype(numpy.uint16),
+        aoti_torch_dtype_uint32(): numpy.dtype(numpy.uint32),
+        aoti_torch_dtype_uint64(): numpy.dtype(numpy.uint64),
         aoti_torch_dtype_int8(): numpy.dtype(numpy.int8),
         aoti_torch_dtype_int16(): numpy.dtype(numpy.int16),
         aoti_torch_dtype_int32(): numpy.dtype(numpy.int32),
@@ -228,6 +234,9 @@ cdef dict _build_itemsize_map():
     return {
         aoti_torch_dtype_bool():       sizeof(uint8_t),
         aoti_torch_dtype_uint8():      sizeof(uint8_t),
+        aoti_torch_dtype_uint16():     sizeof(int16_t),
+        aoti_torch_dtype_uint32():     sizeof(int32_t),
+        aoti_torch_dtype_uint64():     sizeof(int64_t),
         aoti_torch_dtype_int8():       sizeof(int8_t),
         aoti_torch_dtype_float16():    sizeof(int16_t),    # no C float16
         aoti_torch_dtype_bfloat16():   sizeof(int16_t),    # no C bfloat16
@@ -344,6 +353,7 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         buf = StridedMemoryView.__new__(StridedMemoryView)
 
     buf.ptr = <intptr_t>data_ptr
+    buf._dtype = None  # clear cached dtype (view may be reused)
     # PyTorch always reports tensors as writable via both DLPack
     # (flags=0, no DLPACK_FLAG_BITMASK_READ_ONLY) and CAI
     # (__cuda_array_interface__["data"] = (ptr, False)).  Tensors that
@@ -364,10 +374,16 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
         buf.is_device_accessible = True
 
         # -- stream ordering (matches the DLPack contract) --
-        if stream_ptr is not None:
-            _stream_ptr_int = int(stream_ptr)
-            if _stream_ptr_int != -1:
-                sync_torch_stream(device_index, _stream_ptr_int)
+        # stream_ptr=None is ambiguous for CUDA tensors — the caller must
+        # explicitly choose -1 (no sync) or a valid stream pointer.
+        if stream_ptr is None:
+            raise BufferError(
+                "stream_ptr=None is ambiguous for CUDA tensors; "
+                "pass stream_ptr=-1 to opt out of synchronization, "
+                "or pass a valid stream pointer")
+        _stream_ptr_int = int(stream_ptr)
+        if _stream_ptr_int != -1:
+            sync_torch_stream(device_index, _stream_ptr_int)
     else:
         raise BufferError(
             f"Unsupported device type from torch tensor "

@@ -2,6 +2,11 @@
 ; Used on Windows only: 'lib /DEF:aoti_shim.def /OUT:aoti_shim.lib /MACHINE:X64'
 ; generates a minimal import library that satisfies the MSVC linker.
 ; At runtime the symbols resolve from torch_cpu.dll (loaded by 'import torch').
+;
+; IMPORTANT: Keep this export list in sync with the AOTI_SHIM_API declarations
+; in aoti_shim.h. build_hooks.py turns this file into the stub import library
+; that MSVC uses to link _tensor_bridge, so any added/removed/renamed AOTI
+; symbol must be updated in both files.
 LIBRARY torch_cpu.dll
 EXPORTS
     aoti_torch_get_data_ptr
@@ -14,6 +19,9 @@ EXPORTS
     aoti_torch_dtype_float64
     aoti_torch_dtype_bfloat16
     aoti_torch_dtype_uint8
+    aoti_torch_dtype_uint16
+    aoti_torch_dtype_uint32
+    aoti_torch_dtype_uint64
     aoti_torch_dtype_int8
     aoti_torch_dtype_int16
     aoti_torch_dtype_int32
