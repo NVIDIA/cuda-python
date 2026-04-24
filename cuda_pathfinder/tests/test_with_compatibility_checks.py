@@ -65,6 +65,14 @@ def _located_bitcode_lib(name: str, abs_path: str) -> LocatedBitcodeLib:
     )
 
 
+def _driver_cuda_version(encoded: int) -> DriverCudaVersion:
+    return DriverCudaVersion(
+        encoded=encoded,
+        major=encoded // 1000,
+        minor=(encoded % 1000) // 10,
+    )
+
+
 def _assert_real_ctk_backed_path(path: str) -> None:
     norm_path = os.path.normpath(os.path.abspath(path))
     if "site-packages" in Path(norm_path).parts:
@@ -103,7 +111,7 @@ def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_pa
         lambda _libname: LocatedHeaderDir(abs_path=str(hdr_dir), found_via="CUDA_PATH"),
     )
 
-    pfchecks = WithCompatibilityChecks(driver_version=13000)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(13000))
 
     loaded = pfchecks.load_nvidia_dynamic_lib("nvrtc")
     hdr_path = pfchecks.find_nvidia_header_directory("nvrtc")
@@ -129,7 +137,7 @@ def test_exact_ctk_major_minor_match_is_required(monkeypatch, tmp_path):
         lambda _libname: LocatedHeaderDir(abs_path=str(hdr_dir), found_via="CUDA_PATH"),
     )
 
-    pfchecks = WithCompatibilityChecks(driver_version=13000)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(13000))
     pfchecks.load_nvidia_dynamic_lib("nvrtc")
 
     with pytest.raises(CompatibilityCheckError, match="exact CTK major.minor match"):
@@ -143,7 +151,7 @@ def test_driver_major_must_not_be_older_than_ctk_major(monkeypatch, tmp_path):
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
-    pfchecks = WithCompatibilityChecks(driver_version=12080)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(12080))
 
     with pytest.raises(CompatibilityCheckError, match="driver_major >= ctk_major"):
         pfchecks.load_nvidia_dynamic_lib("nvrtc")
@@ -154,7 +162,7 @@ def test_missing_version_json_raises_insufficient_metadata(monkeypatch, tmp_path
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
-    pfchecks = WithCompatibilityChecks(driver_version=13000)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(13000))
 
     with pytest.raises(CompatibilityInsufficientMetadataError, match="version.json"):
         pfchecks.load_nvidia_dynamic_lib("nvrtc")
@@ -169,7 +177,7 @@ def test_other_packaging_raises_insufficient_metadata(monkeypatch, tmp_path):
         lambda _name: _located_bitcode_lib("nvshmem_device", abs_path),
     )
 
-    pfchecks = WithCompatibilityChecks(driver_version=13000)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(13000))
 
     with pytest.raises(CompatibilityInsufficientMetadataError, match="packaged_with='ctk'"):
         pfchecks.find_bitcode_lib("nvshmem_device")
@@ -185,7 +193,7 @@ def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
     pfchecks = WithCompatibilityChecks(
         ctk_major=(">=", 12),
         ctk_minor=">=9",
-        driver_version=13000,
+        driver_cuda_version=_driver_cuda_version(13000),
     )
 
     loaded = pfchecks.load_nvidia_dynamic_lib("nvrtc")
@@ -203,7 +211,7 @@ def test_constraint_failure_raises(monkeypatch, tmp_path):
     pfchecks = WithCompatibilityChecks(
         ctk_major=12,
         ctk_minor="<9",
-        driver_version=13000,
+        driver_cuda_version=_driver_cuda_version(13000),
     )
 
     with pytest.raises(CompatibilityCheckError, match="ctk_minor<9"):
@@ -236,7 +244,7 @@ def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tm
         lambda _utility_name: binary_path,
     )
 
-    pfchecks = WithCompatibilityChecks(driver_version=13000)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(13000))
 
     pfchecks.load_nvidia_dynamic_lib("nvrtc")
     assert pfchecks.find_static_lib("cudadevrt") == static_path
@@ -244,7 +252,7 @@ def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tm
     assert pfchecks.find_nvidia_binary_utility("nvcc") == binary_path
 
 
-def test_wrapper_queries_driver_version_by_default(monkeypatch, tmp_path):
+def test_wrapper_queries_driver_cuda_version_by_default(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
     _write_version_json(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
@@ -255,7 +263,7 @@ def test_wrapper_queries_driver_version_by_default(monkeypatch, tmp_path):
 
     def fake_query_driver_cuda_version() -> DriverCudaVersion:
         query_calls.append(1)
-        return DriverCudaVersion(encoded=13000, major=13, minor=0)
+        return _driver_cuda_version(13000)
 
     monkeypatch.setattr(compatibility_module, "query_driver_cuda_version", fake_query_driver_cuda_version)
 
@@ -297,13 +305,13 @@ def test_find_nvidia_header_directory_returns_none_when_unresolved(monkeypatch):
         lambda _libname: None,
     )
 
-    pfchecks = WithCompatibilityChecks(driver_version=13000)
+    pfchecks = WithCompatibilityChecks(driver_cuda_version=_driver_cuda_version(13000))
 
     assert pfchecks.find_nvidia_header_directory("nvrtc") is None
 
 
 def test_real_wheel_ctk_items_are_compatible(info_summary_append):
-    pfchecks = WithCompatibilityChecks(ctk_major=13, ctk_minor=2, driver_version=13000)
+    pfchecks = WithCompatibilityChecks(ctk_major=13, ctk_minor=2, driver_cuda_version=_driver_cuda_version(13000))
 
     try:
         loaded = pfchecks.load_nvidia_dynamic_lib("nvrtc")
@@ -337,7 +345,7 @@ def test_real_wheel_ctk_items_are_compatible(info_summary_append):
 
 
 def test_real_wheel_component_version_does_not_override_ctk_line(info_summary_append):
-    pfchecks = WithCompatibilityChecks(ctk_major=13, ctk_minor=2, driver_version=13000)
+    pfchecks = WithCompatibilityChecks(ctk_major=13, ctk_minor=2, driver_cuda_version=_driver_cuda_version(13000))
 
     try:
         header_dir = pfchecks.find_nvidia_header_directory("cufft")

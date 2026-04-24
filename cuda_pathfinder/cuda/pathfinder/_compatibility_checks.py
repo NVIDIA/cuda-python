@@ -42,6 +42,7 @@ from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib as _locate_static_lib,
 )
 from cuda.pathfinder._utils.driver_info import (
+    DriverCudaVersion,
     QueryDriverCudaVersionError,
     query_driver_cuda_version,
 )
@@ -50,7 +51,6 @@ ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
 ConstraintOperator: TypeAlias = str
 ConstraintArg: TypeAlias = int | str | tuple[str, int] | None
-DriverVersionArg: TypeAlias = int | None
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
 _REQUIRES_DIST_RE = re.compile(
@@ -164,10 +164,6 @@ def _coerce_constraint(name: str, raw_value: ConstraintArg) -> ComparisonConstra
         value = int(match.group(2))
         return ComparisonConstraint(operator, value)
     raise ValueError(f"{name} must be an int, a (operator, value) tuple, or a string like '>=12'.")
-
-
-def _driver_major(driver_version: int) -> int:
-    return driver_version // 1000
 
 
 def _parse_ctk_version(cuda_version: str) -> CtkVersion | None:
@@ -378,7 +374,9 @@ def _resolve_binary_item(utility_name: str, abs_path: str) -> ResolvedItem:
     )
 
 
-def compatibility_check(driver_version: int, item1: ResolvedItem, item2: ResolvedItem) -> CompatibilityResult:
+def compatibility_check(
+    driver_cuda_version: DriverCudaVersion, item1: ResolvedItem, item2: ResolvedItem
+) -> CompatibilityResult:
     for item in (item1, item2):
         if item.packaged_with != "ctk":
             return CompatibilityResult(
@@ -411,12 +409,11 @@ def compatibility_check(driver_version: int, item1: ResolvedItem, item2: Resolve
             ),
         )
 
-    driver_major = _driver_major(driver_version)
-    if driver_major < item1.ctk_version.major:
+    if driver_cuda_version.major < item1.ctk_version.major:
         return CompatibilityResult(
             status="incompatible",
             message=(
-                f"Driver version {driver_version} only supports CUDA major version {driver_major}, "
+                f"Driver version {driver_cuda_version.encoded} only supports CUDA major version {driver_cuda_version.major}, "
                 f"but {item1.describe()} requires CTK {item1.ctk_version}. "
                 "v1 requires driver_major >= ctk_major."
             ),
@@ -426,7 +423,7 @@ def compatibility_check(driver_version: int, item1: ResolvedItem, item2: Resolve
         status="compatible",
         message=(
             f"{item1.describe()} and {item2.describe()} both resolve to CTK {item1.ctk_version}, "
-            f"and driver version {driver_version} satisfies the v1 driver guard rail."
+            f"and driver version {driver_cuda_version.encoded} satisfies the v1 driver guard rail."
         ),
     )
 
@@ -439,22 +436,22 @@ class WithCompatibilityChecks:
         *,
         ctk_major: ConstraintArg = None,
         ctk_minor: ConstraintArg = None,
-        driver_version: DriverVersionArg = None,
+        driver_cuda_version: DriverCudaVersion | None = None,
     ) -> None:
         self._ctk_major_constraint = _coerce_constraint("ctk_major", ctk_major)
         self._ctk_minor_constraint = _coerce_constraint("ctk_minor", ctk_minor)
-        self._driver_version = driver_version
+        self._driver_cuda_version = driver_cuda_version
         self._resolved_items: list[ResolvedItem] = []
 
-    def _get_driver_version(self) -> int:
-        if self._driver_version is None:
+    def _get_driver_cuda_version(self) -> DriverCudaVersion:
+        if self._driver_cuda_version is None:
             try:
-                self._driver_version = query_driver_cuda_version().encoded
+                self._driver_cuda_version = query_driver_cuda_version()
             except QueryDriverCudaVersionError as exc:
                 raise CompatibilityCheckError(
                     "Failed to query the CUDA driver version needed for compatibility checks."
                 ) from exc
-        return self._driver_version
+        return self._driver_cuda_version
 
     def _enforce_supported_packaging(self, item: ResolvedItem) -> None:
         if item.packaged_with == "ctk":
@@ -502,7 +499,7 @@ class WithCompatibilityChecks:
         anchor = self._anchor_item()
         if anchor is None:
             anchor = item
-        compatibility_check(self._get_driver_version(), anchor, item).require_compatible()
+        compatibility_check(self._get_driver_cuda_version(), anchor, item).require_compatible()
         self._remember(item)
 
     def load_nvidia_dynamic_lib(self, libname: str) -> LoadedDL:
