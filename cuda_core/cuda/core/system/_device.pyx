@@ -222,7 +222,7 @@ cdef class Device:
         return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
 
     @property
-    def persistence_mode(self) -> bool:
+    def is_persistence_mode_enabled(self) -> bool:
         """
         Whether persistence mode is enabled for this device.
 
@@ -230,8 +230,8 @@ cdef class Device:
         """
         return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
-    @persistence_mode.setter
-    def persistence_mode(self, enabled: bool) -> None:
+    @is_persistence_mode_enabled.setter
+    def is_persistence_mode_enabled(self, enabled: bool) -> None:
         nvml.device_set_persistence_mode(
             self._handle,
             nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED

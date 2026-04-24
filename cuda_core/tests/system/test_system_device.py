@@ -343,16 +343,16 @@ def test_c2c_mode_enabled():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 def test_persistence_mode_enabled():
     for device in system.Device.get_all_devices():
-        is_enabled = device.persistence_mode
+        is_enabled = device.is_persistence_mode_enabled
         assert isinstance(is_enabled, bool)
         try:
-            device.persistence_mode = False
+            device.is_persistence_mode_enabled = False
         except nvml.NoPermissionError as e:
             pytest.xfail(f"nvml.NoPermissionError: {e}")
         try:
-            assert device.persistence_mode is False
+            assert device.is_persistence_mode_enabled is False
         finally:
-            device.persistence_mode = is_enabled
+            device.is_persistence_mode_enabled = is_enabled
 
 
 def test_field_values():
