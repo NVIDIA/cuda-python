@@ -34,6 +34,6 @@ cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except?<nvrtcResult>_NVRTCRES
 cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
 cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
 cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
-cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback[], void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
 cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
 cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil

@@ -98,7 +98,7 @@ cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) ex
     return _nvrtc._nvrtcGetPCHHeapSizeRequired(prog, size)
 
 
-cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback[], void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcSetFlowCallback(prog, callback, payload)
 
 

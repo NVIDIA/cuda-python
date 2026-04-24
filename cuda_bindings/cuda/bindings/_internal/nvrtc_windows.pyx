@@ -539,13 +539,13 @@ cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) e
         prog, size)
 
 
-cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback[], void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvrtcSetFlowCallback
     _check_or_init_nvrtc()
     if __nvrtcSetFlowCallback == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcSetFlowCallback is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, void **, void*) noexcept nogil>__nvrtcSetFlowCallback)(
+    return (<nvrtcResult (*)(nvrtcProgram, void *, void*) noexcept nogil>__nvrtcSetFlowCallback)(
         prog, callback, payload)
 
 
