@@ -30,7 +30,7 @@
   "u": "tests/test_cufile.py::test_buf_register_large_buffer|run",
   "v": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
   "w": "tests/test_cufile.py::test_buf_register_simple|run",
-  "x": "tests/test_cufile.py::test_cufile_async_read_write|setup",
+  "x": "tests/test_cufile.py::test_batch_io_cancel|setup",
   "y": "tests/test_cufile.py::test_get_stats_l1|setup",
   "z": "tests/test_cufile.py::test_get_stats_l2|setup",
   "A": "tests/test_cufile.py::test_get_stats_l3|setup",
@@ -45,14 +45,14 @@
   "J": "tests/test_cufile.py::test_cufile_write_async|run",
   "K": "tests/test_cufile.py::test_handle_register|run",
   "L": "tests/test_cufile.py::test_batch_io_basic|setup",
-  "M": "tests/test_cufile.py::test_batch_io_cancel|setup",
-  "N": "tests/test_cufile.py::test_batch_io_large_operations|setup",
-  "O": "tests/test_cufile.py::test_buf_register_already_registered|setup",
-  "P": "tests/test_cufile.py::test_buf_register_host_memory|setup",
-  "Q": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
-  "R": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
-  "S": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
-  "T": "tests/test_cufile.py::test_buf_register_simple|setup",
+  "M": "tests/test_cufile.py::test_batch_io_large_operations|setup",
+  "N": "tests/test_cufile.py::test_buf_register_already_registered|setup",
+  "O": "tests/test_cufile.py::test_buf_register_host_memory|setup",
+  "P": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
+  "Q": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
+  "R": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
+  "S": "tests/test_cufile.py::test_buf_register_simple|setup",
+  "T": "tests/test_cufile.py::test_cufile_async_read_write|setup",
   "U": "tests/test_cufile.py::test_cufile_read_async|setup",
   "V": "tests/test_cufile.py::test_cufile_read_write_host_memory|setup",
   "W": "tests/test_cufile.py::test_cufile_read_write_large|setup",
@@ -145,7 +145,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-23 01:24 +0000
+            created at 2026-04-24 01:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -200,7 +200,7 @@
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverOpen() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">24 ctx</label></span><span class="ctxs">1LMNOPQRSTxUVWXYZ0yzA1BCD</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">24 ctx</label></span><span class="ctxs">1LxMNOPQRSTUVWXYZ0yzA1BCD</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs44" class="ctx">(empty)</label></span></p>
@@ -208,7 +208,7 @@
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose_v2() except?&lt;CUfileError_t>CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs48" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">25 ctx</label></span><span class="ctxs">123456789!x#$%'()*+efg,-hi</span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">25 ctx</label></span><span class="ctxs">12x3456789!#$%'()*+efg,-hi</span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">cdef long cuFileUseCount() except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs52" class="ctx">(empty)</label></span></p>
@@ -355,7 +355,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-23 01:24 +0000
+            created at 2026-04-24 01:20 +0000
         </p>
     </div>
 </footer>

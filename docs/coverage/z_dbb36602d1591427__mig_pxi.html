@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "tests/system/test_system_device.py::test_mig|run"
+  "a": "tests/system/test_system_device.py::test_mig|run",
+  "b": "tests/system/test_system_device.py::test_compute_running_processes|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -70,7 +71,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__nvlink_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-23 01:24 +0000
+            created at 2026-04-24 01:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -97,7 +98,7 @@
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">    cdef Device _device</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    def __init__(self, device: Device):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">        self._device = device</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">        self._device = device</span>&nbsp;</span><input type="checkbox" id="ctxs13"><span class="r"><label for="ctxs13" class="ctx">2 ctx</label></span><span class="ctxs">1ba</span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    def is_mig_device(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
@@ -111,7 +112,7 @@
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">        For Ampere&#8482; or newer fully supported devices.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">        return bool(nvml.device_is_mig_device_handle(self._device._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">        return bool(nvml.device_is_mig_device_handle(self._device._handle))</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">2 ctx</label></span><span class="ctxs">1ba</span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">    def mode(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
@@ -260,7 +261,7 @@
             <a class="nav" href="z_dbb36602d1591427__nvlink_pxi.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-23 01:24 +0000
+            created at 2026-04-24 01:20 +0000
         </p>
     </div>
 </footer>

@@ -42,25 +42,26 @@
   "G": "tests/nvml/test_pynvml.py::test_device_get_utilization_rates|run",
   "H": "tests/system/test_system_device.py::test_addressing_mode|run",
   "I": "tests/system/test_system_device.py::test_clock_event_reasons|run",
-  "J": "tests/system/test_system_device.py::test_device_bar1_memory|run",
-  "K": "tests/system/test_system_device.py::test_device_memory|run",
-  "L": "tests/system/test_system_device.py::test_device_pci_info|run",
-  "M": "tests/system/test_system_device.py::test_device_serial|run",
-  "N": "tests/system/test_system_device.py::test_field_values|run",
-  "O": "tests/system/test_system_device.py::test_get_inforom_version|run",
-  "P": "tests/system/test_system_device.py::test_mig|run",
-  "Q": "tests/system/test_system_device.py::test_module_id|run",
-  "R": "tests/system/test_system_device.py::test_pstates|run",
-  "S": "tests/system/test_system_device.py::test_repair_status|run",
-  "T": "tests/system/test_system_device.py::test_utilization|run",
-  "U": "tests/nvml/test_device.py::test_set_power_management_limit|run",
-  "V": "tests/nvml/test_pynvml.py::test_device_get_cpu_affinity_within_scope[<AffinityScope.NODE: 0>]|run",
-  "W": "tests/nvml/test_pynvml.py::test_device_get_cpu_affinity_within_scope[<AffinityScope.SOCKET: 1>]|run",
-  "X": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[<AffinityScope.NODE: 0>]|run",
-  "Y": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[<AffinityScope.SOCKET: 1>]|run",
-  "Z": "tests/system/test_system_device.py::test_affinity|run",
-  "0": "tests/system/test_system_device.py::test_device_cpu_affinity|run",
-  "1": "tests/system/test_system_device.py::test_get_all_devices_with_cpu_affinity|run"
+  "J": "tests/system/test_system_device.py::test_compute_running_processes|run",
+  "K": "tests/system/test_system_device.py::test_device_bar1_memory|run",
+  "L": "tests/system/test_system_device.py::test_device_memory|run",
+  "M": "tests/system/test_system_device.py::test_device_pci_info|run",
+  "N": "tests/system/test_system_device.py::test_device_serial|run",
+  "O": "tests/system/test_system_device.py::test_field_values|run",
+  "P": "tests/system/test_system_device.py::test_get_inforom_version|run",
+  "Q": "tests/system/test_system_device.py::test_mig|run",
+  "R": "tests/system/test_system_device.py::test_module_id|run",
+  "S": "tests/system/test_system_device.py::test_pstates|run",
+  "T": "tests/system/test_system_device.py::test_repair_status|run",
+  "U": "tests/system/test_system_device.py::test_utilization|run",
+  "V": "tests/nvml/test_device.py::test_set_power_management_limit|run",
+  "W": "tests/nvml/test_pynvml.py::test_device_get_cpu_affinity_within_scope[<AffinityScope.NODE: 0>]|run",
+  "X": "tests/nvml/test_pynvml.py::test_device_get_cpu_affinity_within_scope[<AffinityScope.SOCKET: 1>]|run",
+  "Y": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[<AffinityScope.NODE: 0>]|run",
+  "Z": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[<AffinityScope.SOCKET: 1>]|run",
+  "0": "tests/system/test_system_device.py::test_affinity|run",
+  "1": "tests/system/test_system_device.py::test_device_cpu_affinity|run",
+  "2": "tests/system/test_system_device.py::test_get_all_devices_with_cpu_affinity|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -123,7 +124,7 @@
             <a id="nextFileLink" class="nav" href="z_dd32794be7d01b59_pep723_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-23 01:24 +0000
+            created at 2026-04-24 01:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -171,16 +172,16 @@
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="op">@</span><span class="nam">contextmanager</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="key">def</span> <span class="nam">unsupported_before</span><span class="op">(</span><span class="nam">device</span><span class="op">:</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">expected_device_arch</span><span class="op">:</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">DeviceArch</span> <span class="op">|</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">    <span class="nam">device_arch</span> <span class="op">=</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">device_get_architecture</span><span class="op">(</span><span class="nam">device</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">53 ctx</label></span><span class="ctxs">1wxycdzeUfghABijVWXYCklmnopDEFGHZqrIbsJ0KLMN1OPQtuRSvT</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">    <span class="nam">device_arch</span> <span class="op">=</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">device_get_architecture</span><span class="op">(</span><span class="nam">device</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">54 ctx</label></span><span class="ctxs">1wxycdzeVfghABijWXYZCklmnopDEFGH0qrIbJsK1LMNO2PQRtuSTvU</span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">expected_device_arch</span><span class="op">,</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">DeviceArch</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">53 ctx</label></span><span class="ctxs">1wxycdzeUfghABijVWXYCklmnopDEFGHZqrIbsJ0KLMN1OPQtuRSvT</span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">        <span class="nam">expected_device_arch_int</span> <span class="op">=</span> <span class="nam">int</span><span class="op">(</span><span class="nam">expected_device_arch</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">9 ctx</label></span><span class="ctxs">1UVWXYZb01</span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">    <span class="key">elif</span> <span class="nam">expected_device_arch</span> <span class="op">==</span> <span class="str">"FERMI"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">45 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFGHqrIbsJKLMNOPQtuRSvT</span></p>
-    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="nam">expected_device_arch_int</span> <span class="op">=</span> <span class="num">1</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">2 ctx</label></span><span class="ctxs">1Gb</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">expected_device_arch</span><span class="op">,</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">DeviceArch</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">54 ctx</label></span><span class="ctxs">1wxycdzeVfghABijWXYZCklmnopDEFGH0qrIbJsK1LMNO2PQRtuSTvU</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">        <span class="nam">expected_device_arch_int</span> <span class="op">=</span> <span class="nam">int</span><span class="op">(</span><span class="nam">expected_device_arch</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">9 ctx</label></span><span class="ctxs">1VWXYZ0b12</span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">    <span class="key">elif</span> <span class="nam">expected_device_arch</span> <span class="op">==</span> <span class="str">"FERMI"</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">46 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFGHqrIbJsKLMNOPQRtuSTvU</span></p>
+    <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="nam">expected_device_arch_int</span> <span class="op">=</span> <span class="num">1</span>&nbsp;</span><input type="checkbox" id="ctxs39"><span class="r"><label for="ctxs39" class="ctx">3 ctx</label></span><span class="ctxs">1GbJ</span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="nam">expected_device_arch_int</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">44 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFHqrIbsJKLMNOPQtuRSvT</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="nam">expected_device_arch_int</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">44 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFHqrIbsKLMNOPQRtuSTvU</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">    <span class="key">if</span> <span class="nam">expected_device_arch</span> <span class="key">is</span> <span class="key">None</span> <span class="key">or</span> <span class="nam">expected_device_arch</span> <span class="op">==</span> <span class="str">"HAS_INFOROM"</span> <span class="key">or</span> <span class="nam">device_arch</span> <span class="op">==</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">DeviceArch</span><span class="op">.</span><span class="nam">UNKNOWN</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">53 ctx</label></span><span class="ctxs">1wxycdzeUfghABijVWXYCklmnopDEFGHZqrIbsJ0KLMN1OPQtuRSvT</span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">    <span class="key">if</span> <span class="nam">expected_device_arch</span> <span class="key">is</span> <span class="key">None</span> <span class="key">or</span> <span class="nam">expected_device_arch</span> <span class="op">==</span> <span class="str">"HAS_INFOROM"</span> <span class="key">or</span> <span class="nam">device_arch</span> <span class="op">==</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">DeviceArch</span><span class="op">.</span><span class="nam">UNKNOWN</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs43"><span class="r"><label for="ctxs43" class="ctx">54 ctx</label></span><span class="ctxs">1wxycdzeVfghABijWXYZCklmnopDEFGH0qrIbJsK1LMNO2PQRtuSTvU</span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">        <span class="com"># In this case, we don't /know/ if it will fail, but we are ok if it</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="com"># does or does not.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -188,8 +189,8 @@
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">        <span class="com"># device has an InfoROM, but I couldn't find a way to detect that.  For</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="com"># now, they are just handled as "possibly failing".</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">44 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFHqrIbsJKLMNOPQtuRSvT</span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">            <span class="key">yield</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">44 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFHqrIbsJKLMNOPQtuRSvT</span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">44 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFHqrIbsKLMNOPQRtuSTvU</span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">            <span class="key">yield</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">44 ctx</label></span><span class="ctxs">1wxycdzefghABijCklmnopDEFHqrIbsKLMNOPQRtuSTvU</span></p>
     <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">        <span class="key">except</span> <span class="op">(</span><span class="nam">nvml</span><span class="op">.</span><span class="nam">NotSupportedError</span><span class="op">,</span> <span class="nam">nvml</span><span class="op">.</span><span class="nam">FunctionNotFoundError</span><span class="op">,</span> <span class="nam">NvmlSymbolNotFoundError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">21 ctx</label></span><span class="ctxs">1cdefghijklmnopqrbstuv</span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">            <span class="com"># The API call raised NotSupportedError, NVML status FunctionNotFoundError,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">            <span class="com"># or NvmlSymbolNotFoundError (symbol absent from the loaded NVML DLL), so we</span>&nbsp;</span><span class="r"></span></p>
@@ -199,7 +200,7 @@
     <p class="run run2"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">                <span class="fst">f"</span><span class="fst">on device '</span><span class="op">{</span><span class="nam">nvml</span><span class="op">.</span><span class="nam">device_get_name</span><span class="op">(</span><span class="nam">device</span><span class="op">)</span><span class="op">}</span><span class="fst">'</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">        <span class="com"># If the API call worked, just continue</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">    <span class="key">elif</span> <span class="nam">int</span><span class="op">(</span><span class="nam">device_arch</span><span class="op">)</span> <span class="op">&lt;</span> <span class="nam">expected_device_arch_int</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">10 ctx</label></span><span class="ctxs">1UVWXYGZb01</span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">    <span class="key">elif</span> <span class="nam">int</span><span class="op">(</span><span class="nam">device_arch</span><span class="op">)</span> <span class="op">&lt;</span> <span class="nam">expected_device_arch_int</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">11 ctx</label></span><span class="ctxs">1VWXYZG0bJ12</span></p>
     <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">        <span class="com"># In this case, we /know/ if will fail, and we want to assert that it does.</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">        <span class="key">with</span> <span class="nam">pytest</span><span class="op">.</span><span class="nam">raises</span><span class="op">(</span><span class="nam">nvml</span><span class="op">.</span><span class="nam">NotSupportedError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">            <span class="key">yield</span>&nbsp;</span><span class="r"></span></p>
@@ -207,7 +208,7 @@
     <p class="mis show_mis"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">        <span class="nam">pytest</span><span class="op">.</span><span class="nam">skip</span><span class="op">(</span><span class="fst">f"</span><span class="fst">Unsupported before </span><span class="op">{</span><span class="nam">expected_device_arch</span><span class="op">.</span><span class="nam">name</span><span class="op">}</span><span class="fst">, got </span><span class="op">{</span><span class="nam">nvml</span><span class="op">.</span><span class="nam">device_get_name</span><span class="op">(</span><span class="nam">device</span><span class="op">)</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">        <span class="com"># In this case, we /know/ it should work, and if it fails, the test should fail.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">        <span class="key">yield</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">10 ctx</label></span><span class="ctxs">1UVWXYGZb01</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">        <span class="key">yield</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">11 ctx</label></span><span class="ctxs">1VWXYZG0bJ12</span></p>
 </main>
 <footer>
     <div class="content">
@@ -217,7 +218,7 @@
             <a class="nav" href="z_dd32794be7d01b59_pep723_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-23 01:24 +0000
+            created at 2026-04-24 01:20 +0000
         </p>
     </div>
 </footer>
