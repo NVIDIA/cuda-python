@@ -26,6 +26,7 @@ cuda.core.system.Device
    .. automethod:: get_device_count
    .. automethod:: get_field_values
    .. automethod:: get_memory_affinity
+   .. automethod:: get_nvlink
    .. automethod:: get_supported_clock_event_reasons
    .. automethod:: get_supported_event_types
    .. automethod:: get_supported_pstates
@@ -47,6 +48,7 @@ cuda.core.system.Device
    .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
+   .. autoattribute:: compute_running_processes
    .. autoattribute:: cooler
    .. autoattribute:: cuda_compute_capability
    .. autoattribute:: display_active
@@ -56,6 +58,7 @@ cuda.core.system.Device
    .. autoattribute:: inforom
    .. autoattribute:: is_c2c_mode_enabled
    .. autoattribute:: memory_info
+   .. autoattribute:: mig
    .. autoattribute:: minor_number
    .. autoattribute:: module_id
    .. autoattribute:: name
@@ -68,6 +71,8 @@ cuda.core.system.Device
    .. autoattribute:: repair_status
    .. autoattribute:: serial
    .. autoattribute:: temperature
+   .. autoattribute:: utilization
    .. autoattribute:: uuid
+   .. autoattribute:: uuid_without_prefix
    
    
