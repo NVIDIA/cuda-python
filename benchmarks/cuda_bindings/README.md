@@ -47,7 +47,7 @@ To run the benchmarks combine the environment and task:
 ```bash
 # Run the Python benchmarks in the wheel environment
 pixi run -e wheel bench
-pixi run -e wheel bench--min-time 0.1
+pixi run -e wheel bench --min-time 0.1
 
 # Run the Python benchmarks in the source environment
 pixi run -e source bench
