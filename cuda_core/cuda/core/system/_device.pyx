@@ -230,14 +230,14 @@ cdef class Device:
         return nvml.device_get_minor_number(self._handle)
 
     @property
-    def is_c2c_mode_enabled(self) -> bool:
+    def is_c2c_enabled(self) -> bool:
         """
         Whether the C2C (Chip-to-Chip) mode is enabled for this device.
         """
         return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
 
     @property
-    def persistence_mode_enabled(self) -> bool:
+    def is_persistence_mode_enabled(self) -> bool:
         """
         Whether persistence mode is enabled for this device.
 
@@ -245,8 +245,8 @@ cdef class Device:
         """
         return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
-    @persistence_mode_enabled.setter
-    def persistence_mode_enabled(self, enabled: bool) -> None:
+    @is_persistence_mode_enabled.setter
+    def is_persistence_mode_enabled(self, enabled: bool) -> None:
         nvml.device_set_persistence_mode(
             self._handle,
             nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
@@ -440,13 +440,14 @@ cdef class Device:
     # CLOCK
     # See external class definitions in _clock.pxi
 
-    def clock(self, clock_type: ClockType) -> ClockInfo:
+    def get_clock(self, clock_type: ClockType) -> ClockInfo:
         """
         :obj:`~_device.ClockInfo` object to get information about and manage a specific clock on a device.
         """
         return ClockInfo(self._handle, clock_type)
 
-    def get_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
+    @property
+    def is_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
         """
         Retrieve the current state of auto boosted clocks on a device.
 
@@ -471,7 +472,8 @@ cdef class Device:
         current, default = nvml.device_get_auto_boosted_clocks_enabled(self._handle)
         return current == nvml.EnableState.FEATURE_ENABLED, default == nvml.EnableState.FEATURE_ENABLED
 
-    def get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @property
+    def current_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
         Retrieves the current :obj:`~ClocksEventReasons`.
 
@@ -481,7 +483,8 @@ cdef class Device:
         reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)
         return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
 
-    def get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @property
+    def supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
         Retrieves supported :obj:`~ClocksEventReasons` that can be returned by
         :meth:`get_current_clock_event_reasons`.
@@ -523,17 +526,17 @@ cdef class Device:
     # DISPLAY
 
     @property
-    def display_mode(self) -> bool:
+    def is_display_connected(self) -> bool:
         """
         The display mode for this device.
 
         Indicates whether a physical display (e.g. monitor) is currently connected to
         any of the device's connectors.
         """
-        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+        return nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
     @property
-    def display_active(self) -> bool:
+    def is_display_active(self) -> bool:
         """
         The display active status for this device.
 
@@ -543,7 +546,7 @@ cdef class Device:
 
         Display can be active even when no monitor is physically attached.
         """
-        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+        return nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
     ##########################################################################
     # EVENTS
@@ -611,7 +614,7 @@ cdef class Device:
     # FAN
     # See external class definitions in _fan.pxi
 
-    def fan(self, fan: int = 0) -> FanInfo:
+    def get_fan(self, fan: int = 0) -> FanInfo:
         """
         :obj:`~_device.FanInfo` object to get information and manage a specific fan on a device.
         """
@@ -752,7 +755,8 @@ cdef class Device:
         """
         return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
 
-    def get_supported_pstates(self) -> list[Pstates]:
+    @property
+    def supported_pstates(self) -> list[Pstates]:
         """
         Get all supported Performance States (P-States) for the device.
 
