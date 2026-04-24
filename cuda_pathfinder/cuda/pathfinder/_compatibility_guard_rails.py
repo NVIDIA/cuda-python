@@ -440,6 +440,7 @@ class CompatibilityGuardRails:
     ) -> None:
         self._ctk_major_constraint = _coerce_constraint("ctk_major", ctk_major)
         self._ctk_minor_constraint = _coerce_constraint("ctk_minor", ctk_minor)
+        self._configured_driver_cuda_version = driver_cuda_version
         self._driver_cuda_version = driver_cuda_version
         self._resolved_items: list[ResolvedItem] = []
 
@@ -491,6 +492,10 @@ class CompatibilityGuardRails:
     def _remember(self, item: ResolvedItem) -> None:
         if item not in self._resolved_items:
             self._resolved_items.append(item)
+
+    def _reset_for_testing(self) -> None:
+        self._driver_cuda_version = self._configured_driver_cuda_version
+        self._resolved_items.clear()
 
     def _register_and_check(self, item: ResolvedItem) -> None:
         self._enforce_supported_packaging(item)

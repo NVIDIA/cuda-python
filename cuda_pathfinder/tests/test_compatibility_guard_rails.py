@@ -99,9 +99,100 @@ def _assert_real_ctk_backed_path(path: str) -> None:
     )
 
 
+class _DelegatingProcessWideGuardRails:
+    def __init__(self, method_name: str, return_value: object) -> None:
+        self._method_name = method_name
+        self._return_value = return_value
+        self.calls: list[tuple[str, tuple[object, ...]]] = []
+
+    def __getattr__(self, name: str):
+        if name != self._method_name:
+            raise AttributeError(name)
+
+        def delegated(*args: object) -> object:
+            self.calls.append((name, args))
+            return self._return_value
+
+        return delegated
+
+
 def test_process_wide_compatibility_guard_rails_is_public_singleton():
     assert process_wide_compatibility_guard_rails is pathfinder.process_wide_compatibility_guard_rails
     assert isinstance(process_wide_compatibility_guard_rails, CompatibilityGuardRails)
+
+
+@pytest.mark.parametrize(
+    ("public_api_name", "guard_rails_method_name", "args", "return_value"),
+    [
+        (
+            "load_nvidia_dynamic_lib",
+            "load_nvidia_dynamic_lib",
+            ("nvrtc",),
+            _loaded_dl("/opt/mock/libnvrtc.so.12"),
+        ),
+        (
+            "locate_nvidia_header_directory",
+            "locate_nvidia_header_directory",
+            ("nvrtc",),
+            LocatedHeaderDir(abs_path="/opt/mock/include", found_via="CUDA_PATH"),
+        ),
+        ("find_nvidia_header_directory", "find_nvidia_header_directory", ("nvrtc",), "/opt/mock/include"),
+        (
+            "locate_static_lib",
+            "locate_static_lib",
+            ("cudadevrt",),
+            _located_static_lib("cudadevrt", "/opt/mock/libcudadevrt.a"),
+        ),
+        ("find_static_lib", "find_static_lib", ("cudadevrt",), "/opt/mock/libcudadevrt.a"),
+        (
+            "locate_bitcode_lib",
+            "locate_bitcode_lib",
+            ("device",),
+            _located_bitcode_lib("device", "/opt/mock/libdevice.10.bc"),
+        ),
+        ("find_bitcode_lib", "find_bitcode_lib", ("device",), "/opt/mock/libdevice.10.bc"),
+        ("find_nvidia_binary_utility", "find_nvidia_binary_utility", ("nvcc",), "/opt/mock/nvcc"),
+    ],
+)
+def test_public_apis_route_through_process_wide_guard_rails(
+    monkeypatch, public_api_name, guard_rails_method_name, args, return_value
+):
+    fake_guard_rails = _DelegatingProcessWideGuardRails(guard_rails_method_name, return_value)
+    monkeypatch.setattr(pathfinder, "process_wide_compatibility_guard_rails", fake_guard_rails)
+
+    result = getattr(pathfinder, public_api_name)(*args)
+
+    assert result == return_value
+    assert fake_guard_rails.calls == [(guard_rails_method_name, args)]
+
+
+def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path):
+    lib_root = tmp_path / "cuda-12.8"
+    hdr_root = tmp_path / "cuda-12.9"
+    _write_version_json(lib_root, "12.8.20250303")
+    _write_version_json(hdr_root, "12.9.20250531")
+
+    lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
+    _touch(hdr_dir / "nvrtc.h")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+    monkeypatch.setattr(
+        compatibility_module,
+        "_locate_nvidia_header_directory",
+        lambda _libname: LocatedHeaderDir(abs_path=str(hdr_dir), found_via="CUDA_PATH"),
+    )
+    monkeypatch.setattr(
+        pathfinder,
+        "process_wide_compatibility_guard_rails",
+        CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
+    )
+
+    loaded = pathfinder.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded.abs_path == lib_path
+    with pytest.raises(CompatibilityCheckError, match="exact CTK major.minor match"):
+        pathfinder.find_nvidia_header_directory("nvrtc")
 
 
 def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_path):
