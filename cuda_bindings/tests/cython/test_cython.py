@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import contextlib
 import importlib
 import os
 from pathlib import Path
@@ -54,8 +53,12 @@ def build_cython_test_modules():
     build_ext.build_temp = str(TESTS_DIR / "build" / "temp")
 
     # Ensure in-place extension outputs are written into tests/cython.
-    with contextlib.chdir(TESTS_DIR):
+    cwd = os.getcwd()
+    os.chdir(TESTS_DIR)
+    try:
         distribution.run_command("build_ext")
+    finally:
+        os.chdir(cwd)
 
 
 def _import_cython_test_modules():
