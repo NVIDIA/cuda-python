@@ -100,10 +100,6 @@ cdef extern from "_include/aoti_shim.h":
     int32_t aoti_torch_device_type_cpu()
     int32_t aoti_torch_device_type_cuda()
 
-    # layout
-    AOTITorchError aoti_torch_get_layout(AtenTensorHandle, int32_t*)
-    int32_t aoti_torch_layout_strided()
-
     # stream
     AOTITorchError aoti_torch_get_current_cuda_stream(int32_t, void**)
 
@@ -119,7 +115,6 @@ import sys
 
 cdef int32_t _DEVICE_TYPE_CPU  = aoti_torch_device_type_cpu()
 cdef int32_t _DEVICE_TYPE_CUDA = aoti_torch_device_type_cuda()
-cdef int32_t _LAYOUT_STRIDED   = aoti_torch_layout_strided()
 cdef dict _aoti_dtype_map = None
 cdef dict _aoti_itemsize_map = None
 
@@ -315,25 +310,17 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     cdef int64_t* strides_ptr
     cdef int32_t dtype_code
     cdef int32_t device_type, device_index
-    cdef int32_t tensor_layout
     cdef StridedMemoryView buf
     cdef int itemsize
     cdef intptr_t _stream_ptr_int
     cdef _StridedLayout layout
 
-    # Reject non-strided (sparse, mkldnn, etc.) tensors whose shape/strides
-    # are not meaningful for dense memory access.  This mirrors the guard in
-    # PyTorch's Python-level __dlpack__ ("layout other than torch.strided").
-    # Note: we intentionally skip the other Python-level guards
-    # (requires_grad, is_conj, is_neg, wrong-device) for the same reason
-    # PyTorch's own __dlpack_c_exchange_api__ C path skips them — the C-level
-    # exchange path is designed for performance-critical consumers.
-    check_aoti(aoti_torch_get_layout(handle, &tensor_layout),
-               b"aoti_torch_get_layout")
-    if tensor_layout != _LAYOUT_STRIDED:
-        raise BufferError(
-            "Only strided tensors can be viewed via the tensor bridge "
-            "(use tensor.to_dense() to convert sparse tensors first)")
+    # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
+    # (requires_grad, is_conj, is_neg, non-strided layout, wrong-device)
+    # for the same reason PyTorch's own __dlpack_c_exchange_api__ C path
+    # skips them — the C-level exchange path is designed for performance-
+    # critical consumers.  See DLTensorFromPyObjectNoSync in
+    # torch/csrc/Module.cpp which calls toDLPackNonOwning with zero checks.
 
     check_aoti(aoti_torch_get_data_ptr(handle, &data_ptr),
                b"aoti_torch_get_data_ptr")

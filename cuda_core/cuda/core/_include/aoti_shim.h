@@ -94,13 +94,6 @@ AOTI_SHIM_API AOTITorchError aoti_torch_get_device_index(
 AOTI_SHIM_API int32_t aoti_torch_device_type_cpu(void);
 AOTI_SHIM_API int32_t aoti_torch_device_type_cuda(void);
 
-/* ---- layout -------------------------------------------------------------- */
-
-AOTI_SHIM_API AOTITorchError aoti_torch_get_layout(
-    AtenTensorHandle tensor, int32_t* ret_layout);
-
-AOTI_SHIM_API int32_t aoti_torch_layout_strided(void);
-
 /* ---- stream -------------------------------------------------------------- */
 
 AOTI_SHIM_API AOTITorchError aoti_torch_get_current_cuda_stream(
