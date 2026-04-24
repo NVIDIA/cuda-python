@@ -23,6 +23,12 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
+COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
+
+
+@pytest.fixture(autouse=True)
+def _disable_process_wide_compatibility_guard_rails(monkeypatch):
+    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "off")
 
 
 def test_supported_libnames_linux_sonames_consistency():

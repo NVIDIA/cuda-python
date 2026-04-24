@@ -30,12 +30,18 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
+COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _LOADER_MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib.LOADER"
 
 _CUDA_DESC = LIB_DESCRIPTORS["cuda"]
 _NVML_DESC = LIB_DESCRIPTORS["nvml"]
+
+
+@pytest.fixture(autouse=True)
+def _disable_process_wide_compatibility_guard_rails(monkeypatch):
+    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "off")
 
 
 def _make_loaded_dl(path, found_via):

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from collections.abc import Callable
 from typing import Protocol, TypeVar, cast
@@ -47,6 +48,8 @@ from cuda.pathfinder._static_libs.find_static_lib import (
 )
 
 _T = TypeVar("_T")
+_COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
+_COMPATIBILITY_GUARD_RAILS_MODES = ("off", "best_effort", "strict")
 
 
 class _ProcessWideGuardRailsApi(Protocol):
@@ -72,6 +75,19 @@ class _PublicPathfinderModule(Protocol):
 
 
 process_wide_compatibility_guard_rails: CompatibilityGuardRails = CompatibilityGuardRails()
+
+
+def _compatibility_guard_rails_mode() -> str:
+    value = os.environ.get(_COMPATIBILITY_GUARD_RAILS_ENV_VAR)
+    if not value:
+        return "strict"
+    if value in _COMPATIBILITY_GUARD_RAILS_MODES:
+        return value
+    allowed_values = ", ".join(repr(mode) for mode in _COMPATIBILITY_GUARD_RAILS_MODES)
+    raise RuntimeError(
+        f"Invalid {_COMPATIBILITY_GUARD_RAILS_ENV_VAR}={value!r}. "
+        f"Allowed values: {allowed_values}. Unset or empty defaults to 'strict'."
+    )
 
 
 def _public_module() -> _PublicPathfinderModule | None:
@@ -102,10 +118,15 @@ def _reset_process_wide_compatibility_guard_rails() -> None:
 
 
 def _try_process_wide_guard_rails_then_fallback(guard_rails_call: Callable[[], _T], raw_call: Callable[[], _T]) -> _T:
+    mode = _compatibility_guard_rails_mode()
+    if mode == "off":
+        return raw_call()
     try:
         return guard_rails_call()
     except CompatibilityInsufficientMetadataError:
-        return raw_call()
+        if mode == "best_effort":
+            return raw_call()
+        raise
 
 
 def _cache_clear_with_process_state_reset(cache_clear: Callable[[], object]) -> Callable[[], None]:
@@ -134,10 +155,10 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
 
 def find_nvidia_header_directory(libname: str) -> str | None:
     """Locate a CUDA header directory and return its path string."""
-    try:
-        abs_path = _current_process_wide_compatibility_guard_rails().find_nvidia_header_directory(libname)
-    except CompatibilityInsufficientMetadataError:
-        abs_path = _find_nvidia_header_directory_impl(libname)
+    abs_path = _try_process_wide_guard_rails_then_fallback(
+        lambda: _current_process_wide_compatibility_guard_rails().find_nvidia_header_directory(libname),
+        lambda: _find_nvidia_header_directory_impl(libname),
+    )
     assert abs_path is None or isinstance(abs_path, str)
     return abs_path
 
@@ -152,10 +173,10 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
 
 def find_static_lib(name: str) -> str:
     """Locate a CUDA static library and return its path string."""
-    try:
-        abs_path = _current_process_wide_compatibility_guard_rails().find_static_lib(name)
-    except CompatibilityInsufficientMetadataError:
-        abs_path = _find_static_lib(name)
+    abs_path = _try_process_wide_guard_rails_then_fallback(
+        lambda: _current_process_wide_compatibility_guard_rails().find_static_lib(name),
+        lambda: _find_static_lib(name),
+    )
     assert isinstance(abs_path, str)
     return abs_path
 
@@ -170,20 +191,20 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
 
 def find_bitcode_lib(name: str) -> str:
     """Locate a CUDA bitcode library and return its path string."""
-    try:
-        abs_path = _current_process_wide_compatibility_guard_rails().find_bitcode_lib(name)
-    except CompatibilityInsufficientMetadataError:
-        abs_path = _find_bitcode_lib(name)
+    abs_path = _try_process_wide_guard_rails_then_fallback(
+        lambda: _current_process_wide_compatibility_guard_rails().find_bitcode_lib(name),
+        lambda: _find_bitcode_lib(name),
+    )
     assert isinstance(abs_path, str)
     return abs_path
 
 
 def find_nvidia_binary_utility(utility_name: str) -> str | None:
     """Locate a CUDA binary utility via the process-wide compatibility guard rails."""
-    try:
-        abs_path = _current_process_wide_compatibility_guard_rails().find_nvidia_binary_utility(utility_name)
-    except CompatibilityInsufficientMetadataError:
-        abs_path = _find_nvidia_binary_utility(utility_name)
+    abs_path = _try_process_wide_guard_rails_then_fallback(
+        lambda: _current_process_wide_compatibility_guard_rails().find_nvidia_binary_utility(utility_name),
+        lambda: _find_nvidia_binary_utility(utility_name),
+    )
     assert abs_path is None or isinstance(abs_path, str)
     return abs_path
 

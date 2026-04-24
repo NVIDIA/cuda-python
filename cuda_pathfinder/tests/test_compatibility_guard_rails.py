@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib
 import json
 import os
 from pathlib import Path
@@ -26,6 +27,13 @@ from cuda.pathfinder._utils.driver_info import DriverCudaVersion, QueryDriverCud
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_COMPATIBILITY_GUARD_RAILS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
+COMPATIBILITY_GUARD_RAILS_ENV_VAR = "CUDA_PATHFINDER_COMPATIBILITY_GUARD_RAILS"
+process_wide_module = importlib.import_module("cuda.pathfinder._process_wide_compatibility_guard_rails")
+
+
+@pytest.fixture(autouse=True)
+def _default_process_wide_guard_rails_mode(monkeypatch):
+    monkeypatch.delenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, raising=False)
 
 
 def _write_version_json(ctk_root: Path, toolkit_version: str) -> None:
@@ -164,6 +172,77 @@ def test_public_apis_route_through_process_wide_guard_rails(
 
     assert result == return_value
     assert fake_guard_rails.calls == [(guard_rails_method_name, args)]
+
+
+@pytest.mark.parametrize("env_value", [None, ""])
+def test_public_apis_default_to_strict_when_env_var_is_unset_or_empty(monkeypatch, tmp_path, env_value):
+    lib_path = _touch(tmp_path / "no-version-json" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+    monkeypatch.setattr(
+        pathfinder,
+        "process_wide_compatibility_guard_rails",
+        CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
+    )
+
+    def fail_raw_fallback(_libname: str) -> LoadedDL:
+        pytest.fail("strict mode must not fall back to raw loading")
+
+    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", fail_raw_fallback)
+    if env_value is None:
+        monkeypatch.delenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, raising=False)
+    else:
+        monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, env_value)
+
+    with pytest.raises(CompatibilityInsufficientMetadataError, match="version.json"):
+        pathfinder.load_nvidia_dynamic_lib("nvrtc")
+
+
+def test_public_apis_best_effort_fall_back_on_insufficient_metadata(monkeypatch, tmp_path):
+    guarded_lib_path = _touch(tmp_path / "no-version-json" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.12", found_via="system-search")
+
+    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "best_effort")
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(guarded_lib_path))
+    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", lambda _libname: raw_loaded)
+    monkeypatch.setattr(
+        pathfinder,
+        "process_wide_compatibility_guard_rails",
+        CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000)),
+    )
+
+    loaded = pathfinder.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded is raw_loaded
+
+
+def test_public_apis_off_bypass_process_wide_guard_rails(monkeypatch):
+    raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.12", found_via="system-search")
+    fake_guard_rails = _DelegatingProcessWideGuardRails(
+        "load_nvidia_dynamic_lib",
+        _loaded_dl("/opt/mock/guard-rails/libnvrtc.so.12"),
+    )
+
+    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "off")
+    monkeypatch.setattr(pathfinder, "process_wide_compatibility_guard_rails", fake_guard_rails)
+    monkeypatch.setattr(process_wide_module, "_load_nvidia_dynamic_lib", lambda _libname: raw_loaded)
+
+    loaded = pathfinder.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded is raw_loaded
+    assert fake_guard_rails.calls == []
+
+
+def test_public_apis_reject_invalid_guard_rails_mode(monkeypatch):
+    monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "unexpected")
+
+    with pytest.raises(RuntimeError, match=COMPATIBILITY_GUARD_RAILS_ENV_VAR) as exc_info:
+        pathfinder.find_nvidia_binary_utility("nvcc")
+
+    message = str(exc_info.value)
+    assert "'off'" in message
+    assert "'best_effort'" in message
+    assert "'strict'" in message
 
 
 def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path):
