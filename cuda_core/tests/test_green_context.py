@@ -82,15 +82,16 @@ def test_workqueue_resource_query_and_configure(init_cuda):
 
 def test_sm_resource_split_validation(init_cuda):
     sm = _sm_resource_or_skip(init_cuda)
+    count = sm.min_partition_size
 
     with pytest.raises(ValueError, match="count is scalar"):
-        sm.split(SMResourceOptions(count=4, coscheduled_sm_count=(2, 2)))
+        sm.split(SMResourceOptions(count=count, coscheduled_sm_count=(count, count)))
 
     with pytest.raises(ValueError, match="expected 2"):
-        sm.split(SMResourceOptions(count=(4, 4), coscheduled_sm_count=(2, 2, 2)))
+        sm.split(SMResourceOptions(count=(count, count), coscheduled_sm_count=(count, count, count)))
 
-    with pytest.raises(NotImplementedError, match="min_count"):
-        sm.split(SMResourceOptions(count=4, min_count=2))
+    with pytest.raises(ValueError, match="count must be non-negative"):
+        sm.split(SMResourceOptions(count=-1))
 
 
 def test_sm_resource_split_dry_run_cannot_create_context(init_cuda):
@@ -120,4 +121,36 @@ def test_set_current_swap_preserves_green_context(init_cuda):
     restored = dev.set_current(prev)
     assert restored is green_ctx
     assert restored.is_green
+    restored.close()
+
+
+def test_green_context_push_model_creates_stream_and_event(init_cuda):
+    dev = init_cuda
+    green_ctx = _green_context_or_skip(dev)
+
+    prev = dev.set_current(green_ctx)
+    try:
+        stream = dev.create_stream()
+        event = stream.record()
+        stream.sync()
+        event.sync()
+    finally:
+        restored = dev.set_current(prev)
+
+    assert restored is green_ctx
+    restored.close()
+
+
+def test_close_current_green_context_raises(init_cuda):
+    dev = init_cuda
+    green_ctx = _green_context_or_skip(dev)
+
+    prev = dev.set_current(green_ctx)
+    try:
+        with pytest.raises(RuntimeError, match="while it is current"):
+            green_ctx.close()
+    finally:
+        restored = dev.set_current(prev)
+
+    assert restored is green_ctx
     restored.close()

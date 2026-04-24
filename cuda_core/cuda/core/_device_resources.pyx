@@ -40,21 +40,6 @@ cdef inline void _check_green_ctx_support() except *:
         )
 
 
-cdef inline void _check_sm_split_support() except *:
-    cdef tuple drv = cy_driver_version()
-    cdef tuple bind = cy_binding_version()
-    if drv < (13, 1, 0):
-        raise NotImplementedError(
-            "SMResource.split() requires CUDA driver 13.1 or newer. "
-            f"Using driver version {'.'.join(map(str, drv))}"
-        )
-    if bind < (13, 1, 0):
-        raise NotImplementedError(
-            "SMResource.split() requires cuda.bindings 13.1 or newer. "
-            f"Using cuda.bindings version {'.'.join(map(str, bind))}"
-        )
-
-
 cdef inline void _check_workqueue_support() except *:
     cdef tuple drv = cy_driver_version()
     cdef tuple bind = cy_binding_version()
@@ -80,7 +65,6 @@ class SMResourceOptions:
     """
 
     count: int | SequenceABC | None = None
-    min_count: int | SequenceABC | None = None
     coscheduled_sm_count: int | SequenceABC | None = None
     preferred_coscheduled_sm_count: int | SequenceABC | None = None
 
@@ -116,7 +100,6 @@ cdef int _resolve_group_count(object options) except -1:
 
     if n_groups == 1:
         for field_name in (
-            "min_count",
             "coscheduled_sm_count",
             "preferred_coscheduled_sm_count",
         ):
@@ -128,7 +111,6 @@ cdef int _resolve_group_count(object options) except -1:
                 )
     else:
         for field_name in (
-            "min_count",
             "coscheduled_sm_count",
             "preferred_coscheduled_sm_count",
         ):
@@ -147,6 +129,71 @@ cdef object _broadcast_field(object value, int n_groups):
     return [value] * n_groups
 
 
+cdef inline unsigned int _as_uint(object value, str field_name) except? 0:
+    if not isinstance(value, int):
+        raise TypeError(f"{field_name} must be an int or None, got {type(value)}")
+    if value < 0:
+        raise ValueError(f"{field_name} must be non-negative")
+    return <unsigned int>value
+
+
+cdef inline unsigned int _count_to_sm_count(object value) except? 0:
+    if value is None:
+        return 0
+    return _as_uint(value, "count")
+
+
+cdef inline bint _can_use_structured_sm_split():
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        return cy_driver_version() >= (13, 1, 0) and cy_binding_version() >= (13, 1, 0)
+    ELSE:
+        return False
+
+
+cdef inline void _check_split_by_count_support() except *:
+    cdef tuple drv = cy_driver_version()
+    cdef tuple bind = cy_binding_version()
+    if drv < (12, 4, 0):
+        raise NotImplementedError(
+            "SMResource.split() requires CUDA driver 12.4 or newer. "
+            f"Using driver version {'.'.join(map(str, drv))}"
+        )
+    if bind < (12, 4, 0):
+        raise NotImplementedError(
+            "SMResource.split() requires cuda.bindings 12.4 or newer. "
+            f"Using cuda.bindings version {'.'.join(map(str, bind))}"
+        )
+
+
+cdef object _resolve_split_by_count_request(object options):
+    cdef int n_groups = _resolve_group_count(options)
+    cdef list counts = _broadcast_field(options.count, n_groups)
+    cdef object first = counts[0]
+    cdef object value
+    cdef unsigned int min_count
+
+    if options.coscheduled_sm_count is not None:
+        raise NotImplementedError(
+            "SMResourceOptions.coscheduled_sm_count requires the CUDA 13.1 "
+            "structured SM split API"
+        )
+    if options.preferred_coscheduled_sm_count is not None:
+        raise NotImplementedError(
+            "SMResourceOptions.preferred_coscheduled_sm_count requires the "
+            "CUDA 13.1 structured SM split API"
+        )
+
+    for value in counts[1:]:
+        if value != first:
+            raise NotImplementedError(
+                "CUDA 12 SM splitting only supports homogeneous count values; "
+                "use CUDA 13.1 or newer for per-group counts"
+            )
+
+    min_count = _count_to_sm_count(first)
+    return n_groups, min_count
+
+
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     cdef void _fill_group_params(
         cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* params,
@@ -158,15 +205,15 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef list preferred = _broadcast_field(options.preferred_coscheduled_sm_count, n_groups)
         cdef int i
 
-        # v1.0 intentionally does not expose min_count: cuDevSmResourceSplit's
-        # structured API uses smCount as the per-group requested count.
         for i in range(n_groups):
             memset(&params[i], 0, sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS))
-            params[i].smCount = 0 if counts[i] is None else <unsigned int>counts[i]
+            params[i].smCount = _count_to_sm_count(counts[i])
             if coscheduled[i] is not None:
-                params[i].coscheduledSmCount = <unsigned int>coscheduled[i]
+                params[i].coscheduledSmCount = _as_uint(coscheduled[i], "coscheduled_sm_count")
             if preferred[i] is not None:
-                params[i].preferredCoscheduledSmCount = <unsigned int>preferred[i]
+                params[i].preferredCoscheduledSmCount = _as_uint(
+                    preferred[i], "preferred_coscheduled_sm_count"
+                )
             params[i].flags = 0
 
 
@@ -229,6 +276,44 @@ ELSE:
         )
 
 
+cdef object _split_with_count_api(SMResource sm, object options, bint dry_run):
+    cdef object request = _resolve_split_by_count_request(options)
+    cdef unsigned int nb_groups = <unsigned int>request[0]
+    cdef unsigned int min_count = <unsigned int>request[1]
+    cdef unsigned int actual_groups = nb_groups
+    cdef cydriver.CUdevResource* result = NULL
+    cdef cydriver.CUdevResource remaining
+    cdef list groups = []
+    cdef int i
+
+    result = <cydriver.CUdevResource*>malloc(nb_groups * sizeof(cydriver.CUdevResource))
+    if result == NULL:
+        raise MemoryError()
+
+    try:
+        memset(&remaining, 0, sizeof(cydriver.CUdevResource))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDevSmResourceSplitByCount(
+                result,
+                &actual_groups,
+                &sm._resource,
+                &remaining,
+                0,
+                min_count,
+            ))
+
+        for i in range(actual_groups):
+            if dry_run:
+                groups.append(SMResource._from_dry_run_resource(result[i]))
+            else:
+                groups.append(SMResource._from_dev_resource(result[i]))
+        if dry_run:
+            return groups, SMResource._from_dry_run_resource(remaining)
+        return groups, SMResource._from_dev_resource(remaining)
+    finally:
+        free(result)
+
+
 cdef class SMResource:
     """SM resource queried from a device. Not user-constructible."""
 
@@ -281,15 +366,12 @@ cdef class SMResource:
         """Split this SM resource into groups plus a remainder."""
         if not isinstance(options, SMResourceOptions):
             raise TypeError(f"options must be SMResourceOptions, got {type(options)}")
-        if options.min_count is not None:
-            raise NotImplementedError(
-                "SMResourceOptions.min_count is reserved for future use; "
-                "use count to request SMs in the v1.0 structured split API"
-            )
         _resolve_group_count(options)
         _check_green_ctx_support()
-        _check_sm_split_support()
-        return _split_with_general_api(self, options, dry_run)
+        if _can_use_structured_sm_split():
+            return _split_with_general_api(self, options, dry_run)
+        _check_split_by_count_support()
+        return _split_with_count_api(self, options, dry_run)
 
 
 cdef class WorkqueueResource:

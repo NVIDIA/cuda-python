@@ -4,13 +4,16 @@
 
 from dataclasses import dataclass
 
+from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     ContextHandle,
     GreenCtxHandle,
+    as_cu,
     get_green_ctx_context,
     as_intptr,
     as_py,
 )
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 __all__ = ['Context', 'ContextOptions']
@@ -63,6 +66,15 @@ cdef class Context:
 
     cpdef close(self):
         """Release this context wrapper's underlying CUDA handles."""
+        cdef cydriver.CUcontext current_ctx
+        if self._h_context.get() != NULL:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&current_ctx))
+            if current_ctx == as_cu(self._h_context):
+                raise RuntimeError(
+                    "Cannot close a CUDA context while it is current. "
+                    "Restore a previous context before closing this context."
+                )
         self._h_context.reset()
         self._h_green_ctx.reset()
 
