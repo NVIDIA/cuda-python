@@ -349,13 +349,13 @@ cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except?<nvrtcResul
         supportedArchs)
 
 
-cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char* const* headers, const char* const* includeNames) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvrtcCreateProgram
     _check_or_init_nvrtc()
     if __nvrtcCreateProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcCreateProgram is not found")
-    return (<nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char* const*, const char* const*) noexcept nogil>__nvrtcCreateProgram)(
+    return (<nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) noexcept nogil>__nvrtcCreateProgram)(
         prog, src, name, numHeaders, headers, includeNames)
 
 
@@ -369,13 +369,13 @@ cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except?<nvrtcResult>_N
         prog)
 
 
-cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char* const* options) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvrtcCompileProgram
     _check_or_init_nvrtc()
     if __nvrtcCompileProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcCompileProgram is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, int, const char* const*) noexcept nogil>__nvrtcCompileProgram)(
+    return (<nvrtcResult (*)(nvrtcProgram, int, const char**) noexcept nogil>__nvrtcCompileProgram)(
         prog, numOptions, options)
 
 
@@ -479,23 +479,23 @@ cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except?<nvrtc
         prog, log)
 
 
-cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* const name_expression) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvrtcAddNameExpression
     _check_or_init_nvrtc()
     if __nvrtcAddNameExpression == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcAddNameExpression is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, const char* const) noexcept nogil>__nvrtcAddNameExpression)(
+    return (<nvrtcResult (*)(nvrtcProgram, const char*) noexcept nogil>__nvrtcAddNameExpression)(
         prog, name_expression)
 
 
-cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* const name_expression, const char** lowered_name) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvrtcGetLoweredName
     _check_or_init_nvrtc()
     if __nvrtcGetLoweredName == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetLoweredName is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, const char* const, const char**) noexcept nogil>__nvrtcGetLoweredName)(
+    return (<nvrtcResult (*)(nvrtcProgram, const char*, const char**) noexcept nogil>__nvrtcGetLoweredName)(
         prog, name_expression, lowered_name)
 
 
@@ -539,13 +539,13 @@ cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) e
         prog, size)
 
 
-cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback[], void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvrtcSetFlowCallback
     _check_or_init_nvrtc()
     if __nvrtcSetFlowCallback == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcSetFlowCallback is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, void *, void*) noexcept nogil>__nvrtcSetFlowCallback)(
+    return (<nvrtcResult (*)(nvrtcProgram, void **, void*) noexcept nogil>__nvrtcSetFlowCallback)(
         prog, callback, payload)
 
 

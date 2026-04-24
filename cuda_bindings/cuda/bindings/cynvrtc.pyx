@@ -22,7 +22,7 @@ cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except?<nvrtcResult
     return _nvrtc._nvrtcGetSupportedArchs(supportedArchs)
 
 
-cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char* const* headers, const char* const* includeNames) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcCreateProgram(prog, src, name, numHeaders, headers, includeNames)
 
 
@@ -30,7 +30,7 @@ cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except?<nvrtcResult>_NV
     return _nvrtc._nvrtcDestroyProgram(prog)
 
 
-cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char* const* options) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcCompileProgram(prog, numOptions, options)
 
 
@@ -74,11 +74,11 @@ cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except?<nvrtcR
     return _nvrtc._nvrtcGetProgramLog(prog, log)
 
 
-cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* const name_expression) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcAddNameExpression(prog, name_expression)
 
 
-cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* const name_expression, const char** lowered_name) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)
 
 
@@ -98,7 +98,7 @@ cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) ex
     return _nvrtc._nvrtcGetPCHHeapSizeRequired(prog, size)
 
 
-cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback[], void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvrtc._nvrtcSetFlowCallback(prog, callback, payload)
 
 
