@@ -25,7 +25,10 @@ class DriverCudaVersion:
 
     The name ``DriverCudaVersion`` is intentionally specific: this dataclass
     models the version shown as ``CUDA Version`` in ``nvidia-smi``, not the
-    graphics driver release shown as ``Driver Version``.
+    graphics driver release shown as ``Driver Version``. More specifically,
+    it reflects the CUDA user-mode driver (UMD) interface version reported by
+    ``cuDriverGetVersion()``, not the kernel-mode driver (KMD) package
+    version.
 
     Example ``nvidia-smi`` output::
 
