@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=b5df629d"></script>
+    <script src="_static/documentation_options.js?v=964c5192"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev50';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.7.1.dev58';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -571,6 +571,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkVersion.html">cuda.core.system.NvlinkVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Pstates.html">cuda.core.system.Pstates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html">cuda.core.system.TemperatureSensors</a></li>
@@ -789,8 +790,14 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.MigInfo.html#cuda.core.system._device.MigInfo" title="cuda.core.system._device.MigInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.MigInfo</span></code></a>(Device device)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo" title="cuda.core.system._device.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.PciInfo</span></code></a>(pci_info_ext, int handle)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.NvlinkInfo.html#cuda.core.system._device.NvlinkInfo" title="cuda.core.system._device.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.NvlinkInfo</span></code></a>(Device device, ...)</p></td>
+<td><p>Nvlink information for a device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo" title="cuda.core.system._device.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.PciInfo</span></code></a>(pci_info_ext, int handle)</p></td>
 <td><p>PCI information about a GPU device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system._device.ProcessInfo.html#cuda.core.system._device.ProcessInfo" title="cuda.core.system._device.ProcessInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.ProcessInfo</span></code></a>(device, process_info)</p></td>
+<td><p>Information about running compute processes on the GPU.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system._device.RepairStatus.html#cuda.core.system._device.RepairStatus" title="cuda.core.system._device.RepairStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system._device.RepairStatus</span></code></a>(int handle)</p></td>
 <td><p>Repair status for TPC/Channel repair.</p></td>
