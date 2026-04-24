@@ -19,7 +19,7 @@ cdef struct _HelperInputVoidPtrStruct:
     Py_buffer _pybuffer
 
 cdef class _HelperInputVoidPtr:
-    cdef _HelperInputVoidPtrStruct _helper 
+    cdef _HelperInputVoidPtrStruct _helper
     cdef void* _cptr
 
 cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *buffer)
@@ -28,7 +28,7 @@ cdef inline void * _helper_input_void_ptr_free(_HelperInputVoidPtrStruct *helper
     if helper[0]._pybuffer.buf != NULL:
         PyBuffer_Release(&helper[0]._pybuffer)
 
-{{if 'CUmemPool_attribute_enum' in found_types}}
+
 
 cdef class _HelperCUmemPool_attribute:
     cdef void* _cptr
@@ -38,8 +38,8 @@ cdef class _HelperCUmemPool_attribute:
     # Return values
     cdef int _int_val
     cdef driver.cuuint64_t _cuuint64_t_val
-{{endif}}
-{{if 'CUmem_range_attribute_enum' in found_types}}
+
+
 
 cdef class _HelperCUmem_range_attribute:
     cdef void* _cptr
@@ -49,8 +49,8 @@ cdef class _HelperCUmem_range_attribute:
     # Return values
     cdef int _int_val # 32 bit integer
     cdef int* _int_val_list # 32 bit integer array
-{{endif}}
-{{if 'CUpointer_attribute_enum' in found_types}}
+
+
 
 cdef class _HelperCUpointer_attribute:
     cdef void* _cptr
@@ -68,8 +68,8 @@ cdef class _HelperCUpointer_attribute:
     cdef unsigned long long _ull
     cdef size_t _size
     cdef driver.CUmemoryPool _mempool
-{{endif}}
-{{if 'CUgraphMem_attribute_enum' in found_types}}
+
+
 
 cdef class _HelperCUgraphMem_attribute:
     cdef void* _cptr
@@ -78,8 +78,8 @@ cdef class _HelperCUgraphMem_attribute:
 
     # Return values
     cdef driver.cuuint64_t _cuuint64_t_val
-{{endif}}
-{{if 'CUjit_option_enum' in found_types}}
+
+
 
 cdef class _HelperCUjit_option:
     cdef void* _cptr
@@ -95,8 +95,8 @@ cdef class _HelperCUjit_option:
     cdef cydriver.CUjit_cacheMode_enum _cacheMode
     cdef vector[char*] _charstarstar # list of names
     cdef _InputVoidPtrPtrHelper _voidstarstar # list of addresses
-{{endif}}
-{{if 'cudaJitOption' in found_types}}
+
+
 
 cdef class _HelperCudaJitOption:
     cdef void* _cptr
@@ -109,8 +109,8 @@ cdef class _HelperCudaJitOption:
     cdef cyruntime.cudaJit_Fallback _fallback
     cdef int _int
     cdef cyruntime.cudaJit_CacheMode _cacheMode
-{{endif}}
-{{if 'CUlibraryOption_enum' in found_types}}
+
+
 
 cdef class _HelperCUlibraryOption:
     cdef void* _cptr
@@ -118,8 +118,8 @@ cdef class _HelperCUlibraryOption:
 
     # Return values
     cdef unsigned int _uint
-{{endif}}
-{{if 'cudaLibraryOption' in found_types}}
+
+
 
 cdef class _HelperCudaLibraryOption:
     cdef void* _cptr
@@ -127,8 +127,8 @@ cdef class _HelperCudaLibraryOption:
 
     # Return values
     cdef unsigned int _uint
-{{endif}}
-{{if 'CUmemAllocationHandleType_enum' in found_types}}
+
+
 
 cdef class _HelperCUmemAllocationHandleType:
     cdef void* _cptr
@@ -138,16 +138,16 @@ cdef class _HelperCUmemAllocationHandleType:
     cdef int _int
     cdef void* _handle
     cdef unsigned int _d3dkmt_handle
-    {{if 'CUmemFabricHandle' in found_types}}
+
     cdef driver.CUmemFabricHandle _mem_fabric_handle
-    {{endif}}
-{{endif}}
+
+
 
 cdef class _InputVoidPtrPtrHelper:
     cdef object _references
     cdef void** _cptr
 
-{{if 'CUcoredumpSettings_enum' in found_types}}
+
 
 cdef class _HelperCUcoredumpSettings:
     cdef void* _cptr
@@ -158,4 +158,3 @@ cdef class _HelperCUcoredumpSettings:
     # Return values
     cdef bint _bool
     cdef char* _charstar
-{{endif}}

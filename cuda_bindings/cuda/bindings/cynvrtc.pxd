@@ -2,84 +2,65 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.2.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
-cdef extern from "nvrtc.h":
 
+# ENUMS
+cdef extern from '<nvrtc.h>':
     ctypedef enum nvrtcResult:
-        NVRTC_SUCCESS = 0
-        NVRTC_ERROR_OUT_OF_MEMORY = 1
-        NVRTC_ERROR_PROGRAM_CREATION_FAILURE = 2
-        NVRTC_ERROR_INVALID_INPUT = 3
-        NVRTC_ERROR_INVALID_PROGRAM = 4
-        NVRTC_ERROR_INVALID_OPTION = 5
-        NVRTC_ERROR_COMPILATION = 6
-        NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = 7
-        NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = 8
-        NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = 9
-        NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = 10
-        NVRTC_ERROR_INTERNAL_ERROR = 11
-        NVRTC_ERROR_TIME_FILE_WRITE_FAILED = 12
-        NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = 13
-        NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = 14
-        NVRTC_ERROR_PCH_CREATE = 15
-        NVRTC_ERROR_CANCELLED = 16
-        NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = 17
+        NVRTC_SUCCESS
+        NVRTC_ERROR_OUT_OF_MEMORY
+        NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
+        NVRTC_ERROR_INVALID_OPTION
+        NVRTC_ERROR_COMPILATION
+        NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
+        NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
+        NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+        NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+        NVRTC_ERROR_INTERNAL_ERROR
+        NVRTC_ERROR_TIME_FILE_WRITE_FAILED
+        NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED
+        NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+        NVRTC_ERROR_PCH_CREATE
+        NVRTC_ERROR_CANCELLED
+        NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
+cdef enum: _NVRTCRESULT_INTERNAL_LOADING_ERROR = -42
 
-    cdef struct _nvrtcProgram:
-        pass
-    ctypedef _nvrtcProgram* nvrtcProgram
 
-cdef const char* nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil
+# TYPES
+cdef extern from '<nvrtc.h>':
+    ctypedef void* nvrtcProgram 'nvrtcProgram'
 
-cdef nvrtcResult nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil
 
-cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil
 
-cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-
-cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil
+# FUNCTIONS
+cdef const char* nvrtcGetErrorString(nvrtcResult result) except?NULL nogil
+cdef nvrtcResult nvrtcVersion(int* major, int* minor) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char* const* headers, const char* const* includeNames) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char* const* options) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* const name_expression) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* const name_expression, const char** lowered_name) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil
+cdef nvrtcResult nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except?<nvrtcResult>_NVRTCRESULT_INTERNAL_LOADING_ERROR nogil

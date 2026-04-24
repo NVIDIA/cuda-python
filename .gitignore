@@ -17,31 +17,21 @@ __pycache__/
 cache_driver
 cache_runtime
 cache_nvrtc
-cuda_bindings/cuda/bindings/_lib/utils.pxi
 
 # CUDA Python specific (auto-generated)
-cuda_bindings/cuda/bindings/_bindings/cydriver.pxd
-cuda_bindings/cuda/bindings/_bindings/cydriver.pyx
 cuda_bindings/cuda/bindings/_bindings/cyruntime.pxd
 cuda_bindings/cuda/bindings/_bindings/cyruntime.pyx
 cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pxd
 cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pyx
-cuda_bindings/cuda/bindings/_internal/_nvml.pyx
 cuda_bindings/cuda/bindings/_internal/cufile.pyx
 cuda_bindings/cuda/bindings/_internal/nvfatbin.pyx
 cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
 cuda_bindings/cuda/bindings/_internal/nvml.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
-cuda_bindings/cuda/bindings/_lib/utils.pxd
-cuda_bindings/cuda/bindings/_lib/utils.pyx
-cuda_bindings/cuda/bindings/cydriver.pxd
-cuda_bindings/cuda/bindings/cydriver.pyx
 cuda_bindings/cuda/bindings/cyruntime.pxd
 cuda_bindings/cuda/bindings/cyruntime.pyx
 cuda_bindings/cuda/bindings/cyruntime_functions.pxi
 cuda_bindings/cuda/bindings/cyruntime_types.pxi
-cuda_bindings/cuda/bindings/driver.pxd
-cuda_bindings/cuda/bindings/driver.pyx
 cuda_bindings/cuda/bindings/runtime.pxd
 cuda_bindings/cuda/bindings/runtime.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
