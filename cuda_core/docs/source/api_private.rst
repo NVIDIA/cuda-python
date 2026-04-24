@@ -79,6 +79,7 @@ NVML
    system._device.MigInfo
    system._device.NvlinkInfo
    system._device.PciInfo
+   system._device.ProcessInfo
    system._device.RepairStatus
    system._device.Temperature
    system._device.ThermalSensor

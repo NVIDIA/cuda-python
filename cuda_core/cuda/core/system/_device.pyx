@@ -36,6 +36,7 @@ include "_mig.pxi"
 include "_nvlink.pxi"
 include "_pci_info.pxi"
 include "_performance.pxi"
+include "_process.pxi"
 include "_repair_status.pxi"
 include "_temperature.pxi"
 include "_utilization.pxi"
@@ -764,6 +765,33 @@ cdef class Device:
             A list of supported P-States for the device.
         """
         return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
+
+    ##########################################################################
+    # PROCESS
+    # See external class definitions in _process.pxi
+
+    @property
+    def compute_running_processes(self) -> list[ProcessInfo]:
+        """
+        Get information about processes with a compute context on a device
+
+        For Fermi™ or newer fully supported devices.
+
+        This function returns information only about compute running processes
+        (e.g. CUDA application which have active context). Any graphics
+        applications (e.g. using OpenGL, DirectX) won't be listed by this
+        function.
+
+        Keep in mind that information returned by this call is dynamic and the
+        number of elements might change in time.
+
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles.
+        Querying per-instance information using MIG device handles is not
+        supported if the device is in vGPU Host virtualization mode.
+        """
+        return [ProcessInfo(self, proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]
 
     ##########################################################################
     # REPAIR STATUS
