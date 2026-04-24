@@ -72,6 +72,11 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home as get_cuda_pa
 
 from cuda.pathfinder._version import __version__  # isort: skip
 
+#: Process-wide default compatibility guard rails instance. Public APIs can
+#: delegate through this singleton while the explicit ``CompatibilityGuardRails``
+#: class remains available for advanced use cases.
+process_wide_compatibility_guard_rails = CompatibilityGuardRails()
+
 # Indirections to help Sphinx find the docstrings.
 #: Mapping from short CUDA Toolkit (CTK) library names to their canonical
 #: header basenames (used to validate a discovered include directory).

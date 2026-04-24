@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 import cuda.pathfinder._compatibility_guard_rails as compatibility_module
+from cuda import pathfinder
 from cuda.pathfinder import (
     BitcodeLibNotFoundError,
     CompatibilityCheckError,
@@ -19,6 +20,7 @@ from cuda.pathfinder import (
     LocatedHeaderDir,
     LocatedStaticLib,
     StaticLibNotFoundError,
+    process_wide_compatibility_guard_rails,
 )
 from cuda.pathfinder._utils.driver_info import DriverCudaVersion, QueryDriverCudaVersionError
 
@@ -95,6 +97,11 @@ def _assert_real_ctk_backed_path(path: str) -> None:
         "Expected a site-packages path, a path under a CTK root with version.json, "
         f"or a path under CUDA_PATH/CUDA_HOME, got {path!r}"
     )
+
+
+def test_process_wide_compatibility_guard_rails_is_public_singleton():
+    assert process_wide_compatibility_guard_rails is pathfinder.process_wide_compatibility_guard_rails
+    assert isinstance(process_wide_compatibility_guard_rails, CompatibilityGuardRails)
 
 
 def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_path):

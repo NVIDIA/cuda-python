@@ -19,6 +19,7 @@ CUDA bitcode and static libraries.
    get_cuda_path_or_home
 
    CompatibilityGuardRails
+   process_wide_compatibility_guard_rails
    CompatibilityCheckError
    CompatibilityInsufficientMetadataError
    SUPPORTED_NVIDIA_LIBNAMES
