@@ -187,7 +187,7 @@ cuda-bindings = "*"
 cuda-pathfinder = "*"
 
 [target.linux.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
+cmd = ["python", "$PIXI_PROJECT_ROOT/tests/cython/test_cython.py"]
 
 [target.linux.tasks.docs-build]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh"]
@@ -203,7 +203,7 @@ env = { SPHINXOPTS = "-v -j 1 -d build/.doctrees" }
 default-environment = "docs"
 
 [target.win-64.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
+cmd = ["python", "$PIXI_PROJECT_ROOT/tests/cython/test_cython.py"]
 
 [target.linux.tasks.test]
 cmd = [
