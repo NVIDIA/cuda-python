@@ -48,6 +48,12 @@ _SUPPORTED_BITCODE_LIBS_INFO: dict[str, _BitcodeLibInfo] = {
         "site_packages_dirs": ("nvidia/nvshmem/lib",),
         "available_on_windows": False,
     },
+    "nccl": {
+        "filename": "libnccl_device.bc",
+        "rel_path": "lib",
+        "site_packages_dirs": ("nvidia/nccl/lib",),
+        "available_on_windows": False,
+    },
 }
 
 # Public API: just the supported library names
