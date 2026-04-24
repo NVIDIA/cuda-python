@@ -6,6 +6,8 @@ from dataclasses import dataclass
 
 from cuda.core._resource_handles cimport (
     ContextHandle,
+    GreenCtxHandle,
+    get_green_ctx_context,
     as_intptr,
     as_py,
 )
@@ -30,6 +32,17 @@ cdef class Context:
         cdef Context ctx = cls.__new__(cls)
         ctx._h_context = h_context
         ctx._device_id = device_id
+        ctx._is_green = False
+        return ctx
+
+    @staticmethod
+    cdef Context _from_green_ctx(type cls, GreenCtxHandle h_green_ctx, int device_id):
+        """Create Context from an owning green context handle."""
+        cdef Context ctx = cls.__new__(cls)
+        ctx._h_green_ctx = h_green_ctx
+        ctx._h_context = get_green_ctx_context(h_green_ctx)
+        ctx._device_id = device_id
+        ctx._is_green = True
         return ctx
 
     @property
@@ -42,6 +55,16 @@ cdef class Context:
     @property
     def _handle(self):
         return self.handle
+
+    @property
+    def is_green(self) -> bool:
+        """True if this context was created from device resources."""
+        return bool(self._is_green)
+
+    cpdef close(self):
+        """Release this context wrapper's underlying CUDA handles."""
+        self._h_context.reset()
+        self._h_green_ctx.reset()
 
     def __eq__(self, other):
         if not isinstance(other, Context):
@@ -60,6 +83,9 @@ cdef class Context:
 class ContextOptions:
     """Options for context creation.
 
-    Currently unused, reserved for future use.
+    Attributes
+    ----------
+    resources : Sequence[SMResource | WorkqueueResource], optional
+        Device resources used to create a green context.
     """
-    pass  # TODO
+    resources: object = None

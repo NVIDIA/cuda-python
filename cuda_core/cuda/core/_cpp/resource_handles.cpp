@@ -29,6 +29,10 @@ namespace cuda_core {
 decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
 decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
 decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
+decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate = nullptr;
+decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
+decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
+decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc = nullptr;
 
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
@@ -224,11 +228,102 @@ namespace {
 struct ContextBox {
     CUcontext resource;
 };
+
+struct GreenCtxBox {
+    CUgreenCtx resource;
+    CUcontext context;
+};
+
+struct DevResourceDescBox {
+    CUdevResourceDesc resource;
+};
 }  // namespace
 
 ContextHandle create_context_handle_ref(CUcontext ctx) {
     auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
     return ContextHandle(box, &box->resource);
+}
+
+static const GreenCtxBox* get_box(const GreenCtxHandle& h) noexcept {
+    const CUgreenCtx* p = h.get();
+    return reinterpret_cast<const GreenCtxBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(GreenCtxBox, resource)
+    );
+}
+
+GreenCtxHandle create_green_ctx_handle(CUdevResourceDesc desc, CUdevice dev, unsigned int flags) {
+    if (!p_cuGreenCtxCreate || !p_cuCtxFromGreenCtx) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    GILReleaseGuard gil;
+    CUgreenCtx green_ctx = nullptr;
+    CUcontext ctx = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuGreenCtxCreate(&green_ctx, desc, dev, flags))) {
+        return {};
+    }
+    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, green_ctx))) {
+        if (p_cuGreenCtxDestroy) {
+            p_cuGreenCtxDestroy(green_ctx);
+        }
+        return {};
+    }
+
+    auto box = std::shared_ptr<const GreenCtxBox>(
+        new GreenCtxBox{green_ctx, ctx},
+        [](const GreenCtxBox* b) {
+            GILReleaseGuard gil;
+            if (p_cuGreenCtxDestroy) {
+                p_cuGreenCtxDestroy(b->resource);
+            }
+            delete b;
+        }
+    );
+    return GreenCtxHandle(box, &box->resource);
+}
+
+GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx green_ctx) {
+    if (!green_ctx) {
+        return {};
+    }
+    if (!p_cuCtxFromGreenCtx) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    GILReleaseGuard gil;
+    CUcontext ctx = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, green_ctx))) {
+        return {};
+    }
+
+    auto box = std::make_shared<const GreenCtxBox>(GreenCtxBox{green_ctx, ctx});
+    return GreenCtxHandle(box, &box->resource);
+}
+
+ContextHandle get_green_ctx_context(const GreenCtxHandle& h) noexcept {
+    if (!h) {
+        return {};
+    }
+    const GreenCtxBox* box = get_box(h);
+    return ContextHandle(h, &box->context);
+}
+
+DevResourceDescHandle create_dev_resource_desc_handle(CUdevResource* resources, unsigned int nbResources) {
+    if (!p_cuDevResourceGenerateDesc) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    GILReleaseGuard gil;
+    CUdevResourceDesc desc = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuDevResourceGenerateDesc(&desc, resources, nbResources))) {
+        return {};
+    }
+
+    auto box = std::make_shared<const DevResourceDescBox>(DevResourceDescBox{desc});
+    return DevResourceDescHandle(box, &box->resource);
 }
 
 // Thread-local cache of primary contexts indexed by device ID

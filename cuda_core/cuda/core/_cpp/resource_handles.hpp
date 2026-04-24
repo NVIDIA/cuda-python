@@ -59,6 +59,10 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
+extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
+extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
+extern decltype(&cuDevResourceGenerateDesc) p_cuDevResourceGenerateDesc;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
@@ -142,6 +146,8 @@ extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 // ============================================================================
 
 using ContextHandle = std::shared_ptr<const CUcontext>;
+using GreenCtxHandle = std::shared_ptr<const CUgreenCtx>;
+using DevResourceDescHandle = std::shared_ptr<const CUdevResourceDesc>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
 using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
@@ -163,6 +169,21 @@ using FileDescriptorHandle = std::shared_ptr<const int>;
 
 // Function to create a non-owning context handle (references existing context).
 ContextHandle create_context_handle_ref(CUcontext ctx);
+
+// Create an owning green context handle. The handle keeps the paired CUcontext
+// returned by cuCtxFromGreenCtx in the same control block.
+GreenCtxHandle create_green_ctx_handle(CUdevResourceDesc desc, CUdevice dev, unsigned int flags);
+
+// Create a non-owning green context handle.
+GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
+
+// Get the CUcontext paired with a green context handle. The returned handle
+// shares ownership with the green context.
+ContextHandle get_green_ctx_context(const GreenCtxHandle& h) noexcept;
+
+// Generate a descriptor for a resource list. CUDA exposes no explicit destroy
+// API for CUdevResourceDesc; this handle only carries the opaque value.
+DevResourceDescHandle create_dev_resource_desc_handle(CUdevResource* resources, unsigned int nbResources);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
@@ -501,6 +522,14 @@ inline CUcontext as_cu(const ContextHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUdevResourceDesc as_cu(const DevResourceDescHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUstream as_cu(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -556,6 +585,14 @@ inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
 // as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
 inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const DevResourceDescHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -647,6 +684,14 @@ inline PyObject* make_py(const char* module_name, const char* class_name, std::i
 
 inline PyObject* as_py(const ContextHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
+}
+
+inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
+}
+
+inline PyObject* as_py(const DevResourceDescHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUdevResourceDesc", as_intptr(h));
 }
 
 inline PyObject* as_py(const StreamHandle& h) noexcept {

@@ -20,6 +20,8 @@ from cuda.bindings cimport cynvjitlink
 cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Handle types
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
+    ctypedef shared_ptr[const cydriver.CUgreenCtx] GreenCtxHandle
+    ctypedef shared_ptr[const cydriver.CUdevResourceDesc] DevResourceDescHandle
     ctypedef shared_ptr[const cydriver.CUstream] StreamHandle
     ctypedef shared_ptr[const cydriver.CUevent] EventHandle
     ctypedef shared_ptr[const cydriver.CUmemoryPool] MemoryPoolHandle
@@ -45,6 +47,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
+    cydriver.CUgreenCtx as_cu(GreenCtxHandle h) noexcept nogil
+    cydriver.CUdevResourceDesc as_cu(DevResourceDescHandle h) noexcept nogil
     cydriver.CUstream as_cu(StreamHandle h) noexcept nogil
     cydriver.CUevent as_cu(EventHandle h) noexcept nogil
     cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
@@ -61,6 +65,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
     intptr_t as_intptr(ContextHandle h) noexcept nogil
+    intptr_t as_intptr(GreenCtxHandle h) noexcept nogil
+    intptr_t as_intptr(DevResourceDescHandle h) noexcept nogil
     intptr_t as_intptr(StreamHandle h) noexcept nogil
     intptr_t as_intptr(EventHandle h) noexcept nogil
     intptr_t as_intptr(MemoryPoolHandle h) noexcept nogil
@@ -78,6 +84,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # as_py() - convert handle to Python wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
+    object as_py(GreenCtxHandle h)
+    object as_py(DevResourceDescHandle h)
     object as_py(StreamHandle h)
     object as_py(EventHandle h)
     object as_py(MemoryPoolHandle h)
@@ -107,6 +115,12 @@ cdef void clear_last_error() noexcept nogil
 
 # Context handles
 cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
+cdef GreenCtxHandle create_green_ctx_handle(
+    cydriver.CUdevResourceDesc desc, cydriver.CUdevice dev, unsigned int flags) except+ nogil
+cdef GreenCtxHandle create_green_ctx_handle_ref(cydriver.CUgreenCtx ctx) except+ nogil
+cdef ContextHandle get_green_ctx_context(const GreenCtxHandle& h) noexcept nogil
+cdef DevResourceDescHandle create_dev_resource_desc_handle(
+    cydriver.CUdevResource* resources, unsigned int nbResources) except+ nogil
 cdef ContextHandle get_primary_context(int device_id) except+ nogil
 cdef ContextHandle get_current_context() except+ nogil
 
