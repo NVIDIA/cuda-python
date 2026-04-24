@@ -27,10 +27,9 @@ def test_devices_are_the_same_architecture(all_devices):
 
     def get_architecture_name(arch):
         try:
-            arch = nvml.DeviceArch(arch)
-            return arch.name
+            return nvml.DeviceArch(arch).name
         except ValueError:
-            return f"UNKNOWN({arch})"
+            return f"UNKNOWN_ARCH_ID({arch})"
 
     all_arches = {nvml.device_get_architecture(device) for device in all_devices}
 
