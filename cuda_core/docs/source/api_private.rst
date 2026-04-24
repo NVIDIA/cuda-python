@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 :orphan:
@@ -76,7 +76,10 @@ NVML
    system._device.GpuTopologyLevel
    system._device.InforomInfo
    system._device.MemoryInfo
+   system._device.MigInfo
+   system._device.NvlinkInfo
    system._device.PciInfo
+   system._device.ProcessInfo
    system._device.RepairStatus
    system._device.Temperature
    system._device.ThermalSensor

@@ -32,10 +32,14 @@ include "_fan.pxi"
 include "_field_values.pxi"
 include "_inforom.pxi"
 include "_memory.pxi"
+include "_mig.pxi"
+include "_nvlink.pxi"
 include "_pci_info.pxi"
 include "_performance.pxi"
+include "_process.pxi"
 include "_repair_status.pxi"
 include "_temperature.pxi"
+include "_utilization.pxi"
 
 
 cdef class Device:
@@ -132,12 +136,23 @@ cdef class Device:
         board serial identifier.
 
         In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  That is not included in ``cuda.core.system``.
+        prefix.  If you need a `uuid` without that prefix (for example, to
+        interact with CUDA), use the `uuid_without_prefix` property.
         """
-        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+        return nvml.device_get_uuid(self._handle)
 
-        # TODO: If the user cares about the prefix, we will expose that in the
-        # future using the MIG-related APIs in NVML.
+    @property
+    def uuid_without_prefix(self) -> str:
+        """
+        Retrieves the globally unique immutable UUID associated with this
+        device, as a 5 part hexadecimal string, that augments the immutable,
+        board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  This property returns it without the prefix, to match the UUIDs
+        used in CUDA.  If you need the prefix, use the `uuid` property.
+        """
+        # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
         return nvml.device_get_uuid(self._handle)[4:]
 
     @property
@@ -165,7 +180,11 @@ cdef class Device:
         "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==
         "AMPERE"``.
         """
-        return DeviceArch(nvml.device_get_architecture(self._handle))
+        arch = nvml.device_get_architecture(self._handle)
+        try:
+            return DeviceArch(arch)
+        except ValueError:
+            return nvml.DeviceArch.UNKNOWN
 
     @property
     def name(self) -> str:
@@ -215,14 +234,14 @@ cdef class Device:
         return nvml.device_get_minor_number(self._handle)
 
     @property
-    def is_c2c_mode_enabled(self) -> bool:
+    def is_c2c_enabled(self) -> bool:
         """
         Whether the C2C (Chip-to-Chip) mode is enabled for this device.
         """
         return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
 
     @property
-    def persistence_mode_enabled(self) -> bool:
+    def is_persistence_mode_enabled(self) -> bool:
         """
         Whether persistence mode is enabled for this device.
 
@@ -230,8 +249,8 @@ cdef class Device:
         """
         return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
-    @persistence_mode_enabled.setter
-    def persistence_mode_enabled(self, enabled: bool) -> None:
+    @is_persistence_mode_enabled.setter
+    def is_persistence_mode_enabled(self, enabled: bool) -> None:
         nvml.device_set_persistence_mode(
             self._handle,
             nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
@@ -265,7 +284,7 @@ cdef class Device:
         # search all the devices for one with a matching UUID.
 
         for cuda_device in CudaDevice.get_all_devices():
-            if cuda_device.uuid == self.uuid:
+            if cuda_device.uuid == self.uuid_without_prefix:
                 return cuda_device
 
         raise RuntimeError("No corresponding CUDA device found for this NVML device.")
@@ -280,6 +299,8 @@ cdef class Device:
         int
             The number of available devices.
         """
+        initialize()
+
         return nvml.device_get_count_v2()
 
     @classmethod
@@ -292,6 +313,8 @@ cdef class Device:
         Iterator over :obj:`~Device`
             An iterator over available devices.
         """
+        initialize()
+
         for device_id in range(nvml.device_get_count_v2()):
             yield cls(index=device_id)
 
@@ -316,6 +339,18 @@ cdef class Device:
           is active.
         """
         return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+
+    #########################################################################
+    # MIG (MULTI-INSTANCE GPU) DEVICES
+
+    @property
+    def mig(self) -> MigInfo:
+        """
+        Get :obj:`~MigInfo` accessor for MIG (Multi-Instance GPU) information.
+
+        For Ampere™ or newer fully supported devices.
+        """
+        return MigInfo(self)
 
     #########################################################################
     # AFFINITY
@@ -409,13 +444,14 @@ cdef class Device:
     # CLOCK
     # See external class definitions in _clock.pxi
 
-    def clock(self, clock_type: ClockType) -> ClockInfo:
+    def get_clock(self, clock_type: ClockType) -> ClockInfo:
         """
         :obj:`~_device.ClockInfo` object to get information about and manage a specific clock on a device.
         """
         return ClockInfo(self._handle, clock_type)
 
-    def get_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
+    @property
+    def is_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
         """
         Retrieve the current state of auto boosted clocks on a device.
 
@@ -440,7 +476,8 @@ cdef class Device:
         current, default = nvml.device_get_auto_boosted_clocks_enabled(self._handle)
         return current == nvml.EnableState.FEATURE_ENABLED, default == nvml.EnableState.FEATURE_ENABLED
 
-    def get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @property
+    def current_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
         Retrieves the current :obj:`~ClocksEventReasons`.
 
@@ -450,7 +487,8 @@ cdef class Device:
         reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)
         return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
 
-    def get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
+    @property
+    def supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
         """
         Retrieves supported :obj:`~ClocksEventReasons` that can be returned by
         :meth:`get_current_clock_event_reasons`.
@@ -492,17 +530,17 @@ cdef class Device:
     # DISPLAY
 
     @property
-    def display_mode(self) -> bool:
+    def is_display_connected(self) -> bool:
         """
         The display mode for this device.
 
         Indicates whether a physical display (e.g. monitor) is currently connected to
         any of the device's connectors.
         """
-        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+        return nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
     @property
-    def display_active(self) -> bool:
+    def is_display_active(self) -> bool:
         """
         The display active status for this device.
 
@@ -512,7 +550,7 @@ cdef class Device:
 
         Display can be active even when no monitor is physically attached.
         """
-        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+        return nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED
 
     ##########################################################################
     # EVENTS
@@ -580,7 +618,7 @@ cdef class Device:
     # FAN
     # See external class definitions in _fan.pxi
 
-    def fan(self, fan: int = 0) -> FanInfo:
+    def get_fan(self, fan: int = 0) -> FanInfo:
         """
         :obj:`~_device.FanInfo` object to get information and manage a specific fan on a device.
         """
@@ -675,6 +713,20 @@ cdef class Device:
         return MemoryInfo(nvml.device_get_memory_info_v2(self._handle))
 
     ##########################################################################
+    # NVLINK
+    # See external class definitions in _nvlink.pxi
+
+    def get_nvlink(self, link: int) -> NvlinkInfo:
+        """
+        Get :obj:`~NvlinkInfo` about this device.
+
+        For devices with NVLink support.
+        """
+        if link < 0 or link >= NvlinkInfo.max_links:
+            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")
+        return NvlinkInfo(self, link)
+
+    ##########################################################################
     # PCI INFO
     # See external class definitions in _pci_info.pxi
 
@@ -707,7 +759,8 @@ cdef class Device:
         """
         return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
 
-    def get_supported_pstates(self) -> list[Pstates]:
+    @property
+    def supported_pstates(self) -> list[Pstates]:
         """
         Get all supported Performance States (P-States) for the device.
 
@@ -720,6 +773,33 @@ cdef class Device:
             A list of supported P-States for the device.
         """
         return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
+
+    ##########################################################################
+    # PROCESS
+    # See external class definitions in _process.pxi
+
+    @property
+    def compute_running_processes(self) -> list[ProcessInfo]:
+        """
+        Get information about processes with a compute context on a device
+
+        For Fermi™ or newer fully supported devices.
+
+        This function returns information only about compute running processes
+        (e.g. CUDA application which have active context). Any graphics
+        applications (e.g. using OpenGL, DirectX) won't be listed by this
+        function.
+
+        Keep in mind that information returned by this call is dynamic and the
+        number of elements might change in time.
+
+        In MIG mode, if device handle is provided, the API returns aggregate
+        information, only if the caller has appropriate privileges. Per-instance
+        information can be queried by using specific MIG device handles.
+        Querying per-instance information using MIG device handles is not
+        supported if the device is in vGPU Host virtualization mode.
+        """
+        return [ProcessInfo(self, proc) for proc in nvml.device_get_compute_running_processes_v3(self._handle)]
 
     ##########################################################################
     # REPAIR STATUS
@@ -769,6 +849,31 @@ cdef class Device:
             device = Device.__new__(Device)
             device._handle = handle
             yield device
+
+    #######################################################################
+    # UTILIZATION
+
+    @property
+    def utilization(self) -> Utilization:
+        """
+        Retrieves the current :obj:`~Utilization` rates for the device's major
+        subsystems.
+
+        For Fermi™ or newer fully supported devices.
+
+        Note: During driver initialization when ECC is enabled one can see high
+        GPU and Memory Utilization readings.  This is caused by ECC Memory
+        Scrubbing mechanism that is performed during driver initialization.
+
+        Note: On MIG-enabled GPUs, querying device utilization rates is not
+        currently supported.
+
+        Returns
+        -------
+        Utilization
+            An object containing the current utilization rates for the device.
+        """
+        return Utilization(nvml.device_get_utilization_rates(self._handle))
 
 
 def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
@@ -844,10 +949,12 @@ __all__ = [
     "GpuP2PStatus",
     "GpuTopologyLevel",
     "InforomObject",
+    "NvlinkVersion",
     "PcieUtilCounter",
     "Pstates",
     "TemperatureSensors",
     "TemperatureThresholds",
     "ThermalController",
     "ThermalTarget",
+    "Utilization",
 ]
