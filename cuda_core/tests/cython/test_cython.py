@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import importlib
 import os
-import re
 from pathlib import Path
 
 import pytest
@@ -16,7 +16,6 @@ TESTS_DIR = Path(__file__).resolve().parent
 CYTHON_TEST_MODULES = [
     "test_get_cuda_native_handle",
 ]
-TEST_NAME_RE = re.compile(r"^\s*def\s+(test_[A-Za-z0-9_]+)\s*\(")
 
 
 def _get_include_dirs():
@@ -52,10 +51,13 @@ def build_cython_test_modules():
     build_ext = distribution.get_command_obj("build_ext")
     build_ext.inplace = True
     build_ext.build_temp = str(TESTS_DIR / "build" / "temp")
-    distribution.run_command("build_ext")
+
+    # Ensure in-place extension outputs are written into tests/cython.
+    with contextlib.chdir(TESTS_DIR):
+        distribution.run_command("build_ext")
 
 
-def _import_cython_test_modules(rebuild_if_needed):
+def _import_cython_test_modules():
     imported_modules = {}
     build_attempted = False
 
@@ -63,9 +65,6 @@ def _import_cython_test_modules(rebuild_if_needed):
         try:
             imported_modules[module_name] = importlib.import_module(module_name)
         except ImportError:
-            if not rebuild_if_needed:
-                raise
-
             if not build_attempted:
                 build_cython_test_modules()
                 importlib.invalidate_caches()
@@ -76,22 +75,9 @@ def _import_cython_test_modules(rebuild_if_needed):
     return imported_modules
 
 
-def _discover_test_function_names(module_name):
-    module_source = TESTS_DIR / f"{module_name}.pyx"
-    test_names = []
-
-    with module_source.open(encoding="utf-8") as f:
-        for line in f:
-            match = TEST_NAME_RE.match(line)
-            if match:
-                test_names.append(match.group(1))
-
-    return test_names
-
-
 @pytest.fixture(scope="session")
 def cython_test_modules():
-    return _import_cython_test_modules(rebuild_if_needed=True)
+    return _import_cython_test_modules()
 
 
 def _make_wrapped_test(module_name, test_name):
@@ -105,8 +91,12 @@ def _make_wrapped_test(module_name, test_name):
 
 
 registered_tests = set()
-for module_name in CYTHON_TEST_MODULES:
-    for test_name in _discover_test_function_names(module_name):
+for module_name, module in _import_cython_test_modules().items():
+    for test_name in dir(module):
+        item = getattr(module, test_name)
+        if not callable(item) or not test_name.startswith("test_"):
+            continue
+
         if test_name in registered_tests:
             raise RuntimeError(f"duplicate cython test name discovered: {test_name}")
         registered_tests.add(test_name)

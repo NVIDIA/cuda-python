@@ -238,8 +238,8 @@ run_core() {
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
     if [ -f tests/cython/test_cython.py ]; then
       echo "[build] cuda_core cython tests"
-      if [ -z "${CUDA_HOME-}" ]; then
-        echo "[skip] CUDA_HOME not set; skipping cython tests"
+      if [ -z "${CUDA_HOME-}" ] && [ -z "${CUDA_PATH-}" ]; then
+        echo "[skip] CUDA_HOME/CUDA_PATH not set; skipping cython tests"
       else
         ( cd tests/cython && python test_cython.py ) || true
       fi
