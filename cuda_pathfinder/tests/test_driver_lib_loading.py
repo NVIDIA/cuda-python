@@ -164,7 +164,7 @@ def test_real_query_driver_cuda_version(info_summary_append):
     driver_info._load_nvidia_dynamic_lib.cache_clear()
     driver_info.query_driver_cuda_version.cache_clear()
     try:
-        version = driver_info.query_driver_cuda_version()
+        driver_cuda_version = driver_info.query_driver_cuda_version()
     except driver_info.QueryDriverCudaVersionError as exc:
         if STRICTNESS == "all_must_work":
             raise
@@ -174,7 +174,11 @@ def test_real_query_driver_cuda_version(info_summary_append):
         driver_info._load_nvidia_dynamic_lib.cache_clear()
         driver_info.query_driver_cuda_version.cache_clear()
 
-    info_summary_append(f"driver_version={version.major}.{version.minor} (encoded={version.encoded})")
-    assert version.encoded > 0
-    assert version.major == version.encoded // 1000
-    assert version.minor == (version.encoded % 1000) // 10
+    info_summary_append(
+        "driver_cuda_version="
+        f"{driver_cuda_version.major}.{driver_cuda_version.minor} "
+        f"(encoded={driver_cuda_version.encoded})"
+    )
+    assert driver_cuda_version.encoded > 0
+    assert driver_cuda_version.major == driver_cuda_version.encoded // 1000
+    assert driver_cuda_version.minor == (driver_cuda_version.encoded % 1000) // 10

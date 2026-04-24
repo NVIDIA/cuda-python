@@ -18,6 +18,9 @@ CUDA bitcode and static libraries.
 
    get_cuda_path_or_home
 
+   CompatibilityGuardRails
+   CompatibilityCheckError
+   CompatibilityInsufficientMetadataError
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
    LoadedDL
