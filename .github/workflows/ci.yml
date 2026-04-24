@@ -441,23 +441,19 @@ jobs:
 
           mkdir -p "${WORKDIR}/configs"
 
-          # Collect all jobs for this run and group matrix jobs into the five
-          # top-level test configurations from ci.yml.
+          # Collect all jobs for this run and group matrix jobs into wheel
+          # test configurations from ci.yml.
           jobs_json=$(gh api --paginate \
             "repos/${REPO}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" \
             | jq -s '[.[].jobs[]]')
 
           declare -A CONFIG_PATTERNS=(
-            [test-sdist-linux]='^Test sdist linux-64 / '
-            [test-sdist-windows]='^Test sdist win-64 / '
             [test-linux-64]='^Test linux-64 / '
             [test-linux-aarch64]='^Test linux-aarch64 / '
             [test-windows]='^Test (win-64|windows) / '
           )
 
           configs=(
-            test-sdist-linux
-            test-sdist-windows
             test-linux-64
             test-linux-aarch64
             test-windows
@@ -478,14 +474,18 @@ jobs:
 
             for job_id in ${job_ids}; do
               logfile="${cfg_dir}/logs/${job_id}.log"
-              # gh run view handles log retrieval for a job ID reliably.
-              gh run view "${GITHUB_RUN_ID}" --job "${job_id}" --log > "${logfile}" || true
+              # Prefer the job log API; fall back to gh run view if needed.
+              if ! gh api "repos/${REPO}/actions/jobs/${job_id}/logs" > "${logfile}" 2>/dev/null; then
+                gh run view "${GITHUB_RUN_ID}" --job "${job_id}" --log > "${logfile}" || true
+              fi
             done
 
-            # Extract test IDs from lines matching pytest SKIPPED output.
-            grep -h ' SKIPPED' "${cfg_dir}/logs/"*.log 2>/dev/null \
-              | grep -oE '[^[:space:]]+\.py::[^[:space:]]+ SKIPPED' \
-              | sed 's/ SKIPPED$//' \
+            # Extract pytest node IDs from SKIPPED lines. This tolerates
+            # timestamped logs, ANSI escapes, and trailing skip reasons.
+            grep -h 'SKIPPED' "${cfg_dir}/logs/"*.log 2>/dev/null \
+              | sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' \
+              | sed 's#\\#/#g' \
+              | sed -nE 's#.*(tests/[[:graph:]]+\.py::[^[:space:]]+).*SKIPPED.*#\1#p' \
               | sort -u > "${cfg_dir}/skipped.txt" || true
 
             echo "${cfg}: $(wc -l < "${cfg_dir}/skipped.txt") skipped tests"
@@ -518,8 +518,7 @@ jobs:
             } >> "${GITHUB_STEP_SUMMARY}"
           fi
 
-          # Start intersection from first config, then narrow with each of the
-          # remaining four configurations.
+          # Start intersection from the first wheel configuration, then narrow.
           cp "${WORKDIR}/configs/${configs[0]}/skipped.txt" "${WORKDIR}/intersection.txt"
           for cfg in "${configs[@]:1}"; do
             comm -12 \
@@ -531,7 +530,7 @@ jobs:
 
           count=$(wc -l < "${WORKDIR}/intersection.txt")
           {
-            echo "Tests skipped across all five test configurations:"
+            echo "Tests skipped across wheel test configurations (${#configs[@]}):"
             echo ""
             if [[ ${count} -eq 0 ]]; then
               echo "_No tests were skipped in all configurations._"
