@@ -27,19 +27,19 @@ ctypedef uint32_t VdpOutputSurface
 
 
 # ENUMS
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUipcMem_flags_enum:
         CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS
     ctypedef CUipcMem_flags_enum CUipcMem_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemAttach_flags_enum:
         CU_MEM_ATTACH_GLOBAL
         CU_MEM_ATTACH_HOST
         CU_MEM_ATTACH_SINGLE
     ctypedef CUmemAttach_flags_enum CUmemAttach_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUctx_flags_enum:
         CU_CTX_SCHED_AUTO
         CU_CTX_SCHED_SPIN
@@ -55,7 +55,7 @@ cdef extern from '<cuda.h>':
         CU_CTX_FLAGS_MASK
     ctypedef CUctx_flags_enum CUctx_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUevent_sched_flags_enum:
         CU_EVENT_SCHED_AUTO
         CU_EVENT_SCHED_SPIN
@@ -63,7 +63,7 @@ cdef extern from '<cuda.h>':
         CU_EVENT_SCHED_BLOCKING_SYNC
     ctypedef CUevent_sched_flags_enum CUevent_sched_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum cl_event_flags_enum:
         NVCL_EVENT_SCHED_AUTO
         NVCL_EVENT_SCHED_SPIN
@@ -71,7 +71,7 @@ cdef extern from '<cuda.h>':
         NVCL_EVENT_SCHED_BLOCKING_SYNC
     ctypedef cl_event_flags_enum cl_event_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum cl_context_flags_enum:
         NVCL_CTX_SCHED_AUTO
         NVCL_CTX_SCHED_SPIN
@@ -79,13 +79,13 @@ cdef extern from '<cuda.h>':
         NVCL_CTX_SCHED_BLOCKING_SYNC
     ctypedef cl_context_flags_enum cl_context_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstream_flags_enum:
         CU_STREAM_DEFAULT
         CU_STREAM_NON_BLOCKING
     ctypedef CUstream_flags_enum CUstream_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUevent_flags_enum:
         CU_EVENT_DEFAULT
         CU_EVENT_BLOCKING_SYNC
@@ -93,19 +93,19 @@ cdef extern from '<cuda.h>':
         CU_EVENT_INTERPROCESS
     ctypedef CUevent_flags_enum CUevent_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUevent_record_flags_enum:
         CU_EVENT_RECORD_DEFAULT
         CU_EVENT_RECORD_EXTERNAL
     ctypedef CUevent_record_flags_enum CUevent_record_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUevent_wait_flags_enum:
         CU_EVENT_WAIT_DEFAULT
         CU_EVENT_WAIT_EXTERNAL
     ctypedef CUevent_wait_flags_enum CUevent_wait_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamWaitValue_flags_enum:
         CU_STREAM_WAIT_VALUE_GEQ
         CU_STREAM_WAIT_VALUE_EQ
@@ -114,13 +114,13 @@ cdef extern from '<cuda.h>':
         CU_STREAM_WAIT_VALUE_FLUSH
     ctypedef CUstreamWaitValue_flags_enum CUstreamWaitValue_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamWriteValue_flags_enum:
         CU_STREAM_WRITE_VALUE_DEFAULT
         CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
     ctypedef CUstreamWriteValue_flags_enum CUstreamWriteValue_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamBatchMemOpType_enum:
         CU_STREAM_MEM_OP_WAIT_VALUE_32
         CU_STREAM_MEM_OP_WRITE_VALUE_32
@@ -131,30 +131,30 @@ cdef extern from '<cuda.h>':
         CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES
     ctypedef CUstreamBatchMemOpType_enum CUstreamBatchMemOpType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamMemoryBarrier_flags_enum:
         CU_STREAM_MEMORY_BARRIER_TYPE_SYS
         CU_STREAM_MEMORY_BARRIER_TYPE_GPU
     ctypedef CUstreamMemoryBarrier_flags_enum CUstreamMemoryBarrier_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUoccupancy_flags_enum:
         CU_OCCUPANCY_DEFAULT
         CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE
     ctypedef CUoccupancy_flags_enum CUoccupancy_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamUpdateCaptureDependencies_flags_enum:
         CU_STREAM_ADD_CAPTURE_DEPENDENCIES
         CU_STREAM_SET_CAPTURE_DEPENDENCIES
     ctypedef CUstreamUpdateCaptureDependencies_flags_enum CUstreamUpdateCaptureDependencies_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUasyncNotificationType_enum:
         CU_ASYNC_NOTIFICATION_TYPE_OVER_BUDGET
     ctypedef CUasyncNotificationType_enum CUasyncNotificationType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUarray_format_enum:
         CU_AD_FORMAT_UNSIGNED_INT8
         CU_AD_FORMAT_UNSIGNED_INT16
@@ -224,7 +224,7 @@ cdef extern from '<cuda.h>':
         CU_AD_FORMAT_MAX
     ctypedef CUarray_format_enum CUarray_format
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUaddress_mode_enum:
         CU_TR_ADDRESS_MODE_WRAP
         CU_TR_ADDRESS_MODE_CLAMP
@@ -232,13 +232,13 @@ cdef extern from '<cuda.h>':
         CU_TR_ADDRESS_MODE_BORDER
     ctypedef CUaddress_mode_enum CUaddress_mode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUfilter_mode_enum:
         CU_TR_FILTER_MODE_POINT
         CU_TR_FILTER_MODE_LINEAR
     ctypedef CUfilter_mode_enum CUfilter_mode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdevice_attribute_enum:
         CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X
@@ -397,7 +397,7 @@ cdef extern from '<cuda.h>':
         CU_DEVICE_ATTRIBUTE_MAX
     ctypedef CUdevice_attribute_enum CUdevice_attribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUpointer_attribute_enum:
         CU_POINTER_ATTRIBUTE_CONTEXT
         CU_POINTER_ATTRIBUTE_MEMORY_TYPE
@@ -422,7 +422,7 @@ cdef extern from '<cuda.h>':
         CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE
     ctypedef CUpointer_attribute_enum CUpointer_attribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUfunction_attribute_enum:
         CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
@@ -443,7 +443,7 @@ cdef extern from '<cuda.h>':
         CU_FUNC_ATTRIBUTE_MAX
     ctypedef CUfunction_attribute_enum CUfunction_attribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUfunc_cache_enum:
         CU_FUNC_CACHE_PREFER_NONE
         CU_FUNC_CACHE_PREFER_SHARED
@@ -451,21 +451,21 @@ cdef extern from '<cuda.h>':
         CU_FUNC_CACHE_PREFER_EQUAL
     ctypedef CUfunc_cache_enum CUfunc_cache
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUsharedconfig_enum:
         CU_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE
         CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE
         CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE
     ctypedef CUsharedconfig_enum CUsharedconfig
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUshared_carveout_enum:
         CU_SHAREDMEM_CARVEOUT_DEFAULT
         CU_SHAREDMEM_CARVEOUT_MAX_SHARED
         CU_SHAREDMEM_CARVEOUT_MAX_L1
     ctypedef CUshared_carveout_enum CUshared_carveout
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemorytype_enum:
         CU_MEMORYTYPE_HOST
         CU_MEMORYTYPE_DEVICE
@@ -473,14 +473,14 @@ cdef extern from '<cuda.h>':
         CU_MEMORYTYPE_UNIFIED
     ctypedef CUmemorytype_enum CUmemorytype
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUcomputemode_enum:
         CU_COMPUTEMODE_DEFAULT
         CU_COMPUTEMODE_PROHIBITED
         CU_COMPUTEMODE_EXCLUSIVE_PROCESS
     ctypedef CUcomputemode_enum CUcomputemode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmem_advise_enum:
         CU_MEM_ADVISE_SET_READ_MOSTLY
         CU_MEM_ADVISE_UNSET_READ_MOSTLY
@@ -490,7 +490,7 @@ cdef extern from '<cuda.h>':
         CU_MEM_ADVISE_UNSET_ACCESSED_BY
     ctypedef CUmem_advise_enum CUmem_advise
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmem_range_attribute_enum:
         CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
         CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
@@ -502,7 +502,7 @@ cdef extern from '<cuda.h>':
         CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID
     ctypedef CUmem_range_attribute_enum CUmem_range_attribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUjit_option_enum:
         CU_JIT_MAX_REGISTERS
         CU_JIT_THREADS_PER_BLOCK
@@ -543,7 +543,7 @@ cdef extern from '<cuda.h>':
         CU_JIT_NUM_OPTIONS
     ctypedef CUjit_option_enum CUjit_option
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUjit_target_enum:
         CU_TARGET_COMPUTE_30
         CU_TARGET_COMPUTE_32
@@ -584,20 +584,20 @@ cdef extern from '<cuda.h>':
         CU_TARGET_COMPUTE_101F
     ctypedef CUjit_target_enum CUjit_target
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUjit_fallback_enum:
         CU_PREFER_PTX
         CU_PREFER_BINARY
     ctypedef CUjit_fallback_enum CUjit_fallback
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUjit_cacheMode_enum:
         CU_JIT_CACHE_OPTION_NONE
         CU_JIT_CACHE_OPTION_CG
         CU_JIT_CACHE_OPTION_CA
     ctypedef CUjit_cacheMode_enum CUjit_cacheMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUjitInputType_enum:
         CU_JIT_INPUT_CUBIN
         CU_JIT_INPUT_PTX
@@ -608,7 +608,7 @@ cdef extern from '<cuda.h>':
         CU_JIT_NUM_INPUT_TYPES
     ctypedef CUjitInputType_enum CUjitInputType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphicsRegisterFlags_enum:
         CU_GRAPHICS_REGISTER_FLAGS_NONE
         CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY
@@ -617,14 +617,14 @@ cdef extern from '<cuda.h>':
         CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER
     ctypedef CUgraphicsRegisterFlags_enum CUgraphicsRegisterFlags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphicsMapResourceFlags_enum:
         CU_GRAPHICS_MAP_RESOURCE_FLAGS_NONE
         CU_GRAPHICS_MAP_RESOURCE_FLAGS_READ_ONLY
         CU_GRAPHICS_MAP_RESOURCE_FLAGS_WRITE_DISCARD
     ctypedef CUgraphicsMapResourceFlags_enum CUgraphicsMapResourceFlags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUarray_cubemap_face_enum:
         CU_CUBEMAP_FACE_POSITIVE_X
         CU_CUBEMAP_FACE_NEGATIVE_X
@@ -634,7 +634,7 @@ cdef extern from '<cuda.h>':
         CU_CUBEMAP_FACE_NEGATIVE_Z
     ctypedef CUarray_cubemap_face_enum CUarray_cubemap_face
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUlimit_enum:
         CU_LIMIT_STACK_SIZE
         CU_LIMIT_PRINTF_FIFO_SIZE
@@ -649,7 +649,7 @@ cdef extern from '<cuda.h>':
         CU_LIMIT_MAX
     ctypedef CUlimit_enum CUlimit
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUresourcetype_enum:
         CU_RESOURCE_TYPE_ARRAY
         CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
@@ -657,21 +657,21 @@ cdef extern from '<cuda.h>':
         CU_RESOURCE_TYPE_PITCH2D
     ctypedef CUresourcetype_enum CUresourcetype
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUaccessProperty_enum:
         CU_ACCESS_PROPERTY_NORMAL
         CU_ACCESS_PROPERTY_STREAMING
         CU_ACCESS_PROPERTY_PERSISTING
     ctypedef CUaccessProperty_enum CUaccessProperty
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphConditionalNodeType_enum:
         CU_GRAPH_COND_TYPE_IF
         CU_GRAPH_COND_TYPE_WHILE
         CU_GRAPH_COND_TYPE_SWITCH
     ctypedef CUgraphConditionalNodeType_enum CUgraphConditionalNodeType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphNodeType_enum:
         CU_GRAPH_NODE_TYPE_KERNEL
         CU_GRAPH_NODE_TYPE_MEMCPY
@@ -689,13 +689,13 @@ cdef extern from '<cuda.h>':
         CU_GRAPH_NODE_TYPE_CONDITIONAL
     ctypedef CUgraphNodeType_enum CUgraphNodeType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphDependencyType_enum:
         CU_GRAPH_DEPENDENCY_TYPE_DEFAULT
         CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC
     ctypedef CUgraphDependencyType_enum CUgraphDependencyType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphInstantiateResult_enum:
         CUDA_GRAPH_INSTANTIATE_SUCCESS
         CUDA_GRAPH_INSTANTIATE_ERROR
@@ -705,7 +705,7 @@ cdef extern from '<cuda.h>':
         CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
     ctypedef CUgraphInstantiateResult_enum CUgraphInstantiateResult
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUsynchronizationPolicy_enum:
         CU_SYNC_POLICY_AUTO
         CU_SYNC_POLICY_SPIN
@@ -713,20 +713,20 @@ cdef extern from '<cuda.h>':
         CU_SYNC_POLICY_BLOCKING_SYNC
     ctypedef CUsynchronizationPolicy_enum CUsynchronizationPolicy
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUclusterSchedulingPolicy_enum:
         CU_CLUSTER_SCHEDULING_POLICY_DEFAULT
         CU_CLUSTER_SCHEDULING_POLICY_SPREAD
         CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING
     ctypedef CUclusterSchedulingPolicy_enum CUclusterSchedulingPolicy
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUlaunchMemSyncDomain_enum:
         CU_LAUNCH_MEM_SYNC_DOMAIN_DEFAULT
         CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE
     ctypedef CUlaunchMemSyncDomain_enum CUlaunchMemSyncDomain
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUlaunchAttributeID_enum:
         CU_LAUNCH_ATTRIBUTE_IGNORE
         CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW
@@ -748,54 +748,54 @@ cdef extern from '<cuda.h>':
         CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE
     ctypedef CUlaunchAttributeID_enum CUlaunchAttributeID
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamCaptureStatus_enum:
         CU_STREAM_CAPTURE_STATUS_NONE
         CU_STREAM_CAPTURE_STATUS_ACTIVE
         CU_STREAM_CAPTURE_STATUS_INVALIDATED
     ctypedef CUstreamCaptureStatus_enum CUstreamCaptureStatus
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamCaptureMode_enum:
         CU_STREAM_CAPTURE_MODE_GLOBAL
         CU_STREAM_CAPTURE_MODE_THREAD_LOCAL
         CU_STREAM_CAPTURE_MODE_RELAXED
     ctypedef CUstreamCaptureMode_enum CUstreamCaptureMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdriverProcAddress_flags_enum:
         CU_GET_PROC_ADDRESS_DEFAULT
         CU_GET_PROC_ADDRESS_LEGACY_STREAM
         CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM
     ctypedef CUdriverProcAddress_flags_enum CUdriverProcAddress_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdriverProcAddressQueryResult_enum:
         CU_GET_PROC_ADDRESS_SUCCESS
         CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND
         CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT
     ctypedef CUdriverProcAddressQueryResult_enum CUdriverProcAddressQueryResult
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUexecAffinityType_enum:
         CU_EXEC_AFFINITY_TYPE_SM_COUNT
         CU_EXEC_AFFINITY_TYPE_MAX
     ctypedef CUexecAffinityType_enum CUexecAffinityType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUcigDataType_enum:
         CIG_DATA_TYPE_D3D12_COMMAND_QUEUE
         CIG_DATA_TYPE_NV_BLOB
     ctypedef CUcigDataType_enum CUcigDataType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUlibraryOption_enum:
         CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE
         CU_LIBRARY_BINARY_IS_PRESERVED
         CU_LIBRARY_NUM_OPTIONS
     ctypedef CUlibraryOption_enum CUlibraryOption
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum cudaError_enum:
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
@@ -901,7 +901,7 @@ cdef extern from '<cuda.h>':
         CUDA_ERROR_UNKNOWN
     ctypedef cudaError_enum CUresult
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdevice_P2PAttribute_enum:
         CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK
         CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED
@@ -911,7 +911,7 @@ cdef extern from '<cuda.h>':
         CU_DEVICE_P2P_ATTRIBUTE_ONLY_PARTIAL_NATIVE_ATOMIC_SUPPORTED
     ctypedef CUdevice_P2PAttribute_enum CUdevice_P2PAttribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUresourceViewFormat_enum:
         CU_RES_VIEW_FORMAT_NONE
         CU_RES_VIEW_FORMAT_UINT_1X8
@@ -950,7 +950,7 @@ cdef extern from '<cuda.h>':
         CU_RES_VIEW_FORMAT_UNSIGNED_BC7
     ctypedef CUresourceViewFormat_enum CUresourceViewFormat
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUtensorMapDataType_enum:
         CU_TENSOR_MAP_DATA_TYPE_UINT8
         CU_TENSOR_MAP_DATA_TYPE_UINT16
@@ -970,14 +970,14 @@ cdef extern from '<cuda.h>':
         CU_TENSOR_MAP_DATA_TYPE_16U6_ALIGN16B
     ctypedef CUtensorMapDataType_enum CUtensorMapDataType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUtensorMapInterleave_enum:
         CU_TENSOR_MAP_INTERLEAVE_NONE
         CU_TENSOR_MAP_INTERLEAVE_16B
         CU_TENSOR_MAP_INTERLEAVE_32B
     ctypedef CUtensorMapInterleave_enum CUtensorMapInterleave
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUtensorMapSwizzle_enum:
         CU_TENSOR_MAP_SWIZZLE_NONE
         CU_TENSOR_MAP_SWIZZLE_32B
@@ -988,7 +988,7 @@ cdef extern from '<cuda.h>':
         CU_TENSOR_MAP_SWIZZLE_128B_ATOM_64B
     ctypedef CUtensorMapSwizzle_enum CUtensorMapSwizzle
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUtensorMapL2promotion_enum:
         CU_TENSOR_MAP_L2_PROMOTION_NONE
         CU_TENSOR_MAP_L2_PROMOTION_L2_64B
@@ -996,26 +996,26 @@ cdef extern from '<cuda.h>':
         CU_TENSOR_MAP_L2_PROMOTION_L2_256B
     ctypedef CUtensorMapL2promotion_enum CUtensorMapL2promotion
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUtensorMapFloatOOBfill_enum:
         CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
         CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA
     ctypedef CUtensorMapFloatOOBfill_enum CUtensorMapFloatOOBfill
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUtensorMapIm2ColWideMode_enum:
         CU_TENSOR_MAP_IM2COL_WIDE_MODE_W
         CU_TENSOR_MAP_IM2COL_WIDE_MODE_W128
     ctypedef CUtensorMapIm2ColWideMode_enum CUtensorMapIm2ColWideMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS_enum:
         CU_POINTER_ATTRIBUTE_ACCESS_FLAG_NONE
         CU_POINTER_ATTRIBUTE_ACCESS_FLAG_READ
         CU_POINTER_ATTRIBUTE_ACCESS_FLAG_READWRITE
     ctypedef CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS_enum CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUexternalMemoryHandleType_enum:
         CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD
         CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32
@@ -1028,7 +1028,7 @@ cdef extern from '<cuda.h>':
         CU_EXTERNAL_MEMORY_HANDLE_TYPE_DMABUF_FD
     ctypedef CUexternalMemoryHandleType_enum CUexternalMemoryHandleType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUexternalSemaphoreHandleType_enum:
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32
@@ -1042,7 +1042,7 @@ cdef extern from '<cuda.h>':
         CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32
     ctypedef CUexternalSemaphoreHandleType_enum CUexternalSemaphoreHandleType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemAllocationHandleType_enum:
         CU_MEM_HANDLE_TYPE_NONE
         CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
@@ -1052,7 +1052,7 @@ cdef extern from '<cuda.h>':
         CU_MEM_HANDLE_TYPE_MAX
     ctypedef CUmemAllocationHandleType_enum CUmemAllocationHandleType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemAccess_flags_enum:
         CU_MEM_ACCESS_FLAGS_PROT_NONE
         CU_MEM_ACCESS_FLAGS_PROT_READ
@@ -1060,7 +1060,7 @@ cdef extern from '<cuda.h>':
         CU_MEM_ACCESS_FLAGS_PROT_MAX
     ctypedef CUmemAccess_flags_enum CUmemAccess_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemLocationType_enum:
         CU_MEM_LOCATION_TYPE_INVALID
         CU_MEM_LOCATION_TYPE_NONE
@@ -1072,7 +1072,7 @@ cdef extern from '<cuda.h>':
         CU_MEM_LOCATION_TYPE_MAX
     ctypedef CUmemLocationType_enum CUmemLocationType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemAllocationType_enum:
         CU_MEM_ALLOCATION_TYPE_INVALID
         CU_MEM_ALLOCATION_TYPE_PINNED
@@ -1080,53 +1080,53 @@ cdef extern from '<cuda.h>':
         CU_MEM_ALLOCATION_TYPE_MAX
     ctypedef CUmemAllocationType_enum CUmemAllocationType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemAllocationGranularity_flags_enum:
         CU_MEM_ALLOC_GRANULARITY_MINIMUM
         CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
     ctypedef CUmemAllocationGranularity_flags_enum CUmemAllocationGranularity_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemRangeHandleType_enum:
         CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD
         CU_MEM_RANGE_HANDLE_TYPE_MAX
     ctypedef CUmemRangeHandleType_enum CUmemRangeHandleType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemRangeFlags_enum:
         CU_MEM_RANGE_FLAG_DMA_BUF_MAPPING_TYPE_PCIE
     ctypedef CUmemRangeFlags_enum CUmemRangeFlags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUarraySparseSubresourceType_enum:
         CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
         CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
     ctypedef CUarraySparseSubresourceType_enum CUarraySparseSubresourceType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemOperationType_enum:
         CU_MEM_OPERATION_TYPE_MAP
         CU_MEM_OPERATION_TYPE_UNMAP
     ctypedef CUmemOperationType_enum CUmemOperationType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemHandleType_enum:
         CU_MEM_HANDLE_TYPE_GENERIC
     ctypedef CUmemHandleType_enum CUmemHandleType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemAllocationCompType_enum:
         CU_MEM_ALLOCATION_COMP_NONE
         CU_MEM_ALLOCATION_COMP_GENERIC
     ctypedef CUmemAllocationCompType_enum CUmemAllocationCompType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmulticastGranularity_flags_enum:
         CU_MULTICAST_GRANULARITY_MINIMUM
         CU_MULTICAST_GRANULARITY_RECOMMENDED
     ctypedef CUmulticastGranularity_flags_enum CUmulticastGranularity_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphExecUpdateResult_enum:
         CU_GRAPH_EXEC_UPDATE_SUCCESS
         CU_GRAPH_EXEC_UPDATE_ERROR
@@ -1139,7 +1139,7 @@ cdef extern from '<cuda.h>':
         CU_GRAPH_EXEC_UPDATE_ERROR_ATTRIBUTES_CHANGED
     ctypedef CUgraphExecUpdateResult_enum CUgraphExecUpdateResult
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemPool_attribute_enum:
         CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES
         CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC
@@ -1157,13 +1157,13 @@ cdef extern from '<cuda.h>':
         CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED
     ctypedef CUmemPool_attribute_enum CUmemPool_attribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemcpyFlags_enum:
         CU_MEMCPY_FLAG_DEFAULT
         CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE
     ctypedef CUmemcpyFlags_enum CUmemcpyFlags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemcpySrcAccessOrder_enum:
         CU_MEMCPY_SRC_ACCESS_ORDER_INVALID
         CU_MEMCPY_SRC_ACCESS_ORDER_STREAM
@@ -1172,14 +1172,14 @@ cdef extern from '<cuda.h>':
         CU_MEMCPY_SRC_ACCESS_ORDER_MAX
     ctypedef CUmemcpySrcAccessOrder_enum CUmemcpySrcAccessOrder
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemcpy3DOperandType_enum:
         CU_MEMCPY_OPERAND_TYPE_POINTER
         CU_MEMCPY_OPERAND_TYPE_ARRAY
         CU_MEMCPY_OPERAND_TYPE_MAX
     ctypedef CUmemcpy3DOperandType_enum CUmemcpy3DOperandType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphMem_attribute_enum:
         CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT
         CU_GRAPH_MEM_ATTR_USED_MEM_HIGH
@@ -1187,38 +1187,38 @@ cdef extern from '<cuda.h>':
         CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH
     ctypedef CUgraphMem_attribute_enum CUgraphMem_attribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphChildGraphNodeOwnership_enum:
         CU_GRAPH_CHILD_GRAPH_OWNERSHIP_CLONE
         CU_GRAPH_CHILD_GRAPH_OWNERSHIP_MOVE
         CU_GRAPH_CHILD_GRAPH_OWNERSHIP_INVALID
     ctypedef CUgraphChildGraphNodeOwnership_enum CUgraphChildGraphNodeOwnership
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUflushGPUDirectRDMAWritesOptions_enum:
         CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_HOST
         CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_MEMOPS
     ctypedef CUflushGPUDirectRDMAWritesOptions_enum CUflushGPUDirectRDMAWritesOptions
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUGPUDirectRDMAWritesOrdering_enum:
         CU_GPU_DIRECT_RDMA_WRITES_ORDERING_NONE
         CU_GPU_DIRECT_RDMA_WRITES_ORDERING_OWNER
         CU_GPU_DIRECT_RDMA_WRITES_ORDERING_ALL_DEVICES
     ctypedef CUGPUDirectRDMAWritesOrdering_enum CUGPUDirectRDMAWritesOrdering
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUflushGPUDirectRDMAWritesScope_enum:
         CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_OWNER
         CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_ALL_DEVICES
     ctypedef CUflushGPUDirectRDMAWritesScope_enum CUflushGPUDirectRDMAWritesScope
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUflushGPUDirectRDMAWritesTarget_enum:
         CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TARGET_CURRENT_CTX
     ctypedef CUflushGPUDirectRDMAWritesTarget_enum CUflushGPUDirectRDMAWritesTarget
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphDebugDot_flags_enum:
         CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE
         CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES
@@ -1238,17 +1238,17 @@ cdef extern from '<cuda.h>':
         CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS
     ctypedef CUgraphDebugDot_flags_enum CUgraphDebugDot_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUuserObject_flags_enum:
         CU_USER_OBJECT_NO_DESTRUCTOR_SYNC
     ctypedef CUuserObject_flags_enum CUuserObject_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUuserObjectRetain_flags_enum:
         CU_GRAPH_USER_OBJECT_MOVE
     ctypedef CUuserObjectRetain_flags_enum CUuserObjectRetain_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgraphInstantiate_flags_enum:
         CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
         CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
@@ -1256,13 +1256,13 @@ cdef extern from '<cuda.h>':
         CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
     ctypedef CUgraphInstantiate_flags_enum CUgraphInstantiate_flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdeviceNumaConfig_enum:
         CU_DEVICE_NUMA_CONFIG_NONE
         CU_DEVICE_NUMA_CONFIG_NUMA_NODE
     ctypedef CUdeviceNumaConfig_enum CUdeviceNumaConfig
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUprocessState_enum:
         CU_PROCESS_STATE_RUNNING
         CU_PROCESS_STATE_LOCKED
@@ -1270,13 +1270,13 @@ cdef extern from '<cuda.h>':
         CU_PROCESS_STATE_FAILED
     ctypedef CUprocessState_enum CUprocessState
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmoduleLoadingMode_enum:
         CU_MODULE_EAGER_LOADING
         CU_MODULE_LAZY_LOADING
     ctypedef CUmoduleLoadingMode_enum CUmoduleLoadingMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUmemDecompressAlgorithm_enum:
         CU_MEM_DECOMPRESS_UNSUPPORTED
         CU_MEM_DECOMPRESS_ALGORITHM_DEFLATE
@@ -1284,14 +1284,14 @@ cdef extern from '<cuda.h>':
         CU_MEM_DECOMPRESS_ALGORITHM_LZ4
     ctypedef CUmemDecompressAlgorithm_enum CUmemDecompressAlgorithm
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUfunctionLoadingState_enum:
         CU_FUNCTION_LOADING_STATE_UNLOADED
         CU_FUNCTION_LOADING_STATE_LOADED
         CU_FUNCTION_LOADING_STATE_MAX
     ctypedef CUfunctionLoadingState_enum CUfunctionLoadingState
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUcoredumpSettings_enum:
         CU_COREDUMP_ENABLE_ON_EXCEPTION
         CU_COREDUMP_TRIGGER_HOST
@@ -1303,7 +1303,7 @@ cdef extern from '<cuda.h>':
         CU_COREDUMP_MAX
     ctypedef CUcoredumpSettings_enum CUcoredumpSettings
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUCoredumpGenerationFlags:
         CU_COREDUMP_DEFAULT_FLAGS
         CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES
@@ -1315,36 +1315,36 @@ cdef extern from '<cuda.h>':
         CU_COREDUMP_GZIP_COMPRESS
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUgreenCtxCreate_flags:
         CU_GREEN_CTX_DEFAULT_STREAM
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdevResourceType:
         CU_DEV_RESOURCE_TYPE_INVALID
         CU_DEV_RESOURCE_TYPE_SM
         CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
         CU_DEV_RESOURCE_TYPE_WORKQUEUE
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUlogLevel_enum:
         CU_LOG_LEVEL_ERROR
         CU_LOG_LEVEL_WARNING
     ctypedef CUlogLevel_enum CUlogLevel
 
-cdef extern from '<cudaEGL.h>':
+cdef extern from '':
     ctypedef enum CUeglFrameType_enum:
         CU_EGL_FRAME_TYPE_ARRAY
         CU_EGL_FRAME_TYPE_PITCH
     ctypedef CUeglFrameType_enum CUeglFrameType
 
-cdef extern from '<cudaEGL.h>':
+cdef extern from '':
     ctypedef enum CUeglResourceLocationFlags_enum:
         CU_EGL_RESOURCE_LOCATION_SYSMEM
         CU_EGL_RESOURCE_LOCATION_VIDMEM
     ctypedef CUeglResourceLocationFlags_enum CUeglResourceLocationFlags
 
-cdef extern from '<cudaEGL.h>':
+cdef extern from '':
     ctypedef enum CUeglColorFormat_enum:
         CU_EGL_COLOR_FORMAT_YUV420_PLANAR
         CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR
@@ -1466,20 +1466,20 @@ cdef extern from '<cudaEGL.h>':
         CU_EGL_COLOR_FORMAT_MAX
     ctypedef CUeglColorFormat_enum CUeglColorFormat
 
-cdef extern from '<cudaGL.h>':
+cdef extern from '':
     ctypedef enum CUGLmap_flags_enum:
         CU_GL_MAP_RESOURCE_FLAGS_NONE
         CU_GL_MAP_RESOURCE_FLAGS_READ_ONLY
         CU_GL_MAP_RESOURCE_FLAGS_WRITE_DISCARD
     ctypedef CUGLmap_flags_enum CUGLmap_flags
 
-cdef extern from '<cudaProfiler.h>':
+cdef extern from '':
     ctypedef enum CUoutput_mode_enum:
         CU_OUT_KEY_VALUE_PAIR
         CU_OUT_CSV
     ctypedef CUoutput_mode_enum CUoutput_mode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUatomicOperation_enum:
         CU_ATOMIC_OPERATION_INTEGER_ADD
         CU_ATOMIC_OPERATION_INTEGER_MIN
@@ -1497,7 +1497,7 @@ cdef extern from '<cuda.h>':
         CU_ATOMIC_OPERATION_MAX
     ctypedef CUatomicOperation_enum CUatomicOperation
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUatomicOperationCapability_enum:
         CU_ATOMIC_CAPABILITY_SIGNED
         CU_ATOMIC_CAPABILITY_UNSIGNED
@@ -1508,55 +1508,55 @@ cdef extern from '<cuda.h>':
         CU_ATOMIC_CAPABILITY_VECTOR_32x4
     ctypedef CUatomicOperationCapability_enum CUatomicOperationCapability
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamAtomicReductionOpType_enum:
         CU_STREAM_ATOMIC_REDUCTION_OP_OR
         CU_STREAM_ATOMIC_REDUCTION_OP_AND
         CU_STREAM_ATOMIC_REDUCTION_OP_ADD
     ctypedef CUstreamAtomicReductionOpType_enum CUstreamAtomicReductionOpType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamAtomicReductionDataType_enum:
         CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32
         CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_64
     ctypedef CUstreamAtomicReductionDataType_enum CUstreamAtomicReductionDataType
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdevSmResourceGroup_flags:
         CU_DEV_SM_RESOURCE_GROUP_DEFAULT
         CU_DEV_SM_RESOURCE_GROUP_BACKFILL
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdevSmResourceSplitByCount_flags:
         CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
         CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUdevWorkqueueConfigScope:
         CU_WORKQUEUE_SCOPE_DEVICE_CTX
         CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUhostTaskSyncMode_enum:
         CU_HOST_TASK_BLOCKING
         CU_HOST_TASK_SPINWAIT
     ctypedef CUhostTaskSyncMode_enum CUhostTaskSyncMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUlaunchAttributePortableClusterMode_enum:
         CU_LAUNCH_PORTABLE_CLUSTER_MODE_DEFAULT
         CU_LAUNCH_PORTABLE_CLUSTER_MODE_REQUIRE_PORTABLE
         CU_LAUNCH_PORTABLE_CLUSTER_MODE_ALLOW_NON_PORTABLE
     ctypedef CUlaunchAttributePortableClusterMode_enum CUlaunchAttributePortableClusterMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUsharedMemoryMode_enum:
         CU_SHARED_MEMORY_MODE_DEFAULT
         CU_SHARED_MEMORY_MODE_REQUIRE_PORTABLE
         CU_SHARED_MEMORY_MODE_ALLOW_NON_PORTABLE
     ctypedef CUsharedMemoryMode_enum CUsharedMemoryMode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef enum CUstreamCigDataType_enum:
         STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST
     ctypedef CUstreamCigDataType_enum CUstreamCigDataType
@@ -1564,46 +1564,46 @@ cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = -42
 
 
 # TYPES
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef uint32_t cuuint32_t 'cuuint32_t'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef uint64_t cuuint64_t 'cuuint64_t'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef unsigned long long CUdeviceptr_v2 'CUdeviceptr_v2'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef int CUdevice_v1 'CUdevice_v1'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef unsigned long long CUtexObject_v1 'CUtexObject_v1'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef unsigned long long CUsurfObject_v1 'CUsurfObject_v1'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemFabricHandle_st:
         unsigned char data[64]
     ctypedef CUmemFabricHandle_st CUmemFabricHandle_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUipcEventHandle_st:
         char reserved[64]
     ctypedef CUipcEventHandle_st CUipcEventHandle_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUipcMemHandle_st:
         char reserved[64]
     ctypedef CUipcMemHandle_st CUipcMemHandle_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUdevprop_st:
         int maxThreadsPerBlock
         int maxThreadsDim[3]
@@ -1617,7 +1617,7 @@ cdef extern from '<cuda.h>':
         int textureAlign
     ctypedef CUdevprop_st CUdevprop_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUaccessPolicyWindow_st:
         void* base_ptr
         size_t num_bytes
@@ -1626,20 +1626,20 @@ cdef extern from '<cuda.h>':
         CUaccessProperty missProp
     ctypedef CUaccessPolicyWindow_st CUaccessPolicyWindow_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeID CUkernelNodeAttrID 'CUkernelNodeAttrID'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeID CUstreamAttrID 'CUstreamAttrID'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUexecAffinitySmCount_st:
         unsigned int val
     ctypedef CUexecAffinitySmCount_st CUexecAffinitySmCount_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_ARRAY_DESCRIPTOR_st:
         size_t Width
         size_t Height
@@ -1647,7 +1647,7 @@ cdef extern from '<cuda.h>':
         unsigned int NumChannels
     ctypedef CUDA_ARRAY_DESCRIPTOR_st CUDA_ARRAY_DESCRIPTOR_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_ARRAY3D_DESCRIPTOR_st:
         size_t Width
         size_t Height
@@ -1657,14 +1657,14 @@ cdef extern from '<cuda.h>':
         unsigned int Flags
     ctypedef CUDA_ARRAY3D_DESCRIPTOR_st CUDA_ARRAY3D_DESCRIPTOR_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
         size_t size
         size_t alignment
         unsigned int reserved[4]
     ctypedef CUDA_ARRAY_MEMORY_REQUIREMENTS_st CUDA_ARRAY_MEMORY_REQUIREMENTS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_TEXTURE_DESC_st:
         CUaddress_mode addressMode[3]
         CUfilter_mode filterMode
@@ -1678,7 +1678,7 @@ cdef extern from '<cuda.h>':
         int reserved[12]
     ctypedef CUDA_TEXTURE_DESC_st CUDA_TEXTURE_DESC_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_RESOURCE_VIEW_DESC_st:
         CUresourceViewFormat format
         size_t width
@@ -1691,13 +1691,13 @@ cdef extern from '<cuda.h>':
         unsigned int reserved[16]
     ctypedef CUDA_RESOURCE_VIEW_DESC_st CUDA_RESOURCE_VIEW_DESC_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
         unsigned long long p2pToken
         unsigned int vaSpaceToken
     ctypedef CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         unsigned long long offset
         unsigned long long size
@@ -1705,11 +1705,11 @@ cdef extern from '<cuda.h>':
         unsigned int reserved[16]
     ctypedef CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef unsigned long long CUmemGenericAllocationHandle_v1 'CUmemGenericAllocationHandle_v1'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmulticastObjectProp_st:
         unsigned int numDevices
         size_t size
@@ -1717,196 +1717,196 @@ cdef extern from '<cuda.h>':
         unsigned long long flags
     ctypedef CUmulticastObjectProp_st CUmulticastObjectProp_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemPoolPtrExportData_st:
         unsigned char reserved[64]
     ctypedef CUmemPoolPtrExportData_st CUmemPoolPtrExportData_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUoffset3D_st:
         size_t x
         size_t y
         size_t z
     ctypedef CUoffset3D_st CUoffset3D_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUextent3D_st:
         size_t width
         size_t height
         size_t depth
     ctypedef CUextent3D_st CUextent3D_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef unsigned int CUlogIterator 'CUlogIterator'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUctx_st:
         pass
     ctypedef CUctx_st* CUcontext 'CUcontext'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUmod_st:
         pass
     ctypedef CUmod_st* CUmodule 'CUmodule'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUfunc_st:
         pass
     ctypedef CUfunc_st* CUfunction 'CUfunction'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUlib_st:
         pass
     ctypedef CUlib_st* CUlibrary 'CUlibrary'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUkern_st:
         pass
     ctypedef CUkern_st* CUkernel 'CUkernel'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUarray_st:
         pass
     ctypedef CUarray_st* CUarray 'CUarray'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUmipmappedArray_st:
         pass
     ctypedef CUmipmappedArray_st* CUmipmappedArray 'CUmipmappedArray'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUtexref_st:
         pass
     ctypedef CUtexref_st* CUtexref 'CUtexref'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUsurfref_st:
         pass
     ctypedef CUsurfref_st* CUsurfref 'CUsurfref'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUevent_st:
         pass
     ctypedef CUevent_st* CUevent 'CUevent'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUstream_st:
         pass
     ctypedef CUstream_st* CUstream 'CUstream'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUgraphicsResource_st:
         pass
     ctypedef CUgraphicsResource_st* CUgraphicsResource 'CUgraphicsResource'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUextMemory_st:
         pass
     ctypedef CUextMemory_st* CUexternalMemory 'CUexternalMemory'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUextSemaphore_st:
         pass
     ctypedef CUextSemaphore_st* CUexternalSemaphore 'CUexternalSemaphore'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUgraph_st:
         pass
     ctypedef CUgraph_st* CUgraph 'CUgraph'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUgraphNode_st:
         pass
     ctypedef CUgraphNode_st* CUgraphNode 'CUgraphNode'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUgraphExec_st:
         pass
     ctypedef CUgraphExec_st* CUgraphExec 'CUgraphExec'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUmemPoolHandle_st:
         pass
     ctypedef CUmemPoolHandle_st* CUmemoryPool 'CUmemoryPool'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUuserObject_st:
         pass
     ctypedef CUuserObject_st* CUuserObject 'CUuserObject'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUgraphDeviceUpdatableNode_st:
         pass
     ctypedef CUgraphDeviceUpdatableNode_st* CUgraphDeviceNode 'CUgraphDeviceNode'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUasyncCallbackEntry_st:
         pass
     ctypedef CUasyncCallbackEntry_st* CUasyncCallbackHandle 'CUasyncCallbackHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUgreenCtx_st:
         pass
     ctypedef CUgreenCtx_st* CUgreenCtx 'CUgreenCtx'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUlinkState_st:
         pass
     ctypedef CUlinkState_st* CUlinkState 'CUlinkState'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUdevResourceDesc_st:
         pass
     ctypedef CUdevResourceDesc_st* CUdevResourceDesc 'CUdevResourceDesc'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUlogsCallbackEntry_st:
         pass
     ctypedef CUlogsCallbackEntry_st* CUlogsCallbackHandle 'CUlogsCallbackHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUcoredumpCallbackEntry_st:
         pass
     ctypedef CUcoredumpCallbackEntry_st* CUcoredumpCallbackHandle 'CUcoredumpCallbackHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUuuid_st:
         char bytes[16]
     ctypedef CUuuid_st CUuuid
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st 'CUstreamMemOpFlushRemoteWritesParams_st':
         CUstreamBatchMemOpType operation
         unsigned int flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUstreamMemOpMemoryBarrierParams_st 'CUstreamMemOpMemoryBarrierParams_st':
         CUstreamBatchMemOpType operation
         unsigned int flags
@@ -1914,13 +1914,13 @@ cdef extern from '<cuda.h>':
 cdef struct cuda_bindings_driver__anon_pod3:
     unsigned long long bytesOverBudget
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef void (*CUhostFn 'CUhostFn')(
         void* userData
     )
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUgraphEdgeData_st:
         unsigned char from_port
         unsigned char to_port
@@ -1928,7 +1928,7 @@ cdef extern from '<cuda.h>':
         unsigned char reserved[5]
     ctypedef CUgraphEdgeData_st CUgraphEdgeData
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUlaunchMemSyncDomainMap_st:
         unsigned char default_
         unsigned char remote
@@ -1944,13 +1944,13 @@ cdef struct cuda_bindings_driver__anon_pod7:
     unsigned int y
     unsigned int z
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUctxCigParam_st:
         CUcigDataType sharedDataType
         void* sharedData
     ctypedef CUctxCigParam_st CUctxCigParam
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUlibraryHostUniversalFunctionAndDataTable_st:
         void* functionTable
         size_t functionWindowSize
@@ -2016,7 +2016,7 @@ cdef struct cuda_bindings_driver__anon_pod35:
     unsigned short usage
     unsigned char reserved[4]
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUdevSmResource_st:
         unsigned int smCount
         unsigned int minSmPartitionSize
@@ -2024,12 +2024,12 @@ cdef extern from '<cuda.h>':
         unsigned int flags
     ctypedef CUdevSmResource_st CUdevSmResource
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUdevWorkqueueResource_st:
         unsigned char reserved[40]
     ctypedef CUdevWorkqueueResource_st CUdevWorkqueueResource
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
         unsigned int smCount
         unsigned int coscheduledSmCount
@@ -2038,19 +2038,19 @@ cdef extern from '<cuda.h>':
         unsigned int reserved[12]
     ctypedef CU_DEV_SM_RESOURCE_GROUP_PARAMS_st CU_DEV_SM_RESOURCE_GROUP_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUstreamCigParam_st:
         CUstreamCigDataType streamSharedDataType
         void* streamSharedData
     ctypedef CUstreamCigParam_st CUstreamCigParam
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef size_t (*CUoccupancyB2DSize 'CUoccupancyB2DSize')(
         int blockSize
     )
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef void (*CUlogsCallback 'CUlogsCallback')(
         void* data,
         CUlogLevel logLevel,
@@ -2059,7 +2059,7 @@ cdef extern from '<cuda.h>':
     )
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemDecompressParams_st:
         size_t srcNumBytes
         size_t dstNumBytes
@@ -2070,121 +2070,121 @@ cdef extern from '<cuda.h>':
         unsigned char padding[20]
     ctypedef CUmemDecompressParams_st CUmemDecompressParams
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef cuuint64_t CUgraphConditionalHandle 'CUgraphConditionalHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUtensorMap_st:
         cuuint64_t opaque[16]
     ctypedef CUtensorMap_st CUtensorMap
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUcheckpointLockArgs_st:
         unsigned int timeoutMs
         unsigned int reserved0
         cuuint64_t reserved1[7]
     ctypedef CUcheckpointLockArgs_st CUcheckpointLockArgs
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUcheckpointCheckpointArgs_st:
         cuuint64_t reserved[8]
     ctypedef CUcheckpointCheckpointArgs_st CUcheckpointCheckpointArgs
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUcheckpointUnlockArgs_st:
         cuuint64_t reserved[8]
     ctypedef CUcheckpointUnlockArgs_st CUcheckpointUnlockArgs
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUdeviceptr_v2 CUdeviceptr 'CUdeviceptr'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUdevice_v1 CUdevice 'CUdevice'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUtexObject_v1 CUtexObject 'CUtexObject'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUsurfObject_v1 CUsurfObject 'CUsurfObject'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemFabricHandle_v1 CUmemFabricHandle 'CUmemFabricHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUipcEventHandle_v1 CUipcEventHandle 'CUipcEventHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUipcMemHandle_v1 CUipcMemHandle 'CUipcMemHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUdevprop_v1 CUdevprop 'CUdevprop'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUaccessPolicyWindow_v1 CUaccessPolicyWindow 'CUaccessPolicyWindow'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUexecAffinitySmCount_v1 CUexecAffinitySmCount 'CUexecAffinitySmCount'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_ARRAY_DESCRIPTOR_v2 CUDA_ARRAY_DESCRIPTOR 'CUDA_ARRAY_DESCRIPTOR'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_ARRAY3D_DESCRIPTOR_v2 CUDA_ARRAY3D_DESCRIPTOR 'CUDA_ARRAY3D_DESCRIPTOR'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 CUDA_ARRAY_MEMORY_REQUIREMENTS 'CUDA_ARRAY_MEMORY_REQUIREMENTS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_TEXTURE_DESC_v1 CUDA_TEXTURE_DESC 'CUDA_TEXTURE_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_RESOURCE_VIEW_DESC_v1 CUDA_RESOURCE_VIEW_DESC 'CUDA_RESOURCE_VIEW_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1 CUDA_POINTER_ATTRIBUTE_P2P_TOKENS 'CUDA_POINTER_ATTRIBUTE_P2P_TOKENS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1 CUDA_EXTERNAL_MEMORY_BUFFER_DESC 'CUDA_EXTERNAL_MEMORY_BUFFER_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemGenericAllocationHandle_v1 CUmemGenericAllocationHandle 'CUmemGenericAllocationHandle'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmulticastObjectProp_v1 CUmulticastObjectProp 'CUmulticastObjectProp'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemPoolPtrExportData_v1 CUmemPoolPtrExportData 'CUmemPoolPtrExportData'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUoffset3D_v1 CUoffset3D 'CUoffset3D'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUextent3D_v1 CUextent3D 'CUextent3D'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_KERNEL_NODE_PARAMS_st:
         CUfunction func
         unsigned int gridDimX
@@ -2198,7 +2198,7 @@ cdef extern from '<cuda.h>':
         void** extra
     ctypedef CUDA_KERNEL_NODE_PARAMS_st CUDA_KERNEL_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_KERNEL_NODE_PARAMS_v2_st:
         CUfunction func
         unsigned int gridDimX
@@ -2214,7 +2214,7 @@ cdef extern from '<cuda.h>':
         CUcontext ctx
     ctypedef CUDA_KERNEL_NODE_PARAMS_v2_st CUDA_KERNEL_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_KERNEL_NODE_PARAMS_v3_st:
         CUfunction func
         unsigned int gridDimX
@@ -2249,17 +2249,17 @@ cdef struct cuda_bindings_driver__anon_pod6:
     CUevent event
     int flags
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EVENT_RECORD_NODE_PARAMS_st:
         CUevent event
     ctypedef CUDA_EVENT_RECORD_NODE_PARAMS_st CUDA_EVENT_RECORD_NODE_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EVENT_WAIT_NODE_PARAMS_st:
         CUevent event
     ctypedef CUDA_EVENT_WAIT_NODE_PARAMS_st CUDA_EVENT_WAIT_NODE_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_LAUNCH_PARAMS_st:
         CUfunction function
         unsigned int gridDimX
@@ -2273,7 +2273,7 @@ cdef extern from '<cuda.h>':
         void** kernelParams
     ctypedef CUDA_LAUNCH_PARAMS_st CUDA_LAUNCH_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef void (*CUstreamCallback 'CUstreamCallback')(
         CUstream hStream,
         CUresult status,
@@ -2281,13 +2281,13 @@ cdef extern from '<cuda.h>':
     )
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_CHILD_GRAPH_NODE_PARAMS_st:
         CUgraph graph
         CUgraphChildGraphNodeOwnership ownership
     ctypedef CUDA_CHILD_GRAPH_NODE_PARAMS_st CUDA_CHILD_GRAPH_NODE_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_GRAPH_INSTANTIATE_PARAMS_st:
         cuuint64_t flags
         CUstream hUploadStream
@@ -2295,7 +2295,7 @@ cdef extern from '<cuda.h>':
         CUgraphInstantiateResult result_out
     ctypedef CUDA_GRAPH_INSTANTIATE_PARAMS_st CUDA_GRAPH_INSTANTIATE_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUgraphExecUpdateResultInfo_st:
         CUgraphExecUpdateResult result
         CUgraphNode errorNode
@@ -2306,7 +2306,7 @@ cdef struct cuda_bindings_driver__anon_pod8:
     int deviceUpdatable
     CUgraphDeviceNode devNode
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUcheckpointGpuPair_st:
         CUuuid oldUuid
         CUuuid newUuid
@@ -2315,20 +2315,20 @@ cdef extern from '<cuda.h>':
 cdef union cuda_bindings_driver__anon_pod2:
     cuda_bindings_driver__anon_pod3 overBudget
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_HOST_NODE_PARAMS_st:
         CUhostFn fn
         void* userData
     ctypedef CUDA_HOST_NODE_PARAMS_st CUDA_HOST_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_HOST_NODE_PARAMS_v2_st:
         CUhostFn fn
         void* userData
         unsigned int syncMode
     ctypedef CUDA_HOST_NODE_PARAMS_v2_st CUDA_HOST_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_ARRAY_SPARSE_PROPERTIES_st:
         cuda_bindings_driver__anon_pod10 tileExtent
         unsigned int miptailFirstLevel
@@ -2363,18 +2363,18 @@ cdef union cuda_bindings_driver__anon_pod30:
     cuda_bindings_driver__anon_pod31 sparseLevel
     cuda_bindings_driver__anon_pod32 miptail
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemLocation_st:
         CUmemLocationType type
         int id
     ctypedef CUmemLocation_st CUmemLocation_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUstreamCigCaptureParams_st:
         CUstreamCigParam* streamCigParams
     ctypedef CUstreamCigCaptureParams_st CUstreamCigCaptureParams
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUDA_CONDITIONAL_NODE_PARAMS 'CUDA_CONDITIONAL_NODE_PARAMS':
         CUgraphConditionalHandle handle
         CUgraphConditionalNodeType type
@@ -2382,7 +2382,7 @@ cdef extern from '<cuda.h>':
         CUgraph* phGraph_out
         CUcontext ctx
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUstreamMemOpWaitValueParams_st 'CUstreamMemOpWaitValueParams_st':
         CUstreamBatchMemOpType operation
         CUdeviceptr address
@@ -2391,7 +2391,7 @@ cdef extern from '<cuda.h>':
         unsigned int flags
         CUdeviceptr alias
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUstreamMemOpWriteValueParams_st 'CUstreamMemOpWriteValueParams_st':
         CUstreamBatchMemOpType operation
         CUdeviceptr address
@@ -2400,7 +2400,7 @@ cdef extern from '<cuda.h>':
         unsigned int flags
         CUdeviceptr alias
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef struct CUstreamMemOpAtomicReductionParams_st 'CUstreamMemOpAtomicReductionParams_st':
         CUstreamBatchMemOpType operation
         unsigned int flags
@@ -2410,7 +2410,7 @@ cdef extern from '<cuda.h>':
         cuuint64_t value
         CUdeviceptr alias
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMSET_NODE_PARAMS_st:
         CUdeviceptr dst
         size_t pitch
@@ -2420,7 +2420,7 @@ cdef extern from '<cuda.h>':
         size_t height
     ctypedef CUDA_MEMSET_NODE_PARAMS_st CUDA_MEMSET_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMSET_NODE_PARAMS_v2_st:
         CUdeviceptr dst
         size_t pitch
@@ -2431,7 +2431,7 @@ cdef extern from '<cuda.h>':
         CUcontext ctx
     ctypedef CUDA_MEMSET_NODE_PARAMS_v2_st CUDA_MEMSET_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMCPY2D_st:
         size_t srcXInBytes
         size_t srcY
@@ -2451,7 +2451,7 @@ cdef extern from '<cuda.h>':
         size_t Height
     ctypedef CUDA_MEMCPY2D_st CUDA_MEMCPY2D_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMCPY3D_st:
         size_t srcXInBytes
         size_t srcY
@@ -2480,7 +2480,7 @@ cdef extern from '<cuda.h>':
         size_t Depth
     ctypedef CUDA_MEMCPY3D_st CUDA_MEMCPY3D_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMCPY3D_PEER_st:
         size_t srcXInBytes
         size_t srcY
@@ -2523,19 +2523,19 @@ cdef struct cuda_bindings_driver__anon_pod15:
     size_t height
     size_t pitchInBytes
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEM_FREE_NODE_PARAMS_st:
         CUdeviceptr dptr
     ctypedef CUDA_MEM_FREE_NODE_PARAMS_st CUDA_MEM_FREE_NODE_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUdevWorkqueueConfigResource_st:
         CUdevice device
         unsigned int wqConcurrencyLimit
         CUdevWorkqueueConfigScope sharingScope
     ctypedef CUdevWorkqueueConfigResource_st CUdevWorkqueueConfigResource
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef void (*CUcoredumpStatusCallback 'CUcoredumpStatusCallback')(
         void* userData,
         int pid,
@@ -2546,7 +2546,7 @@ cdef extern from '<cuda.h>':
 cdef union cuda_bindings_driver__anon_pod9:
     CUexecAffinitySmCount smCount
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         unsigned long long offset
         CUDA_ARRAY3D_DESCRIPTOR arrayDesc
@@ -2561,19 +2561,19 @@ cdef struct cuda_bindings_driver__anon_pod38:
     CUarray array
     CUoffset3D offset
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_KERNEL_NODE_PARAMS_v2 CUDA_KERNEL_NODE_PARAMS 'CUDA_KERNEL_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_LAUNCH_PARAMS_v1 CUDA_LAUNCH_PARAMS 'CUDA_LAUNCH_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUgraphExecUpdateResultInfo_v1 CUgraphExecUpdateResultInfo 'CUgraphExecUpdateResultInfo'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef union CUlaunchAttributeValue_union:
         char pad[64]
         CUaccessPolicyWindow accessPolicyWindow
@@ -2595,7 +2595,7 @@ cdef extern from '<cuda.h>':
         CUsharedMemoryMode sharedMemoryMode
     ctypedef CUlaunchAttributeValue_union CUlaunchAttributeValue
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUcheckpointRestoreArgs_st:
         CUcheckpointGpuPair* gpuPairs
         unsigned int gpuPairsCount
@@ -2603,21 +2603,21 @@ cdef extern from '<cuda.h>':
         cuuint64_t reserved1
     ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUasyncNotificationInfo_st:
         CUasyncNotificationType type
         cuda_bindings_driver__anon_pod2 info
     ctypedef CUasyncNotificationInfo_st CUasyncNotificationInfo
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_HOST_NODE_PARAMS_v1 CUDA_HOST_NODE_PARAMS 'CUDA_HOST_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_ARRAY_SPARSE_PROPERTIES_v1 CUDA_ARRAY_SPARSE_PROPERTIES 'CUDA_ARRAY_SPARSE_PROPERTIES'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         CUexternalMemoryHandleType type
         cuda_bindings_driver__anon_pod17 handle
@@ -2626,7 +2626,7 @@ cdef extern from '<cuda.h>':
         unsigned int reserved[16]
     ctypedef CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         CUexternalSemaphoreHandleType type
         cuda_bindings_driver__anon_pod19 handle
@@ -2634,25 +2634,25 @@ cdef extern from '<cuda.h>':
         unsigned int reserved[16]
     ctypedef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         cuda_bindings_driver__anon_pod21 params
         unsigned int flags
         unsigned int reserved[16]
     ctypedef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         cuda_bindings_driver__anon_pod25 params
         unsigned int flags
         unsigned int reserved[16]
     ctypedef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemLocation_v1 CUmemLocation 'CUmemLocation'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef union CUstreamBatchMemOpParams_union:
         CUstreamBatchMemOpType operation
         CUstreamMemOpWaitValueParams_st waitValue
@@ -2663,19 +2663,19 @@ cdef extern from '<cuda.h>':
         cuuint64_t pad[6]
     ctypedef CUstreamBatchMemOpParams_union CUstreamBatchMemOpParams_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEMSET_NODE_PARAMS_v1 CUDA_MEMSET_NODE_PARAMS 'CUDA_MEMSET_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEMCPY2D_v2 CUDA_MEMCPY2D 'CUDA_MEMCPY2D'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEMCPY3D_v2 CUDA_MEMCPY3D 'CUDA_MEMCPY3D'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEMCPY3D_PEER_v1 CUDA_MEMCPY3D_PEER 'CUDA_MEMCPY3D_PEER'
 
 
@@ -2686,17 +2686,17 @@ cdef union cuda_bindings_driver__anon_pod11:
     cuda_bindings_driver__anon_pod15 pitch2D
     cuda_bindings_driver__anon_pod16 reserved
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUexecAffinityParam_st:
         CUexecAffinityType type
         cuda_bindings_driver__anon_pod9 param
     ctypedef CUexecAffinityParam_st CUexecAffinityParam_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1 CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUarrayMapInfo_st:
         CUresourcetype resourceType
         cuda_bindings_driver__anon_pod29 resource
@@ -2711,21 +2711,21 @@ cdef extern from '<cuda.h>':
         unsigned int reserved[2]
     ctypedef CUarrayMapInfo_st CUarrayMapInfo_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeValue CUkernelNodeAttrValue_v1 'CUkernelNodeAttrValue_v1'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeValue CUstreamAttrValue_v1 'CUstreamAttrValue_v1'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUlaunchAttribute_st:
         CUlaunchAttributeID id
         CUlaunchAttributeValue value
     ctypedef CUlaunchAttribute_st CUlaunchAttribute
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef void (*CUasyncCallback 'CUasyncCallback')(
         CUasyncNotificationInfo* info,
         void* userData,
@@ -2733,23 +2733,23 @@ cdef extern from '<cuda.h>':
     )
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1 CUDA_EXTERNAL_MEMORY_HANDLE_DESC 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1 CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemAllocationProp_st:
         CUmemAllocationType type
         CUmemAllocationHandleType requestedHandleTypes
@@ -2758,13 +2758,13 @@ cdef extern from '<cuda.h>':
         cuda_bindings_driver__anon_pod35 allocFlags
     ctypedef CUmemAllocationProp_st CUmemAllocationProp_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemAccessDesc_st:
         CUmemLocation location
         CUmemAccess_flags flags
     ctypedef CUmemAccessDesc_st CUmemAccessDesc_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemPoolProps_st:
         CUmemAllocationType allocType
         CUmemAllocationHandleType handleTypes
@@ -2775,7 +2775,7 @@ cdef extern from '<cuda.h>':
         unsigned char reserved[54]
     ctypedef CUmemPoolProps_st CUmemPoolProps_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemcpyAttributes_st:
         CUmemcpySrcAccessOrder srcAccessOrder
         CUmemLocation srcLocHint
@@ -2789,11 +2789,11 @@ cdef struct cuda_bindings_driver__anon_pod37:
     size_t layerHeight
     CUmemLocation locHint
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUstreamBatchMemOpParams_v1 CUstreamBatchMemOpParams 'CUstreamBatchMemOpParams'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMCPY_NODE_PARAMS_st:
         int flags
         int reserved
@@ -2801,14 +2801,14 @@ cdef extern from '<cuda.h>':
         CUDA_MEMCPY3D copyParams
     ctypedef CUDA_MEMCPY_NODE_PARAMS_st CUDA_MEMCPY_NODE_PARAMS
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_RESOURCE_DESC_st:
         CUresourcetype resType
         cuda_bindings_driver__anon_pod11 res
         unsigned int flags
     ctypedef CUDA_RESOURCE_DESC_st CUDA_RESOURCE_DESC_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUdevResource_st:
         CUdevResourceType type
         unsigned char _internal_padding[92]
@@ -2819,23 +2819,23 @@ cdef extern from '<cuda.h>':
         CUdevResource_st* nextResource
     ctypedef CUdevResource_st CUdevResource_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUexecAffinityParam_v1 CUexecAffinityParam 'CUexecAffinityParam'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUarrayMapInfo_v1 CUarrayMapInfo 'CUarrayMapInfo'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUkernelNodeAttrValue_v1 CUkernelNodeAttrValue 'CUkernelNodeAttrValue'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUstreamAttrValue_v1 CUstreamAttrValue 'CUstreamAttrValue'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUlaunchConfig_st:
         unsigned int gridDimX
         unsigned int gridDimY
@@ -2849,47 +2849,47 @@ cdef extern from '<cuda.h>':
         unsigned int numAttrs
     ctypedef CUlaunchConfig_st CUlaunchConfig
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
         CUexternalSemaphore* extSemArray
         CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray
         unsigned int numExtSems
     ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
         CUexternalSemaphore* extSemArray
         CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray
         unsigned int numExtSems
     ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
         CUexternalSemaphore* extSemArray
         CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray
         unsigned int numExtSems
     ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_st CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
         CUexternalSemaphore* extSemArray
         CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray
         unsigned int numExtSems
     ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemAllocationProp_v1 CUmemAllocationProp 'CUmemAllocationProp'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemAccessDesc_v1 CUmemAccessDesc 'CUmemAccessDesc'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemPoolProps_v1 CUmemPoolProps 'CUmemPoolProps'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemcpyAttributes_v1 CUmemcpyAttributes 'CUmemcpyAttributes'
 
 
@@ -2897,7 +2897,7 @@ cdef union cuda_bindings_driver__anon_pod36:
     cuda_bindings_driver__anon_pod37 ptr
     cuda_bindings_driver__anon_pod38 array
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         CUcontext ctx
         unsigned int count
@@ -2905,7 +2905,7 @@ cdef extern from '<cuda.h>':
         unsigned int flags
     ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st CUDA_BATCH_MEM_OP_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
         CUcontext ctx
         unsigned int count
@@ -2913,30 +2913,30 @@ cdef extern from '<cuda.h>':
         unsigned int flags
     ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_RESOURCE_DESC_v1 CUDA_RESOURCE_DESC 'CUDA_RESOURCE_DESC'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUdevResource_v1 CUdevResource 'CUdevResource'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUctxCreateParams_st:
         CUexecAffinityParam* execAffinityParams
         int numExecAffinityParams
         CUctxCigParam* cigParams
     ctypedef CUctxCreateParams_st CUctxCreateParams
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1 CUDA_EXT_SEM_SIGNAL_NODE_PARAMS 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1 CUDA_EXT_SEM_WAIT_NODE_PARAMS 'CUDA_EXT_SEM_WAIT_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         CUmemPoolProps poolProps
         CUmemAccessDesc* accessDescs
@@ -2945,7 +2945,7 @@ cdef extern from '<cuda.h>':
         CUdeviceptr dptr
     ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v1_st CUDA_MEM_ALLOC_NODE_PARAMS_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
         CUmemPoolProps poolProps
         CUmemAccessDesc* accessDescs
@@ -2954,25 +2954,25 @@ cdef extern from '<cuda.h>':
         CUdeviceptr dptr
     ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v2_st CUDA_MEM_ALLOC_NODE_PARAMS_v2
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUmemcpy3DOperand_st:
         CUmemcpy3DOperandType type
         cuda_bindings_driver__anon_pod36 op
     ctypedef CUmemcpy3DOperand_st CUmemcpy3DOperand_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 CUDA_BATCH_MEM_OP_NODE_PARAMS 'CUDA_BATCH_MEM_OP_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v1 CUDA_MEM_ALLOC_NODE_PARAMS 'CUDA_MEM_ALLOC_NODE_PARAMS'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUmemcpy3DOperand_v1 CUmemcpy3DOperand 'CUmemcpy3DOperand'
 
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUgraphNodeParams_st:
         CUgraphNodeType type
         int reserved0[3]
@@ -2993,7 +2993,7 @@ cdef extern from '<cuda.h>':
         long long reserved2
     ctypedef CUgraphNodeParams_st CUgraphNodeParams
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     cdef struct CUDA_MEMCPY3D_BATCH_OP_st:
         CUmemcpy3DOperand src
         CUmemcpy3DOperand dst
@@ -3002,7 +3002,7 @@ cdef extern from '<cuda.h>':
         unsigned int flags
     ctypedef CUDA_MEMCPY3D_BATCH_OP_st CUDA_MEMCPY3D_BATCH_OP_v1
 
-cdef extern from '<cuda.h>':
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEMCPY3D_BATCH_OP_v1 CUDA_MEMCPY3D_BATCH_OP 'CUDA_MEMCPY3D_BATCH_OP'
 
 
