@@ -1741,107 +1741,159 @@ cdef extern from '<cuda.h>':
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUcontext 'CUcontext'
+    ctypedef struct CUctx_st:
+        pass
+    ctypedef CUctx_st* CUcontext 'CUcontext'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUmodule 'CUmodule'
+    ctypedef struct CUmod_st:
+        pass
+    ctypedef CUmod_st* CUmodule 'CUmodule'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUfunction 'CUfunction'
+    ctypedef struct CUfunc_st:
+        pass
+    ctypedef CUfunc_st* CUfunction 'CUfunction'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUlibrary 'CUlibrary'
+    ctypedef struct CUlib_st:
+        pass
+    ctypedef CUlib_st* CUlibrary 'CUlibrary'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUkernel 'CUkernel'
+    ctypedef struct CUkern_st:
+        pass
+    ctypedef CUkern_st* CUkernel 'CUkernel'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUarray 'CUarray'
+    ctypedef struct CUarray_st:
+        pass
+    ctypedef CUarray_st* CUarray 'CUarray'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUmipmappedArray 'CUmipmappedArray'
+    ctypedef struct CUmipmappedArray_st:
+        pass
+    ctypedef CUmipmappedArray_st* CUmipmappedArray 'CUmipmappedArray'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUtexref 'CUtexref'
+    ctypedef struct CUtexref_st:
+        pass
+    ctypedef CUtexref_st* CUtexref 'CUtexref'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUsurfref 'CUsurfref'
+    ctypedef struct CUsurfref_st:
+        pass
+    ctypedef CUsurfref_st* CUsurfref 'CUsurfref'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUevent 'CUevent'
+    ctypedef struct CUevent_st:
+        pass
+    ctypedef CUevent_st* CUevent 'CUevent'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUstream 'CUstream'
+    ctypedef struct CUstream_st:
+        pass
+    ctypedef CUstream_st* CUstream 'CUstream'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUgraphicsResource 'CUgraphicsResource'
+    ctypedef struct CUgraphicsResource_st:
+        pass
+    ctypedef CUgraphicsResource_st* CUgraphicsResource 'CUgraphicsResource'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUexternalMemory 'CUexternalMemory'
+    ctypedef struct CUextMemory_st:
+        pass
+    ctypedef CUextMemory_st* CUexternalMemory 'CUexternalMemory'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUexternalSemaphore 'CUexternalSemaphore'
+    ctypedef struct CUextSemaphore_st:
+        pass
+    ctypedef CUextSemaphore_st* CUexternalSemaphore 'CUexternalSemaphore'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUgraph 'CUgraph'
+    ctypedef struct CUgraph_st:
+        pass
+    ctypedef CUgraph_st* CUgraph 'CUgraph'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUgraphNode 'CUgraphNode'
+    ctypedef struct CUgraphNode_st:
+        pass
+    ctypedef CUgraphNode_st* CUgraphNode 'CUgraphNode'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUgraphExec 'CUgraphExec'
+    ctypedef struct CUgraphExec_st:
+        pass
+    ctypedef CUgraphExec_st* CUgraphExec 'CUgraphExec'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUmemoryPool 'CUmemoryPool'
+    ctypedef struct CUmemPoolHandle_st:
+        pass
+    ctypedef CUmemPoolHandle_st* CUmemoryPool 'CUmemoryPool'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUuserObject 'CUuserObject'
+    ctypedef struct CUuserObject_st:
+        pass
+    ctypedef CUuserObject_st* CUuserObject 'CUuserObject'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUgraphDeviceNode 'CUgraphDeviceNode'
+    ctypedef struct CUgraphDeviceUpdatableNode_st:
+        pass
+    ctypedef CUgraphDeviceUpdatableNode_st* CUgraphDeviceNode 'CUgraphDeviceNode'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUasyncCallbackHandle 'CUasyncCallbackHandle'
+    ctypedef struct CUasyncCallbackEntry_st:
+        pass
+    ctypedef CUasyncCallbackEntry_st* CUasyncCallbackHandle 'CUasyncCallbackHandle'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUgreenCtx 'CUgreenCtx'
+    ctypedef struct CUgreenCtx_st:
+        pass
+    ctypedef CUgreenCtx_st* CUgreenCtx 'CUgreenCtx'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUlinkState 'CUlinkState'
+    ctypedef struct CUlinkState_st:
+        pass
+    ctypedef CUlinkState_st* CUlinkState 'CUlinkState'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUdevResourceDesc 'CUdevResourceDesc'
+    ctypedef struct CUdevResourceDesc_st:
+        pass
+    ctypedef CUdevResourceDesc_st* CUdevResourceDesc 'CUdevResourceDesc'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUlogsCallbackHandle 'CUlogsCallbackHandle'
+    ctypedef struct CUlogsCallbackEntry_st:
+        pass
+    ctypedef CUlogsCallbackEntry_st* CUlogsCallbackHandle 'CUlogsCallbackHandle'
 
 
 cdef extern from '<cuda.h>':
-    ctypedef void* CUcoredumpCallbackHandle 'CUcoredumpCallbackHandle'
+    ctypedef struct CUcoredumpCallbackEntry_st:
+        pass
+    ctypedef CUcoredumpCallbackEntry_st* CUcoredumpCallbackHandle 'CUcoredumpCallbackHandle'
 
 
 cdef extern from '<cuda.h>':
