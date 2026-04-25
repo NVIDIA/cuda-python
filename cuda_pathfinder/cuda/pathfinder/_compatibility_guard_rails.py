@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import functools
 import importlib.metadata
-import json
 import os
 import re
 from collections.abc import Mapping
@@ -46,6 +45,7 @@ from cuda.pathfinder._utils.driver_info import (
     QueryDriverCudaVersionError,
     query_driver_cuda_version,
 )
+from cuda.pathfinder._utils.toolkit_info import ReadCudaHeaderVersionError, read_cuda_header_version
 
 ItemKind: TypeAlias = str
 PackagedWith: TypeAlias = str
@@ -323,46 +323,62 @@ def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
     return CtkMetadata(ctk_version=ctk_version, ctk_root=None, source=source)
 
 
+def _normalized_ctk_root_for_cuda_header(cuda_header_path: Path) -> Path:
+    ctk_root = cuda_header_path.parent.parent
+    if ctk_root.parent.name == "targets":
+        return ctk_root.parent.parent
+    return ctk_root
+
+
 @functools.cache
-def _read_ctk_version(ctk_root: str) -> CtkVersion | None:
-    version_json_path = os.path.join(ctk_root, "version.json")
-    if not os.path.isfile(version_json_path):
+def _cuda_header_metadata_for_ctk_root_candidate(ctk_root_candidate: str) -> CtkMetadata | None:
+    candidate_path = Path(ctk_root_candidate)
+    header_paths: list[Path] = []
+
+    direct_header = candidate_path / "include" / "cuda.h"
+    if direct_header.is_file():
+        header_paths.append(direct_header)
+
+    targets_dir = candidate_path / "targets"
+    if targets_dir.is_dir():
+        header_paths.extend(sorted(path for path in targets_dir.glob("*/include/cuda.h") if path.is_file()))
+
+    matches: list[tuple[CtkVersion, Path, Path]] = []
+    for cuda_header_path in header_paths:
+        try:
+            version = read_cuda_header_version(str(cuda_header_path))
+        except ReadCudaHeaderVersionError:
+            continue
+        matches.append(
+            (
+                CtkVersion(major=version.major, minor=version.minor),
+                _normalized_ctk_root_for_cuda_header(cuda_header_path),
+                cuda_header_path,
+            )
+        )
+
+    if not matches:
         return None
-    with open(version_json_path, encoding="utf-8") as fobj:
-        payload = json.load(fobj)
-    if not isinstance(payload, dict):
+
+    ctk_version, ctk_root, source_path = matches[0]
+    if any(other_version != ctk_version for other_version, _other_root, _other_source in matches[1:]):
         return None
-    cuda_entry = payload.get("cuda")
-    if not isinstance(cuda_entry, dict):
-        return None
-    cuda_version = cuda_entry.get("version")
-    if not isinstance(cuda_version, str):
-        return None
-    return _parse_ctk_version(cuda_version)
+
+    return CtkMetadata(
+        ctk_version=ctk_version,
+        ctk_root=str(ctk_root),
+        source=f"cuda.h at {source_path}",
+    )
 
 
-def _find_enclosing_ctk_root(abs_path: str) -> str | None:
+def _ctk_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
     current = Path(abs_path)
     if current.is_file():
         current = current.parent
     for candidate in (current, *current.parents):
-        ctk_root = str(candidate)
-        if _read_ctk_version(ctk_root) is not None:
-            return ctk_root
-    return None
-
-
-def _ctk_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
-    ctk_root = _find_enclosing_ctk_root(abs_path)
-    if ctk_root is not None:
-        ctk_version = _read_ctk_version(ctk_root)
-        if ctk_version is not None:
-            version_json_path = os.path.join(ctk_root, "version.json")
-            return CtkMetadata(
-                ctk_version=ctk_version,
-                ctk_root=ctk_root,
-                source=f"version.json at {version_json_path}",
-            )
+        ctk_metadata = _cuda_header_metadata_for_ctk_root_candidate(str(candidate))
+        if ctk_metadata is not None:
+            return ctk_metadata
     return _wheel_metadata_for_abs_path(abs_path)
 
 
@@ -468,7 +484,7 @@ def compatibility_check(
                 status="insufficient_metadata",
                 message=(
                     "v1 compatibility checks require either an enclosing CUDA Toolkit root "
-                    "with version.json or wheel metadata that can be traced to an installed "
+                    "with cuda.h or wheel metadata that can be traced to an installed "
                     f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
                 ),
             )
@@ -545,7 +561,7 @@ class CompatibilityGuardRails:
             return
         raise CompatibilityInsufficientMetadataError(
             "v1 compatibility checks require either an enclosing CUDA Toolkit root "
-            "with version.json or wheel metadata that can be traced to an installed "
+            "with cuda.h or wheel metadata that can be traced to an installed "
             f"cuda-toolkit distribution. Could not determine the CTK version for {item.describe()}."
         )
 

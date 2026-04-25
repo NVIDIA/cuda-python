@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import importlib
-import json
 import os
 from pathlib import Path
 
@@ -36,10 +35,22 @@ def _default_process_wide_guard_rails_mode(monkeypatch):
     monkeypatch.delenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, raising=False)
 
 
-def _write_version_json(ctk_root: Path, toolkit_version: str) -> None:
-    ctk_root.mkdir(parents=True, exist_ok=True)
-    payload = {"cuda": {"version": toolkit_version}}
-    (ctk_root / "version.json").write_text(json.dumps(payload), encoding="utf-8")
+def _write_cuda_h(
+    ctk_root: Path,
+    toolkit_version: str,
+    *,
+    include_dir_parts: tuple[str, ...] = ("targets", "x86_64-linux", "include"),
+) -> None:
+    parts = toolkit_version.split(".")
+    if len(parts) < 2:
+        raise AssertionError(f"Expected at least major.minor in toolkit version, got {toolkit_version!r}")
+    encoded = int(parts[0]) * 1000 + int(parts[1]) * 10
+    cuda_h_path = ctk_root.joinpath(*include_dir_parts, "cuda.h")
+    cuda_h_path.parent.mkdir(parents=True, exist_ok=True)
+    cuda_h_path.write_text(
+        f"#ifndef CUDA_H\n#define CUDA_H\n#define CUDA_VERSION {encoded}\n#endif\n",
+        encoding="utf-8",
+    )
 
 
 def _touch(path: Path) -> str:
@@ -76,11 +87,7 @@ def _located_bitcode_lib(name: str, abs_path: str) -> LocatedBitcodeLib:
 
 
 def _driver_cuda_version(encoded: int) -> DriverCudaVersion:
-    return DriverCudaVersion(
-        encoded=encoded,
-        major=encoded // 1000,
-        minor=(encoded % 1000) // 10,
-    )
+    return DriverCudaVersion.from_encoded(encoded)
 
 
 class _FakeDistribution:
@@ -111,8 +118,9 @@ def _assert_real_ctk_backed_path(path: str) -> None:
     if current.is_file():
         current = current.parent
     for candidate in (current, *current.parents):
-        version_json_path = candidate / "version.json"
-        if version_json_path.is_file():
+        if (candidate / "include" / "cuda.h").is_file():
+            return
+        if any(path.is_file() for path in (candidate / "targets").glob("*/include/cuda.h")):
             return
     for env_var in ("CUDA_PATH", "CUDA_HOME"):
         ctk_root = os.environ.get(env_var)
@@ -122,7 +130,7 @@ def _assert_real_ctk_backed_path(path: str) -> None:
         if os.path.commonpath((norm_path, norm_ctk_root)) == norm_ctk_root:
             return
     raise AssertionError(
-        "Expected a site-packages path, a path under a CTK root with version.json, "
+        "Expected a site-packages path, a path under a CTK root with cuda.h, "
         f"or a path under CUDA_PATH/CUDA_HOME, got {path!r}"
     )
 
@@ -220,7 +228,7 @@ def test_public_driver_libs_are_allowed_in_strict_mode(monkeypatch, tmp_path):
 
 @pytest.mark.parametrize("env_value", [None, ""])
 def test_public_apis_default_to_strict_when_env_var_is_unset_or_empty(monkeypatch, tmp_path, env_value):
-    lib_path = _touch(tmp_path / "no-version-json" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    lib_path = _touch(tmp_path / "no-cuda-h" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
     monkeypatch.setattr(
@@ -238,12 +246,12 @@ def test_public_apis_default_to_strict_when_env_var_is_unset_or_empty(monkeypatc
     else:
         monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, env_value)
 
-    with pytest.raises(CompatibilityInsufficientMetadataError, match="version.json"):
+    with pytest.raises(CompatibilityInsufficientMetadataError, match="cuda.h"):
         pathfinder.load_nvidia_dynamic_lib("nvrtc")
 
 
 def test_public_apis_best_effort_fall_back_on_insufficient_metadata(monkeypatch, tmp_path):
-    guarded_lib_path = _touch(tmp_path / "no-version-json" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+    guarded_lib_path = _touch(tmp_path / "no-cuda-h" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     raw_loaded = _loaded_dl("/opt/mock/libnvrtc.so.12", found_via="system-search")
 
     monkeypatch.setenv(COMPATIBILITY_GUARD_RAILS_ENV_VAR, "best_effort")
@@ -292,8 +300,8 @@ def test_public_apis_reject_invalid_guard_rails_mode(monkeypatch):
 def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path):
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
-    _write_version_json(lib_root, "12.8.20250303")
-    _write_version_json(hdr_root, "12.9.20250531")
+    _write_cuda_h(lib_root, "12.8.20250303")
+    _write_cuda_h(hdr_root, "12.9.20250531")
 
     lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
@@ -320,7 +328,7 @@ def test_public_apis_share_process_wide_guard_rails_state(monkeypatch, tmp_path)
 
 def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     hdr_dir = ctk_root / "targets" / "x86_64-linux" / "include"
     _touch(hdr_dir / "nvrtc.h")
@@ -344,8 +352,8 @@ def test_load_dynamic_lib_then_find_headers_same_ctk_version(monkeypatch, tmp_pa
 def test_exact_ctk_major_minor_match_is_required(monkeypatch, tmp_path):
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
-    _write_version_json(lib_root, "12.8.20250303")
-    _write_version_json(hdr_root, "12.9.20250531")
+    _write_cuda_h(lib_root, "12.8.20250303")
+    _write_cuda_h(hdr_root, "12.9.20250531")
 
     lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
@@ -367,7 +375,7 @@ def test_exact_ctk_major_minor_match_is_required(monkeypatch, tmp_path):
 
 def test_driver_major_must_not_be_older_than_ctk_major(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-13.0"
-    _write_version_json(ctk_root, "13.0.20251003")
+    _write_cuda_h(ctk_root, "13.0.20251003")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.13")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
@@ -378,15 +386,29 @@ def test_driver_major_must_not_be_older_than_ctk_major(monkeypatch, tmp_path):
         guard_rails.load_nvidia_dynamic_lib("nvrtc")
 
 
-def test_missing_version_json_raises_insufficient_metadata(monkeypatch, tmp_path):
-    lib_path = _touch(tmp_path / "no-version-json" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
+def test_missing_cuda_h_raises_insufficient_metadata(monkeypatch, tmp_path):
+    lib_path = _touch(tmp_path / "no-cuda-h" / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
 
     guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
 
-    with pytest.raises(CompatibilityInsufficientMetadataError, match="version.json"):
+    with pytest.raises(CompatibilityInsufficientMetadataError, match="cuda.h"):
         guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+
+def test_windows_style_ctk_root_uses_root_include_cuda_h(monkeypatch, tmp_path):
+    ctk_root = tmp_path / "cuda-13.2"
+    _write_cuda_h(ctk_root, "13.2.20251003", include_dir_parts=("include",))
+    lib_path = _touch(ctk_root / "bin" / "x64" / "nvrtc64_130_0.dll")
+
+    monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
+
+    guard_rails = CompatibilityGuardRails(driver_cuda_version=_driver_cuda_version(13000))
+
+    loaded = guard_rails.load_nvidia_dynamic_lib("nvrtc")
+
+    assert loaded.abs_path == lib_path
 
 
 def test_other_packaging_raises_insufficient_metadata(monkeypatch, tmp_path):
@@ -407,7 +429,7 @@ def test_other_packaging_raises_insufficient_metadata(monkeypatch, tmp_path):
 def test_driver_libs_do_not_lock_ctk_anchor(monkeypatch, tmp_path):
     driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
     ctk_lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     def fake_load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
@@ -432,8 +454,8 @@ def test_driver_libs_do_not_mask_later_ctk_mismatch(monkeypatch, tmp_path):
     driver_lib_path = _touch(tmp_path / "driver-root" / "libnvidia-ml.so.1")
     lib_root = tmp_path / "cuda-12.8"
     hdr_root = tmp_path / "cuda-12.9"
-    _write_version_json(lib_root, "12.8.20250303")
-    _write_version_json(hdr_root, "12.9.20250531")
+    _write_cuda_h(lib_root, "12.8.20250303")
+    _write_cuda_h(hdr_root, "12.9.20250531")
 
     lib_path = _touch(lib_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     hdr_dir = hdr_root / "targets" / "x86_64-linux" / "include"
@@ -506,7 +528,7 @@ def test_wheel_metadata_accepts_exact_and_range_requirements(monkeypatch, tmp_pa
 
 def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
@@ -524,7 +546,7 @@ def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):
 
 def test_constraint_failure_raises(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
@@ -541,7 +563,7 @@ def test_constraint_failure_raises(monkeypatch, tmp_path):
 
 def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
 
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
     static_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libcudadevrt.a")
@@ -575,7 +597,7 @@ def test_static_bitcode_and_binary_methods_participate_in_checks(monkeypatch, tm
 
 def test_guard_rails_query_driver_cuda_version_by_default(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     query_calls: list[int] = []
@@ -598,7 +620,7 @@ def test_guard_rails_query_driver_cuda_version_by_default(monkeypatch, tmp_path)
 
 def test_guard_rails_wrap_driver_query_failures(monkeypatch, tmp_path):
     ctk_root = tmp_path / "cuda-12.9"
-    _write_version_json(ctk_root, "12.9.20250531")
+    _write_cuda_h(ctk_root, "12.9.20250531")
     lib_path = _touch(ctk_root / "targets" / "x86_64-linux" / "lib" / "libnvrtc.so.12")
 
     monkeypatch.setattr(compatibility_module, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_dl(lib_path))
