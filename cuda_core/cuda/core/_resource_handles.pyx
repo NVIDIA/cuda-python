@@ -57,12 +57,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::create_context_handle_ref" (
         cydriver.CUcontext ctx) except+ nogil
+    ContextHandle create_context_handle_from_green_ctx "cuda_core::create_context_handle_from_green_ctx" (
+        const GreenCtxHandle& h_green_ctx) except+ nogil
+    cydriver.CUcontext ensure_context_handle "cuda_core::ensure_context_handle" (
+        const ContextHandle& h) noexcept nogil
+    GreenCtxHandle get_context_green_ctx "cuda_core::get_context_green_ctx" (
+        const ContextHandle& h) noexcept nogil
     GreenCtxHandle create_green_ctx_handle "cuda_core::create_green_ctx_handle" (
         cydriver.CUdevResourceDesc desc, cydriver.CUdevice dev, unsigned int flags) except+ nogil
     GreenCtxHandle create_green_ctx_handle_ref "cuda_core::create_green_ctx_handle_ref" (
         cydriver.CUgreenCtx ctx) except+ nogil
-    ContextHandle get_green_ctx_context "cuda_core::get_green_ctx_context" (
-        const GreenCtxHandle& h) noexcept nogil
     DevResourceDescHandle create_dev_resource_desc_handle "cuda_core::create_dev_resource_desc_handle" (
         cydriver.CUdevResource* resources, unsigned int nbResources) except+ nogil
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
@@ -76,6 +80,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream) except+ nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::create_stream_handle_with_owner" (
         cydriver.CUstream stream, object owner) except+ nogil
+    ContextHandle get_stream_context "cuda_core::get_stream_context" (
+        const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
     StreamHandle get_per_thread_stream "cuda_core::get_per_thread_stream" () except+ nogil
 

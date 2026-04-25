@@ -24,4 +24,6 @@ cdef class Context:
     @staticmethod
     cdef Context _from_green_ctx(type cls, GreenCtxHandle h_green_ctx, int device_id)
 
+    cdef int _ensure_context_handle(self) except -1
+
     cpdef close(self)

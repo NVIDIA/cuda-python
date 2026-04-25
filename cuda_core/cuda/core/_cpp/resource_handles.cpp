@@ -11,6 +11,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #ifndef _WIN32
@@ -226,22 +227,50 @@ void clear_last_error() noexcept {
 
 namespace {
 struct ContextBox {
-    CUcontext resource;
+    mutable CUcontext resource;
+    GreenCtxHandle h_green_ctx;
+    mutable std::mutex mutex;
+
+    explicit ContextBox(CUcontext resource, GreenCtxHandle h_green_ctx = {})
+        : resource(resource), h_green_ctx(std::move(h_green_ctx)) {}
 };
 
 struct GreenCtxBox {
     CUgreenCtx resource;
-    CUcontext context;
 };
 
 struct DevResourceDescBox {
     CUdevResourceDesc resource;
 };
+
+static const ContextBox* get_box(const ContextHandle& h) noexcept {
+    const CUcontext* p = h.get();
+    return reinterpret_cast<const ContextBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(ContextBox, resource)
+    );
+}
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+static HandleRegistry<CUcontext, ContextHandle> context_registry;
 }  // namespace
 
 ContextHandle create_context_handle_ref(CUcontext ctx) {
-    auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
-    return ContextHandle(box, &box->resource);
+    if (!ctx) {
+        return {};
+    }
+    if (auto h = context_registry.lookup(ctx)) {
+        return h;
+    }
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox(ctx),
+        [](const ContextBox* b) {
+            context_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    ContextHandle h(box, &box->resource);
+    context_registry.register_handle(ctx, h);
+    return h;
 }
 
 static const GreenCtxBox* get_box(const GreenCtxHandle& h) noexcept {
@@ -251,32 +280,76 @@ static const GreenCtxBox* get_box(const GreenCtxHandle& h) noexcept {
     );
 }
 
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) {
+    if (!h_green_ctx) {
+        return {};
+    }
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox(nullptr, h_green_ctx),
+        [](const ContextBox* b) {
+            if (b->resource) {
+                context_registry.unregister_handle(b->resource);
+            }
+            delete b;
+        }
+    );
+    return ContextHandle(box, &box->resource);
+}
+
+CUcontext ensure_context_handle(const ContextHandle& h) noexcept {
+    if (!h) {
+        err = CUDA_ERROR_INVALID_CONTEXT;
+        return nullptr;
+    }
+
+    const ContextBox* box = get_box(h);
+    std::lock_guard<std::mutex> lock(box->mutex);
+    if (box->resource) {
+        return box->resource;
+    }
+    if (!box->h_green_ctx) {
+        err = CUDA_ERROR_INVALID_CONTEXT;
+        return nullptr;
+    }
+    if (!p_cuCtxFromGreenCtx) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return nullptr;
+    }
+
+    GILReleaseGuard gil;
+    CUcontext ctx = nullptr;
+    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, as_cu(box->h_green_ctx)))) {
+        return nullptr;
+    }
+    box->resource = ctx;
+    context_registry.register_handle(ctx, h);
+    return ctx;
+}
+
+GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept {
+    if (!h) {
+        return {};
+    }
+    return get_box(h)->h_green_ctx;
+}
+
 GreenCtxHandle create_green_ctx_handle(CUdevResourceDesc desc, CUdevice dev, unsigned int flags) {
-    if (!p_cuGreenCtxCreate || !p_cuCtxFromGreenCtx) {
+    if (!p_cuGreenCtxCreate || !p_cuGreenCtxDestroy) {
         err = CUDA_ERROR_NOT_SUPPORTED;
         return {};
     }
 
     GILReleaseGuard gil;
     CUgreenCtx green_ctx = nullptr;
-    CUcontext ctx = nullptr;
     if (CUDA_SUCCESS != (err = p_cuGreenCtxCreate(&green_ctx, desc, dev, flags))) {
-        return {};
-    }
-    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, green_ctx))) {
-        if (p_cuGreenCtxDestroy) {
-            p_cuGreenCtxDestroy(green_ctx);
-        }
         return {};
     }
 
     auto box = std::shared_ptr<const GreenCtxBox>(
-        new GreenCtxBox{green_ctx, ctx},
+        new GreenCtxBox{green_ctx},
         [](const GreenCtxBox* b) {
             GILReleaseGuard gil;
-            if (p_cuGreenCtxDestroy) {
-                p_cuGreenCtxDestroy(b->resource);
-            }
+            p_cuGreenCtxDestroy(b->resource);
             delete b;
         }
     );
@@ -287,27 +360,8 @@ GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx green_ctx) {
     if (!green_ctx) {
         return {};
     }
-    if (!p_cuCtxFromGreenCtx) {
-        err = CUDA_ERROR_NOT_SUPPORTED;
-        return {};
-    }
-
-    GILReleaseGuard gil;
-    CUcontext ctx = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuCtxFromGreenCtx(&ctx, green_ctx))) {
-        return {};
-    }
-
-    auto box = std::make_shared<const GreenCtxBox>(GreenCtxBox{green_ctx, ctx});
+    auto box = std::make_shared<const GreenCtxBox>(GreenCtxBox{green_ctx});
     return GreenCtxHandle(box, &box->resource);
-}
-
-ContextHandle get_green_ctx_context(const GreenCtxHandle& h) noexcept {
-    if (!h) {
-        return {};
-    }
-    const GreenCtxBox* box = get_box(h);
-    return ContextHandle(h, &box->context);
 }
 
 DevResourceDescHandle create_dev_resource_desc_handle(CUdevResource* resources, unsigned int nbResources) {
@@ -345,14 +399,16 @@ ContextHandle get_primary_context(int device_id) {
     }
 
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx},
+        new ContextBox(ctx),
         [device_id](const ContextBox* b) {
+            context_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuDevicePrimaryCtxRelease(device_id);
             delete b;
         }
     );
     auto h = ContextHandle(box, &box->resource);
+    context_registry.register_handle(ctx, h);
 
     // Update cache
     if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {
@@ -381,7 +437,18 @@ ContextHandle get_current_context() {
 namespace {
 struct StreamBox {
     CUstream resource;
+    ContextHandle h_context;
 };
+
+static const StreamBox* get_box(const StreamHandle& h) noexcept {
+    const CUstream* p = h.get();
+    return reinterpret_cast<const StreamBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(StreamBox, resource)
+    );
+}
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+static HandleRegistry<CUstream, StreamHandle> stream_registry;
 }  // namespace
 
 StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority) {
@@ -392,22 +459,44 @@ StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags
     }
 
     auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream},
-        [h_ctx](const StreamBox* b) {
+        new StreamBox{stream, h_ctx},
+        [](const StreamBox* b) {
+            stream_registry.unregister_handle(b->resource);
             GILReleaseGuard gil;
             p_cuStreamDestroy(b->resource);
             delete b;
         }
     );
-    return StreamHandle(box, &box->resource);
+    StreamHandle h(box, &box->resource);
+    stream_registry.register_handle(stream, h);
+    return h;
 }
 
 StreamHandle create_stream_handle_ref(CUstream stream) {
-    auto box = std::make_shared<const StreamBox>(StreamBox{stream});
-    return StreamHandle(box, &box->resource);
+    if (auto h = stream_registry.lookup(stream)) {
+        return h;
+    }
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream, {}},
+        [](const StreamBox* b) {
+            stream_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    StreamHandle h(box, &box->resource);
+    stream_registry.register_handle(stream, h);
+    return h;
 }
 
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
+    if (auto h = stream_registry.lookup(stream)) {
+        // Reuse handles that already carry structural context metadata, e.g.
+        // cuda-core-owned streams. Owner-backed foreign streams still need a
+        // fresh handle so the supplied owner is retained.
+        if (get_box(h)->h_context) {
+            return h;
+        }
+    }
     if (!owner) {
         return create_stream_handle_ref(stream);
     }
@@ -419,8 +508,9 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<const StreamBox>(
-        new StreamBox{stream},
+        new StreamBox{stream, {}},
         [owner](const StreamBox* b) {
+            stream_registry.unregister_handle(b->resource);
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 Py_DECREF(owner);
@@ -428,7 +518,13 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
             delete b;
         }
     );
-    return StreamHandle(box, &box->resource);
+    StreamHandle h(box, &box->resource);
+    stream_registry.register_handle(stream, h);
+    return h;
+}
+
+ContextHandle get_stream_context(const StreamHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 StreamHandle get_legacy_stream() {

@@ -1262,6 +1262,7 @@ class Device:
             if self._has_inited and self._context is not None:
                 prev_owned = self._context
             # prev_ctx is the previous context
+            ctx._ensure_context_handle()
             curr_ctx = as_cu(ctx._h_context)
             prev_ctx = NULL
             with nogil:
@@ -1270,6 +1271,8 @@ class Device:
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
+                if prev_owned is not None:
+                    prev_owned._ensure_context_handle()
                 if prev_owned is not None and as_cu(prev_owned._h_context) == prev_ctx:
                     return prev_owned
                 return Context._from_handle(Context, create_context_handle_ref(prev_ctx), self._device_id)
@@ -1415,6 +1418,7 @@ class Device:
         """
         self._check_context_initialized()
         cdef Context ctx = self._context
+        ctx._ensure_context_handle()
         return cyEvent._init(cyEvent, self._device_id, ctx._h_context, options, True)
 
     def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:

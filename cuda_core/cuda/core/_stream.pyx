@@ -30,9 +30,12 @@ from cuda.core._resource_handles cimport (
     create_event_handle_noctx,
     create_stream_handle,
     create_stream_handle_with_owner,
+    ensure_context_handle,
     get_current_context,
+    get_last_error,
     get_legacy_stream,
     get_per_thread_stream,
+    get_stream_context,
     as_intptr,
     as_cu,
     as_py,
@@ -96,7 +99,7 @@ cdef class Stream:
         """Create a Stream from an existing StreamHandle (cdef-only factory)."""
         cdef Stream s = cls.__new__(cls)
         s._h_stream = h_stream
-        # _h_context is default-initialized to empty ContextHandle by C++
+        s._h_context = get_stream_context(h_stream)
         s._device_id = -1  # lazy init'd (invalid sentinel)
         s._nonblocking = -1  # lazy init'd
         s._priority = INT32_MIN  # lazy init'd
@@ -406,7 +409,15 @@ cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
     """Ensure the stream's context handle is populated."""
     cdef cydriver.CUcontext ctx
     if not self._h_context:
-        HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(self._h_stream), &ctx))
+        self._h_context = get_stream_context(self._h_stream)
+    if self._h_context:
+        if as_cu(self._h_context) == NULL:
+            ctx = ensure_context_handle(self._h_context)
+            if ctx == NULL:
+                HANDLE_RETURN(get_last_error())
+        return 0
+    HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(self._h_stream), &ctx))
+    if ctx != NULL:
         with gil:
             self._h_context = create_context_handle_ref(ctx)
     return 0
@@ -416,13 +427,15 @@ cdef inline int Stream_ensure_ctx_device(Stream self) except?-1:
     """Ensure the stream's context and device_id are populated."""
     cdef cydriver.CUcontext ctx
     cdef cydriver.CUdevice target_dev
+    cdef ContextHandle current_context
     cdef bint switch_context
 
     if self._device_id < 0:
         with nogil:
             # Get device ID from context, switching context temporarily if needed
             Stream_ensure_ctx(self)
-            switch_context = (get_current_context() != self._h_context)
+            current_context = get_current_context()
+            switch_context = (as_cu(current_context) != as_cu(self._h_context))
             if switch_context:
                 HANDLE_RETURN(cydriver.cuCtxPushCurrent(as_cu(self._h_context)))
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))

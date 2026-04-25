@@ -9,7 +9,10 @@ from cuda.core._resource_handles cimport (
     ContextHandle,
     GreenCtxHandle,
     as_cu,
-    get_green_ctx_context,
+    create_context_handle_from_green_ctx,
+    ensure_context_handle,
+    get_context_green_ctx,
+    get_last_error,
     as_intptr,
     as_py,
 )
@@ -34,8 +37,9 @@ cdef class Context:
         """Create Context from existing ContextHandle (cdef-only factory)."""
         cdef Context ctx = cls.__new__(cls)
         ctx._h_context = h_context
+        ctx._h_green_ctx = get_context_green_ctx(h_context)
         ctx._device_id = device_id
-        ctx._is_green = False
+        ctx._is_green = ctx._h_green_ctx.get() != NULL
         return ctx
 
     @staticmethod
@@ -43,15 +47,31 @@ cdef class Context:
         """Create Context from an owning green context handle."""
         cdef Context ctx = cls.__new__(cls)
         ctx._h_green_ctx = h_green_ctx
-        ctx._h_context = get_green_ctx_context(h_green_ctx)
+        ctx._h_context = create_context_handle_from_green_ctx(h_green_ctx)
         ctx._device_id = device_id
         ctx._is_green = True
         return ctx
 
+    cdef int _ensure_context_handle(self) except -1:
+        cdef cydriver.CUcontext raw_ctx
+        if not self._h_context:
+            return 0
+        if as_cu(self._h_context) != NULL:
+            return 0
+        with nogil:
+            raw_ctx = ensure_context_handle(self._h_context)
+        if raw_ctx == NULL:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError("Failed to materialize CUDA context from green context")
+        return 0
+
     @property
     def handle(self):
         """Return the underlying CUcontext handle."""
-        if self._h_context.get() == NULL:
+        if not self._h_context:
+            return None
+        self._ensure_context_handle()
+        if as_cu(self._h_context) == NULL:
             return None
         return as_py(self._h_context)
 
@@ -67,7 +87,7 @@ cdef class Context:
     cpdef close(self):
         """Release this context wrapper's underlying CUDA handles."""
         cdef cydriver.CUcontext current_ctx
-        if self._h_context.get() != NULL:
+        if self._h_context and as_cu(self._h_context) != NULL:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&current_ctx))
             if current_ctx == as_cu(self._h_context):
@@ -82,12 +102,16 @@ cdef class Context:
         if not isinstance(other, Context):
             return NotImplemented
         cdef Context _other = <Context>other
+        self._ensure_context_handle()
+        _other._ensure_context_handle()
         return as_intptr(self._h_context) == as_intptr(_other._h_context)
 
     def __hash__(self) -> int:
+        self._ensure_context_handle()
         return hash(as_intptr(self._h_context))
 
     def __repr__(self) -> str:
+        self._ensure_context_handle()
         return f"<Context handle={as_intptr(self._h_context):#x} device={self._device_id}>"
 
 

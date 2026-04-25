@@ -170,16 +170,23 @@ using FileDescriptorHandle = std::shared_ptr<const int>;
 // Function to create a non-owning context handle (references existing context).
 ContextHandle create_context_handle_ref(CUcontext ctx);
 
-// Create an owning green context handle. The handle keeps the paired CUcontext
-// returned by cuCtxFromGreenCtx in the same control block.
+// Create a context handle whose CUcontext view is lazily materialized from
+// the provided green context. The returned ContextHandle keeps the green
+// context alive.
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx);
+
+// Ensure a ContextHandle has a materialized CUcontext value. For green-context
+// views this calls cuCtxFromGreenCtx once and caches the non-owning CUcontext.
+CUcontext ensure_context_handle(const ContextHandle& h) noexcept;
+
+// Return the green context dependency associated with a ContextHandle, if any.
+GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
+
+// Create an owning green context handle.
 GreenCtxHandle create_green_ctx_handle(CUdevResourceDesc desc, CUdevice dev, unsigned int flags);
 
 // Create a non-owning green context handle.
 GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
-
-// Get the CUcontext paired with a green context handle. The returned handle
-// shares ownership with the green context.
-ContextHandle get_green_ctx_context(const GreenCtxHandle& h) noexcept;
 
 // Generate a descriptor for a resource list. CUDA exposes no explicit destroy
 // API for CUdevResourceDesc; this handle only carries the opaque value.
@@ -213,6 +220,9 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
+
+// Return the context dependency associated with a stream handle, if any.
+ContextHandle get_stream_context(const StreamHandle& h) noexcept;
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.

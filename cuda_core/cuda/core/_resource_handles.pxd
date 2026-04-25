@@ -115,10 +115,12 @@ cdef void clear_last_error() noexcept nogil
 
 # Context handles
 cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
+cdef ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) except+ nogil
+cdef cydriver.CUcontext ensure_context_handle(const ContextHandle& h) noexcept nogil
+cdef GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept nogil
 cdef GreenCtxHandle create_green_ctx_handle(
     cydriver.CUdevResourceDesc desc, cydriver.CUdevice dev, unsigned int flags) except+ nogil
 cdef GreenCtxHandle create_green_ctx_handle_ref(cydriver.CUgreenCtx ctx) except+ nogil
-cdef ContextHandle get_green_ctx_context(const GreenCtxHandle& h) noexcept nogil
 cdef DevResourceDescHandle create_dev_resource_desc_handle(
     cydriver.CUdevResource* resources, unsigned int nbResources) except+ nogil
 cdef ContextHandle get_primary_context(int device_id) except+ nogil
@@ -129,6 +131,7 @@ cdef StreamHandle create_stream_handle(
     const ContextHandle& h_ctx, unsigned int flags, int priority) except+ nogil
 cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except+ nogil
 cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except+ nogil
+cdef ContextHandle get_stream_context(const StreamHandle& h) noexcept nogil
 cdef StreamHandle get_legacy_stream() except+ nogil
 cdef StreamHandle get_per_thread_stream() except+ nogil
 

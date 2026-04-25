@@ -132,6 +132,10 @@ def test_green_context_push_model_creates_stream_and_event(init_cuda):
     try:
         stream = dev.create_stream()
         event = stream.record()
+        assert stream.context.is_green
+        assert stream.context == green_ctx
+        assert event.context.is_green
+        assert event.context == green_ctx
         stream.sync()
         event.sync()
     finally:
