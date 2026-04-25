@@ -83,6 +83,26 @@ def _driver_cuda_version(encoded: int) -> DriverCudaVersion:
     )
 
 
+class _FakeDistribution:
+    def __init__(
+        self,
+        *,
+        name: str,
+        version: str,
+        root: Path,
+        files: tuple[str, ...] = (),
+        requires: tuple[str, ...] = (),
+    ) -> None:
+        self.metadata = {"Name": name}
+        self.version = version
+        self.files = tuple(Path(file) for file in files)
+        self.requires = list(requires)
+        self._root = root
+
+    def locate_file(self, file: Path) -> Path:
+        return self._root / file
+
+
 def _assert_real_ctk_backed_path(path: str) -> None:
     norm_path = os.path.normpath(os.path.abspath(path))
     if "site-packages" in Path(norm_path).parts:
@@ -439,6 +459,49 @@ def test_driver_libs_do_not_mask_later_ctk_mismatch(monkeypatch, tmp_path):
 
     with pytest.raises(CompatibilityCheckError, match="exact CTK major.minor match"):
         guard_rails.find_nvidia_header_directory("nvrtc")
+
+
+@pytest.mark.parametrize(
+    "requirement",
+    (
+        "nvidia-nvjitlink == 13.2.78.*; extra == 'nvjitlink'",
+        "nvidia-nvjitlink<14,>=13.2.78; extra == 'nvjitlink'",
+    ),
+)
+def test_wheel_metadata_accepts_exact_and_range_requirements(monkeypatch, tmp_path, requirement):
+    site_packages = tmp_path / "site-packages"
+    lib_path = _touch(site_packages / "nvidia" / "cu13" / "lib" / "libnvJitLink.so.13")
+    owner_dist = _FakeDistribution(
+        name="nvidia-nvjitlink",
+        version="13.2.78",
+        root=site_packages,
+        files=("nvidia/cu13/lib/libnvJitLink.so.13",),
+    )
+    cuda_toolkit_dist = _FakeDistribution(
+        name="cuda-toolkit",
+        version="13.2.1",
+        root=site_packages,
+        requires=(requirement,),
+    )
+
+    compatibility_module._owned_distribution_candidates.cache_clear()
+    compatibility_module._cuda_toolkit_requirement_maps.cache_clear()
+    try:
+        monkeypatch.setattr(
+            compatibility_module.importlib.metadata,
+            "distributions",
+            lambda: (owner_dist, cuda_toolkit_dist),
+        )
+
+        metadata = compatibility_module._wheel_metadata_for_abs_path(lib_path)
+    finally:
+        compatibility_module._owned_distribution_candidates.cache_clear()
+        compatibility_module._cuda_toolkit_requirement_maps.cache_clear()
+
+    assert metadata is not None
+    assert metadata.ctk_version.major == 13
+    assert metadata.ctk_version.minor == 2
+    assert metadata.source == "wheel metadata via nvidia-nvjitlink==13.2.78 pinned by cuda-toolkit==13.2.1"
 
 
 def test_constraints_accept_string_and_tuple_forms(monkeypatch, tmp_path):

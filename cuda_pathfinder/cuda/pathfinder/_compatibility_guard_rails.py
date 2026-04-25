@@ -53,9 +53,8 @@ ConstraintOperator: TypeAlias = str
 ConstraintArg: TypeAlias = int | str | tuple[str, int] | None
 
 _CTK_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)")
-_REQUIRES_DIST_RE = re.compile(
-    r"^\s*(?P<name>[A-Za-z0-9_.-]+)\s*==\s*(?P<version>[0-9][A-Za-z0-9.+-]*?)(?:\.\*)?(?:\s*;|$)"
-)
+_REQUIRES_DIST_RE = re.compile(r"^\s*(?P<name>[A-Za-z0-9_.-]+)\s*(?P<specifier_text>[^;]*)(?:\s*;|$)")
+_VERSION_SPECIFIER_RE = re.compile(r"^\s*(?P<operator>==|<=|>=|<|>)\s*(?P<version>[0-9][A-Za-z0-9.+-]*?(?:\.\*)?)\s*$")
 
 _STATIC_LIBS_PACKAGED_WITH: dict[str, PackagedWith] = {
     "cudadevrt": "ctk",
@@ -111,6 +110,12 @@ class ComparisonConstraint:
 
     def __str__(self) -> str:
         return f"{self.operator}{self.value}"
+
+
+@dataclass(frozen=True, slots=True)
+class VersionSpecifier:
+    operator: ConstraintOperator
+    version: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -185,6 +190,63 @@ def _distribution_name(dist: importlib.metadata.Distribution) -> str | None:
     return metadata.get("Name")
 
 
+def _release_version_parts(version: str) -> tuple[int, ...] | None:
+    match = re.match(r"^\d+(?:\.\d+)*", version)
+    if match is None:
+        return None
+    return tuple(int(part) for part in match.group(0).split("."))
+
+
+def _compare_release_versions(lhs: tuple[int, ...], rhs: tuple[int, ...]) -> int:
+    max_len = max(len(lhs), len(rhs))
+    lhs_padded = lhs + (0,) * (max_len - len(lhs))
+    rhs_padded = rhs + (0,) * (max_len - len(rhs))
+    if lhs_padded < rhs_padded:
+        return -1
+    if lhs_padded > rhs_padded:
+        return 1
+    return 0
+
+
+def _parse_version_specifiers(specifier_text: str) -> tuple[VersionSpecifier, ...]:
+    stripped = specifier_text.strip()
+    if not stripped:
+        return ()
+    parsed: list[VersionSpecifier] = []
+    for raw_clause in stripped.split(","):
+        match = _VERSION_SPECIFIER_RE.match(raw_clause)
+        if match is None:
+            return ()
+        parsed.append(VersionSpecifier(operator=match.group("operator"), version=match.group("version")))
+    return tuple(parsed)
+
+
+def _version_satisfies_specifiers(version: str, specifiers: tuple[VersionSpecifier, ...]) -> bool:
+    if not specifiers:
+        return False
+    for specifier in specifiers:
+        if specifier.operator == "==":
+            prefix = specifier.version.removesuffix(".*")
+            if version == prefix or version.startswith(prefix + "."):
+                continue
+            return False
+        candidate_parts = _release_version_parts(version)
+        required_parts = _release_version_parts(specifier.version)
+        if candidate_parts is None or required_parts is None:
+            return False
+        comparison = _compare_release_versions(candidate_parts, required_parts)
+        if specifier.operator == "<" and comparison < 0:
+            continue
+        if specifier.operator == "<=" and comparison <= 0:
+            continue
+        if specifier.operator == ">" and comparison > 0:
+            continue
+        if specifier.operator == ">=" and comparison >= 0:
+            continue
+        return False
+    return True
+
+
 @functools.cache
 def _owned_distribution_candidates(abs_path: str) -> tuple[tuple[str, str], ...]:
     normalized_abs_path = os.path.normpath(os.path.abspath(abs_path))
@@ -201,8 +263,10 @@ def _owned_distribution_candidates(abs_path: str) -> tuple[tuple[str, str], ...]
 
 
 @functools.cache
-def _cuda_toolkit_requirement_maps() -> tuple[tuple[str, CtkVersion, dict[str, tuple[str, ...]]], ...]:
-    results: list[tuple[str, CtkVersion, dict[str, tuple[str, ...]]]] = []
+def _cuda_toolkit_requirement_maps() -> tuple[
+    tuple[str, CtkVersion, dict[str, tuple[tuple[VersionSpecifier, ...], ...]]], ...
+]:
+    results: list[tuple[str, CtkVersion, dict[str, tuple[tuple[VersionSpecifier, ...], ...]]]] = []
     for dist in importlib.metadata.distributions():
         dist_name = _distribution_name(dist)
         if _normalize_distribution_name(dist_name or "") != "cuda-toolkit":
@@ -210,18 +274,31 @@ def _cuda_toolkit_requirement_maps() -> tuple[tuple[str, CtkVersion, dict[str, t
         ctk_version = _parse_ctk_version(dist.version)
         if ctk_version is None:
             continue
-        requirement_map: dict[str, set[str]] = {}
+        requirement_map: dict[str, set[tuple[VersionSpecifier, ...]]] = {}
         for requirement in dist.requires or ():
             match = _REQUIRES_DIST_RE.match(requirement)
             if match is None:
                 continue
             req_name = _normalize_distribution_name(match.group("name"))
-            requirement_map.setdefault(req_name, set()).add(match.group("version"))
+            parsed_specifiers = _parse_version_specifiers(match.group("specifier_text"))
+            if not parsed_specifiers:
+                continue
+            requirement_map.setdefault(req_name, set()).add(parsed_specifiers)
         results.append(
             (
                 dist.version,
                 ctk_version,
-                {name: tuple(sorted(prefixes)) for name, prefixes in requirement_map.items()},
+                {
+                    name: tuple(
+                        sorted(
+                            specifier_sets,
+                            key=lambda specifiers: tuple(
+                                (specifier.operator, specifier.version) for specifier in specifiers
+                            ),
+                        )
+                    )
+                    for name, specifier_sets in requirement_map.items()
+                },
             )
         )
     return tuple(results)
@@ -232,9 +309,9 @@ def _wheel_metadata_for_abs_path(abs_path: str) -> CtkMetadata | None:
     for owner_name, owner_version in _owned_distribution_candidates(abs_path):
         normalized_owner_name = _normalize_distribution_name(owner_name)
         for toolkit_dist_version, ctk_version, requirement_map in _cuda_toolkit_requirement_maps():
-            requirement_prefixes = requirement_map.get(normalized_owner_name, ())
+            requirement_specifier_sets = requirement_map.get(normalized_owner_name, ())
             if not any(
-                owner_version == prefix or owner_version.startswith(prefix + ".") for prefix in requirement_prefixes
+                _version_satisfies_specifiers(owner_version, specifiers) for specifiers in requirement_specifier_sets
             ):
                 continue
             matched_versions[ctk_version] = (
