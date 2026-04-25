@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.process\_wide\_compatibility\_guard\_rails
+==========================================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autodata:: process_wide_compatibility_guard_rails

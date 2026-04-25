@@ -1,0 +1,6 @@
+﻿cuda.core.system.ThermalController
+==================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoenum:: ThermalController
