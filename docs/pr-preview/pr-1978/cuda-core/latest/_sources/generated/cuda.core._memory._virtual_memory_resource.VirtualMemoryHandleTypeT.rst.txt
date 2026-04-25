@@ -1,0 +1,6 @@
+﻿cuda.core.\_memory.\_virtual\_memory\_resource.VirtualMemoryHandleTypeT
+=======================================================================
+
+.. currentmodule:: cuda.core._memory._virtual_memory_resource
+
+.. autodata:: VirtualMemoryHandleTypeT
